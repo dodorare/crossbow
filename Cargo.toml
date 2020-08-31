@@ -1,0 +1,13 @@
+[package]
+name = "creator"
+version = "0.1.0"
+edition = "2018"
+authors = ["enfipy <enfipy@gmail.com>"]
+description = "Mobile Game Framework"
+repository = "https://github.com/enfipy/creator"
+license = "MIT"
+keywords = ["build", "android", "ios", "substrate"]
+readme = "README.md"
+exclude = [".github/**/*"]
+
+[dependencies]
