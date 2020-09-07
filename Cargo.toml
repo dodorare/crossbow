@@ -11,3 +11,8 @@ readme = "README.md"
 exclude = [".github/**/*"]
 
 [dependencies]
+
+[workspace]
+members = [
+    "examples/ndk-rs",
+]
