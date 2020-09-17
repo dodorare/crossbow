@@ -1,0 +1,24 @@
+[package]
+name = "app"
+version = "0.1.0"
+authors = ["enfipy <enfipy@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+log = "0.4"
+bevy = { path = "../../../bevy", default-features = false, features = ["bevy_wgpu", "bevy_winit", "render"] }
+
+[target.'cfg(target_os = "android")'.dependencies]
+ndk = { version = "0.2", features = ["all"] }
+ndk-glue = { version = "0.2", features = ["logger"] }
+android_logger = "0.9"
+
+[lib]
+crate-type = ["lib", "cdylib"]
+
+[package.metadata.android]
+fullscreen = true
+
+[[package.metadata.android.feature]]
+name = "android.hardware.vulkan.level"
+version = "1"

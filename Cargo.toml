@@ -14,5 +14,5 @@ exclude = [".github/**/*"]
 
 [workspace]
 members = [
-    "examples/ndk-rs",
+    "examples/app",
 ]
