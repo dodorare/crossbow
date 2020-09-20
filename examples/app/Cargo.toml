@@ -6,7 +6,8 @@ edition = "2018"
 
 [dependencies]
 log = "0.4"
-bevy = { path = "../../../bevy", default-features = false, features = ["bevy_wgpu", "bevy_winit", "render"] }
+anyhow = "*"
+bevy = { path = "../../../bevy", default-features = false, features = ["bevy_wgpu", "bevy_winit", "render", "bevy_ui", "bevy_text"] }
 
 [target.'cfg(target_os = "android")'.dependencies]
 ndk = { version = "0.2", features = ["all"] }
@@ -17,8 +18,6 @@ android_logger = "0.9"
 crate-type = ["lib", "cdylib"]
 
 [package.metadata.android]
-fullscreen = true
-
-[[package.metadata.android.feature]]
-name = "android.hardware.vulkan.level"
-version = "1"
+apk_label = "Creator App"
+fullscreen = false
+assets = "./assets"
