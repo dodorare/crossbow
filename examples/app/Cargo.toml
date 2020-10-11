@@ -4,12 +4,17 @@ version = "0.1.0"
 authors = ["enfipy <enfipy@gmail.com>"]
 edition = "2018"
 
+[dependencies.bevy]
+path = "../../../bevy"
+version = "0.2.1"
+default-features = false
+features = ["bevy_wgpu", "bevy_winit", "render", "bevy_ui", "bevy_text"]
+
 [dependencies]
 log = "0.4"
 anyhow = "*"
-bevy = { path = "../../../bevy", default-features = false, features = ["bevy_wgpu", "bevy_winit", "render", "bevy_ui", "bevy_text"] }
 
-[target.'cfg(target_os = "android")'.dependencies]
+# [target.'cfg(target_os = "android")'.dependencies]
 ndk = { version = "0.2", features = ["all"] }
 ndk-glue = { version = "0.2", features = ["logger"] }
 android_logger = "0.9"
@@ -20,4 +25,16 @@ crate-type = ["lib", "cdylib"]
 [package.metadata.android]
 apk_label = "Creator App"
 fullscreen = false
-assets = "./assets"
+assets = "assets"
+res = "res"
+icon = "@mipmap/ic_launcher"
+
+[[package.metadata.android.permission]]
+name = "android.permission.WRITE_EXTERNAL_STORAGE"
+max_sdk_version = 18
+[[package.metadata.android.permission]]
+name = "android.permission.READ_EXTERNAL_STORAGE"
+max_sdk_version = 18
+[[package.metadata.android.permission]]
+name = "android.permission.INTERNET"
+max_sdk_version = 18

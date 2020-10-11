@@ -1,6 +1,9 @@
 #[cfg(target_os = "android")]
 use android_logger::Config;
 
+// use std::ffi::CString;
+// use std::io::{BufRead, BufReader};
+
 use bevy::prelude::*;
 
 #[cfg_attr(target_os = "android", ndk_glue::main(backtrace = "full"))]
@@ -44,6 +47,42 @@ fn setup(
             )),
             ..Default::default()
         });
+}
+
+fn setup(
+    // mut commands: Commands,
+    // asset_server: Res<AssetServer>,
+    // mut materials: ResMut<Assets<ColorMaterial>>,
+) {
+    // let asset_manager = ndk_glue::native_activity().asset_manager();
+    // let my_dir = asset_manager
+    //     .open_dir(&CString::new("/").unwrap())
+    //     .expect("Could not open directory");
+    // let all_files = my_dir.collect::<Vec<CString>>();
+    // println!("ALL TEXT: {:?}", all_files);
+    // let asset = asset_manager
+    //     .open(&CString::new("test.txt").unwrap())
+    //     .expect("Could not open asset");
+    // for line in BufReader::new(asset).lines() {
+    //     println!("{:?}", line);
+    // }
+
+    // let paths = std::fs::read_dir("./").unwrap();
+    // for path in paths {
+    //     println!("Name: {}", path.unwrap().path().display())
+    // }
+    // println!("###");
+    // let paths = std::fs::read_dir("/").unwrap();
+    // for path in paths {
+    //     println!("Name: {}", path.unwrap().path().display())
+    // }
+    // let texture_handle = asset_server.load_sync("assets/branding/icon.png").unwrap();
+    // commands
+    //     .spawn(Camera2dComponents::default())
+    //     .spawn(SpriteComponents {
+    //         material: materials.add(texture_handle.into()),
+    //         ..Default::default()
+    //     });
 }
 
 // use bevy::{
