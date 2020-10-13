@@ -8,13 +8,13 @@ edition = "2018"
 path = "../../../bevy"
 version = "0.2.1"
 default-features = false
-features = ["bevy_wgpu", "bevy_winit", "render", "bevy_ui", "bevy_text"]
+features = ["bevy_wgpu", "bevy_winit", "render", "bevy_ui", "png", "bevy_text"]
 
 [dependencies]
 log = "0.4"
 anyhow = "*"
 
-# [target.'cfg(target_os = "android")'.dependencies]
+[target.'cfg(target_os = "android")'.dependencies]
 ndk = { version = "0.2", features = ["all"] }
 ndk-glue = { version = "0.2", features = ["logger"] }
 android_logger = "0.9"
@@ -28,6 +28,8 @@ fullscreen = false
 assets = "assets"
 res = "res"
 icon = "@mipmap/ic_launcher"
+target_sdk_version = 29
+min_sdk_version = 29
 
 [[package.metadata.android.permission]]
 name = "android.permission.WRITE_EXTERNAL_STORAGE"
