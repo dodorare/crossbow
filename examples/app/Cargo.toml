@@ -5,8 +5,10 @@ authors = ["enfipy <enfipy@gmail.com>"]
 edition = "2018"
 
 [dependencies.bevy]
-path = "../../../bevy"
-version = "0.2.1"
+# path = "../../../bevy"
+# version = "0.2.1"
+git = "https://github.com/creator-rs/bevy"
+rev = "61b3debf2df27e649860aeb19ce144e586bb250a"
 default-features = false
 features = ["bevy_wgpu", "bevy_winit", "render", "bevy_ui", "png", "bevy_text"]
 
@@ -18,6 +20,7 @@ anyhow = "*"
 ndk = { version = "0.2", features = ["all"] }
 ndk-glue = { version = "0.2", features = ["logger"] }
 android_logger = "0.9"
+jni = "0.17"
 
 [lib]
 crate-type = ["lib", "cdylib"]
@@ -29,7 +32,9 @@ assets = "assets"
 res = "res"
 icon = "@mipmap/ic_launcher"
 target_sdk_version = 29
-min_sdk_version = 29
+min_sdk_version = 16
+# build_targets = ["armv7-linux-androideabi", "aarch64-linux-android", "i686-linux-android", "x86_64-linux-android"]
+build_targets = ["aarch64-linux-android"]
 
 [[package.metadata.android.permission]]
 name = "android.permission.WRITE_EXTERNAL_STORAGE"
