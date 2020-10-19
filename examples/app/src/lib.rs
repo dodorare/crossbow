@@ -12,14 +12,15 @@ pub fn main() {
 
     println!("The world!");
 
-    #[cfg(target_os = "android")]
-    enumerate_audio_devices().unwrap();
+    // #[cfg(target_os = "android")]
+    // enumerate_audio_devices().unwrap();
 
     App::build()
         .add_default_plugins()
         .add_resource(ClearColor(Color::rgb(0.2, 0.2, 0.8)))
         .add_startup_system(cube.system())
         .add_startup_system(text.system())
+        // .add_startup_system(audio.system())
         // .add_startup_system(monkey.system())
         // .add_startup_system(icon.system())
         .run();
@@ -136,6 +137,11 @@ fn monkey(
             )),
             ..Default::default()
         });
+}
+
+fn audio(asset_server: Res<AssetServer>, audio_output: Res<AudioOutput>) {
+    let music = asset_server.load("sounds/Windless Slopes.mp3").unwrap();
+    audio_output.play(music);
 }
 
 #[cfg(target_os = "android")]
