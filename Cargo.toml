@@ -1,6 +1,6 @@
 [package]
 name = "creator"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2018"
 authors = ["enfipy <enfipy@gmail.com>", "olvyko <olvyko@gmail.com>"]
 description = "Mobile Game Framework for Substrate"
@@ -11,10 +11,15 @@ readme = "README.md"
 exclude = [".github/**/*"]
 
 [dependencies]
-creator-permissions = { path = "crates/permissions", version = "0.1.0" }
+creator-permissions = { path = "crates/permissions", version = "0.1.1", optional = true }
+
+[features]
+permissions = ["creator-permissions"]
 
 [workspace]
 members = [
     "crates/permissions",
     "examples/app",
+    "examples/substrate",
+    "examples/substrate/runtime",
 ]

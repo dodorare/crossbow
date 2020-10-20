@@ -1,9 +1,12 @@
-name: CI
+name: Docker images
 
 on:
   push:
     branches:
     - master
+    paths:
+    - '.github/docker/android.Dockerfile'
+    - '.github/workflows/docker.yml'
 
 jobs:
 

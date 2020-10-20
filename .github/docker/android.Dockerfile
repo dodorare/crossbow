@@ -34,6 +34,8 @@ RUN cd shaderc/android_test/ && ${NDK_HOME}/ndk-build APP_BUILD_SCRIPT=Android.m
     SPVTOOLS_LOCAL_PATH=../third_party/spirv-tools \
     SPVHEADERS_LOCAL_PATH=../third_party/spirv-headers \
     APP_STL:=c++_shared APP_ABI=all -j2
+# TODO: Provide path only for base dir and select target in build.rs of shaderc-rs
+ENV SHADERC_LIB_DIR /shaderc/android_test/obj/local/arm64-v8a
 
 # Install Cargo APK
 RUN cargo install --git https://github.com/rust-windowing/android-ndk-rs --bin cargo-apk 
