@@ -33,10 +33,7 @@ build_targets = ["aarch64-linux-android"]
 
 [[package.metadata.android.permission]]
 name = "android.permission.WRITE_EXTERNAL_STORAGE"
-max_sdk_version = 18
 [[package.metadata.android.permission]]
 name = "android.permission.READ_EXTERNAL_STORAGE"
-max_sdk_version = 18
 [[package.metadata.android.permission]]
 name = "android.permission.INTERNET"
-max_sdk_version = 18

@@ -33,7 +33,7 @@ RUN git clone https://github.com/google/shaderc && ./shaderc/utils/git-sync-deps
 RUN cd shaderc/android_test/ && ${NDK_HOME}/ndk-build APP_BUILD_SCRIPT=Android.mk \
     SPVTOOLS_LOCAL_PATH=../third_party/spirv-tools \
     SPVHEADERS_LOCAL_PATH=../third_party/spirv-headers \
-    APP_STL:=c++_shared APP_ABI=all -j
+    APP_STL:=c++_shared APP_ABI=all -j2
 
 # Install Cargo APK
 RUN cargo install --git https://github.com/rust-windowing/android-ndk-rs --bin cargo-apk 

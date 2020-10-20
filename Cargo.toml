@@ -2,17 +2,19 @@
 name = "creator"
 version = "0.1.0"
 edition = "2018"
-authors = ["enfipy <enfipy@gmail.com>"]
+authors = ["enfipy <enfipy@gmail.com>", "olvyko <olvyko@gmail.com>"]
 description = "Mobile Game Framework for Substrate"
 repository = "https://github.com/enfipy/creator"
-license = "MIT"
+license = "Apache-2.0"
 keywords = ["build", "android", "ios", "substrate"]
 readme = "README.md"
 exclude = [".github/**/*"]
 
 [dependencies]
+creator-permissions = { path = "crates/permissions", version = "0.1.0" }
 
 [workspace]
 members = [
+    "crates/permissions",
     "examples/app",
 ]

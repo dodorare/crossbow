@@ -1,0 +1,10 @@
+[package]
+name = "creator-permissions"
+version = "0.1.0"
+edition = "2018"
+authors = ["enfipy <enfipy@gmail.com>", "olvyko <olvyko@gmail.com>"]
+
+[dependencies]
+
+[target.'cfg(target_os = "android")'.dependencies]
+jni = "0.17"
