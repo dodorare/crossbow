@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  push:
+    branches:
+    - master
+
+jobs:
+
+  build-android-dockerfile:
+    name: Build Android Dockerfile
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Build Android image
+      run: docker build -t docker.pkg.github.com/creator-rs/creator/android -f .github/docker/android.Dockerfile .
+    - name: Publish Android docker image
+      uses: VaultVulp/gp-docker-action@1.0.1
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        image-name: android
