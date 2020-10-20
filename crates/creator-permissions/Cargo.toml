@@ -3,6 +3,11 @@ name = "creator-permissions"
 version = "0.1.1"
 edition = "2018"
 authors = ["enfipy <enfipy@gmail.com>", "olvyko <olvyko@gmail.com>"]
+description = "Mobile Game Framework for Substrate"
+repository = "https://github.com/creator-rs/creator"
+license = "Apache-2.0"
+keywords = ["permissions", "android", "ios"]
+readme = "../../README.md"
 
 [dependencies]
 

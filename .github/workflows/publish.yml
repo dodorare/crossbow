@@ -14,4 +14,15 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - run: cargo login ${{ secrets.CRATES_IO_TOKEN }}
-    - run: cargo publish
+    - run: |
+        # If crate A depends on crate B, B must come before A in this list
+        crates=(
+          creator-permissions
+        )
+        for crate in "${crates[@]}"
+        do
+          echo "Publishing ${crate}"
+          cargo publish --manifest-path=crates/$crate/Cargo.toml
+          sleep 15
+        done
+        cargo publish
