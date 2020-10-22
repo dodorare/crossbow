@@ -1,5 +1,9 @@
 #![allow(dead_code)]
 
+mod ui;
+
+use ui::{button_system, ui_setup, ButtonMaterials};
+
 #[cfg(target_os = "android")]
 use android_logger::Config;
 
@@ -16,10 +20,20 @@ pub fn main() {
     // enumerate_audio_devices().unwrap();
 
     App::build()
+        .add_resource(ClearColor(Color::rgb(0.88, 0.87, 0.86)))
+        .add_resource(WindowDescriptor {
+            title: "AppExample".to_string(),
+            width: 400,
+            height: 660,
+            vsync: true,
+            ..Default::default()
+        })
         .add_default_plugins()
-        .add_resource(ClearColor(Color::rgb(0.2, 0.2, 0.8)))
-        .add_startup_system(cube.system())
-        .add_startup_system(text.system())
+        .init_resource::<ButtonMaterials>()
+        .add_startup_system(ui_setup.system())
+        .add_system(button_system.system())
+        // .add_startup_system(cube.system())
+        // .add_startup_system(text.system())
         // .add_startup_system(audio.system())
         // .add_startup_system(monkey.system())
         // .add_startup_system(icon.system())
@@ -104,9 +118,7 @@ fn monkey(
         // mesh
         .spawn(PbrComponents {
             // load a mesh from glTF
-            mesh: asset_server
-                .load("models/monkey/Monkey.gltf")
-                .unwrap(),
+            mesh: asset_server.load("models/monkey/Monkey.gltf").unwrap(),
             // create a material for the mesh
             material: materials.add(Color::rgb(0.8, 0.7, 0.6).into()),
             transform: Transform::from_translation(Vec3::new(-1.5, 0.0, 0.0)),
@@ -115,9 +127,7 @@ fn monkey(
         // mesh
         .spawn(PbrComponents {
             // load a mesh from binary glTF
-            mesh: asset_server
-                .load("models/monkey/Monkey.glb")
-                .unwrap(),
+            mesh: asset_server.load("models/monkey/Monkey.glb").unwrap(),
             // create a material for the mesh
             material: materials.add(Color::rgb(0.8, 0.7, 0.6).into()),
             transform: Transform::from_translation(Vec3::new(1.5, 0.0, 0.0)),

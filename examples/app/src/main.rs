@@ -1,5 +1,6 @@
-mod lib;
+// mod lib;
+// pub mod ui;
 
 fn main() {
-    lib::main();
+    app::main();
 }

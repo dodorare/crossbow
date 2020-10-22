@@ -20,6 +20,15 @@ jni = "0.17"
 [lib]
 crate-type = ["lib", "cdylib"]
 
+# [lib]
+# name = "app_lib"
+# path = "src/lib/mod.rs"
+# crate-type = ["lib", "cdylib"]
+
+# [[bin]]
+# name = "app_bin"
+# path = "src/bin.rs"
+
 [package.metadata.android]
 apk_label = "Creator App"
 fullscreen = false
