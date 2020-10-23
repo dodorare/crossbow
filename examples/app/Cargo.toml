@@ -8,8 +8,8 @@ edition = "2018"
 log = "0.4"
 anyhow = "*"
 # bevy = "0.2.1"
-# bevy = { path = "../../../bevy" }
-bevy = { git = "https://github.com/creator-rs/bevy", rev = "23ccd4d42bc98b42b1c4b012d3f632f7d0e4f82e" }
+bevy = { path = "../../../bevy" }
+# bevy = { git = "https://github.com/creator-rs/bevy", rev = "23ccd4d42bc98b42b1c4b012d3f632f7d0e4f82e" }
 
 [target.'cfg(target_os = "android")'.dependencies]
 ndk = { version = "0.2", features = ["all"] }

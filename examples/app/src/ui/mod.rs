@@ -30,7 +30,7 @@ pub fn ui_setup(
             parent.spawn(TextComponents {
                 text: Text {
                     value: "Button".to_string(),
-                    font: asset_server.load("fonts/FiraMono-Medium.ttf").unwrap(),
+                    font: asset_server.load("fonts/FiraMono-Medium.ttf"),
                     style: TextStyle {
                         font_size: 40.0,
                         color: Color::rgb(0.9, 0.9, 0.9),
