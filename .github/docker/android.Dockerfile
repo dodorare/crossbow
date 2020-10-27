@@ -27,3 +27,10 @@ RUN cd /usr/local && \
     unzip -q android-ndk-r20-linux-x86_64.zip && \
     rm android-ndk-r20-linux-x86_64.zip
 ENV NDK_HOME /usr/local/android-ndk-r20
+
+# Install Cargo APK
+RUN cargo install --git https://github.com/rust-windowing/android-ndk-rs --bin cargo-apk 
+
+# Make directory for user code
+RUN mkdir -p /src
+WORKDIR /src

@@ -21,7 +21,7 @@ jobs:
         for crate in "${crates[@]}"
         do
           echo "Publishing ${crate}"
-          cargo publish --manifest-path=crates/$crate/Cargo.toml
+          cargo publish --manifest-path=crates/$crate/Cargo.toml || true
           sleep 15
         done
-        cargo publish
+        cargo publish || true
