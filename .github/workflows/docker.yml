@@ -2,10 +2,9 @@ name: Docker images
 
 on:
   push:
-    branches:
-    - master
+    branches: [master]
     paths:
-    - '.github/docker/android.Dockerfile'
+    - '.github/docker/*.Dockerfile'
     - '.github/workflows/docker.yml'
 
 jobs:
@@ -22,3 +21,17 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         image-name: android
+
+  build-creator-dockerfile:
+    name: Build Creator Dockerfile
+    runs-on: ubuntu-latest
+    needs: build-android-dockerfile
+    steps:
+    - uses: actions/checkout@master
+    - name: Build Creator image
+      run: docker build -t docker.pkg.github.com/creator-rs/creator/creator -f .github/docker/creator.Dockerfile .
+    - name: Publish Creator docker image
+      uses: VaultVulp/gp-docker-action@1.0.1
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        image-name: creator
