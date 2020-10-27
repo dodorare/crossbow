@@ -4,19 +4,22 @@ pub use button::*;
 
 use bevy::prelude::*;
 
-pub fn ui_setup(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    button_materials: Res<ButtonMaterials>,
+fn spawn_main_menu_button(
+    parent: &mut ChildBuilder,
+    asset_server: &Res<AssetServer>,
+    button_materials: &Res<ButtonMaterials>,
+    text: &str,
 ) {
-    commands
-        // ui camera
-        .spawn(UiCameraComponents::default())
+    parent
         .spawn(ButtonComponents {
             style: Style {
-                size: Size::new(Val::Px(150.0), Val::Px(65.0)),
-                // center button
-                margin: Rect::all(Val::Auto),
+                size: Size::new(Val::Percent(100.0), Val::Px(65.0)),
+                margin: Rect {
+                    left: Val::Auto,
+                    right: Val::Auto,
+                    top: Val::Undefined,
+                    bottom: Val::Px(20.0),
+                },
                 // horizontally center child text
                 justify_content: JustifyContent::Center,
                 // vertically center child text
@@ -29,7 +32,7 @@ pub fn ui_setup(
         .with_children(|parent| {
             parent.spawn(TextComponents {
                 text: Text {
-                    value: "Button".to_string(),
+                    value: text.to_string(),
                     font: asset_server.load("fonts/FiraMono-Medium.ttf"),
                     style: TextStyle {
                         font_size: 40.0,
@@ -38,5 +41,45 @@ pub fn ui_setup(
                 },
                 ..Default::default()
             });
+        });
+}
+
+pub fn ui_setup(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    button_materials: Res<ButtonMaterials>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+) {
+    commands
+        // ui camera
+        .spawn(UiCameraComponents::default())
+        // root node (padding)
+        .spawn(NodeComponents {
+            style: Style {
+                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                padding: Rect::all(Val::Percent(6.0)),
+                ..Default::default()
+            },
+            material: materials.add(Color::NONE.into()),
+            ..Default::default()
+        })
+        .with_children(|parent| {
+            parent
+                // main menu node
+                .spawn(NodeComponents {
+                    style: Style {
+                        size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                        flex_direction: FlexDirection::ColumnReverse,
+                        ..Default::default()
+                    },
+                    material: materials.add(Color::rgb(0.65, 0.65, 0.65).into()),
+                    ..Default::default()
+                })
+                // main menu buttons
+                .with_children(|parent| {
+                    spawn_main_menu_button(parent, &asset_server, &button_materials, "Button 1");
+                    spawn_main_menu_button(parent, &asset_server, &button_materials, "Button 2");
+                    spawn_main_menu_button(parent, &asset_server, &button_materials, "Button 3");
+                });
         });
 }

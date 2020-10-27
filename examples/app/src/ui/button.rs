@@ -25,21 +25,21 @@ pub fn button_system(
         &mut Handle<ColorMaterial>,
         &Children,
     )>,
-    text_query: Query<&mut Text>,
+    // text_query: Query<&mut Text>,
 ) {
-    for (_button, interaction, mut material, children) in &mut interaction_query.iter() {
-        let mut text = text_query.get_mut::<Text>(children[0]).unwrap();
+    for (_button, interaction, mut material, _children) in &mut interaction_query.iter() {
+        // let mut text = text_query.get_mut::<Text>(children[0]).unwrap();
         match *interaction {
             Interaction::Clicked => {
-                text.value = "Press".to_string();
+                // text.value = "Press".to_string();
                 *material = button_materials.pressed.clone();
             }
             Interaction::Hovered => {
-                text.value = "Hover".to_string();
+                // text.value = "Hover".to_string();
                 *material = button_materials.hovered.clone();
             }
             Interaction::None => {
-                text.value = "Button".to_string();
+                // text.value = "Button".to_string();
                 *material = button_materials.normal.clone();
             }
         }
