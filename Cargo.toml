@@ -13,6 +13,9 @@ exclude = [".github/**/*"]
 [dependencies]
 creator-permissions = { path = "crates/creator-permissions", version = "0.1.1", optional = true }
 
+[patch.crates-io]
+cpal = { git = "https://github.com/RustAudio/cpal" }
+
 [features]
 permissions = ["creator-permissions"]
 

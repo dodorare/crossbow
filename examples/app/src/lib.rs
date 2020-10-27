@@ -3,11 +3,10 @@
 mod ui;
 
 use ui::{button_system, ui_setup, ButtonMaterials};
+use bevy::prelude::*;
 
 #[cfg(target_os = "android")]
 use android_logger::Config;
-
-use bevy::prelude::*;
 
 #[cfg_attr(target_os = "android", ndk_glue::main(backtrace = "full"))]
 pub fn main() {
@@ -29,8 +28,8 @@ pub fn main() {
         .init_resource::<ButtonMaterials>()
         .add_startup_system(ui_setup.system())
         .add_system(button_system.system())
+        .add_startup_system(audio.system())
         // .add_startup_system(cube.system())
-        // .add_startup_system(audio.system())
         // .add_startup_system(helmet.system())
         // .add_startup_system(icon.system())
         .run();
