@@ -18,6 +18,7 @@ android_logger = "0.9"
 jni = "0.17"
 
 [lib]
+name = "applib"
 crate-type = ["lib", "cdylib"]
 
 [package.metadata.android]
