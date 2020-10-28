@@ -3,7 +3,7 @@ name = "creator"
 version = "0.1.1"
 edition = "2018"
 authors = ["enfipy <enfipy@gmail.com>", "olvyko <olvyko@gmail.com>"]
-description = "Mobile Game Framework for Substrate"
+description = "Mobile Game Framework"
 repository = "https://github.com/creator-rs/creator"
 license = "Apache-2.0"
 keywords = ["build", "android", "ios", "substrate"]
@@ -14,6 +14,7 @@ exclude = [".github/**/*"]
 creator-permissions = { path = "crates/creator-permissions", version = "0.1.1", optional = true }
 
 [patch.crates-io]
+oboe = { git = "https://github.com/enfipy/oboe-rs", branch = "patch-1" }
 cpal = { git = "https://github.com/RustAudio/cpal" }
 
 [features]
@@ -21,8 +22,7 @@ permissions = ["creator-permissions"]
 
 [workspace]
 members = [
-    "crates/creator-permissions",
-    "examples/app",
-    "examples/substrate",
+    "crates/*",
+    "examples/*",
     "examples/substrate/runtime",
 ]

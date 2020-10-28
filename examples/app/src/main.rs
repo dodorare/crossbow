@@ -1,3 +1,3 @@
 fn main() {
-    applib::main();
+    app::main();
 }
