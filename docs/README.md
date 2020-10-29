@@ -14,18 +14,27 @@ Pre-requirements:
 To run example Android application with `docker` you will need to run following command in root of this project:
 
 ```sh
-# Builds debug APK
-docker run --rm -it -v "$(pwd)/:/src" -w /src/examples/app docker.pkg.github.com/creator-rs/creator/android cargo apk build
-# Installs APK on connected Android phone via USB
+docker run --rm -it -v "$(pwd)/:/src" -w /src/examples/app docker.pkg.github.com/creator-rs/creator/android cargo creator build
+```
+
+Install APK on connected Android phone via USB:
+
+```sh
 adb install ../../target/debug/apk/Creator.apk
 ```
 
 ## Build with installed Android NDK
 
+Install `cargo-creator` tool:
+
+```sh
+cargo install cargo-creator
+```
+
 Run this command in `examples/app` folder of this project:
 
 ```sh
-cargo apk build
+cargo creator build
 ```
 
 ## Run it on Android smartphone

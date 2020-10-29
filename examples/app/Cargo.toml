@@ -7,6 +7,8 @@ edition = "2018"
 [dependencies]
 log = "0.4"
 anyhow = "*"
+tokio = { version = "0.3", features = ["full"] }
+substrate-subxt = { version = "0.13", features = [] }
 # bevy = "0.2.1"
 # bevy = { path = "../../../bevy" }
 bevy = { git = "https://github.com/creator-rs/bevy", branch = "android" }
@@ -31,10 +33,3 @@ target_sdk_version = 29
 min_sdk_version = 16
 # build_targets = ["armv7-linux-androideabi", "aarch64-linux-android", "i686-linux-android", "x86_64-linux-android"]
 build_targets = ["aarch64-linux-android"]
-
-[[package.metadata.android.permission]]
-name = "android.permission.WRITE_EXTERNAL_STORAGE"
-[[package.metadata.android.permission]]
-name = "android.permission.READ_EXTERNAL_STORAGE"
-[[package.metadata.android.permission]]
-name = "android.permission.INTERNET"

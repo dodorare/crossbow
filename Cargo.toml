@@ -13,10 +13,6 @@ exclude = [".github/**/*"]
 [dependencies]
 creator-permissions = { path = "crates/creator-permissions", version = "0.1.1", optional = true }
 
-[patch.crates-io]
-oboe = { git = "https://github.com/enfipy/oboe-rs", branch = "patch-1" }
-cpal = { git = "https://github.com/RustAudio/cpal" }
-
 [features]
 permissions = ["creator-permissions"]
 
