@@ -1,18 +1,15 @@
 #![allow(dead_code)]
 
+mod paint;
 mod ui;
 
 use bevy::prelude::*;
 use substrate_subxt::{ClientBuilder, KusamaRuntime};
-use ui::{button_system, ui_setup, ButtonMaterials};
-
-#[cfg(target_os = "android")]
-use android_logger::Config;
 
 #[cfg_attr(target_os = "android", ndk_glue::main(backtrace = "full"))]
 pub fn main() {
     #[cfg(target_os = "android")]
-    android_logger::init_once(Config::default().with_min_level(log::Level::Trace));
+    android_logger::init_once(android_logger::Config::default().with_min_level(log::Level::Trace));
 
     println!("Initialization.");
     App::build()
@@ -20,16 +17,18 @@ pub fn main() {
         .add_resource(ClearColor(Color::rgb(0.88, 0.87, 0.86)))
         .add_resource(WindowDescriptor {
             title: "AppExample".to_string(),
-            width: 400,
-            height: 660,
+            width: 720,
+            height: 1280,
             ..Default::default()
         })
         .add_default_plugins()
-        .init_resource::<ButtonMaterials>()
-        .add_startup_system(ui_setup.system())
-        .add_system(button_system.system())
-        .add_startup_system(audio.system())
+        .add_startup_system(paint::paint_setup.system())
+        .add_system_to_stage(stage::FIRST, paint::paint_system.system())
         .add_startup_system(substrate.system())
+        // .init_resource::<ui::ButtonMaterials>()
+        // .add_startup_system(ui::ui_setup.system())
+        // .add_system(ui::button_system.system())
+        // .add_startup_system(audio.system())
         // .add_startup_system(helmet.system())
         // .add_startup_system(icon.system())
         .run();
@@ -68,12 +67,9 @@ fn audio(asset_server: Res<AssetServer>, audio: Res<Audio>) {
     audio.play(music);
 }
 
-fn substrate() {
-    tokio::runtime::Builder::new_multi_thread()
-        .enable_all()
-        .build()
-        .unwrap()
-        .block_on(async {
+fn substrate(task_pool: Res<bevy::tasks::IoTaskPool>) {
+    task_pool
+        .spawn(async {
             println!("Connecting to Substrate Node.");
             let client = ClientBuilder::<KusamaRuntime>::new()
                 .set_url("wss://kusama-rpc.polkadot.io")
@@ -88,4 +84,5 @@ fn substrate() {
                 println!("Block number {} not found.", block_number);
             }
         })
+        .detach();
 }

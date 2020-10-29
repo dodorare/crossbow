@@ -6,8 +6,8 @@ edition = "2018"
 
 [dependencies]
 log = "0.4"
-anyhow = "*"
-tokio = { version = "0.3", features = ["full"] }
+anyhow = "1.0"
+itertools = "0.9"
 substrate-subxt = { version = "0.13", features = [] }
 # bevy = "0.2.1"
 # bevy = { path = "../../../bevy" }
