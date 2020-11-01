@@ -10,7 +10,7 @@ impl Plugin for MenuScene {
         app_builder
             .init_resource::<ButtonMaterials>()
             .add_startup_system(menu_setup.system())
-            // .add_system(button_system.system())
+            .add_system(button_system.system())
             .add_system(main_menu_button_system.system());
     }
 }
@@ -104,8 +104,6 @@ fn spawn_main_menu_button(
             material: button_materials.normal.clone(),
             ..Default::default()
         })
-        .with(button)
-        .with(Interaction::default())
         .with_children(|parent| {
             parent.spawn(TextComponents {
                 text: Text {
@@ -118,7 +116,9 @@ fn spawn_main_menu_button(
                 },
                 ..Default::default()
             });
-        });
+        })
+        .with(button)
+        .with(Interaction::default());
 }
 
 fn menu_setup(
