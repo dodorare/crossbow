@@ -3,6 +3,15 @@ mod line;
 use bevy::prelude::*;
 use line::*;
 
+pub struct PaintScene;
+impl Plugin for PaintScene {
+    fn build(&self, app_builder: &mut AppBuilder) {
+        app_builder
+            .add_startup_system(paint_setup.system())
+            .add_system_to_stage(stage::FIRST, paint_system.system());
+    }
+}
+
 pub fn paint_setup(mut commands: Commands, mut materials: ResMut<Assets<ColorMaterial>>) {
     let camera_entity = commands
         .spawn(Camera2dComponents::default())

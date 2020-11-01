@@ -6,18 +6,29 @@ on:
 
 jobs:
 
-  test-ubuntu:
-    name: Test on Ubuntu 18.04
+  app-build-ubuntu:
+    name: Build App example on Ubuntu Latest
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - name: Test
-      uses: actions-rs/cargo@v1
-      with:
-        command: test
-        args: --verbose
+    - name: Install Android targets
+      run: |
+        cd examples/app
+        rustup target add armv7-linux-androideabi
+        rustup target add aarch64-linux-android
+        rustup target add i686-linux-android
+        rustup target add x86_64-linux-android
+    - name: Install Cargo Creator
+      run: |
+        cd examples/app
+        cargo install cargo-creator
+    - name: Build APK
+      run: |
+        cd examples/app
+        cargo creator build --all-features
 
   clean:
+    name: Check code format
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

@@ -7,17 +7,20 @@ edition = "2018"
 [dependencies]
 log = "0.4"
 anyhow = "1.0"
-itertools = "0.9"
-substrate-subxt = { version = "0.13", features = [] }
+itertools = { version = "0.9", optional = true }
+substrate-subxt = { version = "0.13", optional = true }
 # bevy = "0.2.1"
 # bevy = { path = "../../../bevy" }
 bevy = { git = "https://github.com/creator-rs/bevy", branch = "android" }
 
 [target.'cfg(target_os = "android")'.dependencies]
-ndk = { version = "0.2", features = ["all"] }
 ndk-glue = { version = "0.2", features = ["logger"] }
 android_logger = "0.9"
-jni = "0.17"
+
+[features]
+default = ["paint"]
+explorer = ["substrate-subxt"]
+paint = ["itertools"]
 
 [lib]
 # name = "applib"

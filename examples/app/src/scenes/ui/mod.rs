@@ -4,6 +4,16 @@ pub use button::*;
 
 use bevy::prelude::*;
 
+pub struct UiScene;
+impl Plugin for UiScene {
+    fn build(&self, app_builder: &mut AppBuilder) {
+        app_builder
+            .init_resource::<ButtonMaterials>()
+            .add_startup_system(ui_setup.system())
+            .add_system(button_system.system());
+    }
+}
+
 fn spawn_main_menu_button(
     parent: &mut ChildBuilder,
     asset_server: &Res<AssetServer>,
