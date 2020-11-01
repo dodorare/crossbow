@@ -1,8 +1,9 @@
 #[cfg(feature = "explorer")]
 mod explorer;
+#[cfg(feature = "menu")]
+mod menu;
 #[cfg(feature = "paint")]
 mod paint;
-mod ui;
 
 use bevy::prelude::*;
 
@@ -15,7 +16,8 @@ impl Plugin for ScenesPlugin {
         #[cfg(feature = "paint")]
         app_builder.add_plugin(paint::PaintScene);
 
-        app_builder.add_plugin(ui::UiScene);
+        #[cfg(feature = "menu")]
+        app_builder.add_plugin(menu::MenuScene);
 
         // TODO: Move them to own scenes.
         // app_builder

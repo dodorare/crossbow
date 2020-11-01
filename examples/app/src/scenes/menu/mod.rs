@@ -4,12 +4,12 @@ pub use button::*;
 
 use bevy::prelude::*;
 
-pub struct UiScene;
-impl Plugin for UiScene {
+pub struct MenuScene;
+impl Plugin for MenuScene {
     fn build(&self, app_builder: &mut AppBuilder) {
         app_builder
             .init_resource::<ButtonMaterials>()
-            .add_startup_system(ui_setup.system())
+            .add_startup_system(menu_setup.system())
             .add_system(main_menu_buttons_system.system());
         // .add_system(button_system.system());
     }
@@ -121,7 +121,7 @@ fn spawn_main_menu_button(
         });
 }
 
-fn ui_setup(
+fn menu_setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     button_materials: Res<ButtonMaterials>,
