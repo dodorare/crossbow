@@ -24,8 +24,8 @@ impl Plugin for SetupPlugin {
             .add_resource(ClearColor(Color::rgb(0.88, 0.87, 0.86)))
             .add_resource(WindowDescriptor {
                 title: "AppExample".to_string(),
-                width: 720,
-                height: 1280,
+                width: 340,
+                height: 600,
                 ..Default::default()
             })
             .add_default_plugins();

@@ -18,7 +18,7 @@ ndk-glue = { version = "0.2", features = ["logger"] }
 android_logger = "0.9"
 
 [features]
-default = ["paint"]
+default = []
 explorer = ["substrate-subxt"]
 paint = ["itertools"]
 
