@@ -10,8 +10,8 @@ impl Plugin for MenuScene {
         app_builder
             .init_resource::<ButtonMaterials>()
             .add_startup_system(menu_setup.system())
-            .add_system(main_menu_buttons_system.system());
-        // .add_system(button_system.system());
+            // .add_system(button_system.system())
+            .add_system(main_menu_button_system.system());
     }
 }
 
@@ -50,7 +50,7 @@ impl ToString for MainMenuButton {
     }
 }
 
-fn main_menu_buttons_system(
+fn main_menu_button_system(
     // mut screen_state: ResMut<ScreenState>,
     mut interaction_query: Query<(&Node, Mutated<Interaction>, &MainMenuButton)>,
 ) {
