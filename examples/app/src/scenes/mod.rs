@@ -4,6 +4,8 @@ mod explorer;
 mod menu;
 #[cfg(feature = "paint")]
 mod paint;
+#[cfg(feature = "menu")]
+mod state;
 
 use bevy::prelude::*;
 

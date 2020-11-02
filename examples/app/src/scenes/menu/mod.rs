@@ -4,29 +4,23 @@ pub use button::*;
 
 use bevy::prelude::*;
 
+use super::state::*;
+
 pub struct MenuScene;
 impl Plugin for MenuScene {
     fn build(&self, app_builder: &mut AppBuilder) {
         app_builder
+            .add_stage_after(stage::POST_UPDATE, "HANDLE_RUNSTATE")
             .init_resource::<ButtonMaterials>()
-            .add_startup_system(menu_setup.system())
-            .add_system(button_system.system())
-            .add_system(main_menu_button_system.system());
+            .add_resource(RunState::new(GameState::MainMenu))
+            .add_system(main_menu_setup.system())
+            .add_system(threed_scene.system())
+            .add_system(twod_scene.system())
+            .add_system(main_menu_button_system.system())
+            .add_system(state_despawn_system.system())
+            .add_system(button_effect_system.system())
+            .add_system_to_stage("HANDLE_RUNSTATE", run_state_fsm_system.system());
     }
-}
-
-#[derive(Debug, PartialEq, Clone)]
-enum Screen {
-    MainMenu,
-    ThreeDScene,
-    TwoDScene,
-    Audio,
-    Explorer,
-    About,
-}
-
-struct ScreenState {
-    current_screen: Screen,
 }
 
 #[derive(Clone, Copy)]
@@ -51,12 +45,22 @@ impl ToString for MainMenuButton {
 }
 
 fn main_menu_button_system(
-    // mut screen_state: ResMut<ScreenState>,
+    mut run_state: ResMut<RunState>,
     mut interaction_query: Query<(&Node, Mutated<Interaction>, &MainMenuButton)>,
 ) {
     for (_node, interaction, button) in &mut interaction_query.iter() {
         match *interaction {
-            Interaction::Clicked => println!("Clicked {}", button.to_string()),
+            Interaction::Clicked => match button {
+                MainMenuButton::ThreeDScene => {
+                    run_state.game_state.transit_to(GameState::ThreeDScene);
+                }
+                MainMenuButton::TwoDScene => {
+                    run_state.game_state.transit_to(GameState::TwoDScene);
+                }
+                MainMenuButton::Audio => (),
+                MainMenuButton::Explorer => (),
+                MainMenuButton::About => (),
+            },
             Interaction::Hovered => (),
             Interaction::None => (),
         }
@@ -65,7 +69,7 @@ fn main_menu_button_system(
 
 fn spawn_main_menu_buttons(
     parent: &mut ChildBuilder,
-    asset_server: &Res<AssetServer>,
+    font_handle: &Handle<Font>,
     button_materials: &Res<ButtonMaterials>,
 ) {
     for button in &[
@@ -75,13 +79,13 @@ fn spawn_main_menu_buttons(
         MainMenuButton::Explorer,
         MainMenuButton::About,
     ] {
-        spawn_main_menu_button(parent, &asset_server, &button_materials, *button);
+        spawn_main_menu_button(parent, font_handle.clone(), &button_materials, *button);
     }
 }
 
 fn spawn_main_menu_button(
     parent: &mut ChildBuilder,
-    asset_server: &Res<AssetServer>,
+    font_handle: Handle<Font>,
     button_materials: &Res<ButtonMaterials>,
     button: MainMenuButton,
 ) {
@@ -105,56 +109,118 @@ fn spawn_main_menu_button(
             ..Default::default()
         })
         .with_children(|parent| {
-            parent.spawn(TextComponents {
-                text: Text {
-                    value: button.to_string(),
-                    font: asset_server.load("fonts/FiraMono-Medium.ttf"),
-                    style: TextStyle {
-                        font_size: 40.0,
-                        color: Color::rgb(0.9, 0.9, 0.9),
+            parent
+                .spawn(TextComponents {
+                    text: Text {
+                        value: button.to_string(),
+                        font: font_handle,
+                        style: TextStyle {
+                            font_size: 40.0,
+                            color: Color::rgb(0.9, 0.9, 0.9),
+                        },
                     },
-                },
-                ..Default::default()
-            });
+                    ..Default::default()
+                })
+                .with(ForStates {
+                    states: vec![GameState::MainMenu],
+                });
+        })
+        .with(ForStates {
+            states: vec![GameState::MainMenu],
         })
         .with(button)
         .with(Interaction::default());
 }
 
-fn menu_setup(
+fn main_menu_setup(
     mut commands: Commands,
+    run_state: ResMut<RunState>,
     asset_server: Res<AssetServer>,
     button_materials: Res<ButtonMaterials>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    commands
-        // ui camera
-        .spawn(UiCameraComponents::default())
-        // root node (padding)
-        .spawn(NodeComponents {
-            style: Style {
-                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
-                padding: Rect::all(Val::Percent(6.0)),
-                ..Default::default()
-            },
-            material: materials.add(Color::NONE.into()),
-            ..Default::default()
-        })
-        .with_children(|parent| {
-            parent
-                // main menu node
-                .spawn(NodeComponents {
-                    style: Style {
-                        size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
-                        flex_direction: FlexDirection::ColumnReverse,
-                        ..Default::default()
-                    },
-                    material: materials.add(Color::rgb(0.65, 0.65, 0.65).into()),
+    if run_state.game_state.entering(GameState::MainMenu) {
+        let font_handle = asset_server.load("fonts/FiraSans-Bold.ttf");
+        commands
+            .spawn(UiCameraComponents::default())
+            // root node (padding)
+            .spawn(NodeComponents {
+                style: Style {
+                    size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                    padding: Rect::all(Val::Percent(6.0)),
                     ..Default::default()
-                })
-                // main menu buttons
-                .with_children(|parent| {
-                    spawn_main_menu_buttons(parent, &asset_server, &button_materials);
-                });
-        });
+                },
+                material: materials.add(Color::NONE.into()),
+                ..Default::default()
+            })
+            .with_children(|parent| {
+                parent
+                    // main menu node
+                    .spawn(NodeComponents {
+                        style: Style {
+                            size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                            flex_direction: FlexDirection::ColumnReverse,
+                            ..Default::default()
+                        },
+                        material: materials.add(Color::rgb(0.65, 0.65, 0.65).into()),
+                        ..Default::default()
+                    })
+                    // main menu buttons
+                    .with_children(|parent| {
+                        spawn_main_menu_buttons(parent, &font_handle, &button_materials);
+                    })
+                    .with(ForStates {
+                        states: vec![GameState::MainMenu],
+                    });
+            })
+            .with(ForStates {
+                states: vec![GameState::MainMenu],
+            });
+    };
+}
+
+fn threed_scene(
+    mut commands: Commands,
+    run_state: ResMut<RunState>,
+    asset_server: Res<AssetServer>,
+) {
+    if run_state.game_state.entering(GameState::ThreeDScene) {
+        commands
+            .spawn_scene(asset_server.load("models/helmet/FlightHelmet.gltf"))
+            .spawn(LightComponents {
+                transform: Transform::from_translation(Vec3::new(4.0, 5.0, 4.0)),
+                ..Default::default()
+            })
+            .with(ForStates {
+                states: vec![GameState::ThreeDScene],
+            })
+            .spawn(Camera3dComponents {
+                transform: Transform::from_translation(Vec3::new(0.7, 0.7, 1.0))
+                    .looking_at(Vec3::new(0.0, 0.3, 0.0), Vec3::unit_y()),
+                ..Default::default()
+            })
+            .with(ForStates {
+                states: vec![GameState::ThreeDScene],
+            });
+    };
+}
+
+fn twod_scene(
+    mut commands: Commands,
+    run_state: ResMut<RunState>,
+    asset_server: Res<AssetServer>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+) {
+    if run_state.game_state.entering(GameState::TwoDScene) {
+        let texture_handle = asset_server.load("branding/icon.png");
+        commands
+            .spawn(Camera2dComponents::default())
+            .spawn(SpriteComponents {
+                material: materials.add(texture_handle.into()),
+                ..Default::default()
+            })
+            .with(ForStates {
+                states: vec![GameState::TwoDScene],
+            });
+    }
 }

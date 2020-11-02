@@ -17,7 +17,7 @@ impl FromResources for ButtonMaterials {
     }
 }
 
-pub fn button_system(
+pub fn button_effect_system(
     button_materials: Res<ButtonMaterials>,
     mut interaction_query: Query<(&Node, Mutated<Interaction>, &mut Handle<ColorMaterial>)>,
 ) {

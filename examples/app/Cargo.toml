@@ -12,13 +12,14 @@ substrate-subxt = { version = "0.13", optional = true }
 # bevy = "0.2.1"
 # bevy = { path = "../../../bevy" }
 bevy = { git = "https://github.com/creator-rs/bevy", rev = "15c06308190ec5cd62b1261e45362d3b5ac058db" }
+# bevy = { git = "https://github.com/creator-rs/bevy", rev = "2401615ec381026a96901d76ac73511c0c93aaf7" }
 
 [target.'cfg(target_os = "android")'.dependencies]
 ndk-glue = { version = "0.2", features = ["logger"] }
 android_logger = "0.9"
 
 [features]
-default = []
+default = ["menu"]
 explorer = ["substrate-subxt"]
 paint = ["itertools"]
 menu = []
