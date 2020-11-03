@@ -1,6 +1,8 @@
 use core::fmt;
 
-use bevy::prelude::*;
+use bevy::{
+    prelude::*, render::camera::ActiveCameras, render::render_graph::base::camera::CAMERA3D,
+};
 
 /// Component to tag an entity that used in state's
 pub struct ForStates {
@@ -37,6 +39,7 @@ pub fn run_state_fsm_system(mut run_state: ResMut<RunState>) {
 pub fn state_despawn_system(
     mut commands: Commands,
     run_state: ResMut<RunState>,
+    mut active_cameras: ResMut<ActiveCameras>,
     mut query: Query<(Entity, &ForStates)>,
 ) {
     for (entity, for_states) in &mut query.iter() {
@@ -46,6 +49,10 @@ pub fn state_despawn_system(
                 .transiting_to_one_of(&for_states.states)
         {
             commands.despawn(entity);
+            // FIXME: Should be fixed in bevy, cant despawn cameras
+            if for_states.states.first().unwrap() == &GameState::ThreeDScene {
+                active_cameras.cameras.remove_entry(CAMERA3D);
+            }
         }
     }
 }

@@ -2,7 +2,9 @@ mod button;
 
 pub use button::*;
 
-use bevy::prelude::*;
+use bevy::{
+    prelude::*, render::camera::ActiveCameras, render::render_graph::base::camera::CAMERA3D,
+};
 
 use super::state::*;
 
@@ -13,14 +15,22 @@ impl Plugin for MenuScene {
             .add_stage_after(stage::POST_UPDATE, "HANDLE_RUNSTATE")
             .init_resource::<ButtonMaterials>()
             .add_resource(RunState::new(GameState::MainMenu))
+            .add_startup_system(setup.system())
             .add_system(main_menu_setup.system())
             .add_system(threed_scene.system())
             .add_system(twod_scene.system())
             .add_system(main_menu_button_system.system())
+            .add_system(back_button_system.system())
             .add_system(state_despawn_system.system())
             .add_system(button_effect_system.system())
             .add_system_to_stage("HANDLE_RUNSTATE", run_state_fsm_system.system());
     }
+}
+
+fn setup(mut commands: Commands) {
+    commands
+        .spawn(UiCameraComponents::default())
+        .spawn(Camera2dComponents::default());
 }
 
 #[derive(Clone, Copy)]
@@ -69,7 +79,7 @@ fn main_menu_button_system(
 
 fn spawn_main_menu_buttons(
     parent: &mut ChildBuilder,
-    font_handle: &Handle<Font>,
+    asset_server: &Res<AssetServer>,
     button_materials: &Res<ButtonMaterials>,
 ) {
     for button in &[
@@ -79,13 +89,13 @@ fn spawn_main_menu_buttons(
         MainMenuButton::Explorer,
         MainMenuButton::About,
     ] {
-        spawn_main_menu_button(parent, font_handle.clone(), &button_materials, *button);
+        spawn_main_menu_button(parent, asset_server, &button_materials, *button);
     }
 }
 
 fn spawn_main_menu_button(
     parent: &mut ChildBuilder,
-    font_handle: Handle<Font>,
+    asset_server: &Res<AssetServer>,
     button_materials: &Res<ButtonMaterials>,
     button: MainMenuButton,
 ) {
@@ -113,7 +123,7 @@ fn spawn_main_menu_button(
                 .spawn(TextComponents {
                     text: Text {
                         value: button.to_string(),
-                        font: font_handle,
+                        font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                         style: TextStyle {
                             // FIXME: Should be fixed in bevy
                             font_size: if cfg!(target_os = "android") {
@@ -145,9 +155,7 @@ fn main_menu_setup(
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     if run_state.game_state.entering(GameState::MainMenu) {
-        let font_handle = asset_server.load("fonts/FiraSans-Bold.ttf");
         commands
-            .spawn(UiCameraComponents::default())
             // root node (padding)
             .spawn(NodeComponents {
                 style: Style {
@@ -167,12 +175,12 @@ fn main_menu_setup(
                             flex_direction: FlexDirection::ColumnReverse,
                             ..Default::default()
                         },
-                        material: materials.add(Color::rgb(0.65, 0.65, 0.65).into()),
+                        material: materials.add(Color::NONE.into()),
                         ..Default::default()
                     })
                     // main menu buttons
                     .with_children(|parent| {
-                        spawn_main_menu_buttons(parent, &font_handle, &button_materials);
+                        spawn_main_menu_buttons(parent, &asset_server, &button_materials);
                     })
                     .with(ForStates {
                         states: vec![GameState::MainMenu],
@@ -184,29 +192,158 @@ fn main_menu_setup(
     };
 }
 
+struct BackButton;
+
+fn back_button_system(
+    mut run_state: ResMut<RunState>,
+    mut interaction_query: Query<(&Node, Mutated<Interaction>, &BackButton)>,
+) {
+    for (_node, interaction, _button) in &mut interaction_query.iter() {
+        match *interaction {
+            Interaction::Clicked => run_state.game_state.transit_to(GameState::MainMenu),
+            Interaction::Hovered => (),
+            Interaction::None => (),
+        }
+    }
+}
+
+fn spawn_back_button(
+    commands: &mut Commands,
+    texture_handle: Handle<Texture>,
+    color_materials: &mut ResMut<Assets<ColorMaterial>>,
+) {
+    commands
+        .spawn(NodeComponents {
+            style: Style {
+                size: Size::new(
+                    Val::Px(if cfg!(target_os = "android") {
+                        210.0
+                    } else {
+                        70.0
+                    }),
+                    Val::Px(if cfg!(target_os = "android") {
+                        210.0
+                    } else {
+                        70.0
+                    }),
+                ),
+                margin: Rect {
+                    left: Val::Auto,
+                    right: Val::Auto,
+                    top: Val::Undefined,
+                    bottom: Val::Percent(10.0),
+                },
+                // horizontally center child text
+                justify_content: JustifyContent::Center,
+                // vertically center child text
+                align_items: AlignItems::Center,
+                ..Default::default()
+            },
+            draw: Draw {
+                is_transparent: true,
+                is_visible: false,
+                ..Default::default()
+            },
+            ..Default::default()
+        })
+        .with_children(|parent| {
+            parent
+                .spawn(ImageComponents {
+                    style: Style {
+                        size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                        ..Default::default()
+                    },
+                    material: color_materials.add(texture_handle.into()),
+                    ..Default::default()
+                })
+                .with_children(|parent| {
+                    parent
+                        .spawn(NodeComponents {
+                            style: Style {
+                                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                                margin: Rect {
+                                    left: Val::Auto,
+                                    right: Val::Auto,
+                                    top: Val::Undefined,
+                                    bottom: Val::Undefined,
+                                },
+                                // horizontally center child text
+                                justify_content: JustifyContent::Center,
+                                // vertically center child text
+                                align_items: AlignItems::Center,
+                                ..Default::default()
+                            },
+                            draw: Draw {
+                                is_transparent: true,
+                                is_visible: false,
+                                ..Default::default()
+                            },
+                            ..Default::default()
+                        })
+                        .with(ForStates {
+                            states: vec![GameState::ThreeDScene, GameState::TwoDScene],
+                        })
+                        .with(BackButton)
+                        .with(Interaction::default());
+                })
+                .with(ForStates {
+                    states: vec![GameState::ThreeDScene, GameState::TwoDScene],
+                });
+        })
+        .with(ForStates {
+            states: vec![GameState::ThreeDScene, GameState::TwoDScene],
+        });
+}
+
 fn threed_scene(
     mut commands: Commands,
     run_state: ResMut<RunState>,
     asset_server: Res<AssetServer>,
+    mut color_materials: ResMut<Assets<ColorMaterial>>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    // FIXME: Should be fixed in bevy, cant despawn cameras
+    mut active_cameras: ResMut<ActiveCameras>,
 ) {
     if run_state.game_state.entering(GameState::ThreeDScene) {
+        // FIXME: Should be fixed in bevy, cant despawn cameras
+        active_cameras.add(CAMERA3D);
         commands
-            .spawn_scene(asset_server.load("models/helmet/FlightHelmet.gltf"))
-            .spawn(LightComponents {
-                transform: Transform::from_translation(Vec3::new(4.0, 5.0, 4.0)),
+            .spawn(Camera3dComponents {
+                transform: Transform::from_translation(Vec3::new(-3.0, 5.0, 8.0))
+                    .looking_at(Vec3::default(), Vec3::unit_y()),
                 ..Default::default()
             })
             .with(ForStates {
                 states: vec![GameState::ThreeDScene],
             })
-            .spawn(Camera3dComponents {
-                transform: Transform::from_translation(Vec3::new(0.7, 0.7, 1.0))
-                    .looking_at(Vec3::new(0.0, 0.3, 0.0), Vec3::unit_y()),
+            .spawn(PbrComponents {
+                mesh: meshes.add(Mesh::from(shape::Plane { size: 10.0 })),
+                material: materials.add(Color::rgb(0.3, 0.5, 0.3).into()),
+                ..Default::default()
+            })
+            .with(ForStates {
+                states: vec![GameState::ThreeDScene],
+            })
+            .spawn(PbrComponents {
+                mesh: meshes.add(Mesh::from(shape::Cube { size: 1.0 })),
+                material: materials.add(Color::rgb(0.8, 0.7, 0.6).into()),
+                transform: Transform::from_translation(Vec3::new(0.0, 1.0, 0.0)),
+                ..Default::default()
+            })
+            .with(ForStates {
+                states: vec![GameState::ThreeDScene],
+            })
+            .spawn(LightComponents {
+                transform: Transform::from_translation(Vec3::new(4.0, 8.0, 4.0)),
                 ..Default::default()
             })
             .with(ForStates {
                 states: vec![GameState::ThreeDScene],
             });
+
+        let texture_handle = asset_server.load("branding/arrow_left.png");
+        spawn_back_button(&mut commands, texture_handle, &mut color_materials);
     };
 }
 
@@ -214,12 +351,12 @@ fn twod_scene(
     mut commands: Commands,
     run_state: ResMut<RunState>,
     asset_server: Res<AssetServer>,
+    mut color_materials: ResMut<Assets<ColorMaterial>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     if run_state.game_state.entering(GameState::TwoDScene) {
         let texture_handle = asset_server.load("branding/icon.png");
         commands
-            .spawn(Camera2dComponents::default())
             .spawn(SpriteComponents {
                 material: materials.add(texture_handle.into()),
                 ..Default::default()
@@ -227,5 +364,8 @@ fn twod_scene(
             .with(ForStates {
                 states: vec![GameState::TwoDScene],
             });
+
+        let texture_handle = asset_server.load("branding/arrow_left.png");
+        spawn_back_button(&mut commands, texture_handle, &mut color_materials);
     }
 }
