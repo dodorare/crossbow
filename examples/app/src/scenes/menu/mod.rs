@@ -92,7 +92,7 @@ fn spawn_main_menu_button(
     parent
         .spawn(NodeComponents {
             style: Style {
-                size: Size::new(Val::Percent(100.0), Val::Px(65.0)),
+                size: Size::new(Val::Percent(100.0), Val::Percent(10.0)),
                 margin: Rect {
                     left: Val::Auto,
                     right: Val::Auto,
@@ -115,7 +115,12 @@ fn spawn_main_menu_button(
                         value: button.to_string(),
                         font: font_handle,
                         style: TextStyle {
-                            font_size: 40.0,
+                            // FIXME: Should be fixed in bevy
+                            font_size: if cfg!(target_os = "android") {
+                                120.0
+                            } else {
+                                40.0
+                            },
                             color: Color::rgb(0.9, 0.9, 0.9),
                         },
                     },

@@ -29,12 +29,22 @@ pub fn paint_system(
     line_material: Res<LineMaterial>,
     mouse_button_input: Res<Input<MouseButton>>,
     cursor_moved_events: Res<Events<CursorMoved>>,
+    touch_input: Res<Touches>,
+    touch_input_events: Res<Events<TouchInput>>,
     windows: Res<Windows>,
     transforms: Query<&Transform>,
 ) {
     let camera_transform = transforms.get::<Transform>(state.camera_entity).unwrap();
     if mouse_button_input.pressed(MouseButton::Left) {
         for event in state.cursor_event_reader.iter(&cursor_moved_events) {
+            state.cursor_curve.push_front(screen_to_world(
+                event.position,
+                &camera_transform,
+                &windows,
+            ));
+        }
+    } else if let Some(_) = touch_input.get_pressed(0) {
+        for event in state.touch_event_reader.iter(&touch_input_events) {
             state.cursor_curve.push_front(screen_to_world(
                 event.position,
                 &camera_transform,
@@ -60,7 +70,7 @@ fn spawn_line_segment(
 
     let midpoint = (p1 + p2) / 2.0;
     let diff = p2 - p1;
-    let length = diff.length();
+    let length = diff.length() + 5.0;
     let angle = Vec2::new(1.0, 0.0).angle_between(diff);
     let x = midpoint.x();
     let y = midpoint.y();
@@ -80,10 +90,10 @@ fn spawn_line_segment(
     });
 }
 
-fn screen_to_world(p: Vec2, camera_transform: &Transform, windows: &Windows) -> Vec2 {
+fn screen_to_world(pos: Vec2, camera_transform: &Transform, windows: &Windows) -> Vec2 {
     let w = windows.get_primary().unwrap();
     let resolution = Vec2::new(w.width() as f32, w.height() as f32);
-    let p_ndc = p - resolution / 2.0;
+    let p_ndc = pos - resolution / 2.0;
     let p_world = camera_transform.compute_matrix() * p_ndc.extend(0.0).extend(1.0);
     p_world.truncate().truncate()
 }

@@ -7,6 +7,7 @@ pub struct LineMaterial(pub Handle<ColorMaterial>);
 
 pub struct LineDrawingState {
     pub cursor_event_reader: EventReader<CursorMoved>,
+    pub touch_event_reader: EventReader<TouchInput>,
     pub cursor_curve: VecDeque<Vec2>,
     pub camera_entity: Entity,
 }
@@ -15,6 +16,7 @@ impl LineDrawingState {
     pub fn new(camera_entity: Entity) -> Self {
         LineDrawingState {
             cursor_event_reader: Default::default(),
+            touch_event_reader: Default::default(),
             cursor_curve: Default::default(),
             camera_entity,
         }

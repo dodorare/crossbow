@@ -22,10 +22,9 @@ impl Plugin for ScenesPlugin {
         app_builder.add_plugin(menu::MenuScene);
 
         // TODO: Move them to own scenes.
-        // app_builder
-        //     .add_startup_system(audio.system())
-        //     .add_startup_system(helmet.system())
-        //     .add_startup_system(icon.system());
+        // app_builder.add_startup_system(audio.system());
+        // app_builder.add_startup_system(helmet.system());
+        // app_builder.add_startup_system(icon.system());
     }
 }
 
