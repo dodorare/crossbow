@@ -1,8 +1,8 @@
+use displaydoc::Display;
 use std::io::Error as IoError;
 use std::path::PathBuf;
 use std::process::Command;
 use thiserror::Error;
-use displaydoc::Display;
 
 #[derive(Display, Debug, Error)]
 pub enum NdkError {

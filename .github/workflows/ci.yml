@@ -28,10 +28,13 @@ jobs:
     name: Check code format
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@master
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          components: rustfmt, clippy
+          override: true
+      - name: Check the format
+        run: cargo +nightly fmt --all -- --check
       - name: Run clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
-      - name: Run clippy for example app
-        run: |
-          cd examples/app
-          cargo clippy --all-targets --all-features -- -D warnings -A clippy::type_complexity -A clippy::too-many-arguments
