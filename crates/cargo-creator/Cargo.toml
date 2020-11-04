@@ -1,6 +1,6 @@
 [package]
 name = "cargo-creator"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2018"
 authors = ["enfipy <enfipy@gmail.com>", "olvyko <olvyko@gmail.com>"]
 description = "Mobile Game Framework"
@@ -23,3 +23,8 @@ which = "4.0"
 
 env_logger = "0.7.1"
 log = "0.4.8"
+
+[features]
+default = ["android", "ios"]
+android = []
+ios = []

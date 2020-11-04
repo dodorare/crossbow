@@ -48,7 +48,10 @@ fn member(manifest: &Path, members: &[String], package: &str) -> Result<Option<P
     Ok(None)
 }
 
-pub fn find_package(path: &Path, name: Option<&str>) -> Result<(PathBuf, String, Option<String>), Error> {
+pub fn find_package(
+    path: &Path,
+    name: Option<&str>,
+) -> Result<(PathBuf, String, Option<String>), Error> {
     let path = std::fs::canonicalize(path)?;
     for manifest_path in path
         .ancestors()
