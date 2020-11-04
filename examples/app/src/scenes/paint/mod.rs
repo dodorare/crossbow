@@ -34,7 +34,7 @@ pub fn paint_system(
     windows: Res<Windows>,
     transforms: Query<&Transform>,
 ) {
-    let camera_transform = transforms.get::<Transform>(state.camera_entity).unwrap();
+    let camera_transform = transforms.get(state.camera_entity).unwrap();
     if mouse_button_input.pressed(MouseButton::Left) {
         for event in state.cursor_event_reader.iter(&cursor_moved_events) {
             state.cursor_curve.push_front(screen_to_world(

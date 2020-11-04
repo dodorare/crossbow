@@ -83,7 +83,7 @@ impl Subcommand {
                 }
             }
         }
-        let (manifest, package) = utils::find_package(
+        let (manifest, package, lib_name) = utils::find_package(
             &manifest_path.unwrap_or_else(|| std::env::current_dir().unwrap()),
             package.as_deref(),
         )?;
@@ -107,7 +107,7 @@ impl Subcommand {
             }
         }
         if artifacts.is_empty() {
-            artifacts.push(Artifact::Root(package.clone()));
+            artifacts.push(Artifact::Root(lib_name.unwrap_or(package.clone())));
         }
         let host_triple = Command::new("rustc")
             .arg("-vV")

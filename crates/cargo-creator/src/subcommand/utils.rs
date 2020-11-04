@@ -48,7 +48,7 @@ fn member(manifest: &Path, members: &[String], package: &str) -> Result<Option<P
     Ok(None)
 }
 
-pub fn find_package(path: &Path, name: Option<&str>) -> Result<(PathBuf, String), Error> {
+pub fn find_package(path: &Path, name: Option<&str>) -> Result<(PathBuf, String, Option<String>), Error> {
     let path = std::fs::canonicalize(path)?;
     for manifest_path in path
         .ancestors()
@@ -56,18 +56,19 @@ pub fn find_package(path: &Path, name: Option<&str>) -> Result<(PathBuf, String)
         .filter(|dir| dir.exists())
     {
         let manifest = Manifest::parse_from_toml(&manifest_path)?;
+        let lib_name = manifest.lib.as_ref().and_then(|lib| lib.name.clone());
         if let Some(p) = manifest.package.as_ref() {
             if let (Some(n1), n2) = (name, &p.name) {
                 if n1 == n2 {
-                    return Ok((manifest_path, p.name.clone()));
+                    return Ok((manifest_path, p.name.clone(), lib_name));
                 }
             } else {
-                return Ok((manifest_path, p.name.clone()));
+                return Ok((manifest_path, p.name.clone(), lib_name));
             }
         }
         if let (Some(w), Some(name)) = (manifest.workspace.as_ref(), name) {
             if let Some(manifest_path) = member(&manifest_path, &w.members, name)? {
-                return Ok((manifest_path, name.to_string()));
+                return Ok((manifest_path, name.to_string(), lib_name));
             }
         }
     }

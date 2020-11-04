@@ -6,6 +6,7 @@ use std::path::Path;
 pub struct Manifest {
     pub workspace: Option<Workspace>,
     pub package: Option<Package>,
+    pub lib: Option<Lib>,
 }
 
 impl Manifest {
@@ -23,4 +24,9 @@ pub struct Workspace {
 #[derive(Debug, Deserialize)]
 pub struct Package {
     pub name: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Lib {
+    pub name: Option<String>,
 }

@@ -23,7 +23,7 @@ paint = ["itertools"]
 menu = []
 
 [lib]
-# name = "applib"
+name = "applib"
 crate-type = ["lib", "cdylib"]
 
 [package.metadata.android]

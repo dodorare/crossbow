@@ -1,6 +1,6 @@
 use crate::error::Error;
-use ndk_build::config::Metadata;
-use ndk_build::target::Target;
+use crate::ndk::config::Metadata;
+use crate::ndk::target::Target;
 use serde::Deserialize;
 use std::path::Path;
 

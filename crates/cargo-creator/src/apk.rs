@@ -1,13 +1,15 @@
 use crate::error::Error;
 use crate::manifest::Manifest;
+use crate::ndk::{
+    apk::{Apk, ApkConfig},
+    cargo::{cargo_apk, VersionCode},
+    config::Config,
+    dylibs::get_libs_search_paths,
+    error::NdkError,
+    ndk::Ndk,
+    target::Target,
+};
 use crate::subcommand::{Artifact, CrateType, Profile, Subcommand};
-use ndk_build::apk::{Apk, ApkConfig};
-use ndk_build::cargo::{cargo_apk, VersionCode};
-use ndk_build::config::Config;
-use ndk_build::dylibs::get_libs_search_paths;
-use ndk_build::error::NdkError;
-use ndk_build::ndk::Ndk;
-use ndk_build::target::Target;
 use std::path::PathBuf;
 use std::process::Command;
 
@@ -108,7 +110,6 @@ impl<'a> ApkBuilder<'a> {
                 return Err(NdkError::CmdFailed(cargo).into());
             }
 
-            // TODO: Fix issue with custom lib name.
             let mut libs_search_paths =
                 get_libs_search_paths(&self.cmd.target_dir(), triple, self.cmd.profile().as_ref())?;
             libs_search_paths.push(build_dir.join("deps"));
