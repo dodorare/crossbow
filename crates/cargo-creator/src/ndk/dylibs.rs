@@ -7,12 +7,10 @@ pub fn get_libs_search_paths(
     target_profile: &Path,
 ) -> Result<Vec<PathBuf>> {
     let mut paths = Vec::new();
-
     let deps_dir = target_dir
         .join(target_triple)
         .join(target_profile)
         .join("build");
-
     for dep_dir in deps_dir.read_dir()? {
         let output_file = dep_dir?.path().join("output");
         if output_file.is_file() {
@@ -23,7 +21,7 @@ pub fn get_libs_search_paths(
             for line in BufReader::new(File::open(output_file)?).lines() {
                 let line = line?;
                 if line.starts_with("cargo:rustc-link-search=") {
-                    let mut pie = line.split("=");
+                    let mut pie = line.split('=');
                     let (kind, path) = match (pie.next(), pie.next(), pie.next()) {
                         (Some(_), Some(kind), Some(path)) => (kind, path),
                         (Some(_), Some(path), None) => ("all", path),
@@ -38,6 +36,5 @@ pub fn get_libs_search_paths(
             }
         }
     }
-
     Ok(paths)
 }

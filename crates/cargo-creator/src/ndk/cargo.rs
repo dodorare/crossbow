@@ -1,5 +1,5 @@
 use crate::ndk::error::NdkError;
-use crate::ndk::ndk::Ndk;
+use crate::ndk::ndk_build::Ndk;
 use crate::ndk::target::Target;
 use std::process::Command;
 

@@ -14,10 +14,7 @@ jobs:
     - name: Install Android targets
       run: |
         cd examples/app
-        rustup target add armv7-linux-androideabi
-        rustup target add aarch64-linux-android
-        rustup target add i686-linux-android
-        rustup target add x86_64-linux-android
+        rustup target add armv7-linux-androideabi aarch64-linux-android i686-linux-android x86_64-linux-android
     - name: Install Cargo Creator
       run: |
         cd examples/app
@@ -32,12 +29,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly
-          components: rustfmt, clippy
-          override: true
-      - name: Check the format
-        run: cargo +nightly fmt --all -- --check
       - name: Run clippy
-        run: cargo clippy --all-targets --all-features -- -D warnings -A clippy::type_complexity -A clippy::manual-strip
+        run: cargo clippy --all-targets --all-features -- -D warnings
+      - name: Run clippy for example app
+        run: |
+          cd examples/app
+          cargo clippy --all-targets --all-features -- -D warnings -A clippy::type_complexity -A clippy::too-many-arguments

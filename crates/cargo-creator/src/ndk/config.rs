@@ -1,7 +1,7 @@
 use crate::ndk::manifest::{
     ActivityMetadata, ApplicationMetadata, Feature, IntentFilter, IntentFilterData, Permission,
 };
-use crate::ndk::ndk::Ndk;
+use crate::ndk::ndk_build::Ndk;
 use serde::Deserialize;
 use std::path::PathBuf;
 

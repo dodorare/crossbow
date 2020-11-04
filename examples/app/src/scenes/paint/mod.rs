@@ -43,7 +43,7 @@ pub fn paint_system(
                 &windows,
             ));
         }
-    } else if let Some(_) = touch_input.get_pressed(0) {
+    } else if touch_input.get_pressed(0).is_some() {
         for event in state.touch_event_reader.iter(&touch_input_events) {
             state.cursor_curve.push_front(screen_to_world(
                 event.position,

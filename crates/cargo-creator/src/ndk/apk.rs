@@ -1,7 +1,7 @@
 use crate::ndk::config::{Config, Metadata};
 use crate::ndk::error::NdkError;
 use crate::ndk::manifest::Manifest;
-use crate::ndk::ndk::{Key, Ndk};
+use crate::ndk::ndk_build::{Key, Ndk};
 use crate::ndk::target::Target;
 use std::path::{Path, PathBuf};
 use std::process::Command;

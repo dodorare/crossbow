@@ -6,7 +6,7 @@ use crate::ndk::{
     config::Config,
     dylibs::get_libs_search_paths,
     error::NdkError,
-    ndk::Ndk,
+    ndk_build::Ndk,
     target::Target,
 };
 use crate::subcommand::{Artifact, CrateType, Profile, Subcommand};

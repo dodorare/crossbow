@@ -6,16 +6,16 @@ use toml::de::Error as TomlError;
 
 #[derive(Display, Debug, Error)]
 pub enum Error {
-    /// invalid args
+    /// Invalid args
     InvalidArgs,
-    /// didn't find Cargo.toml
+    /// Didn't find Cargo.toml
     ManifestNotFound,
-    /// didn't find rustc
+    /// Didn't find rustc
     RustcNotFound,
-    /// failed to parse config
+    /// Failed to parse config
     Config(#[from] TomlError),
-    /// ndk error
+    /// NDK error
     Ndk(#[from] NdkError),
-    /// io error
+    /// IO error
     Io(#[from] IoError),
 }

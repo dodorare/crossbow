@@ -24,6 +24,6 @@ pub mod config;
 pub mod dylibs;
 pub mod error;
 pub mod manifest;
-pub mod ndk;
+pub mod ndk_build;
 pub mod readelf;
 pub mod target;

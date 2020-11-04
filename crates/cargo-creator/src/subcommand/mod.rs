@@ -107,7 +107,7 @@ impl Subcommand {
             }
         }
         if artifacts.is_empty() {
-            artifacts.push(Artifact::Root(lib_name.unwrap_or(package.clone())));
+            artifacts.push(Artifact::Root(lib_name.unwrap_or_else(|| package.clone())));
         }
         let host_triple = Command::new("rustc")
             .arg("-vV")
