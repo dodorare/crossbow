@@ -56,9 +56,9 @@ impl ToString for MainMenuButton {
 
 fn main_menu_button_system(
     mut run_state: ResMut<RunState>,
-    mut interaction_query: Query<(&Node, Mutated<Interaction>, &MainMenuButton)>,
+    interaction_query: Query<(&Node, Mutated<Interaction>, &MainMenuButton)>,
 ) {
-    for (_node, interaction, button) in &mut interaction_query.iter() {
+    for (_node, interaction, button) in interaction_query.iter() {
         match *interaction {
             Interaction::Clicked => match button {
                 MainMenuButton::ThreeDScene => {
@@ -196,7 +196,7 @@ struct BackButton;
 
 fn back_button_system(
     mut run_state: ResMut<RunState>,
-    mut interaction_query: Query<(&Node, Mutated<Interaction>, &BackButton)>,
+    interaction_query: Query<(&Node, Mutated<Interaction>, &BackButton)>,
 ) {
     for (_node, interaction, _button) in &mut interaction_query.iter() {
         match *interaction {

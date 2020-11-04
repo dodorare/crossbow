@@ -9,9 +9,8 @@ log = "0.4"
 anyhow = "1.0"
 itertools = { version = "0.9", optional = true }
 substrate-subxt = { version = "0.13", optional = true }
-# bevy = "0.2.1"
+bevy = "0.3"
 # bevy = { path = "../../../bevy" }
-bevy = { git = "https://github.com/creator-rs/bevy", rev = "697355bc712b66c92dc5adda51791ffbb45f2145" }
 
 [target.'cfg(target_os = "android")'.dependencies]
 ndk-glue = { version = "0.2", features = ["logger"] }

@@ -28,6 +28,6 @@ impl Plugin for SetupPlugin {
                 height: 600,
                 ..Default::default()
             })
-            .add_default_plugins();
+            .add_plugins(DefaultPlugins);
     }
 }

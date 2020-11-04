@@ -40,9 +40,9 @@ pub fn state_despawn_system(
     mut commands: Commands,
     run_state: ResMut<RunState>,
     mut active_cameras: ResMut<ActiveCameras>,
-    mut query: Query<(Entity, &ForStates)>,
+    query: Query<(Entity, &ForStates)>,
 ) {
-    for (entity, for_states) in &mut query.iter() {
+    for (entity, for_states) in query.iter() {
         if run_state.game_state.exiting_one_of(&for_states.states)
             && !run_state
                 .game_state

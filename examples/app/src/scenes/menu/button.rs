@@ -21,7 +21,7 @@ pub fn button_effect_system(
     button_materials: Res<ButtonMaterials>,
     mut interaction_query: Query<(&Node, Mutated<Interaction>, &mut Handle<ColorMaterial>)>,
 ) {
-    for (_button, interaction, mut material) in &mut interaction_query.iter() {
+    for (_button, interaction, mut material) in interaction_query.iter_mut() {
         match *interaction {
             Interaction::Clicked => {
                 *material = button_materials.pressed.clone();
