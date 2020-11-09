@@ -10,6 +10,7 @@ anyhow = "1.0"
 itertools = { version = "0.9", optional = true }
 substrate-subxt = { version = "0.13", optional = true }
 bevy = "0.3"
+# bevy = { git = "https://github.com/creator-rs/bevy", rev = "" }
 # bevy = { path = "../../../bevy" }
 
 [target.'cfg(target_os = "android")'.dependencies]

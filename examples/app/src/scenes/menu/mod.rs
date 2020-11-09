@@ -14,11 +14,12 @@ impl Plugin for MenuScene {
         app_builder
             .add_stage_after(stage::POST_UPDATE, "HANDLE_RUNSTATE")
             .init_resource::<ButtonMaterials>()
-            .add_resource(RunState::new(GameState::MainMenu))
+            .add_resource(RunState::new(GameState::Explorer))
             .add_startup_system(setup.system())
             .add_system(main_menu_setup.system())
             .add_system(threed_scene.system())
             .add_system(twod_scene.system())
+            .add_system(explorer.system())
             .add_system(main_menu_button_system.system())
             .add_system(back_button_system.system())
             .add_system(state_despawn_system.system())
@@ -68,7 +69,9 @@ fn main_menu_button_system(
                     run_state.game_state.transit_to(GameState::TwoDScene);
                 }
                 MainMenuButton::Audio => (),
-                MainMenuButton::Explorer => (),
+                MainMenuButton::Explorer => {
+                    run_state.game_state.transit_to(GameState::Explorer);
+                }
                 MainMenuButton::About => (),
             },
             Interaction::Hovered => (),
@@ -281,17 +284,29 @@ fn spawn_back_button(
                             ..Default::default()
                         })
                         .with(ForStates {
-                            states: vec![GameState::ThreeDScene, GameState::TwoDScene],
+                            states: vec![
+                                GameState::ThreeDScene,
+                                GameState::TwoDScene,
+                                GameState::Explorer,
+                            ],
                         })
                         .with(BackButton)
                         .with(Interaction::default());
                 })
                 .with(ForStates {
-                    states: vec![GameState::ThreeDScene, GameState::TwoDScene],
+                    states: vec![
+                        GameState::ThreeDScene,
+                        GameState::TwoDScene,
+                        GameState::Explorer,
+                    ],
                 });
         })
         .with(ForStates {
-            states: vec![GameState::ThreeDScene, GameState::TwoDScene],
+            states: vec![
+                GameState::ThreeDScene,
+                GameState::TwoDScene,
+                GameState::Explorer,
+            ],
         });
 }
 
@@ -367,5 +382,192 @@ fn twod_scene(
 
         let texture_handle = asset_server.load("branding/arrow_left.png");
         spawn_back_button(&mut commands, texture_handle, &mut color_materials);
+    }
+}
+
+fn explorer(
+    mut commands: Commands,
+    run_state: ResMut<RunState>,
+    asset_server: Res<AssetServer>,
+    mut color_materials: ResMut<Assets<ColorMaterial>>,
+    button_materials: Res<ButtonMaterials>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+) {
+    if run_state.game_state.entering(GameState::Explorer) {
+        commands
+            // root node (padding)
+            .spawn(NodeComponents {
+                style: Style {
+                    size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                    padding: Rect::all(Val::Percent(6.0)),
+                    flex_direction: FlexDirection::ColumnReverse,
+                    ..Default::default()
+                },
+                material: materials.add(Color::NONE.into()),
+                ..Default::default()
+            })
+            .with_children(|parent| {
+                parent
+                    // explorer node
+                    .spawn(NodeComponents {
+                        style: Style {
+                            size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                            flex_direction: FlexDirection::ColumnReverse,
+                            align_items: AlignItems::FlexStart,
+                            ..Default::default()
+                        },
+                        material: materials.add(Color::NONE.into()),
+                        ..Default::default()
+                    })
+                    // explorer info block
+                    .with_children(|parent| {
+                        parent
+                            .spawn(NodeComponents {
+                                style: Style {
+                                    size: Size::new(Val::Percent(100.0), Val::Auto),
+                                    padding: Rect::all(Val::Percent(3.0)),
+                                    flex_direction: FlexDirection::ColumnReverse,
+                                    align_items: AlignItems::FlexStart,
+                                    ..Default::default()
+                                },
+                                material: materials.add(Color::rgb(0.15, 0.15, 0.15).into()),
+                                ..Default::default()
+                            })
+                            .with_children(|parent| {
+                                parent
+                                    .spawn(TextComponents {
+                                        style: Style {
+                                            // Wrapping text dont work in bevy for now
+                                            // flex_wrap: FlexWrap::Wrap,
+                                            ..Default::default()
+                                        },
+                                        text: Text {
+                                            value: "Height: 234242".to_string(),
+                                            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                                            style: TextStyle {
+                                                // FIXME: Should be fixed in bevy
+                                                font_size: if cfg!(target_os = "android") {
+                                                    90.0
+                                                } else {
+                                                    30.0
+                                                },
+                                                color: Color::rgb(0.9, 0.9, 0.9),
+                                            },
+                                        },
+                                        ..Default::default()
+                                    })
+                                    .with(ForStates {
+                                        states: vec![GameState::Explorer],
+                                    })
+                                    .spawn(TextComponents {
+                                        text: Text {
+                                            value: "best/finalize".to_string(),
+                                            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                                            style: TextStyle {
+                                                // FIXME: Should be fixed in bevy
+                                                font_size: if cfg!(target_os = "android") {
+                                                    90.0
+                                                } else {
+                                                    30.0
+                                                },
+                                                color: Color::rgb(0.9, 0.9, 0.9),
+                                            },
+                                        },
+                                        ..Default::default()
+                                    })
+                                    .with(ForStates {
+                                        states: vec![GameState::Explorer],
+                                    })
+                                    .spawn(TextComponents {
+                                        text: Text {
+                                            value: "Recent block: 1db...1fe".to_string(),
+                                            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                                            style: TextStyle {
+                                                // FIXME: Should be fixed in bevy
+                                                font_size: if cfg!(target_os = "android") {
+                                                    90.0
+                                                } else {
+                                                    30.0
+                                                },
+                                                color: Color::rgb(0.9, 0.9, 0.9),
+                                            },
+                                        },
+                                        ..Default::default()
+                                    })
+                                    .with(ForStates {
+                                        states: vec![GameState::Explorer],
+                                    });
+                            })
+                            .with(ForStates {
+                                states: vec![GameState::Explorer],
+                            });
+                    })
+                    .with(ForStates {
+                        states: vec![GameState::Explorer],
+                    });
+
+                // explorer node
+                parent
+                    .spawn(NodeComponents {
+                        style: Style {
+                            size: Size::new(Val::Percent(100.0), Val::Percent(12.0)),
+                            flex_direction: FlexDirection::ColumnReverse,
+                            ..Default::default()
+                        },
+                        material: materials.add(Color::RED.into()),
+                        ..Default::default()
+                    })
+                    .with_children(|parent| {
+                        parent
+                            .spawn(NodeComponents {
+                                style: Style {
+                                    size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                                    margin: Rect {
+                                        left: Val::Auto,
+                                        right: Val::Auto,
+                                        top: Val::Undefined,
+                                        bottom: Val::Undefined,
+                                    },
+                                    justify_content: JustifyContent::Center,
+                                    align_items: AlignItems::Center,
+                                    ..Default::default()
+                                },
+                                material: button_materials.normal.clone(),
+                                ..Default::default()
+                            })
+                            .with_children(|parent| {
+                                parent
+                                    .spawn(TextComponents {
+                                        text: Text {
+                                            value: "Refresh".to_string(),
+                                            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                                            style: TextStyle {
+                                                // FIXME: Should be fixed in bevy
+                                                font_size: if cfg!(target_os = "android") {
+                                                    120.0
+                                                } else {
+                                                    40.0
+                                                },
+                                                color: Color::rgb(0.9, 0.9, 0.9),
+                                            },
+                                        },
+                                        ..Default::default()
+                                    })
+                                    .with(ForStates {
+                                        states: vec![GameState::Explorer],
+                                    });
+                            })
+                            .with(ForStates {
+                                states: vec![GameState::Explorer],
+                            })
+                            .with(Interaction::default());
+                    })
+                    .with(ForStates {
+                        states: vec![GameState::Explorer],
+                    });
+            })
+            .with(ForStates {
+                states: vec![GameState::Explorer],
+            });
     }
 }
