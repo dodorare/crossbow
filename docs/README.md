@@ -20,8 +20,10 @@ docker run --rm -it -v "$(pwd)/:/src" -w /src/examples/app docker.pkg.github.com
 Install APK on connected Android phone via USB:
 
 ```sh
-adb install ../../target/debug/apk/Creator.apk
+adb install ./target/debug/apk/Creator.apk
 ```
+
+Or transfer APK file `./target/debug/apk/Creator.apk` to your phone with messanger or any file-hosting application.
 
 ## Build with installed Android NDK
 
