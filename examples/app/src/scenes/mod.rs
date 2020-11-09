@@ -1,11 +1,10 @@
+mod button;
 #[cfg(feature = "explorer")]
 mod explorer;
 #[cfg(feature = "menu")]
 mod menu;
 #[cfg(feature = "paint")]
 mod paint;
-#[cfg(feature = "menu")]
-mod state;
 
 use bevy::prelude::*;
 

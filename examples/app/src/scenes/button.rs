@@ -17,7 +17,7 @@ impl FromResources for ButtonMaterials {
     }
 }
 
-pub fn button_effect_system(
+pub fn button_effect(
     button_materials: Res<ButtonMaterials>,
     mut interaction_query: Query<(&Node, Mutated<Interaction>, &mut Handle<ColorMaterial>)>,
 ) {
@@ -35,3 +35,8 @@ pub fn button_effect_system(
         }
     }
 }
+
+#[cfg(not(target_os = "android"))]
+pub const BUTTON_FONT_SIZE: f32 = 40.0;
+#[cfg(target_os = "android")]
+pub const BUTTON_FONT_SIZE: f32 = 120.0;

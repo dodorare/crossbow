@@ -1,12 +1,11 @@
-mod button;
+mod state;
 
-pub use button::*;
+use super::button::*;
+use state::*;
 
 use bevy::{
     prelude::*, render::camera::ActiveCameras, render::render_graph::base::camera::CAMERA3D,
 };
-
-use super::state::*;
 
 pub struct MenuScene;
 impl Plugin for MenuScene {
@@ -23,7 +22,7 @@ impl Plugin for MenuScene {
             .add_system(main_menu_button_system.system())
             .add_system(back_button_system.system())
             .add_system(state_despawn_system.system())
-            .add_system(button_effect_system.system())
+            .add_system(button_effect.system())
             .add_system_to_stage("HANDLE_RUNSTATE", run_state_fsm_system.system());
     }
 }
@@ -376,7 +375,6 @@ fn twod_scene(
     mut commands: Commands,
     run_state: ResMut<RunState>,
     asset_server: Res<AssetServer>,
-    mut color_materials: ResMut<Assets<ColorMaterial>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     if run_state.game_state.entering(GameState::TwoDScene) {
@@ -391,7 +389,7 @@ fn twod_scene(
             });
 
         let texture_handle = asset_server.load("branding/arrow_left.png");
-        spawn_back_button(&mut commands, texture_handle, &mut color_materials);
+        spawn_back_button(&mut commands, texture_handle, &mut materials);
     }
 }
 
