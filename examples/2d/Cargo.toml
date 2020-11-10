@@ -1,6 +1,6 @@
 [package]
 name = "twod"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["enfipy <enfipy@gmail.com>", "olvyko <olvyko@gmail.com>"]
 edition = "2018"
 

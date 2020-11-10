@@ -1,11 +1,9 @@
 
 name: Build and deploy
 
-on: push
-
-# on:
-#   push:
-#     tags: ['v*']
+on:
+  push:
+    tags: ['v*']
 
 jobs:
 
@@ -26,10 +24,10 @@ jobs:
         for crate in "${crates[@]}"
         do
           echo "Publishing ${crate}"
-          cargo publish --manifest-path=crates/$crate/Cargo.toml || true
+          cargo publish --manifest-path=crates/$crate/Cargo.toml
           sleep 15
         done
-        cargo publish || true
+        cargo publish
 
   build-and-publish-release:
     name: Build and publish Github release
@@ -50,11 +48,11 @@ jobs:
       uses: davidB/rust-cargo-make@v1
     - name: Build binary
       run: cargo make zip-release -e CARGO_MAKE_RELEASE_FLOW_TARGET=${{ matrix.binary_target }}
-    # - name: Upload zip file
-    #   uses: svenstaro/upload-release-action@v1-release
-    #   with:
-    #     repo_token: ${{ secrets.GITHUB_TOKEN }}
-    #     file: '*.zip'
-    #     tag: ${{ github.ref }}
-    #     overwrite: true
-    #     file_glob: true
+    - name: Upload zip file
+      uses: svenstaro/upload-release-action@v1-release
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: '*.zip'
+        tag: ${{ github.ref }}
+        overwrite: true
+        file_glob: true
