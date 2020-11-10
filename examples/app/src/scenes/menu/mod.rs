@@ -333,41 +333,6 @@ fn threed_scene(
                     .looking_at(Vec3::new(0.0, 0.3, 0.0), Vec3::unit_y()),
                 ..Default::default()
             });
-        //     .spawn(Camera3dComponents {
-        //         transform: Transform::from_translation(Vec3::new(-3.0, 5.0, 8.0))
-        //             .looking_at(Vec3::default(), Vec3::unit_y()),
-        //         ..Default::default()
-        //     })
-        //     .with(ForStates {
-        //         states: vec![GameState::ThreeDScene],
-        //     })
-        //     .spawn(PbrComponents {
-        //         mesh: meshes.add(Mesh::from(shape::Plane { size: 10.0 })),
-        //         material: materials.add(Color::rgb(0.3, 0.5, 0.3).into()),
-        //         ..Default::default()
-        //     })
-        //     .with(ForStates {
-        //         states: vec![GameState::ThreeDScene],
-        //     })
-        //     .spawn(PbrComponents {
-        //         mesh: meshes.add(Mesh::from(shape::Cube { size: 1.0 })),
-        //         material: materials.add(Color::rgb(0.8, 0.7, 0.6).into()),
-        //         transform: Transform::from_translation(Vec3::new(0.0, 1.0, 0.0)),
-        //         ..Default::default()
-        //     })
-        //     .with(ForStates {
-        //         states: vec![GameState::ThreeDScene],
-        //     })
-        //     .spawn(LightComponents {
-        //         transform: Transform::from_translation(Vec3::new(4.0, 8.0, 4.0)),
-        //         ..Default::default()
-        //     })
-        //     .with(ForStates {
-        //         states: vec![GameState::ThreeDScene],
-        //     });
-
-        // let texture_handle = asset_server.load("branding/arrow_left.png");
-        // spawn_back_button(&mut commands, texture_handle, &mut color_materials);
     };
 }
 
