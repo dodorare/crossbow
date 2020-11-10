@@ -1,7 +1,7 @@
-mod button;
+// mod button;
 mod explorer;
 
-use button::*;
+// use button::*;
 use explorer::*;
 
 use bevy::prelude::*;
@@ -21,9 +21,13 @@ pub fn main() {
             ..Default::default()
         })
         .add_plugins(DefaultPlugins)
-        .init_resource::<ButtonMaterials>()
+        .init_resource::<State>()
+        .init_resource::<LocalClient>()
+        // .init_resource::<ButtonMaterials>()
+        // .add_system(button_effect.system())
+        // .add_system(explorer_button.system())
         .add_startup_system(explorer_ui.system())
-        .add_system(button_effect.system())
-        .add_system(explorer_button.system())
+        .add_system(substrate.system())
+        .add_system(explorer_text_updater.system())
         .run();
 }

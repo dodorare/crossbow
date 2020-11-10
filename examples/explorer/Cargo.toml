@@ -7,8 +7,9 @@ edition = "2018"
 [dependencies]
 log = "0.4"
 anyhow = "1.0"
-substrate-subxt = { version = "0.13", optional = true }
+substrate-subxt = "0.13"
 bevy = "0.3"
+futures = "0.3.7"
 
 [target.'cfg(target_os = "android")'.dependencies]
 ndk-glue = { version = "0.2", features = ["logger"] }
@@ -27,3 +28,6 @@ icon = "@mipmap/ic_launcher"
 target_sdk_version = 29
 min_sdk_version = 16
 build_targets = ["aarch64-linux-android"]
+
+[[package.metadata.android.permission]]
+name = "android.permission.INTERNET"
