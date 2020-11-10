@@ -10,6 +10,7 @@ Pre-requirements:
 
 * Cloned `creator-rs` repository
 * Docker
+* Installed [adb](https://developer.android.com/studio/command-line/adb) (optional)
 
 To run example Android application with `docker` you will need to run following command in root of this project:
 
@@ -26,6 +27,13 @@ adb install ./target/debug/apk/Creator.apk
 Or transfer APK file `./target/debug/apk/Creator.apk` to your phone with messanger or any file-hosting application.
 
 ## Build with installed Android NDK
+
+Pre-requirements:
+
+* Cloned `creator-rs` repository
+* Android SDK
+* Android NDK
+* Installed [platform-tools](https://developer.android.com/studio/releases/platform-tools.html)
 
 Install `cargo-creator` tool:
 
