@@ -1,5 +1,5 @@
-use bevy::prelude::*;
 use crate::line::*;
+use bevy::prelude::*;
 
 pub fn paint_setup(mut commands: Commands, mut materials: ResMut<Assets<ColorMaterial>>) {
     let camera_entity = commands
