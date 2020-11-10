@@ -1,0 +1,62 @@
+[config]
+skip_core_tasks = true
+default_to_workspace = false
+
+[tasks.zip-release]
+description = "Compiles the binary in release mode and zips it up"
+condition = { env_set = ["CARGO_MAKE_RELEASE_FLOW_TARGET"] }
+dependencies = [
+  "setup-release-build-env",
+  "build-release-for-target",
+  "zip-release-binary-for-target",
+]
+
+[tasks.setup-release-build-env]
+description = "Sets up any non-rust dependencies in the build environment"
+condition = { env_set = ["CARGO_MAKE_RELEASE_FLOW_TARGET"] }
+script = '''
+rustup target add ${CARGO_MAKE_RELEASE_FLOW_TARGET}
+'''
+
+[tasks.build-release-for-target]
+description = "Makes a release build for a given target"
+condition = { env_set = ["CARGO_MAKE_RELEASE_FLOW_TARGET"] }
+install_crate = false
+command = "cargo"
+args = [
+  "build",
+  "--manifest-path",
+  "crates/cargo-creator/Cargo.toml",
+  "--release",
+  "--all-features",
+  "--target",
+  "${CARGO_MAKE_RELEASE_FLOW_TARGET}",
+]
+
+[tasks.zip-release-binary-for-target]
+description = "Zips up the release binary, README, and license(s)"
+condition = { env_set = [
+  "CARGO_MAKE_RELEASE_FLOW_TARGET",
+  "CARGO_MAKE_PROJECT_NAME",
+  "CARGO_MAKE_PROJECT_VERSION",
+  "CARGO_MAKE_BINARY_EXECUTABLE_NAME",
+] }
+env = { OUTPUT_NAME = "${CARGO_MAKE_PROJECT_NAME}-v${CARGO_MAKE_PROJECT_VERSION}-${CARGO_MAKE_RELEASE_FLOW_TARGET}" }
+script_runner = "@shell"
+script = '''
+mkdir ${OUTPUT_NAME}
+cp target/${CARGO_MAKE_RELEASE_FLOW_TARGET}/release/${CARGO_MAKE_BINARY_EXECUTABLE_NAME} ${OUTPUT_NAME}/
+cp README.md LICENSE* ${OUTPUT_NAME}/
+zip -r ${OUTPUT_NAME}.zip ${OUTPUT_NAME}
+'''
+
+[tasks.zip-release-binary-for-target.windows]
+script = '''
+mkdir ${OUTPUT_NAME}
+dir target
+powershell copy-item -path target/${CARGO_MAKE_RELEASE_FLOW_TARGET}/release/${CARGO_MAKE_BINARY_EXECUTABLE_NAME}.exe -destination ${OUTPUT_NAME}
+powershell copy-item -path README.md -destination ${OUTPUT_NAME}
+powershell copy-item -path LICENSE -destination ${OUTPUT_NAME}
+dir ${OUTPUT_NAME}
+powershell Compress-Archive -Path ${OUTPUT_NAME}/* -DestinationPath ${OUTPUT_NAME}.zip
+'''

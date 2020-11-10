@@ -1,19 +1,20 @@
 
 name: Build and deploy to crates.io
 
-on:
-  push:
-    paths: [Cargo.toml]
+on: push
+    # tags: ["v*"]
 
 jobs:
 
-  build-and-deploy:
+  build-and-deploy-to-crates-io:
     name: Build and deploy to crates.io
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - run: cargo login ${{ secrets.CRATES_IO_TOKEN }}
-    - run: |
+    - name: Login to crates.io
+      run: cargo login ${{ secrets.CRATES_IO_TOKEN }}
+    - name: Publish to crates.io
+      run: |
         # If crate A depends on crate B, B must come before A in this list
         crates=(
           cargo-creator
@@ -26,3 +27,41 @@ jobs:
           sleep 15
         done
         cargo publish || true
+
+  build-and-publish-release:
+    name: Build and publish Github release
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            binary_target: x86_64-unknown-linux-musl
+          - os: windows-latest
+            binary_target: x86_64-pc-windows-msvc
+          - os: macos-latest
+            binary_target: x86_64-apple-darwin
+    steps:
+    - uses: actions/checkout@master
+    - name: Install musl tools
+      if: matrix.os == 'ubuntu-latest'
+      run: sudo apt-get install musl-tools
+    - name: Install rust windows msvc target
+      if: matrix.os == 'windows-latest'
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable-x86_64-pc-windows-msvc
+        profile: minimal
+        override: true
+    - name: Install cargo make
+      uses: davidB/rust-cargo-make@v1
+    - name: Build binary
+      run: cargo make zip-release -e CARGO_MAKE_RELEASE_FLOW_TARGET=${{ matrix.binary_target }}
+    # - name: Upload zip file
+    #   uses: svenstaro/upload-release-action@v1-release
+    #   with:
+    #     repo_token: ${{ secrets.GITHUB_TOKEN }}
+    #     file: '*.zip'
+    #     tag: ${{ github.ref }}
+    #     overwrite: true
+    #     file_glob: true

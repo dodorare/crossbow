@@ -3,11 +3,15 @@ name = "cargo-creator"
 version = "0.1.2"
 edition = "2018"
 authors = ["enfipy <enfipy@gmail.com>", "olvyko <olvyko@gmail.com>"]
-description = "Mobile Game Framework"
+description = "Mobile Game Framework that helps build apps for Android and iOS"
 repository = "https://github.com/creator-rs/creator"
 license = "Apache-2.0"
 keywords = ["tool", "android", "ios"]
 readme = "../../README.md"
+
+[[bin]]
+name = "creator"
+path = "src/creator.rs"
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }

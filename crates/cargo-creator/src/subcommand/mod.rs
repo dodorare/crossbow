@@ -30,10 +30,12 @@ impl Subcommand {
         mut parser: F,
     ) -> Result<Self, Error> {
         let mut args = std::env::args().peekable();
-        args.next().ok_or(Error::InvalidArgs)?;
         let arg = args.next().ok_or(Error::InvalidArgs)?;
         if arg != subcommand {
-            return Err(Error::InvalidArgs);
+            let arg = args.next().ok_or(Error::InvalidArgs)?;
+            if arg != subcommand {
+                return Err(Error::InvalidArgs);
+            }
         }
         let cmd = args.next().unwrap_or_else(|| "--help".to_string());
         let mut cargo_args = Vec::new();
