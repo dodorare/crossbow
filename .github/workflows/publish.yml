@@ -14,20 +14,10 @@ jobs:
     - uses: actions/checkout@master
     - name: Login to crates.io
       run: cargo login ${{ secrets.CRATES_IO_TOKEN }}
+    - name: Install cargo make
+      uses: davidB/rust-cargo-make@v1
     - name: Publish to crates.io
-      run: |
-        # If crate A depends on crate B, B must come before A in this list
-        crates=(
-          cargo-creator
-          creator-permissions
-        )
-        for crate in "${crates[@]}"
-        do
-          echo "Publishing ${crate}"
-          cargo publish --manifest-path=crates/$crate/Cargo.toml
-          sleep 15
-        done
-        cargo publish
+      run: cargo make publish-to-crates-io
 
   build-and-publish-release:
     name: Build and publish Github release
