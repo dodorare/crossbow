@@ -1,5 +1,5 @@
 
-name: Build and deploy
+name: Build and publish
 
 on:
   push:
@@ -7,8 +7,8 @@ on:
 
 jobs:
 
-  build-and-deploy-to-crates-io:
-    name: Build and deploy to crates.io
+  build-and-publish-to-crates-io:
+    name: Build and publish to crates.io
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
@@ -53,6 +53,29 @@ jobs:
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: '*.zip'
+        tag: ${{ github.ref }}
+        overwrite: true
+        file_glob: true
+
+  build-and-publish-release-examples:
+    name: Build and publish examples to Github release
+    # TODO: Replace with Github Action or script that will download creator binary
+    needs: build-and-publish-to-crates-io
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Install cargo make
+      uses: davidB/rust-cargo-make@v1
+    - name: Build binary
+      # TODO: Replace with Github Action or script that will download creator binary
+      run: |
+        cargo install cargo-creator
+        cargo make examples-release
+    - name: Upload zip file
+      uses: svenstaro/upload-release-action@v1-release
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: 'target/apks/*.apk'
         tag: ${{ github.ref }}
         overwrite: true
         file_glob: true
