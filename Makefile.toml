@@ -6,9 +6,17 @@ default_to_workspace = false
 description = "Compiles the binary in release mode and zips it up"
 condition = { env_set = ["CARGO_MAKE_RELEASE_FLOW_TARGET"] }
 dependencies = [
+  "setup-release-build-env",
   "build-release-for-target",
   "zip-release-binary-for-target",
 ]
+
+[tasks.setup-release-build-env]
+description = "Sets up any non-rust dependencies in the build environment"
+condition = { env_set = ["CARGO_MAKE_RELEASE_FLOW_TARGET"], platforms = ["linux"] }
+script = '''
+rustup target add ${CARGO_MAKE_RELEASE_FLOW_TARGET}
+'''
 
 [tasks.build-release-for-target]
 description = "Makes a release build for a given target"

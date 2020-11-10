@@ -1,6 +1,6 @@
 [package]
 name = "creator-permissions"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2018"
 authors = ["enfipy <enfipy@gmail.com>", "olvyko <olvyko@gmail.com>"]
 description = "Mobile Game Framework"
