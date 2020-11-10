@@ -8,9 +8,11 @@ impl Plugin for ExplorerScene {
     fn build(&self, app_builder: &mut AppBuilder) {
         app_builder
             .init_resource::<ButtonMaterials>()
+            .add_resource(MovingCubeState { is_moving: true })
             .add_startup_system(explorer_background.system())
             .add_startup_system(explorer_ui.system())
             .add_system(button_effect.system())
+            .add_system(explorer_button.system())
             .add_system(moving_cube.system());
     }
 }
@@ -39,6 +41,11 @@ pub const TEXT_FONT_SIZE: f32 = 90.0;
 //         })
 //         .detach();
 // }
+
+enum ExplorerButton {
+    MovingCube,
+    RunAudio,
+}
 
 fn explorer_ui(
     mut commands: Commands,
@@ -75,7 +82,7 @@ fn explorer_ui(
                 })
                 .with_children(|parent| {
                     parent
-                        // explorer info block
+                        // best block
                         .spawn(NodeComponents {
                             style: Style {
                                 size: Size::new(Val::Percent(100.0), Val::Auto),
@@ -84,14 +91,14 @@ fn explorer_ui(
                                 align_items: AlignItems::FlexStart,
                                 ..Default::default()
                             },
-                            material: materials.add(Color::rgb(0.15, 0.15, 0.15).into()),
+                            material: materials.add(Color::rgba(0.15, 0.15, 0.15, 0.9).into()),
                             ..Default::default()
                         })
                         .with_children(|parent| {
                             parent
                                 .spawn(TextComponents {
                                     text: Text {
-                                        value: "Height: 234242".to_string(),
+                                        value: "Best block".to_string(),
                                         font: font.clone(),
                                         style: TextStyle {
                                             font_size: TEXT_FONT_SIZE,
@@ -102,7 +109,7 @@ fn explorer_ui(
                                 })
                                 .spawn(TextComponents {
                                     text: Text {
-                                        value: "best/finalize".to_string(),
+                                        value: "Number: 1234212".to_string(),
                                         font: font.clone(),
                                         style: TextStyle {
                                             font_size: TEXT_FONT_SIZE,
@@ -113,7 +120,81 @@ fn explorer_ui(
                                 })
                                 .spawn(TextComponents {
                                     text: Text {
-                                        value: "Recent block: 1db...1fe".to_string(),
+                                        value: "Hash: 0x314...122".to_string(),
+                                        font: font.clone(),
+                                        style: TextStyle {
+                                            font_size: TEXT_FONT_SIZE,
+                                            color: Color::rgb(0.9, 0.9, 0.9),
+                                        },
+                                    },
+                                    ..Default::default()
+                                })
+                                .spawn(TextComponents {
+                                    text: Text {
+                                        value: "Parent: 0x314...121".to_string(),
+                                        font: font.clone(),
+                                        style: TextStyle {
+                                            font_size: TEXT_FONT_SIZE,
+                                            color: Color::rgb(0.9, 0.9, 0.9),
+                                        },
+                                    },
+                                    ..Default::default()
+                                });
+                        })
+                        // finalized block
+                        .spawn(NodeComponents {
+                            style: Style {
+                                size: Size::new(Val::Percent(100.0), Val::Auto),
+                                margin: Rect {
+                                    top: Val::Percent(4.0),
+                                    ..Default::default()
+                                },
+                                padding: Rect::all(Val::Percent(3.0)),
+                                flex_direction: FlexDirection::ColumnReverse,
+                                align_items: AlignItems::FlexStart,
+                                ..Default::default()
+                            },
+                            material: materials.add(Color::rgba(0.15, 0.15, 0.15, 0.9).into()),
+                            ..Default::default()
+                        })
+                        .with_children(|parent| {
+                            parent
+                                .spawn(TextComponents {
+                                    text: Text {
+                                        value: "Finalized block".to_string(),
+                                        font: font.clone(),
+                                        style: TextStyle {
+                                            font_size: TEXT_FONT_SIZE,
+                                            color: Color::rgb(0.9, 0.9, 0.9),
+                                        },
+                                    },
+                                    ..Default::default()
+                                })
+                                .spawn(TextComponents {
+                                    text: Text {
+                                        value: "Number: 2234212".to_string(),
+                                        font: font.clone(),
+                                        style: TextStyle {
+                                            font_size: TEXT_FONT_SIZE,
+                                            color: Color::rgb(0.9, 0.9, 0.9),
+                                        },
+                                    },
+                                    ..Default::default()
+                                })
+                                .spawn(TextComponents {
+                                    text: Text {
+                                        value: "Hash: 0x114...122".to_string(),
+                                        font: font.clone(),
+                                        style: TextStyle {
+                                            font_size: TEXT_FONT_SIZE,
+                                            color: Color::rgb(0.9, 0.9, 0.9),
+                                        },
+                                    },
+                                    ..Default::default()
+                                })
+                                .spawn(TextComponents {
+                                    text: Text {
+                                        value: "Parent: 0x114...121".to_string(),
                                         font: font.clone(),
                                         style: TextStyle {
                                             font_size: TEXT_FONT_SIZE,
@@ -129,7 +210,7 @@ fn explorer_ui(
                 // explorer buttons node
                 .spawn(NodeComponents {
                     style: Style {
-                        size: Size::new(Val::Percent(100.0), Val::Percent(12.0)),
+                        size: Size::new(Val::Percent(100.0), Val::Percent(30.0)),
                         flex_direction: FlexDirection::ColumnReverse,
                         ..Default::default()
                     },
@@ -138,16 +219,10 @@ fn explorer_ui(
                 })
                 .with_children(|parent| {
                     parent
-                        // button
+                        // stop/move cube button
                         .spawn(NodeComponents {
                             style: Style {
                                 size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
-                                margin: Rect {
-                                    left: Val::Auto,
-                                    right: Val::Auto,
-                                    top: Val::Undefined,
-                                    bottom: Val::Undefined,
-                                },
                                 justify_content: JustifyContent::Center,
                                 align_items: AlignItems::Center,
                                 ..Default::default()
@@ -155,11 +230,13 @@ fn explorer_ui(
                             material: button_materials.normal.clone(),
                             ..Default::default()
                         })
+                        .with(ExplorerButton::MovingCube)
+                        .with(Interaction::default())
                         .with_children(|parent| {
                             parent.spawn(TextComponents {
                                 text: Text {
-                                    value: "Refresh".to_string(),
-                                    font,
+                                    value: "Stop/Move Cube".to_string(),
+                                    font: font.clone(),
                                     style: TextStyle {
                                         font_size: BUTTON_FONT_SIZE,
                                         color: Color::rgb(0.9, 0.9, 0.9),
@@ -168,30 +245,63 @@ fn explorer_ui(
                                 ..Default::default()
                             });
                         })
-                        .with(Interaction::default());
+                        // run audio button
+                        .spawn(NodeComponents {
+                            style: Style {
+                                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                                margin: Rect {
+                                    top: Val::Percent(4.0),
+                                    bottom: Val::Percent(6.0),
+                                    ..Default::default()
+                                },
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
+                                ..Default::default()
+                            },
+                            material: button_materials.normal.clone(),
+                            ..Default::default()
+                        })
+                        .with(ExplorerButton::RunAudio)
+                        .with(Interaction::default())
+                        .with_children(|parent| {
+                            parent.spawn(TextComponents {
+                                text: Text {
+                                    value: "Run Audio".to_string(),
+                                    font: font.clone(),
+                                    style: TextStyle {
+                                        font_size: BUTTON_FONT_SIZE,
+                                        color: Color::rgb(0.9, 0.9, 0.9),
+                                    },
+                                },
+                                ..Default::default()
+                            });
+                        });
                 });
         });
 }
 
+fn explorer_button(
+    mut moving_cube: ResMut<MovingCubeState>,
+    interaction_query: Query<(&Node, Mutated<Interaction>, &ExplorerButton)>,
+) {
+    for (_node, interaction, button) in &mut interaction_query.iter() {
+        match *interaction {
+            Interaction::Clicked => match button {
+                ExplorerButton::MovingCube => {
+                    moving_cube.is_moving = !moving_cube.is_moving;
+                }
+                ExplorerButton::RunAudio => {}
+            },
+            Interaction::Hovered => (),
+            Interaction::None => (),
+        }
+    }
+}
+
 struct MovingCube;
 
-fn moving_cube(
-    time: Res<Time>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-    mut query: Query<(&mut Transform, &mut Handle<StandardMaterial>, &MovingCube)>,
-) {
-    for (mut transform, mut material, _) in query.iter_mut() {
-        if transform.translation.x() < 1.0 && transform.translation.z() < 2.0 {
-            *transform.translation.x_mut() += time.delta_seconds * 0.8;
-        } else if transform.translation.z() < 2.0 && transform.translation.x() >= 1.0 {
-            *transform.translation.z_mut() += time.delta_seconds * 0.8;
-        } else if transform.translation.x() > -1.0 && transform.translation.z() >= 2.0 {
-            *transform.translation.x_mut() -= time.delta_seconds * 0.8;
-        } else if transform.translation.z() >= 0.0 {
-            *transform.translation.z_mut() -= time.delta_seconds * 0.8;
-        }
-        // println!("Hi");
-    }
+struct MovingCubeState {
+    is_moving: bool,
 }
 
 fn explorer_background(
@@ -221,4 +331,35 @@ fn explorer_background(
             transform: Transform::from_translation(Vec3::new(4.0, 8.0, 4.0)),
             ..Default::default()
         });
+}
+
+// should be (1.0 % CUBE_SPEED == 0)
+const CUBE_SPEED: f32 = 0.05;
+
+fn moving_cube(moving_cube: Res<MovingCubeState>, mut query: Query<(&mut Transform, &MovingCube)>) {
+    for (mut transform, _) in query.iter_mut() {
+        if moving_cube.is_moving {
+            if transform.translation.x() < 1.0 && transform.translation.z() == 0.0 {
+                let x = transform.translation.x();
+                transform
+                    .translation
+                    .set_x((x * 100.0).round() / 100.0 + CUBE_SPEED);
+            } else if transform.translation.z() < 2.0 && transform.translation.x() == 1.0 {
+                let z = transform.translation.z();
+                transform
+                    .translation
+                    .set_z((z * 100.0).round() / 100.0 + CUBE_SPEED);
+            } else if transform.translation.x() > -1.0 && transform.translation.z() == 2.0 {
+                let x = transform.translation.x();
+                transform
+                    .translation
+                    .set_x((x * 100.0).round() / 100.0 - CUBE_SPEED);
+            } else if transform.translation.z() > 0.0 {
+                let z = transform.translation.z();
+                transform
+                    .translation
+                    .set_z((z * 100.0).round() / 100.0 - CUBE_SPEED);
+            }
+        }
+    }
 }
