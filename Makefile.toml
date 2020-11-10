@@ -13,7 +13,7 @@ dependencies = [
 
 [tasks.setup-release-build-env]
 description = "Sets up any non-rust dependencies in the build environment"
-condition = { env_set = ["CARGO_MAKE_RELEASE_FLOW_TARGET"] }
+condition = { env_set = ["CARGO_MAKE_RELEASE_FLOW_TARGET"], platforms = ["linux"] }
 script = '''
 rustup target add ${CARGO_MAKE_RELEASE_FLOW_TARGET}
 '''
@@ -38,14 +38,13 @@ description = "Zips up the release binary, README, and license(s)"
 condition = { env_set = [
   "CARGO_MAKE_RELEASE_FLOW_TARGET",
   "CARGO_MAKE_PROJECT_NAME",
-  "CARGO_MAKE_PROJECT_VERSION",
-  "CARGO_MAKE_BINARY_EXECUTABLE_NAME",
+  "CARGO_MAKE_CRATE_VERSION",
 ] }
-env = { OUTPUT_NAME = "${CARGO_MAKE_PROJECT_NAME}-v${CARGO_MAKE_PROJECT_VERSION}-${CARGO_MAKE_RELEASE_FLOW_TARGET}" }
+env = { OUTPUT_NAME = "${CARGO_MAKE_PROJECT_NAME}-v${CARGO_MAKE_CRATE_VERSION}-${CARGO_MAKE_RELEASE_FLOW_TARGET}" }
 script_runner = "@shell"
 script = '''
 mkdir ${OUTPUT_NAME}
-cp target/${CARGO_MAKE_RELEASE_FLOW_TARGET}/release/${CARGO_MAKE_BINARY_EXECUTABLE_NAME} ${OUTPUT_NAME}/
+cp target/${CARGO_MAKE_RELEASE_FLOW_TARGET}/release/${CARGO_MAKE_PROJECT_NAME} ${OUTPUT_NAME}/
 cp README.md LICENSE* ${OUTPUT_NAME}/
 zip -r ${OUTPUT_NAME}.zip ${OUTPUT_NAME}
 '''
@@ -54,7 +53,7 @@ zip -r ${OUTPUT_NAME}.zip ${OUTPUT_NAME}
 script = '''
 mkdir ${OUTPUT_NAME}
 dir target
-powershell copy-item -path target/${CARGO_MAKE_RELEASE_FLOW_TARGET}/release/${CARGO_MAKE_BINARY_EXECUTABLE_NAME}.exe -destination ${OUTPUT_NAME}
+powershell copy-item -path target/${CARGO_MAKE_RELEASE_FLOW_TARGET}/release/${CARGO_MAKE_PROJECT_NAME}.exe -destination ${OUTPUT_NAME}
 powershell copy-item -path README.md -destination ${OUTPUT_NAME}
 powershell copy-item -path LICENSE -destination ${OUTPUT_NAME}
 dir ${OUTPUT_NAME}

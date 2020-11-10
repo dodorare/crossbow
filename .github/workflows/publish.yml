@@ -1,8 +1,11 @@
 
-name: Build and deploy to crates.io
+name: Build and deploy
 
 on: push
-    # tags: ["v*"]
+
+# on:
+#   push:
+#     tags: ['v*']
 
 jobs:
 
@@ -43,16 +46,6 @@ jobs:
             binary_target: x86_64-apple-darwin
     steps:
     - uses: actions/checkout@master
-    - name: Install musl tools
-      if: matrix.os == 'ubuntu-latest'
-      run: sudo apt-get install musl-tools
-    - name: Install rust windows msvc target
-      if: matrix.os == 'windows-latest'
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable-x86_64-pc-windows-msvc
-        profile: minimal
-        override: true
     - name: Install cargo make
       uses: davidB/rust-cargo-make@v1
     - name: Build binary

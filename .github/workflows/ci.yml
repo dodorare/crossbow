@@ -3,6 +3,10 @@ name: CI
 on:
   push:
     branches: [master]
+    paths:
+    - '.github/workflows/ci.yml'
+    - '*.rs'
+    - '*Cargo.toml'
 
 jobs:
 
