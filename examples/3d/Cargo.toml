@@ -1,6 +1,6 @@
 [package]
 name = "threed"
-version = "0.1.6"
+version = "0.1.7"
 authors = ["enfipy <enfipy@gmail.com>", "olvyko <olvyko@gmail.com>"]
 edition = "2018"
 

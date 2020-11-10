@@ -85,8 +85,8 @@ done
 
 [tasks.publish-to-crates-io]
 description = "Compiles the apks in release mode and zips them up"
-script = '''
 # If crate A depends on crate B, B must come before A in this list
+script = '''
 crates=(
   cargo-creator
   creator-permissions

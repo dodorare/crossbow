@@ -9,7 +9,7 @@ jobs:
 
   build-and-publish-to-crates-io:
     name: Build and publish to crates.io
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
     - uses: actions/checkout@master
     - name: Login to crates.io
@@ -39,7 +39,7 @@ jobs:
     - name: Build binary
       run: cargo make zip-release -e CARGO_MAKE_RELEASE_FLOW_TARGET=${{ matrix.binary_target }}
     - name: Upload zip file
-      uses: svenstaro/upload-release-action@v1-release
+      uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: '*.zip'
@@ -60,9 +60,9 @@ jobs:
       # TODO: Replace with Github Action or script that will download creator binary
       run: |
         cargo install cargo-creator
-        cargo make examples-release
+        cargo make build-release-examples
     - name: Upload zip file
-      uses: svenstaro/upload-release-action@v1-release
+      uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: 'target/apks/*.apk'
