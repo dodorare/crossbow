@@ -1,6 +1,6 @@
 [package]
 name = "creator"
-version = "0.1.7"
+version = "0.1.8"
 edition = "2018"
 authors = ["enfipy <enfipy@gmail.com>", "olvyko <olvyko@gmail.com>"]
 description = "Mobile Game Framework"
@@ -11,8 +11,8 @@ readme = "README.md"
 exclude = [".github/**/*"]
 
 [dependencies]
-cargo-creator = { path = "crates/cargo-creator", version = "0.1.7", optional = true }
-creator-permissions = { path = "crates/creator-permissions", version = "0.1.7", optional = true }
+cargo-creator = { path = "crates/cargo-creator", version = "0.1.8", optional = true }
+creator-permissions = { path = "crates/creator-permissions", version = "0.1.8", optional = true }
 
 [features]
 tool = ["cargo-creator"]

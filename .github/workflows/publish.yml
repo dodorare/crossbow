@@ -60,6 +60,7 @@ jobs:
       # TODO: Replace with Github Action or script that will download creator binary
       run: |
         cargo install cargo-creator
+        rustup target add armv7-linux-androideabi aarch64-linux-android i686-linux-android x86_64-linux-android
         cargo make build-release-examples
     - name: Upload zip file
       uses: svenstaro/upload-release-action@v2
