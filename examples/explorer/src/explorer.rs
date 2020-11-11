@@ -20,7 +20,7 @@ pub fn substrate(
                     println!("Connecting to Substrate Node.");
                     local_client.client = Some(
                         ClientBuilder::<KusamaRuntime>::new()
-                            .set_url("wss://rpc.polkadot.io")
+                            .set_url("wss://kusama-rpc.polkadot.io")
                             .build()
                             .await
                             .unwrap(),

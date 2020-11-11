@@ -13,11 +13,11 @@ pub fn main() {
 
     println!("Initialization.");
     App::build()
-        .add_resource(ClearColor(Color::rgb(0.88, 0.87, 0.86)))
+        .add_resource(ClearColor(Color::rgb(0.18, 0.17, 0.16)))
         .add_resource(WindowDescriptor {
             title: "Explorer".to_string(),
-            width: 340,
-            height: 600,
+            width: 640,
+            height: 1200,
             ..Default::default()
         })
         .add_plugins(DefaultPlugins)

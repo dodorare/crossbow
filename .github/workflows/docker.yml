@@ -6,6 +6,7 @@ on:
     paths:
     - '.github/docker/*.Dockerfile'
     - '.github/workflows/docker.yml'
+    tags: ["v*"]
 
 jobs:
 
