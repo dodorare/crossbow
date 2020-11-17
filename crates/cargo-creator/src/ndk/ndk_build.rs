@@ -18,8 +18,8 @@ impl Ndk {
             if sdk_path.is_none() {
                 sdk_path = std::env::var("ANDROID_HOME").ok();
                 println!(
-                    "Warning: You use environment variable ANDROID_HOME that is deprecated.\
-                 Please, remove it and use ANDROID_SDK_ROOT instead. Now ANDROID_HOME is used"
+                    "Warning: You use environment variable ANDROID_HOME that is deprecated. \
+                Please, remove it and use ANDROID_SDK_ROOT instead. Now ANDROID_HOME is used"
                 );
             }
             PathBuf::from(sdk_path.ok_or(NdkError::SdkNotFound)?)
