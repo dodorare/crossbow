@@ -14,8 +14,8 @@ RUN mkdir ${ANDROID_SDK_ROOT} && \
     rm sdk-tools-linux-4333796.zip && \
     chown -R root:root /opt
 RUN yes | ${ANDROID_SDK_ROOT}/tools/bin/sdkmanager "platform-tools" | grep -v = || true
-RUN yes | ${ANDROID_SDK_ROOT}/tools/bin/sdkmanager "platforms;android-30" | grep -v = || true
-RUN yes | ${ANDROID_SDK_ROOT}/tools/bin/sdkmanager "build-tools;30.0.0" | grep -v = || true
+RUN yes | ${ANDROID_SDK_ROOT}/tools/bin/sdkmanager "platforms;android-29" | grep -v = || true
+RUN yes | ${ANDROID_SDK_ROOT}/tools/bin/sdkmanager "build-tools;29.0.0" | grep -v = || true
 RUN ${ANDROID_SDK_ROOT}/tools/bin/sdkmanager --update | grep -v = || true
 
 # Install Android NDK
