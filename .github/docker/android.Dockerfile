@@ -23,10 +23,10 @@ RUN ${ANDROID_HOME}/tools/bin/sdkmanager --update | grep -v = || true
 
 # Install Android NDK
 RUN cd /usr/local && \
-    wget -q http://dl.google.com/android/repository/android-ndk-r20-linux-x86_64.zip && \
-    unzip -q android-ndk-r20-linux-x86_64.zip && \
-    rm android-ndk-r20-linux-x86_64.zip
-ENV NDK_HOME /usr/local/android-ndk-r20
+    wget -q http://dl.google.com/android/repository/android-ndk-r21-linux-x86_64.zip && \
+    unzip -q android-ndk-r21-linux-x86_64.zip && \
+    rm android-ndk-r21-linux-x86_64.zip
+ENV NDK_HOME /usr/local/android-ndk-r21
 
 # Install Cargo Creator
 RUN cargo install cargo-creator
