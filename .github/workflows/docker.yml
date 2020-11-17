@@ -16,9 +16,8 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Build Android image
-      run: docker build -t docker.pkg.github.com/creator-rs/creator/android -f .github/docker/android.Dockerfile .
+      run: docker build -t ghcr.io/creator-rs/android -f .github/docker/android.Dockerfile .
     - name: Publish Android docker image
-      uses: VaultVulp/gp-docker-action@1.0.1
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        image-name: android
+      run: |
+        echo ${{ secrets.DOCKER_GITHUB_TOKEN }} | docker login ghcr.io -u enfipy --password-stdin
+        docker push ghcr.io/creator-rs/android
