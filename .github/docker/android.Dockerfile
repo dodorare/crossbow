@@ -1,4 +1,5 @@
 FROM rust:stretch
+LABEL org.opencontainers.image.source https://github.com/creator-rs/creator
 
 RUN apt-get update && \
     apt-get install -yq openjdk-8-jre unzip wget cmake && \

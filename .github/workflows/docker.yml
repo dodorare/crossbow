@@ -21,3 +21,15 @@ jobs:
       run: |
         echo ${{ secrets.DOCKER_GITHUB_TOKEN }} | docker login ghcr.io -u enfipy --password-stdin
         docker push ghcr.io/creator-rs/android
+
+  build-ios-dockerfile:
+    name: Build iOS Dockerfile
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Build iOS image
+      run: docker build -t ghcr.io/creator-rs/ios -f .github/docker/ios.Dockerfile .
+    - name: Publish iOS docker image
+      run: |
+        echo ${{ secrets.DOCKER_GITHUB_TOKEN }} | docker login ghcr.io -u enfipy --password-stdin
+        docker push ghcr.io/creator-rs/ios
