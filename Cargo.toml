@@ -12,9 +12,18 @@ exclude = [".github/**/*"]
 
 [dependencies]
 cargo-creator = { path = "crates/cargo-creator", version = "0.2.1", optional = true }
+creator-derive = { path = "crates/creator-derive", version = "0.2.1" }
 creator-permissions = { path = "crates/creator-permissions", version = "0.2.1", optional = true }
 
+[target.'cfg(target_os = "android")'.dependencies]
+ndk-glue = { version = "0.2", features = ["logger"] }
+android_logger = "0.9"
+
+# [patch.crates-io]
+# cpal = { git = "https://github.com/creator-rs/cpal", rev = "f85ad0c7d0c528d45893306b639a22ead10acc31" }
+
 [features]
+default = []
 tool = ["cargo-creator"]
 permissions = ["creator-permissions"]
 

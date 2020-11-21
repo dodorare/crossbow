@@ -8,11 +8,8 @@ use bevy::{
     prelude::*,
 };
 
-#[cfg_attr(target_os = "android", ndk_glue::main(backtrace = "full"))]
+#[creator::creator_main]
 pub fn main() {
-    #[cfg(target_os = "android")]
-    android_logger::init_once(android_logger::Config::default().with_min_level(log::Level::Trace));
-
     println!("Initialization.");
     App::build()
         .add_plugin(SetupPlugin)

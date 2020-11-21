@@ -5,17 +5,14 @@ authors = ["enfipy <enfipy@gmail.com>", "olvyko <olvyko@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+creator = { version = "0.2.1", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
-bevy = "0.3"
-
-[target.'cfg(target_os = "android")'.dependencies]
-ndk-glue = { version = "0.2", features = ["logger"] }
-android_logger = "0.9"
+bevy = { version = "0.3", features = ["bevy_gilrs", "bevy_gltf", "bevy_wgpu", "bevy_winit", "render", "png", "hdr"], default-features = false }
 
 [lib]
 name = "threedlib"
-crate-type = ["lib", "cdylib"]
+crate-type = ["lib", "cdylib", "staticlib"]
 
 [package.metadata.android]
 apk_label = "Creator 3D"
