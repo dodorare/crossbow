@@ -3,7 +3,7 @@ mod manifest;
 mod profile;
 mod utils;
 
-use crate::Error;
+use crate::error::Error;
 pub use artifact::{Artifact, CrateType};
 pub use profile::Profile;
 use std::io::BufRead;

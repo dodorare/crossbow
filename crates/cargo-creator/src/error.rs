@@ -1,4 +1,4 @@
-use crate::ndk::error::NdkError;
+use cargo_toml::Error as CargoTomlError;
 use displaydoc::Display;
 use std::io::Error as IoError;
 use thiserror::Error;
@@ -12,10 +12,17 @@ pub enum Error {
     ManifestNotFound,
     /// Didn't find rustc
     RustcNotFound,
-    /// Failed to parse config
+    /// Failed to parse config: {0}
     Config(#[from] TomlError),
-    /// NDK error
-    Ndk(#[from] NdkError),
-    /// IO error
+    /// IO error: {0}
     Io(#[from] IoError),
+}
+
+impl From<CargoTomlError> for Error {
+    fn from(error: CargoTomlError) -> Error {
+        match error {
+            CargoTomlError::Io(io) => io.into(),
+            CargoTomlError::Parse(toml) => toml.into(),
+        }
+    }
 }

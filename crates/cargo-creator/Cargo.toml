@@ -3,7 +3,7 @@ name = "cargo-creator"
 version = "0.2.1"
 edition = "2018"
 authors = ["enfipy <enfipy@gmail.com>", "olvyko <olvyko@gmail.com>"]
-description = "Mobile Game Framework that helps build apps for Android and iOS"
+description = "Tool that helps build apps for Android and iOS"
 repository = "https://github.com/creator-rs/creator"
 license = "Apache-2.0"
 keywords = ["tool", "android", "ios"]
@@ -19,6 +19,7 @@ toml = "0.5.6"
 dunce = "1.0"
 dirs = "2.0.2"
 cargo_toml = "0.8.1"
+clap = "3.0.0-beta.2"
 
 anyhow = "1.0"
 thiserror = "1.0"

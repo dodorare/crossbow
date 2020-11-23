@@ -1,5 +1,5 @@
 use super::manifest::Manifest;
-use crate::Error;
+use crate::error::Error;
 use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 
