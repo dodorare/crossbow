@@ -2,6 +2,8 @@ use clap::AppSettings;
 pub use clap::Clap;
 use std::path::PathBuf;
 
+// Todo: maybe we need to think about better naming
+
 #[derive(Debug, Clap)]
 #[clap(setting = AppSettings::TrailingVarArg)]
 pub struct CliCargoBuild {

@@ -3,6 +3,8 @@ use super::apk::manifest::{
 };
 use serde::Deserialize;
 
+// Todo: some data from metadata section should be shared between apple and android
+
 #[derive(Clone, Debug, Default, Deserialize)]
 pub struct Metadata {
     pub apk_label: Option<String>,

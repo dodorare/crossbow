@@ -14,6 +14,7 @@ impl ApkBuilder {
     }
 
     pub fn build(&self) -> Result<Apk, NdkError> {
+        // build -> align -> sign apk file
         Ok(Apk)
     }
 }

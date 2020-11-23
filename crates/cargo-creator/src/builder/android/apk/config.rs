@@ -21,14 +21,21 @@ pub struct ApkBuilderConfig {
 
 impl ApkBuilderConfig {
     pub fn cli_cmd(mut self, cli_cmd: CliBuildAndroid) -> ApkBuilderConfig {
+        // Todo: init all options that u can take from cli command
+        // Todo: should we init `cargo_toml::Product` from cli target?
         self
     }
 
     pub fn manifest(mut self, manifest: AndroidCargoManifest) -> ApkBuilderConfig {
+        // Todo: init all options that u can take `Cargo.toml` file
+        // Todo: take only bin|examples from all `cargo_toml::Product`
         self
     }
 
+    // Todo: add more setters
+
     pub fn finish(self) -> ApkBuilder {
+        // Todo: check if inited options enough for building apk file
         ApkBuilder::from_config(self)
     }
 }
