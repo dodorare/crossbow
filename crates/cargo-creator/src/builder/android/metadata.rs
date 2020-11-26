@@ -1,15 +1,17 @@
 use super::apk::manifest::{
     ActivityMetadata, ApplicationMetadata, Feature, IntentFilter, IntentFilterData, Permission,
 };
+use super::target::AndroidTarget;
 use serde::Deserialize;
 
 // Todo: some data from metadata section should be shared between apple and android
 
 #[derive(Clone, Debug, Default, Deserialize)]
-pub struct Metadata {
+pub struct AndroidMetadata {
     pub apk_label: Option<String>,
     pub target_sdk_version: Option<u32>,
     pub min_sdk_version: Option<u32>,
+    pub build_targets: Vec<AndroidTarget>,
     pub icon: Option<String>,
     pub fullscreen: Option<bool>,
     pub orientation: Option<String>,

@@ -1,32 +1,13 @@
 use clap::AppSettings;
 pub use clap::Clap;
-use std::path::PathBuf;
 
 // Todo: maybe we need to think about better naming
 
 #[derive(Debug, Clap)]
 #[clap(setting = AppSettings::TrailingVarArg)]
-pub struct CliCargoBuild {
-    #[clap(long)]
-    pub bin: Vec<String>,
-    #[clap(long)]
-    pub bins: bool,
-    #[clap(long)]
-    pub example: Vec<String>,
-    #[clap(long)]
-    pub examples: bool,
-    #[clap(long)]
-    pub target_dir: Option<PathBuf>,
+pub struct CliBuildAndroid {
     #[clap(allow_hyphen_values = true)]
     pub cargo_args: Vec<String>,
-}
-
-#[derive(Debug, Clap)]
-pub struct CliBuildAndroid {
-    #[clap(long)]
-    pub debug: bool,
-    #[clap(flatten)]
-    pub cargo: CliCargoBuild,
 }
 
 #[derive(Debug, Clap)]

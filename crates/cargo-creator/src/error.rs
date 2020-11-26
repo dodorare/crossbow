@@ -1,3 +1,4 @@
+use crate::builder::android::error::NdkError;
 use cargo_toml::Error as CargoTomlError;
 use displaydoc::Display;
 use std::io::Error as IoError;
@@ -16,6 +17,8 @@ pub enum Error {
     Config(#[from] TomlError),
     /// IO error: {0}
     Io(#[from] IoError),
+    /// NDK error: {0}
+    Ndk(#[from] NdkError),
 }
 
 impl From<CargoTomlError> for Error {
