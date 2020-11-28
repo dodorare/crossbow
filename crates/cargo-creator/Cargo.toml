@@ -15,7 +15,6 @@ path = "src/main.rs"
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
-toml = "0.5.6"
 dunce = "1.0"
 dirs = "2.0.2"
 cargo_toml = "0.8.1"
@@ -26,20 +25,10 @@ thiserror = "1.0"
 displaydoc = "0.1"
 which = "4.0"
 
-env_logger = "0.7.1"
-log = "0.4.8"
+env_logger = "0.8"
+log = "0.4"
 
 [features]
 default = ["android", "ios"]
 android = []
 ios = []
-
-# [package.metadata.android]
-# apk_label = "Creator 3D"
-# fullscreen = true
-# assets = "assets"
-# res = "res"
-# icon = "@mipmap/ic_launcher"
-# target_sdk_version = 29
-# min_sdk_version = 16
-# build_targets = ["aarch64-linux-android"]
