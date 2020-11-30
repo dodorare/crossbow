@@ -105,6 +105,9 @@ echo ✅ Copy ${ORIGINAL_INFO_PLIST} to ${PROCESSED_INFO_PLIST}
 echo ❎ Copy Icon to bundle. TODO
 cp res/mipmap-hdpi/ic_launcher.png ${BUNDLE_DIR}/Icon.png
 
+echo ❎ Copy assets to bundle. TODO
+cp -r assets/ ${BUNDLE_DIR}/assets/
+
 # A command line tool for dealing with plists
 PLIST_BUDDY=/usr/libexec/PlistBuddy
 

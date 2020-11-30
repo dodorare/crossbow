@@ -1,17 +1,33 @@
-// use bevy::prelude::*;
+use bevy::prelude::*;
 
-// #[creator::creator_main]
-// pub fn main() {
-//     println!("Initialization.");
-//     App::build()
-//         .add_resource(Msaa { samples: 4 })
-//         .add_resource(ClearColor(Color::rgb(0.88, 0.87, 0.86)))
-//         .add_plugins(DefaultPlugins)
-//         .add_startup_system(helmet.system())
-//         .run();
-// }
+#[creator::creator_main]
+pub fn main() {
+    println!("Initialization.");
+    App::build()
+        .add_resource(Msaa { samples: 4 })
+        .add_resource(ClearColor(Color::rgb(0.88, 0.87, 0.86)))
+        .add_plugins(DefaultPlugins)
+        .add_startup_system(icon.system())
+        // .add_startup_system(helmet.system())
+        .run();
+}
 
-// fn helmet(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn icon(
+    commands: &mut Commands,
+    asset_server: Res<AssetServer>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+) {
+    let texture_handle = asset_server.load("branding/icon.png");
+    commands
+        .spawn(Camera2dBundle::default())
+        .spawn(SpriteBundle {
+            material: materials.add(texture_handle.into()),
+            ..Default::default()
+        });
+}
+
+// TODO: Fix support of gltf scenes
+// fn helmet(commands: &mut Commands, asset_server: Res<AssetServer>) {
 //     commands
 //         .spawn_scene(asset_server.load("models/helmet/FlightHelmet.gltf"))
 //         .spawn(LightBundle {
@@ -24,64 +40,3 @@
 //             ..Default::default()
 //         });
 // }
-use bevy::{prelude::*, window::WindowMode};
-
-// the `bevy_main` proc_macro generates the required ios boilerplate
-#[bevy_main]
-fn main() {
-    App::build()
-        .add_resource(WindowDescriptor {
-            vsync: true,
-            resizable: false,
-            mode: WindowMode::BorderlessFullscreen,
-            ..Default::default()
-        })
-        .add_resource(Msaa { samples: 4 })
-        .add_plugins(DefaultPlugins)
-        .add_startup_system(setup)
-        .run();
-}
-
-/// set up a simple 3D scene
-fn setup(
-    commands: &mut Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
-    // add entities to the world
-    commands
-        // plane
-        .spawn(PbrBundle {
-            mesh: meshes.add(Mesh::from(shape::Plane { size: 5.0 })),
-            material: materials.add(Color::rgb(0.1, 0.2, 0.1).into()),
-            ..Default::default()
-        })
-        // cube
-        .spawn(PbrBundle {
-            mesh: meshes.add(Mesh::from(shape::Cube { size: 1.0 })),
-            material: materials.add(Color::rgb(0.5, 0.4, 0.3).into()),
-            transform: Transform::from_translation(Vec3::new(0.0, 0.5, 0.0)),
-            ..Default::default()
-        })
-        // sphere
-        .spawn(PbrBundle {
-            mesh: meshes.add(Mesh::from(shape::Icosphere {
-                subdivisions: 4,
-                radius: 0.5,
-            })),
-            material: materials.add(Color::rgb(0.1, 0.4, 0.8).into()),
-            transform: Transform::from_translation(Vec3::new(1.5, 1.5, 1.5)),
-            ..Default::default()
-        })
-        // light
-        .spawn(LightBundle {
-            transform: Transform::from_translation(Vec3::new(4.0, 8.0, 4.0)),
-            ..Default::default()
-        })
-        // camera
-        .spawn(Camera3dBundle {
-            transform: Transform::from_translation(Vec3::new(-2.0, 2.5, 5.0))
-                .looking_at(Vec3::default(), Vec3::unit_y()),
-            ..Default::default()
-        });
-}
