@@ -1,6 +1,1 @@
-#import "bindings.h"
-
-int main() {
-    main_rs();
-    return 0;
-}
+extern void main_rs(void);int main(){main_rs();return 0;}

@@ -42,6 +42,7 @@ if [ "${BUILDING_FOR_DEVICE}" = true ]; then
 	cargo lipo --targets aarch64-apple-ios
 else
 	cargo lipo --targets x86_64-apple-ios
+  # cargo rustc --lib --target x86_64-apple-ios -- --crate-type='rlib,staticlib'
 fi
 
 #############################################################
