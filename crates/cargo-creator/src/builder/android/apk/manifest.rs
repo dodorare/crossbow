@@ -3,7 +3,7 @@ use crate::builder::android::error::NdkError;
 use std::{fmt, fs::File, io::Write, path::Path};
 
 #[derive(Debug)]
-pub struct ApkManifest {
+pub struct AndroidManifest {
     pub package_name: String,
     pub package_label: String,
     pub version_name: String,
@@ -24,7 +24,7 @@ pub struct ApkManifest {
     pub activity_metadatas: Vec<ActivityMetadata>,
 }
 
-impl fmt::Display for ApkManifest {
+impl fmt::Display for AndroidManifest {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let split = if let Some(split) = self.split.as_ref() {
             format!(r#"split="{}" android:isFeatureSplit="true""#, split)
@@ -123,9 +123,11 @@ impl fmt::Display for ApkManifest {
     }
 }
 
-impl ApkManifest {
+impl AndroidManifest {
+    pub const ANDROID_MANIFEST_NAME: &'static str = "AndroidManifest.xml";
+
     pub fn write_to(&self, dir: &Path) -> Result<(), NdkError> {
-        let mut file = File::create(dir.join("AndroidManifest.xml"))?;
+        let mut file = File::create(dir.join(AndroidManifest::ANDROID_MANIFEST_NAME))?;
         writeln!(file, "{}", self.to_string())?;
         Ok(())
     }

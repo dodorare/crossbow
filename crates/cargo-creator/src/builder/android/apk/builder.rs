@@ -1,22 +1,199 @@
-use super::config::ApkBuilderConfig;
+use super::manifest::*;
 use crate::builder::android::error::*;
+use crate::builder::android::metadata::AndroidMetadata;
+use crate::builder::android::ndk_build::Ndk;
 use crate::builder::android::target::AndroidTarget;
+use crate::builder::shared::*;
 
-use std::path::Path;
+use std::path::PathBuf;
 
 pub struct ApkBuilder {
-    config: ApkBuilderConfig,
+    ndk: Ndk,
+    artifacts: Vec<Artifact>,
+    build_targets: Vec<AndroidTarget>,
+    build_dir: PathBuf,
+    version_name: String,
+    version_code: String,
+    profile: Profile,
+    assets_path: PathBuf,
+    res_path: String,
+    metadata: AndroidMetadata,
 }
 
 impl ApkBuilder {
-    pub fn from_config(config: ApkBuilderConfig) -> ApkBuilder {
-        ApkBuilder { config }
-    }
+    // pub fn from_cargo_manifest(manifest: CargoManifest) -> Result<Self, NdkError> {
+    //     let ndk = Ndk::from_env()?;
+    //     let artifacts = Self::take_default_artifacts(&manifest);
+    //     let mut build_targets = Self::take_build_targets(&manifest);
+    //     if build_targets.is_empty() {
+    //         build_targets.push(AndroidTarget::ArmV7a);
+    //     };
+
+    //     Ok(Self {
+    //         ndk,
+    //         artifacts,
+    //         build_targets,
+    //         // build_dir: None,
+    //         // version_name: None,
+    //         // version_code: None,
+    //         profile: Profile::Dev,
+    //         // assets: None,
+    //         // res: None,
+    //         // metadata: None,
+    //     })
+    // }
 
     pub fn build(&self) -> Result<Apk, NdkError> {
-        // build -> align -> sign apk file
+        // 1. Init AndroidManifest struct
+        // 2. Create build_dir path
+        // 3. Write AndroidManifest.xml into build_dir
+        // 4. Create unaligned apk file using `aapt` tool
+
+        let target_sdk_version = self
+            .metadata
+            .target_sdk_version
+            .clone()
+            .unwrap_or_else(|| self.ndk.default_platform());
+        let features = self
+            .metadata
+            .feature
+            .clone()
+            .unwrap_or_default()
+            .into_iter()
+            .map(Into::into)
+            .collect();
+        let permissions = self
+            .metadata
+            .permission
+            .clone()
+            .unwrap_or_default()
+            .into_iter()
+            .map(Into::into)
+            .collect();
+        let intent_filters = self
+            .metadata
+            .clone()
+            .intent_filter
+            .unwrap_or_default()
+            .into_iter()
+            .map(Into::into)
+            .collect();
+        let application_metadatas = self
+            .metadata
+            .clone()
+            .application_metadatas
+            .unwrap_or_default()
+            .into_iter()
+            .map(Into::into)
+            .collect();
+        let activity_metadatas = self
+            .metadata
+            .clone()
+            .activity_metadatas
+            .unwrap_or_default()
+            .into_iter()
+            .map(Into::into)
+            .collect();
+
+        let manifest = AndroidManifest {
+            package_name: "".to_owned(),
+            package_label: "".to_owned(),
+            version_name: "".to_owned(),
+            version_code: 1,
+            split: Some("".to_owned()),
+            target_name: "".to_owned(),
+            debuggable: false,
+            target_sdk_version,
+            min_sdk_version: self.metadata.min_sdk_version.unwrap_or(23),
+            opengles_version: self.metadata.opengles_version.unwrap_or((3, 1)),
+            features,
+            permissions,
+            intent_filters,
+            icon: self.metadata.icon.clone(),
+            fullscreen: self.metadata.fullscreen.unwrap_or(false),
+            orientation: self.metadata.orientation.clone(),
+            application_metadatas,
+            activity_metadatas,
+        };
+
+        // Ok(apk.align()?.sign(config.ndk.debug_key()?)?)
         Ok(Apk)
     }
+
+    /// Defines default artifacts from given cargo manifest
+    fn take_default_artifacts(manifest: &CargoManifest) -> Vec<Artifact> {
+        let mut artifacts = Vec::new();
+        let lib_name = manifest
+            .lib
+            .as_ref()
+            .and_then(|lib| lib.name.clone())
+            .unwrap_or_else(|| manifest.package.as_ref().unwrap().name.clone());
+        artifacts.push(Artifact::Root(lib_name));
+        artifacts
+    }
+
+    /// Defines build_targets from given cargo manifest
+    fn take_build_targets(manifest: &CargoManifest) -> Vec<AndroidTarget> {
+        let mut build_targets = Vec::new();
+        if let Some(package) = manifest.package.as_ref() {
+            if let Some(metadata) = package.metadata.as_ref() {
+                build_targets = metadata.android.build_targets.clone();
+            };
+        };
+        build_targets
+    }
+
+    // pub fn cli(mut self, cli: CliBuildAndroid) -> Result<Self, NdkError> {
+    //     let mut artifacts = Vec::new();
+    //     artifacts.append(
+    //         &mut cli
+    //             .cargo
+    //             .bin
+    //             .into_iter()
+    //             .map(|v| Artifact::Root(v))
+    //             .collect(),
+    //     );
+    //     artifacts.append(
+    //         &mut cli
+    //             .cargo
+    //             .example
+    //             .into_iter()
+    //             .map(|v| Artifact::Example(v))
+    //             .collect(),
+    //     );
+    //     if !artifacts.is_empty() {
+    //         self.artifacts = Some(artifacts);
+    //     };
+    //     let mut build_targets = Vec::new();
+    //     for target in cli.cargo.target {
+    //         let build_target = AndroidTarget::from_rust_triple(&target)?;
+    //         build_targets.push(build_target);
+    //     }
+    //     self.build_targets = build_targets;
+    //     if cli.cargo.release {
+    //         self.profile = Profile::Release;
+    //     };
+    //     // self.build_dir = Some(
+    //     //     dunce::simplified(cli.cargo.target_dir)
+    //     //         .join(self.profile)
+    //     //         .join("apk"),
+    //     // );
+    //     Ok(self)
+    // }
+
+    // pub fn manifest(mut self, manifest: CargoManifest) -> Result<Self, NdkError> {
+    //     if self.build_targets.is_empty() {
+    //         if let Some(package) = manifest.package {
+    //             if let Some(metadata) = package.metadata {
+    //                 for target in metadata.android.build_targets {
+    //                     self.build_targets.push(target);
+    //                 }
+    //             };
+    //         };
+    //     };
+    //     // Todo: take only bin|examples from all `cargo_toml::Product`
+    //     Ok(self)
+    // }
 }
 
 pub struct Apk;

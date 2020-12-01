@@ -1,11 +1,11 @@
 mod builder;
-mod cargo;
 mod cli;
 mod error;
 
 use builder::*;
 use cli::*;
 
+use clap::Clap;
 use std::path::{Path, PathBuf};
 
 fn main() -> anyhow::Result<()> {
@@ -15,14 +15,10 @@ fn main() -> anyhow::Result<()> {
     match cli_creator.cmd {
         CliCreatorCmd::Build(build) => match build.cmd {
             CliBuildCmd::Android(android) => {
-                let args = cargo::cmd::CargoBuildArgs::from_cargo_args(android.cargo_args)?;
-                let manifest = cargo::current_manifest()?;
-                // println!("{:#?}", manifest);
-                let apk = CreatorBuilder::android()
-                    .apk()?
-                    // .cli(android)?
-                    .manifest(manifest)?;
-                // println!("{:?}", apk);
+                let cli_cargo_build = CliCargoBuild::parse_from(android.cargo_args);
+                // let apk = CreatorBuilder::android()
+                //     .apk(cli_cargo_build.manifest_path)?
+                //     .build()?;
             }
         },
     }

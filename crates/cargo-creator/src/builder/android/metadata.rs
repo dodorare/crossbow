@@ -11,7 +11,6 @@ pub struct AndroidMetadata {
     pub apk_label: Option<String>,
     pub target_sdk_version: Option<u32>,
     pub min_sdk_version: Option<u32>,
-    pub build_targets: Vec<AndroidTarget>,
     pub icon: Option<String>,
     pub fullscreen: Option<bool>,
     pub orientation: Option<String>,
@@ -21,6 +20,9 @@ pub struct AndroidMetadata {
     pub intent_filter: Option<Vec<IntentFilterConfig>>,
     pub application_metadatas: Option<Vec<ApplicationMetadataConfig>>,
     pub activity_metadatas: Option<Vec<ActivityMetadataConfig>>,
+    pub build_targets: Vec<AndroidTarget>,
+    pub assets: Option<String>,
+    pub res: Option<String>,
 }
 
 #[derive(Clone, Debug, Deserialize)]
