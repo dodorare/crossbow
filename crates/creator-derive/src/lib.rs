@@ -29,12 +29,6 @@ fn creator_main_logic(_attr: TokenStream, item: TokenStream) -> TokenStream {
             );
         }
 
-        #[no_mangle]
-        #[cfg(target_os = "ios")]
-        extern "C" fn main_rs() {
-            main();
-        }
-
         #[allow(unused)]
         #input
     })

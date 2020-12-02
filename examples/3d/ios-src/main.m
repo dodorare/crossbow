@@ -1,1 +1,0 @@
-extern void main_rs(void);int main(){main_rs();return 0;}

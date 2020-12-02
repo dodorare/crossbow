@@ -18,7 +18,7 @@ boot-sim:
 	xcrun simctl boot $(DEVICE) || true
 
 install: boot-sim
-	xcrun simctl install $(DEVICE) threed.app
+	cd ../../target/apple && xcrun simctl install $(DEVICE) threed.app
 
 clean:
 	cargo clean
