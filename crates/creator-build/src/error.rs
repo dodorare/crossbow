@@ -6,6 +6,6 @@ pub type StdResult<T> = std::result::Result<T, StdError>;
 
 #[derive(Display, Debug, Error)]
 pub enum Error {
-    /// No package metadata found for {0}
-    NoPackageMetadata(String),
+    /// Android SDK is not found.
+    AndroidSdkNotFound,
 }
