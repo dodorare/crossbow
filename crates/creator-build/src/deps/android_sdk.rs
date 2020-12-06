@@ -1,7 +1,9 @@
 use crate::error::{Error, StdResult};
 
-// static SdkConfig {
-//   sdk_path: Option<PathBuf>,
+use std::path::PathBuf;
+
+// struct AndroidSdk {
+//     pub sdk_path: PathBuf,
 // }
 
 pub fn check_android_sdk() -> StdResult<()> {

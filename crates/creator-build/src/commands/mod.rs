@@ -1,72 +1,71 @@
-use crate::checks::Checks;
+use crate::deps::{Dependency, IntoChecks};
 use crate::error::StdResult;
+
+use std::rc::Rc;
 
 pub trait Command {
     type Output;
+    type Deps: IntoChecks;
 
     fn run(&self) -> StdResult<Self::Output>;
-    fn checks(&self) -> Checks {
-        Checks::default()
+    fn deps(&self) -> Rc<Self::Deps>;
+    fn run_checks(&self) -> StdResult<()> {
+        self.deps().into_checks().iter().try_for_each(|item| item())
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::checks::check_android_sdk;
 
-    fn check_1() -> StdResult<()> {
-        println!("check 1");
-        Ok(())
+    pub struct Rustc;
+
+    impl Dependency for Rustc {
+        fn check() -> StdResult<()> {
+            println!("check rustc");
+            Ok(())
+        }
     }
 
-    fn check_2() -> StdResult<()> {
-        println!("check 2");
-        Ok(())
+    pub struct AndroidSdk;
+
+    impl Dependency for AndroidSdk {
+        fn check() -> StdResult<()> {
+            println!("check android sdk");
+            Ok(())
+        }
     }
 
     pub struct CommandX {
-        checks: Checks,
+        deps: Rc<(AndroidSdk, Rustc)>,
     }
 
     impl CommandX {
         pub fn new() -> Self {
             CommandX {
-                checks: {
-                    let mut checks = Checks::default();
-                    checks.push(check_1);
-                    checks.push(check_2);
-                    checks.push(check_android_sdk);
-                    checks
-                },
+                deps: Rc::new((AndroidSdk, Rustc)),
             }
         }
     }
 
     impl Command for CommandX {
         type Output = ();
+        type Deps = (AndroidSdk, Rustc);
 
         fn run(&self) -> StdResult<Self::Output> {
-            self.checks.run()?;
-            // 1. check something (can u create something?)
-            // 2. need to install
-            // 3. installation
-            // 4. check something (can u create something?)
-            // 5. run command (create something)
-            println!("run command");
+            println!("run command x");
             Ok(())
         }
 
-        fn checks(&self) -> Checks {
-            self.checks.clone()
+        fn deps(&self) -> Rc<Self::Deps> {
+            self.deps.clone()
         }
     }
 
     #[test]
     fn test_command() {
-        CommandX::new().run().unwrap();
-        CommandX::new().run().unwrap();
-        CommandX::new().run().unwrap();
-        CommandX::new().run().unwrap();
+        let cmdx = CommandX::new();
+        cmdx.run_checks().unwrap();
+        cmdx.run().unwrap();
     }
 }
