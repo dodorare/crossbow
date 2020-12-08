@@ -6,13 +6,17 @@ use crate::error::StdResult;
 pub use android_sdk::*;
 pub use rustc::*;
 
+pub trait Dependencies {
+    fn check() -> StdResult<()>;
+}
+
 pub trait Dependency {
     fn check() -> StdResult<()>;
 }
 
 macro_rules! tuple_impls {
     ( $( $name:ident )+ ) => {
-        impl<$($name: Dependency),+> Dependency for ($($name,)+)
+        impl<$($name: Dependency),+> Dependencies for ($($name,)+)
         {
             fn check() -> StdResult<()> {
                 $($name::check()?;)+
@@ -39,41 +43,31 @@ tuple_impls! { A B C D E F G H I J K L M N }
 tuple_impls! { A B C D E F G H I J K L M N O}
 tuple_impls! { A B C D E F G H I J K L M N O P }
 
-// #[derive(Clone, Default)]
-// pub struct Checks {
-//     items: Rc<RefCell<Vec<Box<dyn Fn() -> StdResult<()>>>>>,
-// }
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-// impl Checks {
-//     pub fn push(&mut self, item: impl Fn() -> StdResult<()> + 'static) {
-//         self.items.borrow_mut().push(Box::new(item));
-//     }
+    struct Dep1;
 
-//     pub fn run(&self) -> StdResult<()> {
-//         self.items.borrow().iter().try_for_each(|item| item())
-//     }
-// }
+    impl Dependency for Dep1 {
+        fn check() -> StdResult<()> {
+            println!("checked dep1");
+            Ok(())
+        }
+    }
 
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
+    struct Dep2;
 
-//     fn check_1() -> StdResult<()> {
-//         println!("check 1");
-//         Ok(())
-//     }
+    impl Dependency for Dep2 {
+        fn check() -> StdResult<()> {
+            println!("checked dep2");
+            Ok(())
+        }
+    }
 
-//     fn check_2() -> StdResult<()> {
-//         println!("check 2");
-//         Err("error check 2".into())
-//     }
-
-//     #[test]
-//     #[should_panic(expected = "error check 2")]
-//     fn test_checks() {
-//         let mut checks = Checks::default();
-//         checks.push(check_1);
-//         checks.push(check_2);
-//         checks.run().unwrap();
-//     }
-// }
+    #[test]
+    fn test_checks() {
+        Dep1::check().unwrap();
+        <(Dep1, Dep2)>::check().unwrap();
+    }
+}

@@ -3,7 +3,9 @@
 # Exit this script immediatelly if any of the commands fails
 set -e
 
-PROJECT_NAME=threed
+if [ "$PROJECT_NAME" = "" ]; then
+  PROJECT_NAME=threed
+fi
 
 # The product of this script. This is the actual app bundle!
 BUNDLE_DIR=../../target/apple/${PROJECT_NAME}.app
@@ -58,8 +60,8 @@ else
   SDK_PATH=$(xcrun --show-sdk-path --sdk iphonesimulator)
 fi
 
-cargo rustc --bin threed --release --target ${TARGET} -- --crate-type=staticlib
-cp ../../target/${TARGET}/release/threed ${BUNDLE_DIR}/${PROJECT_NAME}
+cargo rustc --bin ${PROJECT_NAME} --release --target ${TARGET} -- --crate-type=staticlib
+cp ../../target/${TARGET}/release/${PROJECT_NAME} ${BUNDLE_DIR}/${PROJECT_NAME}
 
 echo ✅ Compile Rust code
 
@@ -152,7 +154,7 @@ fi
 # #############################################################
 
 # export CODESIGN_ALLOCATE=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/codesign_allocate
-# codesign --force --sign - --timestamp=none threed.app
+# codesign --force --sign - --timestamp=none ${PROJECT_NAME}.app
 
 # # The name of the provisioning file to use
 # # ⚠️ YOU NEED TO CHANGE THIS TO YOUR PROFILE ️️⚠️

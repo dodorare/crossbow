@@ -1,9 +1,9 @@
-use crate::deps::Dependency;
+use crate::deps::Dependencies;
 use crate::error::StdResult;
 
 pub trait Command {
     type Output;
-    type Deps: Dependency;
+    type Deps: Dependencies;
 
     fn run(&self, deps: Self::Deps) -> StdResult<Self::Output>;
     fn check() -> StdResult<()> {
@@ -23,7 +23,7 @@ mod tests {
         type Output = ();
         type Deps = (AndroidSdk, Rustc);
 
-        fn run(&self, (_android_sdk, _rustc): (AndroidSdk, Rustc)) -> StdResult<()> {
+        fn run(&self, (_android_sdk, _rustc): Self::Deps) -> StdResult<()> {
             println!("run command x");
             Ok(())
         }
