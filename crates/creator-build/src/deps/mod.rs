@@ -1,26 +1,22 @@
 mod android_sdk;
-
-pub use android_sdk::*;
-
-use std::cell::RefCell;
-use std::rc::Rc;
+mod rustc;
 
 use crate::error::StdResult;
+
+pub use android_sdk::*;
+pub use rustc::*;
 
 pub trait Dependency {
     fn check() -> StdResult<()>;
 }
 
-pub trait IntoChecks {
-    fn into_checks(&self) -> Vec<Box<dyn Fn() -> StdResult<()>>>;
-}
-
 macro_rules! tuple_impls {
     ( $( $name:ident )+ ) => {
-        impl<$($name: Dependency),+> IntoChecks for ($($name,)+)
+        impl<$($name: Dependency),+> Dependency for ($($name,)+)
         {
-            fn into_checks(&self) -> Vec<Box<dyn Fn() -> StdResult<()>>> {
-                vec![$(Box::new(|| $name::check()),)+]
+            fn check() -> StdResult<()> {
+                $($name::check()?;)+
+                Ok(())
             }
         }
     };
@@ -38,6 +34,10 @@ tuple_impls! { A B C D E F G H I }
 tuple_impls! { A B C D E F G H I J }
 tuple_impls! { A B C D E F G H I J K }
 tuple_impls! { A B C D E F G H I J K L }
+tuple_impls! { A B C D E F G H I J K L M }
+tuple_impls! { A B C D E F G H I J K L M N }
+tuple_impls! { A B C D E F G H I J K L M N O}
+tuple_impls! { A B C D E F G H I J K L M N O P }
 
 // #[derive(Clone, Default)]
 // pub struct Checks {

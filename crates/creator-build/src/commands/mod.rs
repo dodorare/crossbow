@@ -1,71 +1,47 @@
-use crate::deps::{Dependency, IntoChecks};
+use crate::deps::Dependency;
 use crate::error::StdResult;
-
-use std::rc::Rc;
 
 pub trait Command {
     type Output;
-    type Deps: IntoChecks;
+    type Deps: Dependency;
 
-    fn run(&self) -> StdResult<Self::Output>;
-    fn deps(&self) -> Rc<Self::Deps>;
-    fn run_checks(&self) -> StdResult<()> {
-        self.deps().into_checks().iter().try_for_each(|item| item())
+    fn run(&self, deps: Self::Deps) -> StdResult<Self::Output>;
+    fn check() -> StdResult<()> {
+        Self::Deps::check()
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::deps::{AndroidSdk, Rustc};
+    use crate::error::StdResult;
 
-    pub struct Rustc;
-
-    impl Dependency for Rustc {
-        fn check() -> StdResult<()> {
-            println!("check rustc");
-            Ok(())
-        }
-    }
-
-    pub struct AndroidSdk;
-
-    impl Dependency for AndroidSdk {
-        fn check() -> StdResult<()> {
-            println!("check android sdk");
-            Ok(())
-        }
-    }
-
-    pub struct CommandX {
-        deps: Rc<(AndroidSdk, Rustc)>,
-    }
-
-    impl CommandX {
-        pub fn new() -> Self {
-            CommandX {
-                deps: Rc::new((AndroidSdk, Rustc)),
-            }
-        }
-    }
+    pub struct CommandX;
 
     impl Command for CommandX {
         type Output = ();
         type Deps = (AndroidSdk, Rustc);
 
-        fn run(&self) -> StdResult<Self::Output> {
+        fn run(&self, (_android_sdk, _rustc): (AndroidSdk, Rustc)) -> StdResult<()> {
             println!("run command x");
             Ok(())
-        }
-
-        fn deps(&self) -> Rc<Self::Deps> {
-            self.deps.clone()
         }
     }
 
     #[test]
     fn test_command() {
-        let cmdx = CommandX::new();
-        cmdx.run_checks().unwrap();
-        cmdx.run().unwrap();
+        // init deps
+        let android_sdk = AndroidSdk;
+        let rustc = Rustc;
+
+        // init command
+        let cmdx = CommandX;
+
+        // check deps if you want
+        CommandX::check().unwrap();
+
+        // run command with given deps
+        cmdx.run((android_sdk, rustc)).unwrap();
     }
 }
