@@ -5,9 +5,15 @@ use crate::error::StdResult;
 pub struct AndroidSdk;
 
 impl Dependency for AndroidSdk {
+    type Input = ();
+
     fn check() -> StdResult<()> {
         println!("checked android sdk");
         Ok(())
+    }
+
+    fn get(_: Self::Input) -> StdResult<Self> {
+        Ok(AndroidSdk)
     }
 }
 

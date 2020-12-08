@@ -10,8 +10,11 @@ pub trait Dependencies {
     fn check() -> StdResult<()>;
 }
 
-pub trait Dependency {
+pub trait Dependency: Sized {
+    type Input;
+
     fn check() -> StdResult<()>;
+    fn get(input: Self::Input) -> StdResult<Self>;
 }
 
 macro_rules! tuple_impls {
@@ -47,21 +50,42 @@ tuple_impls! { A B C D E F G H I J K L M N O P }
 mod tests {
     use super::*;
 
-    struct Dep1;
+    struct Dep1 {
+        path: String,
+    }
 
     impl Dependency for Dep1 {
+        type Input = ();
+    
         fn check() -> StdResult<()> {
             println!("checked dep1");
             Ok(())
+        }
+    
+        fn get(_: Self::Input) -> StdResult<Self> {
+            Ok(Dep1 { path: "dep1".to_owned() })
         }
     }
 
     struct Dep2;
 
     impl Dependency for Dep2 {
+        type Input = String;
+    
         fn check() -> StdResult<()> {
             println!("checked dep2");
             Ok(())
+        }
+    
+        fn get(path: Self::Input) -> StdResult<Self> {
+            println!("dep2 got input: {}", path);
+            Ok(Dep2)
+        }
+    }
+
+    impl Dep2 {
+        fn hello(&self) {
+            println!("hello from dep2");
         }
     }
 
@@ -69,5 +93,9 @@ mod tests {
     fn test_checks() {
         Dep1::check().unwrap();
         <(Dep1, Dep2)>::check().unwrap();
+
+        let dep1 = Dep1::get(()).unwrap();
+        let dep2 = Dep2::get(dep1.path).unwrap();
+        dep2.hello();
     }
 }
