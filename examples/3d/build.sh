@@ -72,7 +72,7 @@ echo → Step 4: Process and Copy Info.plist
 # The location of the processed Info.plist in the app bundle
 PROCESSED_INFO_PLIST=${BUNDLE_DIR}/Info.plist
 # The bundle identifier of the resulting app
-APP_BUNDLE_IDENTIFIER=com.rust.${PROJECT_NAME}
+APP_BUNDLE_IDENTIFIER=com.enfipy.${PROJECT_NAME}
 # The bundle developer language
 DEVELOPMENT_LANGUAGE=en
 
@@ -125,88 +125,93 @@ if [ "${BUILDING_FOR_DEVICE}" != true ]; then
   exit 0
 fi
 
-# #############################################################
-# echo → Step 5: Copy Swift Runtime Libraries
-# #############################################################
+#############################################################
+echo → Step 5: Copy Swift Runtime Libraries
+#############################################################
 
-# # The folder where the Swift runtime libs live on the computer
-# SWIFT_LIBS_SRC_DIR=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos
+# The folder where the Swift runtime libs live on the computer
+SWIFT_LIBS_SRC_DIR=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift-5.0/iphoneos/
 
-# # The folder where we want to copy them in the app bundle
-# SWIFT_LIBS_DEST_DIR=${BUNDLE_DIR}/${FRAMEWORKS_DIR}
+# The folder where we want to copy them in the app bundle
+SWIFT_LIBS_DEST_DIR=${BUNDLE_DIR}/${FRAMEWORKS_DIR}
 
-# # The list of all libs we want to copy
-# RUNTIME_LIBS=( libswiftCore.dylib libswiftCoreFoundation.dylib libswiftCoreGraphics.dylib libswiftCoreImage.dylib libswiftDarwin.dylib libswiftDispatch.dylib libswiftFoundation.dylib libswiftMetal.dylib libswiftObjectiveC.dylib libswiftQuartzCore.dylib libswiftSwiftOnoneSupport.dylib libswiftUIKit.dylib libswiftos.dylib )
+# The list of all libs we want to copy
+RUNTIME_LIBS=( libswiftCore.dylib libswiftCoreFoundation.dylib libswiftCoreGraphics.dylib libswiftCoreImage.dylib libswiftDarwin.dylib libswiftDispatch.dylib libswiftFoundation.dylib libswiftMetal.dylib libswiftObjectiveC.dylib libswiftQuartzCore.dylib libswiftSwiftOnoneSupport.dylib libswiftUIKit.dylib libswiftos.dylib )
 
-# mkdir -p ${BUNDLE_DIR}/${FRAMEWORKS_DIR}
-# echo ✅ Create ${SWIFT_LIBS_DEST_DIR} folder
+mkdir -p ${BUNDLE_DIR}/${FRAMEWORKS_DIR}
+echo ✅ Create ${SWIFT_LIBS_DEST_DIR} folder
 
-# for library_name in "${RUNTIME_LIBS[@]}"; do
-#   # Copy the library
-#   cp ${SWIFT_LIBS_SRC_DIR}/$library_name ${SWIFT_LIBS_DEST_DIR}/
-#   echo ✅ Copy $library_name to ${SWIFT_LIBS_DEST_DIR}
-# done
+for library_name in "${RUNTIME_LIBS[@]}"; do
+  # Copy the library
+  cp ${SWIFT_LIBS_SRC_DIR}/$library_name ${SWIFT_LIBS_DEST_DIR}/
+  echo ✅ Copy $library_name to ${SWIFT_LIBS_DEST_DIR}
+done
 
-# echo
+echo
 
-# #############################################################
-# echo → Step 6: Code Signing
-# #############################################################
+#############################################################
+echo → Step 6: Code Signing
+#############################################################
 
-# export CODESIGN_ALLOCATE=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/codesign_allocate
-# codesign --force --sign - --timestamp=none ${PROJECT_NAME}.app
+export CODESIGN_ALLOCATE=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/codesign_allocate
+codesign --force --sign - --timestamp=none ${BUNDLE_DIR}/
 
-# # The name of the provisioning file to use
-# # ⚠️ YOU NEED TO CHANGE THIS TO YOUR PROFILE ️️⚠️
-# PROVISIONING_PROFILE_NAME=23a6e9d9-ad3c-4574-832c-be6eb9d51b8c.mobileprovision
+# The name of the provisioning file to use
+# ⚠️ YOU NEED TO CHANGE THIS TO YOUR PROFILE ️️⚠️
+PROVISIONING_PROFILE_NAME=374460f0-780b-4216-9cb3-e9a8396cc33d.mobileprovision
 
-# # The location of the provisioning file inside the app bundle
-# EMBEDDED_PROVISIONING_PROFILE=${BUNDLE_DIR}/embedded.mobileprovision
+# The location of the provisioning file inside the app bundle
+EMBEDDED_PROVISIONING_PROFILE=${BUNDLE_DIR}/embedded.mobileprovision
 
-# cp ~/Library/MobileDevice/Provisioning\ Profiles/${PROVISIONING_PROFILE_NAME} ${EMBEDDED_PROVISIONING_PROFILE}
-# echo ✅ Copy provisioning profile ${PROVISIONING_PROFILE_NAME} to ${EMBEDDED_PROVISIONING_PROFILE}
+cp ~/Library/MobileDevice/Provisioning\ Profiles/${PROVISIONING_PROFILE_NAME} ${EMBEDDED_PROVISIONING_PROFILE}
+echo ✅ Copy provisioning profile ${PROVISIONING_PROFILE_NAME} to ${EMBEDDED_PROVISIONING_PROFILE}
 
+# The team identifier of your signing identity
+# ⚠️ YOU NEED TO CHANGE THIS TO YOUR ID ️️⚠️
+TEAM_IDENTIFIER=V4SUV789T7
 
-# # The team identifier of your signing identity
-# # ⚠️ YOU NEED TO CHANGE THIS TO YOUR ID ️️⚠️
-# TEAM_IDENTIFIER=X53G3KMVA6
+# The location if the .xcent file
+XCENT_FILE=${BUNDLE_DIR}/${PROJECT_NAME}.xcent
 
-# # The location if the .xcent file
-# XCENT_FILE=${TEMP_DIR}/${PROJECT_NAME}.xcent
+/usr/libexec/PlistBuddy -c "Add :application-identifier string ${TEAM_IDENTIFIER}.${APP_BUNDLE_IDENTIFIER}" ${XCENT_FILE}
+/usr/libexec/PlistBuddy -c "Add :com.apple.developer.team-identifier string ${TEAM_IDENTIFIER}" ${XCENT_FILE}
 
-# ${PLIST_BUDDY} -c "Add :application-identifier string ${TEAM_IDENTIFIER}.${APP_BUNDLE_IDENTIFIER}" ${XCENT_FILE}
-# ${PLIST_BUDDY} -c "Add :com.apple.developer.team-identifier string ${TEAM_IDENTIFIER}" ${XCENT_FILE}
+echo ✅ Create ${XCENT_FILE}
 
-# echo ✅ Create ${XCENT_FILE}
+# The id of the identity used for signing
+IDENTITY=A89832B9716C3CC6FC5AEE30F4CA728CA79044C9
 
+# Sign all libraries in the bundle
+for lib in ${SWIFT_LIBS_DEST_DIR}/*; do
+  # Sign
+  codesign \
+    --force \
+    --timestamp=none \
+    --sign ${IDENTITY} \
+    ${lib}
+  echo ✅ Codesign ${lib}
+done
 
-# # The id of the identity used for signing
-# IDENTITY=E8C36646D64DA3566CB93E918D2F0B7558E78BAA
+# Sign the binary
+codesign \
+  --force \
+  --timestamp=none \
+  --sign ${IDENTITY} \
+  ${BUNDLE_DIR}/${PROJECT_NAME}
 
-# # Sign all libraries in the bundle
-# for lib in ${SWIFT_LIBS_DEST_DIR}/*; do
-#   # Sign
-#   codesign \
-#     --force \
-#     --timestamp=none \
-#     --sign ${IDENTITY} \
-#     ${lib}
-#   echo ✅ Codesign ${lib}
-# done
+# Sign the bundle itself
+codesign \
+  --force \
+  --timestamp=none \
+  --entitlements ${XCENT_FILE} \
+  --sign ${IDENTITY} \
+  ${BUNDLE_DIR}
 
-# # Sign the bundle itself
-# codesign \
-#   --force \
-#   --timestamp=none \
-#   --entitlements ${XCENT_FILE} \
-#   --sign ${IDENTITY} \
-#   ${BUNDLE_DIR}
+echo ✅ Codesign ${BUNDLE_DIR}
 
-# echo ✅ Codesign ${BUNDLE_DIR}
+echo
 
-# echo
-
-# #############################################################
-# echo 🎉 Building ${PROJECT_NAME} for device successfully finished! 🎉
-# exit 0
-# #############################################################
+#############################################################
+echo 🎉 Building ${PROJECT_NAME} for device successfully finished! 🎉
+exit 0
+#############################################################
