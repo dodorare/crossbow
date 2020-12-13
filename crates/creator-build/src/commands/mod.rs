@@ -1,4 +1,5 @@
-mod rust_compile;
+mod android_rust_compile;
+mod apple_rust_compile;
 
 use crate::deps::Dependencies;
 use crate::error::StdResult;
