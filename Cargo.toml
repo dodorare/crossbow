@@ -20,7 +20,8 @@ ndk-glue = { version = "0.2", features = ["logger"] }
 android_logger = "0.9"
 
 [patch.crates-io]
-bevy = { path = "../bevy" }
+# bevy = { path = "../bevy" }
+bevy = { git = "https://github.com/bevyengine/bevy", rev = "509b138e8fa3ea250393de40c33cc857c72134d3" }
 cpal = { git = "https://github.com/MichaelHills/cpal", branch = "mike-ios" }
 
 [features]

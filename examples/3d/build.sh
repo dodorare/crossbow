@@ -126,30 +126,6 @@ if [ "${BUILDING_FOR_DEVICE}" != true ]; then
 fi
 
 #############################################################
-echo → Step 5: Copy Swift Runtime Libraries
-#############################################################
-
-# The folder where the Swift runtime libs live on the computer
-SWIFT_LIBS_SRC_DIR=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift-5.0/iphoneos/
-
-# The folder where we want to copy them in the app bundle
-SWIFT_LIBS_DEST_DIR=${BUNDLE_DIR}/${FRAMEWORKS_DIR}
-
-# The list of all libs we want to copy
-RUNTIME_LIBS=( libswiftCore.dylib libswiftCoreFoundation.dylib libswiftCoreGraphics.dylib libswiftCoreImage.dylib libswiftDarwin.dylib libswiftDispatch.dylib libswiftFoundation.dylib libswiftMetal.dylib libswiftObjectiveC.dylib libswiftQuartzCore.dylib libswiftSwiftOnoneSupport.dylib libswiftUIKit.dylib libswiftos.dylib )
-
-mkdir -p ${BUNDLE_DIR}/${FRAMEWORKS_DIR}
-echo ✅ Create ${SWIFT_LIBS_DEST_DIR} folder
-
-for library_name in "${RUNTIME_LIBS[@]}"; do
-  # Copy the library
-  cp ${SWIFT_LIBS_SRC_DIR}/$library_name ${SWIFT_LIBS_DEST_DIR}/
-  echo ✅ Copy $library_name to ${SWIFT_LIBS_DEST_DIR}
-done
-
-echo
-
-#############################################################
 echo → Step 6: Code Signing
 #############################################################
 
@@ -180,17 +156,6 @@ echo ✅ Create ${XCENT_FILE}
 
 # The id of the identity used for signing
 IDENTITY=A89832B9716C3CC6FC5AEE30F4CA728CA79044C9
-
-# Sign all libraries in the bundle
-for lib in ${SWIFT_LIBS_DEST_DIR}/*; do
-  # Sign
-  codesign \
-    --force \
-    --timestamp=none \
-    --sign ${IDENTITY} \
-    ${lib}
-  echo ✅ Codesign ${lib}
-done
 
 # Sign the binary
 codesign \
