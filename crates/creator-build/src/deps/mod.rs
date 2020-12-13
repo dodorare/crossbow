@@ -17,6 +17,12 @@ pub trait Dependency: Sized {
     fn get(input: Self::Input) -> StdResult<Self>;
 }
 
+impl Dependencies for () {
+    fn check() -> StdResult<()> {
+        Ok(())
+    }
+}
+
 macro_rules! tuple_impls {
     ( $( $name:ident )+ ) => {
         impl<$($name: Dependency),+> Dependencies for ($($name,)+)
@@ -56,14 +62,16 @@ mod tests {
 
     impl Dependency for Dep1 {
         type Input = ();
-    
+
         fn check() -> StdResult<()> {
             println!("checked dep1");
             Ok(())
         }
-    
+
         fn get(_: Self::Input) -> StdResult<Self> {
-            Ok(Dep1 { path: "dep1".to_owned() })
+            Ok(Dep1 {
+                path: "dep1".to_owned(),
+            })
         }
     }
 
@@ -71,12 +79,12 @@ mod tests {
 
     impl Dependency for Dep2 {
         type Input = String;
-    
+
         fn check() -> StdResult<()> {
             println!("checked dep2");
             Ok(())
         }
-    
+
         fn get(path: Self::Input) -> StdResult<Self> {
             println!("dep2 got input: {}", path);
             Ok(Dep2)

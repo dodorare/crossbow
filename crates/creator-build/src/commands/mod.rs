@@ -1,9 +1,11 @@
+mod rust_compile;
+
 use crate::deps::Dependencies;
 use crate::error::StdResult;
 
 pub trait Command {
-    type Output;
     type Deps: Dependencies;
+    type Output;
 
     fn run(&self, deps: Self::Deps) -> StdResult<Self::Output>;
     fn check() -> StdResult<()> {
@@ -20,10 +22,10 @@ mod tests {
     pub struct CommandX;
 
     impl Command for CommandX {
-        type Output = ();
         type Deps = (AndroidSdk, Rustc);
+        type Output = ();
 
-        fn run(&self, (_android_sdk, _rustc): Self::Deps) -> StdResult<()> {
+        fn run(&self, (_android_sdk, _rustc): Self::Deps) -> StdResult<Self::Output> {
             println!("run command x");
             Ok(())
         }

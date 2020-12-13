@@ -1,9 +1,9 @@
 use crate::line::*;
 use bevy::prelude::*;
 
-pub fn paint_setup(mut commands: Commands, mut materials: ResMut<Assets<ColorMaterial>>) {
+pub fn paint_setup(commands: &mut Commands, mut materials: ResMut<Assets<ColorMaterial>>) {
     let camera_entity = commands
-        .spawn(Camera2dComponents::default())
+        .spawn(Camera2dBundle::default())
         .current_entity()
         .unwrap();
     commands.insert_resource(LineDrawingState::new(camera_entity));
@@ -13,7 +13,7 @@ pub fn paint_setup(mut commands: Commands, mut materials: ResMut<Assets<ColorMat
 }
 
 pub fn paint_system(
-    mut commands: Commands,
+    commands: &mut Commands,
     mut state: ResMut<LineDrawingState>,
     line_material: Res<LineMaterial>,
     mouse_button_input: Res<Input<MouseButton>>,
@@ -45,7 +45,7 @@ pub fn paint_system(
     }
     let new_line_segments = state.pop_line_segments();
     for (p1, p2) in new_line_segments.into_iter() {
-        spawn_line_segment(p1, p2, line_material.0.clone(), &mut commands);
+        spawn_line_segment(p1, p2, line_material.0.clone(), commands);
     }
 }
 
@@ -61,10 +61,10 @@ fn spawn_line_segment(
     let diff = p2 - p1;
     let length = diff.length() + 5.0;
     let angle = Vec2::new(1.0, 0.0).angle_between(diff);
-    let x = midpoint.x();
-    let y = midpoint.y();
+    let x = midpoint.x;
+    let y = midpoint.y;
 
-    commands.spawn(SpriteComponents {
+    commands.spawn(SpriteBundle {
         material,
         sprite: Sprite {
             size: Vec2::new(length, LINE_THICKNESS),
