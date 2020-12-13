@@ -1,5 +1,6 @@
 // use crate::button::*;
 use bevy::prelude::*;
+use std::sync::{Arc, RwLock};
 use substrate_subxt::{Client, ClientBuilder, KusamaRuntime};
 
 #[cfg(not(target_os = "android"))]
@@ -8,28 +9,34 @@ pub const TEXT_FONT_SIZE: f32 = 30.0;
 pub const TEXT_FONT_SIZE: f32 = 90.0;
 
 pub fn substrate(
-    task_pool: Res<bevy::tasks::IoTaskPool>,
-    mut local_client: ResMut<LocalClient>,
-    mut state: ResMut<State>,
+    task_pool: Res<bevy::tasks::AsyncComputeTaskPool>,
+    local_client: Res<RwLock<LocalClient>>,
+    state: Res<RwLock<ExplorerState>>,
 ) {
-    local_client.counter += 1;
-    if local_client.counter % 10 == 0 {
+    let counter = {
+        let mut lc = local_client.write().unwrap();
+        lc.counter += 1;
+        lc.counter
+    };
+    if counter % 10 == 0 {
         task_pool.scope(|s| {
             s.spawn(async move {
+                let mut local_client = local_client.write().unwrap();
                 if local_client.client.is_none() {
                     println!("Connecting to Substrate Node.");
-                    local_client.client = Some(
+                    local_client.client = Some(Arc::new(
                         ClientBuilder::<KusamaRuntime>::new()
                             .set_url("wss://kusama-rpc.polkadot.io")
                             .build()
                             .await
                             .unwrap(),
-                    );
+                    ));
                 }
                 let client = local_client.client.clone().unwrap();
                 let res = futures::try_join!(client.block_hash(None), client.finalized_head());
                 let (best, finalized) = res.unwrap();
                 let res = futures::try_join!(client.header(best), client.header(Some(finalized)));
+                let mut state = state.write().unwrap();
                 if let Ok((Some(best), Some(finalized))) = res {
                     state.best_block_number = best.number;
                     state.best_block_hash = best.hash().to_string();
@@ -45,7 +52,7 @@ pub fn substrate(
 
 #[derive(Clone)]
 pub struct LocalClient {
-    client: Option<Client<KusamaRuntime>>,
+    client: Option<Arc<Client<KusamaRuntime>>>,
     counter: i32,
 }
 
@@ -59,7 +66,7 @@ impl Default for LocalClient {
 }
 
 #[derive(Default, Clone)]
-pub struct State {
+pub struct ExplorerState {
     // Best block
     best_block_number: u32,
     best_block_hash: String,
@@ -83,7 +90,11 @@ pub enum BlockTexts {
     Parent,
 }
 
-pub fn explorer_text_updater(state: Res<State>, mut interaction_query: Query<(&mut Text, &Block)>) {
+pub fn explorer_text_updater(
+    state: Res<RwLock<ExplorerState>>,
+    mut interaction_query: Query<(&mut Text, &Block)>,
+) {
+    let state = state.read().unwrap();
     for (mut text, block) in interaction_query.iter_mut() {
         match block {
             Block::Best(texts) => match texts {
@@ -109,17 +120,17 @@ pub fn explorer_text_updater(state: Res<State>, mut interaction_query: Query<(&m
 // pub struct ExplorerButton;
 
 pub fn explorer_ui(
-    mut commands: Commands,
+    commands: &mut Commands,
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     // button_materials: Res<ButtonMaterials>,
-    state: Res<State>,
+    state: Res<ExplorerState>,
 ) {
     let font: Handle<Font> = asset_server.load("fonts/FiraSans-Bold.ttf");
     commands
-        .spawn(UiCameraComponents::default())
+        .spawn(CameraUiBundle::default())
         // root node (padding)
-        .spawn(NodeComponents {
+        .spawn(NodeBundle {
             style: Style {
                 size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
                 padding: Rect::all(Val::Percent(6.0)),
@@ -132,7 +143,7 @@ pub fn explorer_ui(
         .with_children(|parent| {
             parent
                 // explorer node
-                .spawn(NodeComponents {
+                .spawn(NodeBundle {
                     style: Style {
                         size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
                         flex_direction: FlexDirection::ColumnReverse,
@@ -145,7 +156,7 @@ pub fn explorer_ui(
                 .with_children(|parent| {
                     parent
                         // best block
-                        .spawn(NodeComponents {
+                        .spawn(NodeBundle {
                             style: Style {
                                 size: Size::new(Val::Percent(100.0), Val::Auto),
                                 padding: Rect::all(Val::Percent(3.0)),
@@ -158,48 +169,52 @@ pub fn explorer_ui(
                         })
                         .with_children(|parent| {
                             parent
-                                .spawn(TextComponents {
+                                .spawn(TextBundle {
                                     text: Text {
                                         value: "Best block".to_string(),
                                         font: font.clone(),
                                         style: TextStyle {
                                             font_size: TEXT_FONT_SIZE / 1.5,
                                             color: Color::rgb(0.9, 0.9, 0.9),
+                                            ..Default::default()
                                         },
                                     },
                                     ..Default::default()
                                 })
-                                .spawn(TextComponents {
+                                .spawn(TextBundle {
                                     text: Text {
                                         value: format!("Number: {}", state.best_block_number),
                                         font: font.clone(),
                                         style: TextStyle {
                                             font_size: TEXT_FONT_SIZE,
                                             color: Color::rgb(0.9, 0.9, 0.9),
+                                            ..Default::default()
                                         },
                                     },
                                     ..Default::default()
                                 })
                                 .with(Block::Best(BlockTexts::Number))
-                                .spawn(TextComponents {
+                                .spawn(TextBundle {
                                     text: Text {
                                         value: format!("Hash: {}", state.best_block_hash),
                                         font: font.clone(),
                                         style: TextStyle {
                                             font_size: TEXT_FONT_SIZE,
                                             color: Color::rgb(0.9, 0.9, 0.9),
+                                            ..Default::default()
                                         },
                                     },
                                     ..Default::default()
                                 })
                                 .with(Block::Best(BlockTexts::Hash))
-                                .spawn(TextComponents {
+                                .spawn(TextBundle {
                                     text: Text {
                                         value: format!("Parent: {}", state.best_block_parent_hash),
                                         font: font.clone(),
                                         style: TextStyle {
                                             font_size: TEXT_FONT_SIZE,
                                             color: Color::rgb(0.9, 0.9, 0.9),
+                                            ..Default::default()
                                         },
                                     },
                                     ..Default::default()
@@ -207,7 +222,7 @@ pub fn explorer_ui(
                                 .with(Block::Best(BlockTexts::Parent));
                         })
                         // finalized block
-                        .spawn(NodeComponents {
+                        .spawn(NodeBundle {
                             style: Style {
                                 size: Size::new(Val::Percent(100.0), Val::Auto),
                                 margin: Rect {
@@ -224,42 +239,45 @@ pub fn explorer_ui(
                         })
                         .with_children(|parent| {
                             parent
-                                .spawn(TextComponents {
+                                .spawn(TextBundle {
                                     text: Text {
                                         value: "Finalized block".to_string(),
                                         font: font.clone(),
                                         style: TextStyle {
                                             font_size: TEXT_FONT_SIZE / 1.5,
                                             color: Color::rgb(0.9, 0.9, 0.9),
+                                            ..Default::default()
                                         },
                                     },
                                     ..Default::default()
                                 })
-                                .spawn(TextComponents {
+                                .spawn(TextBundle {
                                     text: Text {
                                         value: format!("Number: {}", state.finalized_block_number),
                                         font: font.clone(),
                                         style: TextStyle {
                                             font_size: TEXT_FONT_SIZE,
                                             color: Color::rgb(0.9, 0.9, 0.9),
+                                            ..Default::default()
                                         },
                                     },
                                     ..Default::default()
                                 })
                                 .with(Block::Finalized(BlockTexts::Number))
-                                .spawn(TextComponents {
+                                .spawn(TextBundle {
                                     text: Text {
                                         value: format!("Hash: {}", state.finalized_block_hash),
                                         font: font.clone(),
                                         style: TextStyle {
                                             font_size: TEXT_FONT_SIZE,
                                             color: Color::rgb(0.9, 0.9, 0.9),
+                                            ..Default::default()
                                         },
                                     },
                                     ..Default::default()
                                 })
                                 .with(Block::Finalized(BlockTexts::Hash))
-                                .spawn(TextComponents {
+                                .spawn(TextBundle {
                                     text: Text {
                                         value: format!(
                                             "Parent: {}",
@@ -269,6 +287,7 @@ pub fn explorer_ui(
                                         style: TextStyle {
                                             font_size: TEXT_FONT_SIZE,
                                             color: Color::rgb(0.9, 0.9, 0.9),
+                                            ..Default::default()
                                         },
                                     },
                                     ..Default::default()
@@ -279,7 +298,7 @@ pub fn explorer_ui(
 
             // parent
             //     // explorer buttons node
-            //     .spawn(NodeComponents {
+            //     .spawn(NodeBundle {
             //         style: Style {
             //             size: Size::new(Val::Percent(100.0), Val::Percent(30.0)),
             //             flex_direction: FlexDirection::ColumnReverse,
@@ -291,7 +310,7 @@ pub fn explorer_ui(
             //     .with_children(|parent| {
             //         parent
             //             // run audio button
-            //             .spawn(NodeComponents {
+            //             .spawn(NodeBundle {
             //                 style: Style {
             //                     size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
             //                     margin: Rect {
@@ -309,7 +328,7 @@ pub fn explorer_ui(
             //             .with(ExplorerButton)
             //             .with(Interaction::default())
             //             .with_children(|parent| {
-            //                 parent.spawn(TextComponents {
+            //                 parent.spawn(TextBundle {
             //                     text: Text {
             //                         value: "Refresh".to_string(),
             //                         font: font.clone(),

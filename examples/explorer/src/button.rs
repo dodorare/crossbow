@@ -19,9 +19,12 @@ impl FromResources for ButtonMaterials {
 
 pub fn button_effect(
     button_materials: Res<ButtonMaterials>,
-    mut interaction_query: Query<(&Node, Mutated<Interaction>, &mut Handle<ColorMaterial>)>,
+    mut interaction_query: Query<
+        (&Interaction, &mut Handle<ColorMaterial>),
+        (Mutated<Interaction>, With<Node>),
+    >,
 ) {
-    for (_button, interaction, mut material) in interaction_query.iter_mut() {
+    for (interaction, mut material) in interaction_query.iter_mut() {
         match *interaction {
             Interaction::Clicked => {
                 *material = button_materials.pressed.clone();

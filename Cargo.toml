@@ -24,6 +24,16 @@ android_logger = "0.9"
 bevy = { git = "https://github.com/bevyengine/bevy", rev = "509b138e8fa3ea250393de40c33cc857c72134d3" }
 cpal = { git = "https://github.com/MichaelHills/cpal", branch = "mike-ios" }
 
+# sp-arithmetic = { git = "https://github.com/paritytech/substrate", rev = "c60f00840034017d4b7e6d20bd4fcf9a3f5b529a" }
+# frame-support = { git = "https://github.com/paritytech/substrate", rev = "c60f00840034017d4b7e6d20bd4fcf9a3f5b529a" }
+# frame-system = { git = "https://github.com/paritytech/substrate", rev = "c60f00840034017d4b7e6d20bd4fcf9a3f5b529a" }
+# sp-runtime = { git = "https://github.com/paritytech/substrate", rev = "c60f00840034017d4b7e6d20bd4fcf9a3f5b529a" }
+# sp-version = { git = "https://github.com/paritytech/substrate", rev = "c60f00840034017d4b7e6d20bd4fcf9a3f5b529a" }
+# pallet-indices = { git = "https://github.com/paritytech/substrate", rev = "c60f00840034017d4b7e6d20bd4fcf9a3f5b529a" }
+# pallet-staking = { git = "https://github.com/paritytech/substrate", rev = "c60f00840034017d4b7e6d20bd4fcf9a3f5b529a" }
+# pallet-timestamp = { git = "https://github.com/paritytech/substrate", rev = "c60f00840034017d4b7e6d20bd4fcf9a3f5b529a" }
+# pallet-im-online = { git = "https://github.com/paritytech/substrate", rev = "c60f00840034017d4b7e6d20bd4fcf9a3f5b529a" }
+
 [features]
 default = []
 tool = ["cargo-creator"]
