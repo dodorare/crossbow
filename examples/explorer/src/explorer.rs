@@ -1,71 +1,59 @@
 // use crate::button::*;
-use bevy::prelude::*;
+use bevy::{prelude::*, tasks::AsyncComputeTaskPool};
 use std::sync::{Arc, RwLock};
 use substrate_subxt::{Client, ClientBuilder, KusamaRuntime};
+use tokio::sync::mpsc;
 
 #[cfg(not(target_os = "android"))]
 pub const TEXT_FONT_SIZE: f32 = 30.0;
 #[cfg(target_os = "android")]
 pub const TEXT_FONT_SIZE: f32 = 90.0;
 
-pub fn substrate(
-    task_pool: Res<bevy::tasks::AsyncComputeTaskPool>,
-    local_client: Res<RwLock<LocalClient>>,
-    state: Res<RwLock<ExplorerState>>,
-) {
-    let counter = {
-        let mut lc = local_client.write().unwrap();
-        lc.counter += 1;
-        lc.counter
-    };
-    if counter % 10 == 0 {
-        task_pool.scope(|s| {
-            s.spawn(async move {
-                let mut local_client = local_client.write().unwrap();
-                if local_client.client.is_none() {
-                    println!("Connecting to Substrate Node.");
-                    local_client.client = Some(Arc::new(
-                        ClientBuilder::<KusamaRuntime>::new()
-                            .set_url("wss://kusama-rpc.polkadot.io")
-                            .build()
-                            .await
-                            .unwrap(),
-                    ));
-                }
-                let client = local_client.client.clone().unwrap();
-                let res = futures::try_join!(client.block_hash(None), client.finalized_head());
-                let (best, finalized) = res.unwrap();
-                let res = futures::try_join!(client.header(best), client.header(Some(finalized)));
-                let mut state = state.write().unwrap();
-                if let Ok((Some(best), Some(finalized))) = res {
-                    state.best_block_number = best.number;
-                    state.best_block_hash = best.hash().to_string();
-                    state.best_block_parent_hash = best.parent_hash.to_string();
-                    state.finalized_block_number = finalized.number;
-                    state.finalized_block_hash = finalized.hash().to_string();
-                    state.finalized_block_parent_hash = finalized.parent_hash.to_string();
-                }
-            })
-        });
+pub struct ExplorerStateChannel {
+    pub tx: mpsc::Sender<ExplorerState>,
+    pub rx: mpsc::Receiver<ExplorerState>,
+}
+
+impl ExplorerStateChannel {
+    pub fn new() -> Self {
+        let (tx, rx) = mpsc::channel(1);
+        Self { tx, rx }
     }
 }
 
-#[derive(Clone)]
-pub struct LocalClient {
-    client: Option<Arc<Client<KusamaRuntime>>>,
-    counter: i32,
+pub fn explorer_startup(task_pool: Res<AsyncComputeTaskPool>, channel: Res<ExplorerStateChannel>) {
+    let tx = channel.tx.clone();
+    task_pool
+        .spawn(async move {
+            println!("Connecting to Substrate Node.");
+            let client = ClientBuilder::<KusamaRuntime>::new()
+                .set_url("wss://kusama-rpc.polkadot.io")
+                .build()
+                .await
+                .unwrap();
+            loop {
+                let (best, finalized) =
+                    tokio::try_join!(client.block_hash(None), client.finalized_head()).unwrap();
+                let (best, finalized) =
+                    tokio::try_join!(client.header(best), client.header(Some(finalized))).unwrap();
+                let best = best.unwrap();
+                let finalized = finalized.unwrap();
+                tx.send(ExplorerState {
+                    best_block_number: best.number,
+                    best_block_hash: best.hash().to_string(),
+                    best_block_parent_hash: best.parent_hash.to_string(),
+                    finalized_block_number: finalized.number,
+                    finalized_block_hash: finalized.hash().to_string(),
+                    finalized_block_parent_hash: finalized.parent_hash.to_string(),
+                })
+                .await
+                .unwrap();
+            }
+        })
+        .detach();
 }
 
-impl Default for LocalClient {
-    fn default() -> Self {
-        Self {
-            client: None,
-            counter: -1,
-        }
-    }
-}
-
-#[derive(Default, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct ExplorerState {
     // Best block
     best_block_number: u32,
@@ -91,10 +79,10 @@ pub enum BlockTexts {
 }
 
 pub fn explorer_text_updater(
-    state: Res<RwLock<ExplorerState>>,
+    mut channel: ResMut<ExplorerStateChannel>,
     mut interaction_query: Query<(&mut Text, &Block)>,
 ) {
-    let state = state.read().unwrap();
+    let state = channel.rx.blocking_recv().unwrap();
     for (mut text, block) in interaction_query.iter_mut() {
         match block {
             Block::Best(texts) => match texts {
@@ -124,7 +112,6 @@ pub fn explorer_ui(
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     // button_materials: Res<ButtonMaterials>,
-    state: Res<ExplorerState>,
 ) {
     let font: Handle<Font> = asset_server.load("fonts/FiraSans-Bold.ttf");
     commands
@@ -183,7 +170,7 @@ pub fn explorer_ui(
                                 })
                                 .spawn(TextBundle {
                                     text: Text {
-                                        value: format!("Number: {}", state.best_block_number),
+                                        value: "Number: ".to_owned(),
                                         font: font.clone(),
                                         style: TextStyle {
                                             font_size: TEXT_FONT_SIZE,
@@ -196,7 +183,7 @@ pub fn explorer_ui(
                                 .with(Block::Best(BlockTexts::Number))
                                 .spawn(TextBundle {
                                     text: Text {
-                                        value: format!("Hash: {}", state.best_block_hash),
+                                        value: "Hash: ".to_owned(),
                                         font: font.clone(),
                                         style: TextStyle {
                                             font_size: TEXT_FONT_SIZE,
@@ -209,7 +196,7 @@ pub fn explorer_ui(
                                 .with(Block::Best(BlockTexts::Hash))
                                 .spawn(TextBundle {
                                     text: Text {
-                                        value: format!("Parent: {}", state.best_block_parent_hash),
+                                        value: "Parent: ".to_owned(),
                                         font: font.clone(),
                                         style: TextStyle {
                                             font_size: TEXT_FONT_SIZE,
@@ -253,7 +240,7 @@ pub fn explorer_ui(
                                 })
                                 .spawn(TextBundle {
                                     text: Text {
-                                        value: format!("Number: {}", state.finalized_block_number),
+                                        value: "Number: ".to_owned(),
                                         font: font.clone(),
                                         style: TextStyle {
                                             font_size: TEXT_FONT_SIZE,
@@ -266,7 +253,7 @@ pub fn explorer_ui(
                                 .with(Block::Finalized(BlockTexts::Number))
                                 .spawn(TextBundle {
                                     text: Text {
-                                        value: format!("Hash: {}", state.finalized_block_hash),
+                                        value: "Hash: ".to_owned(),
                                         font: font.clone(),
                                         style: TextStyle {
                                             font_size: TEXT_FONT_SIZE,
@@ -279,10 +266,7 @@ pub fn explorer_ui(
                                 .with(Block::Finalized(BlockTexts::Hash))
                                 .spawn(TextBundle {
                                     text: Text {
-                                        value: format!(
-                                            "Parent: {}",
-                                            state.finalized_block_parent_hash
-                                        ),
+                                        value: "Parent: ".to_owned(),
                                         font: font.clone(),
                                         style: TextStyle {
                                             font_size: TEXT_FONT_SIZE,

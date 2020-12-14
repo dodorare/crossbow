@@ -10,7 +10,7 @@ log = "0.4"
 anyhow = "1.0"
 substrate-subxt = "0.13"
 bevy = "0.3"
-futures = "0.3.7"
+tokio = { version = "0.3.5", features = ["sync", "macros"] }
 
 [target.'cfg(target_os = "android")'.dependencies]
 ndk-glue = { version = "0.2", features = ["logger"] }
