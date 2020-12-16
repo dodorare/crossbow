@@ -1,5 +1,8 @@
-mod android_rust_compile;
-mod apple_rust_compile;
+mod rust_compile;
+mod generate_minimal_project;
+
+pub use rust_compile::*;
+pub use generate_minimal_project::*;
 
 use crate::deps::Dependencies;
 use crate::error::StdResult;
@@ -12,6 +15,12 @@ pub trait Command {
     fn check() -> StdResult<()> {
         Self::Deps::check()
     }
+}
+
+#[derive(Debug, Clone)]
+pub enum BinOrLib {
+    Bin(String),
+    Lib,
 }
 
 #[cfg(test)]

@@ -60,7 +60,7 @@ else
   SDK_PATH=$(xcrun --show-sdk-path --sdk iphonesimulator)
 fi
 
-cargo rustc --bin ${PROJECT_NAME} --release --target ${TARGET} -- --crate-type=staticlib
+cargo rustc --bin ${PROJECT_NAME} --release --target ${TARGET}
 cp ../../target/${TARGET}/release/${PROJECT_NAME} ${BUNDLE_DIR}/${PROJECT_NAME}
 
 echo ✅ Compile Rust code

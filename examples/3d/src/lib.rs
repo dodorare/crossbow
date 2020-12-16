@@ -7,7 +7,7 @@ pub fn main() {
         .add_resource(Msaa { samples: 4 })
         .add_resource(ClearColor(Color::rgb(0.88, 0.87, 0.86)))
         .add_plugins(DefaultPlugins)
-        .add_startup_system(helmet)
+        .add_startup_system(helmet.system())
         .run();
 }
 

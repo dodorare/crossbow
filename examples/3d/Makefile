@@ -7,7 +7,7 @@ ifndef DEVICE_ID
 endif
 
 run: build install run-sim
-	xcrun simctl launch --console $(DEVICE) com.rust.$(PROJECT_NAME)
+	xcrun simctl launch --console $(DEVICE) com.enfipy.$(PROJECT_NAME)
 
 build:
 	PROJECT_NAME=$(PROJECT_NAME) ./build.sh

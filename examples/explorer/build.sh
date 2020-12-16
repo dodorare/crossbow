@@ -66,7 +66,7 @@ cp ../../target/${TARGET}/release/${PROJECT_NAME} ${BUNDLE_DIR}/${PROJECT_NAME}
 echo ✅ Compile Rust code
 
 #############################################################
-echo → Step 4: Process and Copy Info.plist
+echo → Step 3: Process and Copy Info.plist
 #############################################################
 
 # The location of the processed Info.plist in the app bundle
@@ -126,7 +126,7 @@ if [ "${BUILDING_FOR_DEVICE}" != true ]; then
 fi
 
 #############################################################
-echo → Step 6: Code Signing
+echo → Step 4: Code Signing
 #############################################################
 
 export CODESIGN_ALLOCATE=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/codesign_allocate
@@ -134,7 +134,7 @@ codesign --force --sign - --timestamp=none ${BUNDLE_DIR}/
 
 # The name of the provisioning file to use
 # ⚠️ YOU NEED TO CHANGE THIS TO YOUR PROFILE ️️⚠️
-PROVISIONING_PROFILE_NAME=374460f0-780b-4216-9cb3-e9a8396cc33d.mobileprovision
+PROVISIONING_PROFILE_NAME=1fdea7b0-9231-4b31-a511-cdd0724d8128.mobileprovision
 
 # The location of the provisioning file inside the app bundle
 EMBEDDED_PROVISIONING_PROFILE=${BUNDLE_DIR}/embedded.mobileprovision

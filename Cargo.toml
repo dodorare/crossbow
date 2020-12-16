@@ -21,7 +21,8 @@ android_logger = "0.9"
 
 [patch.crates-io]
 # bevy = { path = "../bevy" }
-bevy = { git = "https://github.com/bevyengine/bevy", rev = "509b138e8fa3ea250393de40c33cc857c72134d3" }
+bevy = { git = "https://github.com/bevyengine/bevy", rev = "61b181a699ed2b450bebc8c14d96c6af55fa41cf" }
+# bevy = { git = "https://github.com/bevyengine/bevy", rev = "509b138e8fa3ea250393de40c33cc857c72134d3" }
 cpal = { git = "https://github.com/MichaelHills/cpal", branch = "mike-ios" }
 
 # sp-arithmetic = { git = "https://github.com/paritytech/substrate", rev = "c60f00840034017d4b7e6d20bd4fcf9a3f5b529a" }

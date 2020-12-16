@@ -42,3 +42,28 @@ impl IntoRustTriple for AppleTarget {
         }
     }
 }
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum CrateType {
+    Bin,
+    Lib,
+    Dylib,
+    Staticlib,
+    Cdylib,
+    Rlib,
+    ProcMacro,
+}
+
+impl IntoRustTriple for CrateType {
+    fn rust_triple(&self) -> &'static str {
+        match self {
+            Self::Bin => "bin",
+            Self::Lib => "lib",
+            Self::Dylib => "dylib",
+            Self::Staticlib => "staticlib",
+            Self::Cdylib => "cdylib",
+            Self::Rlib => "rlib",
+            Self::ProcMacro => "proc-macro",
+        }
+    }
+}
