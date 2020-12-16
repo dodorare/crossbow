@@ -1,5 +1,5 @@
 use super::Command;
-use crate::error::StdResult;
+use crate::error::{Error, StdResult};
 use crate::target::{AppleTarget, IntoRustTriple};
 
 use std::path::PathBuf;
@@ -25,11 +25,10 @@ impl Command for AppleRustCompile {
         for triple in self.targets.iter().map(|t| t.rust_triple()) {
             cargo.arg("--target").arg(triple);
         }
-        cargo.arg("--");
-        // cargo.arg("--crate-type");
-        // cargo.arg("staticlib");
-
-        // cargo.status()?.success()
+        cargo.args(&["--", "--crate-type", "staticlib"]);
+        if !cargo.status()?.success() {
+            return Err(Error::CmdFailed(cargo).into());
+        }
         Ok(self.target_dir.clone())
     }
 }
