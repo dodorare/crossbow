@@ -11,6 +11,7 @@ readme = "../../README.md"
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
+plist = "1"
 
 thiserror = "1.0"
 displaydoc = "0.1"

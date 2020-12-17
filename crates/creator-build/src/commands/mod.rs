@@ -1,6 +1,8 @@
+mod apple_generate_properties;
 mod generate_minimal_project;
 mod rust_compile;
 
+pub use apple_generate_properties::*;
 pub use generate_minimal_project::*;
 pub use rust_compile::*;
 
