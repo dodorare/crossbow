@@ -1,8 +1,5 @@
-mod info_plist;
-
 use super::Command;
-use crate::error::StdResult;
-pub use info_plist::*;
+use crate::{error::StdResult, types::*};
 use std::fs::File;
 use std::path::PathBuf;
 
@@ -39,7 +36,7 @@ mod tests {
             properties: InfoPlist {
                 categorization: Categorization {
                     bundle_package_type: None,
-                    application_category_type: Some(AppCategoryType::ActionGames),
+                    application_category_type: Some(AppCategoryType::Business),
                 },
                 ..Default::default()
             },

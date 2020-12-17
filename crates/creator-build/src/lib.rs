@@ -1,8 +1,7 @@
 mod commands;
 mod deps;
 pub mod error;
-mod target;
+pub mod types;
 
 pub use commands::*;
 pub use deps::*;
-pub use target::*;

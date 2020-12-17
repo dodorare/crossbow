@@ -1,3 +1,4 @@
+use creator_build::types::*;
 use creator_build::*;
 
 #[test]
