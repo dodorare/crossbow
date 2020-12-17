@@ -9,7 +9,7 @@ fn test_compile_android() -> error::StdResult<()> {
     generate_minimal_project.run((), ())?;
     // Run android rust compile
     let android_rust_compile = RustCompile {
-        target: BinOrLib::Lib,
+        target: Target::Lib,
         build_target: AndroidTarget::Aarch64LinuxAndroid.into(),
         project_path: dir.path().to_owned(),
         release: true,

@@ -10,8 +10,8 @@ use std::sync::Arc;
 
 #[derive(Debug, Clone)]
 pub struct RustCompile {
-    pub target: BinOrLib,
-    pub build_target: AndroidOrAppleTarget,
+    pub target: Target,
+    pub build_target: BuildTarget,
     pub project_path: PathBuf,
     pub release: bool,
     pub cargo_args: Vec<String>,
@@ -27,8 +27,9 @@ impl Command for RustCompile {
         let mut cargo = ProcessCommand::new("cargo");
         cargo.arg("rustc");
         match &self.target {
-            BinOrLib::Bin(name) => cargo.args(&["--bin", &name]),
-            BinOrLib::Lib => cargo.arg("--lib"),
+            Target::Bin(name) => cargo.args(&["--bin", &name]),
+            Target::Example(name) => cargo.args(&["--example", &name]),
+            Target::Lib => cargo.arg("--lib"),
         };
         cargo.current_dir(self.project_path.clone());
         if self.release {
@@ -54,7 +55,7 @@ impl Command for RustCompile {
             // cargo.env(format!("CC_{}", triple), &clang);
             // cargo.env(format!("CXX_{}", triple), &clang_pp);
             // cargo.env(cargo_env_target_cfg("LINKER", triple), &clang);
-    
+
             // let ar = ndk.toolchain_bin("ar", target)?;
             // cargo.env(format!("AR_{}", triple), &ar);
             // cargo.env(cargo_env_target_cfg("AR", triple), &ar);

@@ -13,6 +13,7 @@ bevy = "0.3"
 
 [lib]
 name = "threedlib"
+crate-type = ["lib", "cdylib"]
 
 [package.metadata.android]
 apk_label = "Creator 3D"

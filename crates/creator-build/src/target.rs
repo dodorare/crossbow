@@ -44,12 +44,12 @@ impl IntoRustTriple for AppleTarget {
 }
 
 #[derive(Debug, Clone)]
-pub enum AndroidOrAppleTarget {
+pub enum BuildTarget {
     Android(AndroidTarget),
     Apple(AppleTarget),
 }
 
-impl IntoRustTriple for AndroidOrAppleTarget {
+impl IntoRustTriple for BuildTarget {
     fn rust_triple(&self) -> &'static str {
         match self {
             Self::Android(target) => target.rust_triple(),
@@ -58,33 +58,33 @@ impl IntoRustTriple for AndroidOrAppleTarget {
     }
 }
 
-impl From<AppleTarget> for AndroidOrAppleTarget {
+impl From<AppleTarget> for BuildTarget {
     fn from(target: AppleTarget) -> Self {
         Self::Apple(target)
     }
 }
 
-impl From<AndroidTarget> for AndroidOrAppleTarget {
+impl From<AndroidTarget> for BuildTarget {
     fn from(target: AndroidTarget) -> Self {
         Self::Android(target)
     }
 }
 
 #[derive(Debug, Clone)]
-pub enum AndroidOrAppleTargets {
+pub enum BuildTargets {
     Android(Vec<AndroidTarget>),
     Apple(Vec<AppleTarget>),
 }
 
-impl From<Vec<AndroidTarget>> for AndroidOrAppleTargets {
+impl From<Vec<AndroidTarget>> for BuildTargets {
     fn from(targets: Vec<AndroidTarget>) -> Self {
-        AndroidOrAppleTargets::Android(targets)
+        Self::Android(targets)
     }
 }
 
-impl From<Vec<AppleTarget>> for AndroidOrAppleTargets {
+impl From<Vec<AppleTarget>> for BuildTargets {
     fn from(targets: Vec<AppleTarget>) -> Self {
-        AndroidOrAppleTargets::Apple(targets)
+        Self::Apple(targets)
     }
 }
 

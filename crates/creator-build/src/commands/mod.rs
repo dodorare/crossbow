@@ -16,8 +16,9 @@ pub trait Command {
 }
 
 #[derive(Debug, Clone)]
-pub enum BinOrLib {
+pub enum Target {
     Bin(String),
+    Example(String),
     Lib,
 }
 
