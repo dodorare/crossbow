@@ -43,15 +43,65 @@ impl IntoRustTriple for AppleTarget {
     }
 }
 
+#[derive(Debug, Clone)]
+pub enum AndroidOrAppleTarget {
+    Android(AndroidTarget),
+    Apple(AppleTarget),
+}
+
+impl IntoRustTriple for AndroidOrAppleTarget {
+    fn rust_triple(&self) -> &'static str {
+        match self {
+            Self::Android(target) => target.rust_triple(),
+            Self::Apple(target) => target.rust_triple(),
+        }
+    }
+}
+
+impl From<AppleTarget> for AndroidOrAppleTarget {
+    fn from(target: AppleTarget) -> Self {
+        Self::Apple(target)
+    }
+}
+
+impl From<AndroidTarget> for AndroidOrAppleTarget {
+    fn from(target: AndroidTarget) -> Self {
+        Self::Android(target)
+    }
+}
+
+#[derive(Debug, Clone)]
+pub enum AndroidOrAppleTargets {
+    Android(Vec<AndroidTarget>),
+    Apple(Vec<AppleTarget>),
+}
+
+impl From<Vec<AndroidTarget>> for AndroidOrAppleTargets {
+    fn from(targets: Vec<AndroidTarget>) -> Self {
+        AndroidOrAppleTargets::Android(targets)
+    }
+}
+
+impl From<Vec<AppleTarget>> for AndroidOrAppleTargets {
+    fn from(targets: Vec<AppleTarget>) -> Self {
+        AndroidOrAppleTargets::Apple(targets)
+    }
+}
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum CrateType {
+    /// A runnable executable.
     Bin,
+    /// A Rust library.
     Lib,
+    /// A dynamic Rust library.
     Dylib,
+    /// A static system library.
     Staticlib,
+    /// A dynamic system library.
     Cdylib,
+    /// A "Rust library" file.
     Rlib,
-    ProcMacro,
 }
 
 impl IntoRustTriple for CrateType {
@@ -63,7 +113,6 @@ impl IntoRustTriple for CrateType {
             Self::Staticlib => "staticlib",
             Self::Cdylib => "cdylib",
             Self::Rlib => "rlib",
-            Self::ProcMacro => "proc-macro",
         }
     }
 }

@@ -11,4 +11,6 @@ pub enum Error {
     CmdFailed(Command),
     /// Android SDK is not found.
     AndroidSdkNotFound,
+    /// Android NDK is not found.
+    AndroidNdkNotFound,
 }

@@ -1,40 +1,75 @@
+#![allow(non_snake_case)]
+
+mod android_ndk;
 mod android_sdk;
 mod rustc;
 
-use crate::error::StdResult;
-
+pub use android_ndk::*;
 pub use android_sdk::*;
 pub use rustc::*;
 
+use crate::error::StdResult;
+use std::sync::Arc;
+
 pub trait Dependencies {
-    fn check() -> StdResult<()>;
+    fn check(&self) -> StdResult<()>;
+}
+
+pub trait OptionalDependencies {
+    fn check(&self) -> StdResult<()>;
 }
 
 pub trait Dependency: Sized {
     type Input;
 
-    fn check() -> StdResult<()>;
-    fn get(input: Self::Input) -> StdResult<Self>;
+    fn check(&self) -> StdResult<()>;
+    fn init(input: Option<Self::Input>) -> StdResult<Arc<Self>>;
 }
 
 impl Dependencies for () {
-    fn check() -> StdResult<()> {
+    fn check(&self) -> StdResult<()> {
         Ok(())
     }
 }
 
+impl OptionalDependencies for () {
+    fn check(&self) -> StdResult<()> {
+        Ok(())
+    }
+}
+
+impl<T: Dependency> OptionalDependencies for Option<Arc<T>> {
+    fn check(&self) -> StdResult<()> {
+        if let Some(dep) = self {
+            dep.check()?;
+        }
+        Ok(())
+    }
+}
+
+// Obsoletes and should be replaced after: https://github.com/rust-lang/rfcs/issues/376
 macro_rules! tuple_impls {
     ( $( $name:ident )+ ) => {
-        impl<$($name: Dependency),+> Dependencies for ($($name,)+)
+        impl<$($name: Dependency),+> Dependencies for ($(Arc<$name>,)+)
         {
-            fn check() -> StdResult<()> {
-                $($name::check()?;)+
+            fn check(&self) -> StdResult<()> {
+                let ($($name,)+) = self;
+                ($($name.check()?,)+);
+                Ok(())
+            }
+        }
+        impl<$($name: Dependency),+> OptionalDependencies for ($(Option<Arc<$name>>,)+)
+        {
+            fn check(&self) -> StdResult<()> {
+                let ($($name,)+) = self;
+                ($(if let Some($name) = $name { $name.check()?; },)+);
                 Ok(())
             }
         }
     };
 }
 
+// TODO: Replace with proc macro or better macro_rules
 tuple_impls! { A }
 tuple_impls! { A B }
 tuple_impls! { A B C }
@@ -56,6 +91,7 @@ tuple_impls! { A B C D E F G H I J K L M N O P }
 mod tests {
     use super::*;
 
+    #[derive(Debug, Clone)]
     struct Dep1 {
         path: String,
     }
@@ -63,31 +99,37 @@ mod tests {
     impl Dependency for Dep1 {
         type Input = ();
 
-        fn check() -> StdResult<()> {
+        fn check(&self) -> StdResult<()> {
             println!("checked dep1");
             Ok(())
         }
 
-        fn get(_: Self::Input) -> StdResult<Self> {
+        fn init(_: Option<Self::Input>) -> StdResult<Arc<Self>> {
             Ok(Dep1 {
                 path: "dep1".to_owned(),
-            })
+            }
+            .into())
         }
     }
 
-    struct Dep2;
+    struct Dep2 {
+        dep1: Arc<Dep1>,
+    }
 
     impl Dependency for Dep2 {
-        type Input = String;
+        type Input = Arc<Dep1>;
 
-        fn check() -> StdResult<()> {
-            println!("checked dep2");
+        fn check(&self) -> StdResult<()> {
+            println!("checked dep2 for later run with {:?}", self.dep1);
             Ok(())
         }
 
-        fn get(path: Self::Input) -> StdResult<Self> {
-            println!("dep2 got input: {}", path);
-            Ok(Dep2)
+        fn init(dep1: Option<Self::Input>) -> StdResult<Arc<Self>> {
+            if let Some(dep1) = dep1 {
+                return Ok(Dep2 { dep1 }.into());
+            }
+            let dep1 = Dep1::init(None)?;
+            Ok(Dep2 { dep1 }.into())
         }
     }
 
@@ -98,12 +140,14 @@ mod tests {
     }
 
     #[test]
-    fn test_checks() {
-        Dep1::check().unwrap();
-        <(Dep1, Dep2)>::check().unwrap();
-
-        let dep1 = Dep1::get(()).unwrap();
-        let dep2 = Dep2::get(dep1.path).unwrap();
+    fn test_checks() -> StdResult<()> {
+        let dep1 = Dep1::init(None)?;
+        let dep2 = Dep2::init(Some(dep1.clone()))?;
+        // Run checks
+        dep1.check()?;
+        dep2.check()?;
+        // Run custom function
         dep2.hello();
+        Ok(())
     }
 }

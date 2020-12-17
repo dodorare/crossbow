@@ -1,4 +1,4 @@
-use super::Dependency;
+use super::*;
 use crate::error::StdResult;
 
 pub struct Rustc;
@@ -6,12 +6,12 @@ pub struct Rustc;
 impl Dependency for Rustc {
     type Input = ();
 
-    fn check() -> StdResult<()> {
+    fn check(&self) -> StdResult<()> {
         println!("checked rustc");
         Ok(())
     }
 
-    fn get(_: Self::Input) -> StdResult<Self> {
-        Ok(Rustc)
+    fn init(_: Option<Self::Input>) -> StdResult<Arc<Self>> {
+        Ok(Rustc.into())
     }
 }

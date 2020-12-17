@@ -16,9 +16,10 @@ pub struct GenerateMinimalProject {
 
 impl Command for GenerateMinimalProject {
     type Deps = ();
+    type OptDeps = ();
     type Output = ();
 
-    fn run(&self, (): Self::Deps) -> StdResult<Self::Output> {
+    fn run(&self, (): Self::Deps, (): Self::OptDeps) -> StdResult<Self::Output> {
         // Create Cargo.toml file
         let file_path = self.out_dir.join("Cargo.toml");
         let mut file = File::create(file_path)?;
@@ -49,7 +50,7 @@ mod tests {
         let cmd = GenerateMinimalProject {
             out_dir: dir.path().to_owned(),
         };
-        cmd.run(())?;
+        cmd.run((), ())?;
         Ok(())
     }
 }
