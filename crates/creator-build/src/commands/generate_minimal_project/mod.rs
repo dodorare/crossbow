@@ -17,7 +17,7 @@ pub struct GenerateMinimalProject {
 impl Command for GenerateMinimalProject {
     type Deps = ();
     type OptDeps = ();
-    type Output = ();
+    type Output = String;
 
     fn run(&self, (): Self::Deps, (): Self::OptDeps) -> StdResult<Self::Output> {
         // Create Cargo.toml file
@@ -35,7 +35,7 @@ impl Command for GenerateMinimalProject {
         let main_rs_path = src_path.join("main.rs");
         let mut main_rs = File::create(main_rs_path)?;
         main_rs.write_all(MAIN_RS_VALUE.as_bytes())?;
-        Ok(())
+        Ok("example".to_owned())
     }
 }
 

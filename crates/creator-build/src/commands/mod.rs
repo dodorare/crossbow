@@ -4,15 +4,20 @@ mod rust_compile;
 pub use generate_minimal_project::*;
 pub use rust_compile::*;
 
-use crate::deps::{Dependencies, OptionalDependencies};
+use crate::deps::Dependencies;
 use crate::error::StdResult;
 
 pub trait Command {
     type Deps: Dependencies;
-    type OptDeps: OptionalDependencies;
+    type OptDeps: Dependencies;
     type Output;
 
     fn run(&self, deps: Self::Deps, opt_deps: Self::OptDeps) -> StdResult<Self::Output>;
+    fn run_without_deps(&self) -> StdResult<Self::Output> {
+        let deps = Self::Deps::init()?;
+        let opt_deps = Self::OptDeps::init()?;
+        self.run(deps, opt_deps)
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -27,12 +32,12 @@ mod tests {
     use super::*;
     use crate::deps::*;
     use crate::error::StdResult;
-    use std::sync::Arc;
+    use std::rc::Rc;
 
     pub struct CommandX;
 
     impl Command for CommandX {
-        type Deps = (Arc<AndroidSdk>, Arc<Rustc>);
+        type Deps = (Rc<AndroidSdk>, Rc<Rustc>);
         type OptDeps = ();
         type Output = ();
 
@@ -49,8 +54,8 @@ mod tests {
     #[test]
     fn test_command() -> StdResult<()> {
         // Init deps
-        let android_sdk = AndroidSdk::init(None)?;
-        let rustc = Rustc::init(None)?;
+        let android_sdk = AndroidSdk::init()?;
+        let rustc = Rustc::init()?;
         // Init command
         let cmdx = CommandX;
         // Check deps if you want
@@ -58,6 +63,7 @@ mod tests {
         deps.check()?;
         // Run command with given deps
         cmdx.run(deps, ())?;
+        cmdx.run_without_deps()?;
         Ok(())
     }
 }

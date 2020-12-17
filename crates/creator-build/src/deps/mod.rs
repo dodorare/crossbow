@@ -9,61 +9,62 @@ pub use android_sdk::*;
 pub use rustc::*;
 
 use crate::error::StdResult;
-use std::sync::Arc;
+use std::rc::Rc;
 
-pub trait Dependencies {
+pub trait Dependencies: Sized {
     fn check(&self) -> StdResult<()>;
-}
-
-pub trait OptionalDependencies {
-    fn check(&self) -> StdResult<()>;
+    fn init() -> StdResult<Self>;
 }
 
 pub trait Dependency: Sized {
-    type Input;
-
     fn check(&self) -> StdResult<()>;
-    fn init(input: Option<Self::Input>) -> StdResult<Arc<Self>>;
+    fn init() -> StdResult<Rc<Self>>;
 }
 
 impl Dependencies for () {
     fn check(&self) -> StdResult<()> {
         Ok(())
     }
-}
-
-impl OptionalDependencies for () {
-    fn check(&self) -> StdResult<()> {
+    fn init() -> StdResult<Self> {
         Ok(())
     }
 }
 
-impl<T: Dependency> OptionalDependencies for Option<Arc<T>> {
+impl<T: Dependency> Dependencies for Option<Rc<T>> {
     fn check(&self) -> StdResult<()> {
         if let Some(dep) = self {
             dep.check()?;
         }
         Ok(())
     }
+    fn init() -> StdResult<Self> {
+        Ok(None)
+    }
 }
 
 // Obsoletes and should be replaced after: https://github.com/rust-lang/rfcs/issues/376
 macro_rules! tuple_impls {
     ( $( $name:ident )+ ) => {
-        impl<$($name: Dependency),+> Dependencies for ($(Arc<$name>,)+)
+        impl<$($name: Dependency),+> Dependencies for ($(Rc<$name>,)+)
         {
             fn check(&self) -> StdResult<()> {
                 let ($($name,)+) = self;
                 ($($name.check()?,)+);
                 Ok(())
             }
+            fn init() -> StdResult<Self> {
+                Ok(($($name::init()?,)+))
+            }
         }
-        impl<$($name: Dependency),+> OptionalDependencies for ($(Option<Arc<$name>>,)+)
+        impl<$($name: Dependency),+> Dependencies for ($(Option<Rc<$name>>,)+)
         {
             fn check(&self) -> StdResult<()> {
                 let ($($name,)+) = self;
                 ($(if let Some($name) = $name { $name.check()?; },)+);
                 Ok(())
+            }
+            fn init() -> StdResult<Self> {
+                Ok(($(Option::<Rc<$name>>::None,)+))
             }
         }
     };
@@ -97,14 +98,12 @@ mod tests {
     }
 
     impl Dependency for Dep1 {
-        type Input = ();
-
         fn check(&self) -> StdResult<()> {
             println!("checked dep1");
             Ok(())
         }
 
-        fn init(_: Option<Self::Input>) -> StdResult<Arc<Self>> {
+        fn init() -> StdResult<Rc<Self>> {
             Ok(Dep1 {
                 path: "dep1".to_owned(),
             }
@@ -113,27 +112,26 @@ mod tests {
     }
 
     struct Dep2 {
-        dep1: Arc<Dep1>,
+        dep1: Rc<Dep1>,
     }
 
     impl Dependency for Dep2 {
-        type Input = Arc<Dep1>;
-
         fn check(&self) -> StdResult<()> {
             println!("checked dep2 for later run with {:?}", self.dep1);
             Ok(())
         }
 
-        fn init(dep1: Option<Self::Input>) -> StdResult<Arc<Self>> {
-            if let Some(dep1) = dep1 {
-                return Ok(Dep2 { dep1 }.into());
-            }
-            let dep1 = Dep1::init(None)?;
+        fn init() -> StdResult<Rc<Self>> {
+            let dep1 = Dep1::init()?;
             Ok(Dep2 { dep1 }.into())
         }
     }
 
     impl Dep2 {
+        fn new(dep1: Rc<Dep1>) -> Rc<Self> {
+            Dep2 { dep1 }.into()
+        }
+
         fn hello(&self) {
             println!("hello from dep2");
         }
@@ -141,8 +139,8 @@ mod tests {
 
     #[test]
     fn test_checks() -> StdResult<()> {
-        let dep1 = Dep1::init(None)?;
-        let dep2 = Dep2::init(Some(dep1.clone()))?;
+        let dep1 = Dep1::init()?;
+        let dep2 = Dep2::new(dep1.clone());
         // Run checks
         dep1.check()?;
         dep2.check()?;

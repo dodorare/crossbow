@@ -7,8 +7,6 @@ pub struct AndroidSdk {
 }
 
 impl Dependency for AndroidSdk {
-    type Input = PathBuf;
-
     fn check(&self) -> StdResult<()> {
         println!("checking android sdk");
         if !self.sdk_path.exists() {
@@ -17,10 +15,7 @@ impl Dependency for AndroidSdk {
         Ok(())
     }
 
-    fn init(sdk_path: Option<Self::Input>) -> StdResult<Arc<Self>> {
-        if let Some(sdk_path) = sdk_path {
-            return Ok(Self { sdk_path }.into());
-        }
+    fn init() -> StdResult<Rc<Self>> {
         let sdk_path = {
             let sdk_path = std::env::var("ANDROID_SDK_ROOT")
                 .ok()
@@ -29,5 +24,11 @@ impl Dependency for AndroidSdk {
             PathBuf::from(sdk_path.ok_or(Error::AndroidSdkNotFound)?)
         };
         Ok(Self { sdk_path }.into())
+    }
+}
+
+impl AndroidSdk {
+    pub fn new(sdk_path: PathBuf) -> Rc<Self> {
+        Self { sdk_path }.into()
     }
 }

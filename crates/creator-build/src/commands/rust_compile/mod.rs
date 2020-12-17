@@ -6,7 +6,7 @@ use crate::target::*;
 use itertools::Itertools;
 use std::path::PathBuf;
 use std::process::Command as ProcessCommand;
-use std::sync::Arc;
+use std::rc::Rc;
 
 #[derive(Debug, Clone)]
 pub struct RustCompile {
@@ -20,7 +20,7 @@ pub struct RustCompile {
 
 impl Command for RustCompile {
     type Deps = ();
-    type OptDeps = (Option<Arc<AndroidNdk>>,);
+    type OptDeps = (Option<Rc<AndroidNdk>>,);
     type Output = ();
 
     fn run(&self, (): Self::Deps, (android_ndk,): Self::OptDeps) -> StdResult<Self::Output> {
