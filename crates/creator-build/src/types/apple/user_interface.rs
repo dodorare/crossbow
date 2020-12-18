@@ -33,6 +33,58 @@ pub struct MainUserInterface {
     pub application_is_agent: Option<bool>,
 }
 
+/// Launch Interface.
+#[derive(Deserialize, Serialize, Debug, Default)]
+pub struct LaunchInterface {
+    /// The user interface to show while an app launches.
+    ///
+    /// You use this key to define the launch screen that the system displays while your app launches.
+    /// If you need to provide different launch screens in response to being launched by different
+    /// URL schemes, use UILaunchScreens instead.
+    #[serde(rename = "UILaunchScreen", skip_serializing_if = "Option::is_none")]
+    pub launch_screen: Option<bool>, // TODO
+    /// The user interfaces to show while an app launches in response to different URL schemes.
+    ///
+    /// You use this key if your app supports launching in response to one or more URL schemes, and if
+    /// you want to provide different launch screens for different launch triggers.
+    /// If you need only one launch screen, use UILaunchScreen instead.
+    ///
+    /// To define launch screens, create an array of dictionaries, each similar to the one you might
+    /// provide for UILaunchScreen, but with an added UILaunchScreenIdentifier key that uniquely
+    /// identifies the screen. Store the array as the value for the UILaunchScreenDefinitions key.
+    ///
+    /// To map from URL schemes to a launch screens, create a dictionary of schemes and identifiers,
+    /// and store it as the value for the UIURLToLaunchScreenAssociations key. Additionally,
+    /// indicate a default launch screen by setting a value for the UIDefaultLaunchScreen key.
+    #[serde(rename = "UILaunchScreens", skip_serializing_if = "Option::is_none")]
+    pub launch_screens: Option<bool>, // TODO
+    /// The filename of the storyboard from which to generate the app’s launch image.
+    ///
+    /// Specify the name of the storyboard file without the filename extension. For example, if the filename
+    /// of your storyboard is LaunchScreen.storyboard, specify "LaunchScreen" as the value for this key.
+    ///
+    /// If you prefer to configure your app’s launch screen without storyboards, use UILaunchScreen instead.
+    #[serde(
+        rename = "UILaunchStoryboardName",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub launch_storyboard_name: Option<String>,
+    /// The launch storyboards.
+    #[serde(
+        rename = "UILaunchStoryboards",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub launch_storyboards: Option<bool>, // TODO
+    /// The initial user-interface mode for the app.
+    ///
+    /// Possible Values: 0, 1, 2, 3, 4
+    #[serde(
+        rename = "LSUIPresentationMode",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub presentation_mode: Option<u8>,
+}
+
 /// Application Scene Manifest.
 #[derive(Deserialize, Serialize, Debug, Default)]
 pub struct ApplicationSceneManifest {

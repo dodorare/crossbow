@@ -32,7 +32,7 @@ pub struct InfoPlist {
     pub localization: Localization,
     #[serde(flatten)]
     pub help: Help,
-    // Main User Interface.
+    // User Interface.
     #[serde(flatten)]
     pub main_user_interface: MainUserInterface,
 }
