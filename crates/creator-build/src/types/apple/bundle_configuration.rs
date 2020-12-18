@@ -1,33 +1,5 @@
-use serde::{Deserialize, Serialize, Serializer};
-
-fn serialize_option<S: Serializer, T: Serialize>(
-    value: &Option<T>,
-    s: S,
-) -> Result<S::Ok, S::Error> {
-    s.serialize_str(&serde_plain::to_string(value).unwrap())
-}
-
-/// Information property list.
-/// https://developer.apple.com/documentation/bundleresources/information_property_list
-#[derive(Deserialize, Serialize, Debug, Default)]
-pub struct InfoPlist {
-    #[serde(flatten)]
-    pub categorization: Categorization,
-    #[serde(flatten)]
-    pub identification: Identification,
-    #[serde(flatten)]
-    pub naming: Naming,
-    #[serde(flatten)]
-    pub bundle_version: BundleVersion,
-    #[serde(flatten)]
-    pub operating_system_version: OperatingSystemVersion,
-    #[serde(flatten)]
-    pub localization: Localization,
-    #[serde(flatten)]
-    pub help: Help,
-}
-
-// First level.
+use super::serialize_enum_option;
+use serde::{Deserialize, Serialize};
 
 /// Categorization.
 #[derive(Deserialize, Serialize, Debug, Default)]
@@ -47,7 +19,7 @@ pub struct Categorization {
     #[serde(
         rename = "LSApplicationCategoryType",
         skip_serializing_if = "Option::is_none",
-        serialize_with = "serialize_option"
+        serialize_with = "serialize_enum_option"
     )]
     pub application_category_type: Option<AppCategoryType>,
 }
@@ -259,8 +231,6 @@ pub struct Help {
     )]
     pub bundle_help_book_folder: Option<String>,
 }
-
-// Second level.
 
 #[derive(Deserialize, Serialize, Debug)]
 pub enum AppCategoryType {

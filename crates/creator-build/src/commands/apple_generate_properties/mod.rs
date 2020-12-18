@@ -6,6 +6,7 @@ use std::path::PathBuf;
 pub struct AppleGenerateProperties {
     pub out_dir: PathBuf,
     pub properties: InfoPlist,
+    pub binary: bool,
 }
 
 impl Command for AppleGenerateProperties {
@@ -18,8 +19,10 @@ impl Command for AppleGenerateProperties {
         let file_path = self.out_dir.join("Info.plist");
         let file = File::create(file_path)?;
         // Write to Info.plist file
-        plist::to_writer_xml(file, &self.properties)?;
-        // plist::to_writer_binary(file, &self.properties)?;
+        match self.binary {
+            true => plist::to_writer_binary(file, &self.properties)?,
+            false => plist::to_writer_xml(file, &self.properties)?,
+        }
         Ok(())
     }
 }
@@ -40,6 +43,7 @@ mod tests {
                 },
                 ..Default::default()
             },
+            binary: false,
         };
         cmd.run((), ())?;
         let file_path = dir.path().join("Info.plist");

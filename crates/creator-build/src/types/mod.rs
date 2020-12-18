@@ -1,5 +1,5 @@
-mod info_plist;
+mod apple;
 mod target;
 
-pub use info_plist::*;
+pub use apple::*;
 pub use target::*;
