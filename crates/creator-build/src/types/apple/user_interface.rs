@@ -126,6 +126,310 @@ pub struct Orientation {
     pub supported_interface_orientations: Option<Vec<InterfaceOrientation>>,
 }
 
+/// Styling.
+#[derive(Deserialize, Serialize, Debug, Default)]
+pub struct Styling {
+    /// The user interface style for the app.
+    #[serde(
+        rename = "UIUserInterfaceStyle",
+        skip_serializing_if = "Option::is_none",
+        serialize_with = "serialize_enum_option"
+    )]
+    pub user_interface_style: Option<UserInterfaceStyle>,
+    /// A Boolean value indicating whether Core Animation layers use antialiasing when
+    /// drawing a layer that's not aligned to pixel boundaries.
+    #[serde(
+        rename = "UIViewEdgeAntialiasing",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub view_edge_antialiasing: Option<bool>,
+    /// The app’s white point adaptivity style, enabled on devices with True Tone displays.
+    #[serde(
+        rename = "UIWhitePointAdaptivityStyle",
+        skip_serializing_if = "Option::is_none",
+        serialize_with = "serialize_enum_option"
+    )]
+    pub white_point_adaptivity_style: Option<WhitePointAdaptivityStyle>,
+    /// A Boolean value indicating whether Core Animation sublayers inherit the opacity of their superlayer.
+    #[serde(rename = "UIViewGroupOpacity", skip_serializing_if = "Option::is_none")]
+    pub view_group_opacity: Option<bool>,
+    /// A Boolean value indicating whether the app requires fullscreen or not.
+    #[serde(
+        rename = "UIRequiresFullScreen",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub requires_full_screen: Option<bool>,
+    /// The name of a color in an asset catalog to use for a target’s global accent color.
+    ///
+    /// This Info.plist value controls the global tint color (iOS and watchOS) or accent color (macOS) for the target.
+    /// When set in a widget extension, the widget configuration user interface uses this color as the tint color while editing a widget.
+    ///
+    /// While you can set this directly in your Info.plist, the recommended approach is to use the Global Accent Color
+    /// Name build setting (in the Asset Catalog Compiler - Options section) of the target. Set the value of the build
+    /// setting to the name of the Color Set in the asset catalog. Xcode automatically sets NSAccentColorName to the appropriate
+    /// value in the Info.plist file when building your project.
+    #[serde(rename = "NSAccentColorName", skip_serializing_if = "Option::is_none")]
+    pub accent_color_name: Option<String>,
+    /// The name of a color in an asset catalog to use for a widget’s configuration interface.
+    ///
+    /// This Info.plist value controls the background color shown in the widget configuration interface while editing a widget.
+    ///
+    /// While you can set this directly in your Info.plist, the recommended approach is to use the Widget Background Color
+    /// Name build setting (in the Asset Catalog Compiler - Options section) of the widget extension target. Set the value
+    /// of the build setting to the name of the Color Set in the asset catalog. Xcode automatically sets NSWidgetBackgroundColorName
+    /// to the appropriate value in the Info.plist file when building your project.
+    #[serde(
+        rename = "NSWidgetBackgroundColorName",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub widget_background_color_name: Option<String>,
+}
+
+/// Fonts.
+#[derive(Deserialize, Serialize, Debug, Default)]
+pub struct Fonts {
+    /// The location of a font file or directory of fonts in the bundle’s Resources folder.
+    #[serde(
+        rename = "ATSApplicationFontsPath",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub application_fonts_path: Option<String>,
+    /// App-specific font files located in the bundle and that the system loads at runtime.
+    #[serde(rename = "UIAppFonts", skip_serializing_if = "Option::is_none")]
+    pub app_fonts: Option<Vec<String>>,
+}
+
+/// StatusBar.
+#[derive(Deserialize, Serialize, Debug, Default)]
+pub struct StatusBar {
+    /// A Boolean value indicating whether the status bar is initially hidden when the app launches.
+    #[serde(rename = "UIStatusBarHidden", skip_serializing_if = "Option::is_none")]
+    pub status_bar_hidden: Option<bool>,
+    /// The style of the status bar as the app launches.
+    #[serde(
+        rename = "UIStatusBarStyle",
+        skip_serializing_if = "Option::is_none",
+        serialize_with = "serialize_enum_option"
+    )]
+    pub status_bar_style: Option<StatusBarStyle>,
+    /// The status bar tint.
+    #[serde(
+        rename = "UIStatusBarTintParameters",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub status_bar_tint_parameters: Option<StatusBarTintParameters>,
+    /// A Boolean value indicating whether the status bar appearance is based on the style
+    /// preferred for the current view controller.
+    #[serde(
+        rename = "UIViewControllerBasedStatusBarAppearance",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub view_controller_based_status_bar_appearance: Option<bool>,
+}
+
+/// Preferences.
+#[derive(Deserialize, Serialize, Debug, Default)]
+pub struct Preferences {
+    /// The name of an image file used to represent a preference pane in the System Preferences app.
+    #[serde(rename = "NSPrefPaneIconFile", skip_serializing_if = "Option::is_none")]
+    pub pref_pane_icon_file: Option<String>,
+    /// The name of a preference pane displayed beneath the preference pane icon in the System Preferences app.
+    #[serde(
+        rename = "NSPrefPaneIconLabel",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub pref_pane_icon_label: Option<String>,
+}
+
+/// Graphics.
+#[derive(Deserialize, Serialize, Debug, Default)]
+pub struct Graphics {
+    /// A Boolean value indicating whether the app supports HDR mode on Apple TV 4K.
+    #[serde(rename = "UIAppSupportsHDR", skip_serializing_if = "Option::is_none")]
+    pub app_supports_hdr: Option<bool>,
+    /// A Boolean value indicating whether the Cocoa app supports high-resolution displays.
+    #[serde(
+        rename = "NSHighResolutionCapable",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub high_resolution_capable: Option<bool>,
+    /// A Boolean value indicating whether an OpenGL app may utilize the integrated GPU.
+    #[serde(
+        rename = "NSSupportsAutomaticGraphicsSwitching",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub supports_automatic_graphics_switching: Option<bool>,
+    /// The preferred system action when an external GPU is connected from the system.
+    #[serde(
+        rename = "GPUEjectPolicy",
+        skip_serializing_if = "Option::is_none",
+        serialize_with = "serialize_enum_option"
+    )]
+    pub gpu_eject_policy: Option<GPUEjectPolicy>,
+    /// The app's preference for whether it wants to use external graphics processors.
+    #[serde(
+        rename = "GPUSelectionPolicy",
+        skip_serializing_if = "Option::is_none",
+        serialize_with = "serialize_enum_option"
+    )]
+    pub gpu_selection_policy: Option<GPUSelectionPolicy>,
+}
+
+/// QuickLook.
+#[derive(Deserialize, Serialize, Debug, Default)]
+pub struct QuickLook {
+    /// A Boolean value indicating whether a Quick Look app's generator can be run in threads other than the main thread.
+    #[serde(
+        rename = "QLNeedsToBeRunInMainThread",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub needs_to_be_run_in_main_thread: Option<bool>,
+    /// A hint at the height, in points, of a Quick Look app's previews.
+    #[serde(
+        rename = "QLPreviewHeight",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub preview_height: Option<f32>,
+    /// A hint at the width, in points, of a Quick Look app's previews.
+    #[serde(
+        rename = "QLPreviewWidth",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub preview_width: Option<f32>,
+    /// A Boolean value indicating whether a Quick Look app's generator can handle concurrent thumbnail and preview requests.
+    #[serde(
+        rename = "QLSupportsConcurrentRequests",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub supports_concurrent_requests: Option<bool>,
+    /// The minimum size, in points, along one dimension of thumbnails for a Quick Look app's generator.
+    #[serde(
+        rename = "QLThumbnailMinimumSize",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub thumbnail_minimum_size: Option<f32>,
+}
+
+/// GPU Eject Policy.
+#[derive(Deserialize, Serialize, Debug)]
+pub enum GPUEjectPolicy {
+    /// Set this value to allow macOS to quit and relaunch your app with another GPU.
+    /// Your app can implement the application(_:willEncodeRestorableState:) method to save any
+    /// state before it quits, and it can implement the application(_:didDecodeRestorableState:)
+    /// method to restore any saved state after it relaunches.
+    #[serde(rename = "relaunch")]
+    Relaunch,
+    /// Set this value to manually respond to the safe disconnect request. Your app must register
+    /// and respond to the removalRequested notification posted by Metal. macOS waits for your app
+    /// to remove all references to the external GPU before notifying the user that it's safe to disconnect the GPU.
+    #[serde(rename = "wait")]
+    Wait,
+    /// Set this value to allow macOS to force your app to quit.
+    #[serde(rename = "kill")]
+    Kill,
+    /// Tells the system to ignore the disconnect message. Don’t use this key in new macOS apps.
+    #[serde(rename = "ignore")]
+    Ignore,
+}
+
+/// GPU Selection Policy.
+#[derive(Deserialize, Serialize, Debug)]
+pub enum GPUSelectionPolicy {
+    /// Metal tries to avoid creating contexts on external GPUs. For legacy OpenGL apps, OpenGL also avoids creating
+    /// contexts using external GPUs. Set this option only if your app doesn't support external GPU event handling.
+    #[serde(rename = "avoidRemovable")]
+    AvoidRemovable,
+    /// If external GPUs are visible to the system, Metal prefers them over other GPUs. Similarly, for legacy OpenGL apps,
+    /// OpenGL also prefers to create contexts on the external GPU.
+    #[serde(rename = "preferRemovable")]
+    PreferRemovable,
+}
+
+/// NavigationBar.
+#[derive(Deserialize, Serialize, Debug, Default)]
+pub struct StatusBarTintParameters {
+    /// The initial navigation bar’s style and translucency.
+    #[serde(rename = "UINavigationBar", skip_serializing_if = "Option::is_none")]
+    pub navigation_bar: Option<NavigationBar>,
+}
+
+/// NavigationBar.
+#[derive(Deserialize, Serialize, Debug, Default)]
+pub struct NavigationBar {
+    #[serde(rename = "BackgroundImage")]
+    pub background_image: String,
+    #[serde(rename = "Style")]
+    pub style: BarStyle,
+    #[serde(rename = "Translucent")]
+    pub translucent: bool,
+    /// The tint color to apply to the background of the navigation bar.
+    #[serde(rename = "TintColor", skip_serializing_if = "Option::is_none")]
+    pub tint_color: Option<TintColor>,
+}
+
+/// Bar Style.
+#[derive(Deserialize, Serialize, Debug)]
+pub enum BarStyle {
+    #[serde(rename = "UIBarStyleDefault")]
+    Default,
+    #[serde(rename = "UIBarStyleBlack")]
+    Black,
+}
+
+impl Default for BarStyle {
+    fn default() -> Self {
+        Self::Default
+    }
+}
+
+/// TintColor.
+#[derive(Deserialize, Serialize, Debug, Default)]
+pub struct TintColor {
+    #[serde(rename = "Blue")]
+    pub blue: f32,
+    #[serde(rename = "Green")]
+    pub green: f32,
+    #[serde(rename = "Red")]
+    pub red: f32,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub enum StatusBarStyle {
+    #[serde(rename = "UIStatusBarStyleDefault")]
+    Default,
+    #[serde(rename = "UIStatusBarStyleBlackTranslucent")]
+    BlackTranslucent,
+    #[serde(rename = "UIStatusBarStyleBlackOpaque")]
+    BlackOpaque,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub enum WhitePointAdaptivityStyle {
+    #[serde(rename = "UIWhitePointAdaptivityStyleStandard")]
+    Standard,
+    #[serde(rename = "UIWhitePointAdaptivityStyleReading")]
+    Reading,
+    #[serde(rename = "UIWhitePointAdaptivityStylePhoto")]
+    Photo,
+    #[serde(rename = "UIWhitePointAdaptivityStyleVideo")]
+    Video,
+    #[serde(rename = "UIWhitePointAdaptivityStyleGame")]
+    Game,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub enum UserInterfaceStyle {
+    /// Set this value to adopt the systemwide user interface style, and observe any changes to that style.
+    /// This is the default value, and provides the same functionality as if the key weren’t explicitly set.
+    Automatic,
+    /// Set this value to force the light user interface style, even when the systemwide style is set to dark.
+    /// Your app will ignore any changes to the systemwide style.
+    Light,
+    /// Set this value to force the dark user interface style, even when the systemwide style is set to light.
+    /// Your app will ignore any changes to the systemwide style.
+    Dark,
+}
+
 #[derive(Deserialize, Serialize, Debug)]
 pub enum InterfaceOrientation {
     /// The app supports the display in portrait mode, with the device upright and the front camera at the top.

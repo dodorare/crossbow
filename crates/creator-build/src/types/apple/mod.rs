@@ -57,4 +57,14 @@ pub struct InfoPlist {
     pub icons: Icons,
     #[serde(flatten)]
     pub orientation: Orientation,
+    #[serde(flatten)]
+    pub styling: Styling,
+    #[serde(flatten)]
+    pub status_bar: StatusBar,
+    #[serde(flatten)]
+    pub preferences: Preferences,
+    #[serde(flatten)]
+    pub graphics: Graphics,
+    #[serde(flatten)]
+    pub quick_look: QuickLook,
 }
