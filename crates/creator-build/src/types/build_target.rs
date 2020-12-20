@@ -11,6 +11,28 @@ pub enum AndroidTarget {
     X8664LinuxAndroid,
 }
 
+impl AndroidTarget {
+    // Returns the triple NDK provided LLVM
+    pub fn ndk_llvm_triple(self) -> &'static str {
+        match self {
+            Self::Armv7LinuxAndroideabi => "armv7a-linux-androideabi",
+            Self::Aarch64LinuxAndroid => "aarch64-linux-android",
+            Self::I686LinuxAndroid => "i686-linux-android",
+            Self::X8664LinuxAndroid => "x86_64-linux-android",
+        }
+    }
+
+    /// Returns the triple used by the non-LLVM parts of the NDK
+    pub fn ndk_triple(self) -> &'static str {
+        match self {
+            Self::Armv7LinuxAndroideabi => "arm-linux-androideabi",
+            Self::Aarch64LinuxAndroid => "aarch64-linux-android",
+            Self::I686LinuxAndroid => "i686-linux-android",
+            Self::X8664LinuxAndroid => "x86_64-linux-android",
+        }
+    }
+}
+
 impl IntoRustTriple for AndroidTarget {
     fn rust_triple(&self) -> &'static str {
         match self {

@@ -14,7 +14,13 @@ pub enum AndroidError {
     /// Android SDK has no build tools
     BuildToolsNotFound,
     /// Android SDK has no platforms installed
-    NoPlatformFound,
+    NoPlatformsFound,
+    /// Platform {0} is not installed
+    PlatformNotFound(u32),
+    /// Target is not supported
+    UnsupportedTarget,
+    /// Host {0} is not supported
+    UnsupportedHost(String),
 }
 
 #[derive(Display, Debug, Error)]
@@ -27,6 +33,8 @@ pub enum AppleError {
 pub enum Error {
     /// Command '{0:?}' had a non-zero exit code
     CmdFailed(Command),
+    /// Command {0} not found
+    CmdNotFound(String),
     /// Path {0:?} doesn't exist
     PathNotFound(PathBuf),
     /// IO error

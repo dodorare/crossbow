@@ -13,6 +13,7 @@ readme = "../../README.md"
 serde = { version = "1.0", features = ["derive"] }
 serde_plain = "0.3"
 plist = "1"
+dunce = "1.0"
 
 thiserror = "1.0"
 displaydoc = "0.1"

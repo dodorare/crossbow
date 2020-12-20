@@ -4,16 +4,34 @@ use crate::error::*;
 use crate::types::*;
 
 use std::path::PathBuf;
-// use std::rc::Rc;
 
 #[derive(Debug, Clone)]
 pub struct AppleRustCompile {
     pub target: Target,
-    pub build_target: BuildTarget,
+    pub build_target: AppleTarget,
     pub project_path: PathBuf,
     pub release: bool,
     pub cargo_args: Vec<String>,
     pub crate_types: Vec<CrateType>,
+}
+
+impl AppleRustCompile {
+    pub fn new(
+        target_name: String,
+        build_target: AppleTarget,
+        project_path: PathBuf,
+        release: bool,
+        cargo_args: Vec<String>,
+    ) -> Self {
+        Self {
+            target: Target::Bin(target_name),
+            build_target,
+            project_path,
+            release,
+            cargo_args,
+            crate_types: vec![],
+        }
+    }
 }
 
 impl Command for AppleRustCompile {
@@ -26,7 +44,7 @@ impl Command for AppleRustCompile {
             &self.project_path,
             &self.release,
             &self.cargo_args,
-            &self.build_target,
+            &self.build_target.into(),
             &self.crate_types,
         );
         if !cargo.status()?.success() {
