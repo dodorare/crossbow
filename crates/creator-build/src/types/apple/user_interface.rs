@@ -1,3 +1,12 @@
+/// User Interface.
+///
+/// Configure an app's scenes, storyboards, icons, fonts, and other user interface elements.
+///
+/// You define the user interface that your app presents during normal operation with a combination of code and storyboards.
+/// However, the system needs to know a few things about your app’s user interface before execution begins. For example,
+/// on some platforms, you have to specify what device orientations your app supports and what the system should display
+/// while your app launches. You add keys to your app’s Information Property List file to control certain aspects of its user interface.
+///
 use super::{serialize_enum_option, serialize_vec_enum_option};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -285,16 +294,10 @@ pub struct QuickLook {
     )]
     pub needs_to_be_run_in_main_thread: Option<bool>,
     /// A hint at the height, in points, of a Quick Look app's previews.
-    #[serde(
-        rename = "QLPreviewHeight",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "QLPreviewHeight", skip_serializing_if = "Option::is_none")]
     pub preview_height: Option<f32>,
     /// A hint at the width, in points, of a Quick Look app's previews.
-    #[serde(
-        rename = "QLPreviewWidth",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "QLPreviewWidth", skip_serializing_if = "Option::is_none")]
     pub preview_width: Option<f32>,
     /// A Boolean value indicating whether a Quick Look app's generator can handle concurrent thumbnail and preview requests.
     #[serde(

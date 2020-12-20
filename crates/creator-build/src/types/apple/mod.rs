@@ -67,4 +67,6 @@ pub struct InfoPlist {
     pub graphics: Graphics,
     #[serde(flatten)]
     pub quick_look: QuickLook,
+    // App Execution.
+    // TODO: Add App Execution.
 }
