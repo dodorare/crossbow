@@ -1,3 +1,24 @@
+/// Information Property List.
+///
+/// A resource containing key-value pairs that identify and configure a bundle.
+///
+/// Bundles, which represent executables of different kinds, contain an information property list file. This collection
+/// of key-value pairs specifies how the system should interpret the associated bundle. Some key-value pairs characterize
+/// the bundle itself, while others configure the app, framework, or other entity that the bundle represents. Some keys are
+/// required, while others are specific to particular features of the executable.
+///
+/// The information property list file always has the name Info.plist. The file name is case-sensitive and must begin with
+/// a capital letter I. Its location within the bundle depends on both the bundle type and the platform. For example, iOS
+/// app bundles store the file in the bundle’s root directory, whereas macOS app bundles place the Info.plist file in the
+/// Contents directory.
+///
+/// To access an information property list, you use an instance of the Bundle class, which represents a bundle on disk.
+/// You can get the value for a few common keys by accessing properties of the bundle instance. For example, the bundleIdentifier
+/// property contains the value associated with the CFBundleIdentifier key. You can obtain the value for an arbitrary key using
+/// the object(forInfoDictionaryKey:) method.
+///
+/// Official documentation: https://developer.apple.com/documentation/bundleresources/information_property_list
+///
 mod app_execution;
 mod bundle_configuration;
 mod user_interface;
