@@ -40,6 +40,10 @@ mod tests {
                     bundle_package_type: None,
                     application_category_type: Some(AppCategoryType::Business),
                 },
+                orientation: Orientation {
+                    interface_orientation: None,
+                    supported_interface_orientations: Some(vec![InterfaceOrientation::Portrait]),
+                },
                 ..Default::default()
             },
             binary: false,
@@ -52,37 +56,3 @@ mod tests {
         println!("{:?}", properties);
     }
 }
-
-// <?xml version=\"1.0\" encoding="UTF-8"?>
-// <!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
-// <plist version=\"1.0\">
-// <dict>
-// 	<key>CFBundleDevelopmentRegion</key>
-// 	<string>${DEVELOPMENT_LANGUAGE}</string>
-// 	<key>CFBundleExecutable</key>
-// 	<string>${PROJECT_NAME}</string>
-// 	<key>CFBundleIdentifier</key>
-// 	<string>${APP_BUNDLE_IDENTIFIER}</string>
-// 	<key>CFBundleInfoDictionaryVersion</key>
-// 	<string>6.0</string>
-// 	<key>CFBundleName</key>
-// 	<string>${PROJECT_NAME}</string>
-// 	<key>CFBundlePackageType</key>
-// 	<string>APPL</string>
-// 	<key>CFBundleShortVersionString</key>
-// 	<string>1.0</string>
-// 	<key>CFBundleVersion</key>
-// 	<string>1</string>
-// 	<key>UILaunchStoryboardName</key>
-// 	<string>LaunchScreen</string>
-// 	<key>UIRequiresFullScreen</key>
-// 	<false/>
-// 	<key>UISupportedInterfaceOrientations</key>
-// 	<array>
-// 		<string>UIInterfaceOrientationPortrait</string>
-// 		<string>UIInterfaceOrientationLandscapeLeft</string>
-// 		<string>UIInterfaceOrientationLandscapeRight</string>
-// 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-// 	</array>
-// </dict>
-// </plist>
