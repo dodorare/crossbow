@@ -1,7 +1,7 @@
 mod consts;
 
 use super::Command;
-use crate::error::StdResult;
+use crate::error::Result;
 use consts::*;
 
 use std::path::PathBuf;
@@ -16,10 +16,9 @@ pub struct GenerateMinimalProject {
 
 impl Command for GenerateMinimalProject {
     type Deps = ();
-    type OptDeps = ();
     type Output = String;
 
-    fn run(&self, (): Self::Deps, (): Self::OptDeps) -> StdResult<Self::Output> {
+    fn run(&self) -> Result<Self::Output> {
         // Create Cargo.toml file
         let file_path = self.out_dir.join("Cargo.toml");
         let mut file = File::create(file_path)?;
@@ -42,15 +41,13 @@ impl Command for GenerateMinimalProject {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::error::StdResult;
 
     #[test]
-    fn test_command_run() -> StdResult<()> {
-        let dir = tempfile::tempdir()?;
+    fn test_command_run() {
+        let dir = tempfile::tempdir().unwrap();
         let cmd = GenerateMinimalProject {
             out_dir: dir.path().to_owned(),
         };
-        cmd.run((), ())?;
-        Ok(())
+        cmd.run().unwrap();
     }
 }

@@ -1,5 +1,5 @@
 use super::Command;
-use crate::{error::StdResult, types::*};
+use crate::{error::Result, types::*};
 use std::fs::File;
 use std::path::PathBuf;
 
@@ -11,10 +11,9 @@ pub struct AppleGenerateProperties {
 
 impl Command for AppleGenerateProperties {
     type Deps = ();
-    type OptDeps = ();
     type Output = ();
 
-    fn run(&self, (): Self::Deps, (): Self::OptDeps) -> StdResult<Self::Output> {
+    fn run(&self) -> Result<Self::Output> {
         // Create Info.plist file
         let file_path = self.out_dir.join("Info.plist");
         let file = File::create(file_path)?;
@@ -32,8 +31,8 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_command_run() -> StdResult<()> {
-        let dir = tempfile::tempdir()?;
+    fn test_command_run() {
+        let dir = tempfile::tempdir().unwrap();
         let cmd = AppleGenerateProperties {
             out_dir: dir.path().to_owned(),
             properties: InfoPlist {
@@ -45,13 +44,12 @@ mod tests {
             },
             binary: false,
         };
-        cmd.run((), ())?;
+        cmd.run().unwrap();
         let file_path = dir.path().join("Info.plist");
-        let result = std::fs::read_to_string(&file_path)?;
+        let result = std::fs::read_to_string(&file_path).unwrap();
         println!("{}", result);
-        let properties: InfoPlist = plist::from_file(&file_path)?;
+        let properties: InfoPlist = plist::from_file(&file_path).unwrap();
         println!("{:?}", properties);
-        Ok(())
     }
 }
 

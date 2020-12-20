@@ -8,69 +8,56 @@ pub use android_ndk::*;
 pub use android_sdk::*;
 pub use rustc::*;
 
-use crate::error::StdResult;
+use crate::error::Result;
+use std::collections::HashSet;
 use std::rc::Rc;
 
-pub trait Dependencies: Sized {
-    fn check(&self) -> StdResult<()>;
-    fn init() -> StdResult<Self>;
+#[derive(Clone, PartialEq, Eq, Hash)]
+pub struct CheckInfo {
+    pub dependency_name: String,
+    pub check_name: String,
+    pub passed: bool,
 }
 
-pub trait Dependency: Sized {
-    fn check(&self) -> StdResult<()>;
-    fn init() -> StdResult<Rc<Self>>;
-}
-
-impl Dependencies for () {
-    fn check(&self) -> StdResult<()> {
-        Ok(())
-    }
-    fn init() -> StdResult<Self> {
-        Ok(())
+impl CheckInfo {
+    fn invert_passed(mut self) -> CheckInfo {
+        self.passed = !self.passed;
+        self
     }
 }
 
-impl<T: Dependency> Dependencies for Option<Rc<T>> {
-    fn check(&self) -> StdResult<()> {
-        if let Some(dep) = self {
-            dep.check()?;
-        }
-        Ok(())
-    }
-    fn init() -> StdResult<Self> {
-        Ok(None)
+pub trait IntoCheckInfo: Sized {
+    fn check_passed(self) -> CheckInfo;
+    fn check_failed(self) -> CheckInfo {
+        self.check_passed().invert_passed()
     }
 }
 
-// Obsoletes and should be replaced after: https://github.com/rust-lang/rfcs/issues/376
+pub trait Checks {
+    fn check() -> Result<HashSet<CheckInfo>>;
+}
+
+impl Checks for () {
+    fn check() -> Result<HashSet<CheckInfo>> {
+        Ok(HashSet::new())
+    }
+}
+
 macro_rules! tuple_impls {
     ( $( $name:ident )+ ) => {
-        impl<$($name: Dependency),+> Dependencies for ($(Rc<$name>,)+)
+        impl<$($name: Checks),+> Checks for ($($name,)+)
         {
-            fn check(&self) -> StdResult<()> {
-                let ($($name,)+) = self;
-                ($($name.check()?,)+);
-                Ok(())
-            }
-            fn init() -> StdResult<Self> {
-                Ok(($($name::init()?,)+))
-            }
-        }
-        impl<$($name: Dependency),+> Dependencies for ($(Option<Rc<$name>>,)+)
-        {
-            fn check(&self) -> StdResult<()> {
-                let ($($name,)+) = self;
-                ($(if let Some($name) = $name { $name.check()?; },)+);
-                Ok(())
-            }
-            fn init() -> StdResult<Self> {
-                Ok(($(Option::<Rc<$name>>::None,)+))
+            fn check() -> Result<HashSet<CheckInfo>> {
+                let mut merged = HashSet::new();
+                for s in vec![$($name::check()?,)+] {
+                    merged.extend(s);
+                }
+                Ok(merged)
             }
         }
     };
 }
 
-// TODO: Replace with proc macro or better macro_rules
 tuple_impls! { A }
 tuple_impls! { A B }
 tuple_impls! { A B C }
@@ -91,61 +78,71 @@ tuple_impls! { A B C D E F G H I J K L M N O P }
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::collections::HashSet;
+    use std::rc::Rc;
 
     #[derive(Debug, Clone)]
     struct Dep1 {
-        path: String,
+        pub path: String,
     }
 
-    impl Dependency for Dep1 {
-        fn check(&self) -> StdResult<()> {
-            println!("checked dep1");
-            Ok(())
-        }
-
-        fn init() -> StdResult<Rc<Self>> {
-            Ok(Dep1 {
-                path: "dep1".to_owned(),
-            }
-            .into())
+    impl Checks for Dep1 {
+        fn check() -> Result<HashSet<CheckInfo>> {
+            let mut checks = HashSet::new();
+            println!("checked first check of dep1");
+            checks.insert(CheckInfo {
+                dependency_name: "dep1".to_owned(),
+                check_name: "first check".to_owned(),
+                passed: false,
+            });
+            println!("checked second check of dep1");
+            checks.insert(CheckInfo {
+                dependency_name: "dep1".to_owned(),
+                check_name: "second check".to_owned(),
+                passed: false,
+            });
+            Ok(checks)
         }
     }
 
     struct Dep2 {
-        dep1: Rc<Dep1>,
-    }
-
-    impl Dependency for Dep2 {
-        fn check(&self) -> StdResult<()> {
-            println!("checked dep2 for later run with {:?}", self.dep1);
-            Ok(())
-        }
-
-        fn init() -> StdResult<Rc<Self>> {
-            let dep1 = Dep1::init()?;
-            Ok(Dep2 { dep1 }.into())
-        }
+        pub dep1: Rc<Dep1>,
     }
 
     impl Dep2 {
-        fn new(dep1: Rc<Dep1>) -> Rc<Self> {
-            Dep2 { dep1 }.into()
+        pub fn hello(&self) {
+            println!("hello!");
         }
+    }
 
-        fn hello(&self) {
-            println!("hello from dep2");
+    impl Checks for Dep2 {
+        fn check() -> Result<HashSet<CheckInfo>> {
+            let mut checks = HashSet::new();
+            println!("checked only one check of dep2");
+            checks.insert(CheckInfo {
+                dependency_name: "dep2".to_owned(),
+                check_name: "only one check".to_owned(),
+                passed: false,
+            });
+            Ok(checks)
         }
     }
 
     #[test]
-    fn test_checks() -> StdResult<()> {
-        let dep1 = Dep1::init()?;
-        let dep2 = Dep2::new(dep1.clone());
-        // Run checks
-        dep1.check()?;
-        dep2.check()?;
-        // Run custom function
+    fn test_checks() {
+        // init deps
+        let dep1 = Rc::new(Dep1 {
+            path: "very/nice/".to_owned(),
+        });
+        let dep2 = Dep2 { dep1: dep1.clone() };
+
+        // check deps
+        let _dep1_check_info = Dep1::check().unwrap();
+        let _dep2_check_info = Dep2::check().unwrap();
+        // then you can show check info to user
+        // println!("{} {}", dep1_check_info, dep2_check_info);
+
+        // run custom function
         dep2.hello();
-        Ok(())
     }
 }

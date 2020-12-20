@@ -6,66 +6,124 @@ pub use apple_generate_properties::*;
 pub use generate_minimal_project::*;
 pub use rust_compile::*;
 
-use crate::deps::Dependencies;
-use crate::error::StdResult;
+use crate::deps::*;
+use crate::error::Result;
+use std::collections::HashSet;
 
 pub trait Command {
-    type Deps: Dependencies;
-    type OptDeps: Dependencies;
+    type Deps: Checks;
     type Output;
 
-    fn run(&self, deps: Self::Deps, opt_deps: Self::OptDeps) -> StdResult<Self::Output>;
-    fn run_without_deps(&self) -> StdResult<Self::Output> {
-        let deps = Self::Deps::init()?;
-        let opt_deps = Self::OptDeps::init()?;
-        self.run(deps, opt_deps)
+    fn run(&self) -> Result<Self::Output>;
+    fn check() -> Result<HashSet<CheckInfo>> {
+        Self::Deps::check()
     }
-}
-
-#[derive(Debug, Clone)]
-pub enum Target {
-    Bin(String),
-    Example(String),
-    Lib,
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::deps::*;
-    use crate::error::StdResult;
     use std::rc::Rc;
 
-    pub struct CommandX;
+    #[derive(Debug, Clone)]
+    struct Dep1 {
+        pub path: String,
+    }
 
-    impl Command for CommandX {
-        type Deps = (Rc<AndroidSdk>, Rc<Rustc>);
-        type OptDeps = ();
+    impl Checks for Dep1 {
+        fn check() -> Result<HashSet<CheckInfo>> {
+            let mut checks = HashSet::new();
+            println!("checked first check of dep1");
+            checks.insert(CheckInfo {
+                dependency_name: "dep1".to_owned(),
+                check_name: "first check".to_owned(),
+                passed: false,
+            });
+            println!("checked second check of dep1");
+            checks.insert(CheckInfo {
+                dependency_name: "dep1".to_owned(),
+                check_name: "second check".to_owned(),
+                passed: true,
+            });
+            Ok(checks)
+        }
+    }
+
+    struct Dep2 {
+        pub dep1: Rc<Dep1>,
+    }
+
+    impl Checks for Dep2 {
+        fn check() -> Result<HashSet<CheckInfo>> {
+            let mut checks = HashSet::new();
+            println!("checked only one check of dep2");
+            checks.insert(CheckInfo {
+                dependency_name: "dep2".to_owned(),
+                check_name: "only one check".to_owned(),
+                passed: false,
+            });
+            Ok(checks)
+        }
+    }
+
+    struct Dep3;
+
+    impl Checks for Dep3 {
+        fn check() -> Result<HashSet<CheckInfo>> {
+            Ok(HashSet::new())
+        }
+    }
+
+    struct Command1 {
+        pub dep1: Rc<Dep1>,
+    }
+
+    impl Command for Command1 {
+        type Deps = Dep1;
         type Output = ();
 
-        fn run(
-            &self,
-            (_android_sdk, _rustc): Self::Deps,
-            (): Self::OptDeps,
-        ) -> StdResult<Self::Output> {
-            println!("run command x");
+        fn run(&self) -> Result<Self::Output> {
+            println!("running command 1");
+            Ok(())
+        }
+    }
+
+    struct Command2 {
+        pub dep2: Rc<Dep2>,
+        pub dep3: Rc<Dep3>,
+    }
+
+    impl Command for Command2 {
+        type Deps = (Dep2, Dep3);
+        type Output = ();
+
+        fn run(&self) -> Result<Self::Output> {
+            println!("running command 2");
             Ok(())
         }
     }
 
     #[test]
-    fn test_command() -> StdResult<()> {
-        // Init deps
-        let android_sdk = AndroidSdk::init()?;
-        let rustc = Rustc::init()?;
-        // Init command
-        let cmdx = CommandX;
-        // Check deps if you want
-        let deps = (android_sdk, rustc);
-        deps.check()?;
-        // Run command with given deps
-        cmdx.run(deps, ())?;
-        cmdx.run_without_deps()?;
+    fn test_command() -> Result<()> {
+        // init deps
+        let dep1 = Rc::new(Dep1 {
+            path: "very/nice/".to_owned(),
+        });
+        let dep2 = Rc::new(Dep2 { dep1: dep1.clone() });
+        let dep3 = Rc::new(Dep3);
+
+        // init commands
+        let cmd1 = Command1 { dep1: dep1.clone() };
+        let cmd2 = Command2 { dep2, dep3 };
+
+        // check command1 deps if you want
+        let _check_info = Command1::check().unwrap();
+        // then you can show check info to user
+        // println!("{}", check_info);
+
+        // run command1 and command2
+        cmd1.run().unwrap();
+        cmd2.run().unwrap();
         Ok(())
     }
 }

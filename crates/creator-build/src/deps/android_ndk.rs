@@ -1,5 +1,6 @@
 use super::*;
 use crate::error::*;
+use std::collections::HashSet;
 use std::path::PathBuf;
 
 pub struct AndroidNdk {
@@ -9,13 +10,14 @@ pub struct AndroidNdk {
     pub platforms: Vec<u32>,
 }
 
-impl Dependency for AndroidNdk {
-    fn check(&self) -> StdResult<()> {
-        println!("checked android sdk");
-        Ok(())
+impl Checks for AndroidNdk {
+    fn check() -> Result<HashSet<CheckInfo>> {
+        Ok(HashSet::new())
     }
+}
 
-    fn init() -> StdResult<Rc<Self>> {
+impl AndroidNdk {
+    pub fn init() -> Result<Rc<Self>> {
         Err(Error::AndroidNdkNotFound)?
         // let ndk_path = {
         //     let ndk_path = std::env::var("ANDROID_NDK_ROOT")
@@ -31,22 +33,5 @@ impl Dependency for AndroidNdk {
         //     }
         // };
         // Ok(Self {}.into())
-    }
-}
-
-impl AndroidNdk {
-    pub fn new(
-        android_sdk: Rc<AndroidSdk>,
-        ndk_path: PathBuf,
-        build_tools_version: String,
-        platforms: Vec<u32>,
-    ) -> Rc<Self> {
-        Self {
-            android_sdk,
-            ndk_path,
-            build_tools_version,
-            platforms,
-        }
-        .into()
     }
 }

@@ -1,15 +1,10 @@
 use super::*;
-use crate::error::StdResult;
+use crate::error::Result;
 
 pub struct Rustc;
 
-impl Dependency for Rustc {
-    fn check(&self) -> StdResult<()> {
-        println!("checked rustc");
-        Ok(())
-    }
-
-    fn init() -> StdResult<Rc<Self>> {
-        Ok(Rustc.into())
+impl Checks for Rustc {
+    fn check() -> Result<HashSet<CheckInfo>> {
+        Ok(HashSet::new())
     }
 }
