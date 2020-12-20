@@ -74,15 +74,9 @@ pub struct ApplicationShortcutItem {
         skip_serializing_if = "Option::is_none"
     )]
     pub subtitle: Option<String>,
-    #[serde(
-        rename = "UIApplicationShortcutItemTitle",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "UIApplicationShortcutItemTitle")]
     pub title: String,
-    #[serde(
-        rename = "UIApplicationShortcutItemType",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "UIApplicationShortcutItemType")]
     pub item_type: String,
     #[serde(
         rename = "UIApplicationShortcutItemUserInfo",
@@ -211,11 +205,155 @@ pub struct ExtensionsAndServices {
 #[derive(Deserialize, Serialize, Debug, Default)]
 pub struct AppClips {
     /// A collection of keys that an App Clip uses to get additional capabilities.
+    #[serde(rename = "NSAppClip", skip_serializing_if = "Option::is_none")]
+    pub app_clip: Option<AppClip>,
+}
+
+/// Background Execution.
+#[derive(Deserialize, Serialize, Debug, Default)]
+pub struct BackgroundExecution {
+    /// Services provided by an app that require it to run in the background.
     #[serde(
-        rename = "NSAppClip",
+        rename = "UIBackgroundModes",
+        skip_serializing_if = "Option::is_none",
+        serialize_with = "serialize_vec_enum_option"
+    )]
+    pub ui_background_modes: Option<Vec<UIBackgroundMode>>,
+    /// The services a watchOS app provides that require it to continue running in the background.
+    ///
+    /// You can only enable one of the extended runtime session modes (self-care, mindfulness, physical-therapy, or alarm).
+    /// However, you can enable both an extended runtime session mode and the workout-processing mode. If you set the background
+    /// modes using Xcode’s Signing & Capabilities tab, Xcode insures that these values are set properly.
+    #[serde(
+        rename = "WKBackgroundModes",
+        skip_serializing_if = "Option::is_none",
+        serialize_with = "serialize_vec_enum_option"
+    )]
+    pub wk_background_modes: Option<Vec<WKBackgroundMode>>,
+    /// An array of strings containing developer-specified task identifiers in reverse URL notation.
+    #[serde(
+        rename = "BGTaskSchedulerPermittedIdentifiers",
         skip_serializing_if = "Option::is_none"
     )]
-    pub app_clip: Option<AppClip>,
+    pub task_scheduler_permitted_identifiers: Option<Vec<String>>,
+    /// A Boolean value indicating whether the app runs only in the background.
+    #[serde(rename = "LSBackgroundOnly", skip_serializing_if = "Option::is_none")]
+    pub background_only: Option<bool>,
+}
+
+/// Endpoint Security.
+#[derive(Deserialize, Serialize, Debug, Default)]
+pub struct EndpointSecurity {
+    #[serde(
+        rename = "NSEndpointSecurityEarlyBoot",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub endpoint_security_early_boot: Option<bool>,
+    #[serde(
+        rename = "NSEndpointSecurityRebootRequired",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub endpoint_security_reboot_required: Option<bool>,
+}
+
+/// Plugin Support.
+#[derive(Deserialize, Serialize, Debug, Default)]
+pub struct PluginSupport {
+    /// The name of the app's plugin bundle.
+    #[serde(rename = "NSDockTilePlugIn", skip_serializing_if = "Option::is_none")]
+    pub dock_tile_plugin: Option<String>,
+}
+
+/// Plugin Configuration.
+#[derive(Deserialize, Serialize, Debug, Default)]
+pub struct PluginConfiguration {
+    /// The function to use when dynamically registering a plugin.
+    #[serde(
+        rename = "CFPlugInDynamicRegisterFunction",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub plugin_dynamic_register_function: Option<String>,
+    /// A Boolean value indicating whether the host loads this plugin.
+    #[serde(
+        rename = "CFPlugInDynamicRegistration",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub plugin_dynamic_registration: Option<bool>,
+    /// The interfaces supported by the plugin for static registration.
+    #[serde(rename = "CFPlugInFactories", skip_serializing_if = "Option::is_none")]
+    pub plugin_factories: Option<BTreeMap<String, String>>,
+    /// One or more groups of interfaces supported by the plugin for static registration.
+    #[serde(rename = "CFPlugInTypes", skip_serializing_if = "Option::is_none")]
+    pub plugin_types: Option<BTreeMap<String, String>>,
+    /// The name of the function to call to unload the plugin code from memory.
+    #[serde(
+        rename = "CFPlugInUnloadFunction",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub plugin_unload_function: Option<String>,
+}
+
+/// Termination.
+#[derive(Deserialize, Serialize, Debug, Default)]
+pub struct Termination {
+    /// A Boolean value indicating whether the app is notified when a child process dies.
+    #[serde(rename = "LSGetAppDiedEvents", skip_serializing_if = "Option::is_none")]
+    pub get_app_died_events: Option<bool>,
+    /// A Boolean value indicating whether the system may terminate the app to log out or shut down more quickly.
+    #[serde(
+        rename = "NSSupportsSuddenTermination",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub supports_sudden_termination: Option<bool>,
+    /// Deprecated: A Boolean value indicating whether the app terminates, rather than moves to the background, when the app quits.
+    #[serde(
+        rename = "UIApplicationExitsOnSuspend",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub application_exits_on_suspend: Option<bool>,
+}
+
+/// WK Background Mode.
+#[derive(Deserialize, Serialize, Debug)]
+pub enum WKBackgroundMode {
+    /// Allows an active workout session to run in the background.
+    #[serde(rename = "workout-processing")]
+    WorkoutProcessing,
+    /// Enables extended runtime sessions for brief activities focusing on health or emotional well-being.
+    #[serde(rename = "self-care")]
+    SelfCare,
+    /// Enables extended runtime sessions for silent meditation.
+    #[serde(rename = "mindfulness")]
+    Mindfulness,
+    /// Enables extended runtime sessions for stretching, strengthening, or range-of-motion exercises.
+    #[serde(rename = "physical-therapy")]
+    PhysicalTherapy,
+    /// Enables extended runtime sessions for smart alarms.
+    #[serde(rename = "alarm")]
+    Alarm,
+}
+
+/// UI Background Mode.
+#[derive(Deserialize, Serialize, Debug)]
+pub enum UIBackgroundMode {
+    #[serde(rename = "audio")]
+    Audio,
+    #[serde(rename = "location")]
+    Location,
+    #[serde(rename = "voip")]
+    Voip,
+    #[serde(rename = "external-accessory")]
+    ExternalAccessory,
+    #[serde(rename = "bluetooth-central")]
+    BluetoothCentral,
+    #[serde(rename = "bluetooth-peripheral")]
+    BluetoothPeripheral,
+    #[serde(rename = "fetch")]
+    Fetch,
+    #[serde(rename = "remote-notification")]
+    RemoteNotification,
+    #[serde(rename = "processing")]
+    Processing,
 }
 
 /// App Clip.
@@ -308,12 +446,11 @@ pub struct Extension {
     )]
     pub extension_action_wants_full_screen_presentation: Option<bool>,
     /// Properties of an app extension.
-    /// TODO: https://developer.apple.com/documentation/bundleresources/information_property_list/nsextension/nsextensionattributes
     #[serde(
         rename = "NSExtensionAttributes",
         skip_serializing_if = "Option::is_none"
     )]
-    pub extension_attributes: Option<BTreeMap<String, String>>,
+    pub extension_attributes: Option<ExtensionAttributes>,
     /// The name of the app extension’s main storyboard file.
     ///
     /// This key is mutually exclusive with NSExtensionPrincipalClass. Typically, Xcode sets the value of this key when creating
@@ -537,6 +674,409 @@ pub enum ExtensionPointIdentifier {
     ExtensionSourceEditor,
 }
 
+/// Extension Attributes.
+#[derive(Deserialize, Serialize, Debug, Default)]
+pub struct ExtensionAttributes {
+    /// A Boolean value indicating whether the extension appears in the Finder Preview pane and Quick Actions menu.
+    #[serde(
+        rename = "NSExtensionServiceAllowsFinderPreviewItem",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub allows_finder_preview_item: Option<bool>,
+    /// A Boolean value indicating whether an Action extension displays an item in a window’s toolbar.
+    #[serde(
+        rename = "NSExtensionServiceAllowsToolbarItem",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub allows_toolbar_item: Option<bool>,
+    /// A Boolean value indicating whether the extension appears as a Quick Action in the Touch Bar.
+    #[serde(
+        rename = "NSExtensionServiceAllowsTouchBarItem",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub allows_touch_bar_item: Option<bool>,
+    /// The name of an icon for display when the extension appears in the Finder Preview pane and Quick Actions menu.
+    ///
+    /// This key is used in conjunction with the NSExtensionServiceAllowsFinderPreviewItem key.
+    ///
+    /// Set the NSExtensionServiceFinderPreviewIconName key's value to a system icon name or the name of an icon in the
+    /// extension bundle. This icon should be a template image: a monochromatic image with transparency, anti-aliasing,
+    /// and no drop shadow that uses a mask to define its shape. For design guidance, see Human Interface Guidelines > macOS > Custom Icons.
+    /// If no icon is specified, a default icon is used.
+    #[serde(
+        rename = "NSExtensionServiceFinderPreviewIconName",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub finder_preview_icon_name: Option<String>,
+    /// A name for display when the extension appears in the Finder Preview pane and Quick Actions menu.
+    ///
+    /// This key is used in conjunction with the NSExtensionServiceAllowsFinderPreviewItem key.
+    ///
+    /// If the NSExtensionServiceFinderPreviewLabel key isn't provided, the extension's display name is used.
+    #[serde(
+        rename = "NSExtensionServiceFinderPreviewLabel",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub finder_preview_label: Option<String>,
+    /// The type of task an Action extension performs.
+    #[serde(
+        rename = "NSExtensionServiceRoleType",
+        skip_serializing_if = "Option::is_none",
+        serialize_with = "serialize_enum_option"
+    )]
+    pub role_type: Option<ExtensionServiceRoleType>,
+    /// The image for an Action extension’s toolbar item.
+    #[serde(
+        rename = "NSExtensionServiceToolbarIconFile",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub toolbar_icon_file: Option<String>,
+    /// The label for an Action extension's toolbar item.
+    #[serde(
+        rename = "NSExtensionServiceToolbarPaletteLabel",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub toolbar_palette_label: Option<String>,
+    /// The color to use for the bezel around the extension when it appears as a Quick Action in the Touch Bar.
+    ///
+    /// This key is used in conjunction with the NSExtensionServiceAllowsTouchBarItem key.
+    ///
+    /// Set the NSExtensionServiceTouchBarBezelColorName key's value to the name of a color that exists in your extension's asset
+    /// catalog—a color that matches a system color is recommended. If no color is specified, a default color is used.
+    #[serde(
+        rename = "NSExtensionServiceTouchBarBezelColorName",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub touch_bar_bezel_color_name: Option<String>,
+    /// The name of an icon for display when the extension appears as a Quick Action in the Touch Bar.
+    ///
+    /// This key is used in conjunction with the NSExtensionServiceAllowsTouchBarItem key.
+    ///
+    /// Set the NSExtensionServiceTouchBarIconName key's value to a system icon name or the name of an icon within the extension bundle.
+    /// This icon should be a template image: a monochromatic image with transparency, anti-aliasing, and no drop shadow that uses
+    /// a mask to define its shape. For design guidance, see Human Interface Guidelines > macOS > Custom Icons. If no icon is specified,
+    /// a default icon is used.
+    #[serde(
+        rename = "NSExtensionServiceTouchBarIconName",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub touch_bar_icon_name: Option<String>,
+    /// A name for display when the extension appears as a Quick Action in the Touch Bar.
+    ///
+    /// This key is used in conjunction with the NSExtensionServiceAllowsTouchBarItem key.
+    ///
+    /// If the NSExtensionServiceTouchBarLabel key isn't provided, the extension's display name is used.
+    #[serde(
+        rename = "NSExtensionServiceTouchBarLabel",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub touch_bar_label: Option<String>,
+    /// A Boolean value indicating whether the Action extension is presented in full screen.
+    #[serde(
+        rename = "NSExtensionActionWantsFullScreenPresentation",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub action_wants_full_screen_presentation: Option<bool>,
+    /// This key is mutually exclusive with NSExtensionPrincipalClass. If the app extension’s Info.plist file contains both keys,
+    /// the system won’t load the extension.
+    #[serde(
+        rename = "NSExtensionMainStoryboard",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub main_storyboard: Option<bool>,
+    /// A Boolean value indicating whether the app extension ignores appearance changes made by the host app.
+    #[serde(
+        rename = "NSExtensionOverridesHostUIAppearance",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub overrides_host_ui_appearance: Option<bool>,
+    /// The extension point that supports an app extension.
+    #[serde(
+        rename = "NSExtensionPointIdentifier",
+        skip_serializing_if = "Option::is_none",
+        serialize_with = "serialize_enum_option"
+    )]
+    pub point_identifier: Option<ExtensionPointIdentifier>,
+    /// This key is mutually exclusive with NSExtensionMainStoryboard. If the app extension’s Info.plist file contains both keys,
+    /// the system won’t load the extension.
+    #[serde(
+        rename = "NSExtensionPrincipalClass",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub principal_class: Option<String>,
+    /// The semantic data types that a Share or Action extension supports.
+    #[serde(
+        rename = "NSExtensionActivationRule",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub activation_rule: Option<ActivationRule>,
+    /// The name of a JavaScript file supplied by a Share or Action extension.
+    #[serde(
+        rename = "NSExtensionJavaScriptPreprocessingFile",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub java_script_preprocessing_file: Option<String>,
+    /// The names of the intents that an extension supports.
+    #[serde(rename = "IntentsSupported", skip_serializing_if = "Option::is_none")]
+    pub intents_supported: Option<Vec<String>>,
+    /// Types of media supported by an app extension’s media-playing intents.
+    ///
+    /// Specify one or more media categories to allow Siri to invoke your app’s intent handling when a user asks to play media.
+    /// Use INMediaCategoryGeneral for media that doesn’t fit into any of the other categories, like white noise or sound effects.
+    ///
+    /// To specify this information in Xcode, add INPlayMediaIntent to your extension’s list of Supported Intents. Then select the
+    /// relevant media types in the list that appears.
+    #[serde(
+        rename = "SupportedMediaCategories",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub supported_media_categories: Option<Vec<MediaCategories>>,
+    #[serde(
+        rename = "PHProjectExtensionDefinesProjectTypes",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub project_extension_defines_project_types: Option<bool>,
+    /// The types of assets a Photo Editing extension can edit.
+    #[serde(
+        rename = "PHSupportedMediaTypes",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub supported_media_types: Option<Vec<MediaTypes>>,
+    /// The server that a Message Filter app extension may defer a query to.
+    #[serde(
+        rename = "IDMessageFilterExtensionNetworkURL",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub id_message_filter_extension_network_url: Option<String>,
+    /// The phone number that receives SMS messages when the user reports an SMS message or a call.
+    #[serde(
+        rename = "ILClassificationExtensionSMSReportDestination",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub classification_extension_sms_report_destination: Option<String>,
+    /// A Boolean value indicating whether a custom keyboard displays standard ASCII characters.
+    #[serde(rename = "IsASCIICapable", skip_serializing_if = "Option::is_none")]
+    pub is_ascii_capable: Option<String>,
+    /// The contexts that an iMessage app or sticker pack supports.
+    #[serde(
+        rename = "MSMessagesAppPresentationContextMessages",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub messages_app_presentation_context_messages: Option<Vec<ContextMessages>>,
+    /// The custom actions for a File Provider extension.
+    #[serde(
+        rename = "NSExtensionFileProviderActions",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub file_provider_actions: Option<Vec<FileProviderAction>>,
+    /// The identifier of a shared container that can be accessed by a Document Picker extension and its associated File Provider extension.
+    #[serde(
+        rename = "NSExtensionFileProviderDocumentGroup",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub file_provider_document_group: Option<String>,
+    /// A Boolean value indicating whether a File Provider extension enumerates its content.
+    #[serde(
+        rename = "NSExtensionFileProviderSupportsEnumeration",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub file_provider_supports_enumeration: Option<bool>,
+    /// A Boolean value indicating whether a keyboard extension supports right-to-left languages.
+    #[serde(rename = "PrefersRightToLeft", skip_serializing_if = "Option::is_none")]
+    pub prefers_right_to_left: Option<bool>,
+    /// The primary language for a keyboard extension.
+    #[serde(rename = "PrimaryLanguage", skip_serializing_if = "Option::is_none")]
+    pub primary_language: Option<String>,
+    /// A Boolean value indicating whether a custom keyboard uses a shared container and accesses the network.
+    #[serde(rename = "RequestsOpenAccess", skip_serializing_if = "Option::is_none")]
+    pub requests_open_access: Option<bool>,
+    /// The modes that a Document Picker extension supports.
+    #[serde(
+        rename = "UIDocumentPickerModes",
+        skip_serializing_if = "Option::is_none",
+        serialize_with = "serialize_vec_enum_option"
+    )]
+    pub document_picker_modes: Option<Vec<DocumentPickerModes>>,
+    /// The Uniform Type Identifiers that a document picker extension supports.
+    #[serde(
+        rename = "UIDocumentPickerSupportedFileTypes",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub document_picker_supported_file_types: Option<Vec<String>>,
+    /// The identifier of a category declared by the app extension.
+    #[serde(
+        rename = "UNNotificationExtensionCategory",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub notification_extension_category: Option<String>,
+    /// A Boolean value indicating whether only the app extension's custom view controller is displayed in the notification interface.
+    #[serde(
+        rename = "UNNotificationExtensionDefaultContentHidden",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub notification_extension_default_content_hidden: Option<bool>,
+    /// The initial size of the view controller's view for an app extension, expressed as a ratio of its height to its width.
+    #[serde(
+        rename = "UNNotificationExtensionInitialContentSizeRatio",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub notification_extension_initial_content_size_ratio: Option<f32>,
+    /// A Boolean value indicating whether the title of the app extension's view controller is used as the title of the notification.
+    #[serde(
+        rename = "UNNotificationExtensionOverridesDefaultTitle",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub notification_extension_overrides_default_title: Option<bool>,
+    /// A Boolean value indicating whether user interactions in a custom notification are enabled.
+    #[serde(
+        rename = "UNNotificationExtensionUserInteractionEnabled",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub notification_extension_user_interaction_enabled: Option<bool>,
+}
+
+/// Document Picker Modes.
+#[derive(Deserialize, Serialize, Debug)]
+pub enum DocumentPickerModes {
+    #[serde(rename = "UIDocumentPickerModeImport")]
+    Import,
+    #[serde(rename = "UIDocumentPickerModeOpen")]
+    Open,
+    #[serde(rename = "UIDocumentPickerModeExportToService")]
+    ExportToService,
+    #[serde(rename = "UIDocumentPickerModeMoveToService")]
+    MoveToService,
+}
+
+#[derive(Deserialize, Serialize, Debug, Default)]
+pub struct FileProviderAction {
+    /// A predicate that determines whether a File Provider extension action appears in the context menu.
+    #[serde(
+        rename = "NSExtensionFileProviderActionActivationRule",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub activation_rule: Option<String>,
+    /// A unique identifier for a File Provider extension action.
+    #[serde(
+        rename = "NSExtensionFileProviderActionIdentifier",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub identifier: Option<String>,
+    /// The localized name for a File Provider extension action that appears in the context menu.
+    #[serde(
+        rename = "NSExtensionFileProviderActionName",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub name: Option<String>,
+}
+
+/// Context Messages.
+#[derive(Deserialize, Serialize, Debug)]
+pub enum ContextMessages {
+    #[serde(rename = "MSMessagesAppPresentationContextMessages")]
+    Messages,
+    #[serde(rename = "MSMessagesAppPresentationContextMedia")]
+    Media,
+}
+
+/// Media Types.
+#[derive(Deserialize, Serialize, Debug)]
+pub enum MediaTypes {
+    #[serde(rename = "Image")]
+    Image,
+    #[serde(rename = "Video")]
+    Video,
+}
+
+/// Media Categories.
+#[derive(Deserialize, Serialize, Debug)]
+pub enum MediaCategories {
+    #[serde(rename = "INMediaCategoryAudiobooks")]
+    Audiobooks,
+    #[serde(rename = "INMediaCategoryMusic")]
+    Music,
+    #[serde(rename = "INMediaCategoryGeneral")]
+    General,
+    #[serde(rename = "INMediaCategoryPodcasts")]
+    Podcasts,
+    #[serde(rename = "INMediaCategoryRadio")]
+    Radio,
+}
+
+/// Activation Rule.
+#[derive(Deserialize, Serialize, Debug, Default)]
+pub struct ActivationRule {
+    /// The version of the parent extension-activation rule dictionary.
+    #[serde(
+        rename = "NSExtensionActivationDictionaryVersion",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub dictionary_version: Option<i32>,
+    /// The maximum number of attachments that the app extension supports.
+    #[serde(
+        rename = "NSExtensionActivationSupportsAttachmentsWithMaxCount",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub supports_attachments_with_max_count: Option<i32>,
+    /// The minimum number of attachments that the app extension supports.
+    #[serde(
+        rename = "NSExtensionActivationSupportsAttachmentsWithMinCount",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub supports_attachments_with_min_count: Option<i32>,
+    /// The maximum number of all types of files that the app extension supports.
+    #[serde(
+        rename = "NSExtensionActivationSupportsFileWithMaxCount",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub supports_file_with_max_count: Option<i32>,
+    /// The maximum number of image files that the app extension supports.
+    #[serde(
+        rename = "NSExtensionActivationSupportsImageWithMaxCount",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub supports_image_with_max_count: Option<i32>,
+    /// The maximum number of movie files that the app extension supports.
+    #[serde(
+        rename = "NSExtensionActivationSupportsMovieWithMaxCount",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub supports_movie_with_max_count: Option<i32>,
+    /// A Boolean value indicating whether the app extension supports text.
+    #[serde(
+        rename = "NSExtensionActivationSupportsText",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub supports_text: Option<i32>,
+    /// The maximum number of webpages that the app extension supports.
+    #[serde(
+        rename = "NSExtensionActivationSupportsWebPageWithMaxCount",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub supports_web_page_with_max_count: Option<i32>,
+    /// The maximum number of HTTP URLs that the app extension supports.
+    #[serde(
+        rename = "NSExtensionActivationSupportsWebURLWithMaxCount",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub supports_web_url_with_max_count: Option<i32>,
+    /// A Boolean value indicating whether strict or fuzzy matching is used when determining the asset types an app extension handles.
+    #[serde(
+        rename = "NSExtensionActivationUsesStrictMatching",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub uses_strict_matching: Option<bool>,
+}
+
+/// Extension Service Role Type.
+#[derive(Deserialize, Serialize, Debug)]
+pub enum ExtensionServiceRoleType {
+    #[serde(rename = "Editor")]
+    Editor,
+    #[serde(rename = "Viewer")]
+    Viewer,
+}
+
 /// Service.
 #[derive(Deserialize, Serialize, Debug, Default)]
 pub struct Service {
@@ -544,10 +1084,10 @@ pub struct Service {
     #[serde(rename = "NSKeyEquivalent", skip_serializing_if = "Option::is_none")]
     pub key_equivalent: Option<DefaultDictionary>,
     /// Text for a Services menu item.
-    #[serde(rename = "NSMenuItem", skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "NSMenuItem")]
     pub menu_item: DefaultDictionary,
     /// An instance method that invokes the service.
-    #[serde(rename = "NSMessage", skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "NSMessage")]
     pub message: String,
     /// The port that the service monitors for incoming requests.
     #[serde(rename = "NSPortName", skip_serializing_if = "Option::is_none")]
@@ -573,7 +1113,7 @@ pub struct DefaultDictionary {
 }
 
 /// Complication Supported Families.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug)]
 pub enum ComplicationSupportedFamilies {
     #[serde(rename = "CLKComplicationFamilyModularSmall")]
     ModularSmall,
@@ -600,7 +1140,7 @@ pub enum ComplicationSupportedFamilies {
 }
 
 /// Architecture Priority.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug)]
 pub enum ArchitecturePriority {
     /// The 32-bit Intel architecture.
     #[serde(rename = "i386")]
@@ -617,7 +1157,7 @@ pub enum ArchitecturePriority {
 }
 
 /// Device Capabilities.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug)]
 pub enum DeviceCapabilities {
     /// The presence of accelerometers. Use the Core Motion framework to receive accelerometer events. You don’t need to
     /// include this value if your app detects only device orientation changes. Available in iOS 3.0 and later.

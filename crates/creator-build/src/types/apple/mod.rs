@@ -1,6 +1,8 @@
+mod app_execution;
 mod bundle_configuration;
 mod user_interface;
 
+pub use app_execution::*;
 pub use bundle_configuration::*;
 pub use user_interface::*;
 
@@ -68,5 +70,22 @@ pub struct InfoPlist {
     #[serde(flatten)]
     pub quick_look: QuickLook,
     // App Execution.
-    // TODO: Add App Execution.
+    #[serde(flatten)]
+    pub launch: Launch,
+    #[serde(flatten)]
+    pub launch_conditions: LaunchConditions,
+    #[serde(flatten)]
+    pub extensions_and_services: ExtensionsAndServices,
+    #[serde(flatten)]
+    pub app_clips: AppClips,
+    #[serde(flatten)]
+    pub background_execution: BackgroundExecution,
+    #[serde(flatten)]
+    pub endpoint_security: EndpointSecurity,
+    #[serde(flatten)]
+    pub plugin_support: PluginSupport,
+    #[serde(flatten)]
+    pub plugin_configuration: PluginConfiguration,
+    #[serde(flatten)]
+    pub termination: Termination,
 }
