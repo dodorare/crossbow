@@ -4,7 +4,11 @@ use std::collections::HashSet;
 use std::path::PathBuf;
 
 pub struct AndroidSdk {
-    pub sdk_path: PathBuf,
+    sdk_path: PathBuf,
+    build_tools_dir: PathBuf,
+    build_tools_version: Vec<String>,
+    platforms_dir: PathBuf,
+    platforms: Vec<u32>,
 }
 
 impl Checks for AndroidSdk {
@@ -32,16 +36,37 @@ impl Checks for AndroidSdk {
 }
 
 impl AndroidSdk {
-    #[allow(dead_code)]
     fn init() -> Result<Rc<Self>> {
         let sdk_path = {
             let sdk_path = std::env::var("ANDROID_SDK_ROOT")
                 .ok()
                 .or_else(|| std::env::var("ANDROID_SDK_PATH").ok())
                 .or_else(|| std::env::var("ANDROID_HOME").ok());
-            PathBuf::from(sdk_path.ok_or(Error::AndroidSdkNotFound)?)
+            PathBuf::from(sdk_path.ok_or(AndroidError::AndroidSdkNotFound)?)
         };
-        Ok(Self { sdk_path }.into())
+        // let build_tools_dir = sdk_path.join("build-tools");
+        // let build_tools_version = std::fs::read_dir(&build_tools_dir)
+        //     .or(Err(NdkError::PathNotFound(build_tools_dir)))?
+        //     .filter_map(|path| path.ok())
+        //     .filter(|path| path.path().is_dir())
+        //     .filter_map(|path| path.file_name().into_string().ok())
+        //     .filter(|name| name.chars().next().unwrap().is_digit(10))
+        //     .max()
+        //     .ok_or(NdkError::BuildToolsNotFound)?;
+
+        // let platforms_dir = sdk_path.join("platforms");
+        // let platforms: Vec<u32> = std::fs::read_dir(&platforms_dir)
+        //     .or(Err(NdkError::PathNotFound(platforms_dir)))?
+        //     .filter_map(|path| path.ok())
+        //     .filter(|path| path.path().is_dir())
+        //     .filter_map(|path| path.file_name().into_string().ok())
+        //     .filter_map(|name| {
+        //         name.strip_prefix("android-")
+        //             .and_then(|api| api.parse::<u32>().ok())
+        //     })
+        //     .collect();
+        // Ok(Self { sdk_path }.into())
+        todo!();
     }
 }
 

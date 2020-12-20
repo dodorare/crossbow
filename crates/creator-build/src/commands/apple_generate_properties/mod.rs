@@ -1,5 +1,5 @@
 use super::Command;
-use crate::{error::Result, types::*};
+use crate::{error::*, types::*};
 use std::fs::File;
 use std::path::PathBuf;
 
@@ -13,7 +13,7 @@ impl Command for AppleGenerateProperties {
     type Deps = ();
     type Output = ();
 
-    fn run(&self) -> Result<Self::Output> {
+    fn run(&self) -> Result<()> {
         // Create Info.plist file
         let file_path = self.out_dir.join("Info.plist");
         let file = File::create(file_path)?;

@@ -18,7 +18,7 @@ impl Checks for AndroidNdk {
 
 impl AndroidNdk {
     pub fn init() -> Result<Rc<Self>> {
-        Err(Error::AndroidNdkNotFound)?
+        Err(AndroidError::AndroidNdkNotFound)?
         // let ndk_path = {
         //     let ndk_path = std::env::var("ANDROID_NDK_ROOT")
         //         .ok()
