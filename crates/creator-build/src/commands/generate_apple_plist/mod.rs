@@ -3,13 +3,13 @@ use crate::{error::*, types::*};
 use std::fs::File;
 use std::path::PathBuf;
 
-pub struct AppleGenerateProperties {
+pub struct GenerateApplePlist {
     pub out_dir: PathBuf,
     pub properties: InfoPlist,
     pub binary: bool,
 }
 
-impl Command for AppleGenerateProperties {
+impl Command for GenerateApplePlist {
     type Deps = ();
     type Output = ();
 
@@ -33,7 +33,7 @@ mod tests {
     #[test]
     fn test_command_run() {
         let dir = tempfile::tempdir().unwrap();
-        let cmd = AppleGenerateProperties {
+        let cmd = GenerateApplePlist {
             out_dir: dir.path().to_owned(),
             properties: InfoPlist {
                 categorization: Categorization {
