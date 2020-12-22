@@ -8,22 +8,12 @@ version = "0.1.0"
 name = "examplelib"
 
 [dependencies]
-# bevy = { git = "https://github.com/bevyengine/bevy", rev = "61b181a699ed2b450bebc8c14d96c6af55fa41cf" }
-# bevy = "0.3"
-# creator = { version = "0.2.1", path = "../../" }
+creator = "*"
 "#;
 
 pub const LIB_RS_VALUE: &'static str = r#"
-// use bevy::prelude::*;
-
-// #[bevy::bevy_main]
-pub fn main() {
-//    App::build().run();
-}
+#[creator::creator_main]
+pub fn main() {}
 "#;
 
-pub const MAIN_RS_VALUE: &'static str = r#"
-fn main() {
-    examplelib::main();
-}
-"#;
+pub const MAIN_RS_VALUE: &'static str = "fn main(){examplelib::main();}";

@@ -12,7 +12,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
 /// Launch.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct Launch {
     /// The name of the bundle’s main executable class.
     ///
@@ -52,7 +52,7 @@ pub struct Launch {
 }
 
 /// Application Shortcut Item.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct ApplicationShortcutItem {
     #[serde(
         rename = "UIApplicationShortcutItemIconFile",
@@ -86,7 +86,7 @@ pub struct ApplicationShortcutItem {
 }
 
 /// Launch Conditions.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct LaunchConditions {
     /// The device-related features that your app requires to run.
     ///
@@ -175,7 +175,7 @@ pub struct LaunchConditions {
 }
 
 /// Extensions and Services.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct ExtensionsAndServices {
     /// The properties of an app extension.
     #[serde(rename = "NSExtension", skip_serializing_if = "Option::is_none")]
@@ -202,7 +202,7 @@ pub struct ExtensionsAndServices {
 }
 
 /// App Clips.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct AppClips {
     /// A collection of keys that an App Clip uses to get additional capabilities.
     #[serde(rename = "NSAppClip", skip_serializing_if = "Option::is_none")]
@@ -210,7 +210,7 @@ pub struct AppClips {
 }
 
 /// Background Execution.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct BackgroundExecution {
     /// Services provided by an app that require it to run in the background.
     #[serde(
@@ -242,7 +242,7 @@ pub struct BackgroundExecution {
 }
 
 /// Endpoint Security.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct EndpointSecurity {
     #[serde(
         rename = "NSEndpointSecurityEarlyBoot",
@@ -257,7 +257,7 @@ pub struct EndpointSecurity {
 }
 
 /// Plugin Support.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct PluginSupport {
     /// The name of the app's plugin bundle.
     #[serde(rename = "NSDockTilePlugIn", skip_serializing_if = "Option::is_none")]
@@ -265,7 +265,7 @@ pub struct PluginSupport {
 }
 
 /// Plugin Configuration.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct PluginConfiguration {
     /// The function to use when dynamically registering a plugin.
     #[serde(
@@ -294,7 +294,7 @@ pub struct PluginConfiguration {
 }
 
 /// Termination.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct Termination {
     /// A Boolean value indicating whether the app is notified when a child process dies.
     #[serde(rename = "LSGetAppDiedEvents", skip_serializing_if = "Option::is_none")]
@@ -314,7 +314,7 @@ pub struct Termination {
 }
 
 /// WK Background Mode.
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum WKBackgroundMode {
     /// Allows an active workout session to run in the background.
     #[serde(rename = "workout-processing")]
@@ -334,7 +334,7 @@ pub enum WKBackgroundMode {
 }
 
 /// UI Background Mode.
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum UIBackgroundMode {
     #[serde(rename = "audio")]
     Audio,
@@ -357,7 +357,7 @@ pub enum UIBackgroundMode {
 }
 
 /// App Clip.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct AppClip {
     /// A Boolean value that indicates whether an App Clip can schedule or receive notifications for a limited amount of time.
     ///
@@ -379,7 +379,7 @@ pub struct AppClip {
 }
 
 /// Extension.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct Extension {
     /// The names of the intents that an extension supports.
     #[serde(rename = "IntentsSupported", skip_serializing_if = "Option::is_none")]
@@ -513,7 +513,7 @@ pub struct Extension {
 }
 
 /// Safari Website Access.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct SafariWebsiteAccess {
     /// The domains that a Safari extension is allowed access to.
     #[serde(rename = "Allowed Domains", skip_serializing_if = "Option::is_none")]
@@ -523,7 +523,7 @@ pub struct SafariWebsiteAccess {
     pub level: Option<SafariWebsiteAccessLevel>,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum SafariWebsiteAccessLevel {
     #[serde(rename = "None")]
     None,
@@ -534,7 +534,7 @@ pub enum SafariWebsiteAccessLevel {
 }
 
 /// Safari Toolbar Item.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct SafariToolbarItem {
     /// The properties of an app extension's toolbar item that's been added to the Safari window.
     #[serde(rename = "Action", skip_serializing_if = "Option::is_none")]
@@ -551,7 +551,7 @@ pub struct SafariToolbarItem {
 }
 
 /// Safari Style Sheet.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct SafariStyleSheet {
     /// The webpages that the script can be injected into.
     #[serde(
@@ -571,7 +571,7 @@ pub struct SafariStyleSheet {
 }
 
 /// The context menu items for a Safari extension.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct SafariContextMenu {
     /// The command to send to the app extension when the user selects the context menu item.
     #[serde(rename = "Command", skip_serializing_if = "Option::is_none")]
@@ -582,7 +582,7 @@ pub struct SafariContextMenu {
 }
 
 /// Safari Content Script.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct SafariContentScript {
     /// The webpages that the script can be injected into.
     #[serde(
@@ -602,7 +602,7 @@ pub struct SafariContentScript {
 }
 
 /// Extension Point Identifier.
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum ExtensionPointIdentifier {
     #[serde(rename = "com.apple.ui-services")]
     UiServices,
@@ -675,7 +675,7 @@ pub enum ExtensionPointIdentifier {
 }
 
 /// Extension Attributes.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct ExtensionAttributes {
     /// A Boolean value indicating whether the extension appears in the Finder Preview pane and Quick Actions menu.
     #[serde(
@@ -936,7 +936,7 @@ pub struct ExtensionAttributes {
 }
 
 /// Document Picker Modes.
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum DocumentPickerModes {
     #[serde(rename = "UIDocumentPickerModeImport")]
     Import,
@@ -948,7 +948,7 @@ pub enum DocumentPickerModes {
     MoveToService,
 }
 
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct FileProviderAction {
     /// A predicate that determines whether a File Provider extension action appears in the context menu.
     #[serde(
@@ -971,7 +971,7 @@ pub struct FileProviderAction {
 }
 
 /// Context Messages.
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum ContextMessages {
     #[serde(rename = "MSMessagesAppPresentationContextMessages")]
     Messages,
@@ -980,7 +980,7 @@ pub enum ContextMessages {
 }
 
 /// Media Types.
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum MediaTypes {
     #[serde(rename = "Image")]
     Image,
@@ -989,7 +989,7 @@ pub enum MediaTypes {
 }
 
 /// Media Categories.
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum MediaCategories {
     #[serde(rename = "INMediaCategoryAudiobooks")]
     Audiobooks,
@@ -1004,7 +1004,7 @@ pub enum MediaCategories {
 }
 
 /// Activation Rule.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct ActivationRule {
     /// The version of the parent extension-activation rule dictionary.
     #[serde(
@@ -1069,7 +1069,7 @@ pub struct ActivationRule {
 }
 
 /// Extension Service Role Type.
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum ExtensionServiceRoleType {
     #[serde(rename = "Editor")]
     Editor,
@@ -1078,7 +1078,7 @@ pub enum ExtensionServiceRoleType {
 }
 
 /// Service.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct Service {
     /// A keyboard shortcut that invokes the service menu command.
     #[serde(rename = "NSKeyEquivalent", skip_serializing_if = "Option::is_none")]
@@ -1107,13 +1107,13 @@ pub struct Service {
 }
 
 /// Default Dictionary.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct DefaultDictionary {
     pub default: String,
 }
 
 /// Complication Supported Families.
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum ComplicationSupportedFamilies {
     #[serde(rename = "CLKComplicationFamilyModularSmall")]
     ModularSmall,
@@ -1140,7 +1140,7 @@ pub enum ComplicationSupportedFamilies {
 }
 
 /// Architecture Priority.
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum ArchitecturePriority {
     /// The 32-bit Intel architecture.
     #[serde(rename = "i386")]
@@ -1157,7 +1157,7 @@ pub enum ArchitecturePriority {
 }
 
 /// Device Capabilities.
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum DeviceCapabilities {
     /// The presence of accelerometers. Use the Core Motion framework to receive accelerometer events. You don’t need to
     /// include this value if your app detects only device orientation changes. Available in iOS 3.0 and later.

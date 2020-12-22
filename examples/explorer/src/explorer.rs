@@ -1,7 +1,6 @@
 // use crate::button::*;
 use bevy::{prelude::*, tasks::AsyncComputeTaskPool};
-use std::sync::{Arc, RwLock};
-use substrate_subxt::{Client, ClientBuilder, KusamaRuntime};
+use substrate_subxt::{ClientBuilder, KusamaRuntime};
 use tokio::sync::mpsc;
 
 #[cfg(not(target_os = "android"))]

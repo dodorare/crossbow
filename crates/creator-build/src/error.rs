@@ -27,6 +27,12 @@ pub enum AndroidError {
 pub enum AppleError {
     /// Plist data error
     Plist(#[from] plist::Error),
+    /// Target dir does not exists
+    TargetNotFound,
+    /// Resources dir does not exists
+    ResourcesNotFound,
+    /// Assets dir does not exists
+    AssetsNotFound,
 }
 
 #[derive(Display, Debug, Error)]
@@ -39,6 +45,8 @@ pub enum Error {
     PathNotFound(PathBuf),
     /// IO error
     Io(#[from] std::io::Error),
+    /// FS Extra error
+    FsExtra(#[from] fs_extra::error::Error),
     /// Android error
     Android(#[from] AndroidError),
     /// Apple error
@@ -52,3 +60,9 @@ impl From<plist::Error> for Error {
         AppleError::from(error).into()
     }
 }
+
+// impl From<fs_extra::Error> for Error {
+//     fn from(error: fs_extra::Error) -> Self {
+//         AppleError::from(error).into()
+//     }
+// }

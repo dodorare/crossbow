@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 mod button;
 mod explorer;
 
@@ -12,21 +14,21 @@ pub fn main() {
         .add_resource(ClearColor(Color::rgb(0.18, 0.17, 0.16)))
         .add_resource(WindowDescriptor {
             title: "Explorer".to_string(),
-            width: 640,
-            height: 1200,
+            width: 640.0,
+            height: 1200.0,
             ..Default::default()
         })
         .add_plugins(DefaultPlugins)
         .add_resource(ExplorerStateChannel::new())
         // .init_resource::<ButtonMaterials>()
-        .add_startup_system(explorer_startup)
-        .add_startup_system(explorer_ui)
+        .add_startup_system(explorer_startup.system())
+        .add_startup_system(explorer_ui.system())
         .add_stage_after(
             stage::UPDATE,
             "substrate_update",
             SystemStage::parallel()
                 .with_run_criteria(FixedTimestep::steps_per_second(1.0))
-                .with_system(explorer_text_updater),
+                .with_system(explorer_text_updater.system()),
         )
         // .add_system(button_effect)
         // .add_system(explorer_button)

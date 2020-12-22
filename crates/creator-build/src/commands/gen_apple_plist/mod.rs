@@ -3,10 +3,21 @@ use crate::{error::*, types::*};
 use std::fs::File;
 use std::path::PathBuf;
 
+#[derive(Debug, Clone)]
 pub struct GenApplePlist {
     pub out_dir: PathBuf,
     pub properties: InfoPlist,
     pub binary: bool,
+}
+
+impl GenApplePlist {
+    pub fn new(out_dir: PathBuf, properties: InfoPlist, binary: bool) -> Self {
+        Self {
+            out_dir,
+            properties,
+            binary,
+        }
+    }
 }
 
 impl Command for GenApplePlist {
@@ -33,21 +44,18 @@ mod tests {
     #[test]
     fn test_command_run() {
         let dir = tempfile::tempdir().unwrap();
-        let cmd = GenApplePlist {
-            out_dir: dir.path().to_owned(),
-            properties: InfoPlist {
-                categorization: Categorization {
-                    bundle_package_type: None,
-                    application_category_type: Some(AppCategoryType::Business),
-                },
-                orientation: Orientation {
-                    interface_orientation: None,
-                    supported_interface_orientations: Some(vec![InterfaceOrientation::Portrait]),
-                },
-                ..Default::default()
+        let properties = InfoPlist {
+            categorization: Categorization {
+                bundle_package_type: None,
+                application_category_type: Some(AppCategoryType::Business),
             },
-            binary: false,
+            orientation: Orientation {
+                interface_orientation: None,
+                supported_interface_orientations: Some(vec![InterfaceOrientation::Portrait]),
+            },
+            ..Default::default()
         };
+        let cmd = GenApplePlist::new(dir.path().to_owned(), properties, false);
         cmd.run().unwrap();
         let file_path = dir.path().join("Info.plist");
         let result = std::fs::read_to_string(&file_path).unwrap();

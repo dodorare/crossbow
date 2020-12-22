@@ -5,9 +5,7 @@ use creator_build::{AndroidNdk, AndroidSdk};
 #[test]
 fn test_compile_android() {
     let dir = tempfile::tempdir().unwrap();
-    let generate_minimal_project = GenMinimalProject {
-        out_dir: dir.path().to_owned().clone(),
-    };
+    let generate_minimal_project = GenMinimalProject::new(dir.path().to_owned().clone());
     let _name = generate_minimal_project.run().unwrap();
     let sdk = AndroidSdk::init().unwrap();
     let ndk = AndroidNdk::init(Some(sdk.sdk_path())).unwrap();
@@ -26,9 +24,7 @@ fn test_compile_android() {
 #[cfg(target_os = "macos")]
 fn test_compile_apple() {
     let dir = tempfile::tempdir().unwrap();
-    let generate_minimal_project = GenMinimalProject {
-        out_dir: dir.path().to_owned().clone(),
-    };
+    let generate_minimal_project = GenMinimalProject::new(dir.path().to_owned().clone());
     let name = generate_minimal_project.run().unwrap();
     let apple_rust_compile = AppleRustCompile::new(
         name,

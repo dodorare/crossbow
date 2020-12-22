@@ -12,7 +12,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
 /// Main User Interface.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct MainUserInterface {
     /// The information about the app's scene-based life-cycle support.
     ///
@@ -45,7 +45,7 @@ pub struct MainUserInterface {
 }
 
 /// Launch Interface.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct LaunchInterface {
     /// The user interface to show while an app launches.
     ///
@@ -97,7 +97,7 @@ pub struct LaunchInterface {
 }
 
 /// Icons.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct Icons {
     /// Information about all of the icons used by the app.
     #[serde(rename = "CFBundleIcons", skip_serializing_if = "Option::is_none")]
@@ -117,7 +117,7 @@ pub struct Icons {
 }
 
 /// Orientation.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct Orientation {
     /// The initial orientation of the app’s user interface.
     #[serde(
@@ -136,7 +136,7 @@ pub struct Orientation {
 }
 
 /// Styling.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct Styling {
     /// The user interface style for the app.
     #[serde(
@@ -195,7 +195,7 @@ pub struct Styling {
 }
 
 /// Fonts.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct Fonts {
     /// The location of a font file or directory of fonts in the bundle’s Resources folder.
     #[serde(
@@ -209,7 +209,7 @@ pub struct Fonts {
 }
 
 /// StatusBar.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct StatusBar {
     /// A Boolean value indicating whether the status bar is initially hidden when the app launches.
     #[serde(rename = "UIStatusBarHidden", skip_serializing_if = "Option::is_none")]
@@ -237,7 +237,7 @@ pub struct StatusBar {
 }
 
 /// Preferences.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct Preferences {
     /// The name of an image file used to represent a preference pane in the System Preferences app.
     #[serde(rename = "NSPrefPaneIconFile", skip_serializing_if = "Option::is_none")]
@@ -251,7 +251,7 @@ pub struct Preferences {
 }
 
 /// Graphics.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct Graphics {
     /// A Boolean value indicating whether the app supports HDR mode on Apple TV 4K.
     #[serde(rename = "UIAppSupportsHDR", skip_serializing_if = "Option::is_none")]
@@ -285,7 +285,7 @@ pub struct Graphics {
 }
 
 /// QuickLook.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct QuickLook {
     /// A Boolean value indicating whether a Quick Look app's generator can be run in threads other than the main thread.
     #[serde(
@@ -314,7 +314,7 @@ pub struct QuickLook {
 }
 
 /// GPU Eject Policy.
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum GPUEjectPolicy {
     /// Set this value to allow macOS to quit and relaunch your app with another GPU.
     /// Your app can implement the application(_:willEncodeRestorableState:) method to save any
@@ -336,7 +336,7 @@ pub enum GPUEjectPolicy {
 }
 
 /// GPU Selection Policy.
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum GPUSelectionPolicy {
     /// Metal tries to avoid creating contexts on external GPUs. For legacy OpenGL apps, OpenGL also avoids creating
     /// contexts using external GPUs. Set this option only if your app doesn't support external GPU event handling.
@@ -349,7 +349,7 @@ pub enum GPUSelectionPolicy {
 }
 
 /// NavigationBar.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct StatusBarTintParameters {
     /// The initial navigation bar’s style and translucency.
     #[serde(rename = "UINavigationBar", skip_serializing_if = "Option::is_none")]
@@ -357,7 +357,7 @@ pub struct StatusBarTintParameters {
 }
 
 /// NavigationBar.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct NavigationBar {
     #[serde(rename = "BackgroundImage")]
     pub background_image: String,
@@ -371,7 +371,7 @@ pub struct NavigationBar {
 }
 
 /// Bar Style.
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum BarStyle {
     #[serde(rename = "UIBarStyleDefault")]
     Default,
@@ -386,7 +386,7 @@ impl Default for BarStyle {
 }
 
 /// TintColor.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct TintColor {
     #[serde(rename = "Blue")]
     pub blue: f32,
@@ -396,7 +396,7 @@ pub struct TintColor {
     pub red: f32,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum StatusBarStyle {
     #[serde(rename = "UIStatusBarStyleDefault")]
     Default,
@@ -406,7 +406,7 @@ pub enum StatusBarStyle {
     BlackOpaque,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum WhitePointAdaptivityStyle {
     #[serde(rename = "UIWhitePointAdaptivityStyleStandard")]
     Standard,
@@ -420,7 +420,7 @@ pub enum WhitePointAdaptivityStyle {
     Game,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum UserInterfaceStyle {
     /// Set this value to adopt the systemwide user interface style, and observe any changes to that style.
     /// This is the default value, and provides the same functionality as if the key weren’t explicitly set.
@@ -433,7 +433,7 @@ pub enum UserInterfaceStyle {
     Dark,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum InterfaceOrientation {
     /// The app supports the display in portrait mode, with the device upright and the front camera at the top.
     #[serde(rename = "UIInterfaceOrientationPortrait")]
@@ -451,7 +451,7 @@ pub enum InterfaceOrientation {
 }
 
 /// Bundle Icons.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct BundleIcons {
     #[serde(
         rename = "CFBundleAlternateIcons",
@@ -464,7 +464,7 @@ pub struct BundleIcons {
 }
 
 /// App Icon Reference Name.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct AppIconReferenceName {
     #[serde(rename = "CFBundleIconFiles", skip_serializing_if = "Option::is_none")]
     pub bundle_icon_files: Option<Vec<String>>,
@@ -473,7 +473,7 @@ pub struct AppIconReferenceName {
 }
 
 /// Bundle Primary Icon.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct BundlePrimaryIcon {
     /// The names of a bundle’s icon files.
     #[serde(rename = "CFBundleIconFiles")]
@@ -490,7 +490,7 @@ pub struct BundlePrimaryIcon {
 }
 
 /// Launch Screen.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct LaunchScreen {
     // Main Interface.
     /// The name of a color to use as the background color on the launch screen.
@@ -544,7 +544,7 @@ pub struct LaunchScreen {
 }
 
 /// Application Scene Manifest.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct Bar {
     /// A custom image that replaces the navigation/tab/tool bar during launch.
     ///
@@ -555,7 +555,7 @@ pub struct Bar {
 }
 
 /// Launch Screens.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct LaunchScreens {
     // Launch Screen Definitions.
     /// A collection of launch screen configuration dictionaries.
@@ -596,7 +596,7 @@ pub struct LaunchScreens {
 }
 
 /// Launch Screen Definitions.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct LaunchScreenDefinitions {
     /// A unique name for the launch screen configuration.
     ///
@@ -611,7 +611,7 @@ pub struct LaunchScreenDefinitions {
 }
 
 /// Launch Storyboards.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct LaunchStoryboards {
     #[serde(
         rename = "UIDefaultLaunchStoryboard",
@@ -631,7 +631,7 @@ pub struct LaunchStoryboards {
 }
 
 /// Launch Storyboard Definition.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct LaunchStoryboardDefinition {
     #[serde(
         rename = "UILaunchStoryboardFile",
@@ -646,7 +646,7 @@ pub struct LaunchStoryboardDefinition {
 }
 
 /// Application Scene Manifest.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct ApplicationSceneManifest {
     /// A Boolean value indicating whether the app supports two or more scenes simultaneously.
     ///
@@ -673,7 +673,7 @@ pub struct ApplicationSceneManifest {
 }
 
 /// Scene Configurations.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct SceneConfigurations {
     /// Scenes that you use to display content on the device's main screen and respond to user interactions.
     ///
@@ -699,7 +699,7 @@ pub struct SceneConfigurations {
 }
 
 /// Window Scene Session Role.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct WindowSceneSessionRole {
     /// The app-specific name you use to identify the scene.
     #[serde(

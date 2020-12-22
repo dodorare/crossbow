@@ -10,8 +10,15 @@ use std::{
     io::Write,
 };
 
+#[derive(Debug, Clone)]
 pub struct GenMinimalProject {
     pub out_dir: PathBuf,
+}
+
+impl GenMinimalProject {
+    pub fn new(out_dir: PathBuf) -> Self {
+        Self { out_dir }
+    }
 }
 
 impl Command for GenMinimalProject {
@@ -45,9 +52,7 @@ mod tests {
     #[test]
     fn test_command_run() {
         let dir = tempfile::tempdir().unwrap();
-        let cmd = GenMinimalProject {
-            out_dir: dir.path().to_owned(),
-        };
+        let cmd = GenMinimalProject::new(dir.path().to_owned());
         cmd.run().unwrap();
     }
 }
