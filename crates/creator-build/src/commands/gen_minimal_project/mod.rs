@@ -10,11 +10,11 @@ use std::{
     io::Write,
 };
 
-pub struct GenerateMinimalProject {
+pub struct GenMinimalProject {
     pub out_dir: PathBuf,
 }
 
-impl Command for GenerateMinimalProject {
+impl Command for GenMinimalProject {
     type Deps = ();
     type Output = String;
 
@@ -45,7 +45,7 @@ mod tests {
     #[test]
     fn test_command_run() {
         let dir = tempfile::tempdir().unwrap();
-        let cmd = GenerateMinimalProject {
+        let cmd = GenMinimalProject {
             out_dir: dir.path().to_owned(),
         };
         cmd.run().unwrap();

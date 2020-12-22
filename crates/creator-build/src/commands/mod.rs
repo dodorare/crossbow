@@ -1,9 +1,9 @@
-mod generate_apple_plist;
-mod generate_minimal_project;
+mod gen_apple_plist;
+mod gen_minimal_project;
 mod rust_compile;
 
-pub use generate_apple_plist::*;
-pub use generate_minimal_project::*;
+pub use gen_apple_plist::*;
+pub use gen_minimal_project::*;
 pub use rust_compile::*;
 
 use crate::deps::*;
