@@ -8,7 +8,7 @@ edition = "2018"
 creator = { version = "0.2.1", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
-bevy = "0.3"
+bevy = "0.4"
 
 [target.'cfg(target_os = "android")'.dependencies]
 ndk-glue = { version = "0.2", features = ["logger"] }

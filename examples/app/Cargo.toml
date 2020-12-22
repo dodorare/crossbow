@@ -10,9 +10,7 @@ log = "0.4"
 anyhow = "1.0"
 itertools = { version = "0.9", optional = true }
 substrate-subxt = { version = "0.13", optional = true }
-bevy = "0.3"
-# bevy = { git = "https://github.com/creator-rs/bevy", rev = "" }
-# bevy = { path = "../../../bevy" }
+bevy = "0.4"
 
 [target.'cfg(target_os = "android")'.dependencies]
 ndk-glue = { version = "0.2", features = ["logger"] }
@@ -36,5 +34,4 @@ res = "res"
 icon = "@mipmap/ic_launcher"
 target_sdk_version = 29
 min_sdk_version = 16
-# build_targets = ["armv7-linux-androideabi", "aarch64-linux-android", "i686-linux-android", "x86_64-linux-android"]
 build_targets = ["aarch64-linux-android"]
