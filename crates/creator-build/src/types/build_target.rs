@@ -12,6 +12,16 @@ pub enum AndroidTarget {
 }
 
 impl AndroidTarget {
+    /// Identifier used in the NDK to refer to the ABI
+    pub fn android_abi(self) -> &'static str {
+        match self {
+            Self::Armv7LinuxAndroideabi => "armeabi-v7a",
+            Self::Aarch64LinuxAndroid => "arm64-v8a",
+            Self::I686LinuxAndroid => "x86",
+            Self::X8664LinuxAndroid => "x86_64",
+        }
+    }
+
     // Returns the triple NDK provided LLVM
     pub fn ndk_llvm_triple(self) -> &'static str {
         match self {
@@ -126,8 +136,8 @@ pub enum CrateType {
     Rlib,
 }
 
-impl IntoRustTriple for CrateType {
-    fn rust_triple(&self) -> &'static str {
+impl AsRef<str> for CrateType {
+    fn as_ref(&self) -> &str {
         match self {
             Self::Bin => "bin",
             Self::Lib => "lib",

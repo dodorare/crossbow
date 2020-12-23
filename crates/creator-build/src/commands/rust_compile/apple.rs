@@ -10,7 +10,7 @@ pub struct AppleRustCompile {
     pub target: Target,
     pub build_target: AppleTarget,
     pub project_path: PathBuf,
-    pub release: bool,
+    pub profile: Profile,
     pub cargo_args: Vec<String>,
     pub crate_types: Vec<CrateType>,
 }
@@ -20,14 +20,14 @@ impl AppleRustCompile {
         target_name: String,
         build_target: AppleTarget,
         project_path: PathBuf,
-        release: bool,
+        profile: Profile,
         cargo_args: Vec<String>,
     ) -> Self {
         Self {
             target: Target::Bin(target_name),
             build_target,
             project_path,
-            release,
+            profile,
             cargo_args,
             crate_types: vec![],
         }
@@ -42,7 +42,7 @@ impl Command for AppleRustCompile {
         let mut cargo = cargo_rustc_command(
             &self.target,
             &self.project_path,
-            &self.release,
+            &self.profile,
             &self.cargo_args,
             &self.build_target.into(),
             &self.crate_types,

@@ -12,7 +12,7 @@ use std::process::Command as ProcessCommand;
 pub(super) fn cargo_rustc_command(
     target: &Target,
     project_path: &PathBuf,
-    release: &bool,
+    profile: &Profile,
     cargo_args: &Vec<String>,
     build_target: &BuildTarget,
     crate_types: &Vec<CrateType>,
@@ -25,9 +25,9 @@ pub(super) fn cargo_rustc_command(
         Target::Lib => cargo.arg("--lib"),
     };
     cargo.current_dir(project_path.clone());
-    if *release {
+    if profile == &Profile::Release {
         cargo.arg("--release");
-    }
+    };
     for arg in cargo_args.iter() {
         cargo.arg(arg);
     }
@@ -37,10 +37,10 @@ pub(super) fn cargo_rustc_command(
         // Creates a comma-separated string
         let crate_types: String = crate_types
             .iter()
-            .map(|v| v.rust_triple())
+            .map(|v| v.as_ref())
             .intersperse(",")
             .collect();
         cargo.args(&["--", "--crate-type", &crate_types]);
-    }
+    };
     cargo
 }

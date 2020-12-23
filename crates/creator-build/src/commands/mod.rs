@@ -1,12 +1,22 @@
+mod add_lib_to_apk;
+mod align_apk;
+mod gen_android_manifest;
 mod gen_apple_app;
 mod gen_apple_plist;
 mod gen_minimal_project;
+mod gen_unaligned_apk;
 mod rust_compile;
+mod search_android_dylibs;
 
+pub use add_lib_to_apk::*;
+pub use align_apk::*;
+pub use gen_android_manifest::*;
 pub use gen_apple_app::*;
 pub use gen_apple_plist::*;
 pub use gen_minimal_project::*;
+pub use gen_unaligned_apk::*;
 pub use rust_compile::*;
+pub use search_android_dylibs::*;
 
 use crate::deps::*;
 use crate::error::Result;
