@@ -1,4 +1,4 @@
-pub const CARGO_TOML_VALUE: &'static str = r#"
+pub const CARGO_TOML_VALUE: &str = r#"
 [package]
 name = "example"
 edition = "2018"
@@ -12,6 +12,6 @@ crate-type = ["lib", "cdylib"]
 creator = { git = "https://github.com/creator-rs/creator" }
 "#;
 
-pub const LIB_RS_VALUE: &'static str = "#[creator::creator_main] pub fn main() {}";
+pub const LIB_RS_VALUE: &str = "#[creator::creator_main] pub fn main() {}";
 
-pub const MAIN_RS_VALUE: &'static str = "fn main(){examplelib::main();}";
+pub const MAIN_RS_VALUE: &str = "fn main(){examplelib::main();}";

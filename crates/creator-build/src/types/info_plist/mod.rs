@@ -54,7 +54,7 @@ fn serialize_vec_enum_option<S: Serializer, T: Serialize>(
 
 /// Information property list.
 /// https://developer.apple.com/documentation/bundleresources/information_property_list
-#[derive(Deserialize, Serialize, Debug, Clone, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Default)]
 pub struct InfoPlist {
     // Bundle Configuration.
     #[serde(flatten)]

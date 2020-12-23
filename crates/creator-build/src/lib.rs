@@ -8,15 +8,15 @@ macro_rules! bin {
     }};
 }
 
-macro_rules! bat {
-    ($bat:expr) => {{
-        #[cfg(not(target_os = "windows"))]
-        let bat = $bat;
-        #[cfg(target_os = "windows")]
-        let bat = concat!($bat, ".bat");
-        bat
-    }};
-}
+// macro_rules! bat {
+//     ($bat:expr) => {{
+//         #[cfg(not(target_os = "windows"))]
+//         let bat = $bat;
+//         #[cfg(target_os = "windows")]
+//         let bat = concat!($bat, ".bat");
+//         bat
+//     }};
+// }
 
 mod commands;
 mod deps;
