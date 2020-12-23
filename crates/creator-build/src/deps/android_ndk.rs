@@ -1,7 +1,6 @@
 use super::*;
 use crate::error::*;
 use crate::types::AndroidTarget;
-use std::collections::HashSet;
 use std::path::PathBuf;
 
 #[derive(Debug)]
@@ -10,8 +9,8 @@ pub struct AndroidNdk {
 }
 
 impl Checks for AndroidNdk {
-    fn check() -> Result<HashSet<CheckInfo>> {
-        Ok(HashSet::new())
+    fn check() -> Result<Vec<CheckInfo>> {
+        Ok(Vec::new())
     }
 }
 
@@ -23,7 +22,7 @@ impl AndroidNdk {
                 .or_else(|| std::env::var("ANDROID_NDK_PATH").ok())
                 .or_else(|| std::env::var("ANDROID_NDK_HOME").ok())
                 .or_else(|| std::env::var("NDK_HOME").ok());
-            // default ndk installation path
+            // Default ndk installation path
             if ndk_path.is_none()
                 && sdk_path.is_some()
                 && sdk_path.as_ref().unwrap().join("ndk-bundle").exists()
@@ -39,7 +38,6 @@ impl AndroidNdk {
     pub fn toolchain_dir(&self) -> Result<PathBuf> {
         let host_os = std::env::var("HOST").ok();
         let host_contains = |s| host_os.as_ref().map(|h| h.contains(s)).unwrap_or(false);
-
         let arch = if host_contains("linux") {
             "linux"
         } else if host_contains("macos") {
@@ -58,7 +56,6 @@ impl AndroidNdk {
                 _ => Err(AndroidError::UnsupportedTarget),
             }?;
         };
-
         let mut toolchain_dir = self
             .ndk_path
             .join("toolchains")
@@ -79,20 +76,16 @@ impl AndroidNdk {
         let ext = ".cmd";
         #[cfg(not(target_os = "windows"))]
         let ext = "";
-
         let bin_name = format!("{}{}-clang", target.ndk_llvm_triple(), platform);
         let bin_path = self.toolchain_dir()?.join("bin");
-
         let clang = bin_path.join(format!("{}{}", &bin_name, ext));
         if !clang.exists() {
             return Err(Error::PathNotFound(clang));
         }
-
         let clang_pp = bin_path.join(format!("{}++{}", &bin_name, ext));
         if !clang_pp.exists() {
             return Err(Error::PathNotFound(clang_pp));
         }
-
         Ok((clang, clang_pp))
     }
 
@@ -101,7 +94,6 @@ impl AndroidNdk {
         let ext = ".exe";
         #[cfg(not(target_os = "windows"))]
         let ext = "";
-
         let bin = self.toolchain_dir()?.join("bin").join(format!(
             "{}-{}{}",
             target.ndk_triple(),

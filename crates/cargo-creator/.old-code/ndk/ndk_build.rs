@@ -313,7 +313,7 @@ impl Ndk {
             .arg("ro.product.cpu.abi")
             .output()?
             .stdout;
-        let abi = std::str::from_utf8(&stdout).or(Err(NdkError::UnsupportedTarget))?;
+        let abi = std::str::from_utf8(&stdout).or(return Err(NdkError::UnsupportedTarget));
         Target::from_android_abi(abi.trim())
     }
 }

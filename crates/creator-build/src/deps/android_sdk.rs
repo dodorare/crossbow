@@ -1,6 +1,5 @@
 use super::*;
 use crate::error::*;
-use std::collections::HashSet;
 use std::path::PathBuf;
 use std::process::Command as ProcessCommand;
 
@@ -13,23 +12,23 @@ pub struct AndroidSdk {
 }
 
 impl Checks for AndroidSdk {
-    fn check() -> Result<HashSet<CheckInfo>> {
-        let mut checks = HashSet::new();
+    fn check() -> Result<Vec<CheckInfo>> {
+        let mut checks = Vec::new();
         if let Some(sdk_path) = std::env::var("ANDROID_SDK_ROOT")
             .ok()
             .or_else(|| std::env::var("ANDROID_SDK_PATH").ok())
             .or_else(|| std::env::var("ANDROID_HOME").ok())
         {
             let sdk_path = PathBuf::from(sdk_path);
-            checks.insert(AndroidSdkChecks::EnvVarsAreSet.check_passed());
+            checks.push(AndroidSdkChecks::EnvVarsAreSet.check_passed());
             if sdk_path.exists() {
-                checks.insert(AndroidSdkChecks::Found.check_passed());
+                checks.push(AndroidSdkChecks::Found.check_passed());
             } else {
-                checks.insert(AndroidSdkChecks::Found.check_failed());
+                checks.push(AndroidSdkChecks::Found.check_failed());
             };
         } else {
-            checks.insert(AndroidSdkChecks::EnvVarsAreSet.check_failed());
-            checks.insert(AndroidSdkChecks::Found.check_failed());
+            checks.push(AndroidSdkChecks::EnvVarsAreSet.check_failed());
+            checks.push(AndroidSdkChecks::Found.check_failed());
         };
         Ok(checks)
     }
@@ -46,17 +45,16 @@ impl AndroidSdk {
         };
         let build_tools_path = sdk_path.join("build-tools");
         let build_tools_version = std::fs::read_dir(&build_tools_path)
-            .or(Err(Error::PathNotFound(build_tools_path.clone())))?
+            .map_err(|_| Error::PathNotFound(build_tools_path.clone()))?
             .filter_map(|path| path.ok())
             .filter(|path| path.path().is_dir())
             .filter_map(|path| path.file_name().into_string().ok())
             .filter(|name| name.chars().next().unwrap().is_digit(10))
             .max()
             .ok_or(AndroidError::BuildToolsNotFound)?;
-
         let platforms_path = sdk_path.join("platforms");
         let platforms: Vec<u32> = std::fs::read_dir(&platforms_path)
-            .or(Err(Error::PathNotFound(platforms_path.clone())))?
+            .map_err(|_| Error::PathNotFound(platforms_path.clone()))?
             .filter_map(|path| path.ok())
             .filter(|path| path.path().is_dir())
             .filter_map(|path| path.file_name().into_string().ok())
@@ -66,7 +64,7 @@ impl AndroidSdk {
             })
             .collect();
         if platforms.is_empty() {
-            return Err(AndroidError::NoPlatformsFound)?;
+            return Err(AndroidError::NoPlatformsFound.into());
         };
         Ok(Self {
             sdk_path,
@@ -124,7 +122,7 @@ impl AndroidSdk {
     pub fn platform_dir(&self, platform: u32) -> Result<PathBuf> {
         let dir = self.platforms_path.join(format!("android-{}", platform));
         if !dir.exists() {
-            return Err(AndroidError::PlatformNotFound(platform))?;
+            return Err(AndroidError::PlatformNotFound(platform).into());
         }
         Ok(dir)
     }

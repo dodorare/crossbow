@@ -64,7 +64,7 @@ impl Command for AndroidRustCompile {
         cargo.env(format!("AR_{}", triple), &ar);
         cargo.env(cargo_env_target_cfg("AR", triple), &ar);
         if !cargo.status()?.success() {
-            return Err(Error::CmdFailed(cargo).into());
+            return Err(Error::CmdFailed(cargo));
         }
         Ok(())
     }

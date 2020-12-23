@@ -1,7 +1,6 @@
 use crate::ndk::apk::UnalignedApk;
 use crate::ndk::error::NdkError;
 use crate::ndk::target::Target;
-use std::collections::HashSet;
 use std::io::BufRead;
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -16,19 +15,16 @@ impl<'a> UnalignedApk<'a> {
         let ndk = &self.config().ndk;
         let min_sdk_version = self.config().manifest.min_sdk_version;
         let readelf_path = ndk.toolchain_bin("readelf", target)?;
-
         let android_search_paths = [
             &*ndk.sysroot_lib_dir(target)?,
             &*ndk.sysroot_platform_lib_dir(target, min_sdk_version)?,
         ];
-
-        let mut provided = HashSet::new();
+        let mut provided = Vec::new();
         for path in &android_search_paths {
             for lib in list_libs(path)? {
-                provided.insert(lib);
+                provided.push(lib);
             }
         }
-
         let mut artifacts = vec![lib.to_path_buf()];
         while let Some(artifact) = artifacts.pop() {
             self.add_lib(&artifact, target)?;
@@ -43,28 +39,26 @@ impl<'a> UnalignedApk<'a> {
                 } else {
                     continue;
                 };
-
                 if let Some(path) = find_library_path(search_paths, &need)? {
-                    provided.insert(path.file_name().unwrap().to_str().unwrap().to_string());
+                    provided.push(path.file_name().unwrap().to_str().unwrap().to_string());
                     artifacts.push(path);
                 } else {
                     eprintln!("Shared library \"{}\" not found.", need);
                 }
             }
         }
-
         Ok(())
     }
 }
 
 /// List all linked shared libraries
-fn list_needed_libs(readelf_path: &Path, library_path: &Path) -> Result<HashSet<String>, NdkError> {
+fn list_needed_libs(readelf_path: &Path, library_path: &Path) -> Result<Vec<String>, NdkError> {
     let mut readelf = Command::new(readelf_path);
     let output = readelf.arg("-d").arg(library_path).output()?;
     if !output.status.success() {
         return Err(NdkError::CmdFailed(readelf));
     }
-    let mut needed = HashSet::new();
+    let mut needed = Vec::new();
     for line in output.stdout.lines() {
         let line = line?;
         if line.contains("(NEEDED)") {
@@ -73,7 +67,7 @@ fn list_needed_libs(readelf_path: &Path, library_path: &Path) -> Result<HashSet<
                 .last()
                 .and_then(|line| line.split(']').next());
             if let Some(lib) = lib {
-                needed.insert(lib.to_string());
+                needed.push(lib.to_string());
             }
         }
     }
@@ -81,15 +75,15 @@ fn list_needed_libs(readelf_path: &Path, library_path: &Path) -> Result<HashSet<
 }
 
 /// List shared libraries
-fn list_libs(path: &Path) -> Result<HashSet<String>, NdkError> {
-    let mut libs = HashSet::new();
+fn list_libs(path: &Path) -> Result<Vec<String>, NdkError> {
+    let mut libs = Vec::new();
     let entries = std::fs::read_dir(path)?;
     for entry in entries {
         let entry = entry?;
         if !entry.path().is_dir() {
             if let Some(file_name) = entry.file_name().to_str() {
                 if file_name.ends_with(".so") {
-                    libs.insert(file_name.to_string());
+                    libs.push(file_name.to_string());
                 }
             }
         }

@@ -48,7 +48,7 @@ impl Command for AppleRustCompile {
             &self.crate_types,
         );
         if !cargo.status()?.success() {
-            return Err(Error::CmdFailed(cargo).into());
+            return Err(Error::CmdFailed(cargo));
         }
         Ok(())
     }

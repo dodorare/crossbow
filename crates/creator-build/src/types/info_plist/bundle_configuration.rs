@@ -71,7 +71,7 @@ pub struct Naming {
     ///
     /// This name can contain up to 15 characters. The system may display
     /// it to users if CFBundleDisplayName isn't set.
-    #[serde(rename = "CFBundleName", skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "CFBundleName")]
     pub bundle_name: Option<String>,
     /// The user-visible name for the bundle, used by Siri and visible on the iOS Home screen.
     ///

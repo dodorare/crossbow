@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use super::error::NdkError;
 use super::target::AndroidTarget;
 // use super::*;
@@ -180,20 +182,16 @@ impl Ndk {
         let ext = ".cmd";
         #[cfg(not(target_os = "windows"))]
         let ext = "";
-
         let bin_name = format!("{}{}-clang", target.ndk_llvm_triple(), platform);
         let bin_path = self.toolchain_dir()?.join("bin");
-
         let clang = bin_path.join(format!("{}{}", &bin_name, ext));
         if !clang.exists() {
             return Err(NdkError::PathNotFound(clang));
         }
-
         let clang_pp = bin_path.join(format!("{}++{}", &bin_name, ext));
         if !clang_pp.exists() {
             return Err(NdkError::PathNotFound(clang_pp));
         }
-
         Ok((clang, clang_pp))
     }
 
@@ -202,7 +200,6 @@ impl Ndk {
         let ext = ".exe";
         #[cfg(not(target_os = "windows"))]
         let ext = "";
-
         let bin = self.toolchain_dir()?.join("bin").join(format!(
             "{}-{}{}",
             target.ndk_triple(),
@@ -318,7 +315,7 @@ impl Ndk {
             .arg("ro.product.cpu.abi")
             .output()?
             .stdout;
-        let abi = std::str::from_utf8(&stdout).or(Err(NdkError::UnsupportedTarget))?;
+        let abi = std::str::from_utf8(&stdout).map_err(|_| NdkError::UnsupportedTarget)?;
         AndroidTarget::from_android_abi(abi.trim())
     }
 }

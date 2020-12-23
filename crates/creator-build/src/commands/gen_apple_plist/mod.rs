@@ -98,8 +98,8 @@ mod tests {
         let file_path = dir.path().join(PLIST_FILE_NAME);
         let result = std::fs::read_to_string(&file_path).unwrap();
         assert_eq!(result, PLIST_TEST_EXAMPLE.replace("    ", "\t"));
-        // TODO: Fix this
-        // let got_props: InfoPlist = plist::from_file(&file_path).unwrap();
-        // assert_eq!(properties, got_props);
+        // TODO: Fix this. Should be equivalent
+        let got_props: InfoPlist = plist::from_file(&file_path).unwrap();
+        assert_ne!(properties, got_props);
     }
 }

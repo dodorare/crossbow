@@ -5,13 +5,12 @@ mod android_ndk;
 mod android_sdk;
 mod rustc;
 
-// pub use aapt2::*;
+pub use aapt2::*;
 pub use android_ndk::*;
 pub use android_sdk::*;
 pub use rustc::*;
 
 use crate::error::Result;
-use std::collections::HashSet;
 use std::rc::Rc;
 
 #[derive(Clone, PartialEq, Eq, Hash)]
@@ -36,12 +35,12 @@ pub trait IntoCheckInfo: Sized {
 }
 
 pub trait Checks {
-    fn check() -> Result<HashSet<CheckInfo>>;
+    fn check() -> Result<Vec<CheckInfo>>;
 }
 
 impl Checks for () {
-    fn check() -> Result<HashSet<CheckInfo>> {
-        Ok(HashSet::new())
+    fn check() -> Result<Vec<CheckInfo>> {
+        Ok(Vec::new())
     }
 }
 
@@ -49,8 +48,8 @@ macro_rules! tuple_impls {
     ( $( $name:ident )+ ) => {
         impl<$($name: Checks),+> Checks for ($($name,)+)
         {
-            fn check() -> Result<HashSet<CheckInfo>> {
-                let mut merged = HashSet::new();
+            fn check() -> Result<Vec<CheckInfo>> {
+                let mut merged = Vec::new();
                 for s in vec![$($name::check()?,)+] {
                     merged.extend(s);
                 }
@@ -80,7 +79,6 @@ tuple_impls! { A B C D E F G H I J K L M N O P }
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::collections::HashSet;
     use std::rc::Rc;
 
     #[derive(Debug, Clone)]
@@ -89,16 +87,16 @@ mod tests {
     }
 
     impl Checks for Dep1 {
-        fn check() -> Result<HashSet<CheckInfo>> {
-            let mut checks = HashSet::new();
+        fn check() -> Result<Vec<CheckInfo>> {
+            let mut checks = Vec::new();
             println!("checked first check of dep1");
-            checks.insert(CheckInfo {
+            checks.push(CheckInfo {
                 dependency_name: "dep1".to_owned(),
                 check_name: "first check".to_owned(),
                 passed: false,
             });
             println!("checked second check of dep1");
-            checks.insert(CheckInfo {
+            checks.push(CheckInfo {
                 dependency_name: "dep1".to_owned(),
                 check_name: "second check".to_owned(),
                 passed: false,
@@ -118,10 +116,10 @@ mod tests {
     }
 
     impl Checks for Dep2 {
-        fn check() -> Result<HashSet<CheckInfo>> {
-            let mut checks = HashSet::new();
+        fn check() -> Result<Vec<CheckInfo>> {
+            let mut checks = Vec::new();
             println!("checked only one check of dep2");
-            checks.insert(CheckInfo {
+            checks.push(CheckInfo {
                 dependency_name: "dep2".to_owned(),
                 check_name: "only one check".to_owned(),
                 passed: false,
@@ -132,19 +130,19 @@ mod tests {
 
     #[test]
     fn test_checks() {
-        // init deps
+        // Init deps
         let dep1 = Rc::new(Dep1 {
             path: "very/nice/".to_owned(),
         });
-        let dep2 = Dep2 { dep1: dep1.clone() };
-
-        // check deps
-        let _dep1_check_info = Dep1::check().unwrap();
-        let _dep2_check_info = Dep2::check().unwrap();
-        // then you can show check info to user
-        // println!("{} {}", dep1_check_info, dep2_check_info);
-
-        // run custom function
+        let dep2 = Dep2 { dep1 };
+        // Check deps
+        let dep1_check_info = Dep1::check().unwrap();
+        let dep2_check_info = Dep2::check().unwrap();
+        // Then you can show check info to user
+        // println!("{:?} {:?}", dep1_check_info, dep2_check_info);
+        assert_eq!(dep1_check_info[1].check_name, "second check".to_owned());
+        assert_eq!(dep2_check_info[0].check_name, "only one check".to_owned());
+        // Run custom function
         dep2.hello();
     }
 }

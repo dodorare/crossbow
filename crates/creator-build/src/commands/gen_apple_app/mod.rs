@@ -44,14 +44,14 @@ impl Command for GenAppleApp {
         create_dir_all(&app_path)?;
         // Copy resources to app folder
         if !self.resources_dir.exists() {
-            Err(AppleError::ResourcesNotFound)?;
+            return Err(AppleError::ResourcesNotFound.into());
         }
         let resources_path = app_path.join("res");
         create_dir_all(&resources_path)?;
         copy_dir(&self.resources_dir, &resources_path, &CopyOptions::new())?;
         // Copy assets to app folder
         if !self.assets_dir.exists() {
-            Err(AppleError::AssetsNotFound)?;
+            return Err(AppleError::AssetsNotFound.into());
         }
         let assets_path = app_path.join("assets");
         create_dir_all(&assets_path)?;

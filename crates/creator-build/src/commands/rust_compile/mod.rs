@@ -13,9 +13,9 @@ pub(super) fn cargo_rustc_command(
     target: &Target,
     project_path: &PathBuf,
     profile: &Profile,
-    cargo_args: &Vec<String>,
+    cargo_args: &[String],
     build_target: &BuildTarget,
-    crate_types: &Vec<CrateType>,
+    crate_types: &[CrateType],
 ) -> ProcessCommand {
     let mut cargo = ProcessCommand::new("cargo");
     cargo.arg("rustc");
@@ -33,7 +33,7 @@ pub(super) fn cargo_rustc_command(
     }
     let triple = build_target.rust_triple();
     cargo.args(&["--target", &triple]);
-    if crate_types.len() > 0 {
+    if !crate_types.is_empty() {
         // Creates a comma-separated string
         let crate_types: String = crate_types
             .iter()
