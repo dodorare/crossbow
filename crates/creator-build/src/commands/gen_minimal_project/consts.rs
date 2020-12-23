@@ -6,6 +6,7 @@ version = "0.1.0"
 
 [lib]
 name = "examplelib"
+crate-type = ["lib", "cdylib"]
 
 [dependencies]
 creator = { git = "https://github.com/creator-rs/creator" }

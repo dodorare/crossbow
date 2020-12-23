@@ -6,12 +6,14 @@ authors = ["enfipy <enfipy@gmail.com>", "olvyko <olvyko@gmail.com>"]
 description = "Mobile Game Framework"
 repository = "https://github.com/creator-rs/creator"
 license = "Apache-2.0"
-keywords = ["build", "android", "ios", "substrate"]
+keywords = ["build", "android", "apple", "ios", "substrate"]
 readme = "README.md"
 exclude = [".github/**/*"]
 
 [dependencies]
 creator-derive = { path = "crates/creator-derive", version = "0.2.1" }
+
+creator-ads = { path = "crates/creator-ads", version = "0.2.1", optional = true }
 creator-build = { path = "crates/creator-build", version = "0.2.1", optional = true }
 creator-permissions = { path = "crates/creator-permissions", version = "0.2.1", optional = true }
 
@@ -25,8 +27,6 @@ cpal = { git = "https://github.com/MichaelHills/cpal", branch = "mike-ios" }
 
 [features]
 default = []
-tool = ["creator-build"]
-permissions = ["creator-permissions"]
 
 [workspace]
 members = [

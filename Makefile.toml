@@ -89,6 +89,9 @@ description = "Compiles the apks in release mode and zips them up"
 script = '''
 crates=(
   cargo-creator
+  creator-ads
+  creator-build
+  creator-derive
   creator-permissions
 )
 for crate in "${crates[@]}"
