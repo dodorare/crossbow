@@ -11,32 +11,21 @@ readme = "README.md"
 exclude = [".github/**/*"]
 
 [dependencies]
-cargo-creator = { path = "crates/cargo-creator", version = "0.2.1", optional = true }
 creator-derive = { path = "crates/creator-derive", version = "0.2.1" }
+creator-build = { path = "crates/creator-build", version = "0.2.1", optional = true }
 creator-permissions = { path = "crates/creator-permissions", version = "0.2.1", optional = true }
 
 [target.'cfg(target_os = "android")'.dependencies]
-ndk-glue = { version = "0.2", features = ["logger"] }
-android_logger = "0.9"
+ndk-glue = "0.2"
 
 [patch.crates-io]
 # bevy = { path = "../bevy" }
 # bevy = { git = "https://github.com/bevyengine/bevy", rev = "61b181a699ed2b450bebc8c14d96c6af55fa41cf" }
 cpal = { git = "https://github.com/MichaelHills/cpal", branch = "mike-ios" }
 
-# sp-arithmetic = { git = "https://github.com/paritytech/substrate", rev = "c60f00840034017d4b7e6d20bd4fcf9a3f5b529a" }
-# frame-support = { git = "https://github.com/paritytech/substrate", rev = "c60f00840034017d4b7e6d20bd4fcf9a3f5b529a" }
-# frame-system = { git = "https://github.com/paritytech/substrate", rev = "c60f00840034017d4b7e6d20bd4fcf9a3f5b529a" }
-# sp-runtime = { git = "https://github.com/paritytech/substrate", rev = "c60f00840034017d4b7e6d20bd4fcf9a3f5b529a" }
-# sp-version = { git = "https://github.com/paritytech/substrate", rev = "c60f00840034017d4b7e6d20bd4fcf9a3f5b529a" }
-# pallet-indices = { git = "https://github.com/paritytech/substrate", rev = "c60f00840034017d4b7e6d20bd4fcf9a3f5b529a" }
-# pallet-staking = { git = "https://github.com/paritytech/substrate", rev = "c60f00840034017d4b7e6d20bd4fcf9a3f5b529a" }
-# pallet-timestamp = { git = "https://github.com/paritytech/substrate", rev = "c60f00840034017d4b7e6d20bd4fcf9a3f5b529a" }
-# pallet-im-online = { git = "https://github.com/paritytech/substrate", rev = "c60f00840034017d4b7e6d20bd4fcf9a3f5b529a" }
-
 [features]
 default = []
-tool = ["cargo-creator"]
+tool = ["creator-build"]
 permissions = ["creator-permissions"]
 
 [workspace]

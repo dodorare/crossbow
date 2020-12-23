@@ -42,3 +42,7 @@ jobs:
         run: cargo +nightly fmt --all -- --check
       - name: Run clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
+      - name: Check for deadlinks
+        run: |
+          cargo install cargo-deadlinks
+          cargo deadlinks --check-http

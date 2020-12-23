@@ -8,12 +8,9 @@ version = "0.1.0"
 name = "examplelib"
 
 [dependencies]
-creator = "*"
+creator = { git = "https://github.com/creator-rs/creator" }
 "#;
 
-pub const LIB_RS_VALUE: &'static str = r#"
-#[creator::creator_main]
-pub fn main() {}
-"#;
+pub const LIB_RS_VALUE: &'static str = "#[creator::creator_main] pub fn main() {}";
 
 pub const MAIN_RS_VALUE: &'static str = "fn main(){examplelib::main();}";

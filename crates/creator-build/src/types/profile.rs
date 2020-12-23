@@ -2,15 +2,21 @@ use std::path::Path;
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub enum Profile {
-    Dev,
+    Debug,
     Release,
 }
 
 impl AsRef<Path> for Profile {
     fn as_ref(&self) -> &Path {
         Path::new(match self {
-            Self::Dev => "debug",
+            Self::Debug => "debug",
             Self::Release => "release",
         })
+    }
+}
+
+impl Default for Profile {
+    fn default() -> Self {
+        Self::Debug
     }
 }

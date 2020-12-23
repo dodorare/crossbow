@@ -1,6 +1,5 @@
 use creator_build::types::*;
 use creator_build::*;
-use creator_build::{AndroidNdk, AndroidSdk};
 
 #[test]
 fn test_compile_android() {

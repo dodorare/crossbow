@@ -17,10 +17,6 @@ fn creator_main_logic(_attr: TokenStream, item: TokenStream) -> TokenStream {
             saved_state: *mut std::os::raw::c_void,
             saved_state_size: usize,
         ) {
-            creator::android_logger::init_once(
-                // TODO: Support different log levels
-                creator::android_logger::Config::default().with_min_level(log::Level::Trace),
-            );
             creator::ndk_glue::init(
                 activity as _,
                 saved_state as _,
