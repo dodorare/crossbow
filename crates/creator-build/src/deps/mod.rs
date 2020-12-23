@@ -1,9 +1,11 @@
 #![allow(non_snake_case)]
 
+mod aapt2;
 mod android_ndk;
 mod android_sdk;
 mod rustc;
 
+// pub use aapt2::*;
 pub use android_ndk::*;
 pub use android_sdk::*;
 pub use rustc::*;

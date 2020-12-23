@@ -13,7 +13,7 @@ fn test_compile_android() {
         ndk.clone(),
         AndroidTarget::Aarch64LinuxAndroid,
         dir.path().to_owned(),
-        true,
+        Profile::Release,
         vec![],
         30,
     );
@@ -30,7 +30,7 @@ fn test_compile_apple() {
         name,
         AppleTarget::Aarch64AppleIos,
         dir.path().to_owned(),
-        true,
+        Profile::Release,
         vec![],
     );
     apple_rust_compile.run().unwrap();
