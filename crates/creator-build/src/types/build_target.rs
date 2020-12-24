@@ -56,7 +56,7 @@ impl IntoRustTriple for AndroidTarget {
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum AppleTarget {
-    X8664AppleIosMacabi,
+    X86_64AppleIos,
     I386AppleIos,
     Aarch64AppleIos,
     Armv7AppleIos,
@@ -66,7 +66,7 @@ pub enum AppleTarget {
 impl IntoRustTriple for AppleTarget {
     fn rust_triple(&self) -> &'static str {
         match self {
-            Self::X8664AppleIosMacabi => "x86_64-apple-ios",
+            Self::X86_64AppleIos => "x86_64-apple-ios",
             Self::I386AppleIos => "i386-apple-ios",
             Self::Aarch64AppleIos => "aarch64-apple-ios",
             Self::Armv7AppleIos => "armv7-apple-ios",

@@ -42,20 +42,24 @@ impl Command for GenAppleApp {
             .join("apple")
             .join(format!("{}.app", self.project_name));
         create_dir_all(&app_path)?;
-        // Copy resources to app folder
-        if !self.resources_dir.exists() {
-            return Err(AppleError::ResourcesNotFound.into());
+        // Copy resources to app folder if provided
+        if !self.resources_dir.as_os_str().is_empty() {
+            if !self.resources_dir.exists() {
+                return Err(AppleError::ResourcesNotFound.into());
+            }
+            let resources_path = app_path.join("res");
+            create_dir_all(&resources_path)?;
+            copy_dir(&self.resources_dir, &resources_path, &CopyOptions::new())?;
         }
-        let resources_path = app_path.join("res");
-        create_dir_all(&resources_path)?;
-        copy_dir(&self.resources_dir, &resources_path, &CopyOptions::new())?;
-        // Copy assets to app folder
-        if !self.assets_dir.exists() {
-            return Err(AppleError::AssetsNotFound.into());
+        // Copy assets to app folder if provided
+        if !self.assets_dir.as_os_str().is_empty() {
+            if !self.assets_dir.exists() {
+                return Err(AppleError::AssetsNotFound.into());
+            }
+            let assets_path = app_path.join("assets");
+            create_dir_all(&assets_path)?;
+            copy_dir(&self.assets_dir, &assets_path, &CopyOptions::new())?;
         }
-        let assets_path = app_path.join("assets");
-        create_dir_all(&assets_path)?;
-        copy_dir(&self.assets_dir, &assets_path, &CopyOptions::new())?;
         Ok(app_path)
     }
 }

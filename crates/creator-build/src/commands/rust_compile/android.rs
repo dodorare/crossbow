@@ -43,7 +43,7 @@ impl AndroidRustCompile {
 
 impl Command for AndroidRustCompile {
     type Deps = AndroidNdk;
-    type Output = ();
+    type Output = PathBuf;
 
     fn run(&self) -> Result<Self::Output> {
         let mut cargo = cargo_rustc_command(
@@ -66,7 +66,12 @@ impl Command for AndroidRustCompile {
         if !cargo.status()?.success() {
             return Err(Error::CmdFailed(cargo));
         }
-        Ok(())
+        let out_dir = self
+            .project_path
+            .join("target")
+            .join(self.build_target.rust_triple())
+            .join(self.profile.as_ref());
+        Ok(out_dir)
     }
 }
 
