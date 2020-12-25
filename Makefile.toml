@@ -90,9 +90,9 @@ script = '''
 crates=(
   cargo-creator
   creator-ads
-  creator-build
   creator-derive
   creator-permissions
+  creator-tools
 )
 for crate in "${crates[@]}"
 do

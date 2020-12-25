@@ -4,11 +4,13 @@ mod aapt2;
 mod android_ndk;
 mod android_sdk;
 mod rustc;
+mod simctl;
 
 pub use aapt2::*;
 pub use android_ndk::*;
 pub use android_sdk::*;
 pub use rustc::*;
+pub use simctl::*;
 
 use crate::error::Result;
 use std::rc::Rc;

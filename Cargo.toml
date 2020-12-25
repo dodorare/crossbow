@@ -6,7 +6,7 @@ authors = ["enfipy <enfipy@gmail.com>", "olvyko <olvyko@gmail.com>"]
 description = "Mobile Game Framework"
 repository = "https://github.com/creator-rs/creator"
 license = "Apache-2.0"
-keywords = ["build", "android", "apple", "ios", "substrate"]
+keywords = ["build", "android", "apple", "ios", "substrate", "tools"]
 readme = "README.md"
 exclude = [".github/**/*"]
 
@@ -14,7 +14,7 @@ exclude = [".github/**/*"]
 creator-derive = { path = "crates/creator-derive", version = "0.2.1" }
 
 creator-ads = { path = "crates/creator-ads", version = "0.2.1", optional = true }
-creator-build = { path = "crates/creator-build", version = "0.2.1", optional = true }
+creator-tools = { path = "crates/creator-tools", version = "0.2.1", optional = true }
 creator-permissions = { path = "crates/creator-permissions", version = "0.2.1", optional = true }
 
 [target.'cfg(target_os = "android")'.dependencies]

@@ -1,5 +1,5 @@
 [package]
-name = "creator-build"
+name = "creator-tools"
 version = "0.2.1"
 edition = "2018"
 authors = ["enfipy <enfipy@gmail.com>", "olvyko <olvyko@gmail.com>"]
@@ -15,6 +15,7 @@ serde_plain = "0.3"
 plist = "1"
 dunce = "1.0"
 fs_extra = "1.2"
+apple_simctl = { package = "simctl", version = "0.1.1" }
 
 thiserror = "1.0"
 displaydoc = "0.1"

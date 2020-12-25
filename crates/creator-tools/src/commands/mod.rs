@@ -5,6 +5,7 @@ mod gen_apple_app;
 mod gen_apple_plist;
 mod gen_minimal_project;
 mod gen_unaligned_apk;
+mod launch_apple_app;
 mod rust_compile;
 mod search_android_dylibs;
 
@@ -15,6 +16,7 @@ pub use gen_apple_app::*;
 pub use gen_apple_plist::*;
 pub use gen_minimal_project::*;
 pub use gen_unaligned_apk::*;
+pub use launch_apple_app::*;
 pub use rust_compile::*;
 pub use search_android_dylibs::*;
 
