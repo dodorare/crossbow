@@ -1,15 +1,9 @@
-mod android;
-mod apple;
-
-pub use android::*;
-pub use apple::*;
-
 use crate::types::*;
 use itertools::Itertools;
 use std::path::PathBuf;
 use std::process::Command as ProcessCommand;
 
-pub(super) fn cargo_rustc_command(
+pub fn cargo_rustc_command(
     target: &Target,
     project_path: &PathBuf,
     profile: &Profile,

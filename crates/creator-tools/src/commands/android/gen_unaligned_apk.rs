@@ -1,4 +1,4 @@
-use super::{AndroidManifest, Command};
+use crate::commands::{AndroidManifest, Command};
 use crate::deps::*;
 use crate::error::*;
 use std::fs::create_dir_all;

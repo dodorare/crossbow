@@ -1,4 +1,4 @@
-use super::Command;
+use crate::commands::Command;
 use crate::error::*;
 use crate::types::*;
 use std::path::PathBuf;

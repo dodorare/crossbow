@@ -1,4 +1,4 @@
-use super::{Command, UnalignedApk};
+use crate::commands::{Command, UnalignedApk};
 use crate::deps::*;
 use crate::error::*;
 use std::path::PathBuf;

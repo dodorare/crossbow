@@ -1,4 +1,4 @@
-use super::Command;
+use crate::commands::Command;
 use crate::error::*;
 use fs_extra::dir::{copy as copy_dir, CopyOptions};
 use std::fs::create_dir_all;

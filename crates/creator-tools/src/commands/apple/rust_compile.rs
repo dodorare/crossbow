@@ -1,4 +1,4 @@
-use super::cargo_rustc_command;
+use crate::commands::shared::cargo_rustc_command;
 use crate::commands::Command;
 use crate::error::*;
 use crate::types::*;

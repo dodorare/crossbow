@@ -2,7 +2,7 @@ mod manifest;
 
 pub use manifest::*;
 
-use super::Command;
+use crate::commands::Command;
 use crate::error::*;
 use std::{fs::File, io::Write, path::PathBuf};
 

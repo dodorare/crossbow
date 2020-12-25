@@ -1,6 +1,6 @@
 mod consts;
 
-use super::Command;
+use crate::commands::Command;
 use crate::{error::*, types::*};
 use consts::*;
 use std::fs::File;

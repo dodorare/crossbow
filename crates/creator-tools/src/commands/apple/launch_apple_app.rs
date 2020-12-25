@@ -1,4 +1,4 @@
-use super::Command;
+use crate::commands::Command;
 use crate::{deps::*, error::*, types::AndroidTarget};
 use std::path::PathBuf;
 use std::rc::Rc;
