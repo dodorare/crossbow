@@ -1,5 +1,5 @@
-use creator_build::types::*;
-use creator_build::*;
+use creator_tools::types::*;
+use creator_tools::*;
 
 #[test]
 fn test_compile_android() {

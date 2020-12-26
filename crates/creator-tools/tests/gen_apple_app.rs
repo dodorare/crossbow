@@ -1,6 +1,6 @@
 #![cfg(target_os = "macos")]
 
-use creator_build::*;
+use creator_tools::*;
 
 #[test]
 fn test_gen_apple_app() {
