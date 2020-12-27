@@ -4,11 +4,11 @@ use std::path::PathBuf;
 use std::rc::Rc;
 
 pub struct AddLibToApk {
-    sdk: Rc<AndroidSdk>,
-    build_dir: PathBuf,
-    unaligned_apk_path: PathBuf,
-    lib_path: PathBuf,
-    build_target: AndroidTarget,
+    pub sdk: Rc<AndroidSdk>,
+    pub build_dir: PathBuf,
+    pub unaligned_apk_path: PathBuf,
+    pub lib_path: PathBuf,
+    pub build_target: AndroidTarget,
 }
 
 impl AddLibToApk {

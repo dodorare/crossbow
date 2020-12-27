@@ -4,9 +4,9 @@ use crate::types::*;
 use std::path::PathBuf;
 
 pub struct SearchAndroidDylibs {
-    target_path: PathBuf,
-    build_target: BuildTarget,
-    profile: Profile,
+    pub target_path: PathBuf,
+    pub build_target: BuildTarget,
+    pub profile: Profile,
 }
 
 impl SearchAndroidDylibs {

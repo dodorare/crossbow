@@ -5,8 +5,8 @@ use std::path::PathBuf;
 use std::rc::Rc;
 
 pub struct AlignApk {
-    sdk: Rc<AndroidSdk>,
-    unaligned_apk: UnalignedApk,
+    pub sdk: Rc<AndroidSdk>,
+    pub unaligned_apk: UnalignedApk,
 }
 
 impl AlignApk {

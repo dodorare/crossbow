@@ -27,6 +27,8 @@ pub enum AndroidError {
 pub enum AppleError {
     /// Plist data error
     Plist(#[from] plist::Error),
+    /// Simctl error
+    Simctl(simctl::Error),
     /// Target dir does not exists
     TargetNotFound,
     /// Resources dir does not exists
@@ -61,8 +63,8 @@ impl From<plist::Error> for Error {
     }
 }
 
-// impl From<fs_extra::Error> for Error {
-//     fn from(error: fs_extra::Error) -> Self {
-//         AppleError::from(error).into()
-//     }
-// }
+impl From<simctl::Error> for Error {
+    fn from(error: simctl::Error) -> Self {
+        AppleError::Simctl(error).into()
+    }
+}

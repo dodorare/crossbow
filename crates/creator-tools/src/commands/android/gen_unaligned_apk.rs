@@ -6,11 +6,11 @@ use std::path::PathBuf;
 use std::rc::Rc;
 
 pub struct GenUnalignedApk {
-    sdk: Rc<AndroidSdk>,
-    build_dir: PathBuf,
-    assets: Option<PathBuf>,
-    res: Option<String>,
-    manifest: AndroidManifest,
+    pub sdk: Rc<AndroidSdk>,
+    pub build_dir: PathBuf,
+    pub assets: Option<PathBuf>,
+    pub res: Option<String>,
+    pub manifest: AndroidManifest,
 }
 
 impl GenUnalignedApk {

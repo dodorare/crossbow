@@ -95,5 +95,7 @@ fn test_apple_full() {
     let properties = get_minimal_info_plist(&name);
     let cmd = GenApplePlist::new(app_dir, properties, false);
     cmd.run().unwrap();
-    // TODO: Install on simulator
+    // Install and launch on simulator
+    let launch_apple_app = LaunchAppleApp::new(dir.to_owned());
+    launch_apple_app.run().unwrap();
 }

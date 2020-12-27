@@ -13,13 +13,13 @@ build:
 	PROJECT_NAME=$(PROJECT_NAME) ./build.sh
 
 run-sim:
-	open -a Simulator --args -CurrentDeviceUDID C9133F14-AF02-4284-B8E8-D07CF75FC8DD
+	open -a Simulator --args -CurrentDeviceUDID $(DEVICE)
 
 boot-sim:
-	xcrun simctl boot C9133F14-AF02-4284-B8E8-D07CF75FC8DD || true
+	xcrun simctl boot $(DEVICE) || true
 
 install: boot-sim
-	cd ../../target/apple && xcrun simctl install C9133F14-AF02-4284-B8E8-D07CF75FC8DD example.app
+	cd ../../target/apple && xcrun simctl install $(DEVICE) $(PROJECT_NAME).app
 
 clean:
 	cargo clean

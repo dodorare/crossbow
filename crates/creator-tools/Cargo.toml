@@ -15,12 +15,12 @@ serde_plain = "0.3"
 plist = "1"
 dunce = "1.0"
 fs_extra = "1.2"
-apple_simctl = { package = "simctl", version = "0.1.1" }
+simctl = "0.1.1"
 
 thiserror = "1.0"
 displaydoc = "0.1"
 which = "4.0"
 tempfile = "3"
-itertools = "0.9"
+itertools = "0.10"
 
 log = "0.4"

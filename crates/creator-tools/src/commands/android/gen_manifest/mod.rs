@@ -7,8 +7,8 @@ use crate::error::*;
 use std::{fs::File, io::Write, path::PathBuf};
 
 pub struct GenAndroidManifest {
-    out_dir: PathBuf,
-    manifest: AndroidManifest,
+    pub out_dir: PathBuf,
+    pub manifest: AndroidManifest,
 }
 
 impl GenAndroidManifest {
