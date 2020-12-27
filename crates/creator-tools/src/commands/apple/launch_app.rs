@@ -1,18 +1,22 @@
 use crate::commands::Command;
 use crate::error::*;
-use simctl::{DeviceQuery, Simctl};
-use std::{io::Write, path::PathBuf};
+use simctl::{list::DeviceState, DeviceQuery, Simctl};
+use std::path::PathBuf;
 
 pub struct LaunchAppleApp {
-    pub simctl: Simctl,
-    pub project_dir: PathBuf,
+    pub app_path: PathBuf,
+    pub device_name: String,
+    pub bundle_id: String,
+    pub open: bool,
 }
 
 impl LaunchAppleApp {
-    pub fn new(project_dir: PathBuf) -> Self {
+    pub fn new(app_path: PathBuf, device_name: String, bundle_id: String, open: bool) -> Self {
         Self {
-            simctl: Simctl::new(),
-            project_dir,
+            app_path,
+            device_name,
+            bundle_id,
+            open,
         }
     }
 }
@@ -28,20 +32,23 @@ impl Command for LaunchAppleApp {
             .devices()
             .iter()
             .available()
-            .by_name("iPhone 12 Pro")
+            .by_name(&self.device_name)
             .next()
             .unwrap();
-        println!("device: {:?}", device);
-        // let _ = device.boot();
-        // device.launch("com.apple.mobilesafari").exec()?;
-        // let image = device.io().screenshot(
-        //     simctl::io::ImageType::Png,
-        //     simctl::io::Display::Internal,
-        //     simctl::io::Mask::Ignored,
-        // )?;
-        // device.shutdown()?;
-        // let mut file = std::fs::File::create(self.project_dir.join("scrn.png"))?;
-        // file.write_all(&image)?;
+        if device.state != DeviceState::Booted {
+            device.boot()?;
+        }
+        device.install(&self.app_path)?;
+        let path = "/dev/null";
+        let result = device
+            .launch(&self.bundle_id)
+            .stdout(&path)
+            .stderr(&path)
+            .exec();
+        if self.open {
+            simctl.open()?;
+        }
+        result?;
         Ok(())
     }
 }

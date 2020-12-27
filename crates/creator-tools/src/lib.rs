@@ -25,3 +25,4 @@ pub mod types;
 
 pub use commands::*;
 pub use deps::*;
+pub use simctl;

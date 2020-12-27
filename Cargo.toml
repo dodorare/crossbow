@@ -25,6 +25,7 @@ ndk-glue = "0.2"
 # bevy = { git = "https://github.com/bevyengine/bevy", rev = "61b181a699ed2b450bebc8c14d96c6af55fa41cf" }
 cpal = { git = "https://github.com/MichaelHills/cpal", branch = "mike-ios" }
 plist = { git = "https://github.com/creator-rs/rust-plist", branch = "master" }
+simctl = { git = "https://github.com/creator-rs/simctl", branch = "master" }
 
 [features]
 default = []

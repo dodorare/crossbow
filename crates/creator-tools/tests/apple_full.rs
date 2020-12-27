@@ -93,9 +93,14 @@ fn test_apple_full() {
     std::fs::copy(&bin_path, &app_dir.join(&name)).unwrap();
     // Generate Info.plist
     let properties = get_minimal_info_plist(&name);
-    let cmd = GenApplePlist::new(app_dir, properties, false);
+    let cmd = GenApplePlist::new(app_dir.clone(), properties, false);
     cmd.run().unwrap();
     // Install and launch on simulator
-    let launch_apple_app = LaunchAppleApp::new(dir.to_owned());
+    let launch_apple_app = LaunchAppleApp::new(
+        app_dir,
+        "iPhone 8".to_owned(),
+        "com.test.test-id".to_owned(),
+        false,
+    );
     launch_apple_app.run().unwrap();
 }
