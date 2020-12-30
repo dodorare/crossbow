@@ -1,45 +1,22 @@
-use crate::commands::{Command, UnalignedApk};
 use crate::deps::*;
 use crate::error::*;
-use std::path::PathBuf;
-use std::rc::Rc;
+use std::path::{Path, PathBuf};
 
-pub struct AlignApk {
-    pub sdk: Rc<AndroidSdk>,
-    pub unaligned_apk: UnalignedApk,
-}
-
-impl AlignApk {
-    pub fn new(sdk: Rc<AndroidSdk>, unaligned_apk: UnalignedApk) -> Self {
-        Self { sdk, unaligned_apk }
-    }
-}
-
-impl Command for AlignApk {
-    type Deps = AndroidSdk;
-    type Output = UnsignedApk;
-
-    fn run(&self) -> Result<Self::Output> {
-        let unsigned_apk_path = self
-            .unaligned_apk
-            .build_dir
-            .join(format!("{}.apk", self.unaligned_apk.package_label));
-        let mut zipalign = self.sdk.build_tool(bin!("zipalign"))?;
-        zipalign
-            .arg("-f")
-            .arg("-v")
-            .arg("4")
-            .arg(&self.unaligned_apk.apk_path)
-            .arg(&unsigned_apk_path);
-        if !zipalign.status()?.success() {
-            return Err(Error::CmdFailed(zipalign));
-        }
-        Ok(UnsignedApk {
-            apk_path: unsigned_apk_path,
-        })
-    }
-}
-
-pub struct UnsignedApk {
-    pub apk_path: PathBuf,
+/// Align APK on 4-byte memory boundary
+pub fn align_apk(
+    sdk: &AndroidSdk,
+    unaligned_apk_path: &Path,
+    package_label: &str,
+    build_dir: &Path,
+) -> Result<PathBuf> {
+    let unsigned_apk_path = build_dir.join(format!("{}.apk", package_label));
+    let mut zipalign = sdk.build_tool(bin!("zipalign"))?;
+    zipalign
+        .arg("-f")
+        .arg("-v")
+        .arg("4")
+        .arg(unaligned_apk_path)
+        .arg(&unsigned_apk_path);
+    zipalign.output_err()?;
+    Ok(unsigned_apk_path)
 }

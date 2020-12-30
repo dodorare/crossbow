@@ -1,6 +1,5 @@
-use super::*;
 use crate::error::*;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command as ProcessCommand;
 
 pub struct AndroidSdk {
@@ -11,31 +10,8 @@ pub struct AndroidSdk {
     platforms: Vec<u32>,
 }
 
-impl Checks for AndroidSdk {
-    fn check() -> Result<Vec<CheckInfo>> {
-        let mut checks = Vec::new();
-        if let Some(sdk_path) = std::env::var("ANDROID_SDK_ROOT")
-            .ok()
-            .or_else(|| std::env::var("ANDROID_SDK_PATH").ok())
-            .or_else(|| std::env::var("ANDROID_HOME").ok())
-        {
-            let sdk_path = PathBuf::from(sdk_path);
-            checks.push(AndroidSdkChecks::EnvVarsAreSet.check_passed());
-            if sdk_path.exists() {
-                checks.push(AndroidSdkChecks::Found.check_passed());
-            } else {
-                checks.push(AndroidSdkChecks::Found.check_failed());
-            };
-        } else {
-            checks.push(AndroidSdkChecks::EnvVarsAreSet.check_failed());
-            checks.push(AndroidSdkChecks::Found.check_failed());
-        };
-        Ok(checks)
-    }
-}
-
 impl AndroidSdk {
-    pub fn init() -> Result<Rc<Self>> {
+    pub fn from_env() -> Result<Self> {
         let sdk_path = {
             let sdk_path = std::env::var("ANDROID_SDK_ROOT")
                 .ok()
@@ -72,24 +48,23 @@ impl AndroidSdk {
             build_tools_version,
             platforms_path,
             platforms,
-        }
-        .into())
+        })
     }
 
-    pub fn sdk_path(&self) -> PathBuf {
-        self.sdk_path.clone()
+    pub fn sdk_path(&self) -> &Path {
+        &self.sdk_path
     }
 
-    pub fn build_tools_path(&self) -> PathBuf {
-        self.build_tools_path.clone()
+    pub fn build_tools_path(&self) -> &Path {
+        &self.build_tools_path
     }
 
     pub fn build_tools_version(&self) -> &str {
         &self.build_tools_version
     }
 
-    pub fn platforms_path(&self) -> PathBuf {
-        self.platforms_path.clone()
+    pub fn platforms_path(&self) -> &Path {
+        &self.platforms_path
     }
 
     pub fn platforms(&self) -> &[u32] {
@@ -133,28 +108,5 @@ impl AndroidSdk {
             return Err(Error::PathNotFound(android_jar));
         }
         Ok(android_jar)
-    }
-}
-
-enum AndroidSdkChecks {
-    Found,
-    EnvVarsAreSet,
-}
-
-impl IntoCheckInfo for AndroidSdkChecks {
-    fn check_passed(self) -> CheckInfo {
-        match self {
-            AndroidSdkChecks::Found => CheckInfo {
-                dependency_name: "Android SDK".to_owned(),
-                check_name: "Android SDK found".to_owned(),
-                passed: true,
-            },
-            AndroidSdkChecks::EnvVarsAreSet => CheckInfo {
-                dependency_name: "Android SDK".to_owned(),
-                check_name: "ANDROID_SDK_ROOT or ANDROID_SDK_PATH or ANDROID_HOME are set"
-                    .to_owned(),
-                passed: true,
-            },
-        }
     }
 }

@@ -1,0 +1,36 @@
+use crate::error::{AndroidError, Result};
+
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct VersionCode {
+    major: u8,
+    minor: u8,
+    patch: u8,
+}
+
+impl VersionCode {
+    pub fn new(major: u8, minor: u8, patch: u8) -> Self {
+        Self {
+            major,
+            minor,
+            patch,
+        }
+    }
+
+    pub fn from_semver(version: &str) -> Result<Self> {
+        let mut iter = version.split(|c1| ['.', '-', '+'].iter().any(|c2| c1 == *c2));
+        let mut p = || {
+            iter.next()
+                .ok_or(AndroidError::InvalidSemver)?
+                .parse()
+                .map_err(|_| AndroidError::InvalidSemver)
+        };
+        Ok(Self::new(p()?, p()?, p()?))
+    }
+
+    pub fn to_code(&self, apk_id: u8) -> u32 {
+        (apk_id as u32) << 24
+            | (self.major as u32) << 16
+            | (self.minor as u32) << 8
+            | self.patch as u32
+    }
+}

@@ -21,6 +21,8 @@ pub enum AndroidError {
     UnsupportedTarget,
     /// Host {0} is not supported
     UnsupportedHost(String),
+    /// Invalid semver
+    InvalidSemver,
 }
 
 #[derive(Display, Debug, Error)]
@@ -39,8 +41,8 @@ pub enum AppleError {
 
 #[derive(Display, Debug, Error)]
 pub enum Error {
-    /// Command '{0:?}' had a non-zero exit code
-    CmdFailed(Command),
+    /// Command '{0:?}' had a non-zero exit code. \nStdout: {1}\nStderr: {2}
+    CmdFailed(Command, String, String),
     /// Command {0} not found
     CmdNotFound(String),
     /// Path {0:?} doesn't exist
@@ -56,6 +58,39 @@ pub enum Error {
     /// Other error
     OtherError(#[from] Box<dyn std::error::Error>),
 }
+
+pub trait CommandExt {
+    fn output_err(self) -> Result<std::process::Output>;
+}
+
+impl CommandExt for std::process::Command {
+    fn output_err(mut self) -> Result<std::process::Output> {
+        let output = self.output()?;
+        if !output.status.success() {
+            return Err(Error::CmdFailed(
+                self,
+                String::from_utf8_lossy(&output.stdout).to_string(),
+                String::from_utf8_lossy(&output.stderr).to_string(),
+            ));
+        }
+        Ok(output)
+    }
+}
+
+// impl Error {
+//     /// Executes the command as a child process, return an error if command fails.
+//     pub fn check_command(mut cmd: std::process::Command) -> Result<std::process::Output> {
+//         let output = cmd.output()?;
+//         if !output.status.success() {
+//             return Err(Error::CmdFailed(
+//                 cmd,
+//                 String::from_utf8_lossy(&output.stdout).to_string(),
+//                 String::from_utf8_lossy(&output.stderr).to_string(),
+//             ));
+//         }
+//         Ok(output)
+//     }
+// }
 
 impl From<plist::Error> for Error {
     fn from(error: plist::Error) -> Self {

@@ -6,8 +6,8 @@ use creator_tools::*;
 fn test_gen_apple_app() {
     let tempdir = tempfile::tempdir().unwrap();
     let dir = tempdir.path();
-    let generate_minimal_project = GenMinimalProject::new(dir.to_owned());
-    let name = generate_minimal_project.run().unwrap();
+    let name = gen_minimal_project(dir).unwrap();
+
     // Creates target dir
     let target_dir = dir.join("target");
     std::fs::create_dir(&target_dir).unwrap();

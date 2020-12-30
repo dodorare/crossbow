@@ -1,11 +1,11 @@
 use crate::types::*;
 use itertools::Itertools;
-use std::path::PathBuf;
+use std::path::Path;
 use std::process::Command as ProcessCommand;
 
 pub fn cargo_rustc_command(
     target: &Target,
-    project_path: &PathBuf,
+    project_path: &Path,
     profile: &Profile,
     cargo_args: &[String],
     build_target: &BuildTarget,

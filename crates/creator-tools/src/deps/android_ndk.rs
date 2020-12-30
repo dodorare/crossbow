@@ -1,21 +1,15 @@
-use super::*;
 use crate::error::*;
 use crate::types::AndroidTarget;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
+use std::process::Command;
 
 #[derive(Debug)]
 pub struct AndroidNdk {
-    pub ndk_path: PathBuf,
-}
-
-impl Checks for AndroidNdk {
-    fn check() -> Result<Vec<CheckInfo>> {
-        Ok(Vec::new())
-    }
+    ndk_path: PathBuf,
 }
 
 impl AndroidNdk {
-    pub fn init(sdk_path: Option<PathBuf>) -> Result<Rc<Self>> {
+    pub fn from_env(sdk_path: Option<&Path>) -> Result<Self> {
         let ndk_path = {
             let ndk_path = std::env::var("ANDROID_NDK_ROOT")
                 .ok()
@@ -32,7 +26,11 @@ impl AndroidNdk {
                 PathBuf::from(ndk_path.ok_or(AndroidError::AndroidNdkNotFound)?)
             }
         };
-        Ok(Self { ndk_path }.into())
+        Ok(Self { ndk_path })
+    }
+
+    pub fn ndk_path(&self) -> &Path {
+        &self.ndk_path
     }
 
     pub fn toolchain_dir(&self) -> Result<PathBuf> {
@@ -89,14 +87,14 @@ impl AndroidNdk {
         Ok((clang, clang_pp))
     }
 
-    pub fn toolchain_bin(&self, bin: &str, target: AndroidTarget) -> Result<PathBuf> {
+    pub fn toolchain_bin(&self, bin: &str, build_target: AndroidTarget) -> Result<PathBuf> {
         #[cfg(target_os = "windows")]
         let ext = ".exe";
         #[cfg(not(target_os = "windows"))]
         let ext = "";
         let bin = self.toolchain_dir()?.join("bin").join(format!(
             "{}-{}{}",
-            target.ndk_triple(),
+            build_target.ndk_triple(),
             bin,
             ext
         ));
@@ -104,5 +102,53 @@ impl AndroidNdk {
             return Err(Error::PathNotFound(bin));
         }
         Ok(bin)
+    }
+
+    pub fn readelf(&self, build_target: AndroidTarget) -> Result<Command> {
+        let readelf_path = self.toolchain_bin("readelf", build_target)?;
+        Ok(Command::new(readelf_path))
+    }
+
+    pub fn sysroot_lib_dir(&self, build_target: AndroidTarget) -> Result<PathBuf> {
+        let sysroot_lib_dir = self
+            .toolchain_dir()?
+            .join("sysroot")
+            .join("usr")
+            .join("lib")
+            .join(build_target.ndk_triple());
+        if !sysroot_lib_dir.exists() {
+            return Err(Error::PathNotFound(sysroot_lib_dir));
+        }
+        Ok(sysroot_lib_dir)
+    }
+
+    pub fn sysroot_platform_lib_dir(
+        &self,
+        build_target: AndroidTarget,
+        min_sdk_version: u32,
+    ) -> Result<PathBuf> {
+        let sysroot_lib_dir = self.sysroot_lib_dir(build_target)?;
+
+        // Look for a platform <= min_sdk_version
+        let mut tmp_platform = min_sdk_version;
+        while tmp_platform > 1 {
+            let path = sysroot_lib_dir.join(tmp_platform.to_string());
+            if path.exists() {
+                return Ok(path);
+            }
+            tmp_platform += 1;
+        }
+
+        // Look for the minimum API level supported by the NDK
+        let mut tmp_platform = min_sdk_version;
+        while tmp_platform < 100 {
+            let path = sysroot_lib_dir.join(tmp_platform.to_string());
+            if path.exists() {
+                return Ok(path);
+            }
+            tmp_platform += 1;
+        }
+
+        Err(AndroidError::PlatformNotFound(min_sdk_version).into())
     }
 }

@@ -1,6 +1,6 @@
 use std::path::Path;
 
-#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
 pub enum Profile {
     Debug,
     Release,

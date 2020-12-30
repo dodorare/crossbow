@@ -11,7 +11,6 @@ pub use android_sdk::*;
 pub use rustc::*;
 
 use crate::error::Result;
-use std::rc::Rc;
 
 #[derive(Clone, PartialEq, Eq, Hash)]
 pub struct CheckInfo {

@@ -2,28 +2,20 @@ mod manifest;
 
 pub use manifest::*;
 
-use crate::commands::Command;
 use crate::error::*;
-use std::{fs::File, io::Write, path::PathBuf};
+use std::fs::create_dir_all;
+use std::{
+    fs::File,
+    io::Write,
+    path::{Path, PathBuf},
+};
 
-pub struct GenAndroidManifest {
-    pub out_dir: PathBuf,
-    pub manifest: AndroidManifest,
-}
-
-impl GenAndroidManifest {
-    pub fn new(out_dir: PathBuf, manifest: AndroidManifest) -> Self {
-        Self { out_dir, manifest }
+pub fn gen_android_manifest(out_dir: &Path, manifest: &AndroidManifest) -> Result<PathBuf> {
+    if !out_dir.exists() {
+        create_dir_all(out_dir)?;
     }
-}
-
-impl Command for GenAndroidManifest {
-    type Deps = ();
-    type Output = ();
-
-    fn run(&self) -> Result<Self::Output> {
-        let mut file = File::create(self.out_dir.join("AndroidManifest.xml"))?;
-        writeln!(file, "{}", self.manifest.to_string())?;
-        Ok(())
-    }
+    let manifest_path = out_dir.join("AndroidManifest.xml");
+    let mut file = File::create(&manifest_path)?;
+    writeln!(file, "{}", manifest.to_string())?;
+    Ok(manifest_path)
 }

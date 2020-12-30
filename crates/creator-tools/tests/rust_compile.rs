@@ -3,20 +3,21 @@ use creator_tools::*;
 
 #[test]
 fn test_compile_android() {
-    let dir = tempfile::tempdir().unwrap();
-    let generate_minimal_project = GenMinimalProject::new(dir.path().to_owned());
-    let _name = generate_minimal_project.run().unwrap();
-    let sdk = AndroidSdk::init().unwrap();
-    let ndk = AndroidNdk::init(Some(sdk.sdk_path())).unwrap();
-    let android_rust_compile = AndroidRustCompile::new(
-        ndk,
+    let tempdir = tempfile::tempdir().unwrap();
+    let dir = tempdir.path();
+    let _name = gen_minimal_project(dir).unwrap();
+
+    let sdk = AndroidSdk::from_env().unwrap();
+    let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
+    compile_rust_for_android(
+        &ndk,
         AndroidTarget::Aarch64LinuxAndroid,
-        dir.path().to_owned(),
+        dir,
         Profile::Release,
         vec![],
         30,
-    );
-    android_rust_compile.run().unwrap();
+    )
+    .unwrap();
 }
 
 #[test]
