@@ -23,15 +23,16 @@ fn test_compile_android() {
 #[test]
 #[cfg(target_os = "macos")]
 fn test_compile_apple() {
-    let dir = tempfile::tempdir().unwrap();
-    let generate_minimal_project = GenMinimalProject::new(dir.path().to_owned());
-    let name = generate_minimal_project.run().unwrap();
-    let apple_rust_compile = AppleRustCompile::new(
-        name,
+    let tempdir = tempfile::tempdir().unwrap();
+    let dir = tempdir.path();
+    let name = gen_minimal_project(dir).unwrap();
+
+    apple_rust_compile(
+        &name,
         AppleTarget::Aarch64AppleIos,
-        dir.path().to_owned(),
+        dir,
         Profile::Release,
         vec![],
-    );
-    apple_rust_compile.run().unwrap();
+    )
+    .unwrap();
 }

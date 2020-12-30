@@ -5,7 +5,7 @@ use crate::types::*;
 
 use std::path::{Path, PathBuf};
 
-/// Compile rust lib for android
+/// Compile rust lib for android.
 pub fn compile_rust_for_android(
     ndk: &AndroidNdk,
     build_target: AndroidTarget,

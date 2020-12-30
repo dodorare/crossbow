@@ -2,13 +2,12 @@
 
 use crate::{deps::*, error::*, types::*};
 use std::{
-    collections::HashSet,
     fs::File,
     io::{BufRead, BufReader},
     path::{Path, PathBuf},
 };
 
-/// Add given lib and all reletad libs into APK
+/// Add given lib and all reletad libs into APK.
 pub fn add_libs_into_apk(
     sdk: &AndroidSdk,
     ndk: &AndroidNdk,
@@ -34,7 +33,7 @@ pub fn add_libs_into_apk(
     let dylibs_paths = search_dylibs(&deps_dir)?;
     // Get list of libs that main lib need for work
     let lib_name = lib_path.file_name().unwrap().to_str().unwrap().to_owned();
-    let mut needed_libs = HashSet::new();
+    let mut needed_libs = vec![];
     recursively_define_needed_libs(
         (lib_name, lib_path.to_owned()),
         &ndk.toolchain_bin("readelf", build_target)?,
@@ -52,7 +51,7 @@ pub fn add_libs_into_apk(
     Ok(())
 }
 
-/// Copy lib into `out_dir` then add this lib into apk file
+/// Copy lib into `out_dir` then add this lib into apk file.
 fn aapt_add_lib(sdk: &AndroidSdk, apk_path: &Path, lib_path: &Path, out_dir: &Path) -> Result<()> {
     if !lib_path.exists() {
         return Err(Error::PathNotFound(lib_path.to_owned()));
@@ -60,14 +59,14 @@ fn aapt_add_lib(sdk: &AndroidSdk, apk_path: &Path, lib_path: &Path, out_dir: &Pa
     std::fs::create_dir_all(&out_dir)?;
     let file_name = lib_path.file_name().unwrap();
     let new_lib_path = out_dir.join(&file_name);
-    std::fs::copy(lib_path.clone(), &new_lib_path)?;
+    std::fs::copy(lib_path, &new_lib_path)?;
     let mut aapt = sdk.build_tool(bin!("aapt"))?;
     aapt.arg("add").arg(apk_path).arg(new_lib_path);
     aapt.output_err()?;
     Ok(())
 }
 
-/// Search dylibs in given `deps_dir`
+/// Search dylibs in given `deps_dir`.
 fn search_dylibs(deps_dir: &Path) -> Result<Vec<PathBuf>> {
     let mut paths = Vec::new();
     for dep_dir in deps_dir.read_dir()? {
@@ -101,22 +100,18 @@ fn recursively_define_needed_libs(
     (lib_name, lib_path): (String, PathBuf),
     readelf_path: &Path,
     libcpp_shared_path: &Path,
-    system_libs: &Vec<String>,
-    dylibs_paths: &Vec<PathBuf>,
-    needed_libs: &mut HashSet<(String, PathBuf)>,
+    system_libs: &[String],
+    dylibs_paths: &[PathBuf],
+    needed_libs: &mut Vec<(String, PathBuf)>,
 ) -> Result<()> {
     let shared_libs = readelf_list_shared_libs(readelf_path, &lib_path)?;
-    needed_libs.insert((lib_name, lib_path));
+    needed_libs.push((lib_name, lib_path));
     for lib_name in shared_libs {
         if lib_name == "libc++_shared.so" {
-            needed_libs.insert((lib_name, libcpp_shared_path.to_owned()));
+            needed_libs.push((lib_name, libcpp_shared_path.to_owned()));
         } else if system_libs.contains(&lib_name) {
             continue;
-        } else if !needed_libs
-            .iter()
-            .find(|(name, _)| name == &lib_name)
-            .is_some()
-        {
+        } else if !needed_libs.iter().any(|(name, _)| name == &lib_name) {
             if let Some(lib_path) = find_library_path(dylibs_paths, &lib_name)? {
                 recursively_define_needed_libs(
                     (lib_name, lib_path),
@@ -134,7 +129,7 @@ fn recursively_define_needed_libs(
     Ok(())
 }
 
-/// List all linked shared libraries
+/// List all linked shared libraries.
 fn readelf_list_shared_libs(readelf_path: &Path, lib_path: &Path) -> Result<Vec<String>> {
     let mut readelf = std::process::Command::new(readelf_path);
     readelf.arg("-d").arg(lib_path);
@@ -155,7 +150,7 @@ fn readelf_list_shared_libs(readelf_path: &Path, lib_path: &Path) -> Result<Vec<
     Ok(needed)
 }
 
-/// Resolves native library using search paths
+/// Resolves native library using search paths.
 fn find_library_path<S: AsRef<Path>>(paths: &[PathBuf], lib_name: S) -> Result<Option<PathBuf>> {
     for path in paths {
         let lib_path = path.join(&lib_name);
@@ -166,7 +161,7 @@ fn find_library_path<S: AsRef<Path>>(paths: &[PathBuf], lib_name: S) -> Result<O
     Ok(None)
 }
 
-/// Return all files in directory with `.so` ending
+/// Return all files in directory with `.so` ending.
 fn get_libs_in_dir(dir: &Path) -> std::io::Result<Vec<String>> {
     let mut libs = Vec::new();
     if dir.is_dir() {

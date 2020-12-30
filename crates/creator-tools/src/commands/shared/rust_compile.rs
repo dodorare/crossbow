@@ -18,7 +18,7 @@ pub fn cargo_rustc_command(
         Target::Example(name) => cargo.args(&["--example", &name]),
         Target::Lib => cargo.arg("--lib"),
     };
-    cargo.current_dir(project_path.clone());
+    cargo.current_dir(project_path);
     if profile == &Profile::Release {
         cargo.arg("--release");
     };

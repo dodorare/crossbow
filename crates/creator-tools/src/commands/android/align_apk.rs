@@ -2,7 +2,7 @@ use crate::deps::*;
 use crate::error::*;
 use std::path::{Path, PathBuf};
 
-/// Align APK on 4-byte memory boundary
+/// Align APK on 4-byte memory boundary.
 pub fn align_apk(
     sdk: &AndroidSdk,
     unaligned_apk_path: &Path,

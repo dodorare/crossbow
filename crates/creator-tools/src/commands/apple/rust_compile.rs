@@ -1,60 +1,28 @@
 use crate::commands::shared::cargo_rustc_command;
-use crate::commands::Command;
 use crate::error::*;
 use crate::types::*;
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
-#[derive(Debug, Clone)]
-pub struct AppleRustCompile {
-    pub target: Target,
-    pub build_target: AppleTarget,
-    pub project_path: PathBuf,
-    pub profile: Profile,
-    pub cargo_args: Vec<String>,
-    pub crate_types: Vec<CrateType>,
-}
-
-impl AppleRustCompile {
-    pub fn new(
-        target_name: String,
-        build_target: AppleTarget,
-        project_path: PathBuf,
-        profile: Profile,
-        cargo_args: Vec<String>,
-    ) -> Self {
-        Self {
-            target: Target::Bin(target_name),
-            build_target,
-            project_path,
-            profile,
-            cargo_args,
-            crate_types: vec![],
-        }
-    }
-}
-
-impl Command for AppleRustCompile {
-    type Deps = ();
-    type Output = PathBuf;
-
-    fn run(&self) -> Result<Self::Output> {
-        let mut cargo = cargo_rustc_command(
-            &self.target,
-            &self.project_path,
-            &self.profile,
-            &self.cargo_args,
-            &self.build_target.into(),
-            &self.crate_types,
-        );
-        if !cargo.status()?.success() {
-            return Err(Error::CmdFailed(cargo));
-        }
-        let out_dir = self
-            .project_path
-            .join("target")
-            .join(self.build_target.rust_triple())
-            .join(self.profile.as_ref());
-        Ok(out_dir)
-    }
+pub fn apple_rust_compile(
+    target_name: &str,
+    build_target: AppleTarget,
+    project_path: &Path,
+    profile: Profile,
+    cargo_args: Vec<String>,
+) -> Result<PathBuf> {
+    let cargo = cargo_rustc_command(
+        &Target::Bin(target_name.to_owned()),
+        project_path,
+        &profile,
+        &cargo_args,
+        &build_target.into(),
+        &[],
+    );
+    cargo.output_err()?;
+    let out_dir = project_path
+        .join("target")
+        .join(build_target.rust_triple())
+        .join(profile.as_ref());
+    Ok(out_dir)
 }

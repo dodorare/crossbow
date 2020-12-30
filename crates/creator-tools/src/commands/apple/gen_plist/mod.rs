@@ -1,43 +1,20 @@
 mod consts;
 
-use crate::commands::Command;
 use crate::{error::*, types::*};
 use consts::*;
 use std::fs::File;
-use std::path::PathBuf;
+use std::path::Path;
 
-#[derive(Debug, Clone)]
-pub struct GenApplePlist {
-    pub out_dir: PathBuf,
-    pub properties: InfoPlist,
-    pub binary: bool,
-}
-
-impl GenApplePlist {
-    pub fn new(out_dir: PathBuf, properties: InfoPlist, binary: bool) -> Self {
-        Self {
-            out_dir,
-            properties,
-            binary,
-        }
+pub fn gen_apple_plist(out_dir: &Path, properties: &InfoPlist, binary: bool) -> Result<()> {
+    // Create Info.plist file
+    let file_path = out_dir.join(PLIST_FILE_NAME);
+    let file = File::create(file_path)?;
+    // Write to Info.plist file
+    match binary {
+        true => plist::to_writer_binary(file, properties)?,
+        false => plist::to_writer_xml(file, properties)?,
     }
-}
-
-impl Command for GenApplePlist {
-    type Deps = ();
-    type Output = ();
-
-    fn run(&self) -> Result<()> {
-        // Create Info.plist file
-        let file_path = self.out_dir.join(PLIST_FILE_NAME);
-        let file = File::create(file_path)?;
-        // Write to Info.plist file
-        match self.binary {
-            true => plist::to_writer_binary(file, &self.properties)?,
-            false => plist::to_writer_xml(file, &self.properties)?,
-        }
-        Ok(())
-    }
+    Ok(())
 }
 
 #[cfg(test)]
@@ -93,8 +70,7 @@ mod tests {
             },
             ..Default::default()
         };
-        let cmd = GenApplePlist::new(dir.path().to_owned(), properties.clone(), false);
-        cmd.run().unwrap();
+        gen_apple_plist(dir.path(), &properties, false).unwrap();
         let file_path = dir.path().join(PLIST_FILE_NAME);
         let result = std::fs::read_to_string(&file_path).unwrap();
         assert_eq!(result, PLIST_TEST_EXAMPLE.replace("    ", "\t"));

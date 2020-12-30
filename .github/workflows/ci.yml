@@ -41,7 +41,7 @@ jobs:
       - name: Check the format
         run: cargo +nightly fmt --all -- --check
       - name: Run clippy
-        run: cargo clippy --all-targets --all-features -- -D warnings -A clippy::unnecessary-unwrap
+        run: cargo clippy --all-targets --all-features -- -D warnings -A clippy::unnecessary-unwrap -A clippy::too-many-arguments
       - name: Check for deadlinks
         run: |
           cargo install cargo-deadlinks

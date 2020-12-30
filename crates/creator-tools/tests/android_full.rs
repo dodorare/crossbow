@@ -33,6 +33,7 @@ fn test_android_full() {
     let dir = tempdir.path();
     let name = gen_minimal_project(dir).unwrap();
 
+    // Create dependencies
     let sdk = AndroidSdk::from_env().unwrap();
     let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
 

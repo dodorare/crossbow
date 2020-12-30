@@ -63,10 +63,17 @@ fn test_apple_full() {
     // Create target dir
     let target_dir = dir.join("target");
     std::fs::create_dir(&target_dir).unwrap();
+
     // Generate app folder
-    let gen_apple_app =
-        GenAppleApp::new(target_dir, name.clone(), dir.join("src"), dir.join("src"));
-    let app_dir = gen_apple_app.run().unwrap();
+    let app_dir = gen_apple_app(
+        &target_dir,
+        &name,
+        Some(dir.join("src")),
+        Some(dir.join("src")),
+    )
+    .unwrap();
+    assert!(app_dir.exists());
+
     // Check app dir
     let mut config = HashSet::new();
     config.insert(DirEntryAttr::FullName);
@@ -79,28 +86,25 @@ fn test_apple_full() {
         })
     });
     assert_eq!(2, res.items.len());
+
     // Compile app
-    let apple_rust_compile = AppleRustCompile::new(
-        name.clone(),
+    let out_dir = apple_rust_compile(
+        &name,
         AppleTarget::X86_64AppleIos,
-        dir.to_owned(),
+        dir,
         Profile::Release,
         vec![],
-    );
-    let out_dir = apple_rust_compile.run().unwrap();
+    )
+    .unwrap();
+
     // Copy binary to app folder
     let bin_path = out_dir.join(&name);
     std::fs::copy(&bin_path, &app_dir.join(&name)).unwrap();
+
     // Generate Info.plist
     let properties = get_minimal_info_plist(&name);
-    let cmd = GenApplePlist::new(app_dir.clone(), properties, false);
-    cmd.run().unwrap();
+    gen_apple_plist(&app_dir, &properties, false).unwrap();
+
     // Install and launch on simulator
-    let launch_apple_app = LaunchAppleApp::new(
-        app_dir,
-        "iPhone 8".to_owned(),
-        "com.test.test-id".to_owned(),
-        false,
-    );
-    launch_apple_app.run().unwrap();
+    launch_apple_app(&app_dir, "iPhone 8", "com.test.test-id", false).unwrap();
 }
