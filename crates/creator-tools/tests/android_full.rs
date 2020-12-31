@@ -41,11 +41,13 @@ fn test_android_full() {
     let target_sdk_version = 30;
     let profile = Profile::Release;
     let build_target = AndroidTarget::Aarch64LinuxAndroid;
-    let out_dir =
-        compile_rust_for_android(&ndk, build_target, dir, profile, vec![], target_sdk_version)
-            .unwrap();
+    compile_rust_for_android(&ndk, build_target, dir, profile, vec![], target_sdk_version).unwrap();
+    let out_dir = dir
+        .join("target")
+        .join(build_target.rust_triple())
+        .join(profile.as_ref());
     let compiled_lib = out_dir.join(format!("lib{}.so", name));
-    assert!(out_dir.join(format!("lib{}.so", name)).exists());
+    assert!(compiled_lib.exists());
 
     // Gen android manifest
     let target_dir = dir.join("target");

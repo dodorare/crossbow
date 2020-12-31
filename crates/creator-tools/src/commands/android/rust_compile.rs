@@ -2,8 +2,7 @@ use crate::commands::shared::cargo_rustc_command;
 use crate::deps::*;
 use crate::error::*;
 use crate::types::*;
-
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 /// Compile rust lib for android.
 pub fn compile_rust_for_android(
@@ -13,7 +12,7 @@ pub fn compile_rust_for_android(
     profile: Profile,
     cargo_args: Vec<String>,
     target_sdk_version: u32,
-) -> Result<PathBuf> {
+) -> Result<()> {
     let target = Target::Lib;
     let crate_types = vec![CrateType::Cdylib];
     let mut cargo = cargo_rustc_command(
@@ -34,11 +33,7 @@ pub fn compile_rust_for_android(
     cargo.env(format!("AR_{}", triple), &ar);
     cargo.env(cargo_env_target_cfg("AR", triple), &ar);
     cargo.output_err()?;
-    let out_dir = project_path
-        .join("target")
-        .join(build_target.rust_triple())
-        .join(profile.as_ref());
-    Ok(out_dir)
+    Ok(())
 }
 
 fn cargo_env_target_cfg(tool: &str, target: &str) -> String {

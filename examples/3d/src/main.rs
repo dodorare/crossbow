@@ -1,3 +1,3 @@
 fn main() {
-    threedlib::main();
+    threed::main();
 }

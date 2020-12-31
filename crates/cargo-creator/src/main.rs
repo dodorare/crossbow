@@ -1,9 +1,11 @@
 mod commands;
 mod error;
+mod manifest;
 
 use clap::Clap;
 use commands::Commands;
 use error::*;
+use manifest::*;
 
 #[derive(Clap)]
 #[clap(author, about, version)]

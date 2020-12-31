@@ -1,7 +1,7 @@
 mod android;
 mod apple;
 
-use crate::error::*;
+use crate::*;
 use clap::Clap;
 
 #[derive(Clap)]

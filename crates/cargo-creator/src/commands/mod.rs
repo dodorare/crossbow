@@ -1,6 +1,6 @@
 mod build;
 
-use crate::error::*;
+use crate::*;
 use clap::Clap;
 
 #[derive(Clap)]

@@ -1,8 +1,5 @@
-mod manifest;
-
-pub use manifest::*;
-
 use crate::error::*;
+use crate::types::*;
 use std::fs::create_dir_all;
 use std::{
     fs::File,

@@ -128,7 +128,6 @@ impl AndroidNdk {
         min_sdk_version: u32,
     ) -> Result<PathBuf> {
         let sysroot_lib_dir = self.sysroot_lib_dir(build_target)?;
-
         // Look for a platform <= min_sdk_version
         let mut tmp_platform = min_sdk_version;
         while tmp_platform > 1 {
@@ -138,7 +137,6 @@ impl AndroidNdk {
             }
             tmp_platform += 1;
         }
-
         // Look for the minimum API level supported by the NDK
         let mut tmp_platform = min_sdk_version;
         while tmp_platform < 100 {
@@ -148,7 +146,6 @@ impl AndroidNdk {
             }
             tmp_platform += 1;
         }
-
         Err(AndroidError::PlatformNotFound(min_sdk_version).into())
     }
 }
