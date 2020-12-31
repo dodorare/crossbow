@@ -45,6 +45,8 @@ pub enum Error {
     CmdFailed(Command, String, String),
     /// Command {0} not found
     CmdNotFound(String),
+    /// Invalid profile: {0}
+    InvalidProfile(String),
     /// Path {0:?} doesn't exist
     PathNotFound(PathBuf),
     /// IO error

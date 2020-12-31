@@ -1,21 +1,18 @@
-use crate::builder::android::error::NdkError;
-use cargo_toml::Error as CargoTomlError;
 use displaydoc::Display;
-use std::io::Error as IoError;
 use thiserror::Error;
+
+pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Display, Debug, Error)]
 pub enum Error {
-    /// Invalid args
-    InvalidArgs,
-    /// Didn't find Cargo.toml
-    ManifestNotFound,
-    /// Didn't find rustc
-    RustcNotFound,
-    /// Failed to parse config: {0}
-    Config(#[from] CargoTomlError),
-    /// IO error: {0}
-    Io(#[from] IoError),
-    /// NDK error: {0}
-    Ndk(#[from] NdkError),
+    /// Clap error
+    ClapError(clap::Error),
+    /// Creator Tools error
+    CreatorToolsError(#[from] creator_tools::error::Error),
+}
+
+impl From<clap::Error> for Error {
+    fn from(error: clap::Error) -> Self {
+        Error::ClapError(error)
+    }
 }
