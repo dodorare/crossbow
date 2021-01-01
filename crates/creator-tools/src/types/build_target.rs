@@ -1,3 +1,4 @@
+use crate::error::{AndroidError, Result};
 pub trait IntoRustTriple {
     /// Returns the triple used by the rust build tools
     fn rust_triple(&self) -> &'static str;
@@ -39,6 +40,17 @@ impl AndroidTarget {
             Self::Aarch64LinuxAndroid => "aarch64-linux-android",
             Self::I686LinuxAndroid => "i686-linux-android",
             Self::X8664LinuxAndroid => "x86_64-linux-android",
+        }
+    }
+
+    /// Returns `AndroidTarget` for abi.
+    pub fn from_android_abi(abi: &str) -> Result<Self> {
+        match abi {
+            "armeabi-v7a" => Ok(Self::Armv7LinuxAndroideabi),
+            "arm64-v8a" => Ok(Self::Aarch64LinuxAndroid),
+            "x86" => Ok(Self::I686LinuxAndroid),
+            "x86_64" => Ok(Self::X8664LinuxAndroid),
+            _ => Err(AndroidError::UnsupportedTarget.into()),
         }
     }
 }
