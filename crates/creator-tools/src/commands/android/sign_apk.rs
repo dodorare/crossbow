@@ -19,6 +19,6 @@ pub fn sign_apk(sdk: &AndroidSdk, apk_path: &Path, key: Key) -> Result<()> {
         .arg("--ks-pass")
         .arg(format!("pass:{}", &key.password))
         .arg(apk_path);
-    apksigner.output_err()?;
+    apksigner.output_err(true)?;
     Ok(())
 }

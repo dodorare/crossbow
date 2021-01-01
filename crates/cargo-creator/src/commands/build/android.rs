@@ -27,20 +27,19 @@ impl AndroidBuildCommand {
 
         // Compile rust lib for android
         let target_sdk_version = 30;
-        let profile = Profile::Release;
         let build_target = AndroidTarget::Aarch64LinuxAndroid;
         compile_rust_for_android(
             &ndk,
             build_target,
             &path,
-            profile,
+            self.profile,
             vec![],
             target_sdk_version,
         )
         .unwrap();
         let compiled_lib = target_dir
             .join(build_target.rust_triple())
-            .join(profile.as_ref())
+            .join(&self.profile)
             .join(format!("lib{}.so", name));
         println!("Compiled lib: {:?}", compiled_lib);
         assert!(compiled_lib.exists());
@@ -66,7 +65,10 @@ impl AndroidBuildCommand {
             application_metadatas: vec![],
             activity_metadatas: vec![],
         };
-        let apk_build_dir = target_dir.join(&profile).join("apk");
+        let apk_build_dir = target_dir
+            .join(build_target.rust_triple())
+            .join(self.profile)
+            .join("apk");
         let manifest_path = gen_android_manifest(&apk_build_dir, &android_manifest).unwrap();
         assert!(manifest_path.exists());
 
@@ -89,7 +91,7 @@ impl AndroidBuildCommand {
             &unaligned_apk_path,
             &compiled_lib,
             build_target,
-            profile,
+            self.profile,
             23,
             &apk_build_dir,
             &target_dir,
@@ -108,8 +110,6 @@ impl AndroidBuildCommand {
 
         // Gen debug key for signing apk
         let key = gen_debug_key().unwrap();
-        println!("{:?}", key);
-
         // Sign apk
         sign_apk(&sdk, &aligned_apk_path, key).unwrap();
         Ok(())

@@ -1,5 +1,5 @@
 use crate::error::*;
-use simctl::{list::DeviceState, DeviceQuery, Simctl};
+use simctl::{list::DeviceState, Device, DeviceQuery, Simctl};
 use std::path::Path;
 
 pub fn launch_apple_app(
@@ -7,7 +7,7 @@ pub fn launch_apple_app(
     device_name: &str,
     bundle_id: &str,
     open: bool,
-) -> Result<()> {
+) -> Result<Device> {
     let simctl = Simctl::new();
     let device_list = simctl.list()?;
     let device = device_list
@@ -27,5 +27,5 @@ pub fn launch_apple_app(
         simctl.open()?;
     }
     result?;
-    Ok(())
+    Ok(device.clone())
 }

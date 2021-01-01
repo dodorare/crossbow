@@ -32,7 +32,7 @@ pub fn compile_rust_for_android(
     let ar = ndk.toolchain_bin("ar", build_target)?;
     cargo.env(format!("AR_{}", triple), &ar);
     cargo.env(cargo_env_target_cfg("AR", triple), &ar);
-    cargo.output_err()?;
+    cargo.output_err(true)?;
     Ok(())
 }
 

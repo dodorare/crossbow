@@ -62,7 +62,7 @@ fn aapt_add_lib(sdk: &AndroidSdk, apk_path: &Path, lib_path: &Path, out_dir: &Pa
     std::fs::copy(lib_path, &new_lib_path)?;
     let mut aapt = sdk.build_tool(bin!("aapt"))?;
     aapt.arg("add").arg(apk_path).arg(new_lib_path);
-    aapt.output_err()?;
+    aapt.output_err(true)?;
     Ok(())
 }
 
@@ -133,7 +133,7 @@ fn recursively_define_needed_libs(
 fn readelf_list_shared_libs(readelf_path: &Path, lib_path: &Path) -> Result<Vec<String>> {
     let mut readelf = std::process::Command::new(readelf_path);
     readelf.arg("-d").arg(lib_path);
-    let output = readelf.output_err()?;
+    let output = readelf.output_err(false)?;
     let mut needed = Vec::new();
     for line in output.stdout.lines() {
         let line = line?;

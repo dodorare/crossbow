@@ -88,14 +88,13 @@ fn test_apple_full() {
     assert_eq!(2, res.items.len());
 
     // Compile app
-    let out_dir = apple_rust_compile(
-        &name,
-        AppleTarget::X86_64AppleIos,
-        dir,
-        Profile::Release,
-        vec![],
-    )
-    .unwrap();
+    let build_target = AppleTarget::X86_64AppleIos;
+    let profile = Profile::Release;
+    apple_rust_compile(&name, build_target, dir, profile, vec![]).unwrap();
+    let out_dir = dir
+        .join("target")
+        .join(build_target.rust_triple())
+        .join(&profile);
 
     // Copy binary to app folder
     let bin_path = out_dir.join(&name);
@@ -106,5 +105,6 @@ fn test_apple_full() {
     gen_apple_plist(&app_dir, &properties, false).unwrap();
 
     // Install and launch on simulator
-    launch_apple_app(&app_dir, "iPhone 8", "com.test.test-id", false).unwrap();
+    let device = launch_apple_app(&app_dir, "iPhone 8", "com.test.test-id", false).unwrap();
+    device.shutdown().unwrap();
 }

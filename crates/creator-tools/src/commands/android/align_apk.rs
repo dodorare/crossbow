@@ -17,6 +17,6 @@ pub fn align_apk(
         .arg("4")
         .arg(unaligned_apk_path)
         .arg(&unsigned_apk_path);
-    zipalign.output_err()?;
+    zipalign.output_err(true)?;
     Ok(unsigned_apk_path)
 }

@@ -62,12 +62,15 @@ pub enum Error {
 }
 
 pub trait CommandExt {
-    fn output_err(self) -> Result<std::process::Output>;
+    fn output_err(self, print_logs: bool) -> Result<std::process::Output>;
 }
 
 impl CommandExt for std::process::Command {
-    fn output_err(mut self) -> Result<std::process::Output> {
-        let output = self.output()?;
+    fn output_err(mut self, print_logs: bool) -> Result<std::process::Output> {
+        let output = match print_logs {
+            true => self.spawn().and_then(|p| p.wait_with_output())?,
+            false => self.output()?,
+        };
         if !output.status.success() {
             return Err(Error::CmdFailed(
                 self,

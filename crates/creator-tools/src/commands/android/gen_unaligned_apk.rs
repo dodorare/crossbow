@@ -32,6 +32,6 @@ pub fn gen_unaligned_apk(
     if let Some(assets) = &assets {
         aapt.arg("-A").arg(dunce::simplified(assets));
     }
-    aapt.output_err()?;
+    aapt.output_err(true)?;
     Ok(apk_path)
 }

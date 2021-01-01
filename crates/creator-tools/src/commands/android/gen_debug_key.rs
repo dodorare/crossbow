@@ -28,7 +28,7 @@ pub fn gen_debug_key() -> Result<Key> {
             .arg("2048")
             .arg("-validity")
             .arg("10000");
-        keytool.output_err()?;
+        keytool.output_err(true)?;
     }
     Ok(Key { path, password })
 }
