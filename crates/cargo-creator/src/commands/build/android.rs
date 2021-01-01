@@ -37,10 +37,10 @@ impl AndroidBuildCommand {
             target_sdk_version,
         )
         .unwrap();
-        let compiled_lib = target_dir
+        let out_dir = target_dir
             .join(build_target.rust_triple())
-            .join(&self.profile)
-            .join(format!("lib{}.so", name));
+            .join(&self.profile);
+        let compiled_lib = out_dir.join(format!("lib{}.so", name));
         println!("Compiled lib: {:?}", compiled_lib);
         assert!(compiled_lib.exists());
 
@@ -65,10 +65,7 @@ impl AndroidBuildCommand {
             application_metadatas: vec![],
             activity_metadatas: vec![],
         };
-        let apk_build_dir = target_dir
-            .join(build_target.rust_triple())
-            .join(self.profile)
-            .join("apk");
+        let apk_build_dir = out_dir.join("apk");
         let manifest_path = gen_android_manifest(&apk_build_dir, &android_manifest).unwrap();
         assert!(manifest_path.exists());
 

@@ -2,8 +2,6 @@
 
 use creator_tools::types::*;
 use creator_tools::*;
-use fs_extra::dir::{ls, DirEntryAttr, DirEntryValue};
-use std::collections::HashSet;
 
 fn get_minimal_info_plist(name: &str) -> InfoPlist {
     InfoPlist {
@@ -65,27 +63,8 @@ fn test_apple_full() {
     std::fs::create_dir(&target_dir).unwrap();
 
     // Generate app folder
-    let app_dir = gen_apple_app(
-        &target_dir,
-        &name,
-        Some(dir.join("src")),
-        Some(dir.join("src")),
-    )
-    .unwrap();
+    let app_dir = gen_apple_app(&target_dir, &name, None, None).unwrap();
     assert!(app_dir.exists());
-
-    // Check app dir
-    let mut config = HashSet::new();
-    config.insert(DirEntryAttr::FullName);
-    let res = ls(&app_dir, &config).unwrap();
-    res.items.iter().for_each(|vec| {
-        vec.iter().for_each(|(_, value)| {
-            if let DirEntryValue::String(val) = value {
-                println!("value: {:?}", val)
-            }
-        })
-    });
-    assert_eq!(2, res.items.len());
 
     // Compile app
     let build_target = AppleTarget::X86_64AppleIos;
@@ -105,6 +84,12 @@ fn test_apple_full() {
     gen_apple_plist(&app_dir, &properties, false).unwrap();
 
     // Install and launch on simulator
-    let device = launch_apple_app(&app_dir, "iPhone 8", "com.test.test-id", false).unwrap();
+    let device = launch_apple_app(
+        &app_dir,
+        "iPhone 8",
+        &properties.identification.bundle_identifier,
+        false,
+    )
+    .unwrap();
     device.shutdown().unwrap();
 }

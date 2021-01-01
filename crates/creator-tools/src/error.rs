@@ -47,6 +47,8 @@ pub enum Error {
     CmdNotFound(String),
     /// Invalid profile: {0}
     InvalidProfile(String),
+    /// Invalid interface orientation: {0:?}
+    InvalidInterfaceOrientation(String),
     /// Path {0:?} doesn't exist
     PathNotFound(PathBuf),
     /// IO error

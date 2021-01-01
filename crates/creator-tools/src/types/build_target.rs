@@ -1,4 +1,6 @@
 use crate::error::{AndroidError, Result};
+use serde::{Deserialize, Serialize};
+
 pub trait IntoRustTriple {
     /// Returns the triple used by the rust build tools
     fn rust_triple(&self) -> &'static str;
@@ -66,12 +68,17 @@ impl IntoRustTriple for AndroidTarget {
     }
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub enum AppleTarget {
+    #[serde(rename = "x86_64-apple-ios")]
     X86_64AppleIos,
+    #[serde(rename = "i386-apple-ios")]
     I386AppleIos,
+    #[serde(rename = "aarch64-apple-ios")]
     Aarch64AppleIos,
+    #[serde(rename = "armv7-apple-ios")]
     Armv7AppleIos,
+    #[serde(rename = "armv7s-apple-ios")]
     Armv7sAppleIos,
 }
 

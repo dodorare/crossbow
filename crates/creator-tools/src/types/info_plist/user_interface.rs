@@ -9,7 +9,7 @@
 ///
 use super::{serialize_enum_option, serialize_vec_enum_option};
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, str::FromStr};
 
 /// Main User Interface.
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Default)]
@@ -448,6 +448,20 @@ pub enum InterfaceOrientation {
     /// The app supports the display in landscape mode, with the device upright and the front camera on the right.
     #[serde(rename = "UIInterfaceOrientationLandscapeRight")]
     LandscapeRight,
+}
+
+impl FromStr for InterfaceOrientation {
+    type Err = crate::error::Error;
+
+    fn from_str(s: &str) -> Result<InterfaceOrientation, Self::Err> {
+        match s {
+            "portrait" => Ok(InterfaceOrientation::Portrait),
+            "portrait-upside-down" => Ok(InterfaceOrientation::PortraitUpsideDown),
+            "landscape-left" => Ok(InterfaceOrientation::LandscapeLeft),
+            "landscape-right" => Ok(InterfaceOrientation::LandscapeRight),
+            _ => Err(Self::Err::InvalidInterfaceOrientation(s.to_owned())),
+        }
+    }
 }
 
 /// Bundle Icons.

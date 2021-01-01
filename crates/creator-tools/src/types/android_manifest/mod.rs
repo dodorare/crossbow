@@ -1,8 +1,6 @@
 mod inner;
-mod metadata;
 
 pub use inner::*;
-pub use metadata::*;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
