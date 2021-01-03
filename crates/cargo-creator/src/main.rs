@@ -10,7 +10,6 @@ use error::*;
 use log::LevelFilter;
 use manifest::*;
 use std::path::PathBuf;
-use utils::*;
 
 #[derive(Clap)]
 #[clap(author, about, version)]

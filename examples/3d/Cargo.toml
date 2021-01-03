@@ -39,5 +39,5 @@ bundle_info_dictionary_version = "1.0"
 bundle_short_version_string = "1.0"
 bundle_package_type = "APPL"
 launch_storyboard_name = "launch_storyboard_name"
-requires_full_screen = true
+requires_full_screen = false
 supported_interface_orientations = ["portrait", "portrait-upside-down", "landscape-left", "landscape-right"]
