@@ -30,31 +30,14 @@ assets = "assets"
 res = "res/apple"
 
 [package.metadata.apple.info-plist]
-CFBundleName = "Creator 3D"
-CFBundleIdentifier = "com.enfipy.threed"
-CFBundleExecutable = "threed"
-CFBundleDevelopmentRegion = "en"
-CFBundleVersion = "1"
-CFBundleInfoDictionaryVersion = "1.0"
-CFBundleShortVersionString = "1.0"
-CFBundlePackageType = "APPL"
-UILaunchStoryboardName = "launch_storyboard_name"
-UIRequiresFullScreen = false
-UISupportedInterfaceOrientations = [
-    "UIInterfaceOrientationPortrait",
-    "UIInterfaceOrientationPortraitUpsideDown",
-    "UIInterfaceOrientationLandscapeLeft",
-    "UIInterfaceOrientationLandscapeRight",
-]
-
-# bundle_name = "Creator 3D"
-# bundle_identifier = "com.enfipy.threed"
-# bundle_executable = "threed"
-# bundle_development_region = "en"
-# bundle_version = "1"
-# bundle_info_dictionary_version = "1.0"
-# bundle_short_version_string = "1.0"
-# bundle_package_type = "APPL"
-# launch_storyboard_name = "launch_storyboard_name"
-# requires_full_screen = false
-# supported_interface_orientations = ["portrait", "portrait-upside-down", "landscape-left", "landscape-right"]
+bundle_name = "Creator 3D"
+bundle_identifier = "com.enfipy.threed"
+bundle_executable = "threed"
+bundle_development_region = "en"
+bundle_version = "1"
+bundle_info_dictionary_version = "1.0"
+bundle_short_version_string = "1.0"
+bundle_package_type = "APPL"
+launch_storyboard_name = "launch_storyboard_name"
+requires_full_screen = true
+supported_interface_orientations = ["portrait", "portrait-upside-down", "landscape-left", "landscape-right"]

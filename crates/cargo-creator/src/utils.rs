@@ -29,5 +29,5 @@ fn find_manifest_path(current_dir: &Path, workspace: bool) -> Result<PathBuf> {
         ));
     }
     let workspace_path = String::from_utf8(output.stdout).unwrap();
-    Ok(PathBuf::from(workspace_path))
+    Ok(PathBuf::from(workspace_path.replace("\n", "")))
 }
