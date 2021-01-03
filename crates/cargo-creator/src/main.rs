@@ -40,11 +40,18 @@ fn run() -> std::result::Result<(), Box<dyn std::error::Error>> {
 }
 
 fn handle_errors(run: impl FnOnce() -> std::result::Result<(), Box<dyn std::error::Error>>) {
-    if let Err(err) = run() {
-        eprintln!("{}: {}", "error".red().bold(), err);
-        if let Some(source) = err.source() {
-            eprintln!("{}: {}", "caused by".red().bold(), source);
-        }
+    if let Err(error) = run() {
+        eprintln!("{}: {}", "error".red().bold(), error);
+        handle_error_source(error.source());
         std::process::exit(1);
     };
+}
+
+fn handle_error_source(source: Option<&(dyn std::error::Error + 'static)>) {
+    if let Some(error) = source {
+        if let Some(source) = error.source() {
+            eprintln!("{}: {}", "caused by".red().bold(), source);
+            handle_error_source(source.source());
+        }
+    }
 }
