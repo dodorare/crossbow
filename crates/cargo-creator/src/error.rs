@@ -5,10 +5,14 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Display, Debug, Error)]
 pub enum Error {
+    /// Failed to find manifest: {0}
+    FailedToFindManifest(String),
+    /// IO error
+    Io(#[from] std::io::Error),
     /// Clap error
-    ClapError(#[from] clap::Error),
+    Clap(#[from] clap::Error),
     /// Cargo toml parse error
-    CargoTomlError(#[from] cargo_toml::Error),
+    CargoToml(#[from] cargo_toml::Error),
     /// Creator Tools error
-    CreatorToolsError(#[from] creator_tools::error::Error),
+    CreatorTools(#[from] creator_tools::error::Error),
 }

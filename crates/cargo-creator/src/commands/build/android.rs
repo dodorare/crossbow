@@ -2,6 +2,7 @@ use crate::*;
 use clap::Clap;
 use creator_tools::types::*;
 use creator_tools::*;
+use std::path::PathBuf;
 
 #[derive(Clap)]
 pub struct AndroidBuildCommand {
@@ -11,10 +12,10 @@ pub struct AndroidBuildCommand {
 }
 
 impl AndroidBuildCommand {
-    pub fn run(&self) -> Result<()> {
-        let path = std::env::current_dir().unwrap();
-        let target_dir = path.join("..").join("..").join("target");
+    pub fn run(&self, current_dir: PathBuf) -> Result<()> {
+        let path = &current_dir;
         let manifest = Manifest::from_path_with_metadata(path.join("Cargo.toml"))?;
+        let target_dir = path.join("..").join("..").join("target");
         let package = manifest.package.unwrap();
         let metadata = package.metadata.unwrap().android;
         let name = package.name;

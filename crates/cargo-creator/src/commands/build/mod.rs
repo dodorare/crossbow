@@ -3,6 +3,7 @@ mod apple;
 
 use crate::*;
 use clap::Clap;
+use std::path::PathBuf;
 
 #[derive(Clap)]
 pub struct BuildCommand {
@@ -11,10 +12,10 @@ pub struct BuildCommand {
 }
 
 impl BuildCommand {
-    pub fn handle_command(&self) -> Result<()> {
+    pub fn handle_command(&self, current_dir: PathBuf) -> Result<()> {
         match &self.cmd {
-            BuildCommandInner::Android(cmd) => cmd.run(),
-            BuildCommandInner::Apple(cmd) => cmd.run(),
+            BuildCommandInner::Android(cmd) => cmd.run(current_dir),
+            BuildCommandInner::Apple(cmd) => cmd.run(current_dir),
         }
     }
 }

@@ -68,6 +68,8 @@ impl IntoRustTriple for AndroidTarget {
     }
 }
 
+/// Apple Target architectures.
+/// List of Apple processors: https://en.wikipedia.org/wiki/Apple-designed_processors#List_of_Apple_processors.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub enum AppleTarget {
     #[serde(rename = "x86_64-apple-ios")]

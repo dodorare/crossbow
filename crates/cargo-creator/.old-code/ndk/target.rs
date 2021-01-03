@@ -4,7 +4,7 @@ use serde::Deserialize;
 #[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq)]
 #[repr(u8)]
 pub enum Target {
-    #[serde(rename = "armv7-linux-androideabi")]
+    #[serde(rename(serialize = "armv7-linux-androideabi"))]
     ArmV7a = 1,
     #[serde(rename = "aarch64-linux-android")]
     Arm64V8a = 2,

@@ -2,6 +2,7 @@ mod build;
 
 use crate::*;
 use clap::Clap;
+use std::path::PathBuf;
 
 #[derive(Clap)]
 pub enum Commands {
@@ -9,9 +10,9 @@ pub enum Commands {
 }
 
 impl Commands {
-    pub fn handle_command(&self) -> Result<()> {
+    pub fn handle_command(&self, current_dir: PathBuf) -> Result<()> {
         match self {
-            Commands::Build(cmd) => cmd.handle_command(),
+            Commands::Build(cmd) => cmd.handle_command(current_dir),
         }
     }
 }
