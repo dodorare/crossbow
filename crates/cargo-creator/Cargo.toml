@@ -24,7 +24,7 @@ dunce = "1.0"
 thiserror = "1.0"
 colored = "2.0"
 displaydoc = "0.1"
-env_logger = "0.8"
+pretty_env_logger = "0.4"
 log = "0.4"
 
 # dirs = "2.0.2"

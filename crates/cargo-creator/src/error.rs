@@ -5,6 +5,10 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Display, Debug, Error)]
 pub enum Error {
+    /// Invalid manifest
+    InvalidManifest,
+    /// Invalid metadata in manifest
+    InvalidManifestMetadata,
     /// Failed to find manifest: {0}
     FailedToFindManifest(String),
     /// IO error

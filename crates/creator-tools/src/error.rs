@@ -69,7 +69,9 @@ pub trait CommandExt {
 
 impl CommandExt for std::process::Command {
     fn output_err(mut self, print_logs: bool) -> Result<std::process::Output> {
-        let output = match print_logs {
+        // Enables log print during command execution.
+        // If log::LevelFilter::Error flag enabled - print only errors
+        let output = match log::max_level() > log::LevelFilter::Error && print_logs {
             true => self.spawn().and_then(|p| p.wait_with_output())?,
             false => self.output()?,
         };
