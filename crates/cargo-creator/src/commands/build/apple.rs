@@ -7,18 +7,27 @@ use std::path::PathBuf;
 
 #[derive(Clap)]
 pub struct AppleBuildCommand {
-    /// Build in release mode
+    /// Build in release mode.
     #[clap(long)]
     pub release: bool,
-    /// Target directory path
+    /// Target directory path.
     #[clap(short, long)]
     pub target_dir: Option<PathBuf>,
-    /// Provisioning profile name to find in this directory: "~/Library/MobileDevice/Provisioning\ Profiles/"
-    #[clap(short, long)]
-    provisioning_profile_name: Option<String>,
-    /// Absolute path to provisioning profile
-    #[clap(short, long)]
-    provisioning_profile_path: Option<PathBuf>,
+    /// Specify custom cargo binary.
+    #[clap(long)]
+    pub bin: Option<String>,
+    /// Provisioning profile name to find in this directory: "~/Library/MobileDevice/Provisioning\ Profiles/".
+    #[clap(long)]
+    pub profile_name: Option<String>,
+    /// Absolute path to provisioning profile.
+    #[clap(long)]
+    pub profile_path: Option<PathBuf>,
+    /// The team identifier of your signing identity.
+    #[clap(long)]
+    pub team_identifier: Option<String>,
+    /// The id of the identity used for signing.
+    #[clap(long)]
+    pub identity: Option<String>,
 }
 
 impl AppleBuildCommand {
@@ -66,22 +75,31 @@ impl AppleBuildCommand {
         std::fs::copy(&bin_path, &app_dir.join(&name)).unwrap();
         log::info!("Generating Info.plist");
         gen_apple_plist(&app_dir, properties, false).unwrap();
-        log::info!("Build finished successfully");
-        // TODO: Support apple silicon simulators
+        // TODO: Support apple silicon simulators without signing
         if build_target != AppleTarget::X86_64AppleIos {
             log::info!("Starting code signing process");
-            let profile_path = if let Some(path) = self.provisioning_profile_path.clone() {
-                path
-            } else if let Some(name) = self.provisioning_profile_name.clone() {
-                let profiles_path = "~/Library/MobileDevice/Provisioning Profiles";
-                format!("{}/{}", profiles_path, name).into()
-            } else {
-                return Err(Error::CodeSigningFlagsNotProvided);
-            };
-            log::info!("Profile path: {:?}", profile_path);
-            // profile_path
-            // codesign(&app_dir, true, None, None)?;
+            copy_profile(
+                &app_dir,
+                self.profile_name.clone(),
+                self.profile_path.clone(),
+            )?;
+            log::info!("Generating xcent file");
+            let xcent_path = gen_xcent(
+                &app_dir,
+                &name,
+                self.team_identifier
+                    .as_ref()
+                    .ok_or(Error::TeamIdentifierNotProvided)?,
+                &properties.identification.bundle_identifier,
+                false,
+            )?;
+            log::info!("Signing the binary");
+            codesign(&app_dir.join(&name), true, self.identity.clone(), None)?;
+            log::info!("Signing the bundle itself");
+            codesign(&app_dir, true, self.identity.clone(), Some(xcent_path))?;
+            log::info!("Code signing process finished");
         }
+        log::info!("Build finished successfully");
         Ok((metadata, app_dir))
     }
 }

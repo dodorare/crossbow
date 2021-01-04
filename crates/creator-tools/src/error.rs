@@ -27,6 +27,10 @@ pub enum AndroidError {
 
 #[derive(Display, Debug, Error)]
 pub enum AppleError {
+    /// Code signing profile not found
+    CodeSigningProfilesNotFound,
+    /// Code signing profile not provided
+    CodeSigningProfileNotProvided,
     /// Codesign failed {0}
     CodesignFailed(String),
     /// Codesign allocate not found

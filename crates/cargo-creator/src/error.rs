@@ -5,8 +5,8 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Display, Debug, Error)]
 pub enum Error {
-    /// Code signing flags not provided
-    CodeSigningFlagsNotProvided,
+    /// Team identifier not provided
+    TeamIdentifierNotProvided,
     /// Invalid manifest
     InvalidManifest,
     /// Invalid metadata in manifest
