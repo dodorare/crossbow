@@ -1,4 +1,4 @@
-// mod android;
+mod android;
 mod apple;
 
 use crate::*;
@@ -14,7 +14,7 @@ pub struct RunCommand {
 impl RunCommand {
     pub fn handle_command(&self, current_dir: PathBuf) -> Result<()> {
         match &self.cmd {
-            // RunCommandInner::Android(cmd) => cmd.run(current_dir),
+            RunCommandInner::Android(cmd) => cmd.run(current_dir),
             RunCommandInner::Apple(cmd) => cmd.run(current_dir),
         }
     }
@@ -22,6 +22,6 @@ impl RunCommand {
 
 #[derive(Clap)]
 pub enum RunCommandInner {
-    // Android(android::AndroidRunCommand),
+    Android(android::AndroidRunCommand),
     Apple(apple::AppleRunCommand),
 }

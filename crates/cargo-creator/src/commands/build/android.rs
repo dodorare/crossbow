@@ -1,3 +1,4 @@
+use super::BuildContext;
 use crate::*;
 use clap::Clap;
 use creator_tools::types::*;
@@ -9,18 +10,36 @@ pub struct AndroidBuildCommand {
     /// Build profile. Can be one of: debug, release
     #[clap(short, long, default_value = "debug")]
     pub profile: Profile,
+    /// Target directory path
+    #[clap(short, long)]
+    pub target_dir: Option<PathBuf>,
 }
 
 impl AndroidBuildCommand {
     pub fn run(&self, current_dir: PathBuf) -> Result<()> {
-        let path = &current_dir;
-        let manifest = Manifest::from_path_with_metadata(path.join("Cargo.toml"))?;
-        let target_dir = path.join("..").join("..").join("target");
-        let package = manifest.package.unwrap();
-        let metadata = package.metadata.unwrap().android;
-        let name = package.name;
+        let build_context = BuildContext::init(&current_dir, self.target_dir.clone())?;
+        self.execute(&build_context)?;
+        Ok(())
+    }
 
-        println!("Metadata: {:?}", metadata);
+    pub fn execute(
+        &self,
+        build_context: &BuildContext,
+    ) -> Result<(String, AndroidSdk, AndroidMetadata, PathBuf)> {
+        log::info!("Starting build process");
+        let package = build_context
+            .manifest
+            .package
+            .clone()
+            .ok_or(Error::InvalidManifest)?;
+        let metadata = package
+            .metadata
+            .clone()
+            .ok_or(Error::InvalidManifestMetadata)?
+            .android;
+        let project_path = build_context.project_path.clone();
+        let target_dir = build_context.target_dir.clone();
+        let package_name = package.name;
 
         // Create dependencies
         let sdk = AndroidSdk::from_env().unwrap();
@@ -32,7 +51,7 @@ impl AndroidBuildCommand {
         compile_rust_for_android(
             &ndk,
             build_target,
-            &path,
+            &project_path,
             self.profile,
             vec![],
             target_sdk_version,
@@ -41,18 +60,18 @@ impl AndroidBuildCommand {
         let out_dir = target_dir
             .join(build_target.rust_triple())
             .join(&self.profile);
-        let compiled_lib = out_dir.join(format!("lib{}.so", name));
+        let compiled_lib = out_dir.join(format!("lib{}.so", package_name));
         println!("Compiled lib: {:?}", compiled_lib);
         assert!(compiled_lib.exists());
 
         // Gen android manifest
         let android_manifest = AndroidManifest {
-            package_name: format!("rust.{}", name.replace("-", "_")),
-            package_label: name.to_owned(),
+            package_name: format!("rust.{}", package_name.replace("-", "_")),
+            package_label: package_name.to_owned(),
             version_name: "1.2.3".to_owned(),
             version_code: VersionCode::from_semver("1.2.3").unwrap().to_code(1),
             split: None,
-            target_name: name.replace("-", "_"),
+            target_name: package_name.replace("-", "_"),
             debuggable: false,
             target_sdk_version,
             min_sdk_version: 23,
@@ -110,6 +129,6 @@ impl AndroidBuildCommand {
         let key = gen_debug_key().unwrap();
         // Sign apk
         sign_apk(&sdk, &aligned_apk_path, key).unwrap();
-        Ok(())
+        Ok((package_name, sdk, metadata, aligned_apk_path))
     }
 }
