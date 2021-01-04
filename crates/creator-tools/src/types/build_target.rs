@@ -57,6 +57,20 @@ impl AndroidTarget {
     }
 }
 
+impl std::str::FromStr for AndroidTarget {
+    type Err = AndroidError;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        match s {
+            "armv7-linux-androideabi" => Ok(Self::Armv7LinuxAndroideabi),
+            "aarch64-linux-android" => Ok(Self::Aarch64LinuxAndroid),
+            "i686-linux-android" => Ok(Self::I686LinuxAndroid),
+            "x86_64-linux-android" => Ok(Self::X8664LinuxAndroid),
+            _ => Err(AndroidError::InvalidBuildTarget(s.to_owned())),
+        }
+    }
+}
+
 impl IntoRustTriple for AndroidTarget {
     fn rust_triple(&self) -> &'static str {
         match self {

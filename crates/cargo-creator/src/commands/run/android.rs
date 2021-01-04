@@ -13,7 +13,7 @@ pub struct AndroidRunCommand {
 impl AndroidRunCommand {
     pub fn run(&self, current_dir: PathBuf) -> Result<()> {
         let build_context =
-            BuildContext::init(&current_dir, self.build_command.target_dir.clone())?;
+            BuildContext::init(&current_dir, self.build_command.shared.target_dir.clone())?;
         let (package_name, sdk, _metadata, apk_path) =
             self.build_command.execute(&build_context)?;
         log::info!("Starting run process");

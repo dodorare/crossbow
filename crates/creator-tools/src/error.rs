@@ -23,6 +23,8 @@ pub enum AndroidError {
     UnsupportedHost(String),
     /// Invalid semver
     InvalidSemver,
+    /// Unsupported or invalid target: {0}
+    InvalidBuildTarget(String),
 }
 
 #[derive(Display, Debug, Error)]

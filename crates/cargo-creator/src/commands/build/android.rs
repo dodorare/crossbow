@@ -1,4 +1,4 @@
-use super::BuildContext;
+use super::{BuildContext, SharedBuildCommand};
 use crate::*;
 use clap::Clap;
 use creator_tools::types::*;
@@ -7,17 +7,17 @@ use std::path::PathBuf;
 
 #[derive(Clap)]
 pub struct AndroidBuildCommand {
-    /// Build profile. Can be one of: debug, release
-    #[clap(short, long, default_value = "debug")]
-    pub profile: Profile,
-    /// Target directory path
-    #[clap(short, long)]
-    pub target_dir: Option<PathBuf>,
+    #[clap(flatten)]
+    pub shared: SharedBuildCommand,
+    /// Build for the given android architecture. Supported targets are: `armv7-linux-androideabi`,
+    /// `aarch64-linux-android`, `i686-linux-android`, `x86_64-linux-android`
+    #[clap(long, default_value = "aarch64-linux-android")]
+    pub target: Vec<AndroidTarget>,
 }
 
 impl AndroidBuildCommand {
     pub fn run(&self, current_dir: PathBuf) -> Result<()> {
-        let build_context = BuildContext::init(&current_dir, self.target_dir.clone())?;
+        let build_context = BuildContext::init(&current_dir, self.shared.target_dir.clone())?;
         self.execute(&build_context)?;
         Ok(())
     }
@@ -40,6 +40,10 @@ impl AndroidBuildCommand {
         let project_path = build_context.project_path.clone();
         let target_dir = build_context.target_dir.clone();
         let package_name = package.name;
+        let profile = match self.shared.release {
+            true => Profile::Release,
+            false => Profile::Debug,
+        };
 
         // Create dependencies
         let sdk = AndroidSdk::from_env().unwrap();
@@ -52,14 +56,12 @@ impl AndroidBuildCommand {
             &ndk,
             build_target,
             &project_path,
-            self.profile,
+            profile,
             vec![],
             target_sdk_version,
         )
         .unwrap();
-        let out_dir = target_dir
-            .join(build_target.rust_triple())
-            .join(&self.profile);
+        let out_dir = target_dir.join(build_target.rust_triple()).join(&profile);
         let compiled_lib = out_dir.join(format!("lib{}.so", package_name));
         println!("Compiled lib: {:?}", compiled_lib);
         assert!(compiled_lib.exists());
@@ -108,7 +110,7 @@ impl AndroidBuildCommand {
             &unaligned_apk_path,
             &compiled_lib,
             build_target,
-            self.profile,
+            profile,
             23,
             &apk_build_dir,
             &target_dir,
