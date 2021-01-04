@@ -7,19 +7,23 @@ use std::path::Path;
 /// Compile rust lib for android.
 pub fn compile_rust_for_android(
     ndk: &AndroidNdk,
+    target: Target,
     build_target: AndroidTarget,
     project_path: &Path,
     profile: Profile,
-    cargo_args: Vec<String>,
+    features: Vec<String>,
+    all_features: bool,
+    no_default_features: bool,
     target_sdk_version: u32,
 ) -> Result<()> {
-    let target = Target::Lib;
     let crate_types = vec![CrateType::Cdylib];
     let mut cargo = cargo_rustc_command(
         &target,
         project_path,
         &profile,
-        &cargo_args,
+        &features,
+        all_features,
+        no_default_features,
         &build_target.into(),
         &crate_types,
     );

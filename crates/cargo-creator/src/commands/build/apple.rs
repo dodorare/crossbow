@@ -1,49 +1,47 @@
-use super::BuildContext;
+use super::{BuildContext, SharedBuildCommand};
 use crate::*;
-use clap::Clap;
+use clap::{ArgGroup, Clap};
 use creator_tools::types::*;
 use creator_tools::*;
 use std::path::PathBuf;
 
 #[derive(Clap)]
+#[clap(group = ArgGroup::new("signing").requires_all(&["profile-name", "profile-path", "team-identifier", "identity"]))]
 pub struct AppleBuildCommand {
-    /// Build in release mode.
-    #[clap(long)]
-    pub release: bool,
-    /// Target directory path.
-    #[clap(short, long)]
-    pub target_dir: Option<PathBuf>,
+    #[clap(flatten)]
+    pub shared: SharedBuildCommand,
     /// Specify custom cargo binary.
-    #[clap(long)]
+    #[clap(long, conflicts_with = "example")]
     pub bin: Option<String>,
     /// Provisioning profile name to find in this directory: "~/Library/MobileDevice/Provisioning\ Profiles/".
-    #[clap(long)]
+    #[clap(long, group = "signing")]
     pub profile_name: Option<String>,
     /// Absolute path to provisioning profile.
-    #[clap(long)]
+    #[clap(long, group = "signing")]
     pub profile_path: Option<PathBuf>,
     /// The team identifier of your signing identity.
-    #[clap(long)]
+    #[clap(long, group = "signing")]
     pub team_identifier: Option<String>,
     /// The id of the identity used for signing.
-    #[clap(long)]
+    #[clap(long, group = "signing")]
     pub identity: Option<String>,
 }
 
 impl AppleBuildCommand {
     pub fn run(&self, current_dir: PathBuf) -> Result<()> {
-        let build_context = BuildContext::init(&current_dir, self.target_dir.clone())?;
+        let build_context = BuildContext::init(&current_dir, self.shared.target_dir.clone())?;
         self.execute(&build_context)?;
         Ok(())
     }
 
     pub fn execute(&self, build_context: &BuildContext) -> Result<(AppleMetadata, PathBuf)> {
         log::info!("Starting build process");
-        let metadata = build_context
+        let package = build_context
             .manifest
             .package
             .as_ref()
-            .ok_or(Error::InvalidManifest)?
+            .ok_or(Error::InvalidManifest)?;
+        let metadata = package
             .metadata
             .as_ref()
             .ok_or(Error::InvalidManifestMetadata)?
@@ -51,14 +49,32 @@ impl AppleBuildCommand {
             .clone();
         let properties = &metadata.info_plist;
         let project_path = &build_context.project_path;
-        let name = properties.launch.bundle_executable.clone().unwrap();
-        let profile = match self.release {
+        let profile = match self.shared.release {
             true => Profile::Release,
             false => Profile::Debug,
         };
+        let name;
+        let target = if let Some(example) = self.shared.example.clone() {
+            name = example;
+            Target::Example(name.clone())
+        } else if let Some(bin) = self.bin.clone() {
+            name = bin;
+            Target::Bin(name.clone())
+        } else {
+            name = package.name.clone();
+            Target::Bin(name.clone())
+        };
         log::info!("Compiling app");
         let build_target = metadata.build_targets.as_ref().unwrap()[0];
-        apple_rust_compile(&name, build_target, &project_path, profile, vec![])?;
+        apple_rust_compile(
+            target,
+            build_target,
+            &project_path,
+            profile,
+            self.shared.features.clone(),
+            self.shared.all_features,
+            self.shared.no_default_features,
+        )?;
         let out_dir = build_context
             .target_dir
             .join(build_target.rust_triple())
@@ -68,8 +84,8 @@ impl AppleBuildCommand {
         let app_dir = gen_apple_app(
             &build_context.target_dir,
             &name,
-            Some(project_path.join(metadata.resources.as_ref().unwrap())),
-            Some(project_path.join(metadata.assets.as_ref().unwrap())),
+            metadata.resources.as_ref().map(|r| project_path.join(r)),
+            metadata.assets.as_ref().map(|r| project_path.join(r)),
         )?;
         log::info!("Coping binary to app folder");
         std::fs::copy(&bin_path, &app_dir.join(&name)).unwrap();

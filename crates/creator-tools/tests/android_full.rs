@@ -41,7 +41,18 @@ fn test_android_full() {
     let target_sdk_version = 30;
     let profile = Profile::Release;
     let build_target = AndroidTarget::Aarch64LinuxAndroid;
-    compile_rust_for_android(&ndk, build_target, dir, profile, vec![], target_sdk_version).unwrap();
+    compile_rust_for_android(
+        &ndk,
+        Target::Lib,
+        build_target,
+        dir,
+        profile,
+        vec![],
+        false,
+        false,
+        target_sdk_version,
+    )
+    .unwrap();
     let out_dir = dir
         .join("target")
         .join(build_target.rust_triple())

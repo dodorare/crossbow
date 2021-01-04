@@ -21,4 +21,6 @@ pub enum Error {
     CargoToml(#[from] cargo_toml::Error),
     /// Creator Tools error
     CreatorTools(#[from] creator_tools::error::Error),
+    // /// Specified bin and example
+    // InvalidManifestMetadata,
 }

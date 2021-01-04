@@ -69,7 +69,16 @@ fn test_apple_full() {
     // Compile app
     let build_target = AppleTarget::X86_64AppleIos;
     let profile = Profile::Release;
-    apple_rust_compile(&name, build_target, dir, profile, vec![]).unwrap();
+    apple_rust_compile(
+        Target::Bin(name),
+        build_target,
+        dir,
+        profile,
+        vec![],
+        false,
+        false,
+    )
+    .unwrap();
     let out_dir = dir
         .join("target")
         .join(build_target.rust_triple())

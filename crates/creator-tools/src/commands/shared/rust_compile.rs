@@ -7,24 +7,32 @@ pub fn cargo_rustc_command(
     target: &Target,
     project_path: &Path,
     profile: &Profile,
-    cargo_args: &[String],
+    features: &[String],
+    all_features: bool,
+    no_default_features: bool,
     build_target: &BuildTarget,
     crate_types: &[CrateType],
 ) -> ProcessCommand {
     let mut cargo = ProcessCommand::new("cargo");
     cargo.arg("rustc");
     match &target {
-        Target::Bin(name) => cargo.args(&["--bin", &name]),
-        Target::Example(name) => cargo.args(&["--example", &name]),
+        Target::Bin(name) => cargo.args(&["--bin", name]),
+        Target::Example(name) => cargo.args(&["--example", name]),
         Target::Lib => cargo.arg("--lib"),
     };
     cargo.current_dir(project_path);
     if profile == &Profile::Release {
         cargo.arg("--release");
     };
-    for arg in cargo_args.iter() {
-        cargo.arg(arg);
+    for feature in features.iter() {
+        cargo.args(&["--feature", feature]);
     }
+    if all_features {
+        cargo.arg("--all-features");
+    };
+    if no_default_features {
+        cargo.arg("--no-default-features");
+    };
     let triple = build_target.rust_triple();
     cargo.args(&["--target", &triple]);
     if !crate_types.is_empty() {

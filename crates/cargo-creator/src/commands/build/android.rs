@@ -44,6 +44,11 @@ impl AndroidBuildCommand {
             true => Profile::Release,
             false => Profile::Debug,
         };
+        let target = if let Some(example) = self.shared.example.clone() {
+            Target::Example(example)
+        } else {
+            Target::Lib
+        };
 
         // Create dependencies
         let sdk = AndroidSdk::from_env().unwrap();
@@ -54,10 +59,13 @@ impl AndroidBuildCommand {
         let build_target = AndroidTarget::Aarch64LinuxAndroid;
         compile_rust_for_android(
             &ndk,
+            target,
             build_target,
             &project_path,
             profile,
-            vec![],
+            self.shared.features.clone(),
+            self.shared.all_features,
+            self.shared.no_default_features,
             target_sdk_version,
         )
         .unwrap();

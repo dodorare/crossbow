@@ -20,7 +20,7 @@ pub struct AppleRunCommand {
 impl AppleRunCommand {
     pub fn run(&self, current_dir: PathBuf) -> Result<()> {
         let build_context =
-            BuildContext::init(&current_dir, self.build_command.target_dir.clone())?;
+            BuildContext::init(&current_dir, self.build_command.shared.target_dir.clone())?;
         let (metadata, app_dir) = self.build_command.execute(&build_context)?;
         log::info!("Starting run process");
         let bundle_id = &metadata.info_plist.identification.bundle_identifier;

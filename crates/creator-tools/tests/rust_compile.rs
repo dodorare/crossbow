@@ -11,10 +11,13 @@ fn test_compile_android() {
     let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
     compile_rust_for_android(
         &ndk,
+        Target::Lib,
         AndroidTarget::Aarch64LinuxAndroid,
         dir,
         Profile::Release,
         vec![],
+        false,
+        false,
         30,
     )
     .unwrap();

@@ -4,17 +4,21 @@ use crate::types::*;
 use std::path::Path;
 
 pub fn apple_rust_compile(
-    target_name: &str,
+    target: Target,
     build_target: AppleTarget,
     project_path: &Path,
     profile: Profile,
-    cargo_args: Vec<String>,
+    features: Vec<String>,
+    all_features: bool,
+    no_default_features: bool,
 ) -> Result<()> {
     let cargo = cargo_rustc_command(
-        &Target::Bin(target_name.to_owned()),
+        &target,
         project_path,
         &profile,
-        &cargo_args,
+        &features,
+        all_features,
+        no_default_features,
         &build_target.into(),
         &[],
     );
