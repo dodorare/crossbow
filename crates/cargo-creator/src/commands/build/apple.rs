@@ -1,12 +1,11 @@
 use super::{BuildContext, SharedBuildCommand};
 use crate::*;
-use clap::{ArgGroup, Clap};
+use clap::Clap;
 use creator_tools::types::*;
 use creator_tools::*;
 use std::path::PathBuf;
 
 #[derive(Clap)]
-#[clap(group = ArgGroup::new("signing").requires_all(&["profile-name", "profile-path", "team-identifier", "identity"]))]
 pub struct AppleBuildCommand {
     #[clap(flatten)]
     pub shared: SharedBuildCommand,
@@ -14,16 +13,16 @@ pub struct AppleBuildCommand {
     #[clap(long, conflicts_with = "example")]
     pub bin: Option<String>,
     /// Provisioning profile name to find in this directory: "~/Library/MobileDevice/Provisioning\ Profiles/".
-    #[clap(long, group = "signing")]
+    #[clap(long, conflicts_with = "profile-path")]
     pub profile_name: Option<String>,
     /// Absolute path to provisioning profile.
-    #[clap(long, group = "signing")]
+    #[clap(long)]
     pub profile_path: Option<PathBuf>,
     /// The team identifier of your signing identity.
-    #[clap(long, group = "signing")]
+    #[clap(long)]
     pub team_identifier: Option<String>,
     /// The id of the identity used for signing.
-    #[clap(long, group = "signing")]
+    #[clap(long)]
     pub identity: Option<String>,
 }
 
