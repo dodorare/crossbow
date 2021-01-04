@@ -5,7 +5,7 @@ use creator_tools::types::*;
 use creator_tools::*;
 use std::path::PathBuf;
 
-#[derive(Clap)]
+#[derive(Clap, Clone, Debug)]
 pub struct AndroidBuildCommand {
     #[clap(flatten)]
     pub shared: SharedBuildCommand,

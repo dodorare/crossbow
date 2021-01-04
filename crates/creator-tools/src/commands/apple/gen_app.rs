@@ -13,9 +13,7 @@ pub fn gen_apple_app(
         create_dir_all(target_dir)?;
     }
     // Create app folder
-    let app_path = target_dir
-        .join("apple")
-        .join(format!("{}.app", project_name));
+    let app_path = target_dir.join(format!("{}.app", project_name));
     remove_dir_all(&app_path).ok();
     create_dir_all(&app_path)?;
     // Copy options

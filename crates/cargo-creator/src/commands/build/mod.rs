@@ -8,7 +8,7 @@ use crate::*;
 use clap::Clap;
 use std::path::{Path, PathBuf};
 
-#[derive(Clap)]
+#[derive(Clap, Clone, Debug)]
 pub enum BuildCommand {
     Android(AndroidBuildCommand),
     Apple(AppleBuildCommand),
@@ -23,7 +23,7 @@ impl BuildCommand {
     }
 }
 
-#[derive(Clap)]
+#[derive(Clap, Clone, Debug)]
 pub struct SharedBuildCommand {
     /// Build the specified example.
     #[clap(long)]

@@ -70,7 +70,7 @@ fn test_apple_full() {
     let build_target = AppleTarget::X86_64AppleIos;
     let profile = Profile::Release;
     apple_rust_compile(
-        Target::Bin(name),
+        Target::Bin(name.clone()),
         build_target,
         dir,
         profile,

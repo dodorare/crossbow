@@ -110,6 +110,21 @@ impl IntoRustTriple for AppleTarget {
     }
 }
 
+impl std::str::FromStr for AppleTarget {
+    type Err = AndroidError;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        match s {
+            "x86_64-apple-ios" => Ok(Self::X86_64AppleIos),
+            "i386-apple-ios" => Ok(Self::I386AppleIos),
+            "aarch64-apple-ios" => Ok(Self::Aarch64AppleIos),
+            "armv7-apple-ios" => Ok(Self::Armv7AppleIos),
+            "armv7s-apple-ios" => Ok(Self::Armv7sAppleIos),
+            _ => Err(AndroidError::InvalidBuildTarget(s.to_owned())),
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum BuildTarget {
     Android(AndroidTarget),

@@ -11,7 +11,7 @@ use log::LevelFilter;
 use manifest::*;
 use std::path::PathBuf;
 
-#[derive(Clap)]
+#[derive(Clap, Clone, Debug)]
 #[clap(author, about, version)]
 pub struct Opts {
     /// The current directory where to run all commands

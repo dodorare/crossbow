@@ -5,6 +5,12 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Display, Debug, Error)]
 pub enum Error {
+    /// Build targets not provided
+    BuildTargetsNotProvided,
+    /// Can't find target to run
+    CantFindTargetToRun,
+    /// Unsupported feature
+    UnsupportedFeature,
     /// Team identifier not provided
     TeamIdentifierNotProvided,
     /// Invalid manifest

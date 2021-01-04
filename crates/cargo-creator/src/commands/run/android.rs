@@ -4,7 +4,7 @@ use clap::Clap;
 use creator_tools::*;
 use std::path::PathBuf;
 
-#[derive(Clap)]
+#[derive(Clap, Clone, Debug)]
 pub struct AndroidRunCommand {
     #[clap(flatten)]
     pub build_command: AndroidBuildCommand,

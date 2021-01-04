@@ -5,7 +5,7 @@ use crate::*;
 use clap::Clap;
 use std::path::PathBuf;
 
-#[derive(Clap)]
+#[derive(Clap, Clone, Debug)]
 pub enum Commands {
     Build(build::BuildCommand),
     Run(run::RunCommand),

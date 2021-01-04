@@ -31,11 +31,13 @@ fn test_compile_apple() {
     let name = gen_minimal_project(dir).unwrap();
 
     apple_rust_compile(
-        &name,
+        Target::Bin(name),
         AppleTarget::Aarch64AppleIos,
         dir,
         Profile::Release,
         vec![],
+        false,
+        false,
     )
     .unwrap();
 }
