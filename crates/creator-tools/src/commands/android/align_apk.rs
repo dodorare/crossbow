@@ -10,7 +10,7 @@ pub fn align_apk(
     build_dir: &Path,
 ) -> Result<PathBuf> {
     let unsigned_apk_path = build_dir.join(format!("{}.apk", package_label));
-    let mut zipalign = sdk.build_tool(bin!("zipalign"))?;
+    let mut zipalign = sdk.build_tool(bin!("zipalign"), None)?;
     zipalign
         .arg("-f")
         .arg("-v")

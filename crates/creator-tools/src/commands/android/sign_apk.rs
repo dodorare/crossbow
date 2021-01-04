@@ -11,7 +11,7 @@ pub struct Key {
 
 /// Sign APK with given key.
 pub fn sign_apk(sdk: &AndroidSdk, apk_path: &Path, key: Key) -> Result<()> {
-    let mut apksigner = sdk.build_tool(bat!("apksigner"))?;
+    let mut apksigner = sdk.build_tool(bat!("apksigner"), None)?;
     apksigner
         .arg("sign")
         .arg("--ks")

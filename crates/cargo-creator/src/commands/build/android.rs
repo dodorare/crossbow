@@ -80,25 +80,82 @@ impl AndroidBuildCommand {
         }
 
         // Gen android manifest
+        let pkg_name = match target {
+            Target::Lib => format!("rust.{}", package_name.replace("-", "_")),
+            Target::Example(_) => format!("rust.example.{}", package_name.replace("-", "_")),
+            _ => panic!(),
+        };
+        let package_label = metadata
+            .manifest
+            .apk_label
+            .as_deref()
+            .unwrap_or_else(|| &package_name)
+            .to_string();
+        let version_code = VersionCode::from_semver(&package.version)
+            .unwrap()
+            .to_code(1);
+        let version_name = package.version.clone();
+        let min_sdk_version = metadata.manifest.min_sdk_version.unwrap_or(23);
+        let opengles_version = metadata.manifest.opengles_version.unwrap_or((3, 1));
+        let features = metadata
+            .manifest
+            .feature
+            .clone()
+            .unwrap_or_default()
+            .into_iter()
+            .map(Into::into)
+            .collect();
+        let permissions = metadata
+            .manifest
+            .permission
+            .clone()
+            .unwrap_or_default()
+            .into_iter()
+            .map(Into::into)
+            .collect();
+        let intent_filters = metadata
+            .manifest
+            .intent_filter
+            .clone()
+            .unwrap_or_default()
+            .into_iter()
+            .map(Into::into)
+            .collect();
+        let application_metadatas = metadata
+            .manifest
+            .application_metadatas
+            .clone()
+            .unwrap_or_default()
+            .into_iter()
+            .map(Into::into)
+            .collect();
+        let activity_metadatas = metadata
+            .manifest
+            .activity_metadatas
+            .clone()
+            .unwrap_or_default()
+            .into_iter()
+            .map(Into::into)
+            .collect();
         let android_manifest = AndroidManifest {
-            package_name: format!("rust.{}", package_name.replace("-", "_")),
-            package_label: package_name.to_owned(),
-            version_name: "1.2.3".to_owned(),
-            version_code: VersionCode::from_semver("1.2.3").unwrap().to_code(1),
+            package_name: pkg_name,
+            package_label,
+            version_name,
+            version_code,
             split: None,
             target_name: package_name.replace("-", "_"),
-            debuggable: false,
+            debuggable: profile == Profile::Debug,
             target_sdk_version,
-            min_sdk_version: 23,
-            opengles_version: (3, 1),
-            features: vec![],
-            permissions: vec![],
-            intent_filters: vec![],
-            icon: None,
-            fullscreen: false,
-            orientation: None,
-            application_metadatas: vec![],
-            activity_metadatas: vec![],
+            min_sdk_version,
+            opengles_version,
+            features,
+            permissions,
+            intent_filters,
+            icon: metadata.manifest.icon.clone(),
+            fullscreen: metadata.manifest.fullscreen.unwrap_or(false),
+            orientation: metadata.manifest.orientation.clone(),
+            application_metadatas,
+            activity_metadatas,
         };
         let apk_build_dir = target_dir.join("android").join(&profile);
         let manifest_path = gen_android_manifest(&apk_build_dir, &android_manifest).unwrap();
@@ -108,8 +165,8 @@ impl AndroidBuildCommand {
             &sdk,
             &apk_build_dir,
             &manifest_path,
-            None,
-            None,
+            metadata.assets.clone(),
+            metadata.resources.clone(),
             &android_manifest,
         )
         .unwrap();
@@ -123,7 +180,7 @@ impl AndroidBuildCommand {
                 &compiled_lib,
                 *build_target,
                 profile,
-                metadata.manifest.min_sdk_version.unwrap_or(23),
+                min_sdk_version,
                 &apk_build_dir,
                 &target_dir,
             )
@@ -143,6 +200,11 @@ impl AndroidBuildCommand {
         let key = gen_debug_key().unwrap();
         // Sign apk
         sign_apk(&sdk, &aligned_apk_path, key).unwrap();
-        Ok((package_name, sdk, metadata, aligned_apk_path))
+        Ok((
+            android_manifest.package_name,
+            sdk,
+            metadata,
+            aligned_apk_path,
+        ))
     }
 }

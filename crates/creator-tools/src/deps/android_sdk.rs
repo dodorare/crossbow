@@ -71,7 +71,7 @@ impl AndroidSdk {
         &self.platforms
     }
 
-    pub fn build_tool(&self, tool: &str) -> Result<ProcessCommand> {
+    pub fn build_tool(&self, tool: &str, current_dir: Option<&Path>) -> Result<ProcessCommand> {
         let path = self
             .build_tools_path
             .join(&self.build_tools_version)
@@ -79,7 +79,11 @@ impl AndroidSdk {
         if !path.exists() {
             return Err(Error::CmdNotFound(tool.to_string()));
         }
-        Ok(ProcessCommand::new(dunce::canonicalize(path)?))
+        let mut command = ProcessCommand::new(dunce::canonicalize(path)?);
+        if let Some(current_dir) = current_dir {
+            command.current_dir(current_dir);
+        };
+        Ok(command)
     }
 
     pub fn platform_tool(&self, tool: &str) -> Result<ProcessCommand> {

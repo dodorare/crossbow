@@ -17,7 +17,7 @@ pub fn gen_unaligned_apk(
         create_dir_all(&build_dir)?;
     }
     let apk_path = build_dir.join(format!("{}-unaligned.apk", manifest.package_label));
-    let mut aapt = sdk.build_tool(bin!("aapt"))?;
+    let mut aapt = sdk.build_tool(bin!("aapt"), None)?;
     aapt.arg("package")
         .arg("-f")
         .arg("-F")

@@ -26,11 +26,11 @@ pub fn add_libs_into_apk(
         system_libs.push(lib);
     }
     // Get list of dylibs_paths
-    let deps_dir = target_dir
+    let build_path = target_dir
         .join(build_target.rust_triple())
-        .join(profile.as_ref())
-        .join("build");
-    let dylibs_paths = search_dylibs(&deps_dir)?;
+        .join(profile.as_ref());
+    let mut dylibs_paths = search_dylibs(&build_path.join("build"))?;
+    dylibs_paths.push(build_path.join("deps"));
     // Get list of libs that main lib need for work
     let lib_name = lib_path.file_name().unwrap().to_str().unwrap().to_owned();
     let mut needed_libs = vec![];
@@ -46,22 +46,29 @@ pub fn add_libs_into_apk(
     let abi = build_target.android_abi();
     let out_dir = build_dir.join("lib").join(abi);
     for (_lib_name, lib_path) in needed_libs {
-        aapt_add_lib(sdk, apk_path, &lib_path, &out_dir)?;
+        aapt_add_lib(sdk, apk_path, &lib_path, &out_dir, abi)?;
     }
     Ok(())
 }
 
 /// Copy lib into `out_dir` then add this lib into apk file.
-fn aapt_add_lib(sdk: &AndroidSdk, apk_path: &Path, lib_path: &Path, out_dir: &Path) -> Result<()> {
+fn aapt_add_lib(
+    sdk: &AndroidSdk,
+    apk_path: &Path,
+    lib_path: &Path,
+    out_dir: &Path,
+    abi: &str,
+) -> Result<()> {
     if !lib_path.exists() {
         return Err(Error::PathNotFound(lib_path.to_owned()));
     }
     std::fs::create_dir_all(&out_dir)?;
     let file_name = lib_path.file_name().unwrap();
-    let new_lib_path = out_dir.join(&file_name);
-    std::fs::copy(lib_path, &new_lib_path)?;
-    let mut aapt = sdk.build_tool(bin!("aapt"))?;
-    aapt.arg("add").arg(apk_path).arg(new_lib_path);
+    std::fs::copy(lib_path, &out_dir.join(&file_name))?;
+    let mut aapt = sdk.build_tool(bin!("aapt"), Some(apk_path.parent().unwrap()))?;
+    aapt.arg("add")
+        .arg(apk_path)
+        .arg(format!("lib/{}/{}", abi, file_name.to_str().unwrap()));
     aapt.output_err(true)?;
     Ok(())
 }

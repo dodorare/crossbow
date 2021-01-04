@@ -1,13 +1,14 @@
 use creator_tools::types::*;
 use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct AndroidMetadata {
     /// Resources directory path relatively to project path.
     #[serde(rename = "res")]
-    pub resources: Option<String>,
+    pub resources: Option<PathBuf>,
     /// Assets directory path relatively to project path.
-    pub assets: Option<String>,
+    pub assets: Option<PathBuf>,
     /// Build targets.
     pub build_targets: Option<Vec<String>>,
     /// Android manifest.
