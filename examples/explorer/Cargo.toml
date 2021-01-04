@@ -17,20 +17,21 @@ ndk-glue = { version = "0.2", features = ["logger"] }
 android_logger = "0.9"
 
 [lib]
-name = "explorerlib"
 crate-type = ["lib", "cdylib"]
 
 [package.metadata.android]
-apk_label = "Creator Explorer"
-fullscreen = true
+build_targets = ["aarch64-linux-android"]
 assets = "assets"
 res = "res/android"
+
+[package.metadata.android.manifest]
+apk_label = "Creator Explorer"
+fullscreen = true
 icon = "@mipmap/ic_launcher"
 target_sdk_version = 29
 min_sdk_version = 16
-build_targets = ["aarch64-linux-android"]
 
-[[package.metadata.android.permission]]
+[[package.metadata.android.manifest.permission]]
 name = "android.permission.INTERNET"
 
 [package.metadata.apple]

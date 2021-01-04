@@ -1,3 +1,3 @@
 fn main() {
-    paintlib::main();
+    paint::main();
 }

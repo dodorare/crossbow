@@ -11,10 +11,14 @@ anyhow = "1.0"
 bevy = "0.4"
 
 [lib]
-# name = "threedlib"
 crate-type = ["lib", "cdylib"]
 
 [package.metadata.android]
+build_targets = ["aarch64-linux-android"]
+assets = "assets"
+res = "res/android"
+
+[package.metadata.android.manifest]
 apk_label = "Creator 3D"
 fullscreen = true
 assets = "assets"

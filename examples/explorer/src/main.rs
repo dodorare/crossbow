@@ -1,3 +1,3 @@
 fn main() {
-    explorerlib::main();
+    explorer::main();
 }
