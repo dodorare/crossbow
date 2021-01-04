@@ -30,7 +30,7 @@ impl AndroidBuildCommand {
         let package = build_context
             .manifest
             .package
-            .clone()
+            .as_ref()
             .ok_or(Error::InvalidManifest)?;
         let metadata = package
             .metadata
@@ -39,40 +39,45 @@ impl AndroidBuildCommand {
             .android;
         let project_path = build_context.project_path.clone();
         let target_dir = build_context.target_dir.clone();
-        let package_name = package.name;
         let profile = match self.shared.release {
             true => Profile::Release,
             false => Profile::Debug,
         };
+        let package_name;
         let target = if let Some(example) = self.shared.example.clone() {
+            package_name = example.clone();
             Target::Example(example)
         } else {
+            package_name = package.name.clone();
             Target::Lib
         };
-
         // Create dependencies
         let sdk = AndroidSdk::from_env().unwrap();
         let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
+        let target_sdk_version = metadata
+            .manifest
+            .target_sdk_version
+            .unwrap_or_else(|| sdk.default_platform());
 
-        // Compile rust lib for android
-        let target_sdk_version = 30;
-        let build_target = AndroidTarget::Aarch64LinuxAndroid;
-        compile_rust_for_android(
-            &ndk,
-            target,
-            build_target,
-            &project_path,
-            profile,
-            self.shared.features.clone(),
-            self.shared.all_features,
-            self.shared.no_default_features,
-            target_sdk_version,
-        )
-        .unwrap();
-        let out_dir = target_dir.join(build_target.rust_triple()).join(&profile);
-        let compiled_lib = out_dir.join(format!("lib{}.so", package_name));
-        println!("Compiled lib: {:?}", compiled_lib);
-        assert!(compiled_lib.exists());
+        // Compile rust libs for android
+        let mut compiled_libs = Vec::new();
+        for build_target in self.target.iter() {
+            compile_rust_for_android(
+                &ndk,
+                target.clone(),
+                *build_target,
+                &project_path,
+                profile,
+                self.shared.features.clone(),
+                self.shared.all_features,
+                self.shared.no_default_features,
+                target_sdk_version,
+            )
+            .unwrap();
+            let out_dir = target_dir.join(build_target.rust_triple()).join(&profile);
+            let compiled_lib = out_dir.join(format!("lib{}.so", package_name));
+            compiled_libs.push((compiled_lib, build_target))
+        }
 
         // Gen android manifest
         let android_manifest = AndroidManifest {
@@ -95,9 +100,8 @@ impl AndroidBuildCommand {
             application_metadatas: vec![],
             activity_metadatas: vec![],
         };
-        let apk_build_dir = out_dir.join("apk");
+        let apk_build_dir = target_dir.join("android").join(&profile);
         let manifest_path = gen_android_manifest(&apk_build_dir, &android_manifest).unwrap();
-        assert!(manifest_path.exists());
 
         // Gen unaligned apk
         let unaligned_apk_path = gen_unaligned_apk(
@@ -109,21 +113,22 @@ impl AndroidBuildCommand {
             &android_manifest,
         )
         .unwrap();
-        assert!(unaligned_apk_path.exists());
 
-        // Add all needed libs into apk
-        add_libs_into_apk(
-            &sdk,
-            &ndk,
-            &unaligned_apk_path,
-            &compiled_lib,
-            build_target,
-            profile,
-            23,
-            &apk_build_dir,
-            &target_dir,
-        )
-        .unwrap();
+        // For every compiled target lib add all needed libs into apk
+        for (compiled_lib, build_target) in compiled_libs {
+            add_libs_into_apk(
+                &sdk,
+                &ndk,
+                &unaligned_apk_path,
+                &compiled_lib,
+                *build_target,
+                profile,
+                metadata.manifest.min_sdk_version.unwrap_or(23),
+                &apk_build_dir,
+                &target_dir,
+            )
+            .unwrap();
+        }
 
         // Align apk
         let aligned_apk_path = align_apk(
@@ -133,7 +138,6 @@ impl AndroidBuildCommand {
             &apk_build_dir,
         )
         .unwrap();
-        assert!(aligned_apk_path.exists());
 
         // Gen debug key for signing apk
         let key = gen_debug_key().unwrap();

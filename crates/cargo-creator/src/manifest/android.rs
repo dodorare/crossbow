@@ -1,16 +1,21 @@
 use creator_tools::types::*;
 use serde::{Deserialize, Serialize};
 
-pub type Manifest = cargo_toml::Manifest<Metadata>;
-
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct Metadata {
-    pub android: AndroidMetadata,
-    pub apple: AppleMetadata,
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+pub struct AndroidMetadata {
+    /// Resources directory path relatively to project path.
+    #[serde(rename = "res")]
+    pub resources: Option<String>,
+    /// Assets directory path relatively to project path.
+    pub assets: Option<String>,
+    /// Build targets.
+    pub build_targets: Option<Vec<String>>,
+    /// Android manifest.
+    pub manifest: AndroidManifestConfig,
 }
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
-pub struct AndroidMetadata {
+pub struct AndroidManifestConfig {
     pub apk_label: Option<String>,
     pub target_sdk_version: Option<u32>,
     pub min_sdk_version: Option<u32>,
@@ -23,7 +28,6 @@ pub struct AndroidMetadata {
     pub intent_filter: Option<Vec<IntentFilterConfig>>,
     pub application_metadatas: Option<Vec<ApplicationMetadataConfig>>,
     pub activity_metadatas: Option<Vec<ActivityMetadataConfig>>,
-    pub build_targets: Option<Vec<String>>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -123,19 +127,4 @@ impl From<ActivityMetadataConfig> for ActivityMetadata {
             value: config.value,
         }
     }
-}
-
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct AppleMetadata {
-    /// Build targets
-    pub build_targets: Option<Vec<AppleTarget>>,
-    /// Resources directory path relatively to project path
-    #[serde(rename = "res")]
-    pub resources: Option<String>,
-    /// Assets directory path relatively to project path
-    pub assets: Option<String>,
-
-    /// Info.plist specification
-    #[serde(rename = "info-plist")]
-    pub info_plist: InfoPlist,
 }
