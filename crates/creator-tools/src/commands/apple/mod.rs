@@ -1,8 +1,10 @@
+mod codesign;
 mod gen_app;
 mod gen_plist;
 mod launch_app;
 mod rust_compile;
 
+pub use codesign::*;
 pub use gen_app::*;
 pub use gen_plist::*;
 pub use launch_app::*;

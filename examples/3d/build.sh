@@ -45,14 +45,14 @@ if [ "${BUILDING_FOR_DEVICE}" = true ]; then
   # Building for device
   # TARGET=arm64-apple-ios12.0
   TARGET=aarch64-apple-ios
-  SDK_PATH=$(xcrun --show-sdk-path --sdk iphoneos)
+  # SDK_PATH=$(xcrun --show-sdk-path --sdk iphoneos)
 
   # The folder inside the app bundle where we
   # will copy all required dylibs
   FRAMEWORKS_DIR=Frameworks
 
   # Set additional flags for the compiler
-  OTHER_FLAGS="-Xlinker -rpath -Xlinker @executable_path/${FRAMEWORKS_DIR}"
+  # OTHER_FLAGS="-Xlinker -rpath -Xlinker @executable_path/${FRAMEWORKS_DIR}"
 else
   # Building for simulator
   # TARGET=x86_64-apple-ios12.0-simulator
@@ -77,7 +77,7 @@ APP_BUNDLE_IDENTIFIER=com.enfipy.${PROJECT_NAME}
 DEVELOPMENT_LANGUAGE=en
 
 echo ❎ Copy Icon to bundle. TODO
-cp res/mipmap-hdpi/ic_launcher.png ${BUNDLE_DIR}/Icon.png
+cp res/apple/icon.png ${BUNDLE_DIR}/Icon.png
 
 echo ❎ Copy assets to bundle. TODO
 cp -r assets/ ${BUNDLE_DIR}/assets/
@@ -130,11 +130,11 @@ echo → Step 6: Code Signing
 #############################################################
 
 export CODESIGN_ALLOCATE=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/codesign_allocate
-codesign --force --sign - --timestamp=none ${BUNDLE_DIR}/
+# codesign --force --sign - --timestamp=none ${BUNDLE_DIR}/
 
 # The name of the provisioning file to use
 # ⚠️ YOU NEED TO CHANGE THIS TO YOUR PROFILE ️️⚠️
-PROVISIONING_PROFILE_NAME=374460f0-780b-4216-9cb3-e9a8396cc33d.mobileprovision
+PROVISIONING_PROFILE_NAME=794ec955-c4ef-40ad-9d60-e2d21f26ba0b.mobileprovision
 
 # The location of the provisioning file inside the app bundle
 EMBEDDED_PROVISIONING_PROFILE=${BUNDLE_DIR}/embedded.mobileprovision

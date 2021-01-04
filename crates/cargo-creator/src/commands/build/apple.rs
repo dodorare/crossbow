@@ -13,6 +13,12 @@ pub struct AppleBuildCommand {
     /// Target directory path
     #[clap(short, long)]
     pub target_dir: Option<PathBuf>,
+    /// Provisioning profile name to find in this directory: "~/Library/MobileDevice/Provisioning\ Profiles/"
+    #[clap(short, long)]
+    provisioning_profile_name: Option<String>,
+    /// Absolute path to provisioning profile
+    #[clap(short, long)]
+    provisioning_profile_path: Option<PathBuf>,
 }
 
 impl AppleBuildCommand {
@@ -61,6 +67,21 @@ impl AppleBuildCommand {
         log::info!("Generating Info.plist");
         gen_apple_plist(&app_dir, properties, false).unwrap();
         log::info!("Build finished successfully");
+        // TODO: Support apple silicon simulators
+        if build_target != AppleTarget::X86_64AppleIos {
+            log::info!("Starting code signing process");
+            let profile_path = if let Some(path) = self.provisioning_profile_path.clone() {
+                path
+            } else if let Some(name) = self.provisioning_profile_name.clone() {
+                let profiles_path = "~/Library/MobileDevice/Provisioning Profiles";
+                format!("{}/{}", profiles_path, name).into()
+            } else {
+                return Err(Error::CodeSigningFlagsNotProvided);
+            };
+            log::info!("Profile path: {:?}", profile_path);
+            // profile_path
+            // codesign(&app_dir, true, None, None)?;
+        }
         Ok((metadata, app_dir))
     }
 }

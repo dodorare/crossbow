@@ -83,6 +83,9 @@ fn test_apple_full() {
     let properties = get_minimal_info_plist(&name);
     gen_apple_plist(&app_dir, &properties, false).unwrap();
 
+    // Sign bundle
+    codesign(&app_dir, true, None, None).unwrap();
+
     // Install and launch on simulator
     let device = launch_apple_app(
         &app_dir,

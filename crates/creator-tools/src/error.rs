@@ -27,8 +27,10 @@ pub enum AndroidError {
 
 #[derive(Display, Debug, Error)]
 pub enum AppleError {
-    /// Plist data error
-    Plist(#[from] plist::Error),
+    /// Codesign failed {0}
+    CodesignFailed(String),
+    /// Codesign allocate not found
+    CodesignAllocateNotFound,
     /// Simctl error
     Simctl(simctl::Error),
     /// Target dir does not exists
@@ -37,6 +39,8 @@ pub enum AppleError {
     ResourcesNotFound,
     /// Assets dir does not exists
     AssetsNotFound,
+    /// Plist data error
+    Plist(#[from] plist::Error),
 }
 
 #[derive(Display, Debug, Error)]

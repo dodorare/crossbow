@@ -6,24 +6,18 @@ use clap::Clap;
 use std::path::{Path, PathBuf};
 
 #[derive(Clap)]
-pub struct BuildCommand {
-    #[clap(subcommand)]
-    pub cmd: BuildCommandInner,
+pub enum BuildCommand {
+    Android(android::AndroidBuildCommand),
+    Apple(apple::AppleBuildCommand),
 }
 
 impl BuildCommand {
     pub fn handle_command(&self, current_dir: PathBuf) -> Result<()> {
-        match &self.cmd {
-            BuildCommandInner::Android(cmd) => cmd.run(current_dir),
-            BuildCommandInner::Apple(cmd) => cmd.run(current_dir),
+        match &self {
+            Self::Android(cmd) => cmd.run(current_dir),
+            Self::Apple(cmd) => cmd.run(current_dir),
         }
     }
-}
-
-#[derive(Clap)]
-pub enum BuildCommandInner {
-    Android(android::AndroidBuildCommand),
-    Apple(apple::AppleBuildCommand),
 }
 
 pub struct BuildContext {
