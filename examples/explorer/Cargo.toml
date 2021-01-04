@@ -32,3 +32,21 @@ build_targets = ["aarch64-linux-android"]
 
 [[package.metadata.android.permission]]
 name = "android.permission.INTERNET"
+
+[package.metadata.apple]
+build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
+assets = "assets"
+res = "res/apple"
+
+[package.metadata.apple.info-plist]
+bundle_name = "Creator Explorer"
+bundle_identifier = "com.enfipy.explorer"
+bundle_executable = "explorer"
+bundle_development_region = "en"
+bundle_version = "1"
+bundle_info_dictionary_version = "1.0"
+bundle_short_version_string = "1.0"
+bundle_package_type = "APPL"
+launch_storyboard_name = "launch_storyboard_name"
+requires_full_screen = false
+supported_interface_orientations = ["portrait", "portrait-upside-down"]

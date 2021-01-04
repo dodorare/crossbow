@@ -9,9 +9,9 @@ pub fn copy_profile(
     profile_name: Option<String>,
     profile_path: Option<PathBuf>,
 ) -> Result<()> {
-    let profile_path = if let Some(path) = profile_path.clone() {
+    let profile_path = if let Some(path) = profile_path {
         path
-    } else if let Some(name) = profile_name.clone() {
+    } else if let Some(name) = profile_name {
         dirs::home_dir()
             .unwrap()
             .join("Library")
