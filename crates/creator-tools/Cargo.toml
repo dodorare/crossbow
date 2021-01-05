@@ -12,11 +12,11 @@ readme = "../../README.md"
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_plain = "0.3"
-creator-plist = "1.0.1"
+plist = { version = "1.0.1", package = "creator-plist" }
 dunce = "1.0"
 fs_extra = "1.2"
 dirs = "3.0.1"
-creator-simctl = "0.1.1"
+simctl = { version = "0.1.1", package = "creator-simctl" }
 
 thiserror = "1.0"
 displaydoc = "0.1"
