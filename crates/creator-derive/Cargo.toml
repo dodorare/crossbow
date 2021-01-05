@@ -1,6 +1,6 @@
 [package]
 name = "creator-derive"
-version = "0.2.1"
+version = "0.3.2"
 edition = "2018"
 authors = ["enfipy <enfipy@gmail.com>", "olvyko <olvyko@gmail.com>"]
 description = "Mobile Game Framework"

@@ -15,7 +15,7 @@ jobs:
     - name: Login to crates.io
       run: cargo login ${{ secrets.CRATES_IO_TOKEN }}
     - name: Install cargo make
-      uses: davidB/rust-cargo-make@v1
+      run: cargo install cargo-make
     - name: Publish to crates.io
       run: cargo make publish-to-crates-io
 
@@ -35,7 +35,7 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Install cargo make
-      uses: davidB/rust-cargo-make@v1
+      run: cargo install cargo-make
     - name: Build binary
       run: cargo make zip-release -e CARGO_MAKE_RELEASE_FLOW_TARGET=${{ matrix.binary_target }}
     - name: Upload zip file
@@ -55,7 +55,7 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Install cargo make
-      uses: davidB/rust-cargo-make@v1
+      run: cargo install cargo-make
     - name: Build binary
       # TODO: Replace with Github Action or script that will download creator binary
       run: |
