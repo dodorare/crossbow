@@ -6,11 +6,15 @@ pub trait IntoRustTriple {
     fn rust_triple(&self) -> &'static str;
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub enum AndroidTarget {
+    #[serde(rename = "armv7-linux-androideabi")]
     Armv7LinuxAndroideabi,
+    #[serde(rename = "aarch64-linux-android")]
     Aarch64LinuxAndroid,
+    #[serde(rename = "i686-linux-android")]
     I686LinuxAndroid,
+    #[serde(rename = "x86_64-linux-android")]
     X8664LinuxAndroid,
 }
 

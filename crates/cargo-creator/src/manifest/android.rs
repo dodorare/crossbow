@@ -10,7 +10,7 @@ pub struct AndroidMetadata {
     /// Assets directory path relatively to project path.
     pub assets: Option<PathBuf>,
     /// Build targets.
-    pub build_targets: Option<Vec<String>>,
+    pub build_targets: Option<Vec<AndroidTarget>>,
     /// Android manifest.
     pub manifest: AndroidManifestConfig,
 }
@@ -29,6 +29,89 @@ pub struct AndroidManifestConfig {
     pub intent_filter: Option<Vec<IntentFilterConfig>>,
     pub application_metadatas: Option<Vec<ApplicationMetadataConfig>>,
     pub activity_metadatas: Option<Vec<ActivityMetadataConfig>>,
+}
+
+impl AndroidManifestConfig {
+    pub fn into_android_manifest(
+        self,
+        target: &Target,
+        profile: Profile,
+        package_name: String,
+        package_version: String,
+        target_sdk_version: u32,
+    ) -> AndroidManifest {
+        let pkg_name = match target {
+            Target::Lib => format!("rust.{}", package_name.replace("-", "_")),
+            Target::Example(_) => format!("rust.example.{}", package_name.replace("-", "_")),
+            _ => panic!(),
+        };
+        let package_label = self
+            .apk_label
+            .as_deref()
+            .unwrap_or_else(|| &package_name)
+            .to_string();
+        let version_code = VersionCode::from_semver(&package_version)
+            .unwrap()
+            .to_code(1);
+        let version_name = package_version.clone();
+        let min_sdk_version = self.min_sdk_version.unwrap_or(23);
+        let opengles_version = self.opengles_version.unwrap_or((3, 1));
+        let features = self
+            .feature
+            .clone()
+            .unwrap_or_default()
+            .into_iter()
+            .map(Into::into)
+            .collect();
+        let permissions = self
+            .permission
+            .clone()
+            .unwrap_or_default()
+            .into_iter()
+            .map(Into::into)
+            .collect();
+        let intent_filters = self
+            .intent_filter
+            .clone()
+            .unwrap_or_default()
+            .into_iter()
+            .map(Into::into)
+            .collect();
+        let application_metadatas = self
+            .application_metadatas
+            .clone()
+            .unwrap_or_default()
+            .into_iter()
+            .map(Into::into)
+            .collect();
+        let activity_metadatas = self
+            .activity_metadatas
+            .clone()
+            .unwrap_or_default()
+            .into_iter()
+            .map(Into::into)
+            .collect();
+        AndroidManifest {
+            package_name: pkg_name,
+            package_label,
+            version_name,
+            version_code,
+            split: None,
+            target_name: package_name.replace("-", "_"),
+            debuggable: profile == Profile::Debug,
+            target_sdk_version,
+            min_sdk_version,
+            opengles_version,
+            features,
+            permissions,
+            intent_filters,
+            icon: self.icon.clone(),
+            fullscreen: self.fullscreen.unwrap_or(false),
+            orientation: self.orientation.clone(),
+            application_metadatas,
+            activity_metadatas,
+        }
+    }
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
