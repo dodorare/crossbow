@@ -10,23 +10,33 @@ on:
 
 jobs:
 
-  app-build-ubuntu:
-    name: Build App example on Ubuntu Latest
+  android-build-ubuntu:
+    name: Build Android example on Ubuntu latest
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
     - name: Install Android targets
-      run: |
-        cd examples/app
-        rustup target add armv7-linux-androideabi aarch64-linux-android i686-linux-android x86_64-linux-android
+      run: rustup target add armv7-linux-androideabi aarch64-linux-android i686-linux-android x86_64-linux-android
     - name: Install Cargo Creator
-      run: |
-        cd examples/app
-        cargo install cargo-creator
+      run: cargo install --git=https://github.com/creator-rs/creator
     - name: Build APK
       run: |
-        cd examples/app
-        cargo creator build --all-features
+        cd examples/3d
+        creator build android --release
+
+  apple-build-ubuntu:
+    name: Build Apple example on macOS latest
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Install Apple targets
+      run: rustup target add aarch64-apple-ios x86_64-apple-ios
+    - name: Install Cargo Creator
+      run: cargo install --git=https://github.com/creator-rs/creator
+    - name: Build APK
+      run: |
+        cd examples/3d
+        creator build apple --release
 
   clean:
     name: Check code format

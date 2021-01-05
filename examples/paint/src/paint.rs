@@ -25,7 +25,6 @@ pub fn paint_system(
 ) {
     let camera_transform = transforms.get(state.camera_entity).unwrap();
     if mouse_button_input.pressed(MouseButton::Left) {
-        println!("HERE 1");
         for event in state.cursor_event_reader.iter(&cursor_moved_events) {
             state.cursor_curve.push_front(screen_to_world(
                 event.position,
@@ -33,8 +32,7 @@ pub fn paint_system(
                 &windows,
             ));
         }
-    } else if touch_input.get_pressed(0).is_some() {
-        println!("HERE 2");
+    } else if touch_input.iter().count() > 0 {
         for event in state.touch_event_reader.iter(&touch_input_events) {
             state.cursor_curve.push_front(screen_to_world(
                 event.position,
