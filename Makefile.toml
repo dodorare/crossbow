@@ -77,9 +77,9 @@ do
   name="${2} ${3}"
   echo "Building ${name}"
   pushd examples/$crate
-  creator build --release
+  creator android build --release
   popd
-  mv "target/release/apk/${name}.apk" target/apks/
+  mv "target/android/release/${name}.apk" target/apks/
 done
 '''
 

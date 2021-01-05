@@ -23,8 +23,6 @@ ndk-glue = "0.2"
 [patch.crates-io]
 # bevy = { path = "../bevy" }
 cpal = { git = "https://github.com/MichaelHills/cpal", branch = "mike-ios" }
-plist = { git = "https://github.com/creator-rs/rust-plist", branch = "master" }
-simctl = { git = "https://github.com/creator-rs/simctl", branch = "master" }
 
 [features]
 default = []

@@ -44,7 +44,7 @@ impl AppleRunCommand {
         let app_path = self.get_app_path(&app_paths)?;
         if self.device {
             log::info!("Lounching app on connected device");
-            run_and_debug(&app_path, self.debug, true, false, self.device_id.as_ref())?;
+            run_and_debug(&app_path, self.debug, false, false, self.device_id.as_ref())?;
         } else {
             log::info!("Installing and launching application on simulator");
             launch_apple_app(&app_path, &self.simulator_name, bundle_id, true)?;
