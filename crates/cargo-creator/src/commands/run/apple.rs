@@ -28,10 +28,13 @@ impl AppleRunCommand {
     pub fn run(&self, current_dir: PathBuf) -> Result<()> {
         let mut build_command = self.build_command.clone();
         if self.device {
-            // TODO: Support apple silicon
             build_command.target = vec![AppleTarget::Aarch64AppleIos];
         } else {
-            build_command.target = vec![AppleTarget::X86_64AppleIos];
+            if cfg!(target_arch = "aarch64") {
+                build_command.target = vec![AppleTarget::Aarch64AppleIos];
+            } else {
+                build_command.target = vec![AppleTarget::X86_64AppleIos];
+            }
         }
         let build_context =
             BuildContext::init(&current_dir, build_command.shared.target_dir.clone())?;
@@ -44,7 +47,7 @@ impl AppleRunCommand {
             run_and_debug(&app_path, self.debug, true, false, self.device_id.as_ref())?;
         } else {
             log::info!("Installing and launching application on simulator");
-            launch_apple_app(&app_path, &self.simulator_name, bundle_id, false)?;
+            launch_apple_app(&app_path, &self.simulator_name, bundle_id, true)?;
             creator_tools::simctl::Simctl::new()
                 .open()
                 .map_err(|err| Error::CreatorTools(err.into()))?;
@@ -56,10 +59,12 @@ impl AppleRunCommand {
     fn get_app_path(&self, app_paths: &[PathBuf]) -> Result<PathBuf> {
         if self.device {
             Self::get_app_path_by_target(app_paths, AppleTarget::Aarch64AppleIos)
-        } else if cfg!(target_os = "macos") {
-            Self::get_app_path_by_target(app_paths, AppleTarget::X86_64AppleIos)
         } else {
-            Err(Error::UnsupportedFeature)
+            if cfg!(target_arch = "aarch64") {
+                Self::get_app_path_by_target(app_paths, AppleTarget::Aarch64AppleIos)
+            } else {
+                Self::get_app_path_by_target(app_paths, AppleTarget::X86_64AppleIos)
+            }
         }
     }
 

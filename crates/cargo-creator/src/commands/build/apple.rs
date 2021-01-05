@@ -25,7 +25,7 @@ pub struct AppleBuildCommand {
     /// The team identifier of your signing identity.
     #[clap(long)]
     pub team_identifier: Option<String>,
-    /// The id of the identity used for signing.
+    /// The id of the identity used for signing. It won't start the signing process until you provide this flag.
     #[clap(long)]
     pub identity: Option<String>,
 }
@@ -133,8 +133,7 @@ impl AppleBuildCommand {
         std::fs::copy(&bin_path, &app_path.join(&name)).unwrap();
         log::info!("Generating Info.plist");
         gen_apple_plist(&app_path, properties, false).unwrap();
-        // TODO: Support apple silicon simulators without signing
-        if build_target != AppleTarget::X86_64AppleIos {
+        if self.identity.is_some() {
             log::info!("Starting code signing process");
             copy_profile(
                 &app_path,
