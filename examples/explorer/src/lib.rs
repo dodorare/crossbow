@@ -11,7 +11,7 @@ use explorer::*;
 pub fn main() {
     println!("Initialization.");
     App::build()
-        .add_resource(ClearColor(Color::rgb(0.18, 0.17, 0.16)))
+        .add_resource(ClearColor(Color::WHITE))
         .add_resource(WindowDescriptor {
             title: "Explorer".to_string(),
             width: 640.0,

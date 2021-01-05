@@ -118,11 +118,14 @@ pub fn explorer_ui(
         // root node (padding)
         .spawn(NodeBundle {
             style: Style {
-                #[cfg(target_os = "ios")]
-                size: Size::new(Val::Percent(94.0), Val::Percent(100.0)),
-                #[cfg(not(target_os = "ios"))]
                 size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                #[cfg(not(target_os = "ios"))]
                 padding: Rect::all(Val::Percent(6.0)),
+                #[cfg(target_os = "ios")]
+                padding: Rect {
+                    top: Val::Percent(6.0),
+                    ..Default::default()
+                },
                 flex_direction: FlexDirection::ColumnReverse,
                 ..Default::default()
             },
