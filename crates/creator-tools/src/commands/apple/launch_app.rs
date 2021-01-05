@@ -21,8 +21,7 @@ pub fn launch_apple_app(
         device.boot()?;
     }
     device.install(app_path)?;
-    let path = "/dev/null";
-    let result = device.launch(bundle_id).stdout(&path).stderr(&path).exec();
+    let result = device.launch(bundle_id).use_pty(true).exec();
     if open {
         simctl.open()?;
     }

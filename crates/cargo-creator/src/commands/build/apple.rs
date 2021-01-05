@@ -68,7 +68,7 @@ impl AppleBuildCommand {
             Target::Bin(name.clone())
         };
         log::info!("Compiling app");
-        let build_targets = if self.target.len() > 0 {
+        let build_targets = if !self.target.is_empty() {
             &self.target
         } else {
             metadata

@@ -86,7 +86,7 @@ impl AndroidBuildCommand {
         let android_manifest = metadata.manifest.into_android_manifest(
             &target,
             profile,
-            package_name.clone(),
+            package_name,
             package.version.clone(),
             target_sdk_version,
         );
@@ -98,7 +98,7 @@ impl AndroidBuildCommand {
             &apk_build_dir,
             &manifest_path,
             metadata.assets.clone(),
-            metadata.resources.clone(),
+            metadata.resources,
             &android_manifest,
         )
         .unwrap();

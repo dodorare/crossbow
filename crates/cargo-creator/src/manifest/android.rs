@@ -48,12 +48,12 @@ impl AndroidManifestConfig {
         let package_label = self
             .apk_label
             .as_deref()
-            .unwrap_or_else(|| &package_name)
+            .unwrap_or(&package_name)
             .to_string();
         let version_code = VersionCode::from_semver(&package_version)
             .unwrap()
             .to_code(1);
-        let version_name = package_version.clone();
+        let version_name = package_version;
         let min_sdk_version = self.min_sdk_version.unwrap_or(23);
         let opengles_version = self.opengles_version.unwrap_or((3, 1));
         let features = self
@@ -107,7 +107,7 @@ impl AndroidManifestConfig {
             intent_filters,
             icon: self.icon.clone(),
             fullscreen: self.fullscreen.unwrap_or(false),
-            orientation: self.orientation.clone(),
+            orientation: self.orientation,
             application_metadatas,
             activity_metadatas,
         }

@@ -4,6 +4,7 @@ mod gen_app;
 mod gen_plist;
 mod gen_xcent;
 mod launch_app;
+mod run_on_device;
 mod rust_compile;
 
 pub use codesign::*;
@@ -12,4 +13,5 @@ pub use gen_app::*;
 pub use gen_plist::*;
 pub use gen_xcent::*;
 pub use launch_app::*;
+pub use run_on_device::*;
 pub use rust_compile::*;

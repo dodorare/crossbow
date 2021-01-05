@@ -8,7 +8,7 @@ edition = "2018"
 creator = { version = "0.2.1", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
-bevy = "0.4"
+bevy = { git = "https://github.com/bevyengine/bevy", rev = "61b181a699ed2b450bebc8c14d96c6af55fa41cf" }
 
 [lib]
 crate-type = ["lib", "cdylib"]

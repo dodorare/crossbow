@@ -10,19 +10,27 @@ pub struct AppleRunCommand {
     #[clap(flatten)]
     pub build_command: AppleBuildCommand,
 
-    /// Install and launch on the simulator
+    /// Simulator device name.
+    #[clap(short, long, default_value = "iPhone 8", conflicts_with = "target")]
+    pub simulator_name: String,
+    /// Run in debug mode.
     #[clap(short, long)]
-    pub simulator: bool,
-    /// Simulator device name
-    #[clap(short, long, default_value = "iPhone 8")]
-    pub device_name: String,
+    pub debug: bool,
+    /// Install and launch on the connected device.
+    #[clap(short, long, conflicts_with = "target")]
+    pub device: bool,
+    /// Connected device id.
+    #[clap(short = 'D', long, conflicts_with = "device_name")]
+    pub device_id: Option<String>,
 }
 
 impl AppleRunCommand {
     pub fn run(&self, current_dir: PathBuf) -> Result<()> {
         let mut build_command = self.build_command.clone();
-        if self.simulator {
+        if self.device {
             // TODO: Support apple silicon
+            build_command.target = vec![AppleTarget::Aarch64AppleIos];
+        } else {
             build_command.target = vec![AppleTarget::X86_64AppleIos];
         }
         let build_context =
@@ -30,10 +38,13 @@ impl AppleRunCommand {
         let (metadata, app_paths) = build_command.execute(&build_context)?;
         log::info!("Starting run process");
         let bundle_id = &metadata.info_plist.identification.bundle_identifier;
-        let app_path = self.get_app_path(app_paths)?;
-        if self.simulator {
+        let app_path = self.get_app_path(&app_paths)?;
+        if self.device {
+            log::info!("Lounching app on connected device");
+            run_and_debug(&app_path, self.debug, true, false, self.device_id.as_ref())?;
+        } else {
             log::info!("Installing and launching application on simulator");
-            launch_apple_app(&app_path, &self.device_name, bundle_id, false)?;
+            launch_apple_app(&app_path, &self.simulator_name, bundle_id, false)?;
             creator_tools::simctl::Simctl::new()
                 .open()
                 .map_err(|err| Error::CreatorTools(err.into()))?;
@@ -42,24 +53,17 @@ impl AppleRunCommand {
         Ok(())
     }
 
-    fn get_app_path(&self, app_paths: Vec<PathBuf>) -> Result<PathBuf> {
-        if self.simulator
-            && cfg!(all(
-                target_os = "macos",
-                target_arch = "aarch64-apple-darwin"
-            ))
-        {
-            // TODO: Test on apple silicon simulator
+    fn get_app_path(&self, app_paths: &[PathBuf]) -> Result<PathBuf> {
+        if self.device {
             Self::get_app_path_by_target(app_paths, AppleTarget::Aarch64AppleIos)
-        } else if self.simulator && cfg!(target_os = "macos") {
+        } else if cfg!(target_os = "macos") {
             Self::get_app_path_by_target(app_paths, AppleTarget::X86_64AppleIos)
         } else {
-            // TODO: Support run on device
             Err(Error::UnsupportedFeature)
         }
     }
 
-    fn get_app_path_by_target(app_paths: Vec<PathBuf>, target: AppleTarget) -> Result<PathBuf> {
+    fn get_app_path_by_target(app_paths: &[PathBuf], target: AppleTarget) -> Result<PathBuf> {
         let mut iter = app_paths.iter();
         let res = iter.find(|&x| x.to_str().unwrap().contains(target.rust_triple()));
         Ok(res.ok_or(Error::CantFindTargetToRun)?.to_owned())
