@@ -49,7 +49,8 @@ impl AppleBuildCommand {
             .as_ref()
             .ok_or(Error::InvalidManifestMetadata)?
             .apple
-            .clone();
+            .clone()
+            .unwrap();
         let properties = &metadata.info_plist;
         let project_path = &build_context.project_path;
         let profile = match self.shared.release {

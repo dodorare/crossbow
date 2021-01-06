@@ -33,7 +33,8 @@ impl AndroidBuildCommand {
             .metadata
             .clone()
             .ok_or(Error::InvalidManifestMetadata)?
-            .android;
+            .android
+            .unwrap();
         let project_path = build_context.project_path.clone();
         let target_dir = build_context.target_dir.clone();
         let profile = match self.shared.release {
