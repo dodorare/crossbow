@@ -88,11 +88,11 @@ description = "Compiles the apks in release mode and zips them up"
 # If crate A depends on crate B, B must come before A in this list
 script = '''
 crates=(
-  cargo-creator
   creator-ads
-  creator-derive
   creator-permissions
+  creator-derive
   creator-tools
+  cargo-creator
 )
 for crate in "${crates[@]}"
 do

@@ -1,6 +1,6 @@
 [package]
 name = "creator-derive"
-version = "0.3.2"
+version = "0.3.3"
 edition = "2018"
 authors = ["enfipy <enfipy@gmail.com>", "olvyko <olvyko@gmail.com>"]
 description = "Mobile Game Framework"
@@ -15,4 +15,4 @@ proc-macro = true
 [dependencies]
 proc-macro2 = "1.0"
 quote = "1.0"
-syn = "1.0"
+syn = { version = "1.0", features = ["full"] }

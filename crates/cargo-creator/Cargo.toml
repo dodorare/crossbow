@@ -1,6 +1,6 @@
 [package]
 name = "cargo-creator"
-version = "0.3.2"
+version = "0.3.3"
 edition = "2018"
 authors = ["enfipy <enfipy@gmail.com>", "olvyko <olvyko@gmail.com>"]
 description = "Tool that helps build apps for Android and iOS"
@@ -14,7 +14,7 @@ name = "creator"
 path = "src/main.rs"
 
 [dependencies]
-creator-tools = { path = "../creator-tools", version = "0.3.2" }
+creator-tools = { path = "../creator-tools", version = "0.3.3" }
 
 clap = "3.0.0-beta.2"
 cargo_toml = "0.8"

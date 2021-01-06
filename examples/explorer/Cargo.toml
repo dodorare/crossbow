@@ -1,11 +1,11 @@
 [package]
 name = "explorer"
-version = "0.3.2"
+version = "0.3.3"
 authors = ["enfipy <enfipy@gmail.com>", "olvyko <olvyko@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-creator = { version = "0.3.2", path = "../../" }
+creator = { version = "0.3.3", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
 substrate-subxt = "0.13"

@@ -27,7 +27,7 @@ RUN cd /usr/local && \
 ENV ANDROID_NDK_ROOT /usr/local/android-ndk-r22-beta1
 
 # Install Cargo Creator
-RUN cargo install cargo-creator
+RUN cargo install --git=https://github.com/creator-rs/creator cargo-creator
 
 # Make directory for user code
 RUN mkdir -p /src
