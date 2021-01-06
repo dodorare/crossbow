@@ -27,14 +27,10 @@ pub struct AppleRunCommand {
 impl AppleRunCommand {
     pub fn run(&self, current_dir: PathBuf) -> Result<()> {
         let mut build_command = self.build_command.clone();
-        if self.device {
+        if self.device && build_command.target.is_empty() {
             build_command.target = vec![AppleTarget::Aarch64AppleIos];
-        } else {
-            if cfg!(target_arch = "aarch64") {
-                build_command.target = vec![AppleTarget::Aarch64AppleIos];
-            } else {
-                build_command.target = vec![AppleTarget::X86_64AppleIos];
-            }
+        } else if build_command.target.is_empty() {
+            build_command.target = vec![AppleTarget::X86_64AppleIos];
         }
         let build_context =
             BuildContext::init(&current_dir, build_command.shared.target_dir.clone())?;
@@ -60,11 +56,11 @@ impl AppleRunCommand {
         if self.device {
             Self::get_app_path_by_target(app_paths, AppleTarget::Aarch64AppleIos)
         } else {
-            if cfg!(target_arch = "aarch64") {
-                Self::get_app_path_by_target(app_paths, AppleTarget::Aarch64AppleIos)
-            } else {
-                Self::get_app_path_by_target(app_paths, AppleTarget::X86_64AppleIos)
-            }
+            // TODO: Support apple silicon
+            // if cfg!(target_arch = "aarch64") {
+            //     Self::get_app_path_by_target(app_paths, AppleTarget::Aarch64AppleIos)
+            // }
+            Self::get_app_path_by_target(app_paths, AppleTarget::X86_64AppleIos)
         }
     }
 

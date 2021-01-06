@@ -1,6 +1,6 @@
 [package]
 name = "creator-tools"
-version = "0.3.4"
+version = "0.3.5"
 edition = "2018"
 authors = ["enfipy <enfipy@gmail.com>", "olvyko <olvyko@gmail.com>"]
 description = "Mobile Game Framework"
