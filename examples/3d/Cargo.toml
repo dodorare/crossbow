@@ -1,11 +1,11 @@
 [package]
 name = "threed"
-version = "0.3.3"
+version = "0.3.4"
 authors = ["enfipy <enfipy@gmail.com>", "olvyko <olvyko@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-creator = { version = "0.3.3", path = "../../" }
+creator = { version = "0.3.4", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
 bevy = { git = "https://github.com/bevyengine/bevy", rev = "61b181a699ed2b450bebc8c14d96c6af55fa41cf" }

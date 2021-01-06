@@ -1,21 +1,21 @@
 [package]
 name = "creator"
-version = "0.3.3"
+version = "0.3.4"
 edition = "2018"
 authors = ["enfipy <enfipy@gmail.com>", "olvyko <olvyko@gmail.com>"]
 description = "Mobile Game Framework"
 repository = "https://github.com/creator-rs/creator"
 license = "Apache-2.0"
-keywords = ["build", "android", "apple", "ios", "substrate", "tools"]
+keywords = ["build", "android", "apple", "ios", "tools"]
 readme = "README.md"
 exclude = [".github/**/*"]
 
 [dependencies]
-creator-derive = { path = "crates/creator-derive", version = "0.3.3" }
+creator-derive = { path = "crates/creator-derive", version = "0.3.4" }
 
-creator-ads = { path = "crates/creator-ads", version = "0.3.3", optional = true }
-creator-tools = { path = "crates/creator-tools", version = "0.3.3", optional = true }
-creator-permissions = { path = "crates/creator-permissions", version = "0.3.3", optional = true }
+creator-ads = { path = "crates/creator-ads", version = "0.3.4", optional = true }
+creator-tools = { path = "crates/creator-tools", version = "0.3.4", optional = true }
+creator-permissions = { path = "crates/creator-permissions", version = "0.3.4", optional = true }
 
 [target.'cfg(target_os = "android")'.dependencies]
 ndk-glue = "0.2"
