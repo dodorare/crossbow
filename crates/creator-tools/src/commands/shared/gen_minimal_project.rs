@@ -6,7 +6,7 @@ use std::{
     io::Write,
 };
 
-pub const CARGO_TOML_VALUE: &str = r#"
+pub(super) const CARGO_TOML_VALUE: &str = r#"
 [package]
 name = "example"
 edition = "2018"
@@ -19,9 +19,9 @@ crate-type = ["lib", "cdylib"]
 creator = { git = "https://github.com/creator-rs/creator" }
 "#;
 
-pub const LIB_RS_VALUE: &str = "#[creator::creator_main] pub fn main() {}";
+pub(super) const LIB_RS_VALUE: &str = "#[creator::creator_main] pub fn main() {}";
 
-pub const MAIN_RS_VALUE: &str = "fn main(){example::main();}";
+pub(super) const MAIN_RS_VALUE: &str = "fn main(){example::main();}";
 
 pub fn gen_minimal_project(out_dir: &Path) -> Result<String> {
     // Create Cargo.toml file

@@ -9,8 +9,16 @@ license = "Apache-2.0"
 keywords = ["tool", "android", "ios"]
 readme = "../../README.md"
 
+[lib]
+name = "cli"
+path = "src/lib.rs"
+
 [[bin]]
 name = "creator"
+path = "src/creator.rs"
+
+[[bin]]
+name = "cargo-creator"
 path = "src/main.rs"
 
 [dependencies]

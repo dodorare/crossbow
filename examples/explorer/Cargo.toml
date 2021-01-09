@@ -28,7 +28,7 @@ res = "res/android"
 apk_label = "Creator Explorer"
 fullscreen = true
 icon = "@mipmap/ic_launcher"
-target_sdk_version = 29
+target_sdk_version = 30
 min_sdk_version = 16
 
 [[package.metadata.android.manifest.permission]]
