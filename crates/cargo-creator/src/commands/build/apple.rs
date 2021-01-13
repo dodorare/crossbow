@@ -38,7 +38,7 @@ impl AppleBuildCommand {
     }
 
     pub fn execute(&self, build_context: &BuildContext) -> Result<(AppleMetadata, Vec<PathBuf>)> {
-        log::info!("Starting build process");
+        info!("Starting build process");
         let package = build_context
             .manifest
             .package
@@ -68,7 +68,7 @@ impl AppleBuildCommand {
             name = package.name.clone();
             Target::Bin(name.clone())
         };
-        log::info!("Compiling app");
+        info!("Compiling app");
         let build_targets = if !self.target.is_empty() {
             &self.target
         } else {
@@ -119,7 +119,7 @@ impl AppleBuildCommand {
             .join(build_target.rust_triple())
             .join(&profile);
         let bin_path = out_dir.join(&name);
-        log::info!("Generating app folder");
+        info!("Generating app folder");
         let app_path = gen_apple_app(
             &build_context
                 .target_dir
@@ -130,18 +130,18 @@ impl AppleBuildCommand {
             metadata.resources.as_ref().map(|r| project_path.join(r)),
             metadata.assets.as_ref().map(|r| project_path.join(r)),
         )?;
-        log::info!("Coping binary to app folder");
+        info!("Coping binary to app folder");
         std::fs::copy(&bin_path, &app_path.join(&name)).unwrap();
-        log::info!("Generating Info.plist");
+        info!("Generating Info.plist");
         gen_apple_plist(&app_path, properties, false).unwrap();
         if self.identity.is_some() {
-            log::info!("Starting code signing process");
+            info!("Starting code signing process");
             copy_profile(
                 &app_path,
                 self.profile_name.clone(),
                 self.profile_path.clone(),
             )?;
-            log::info!("Generating xcent file");
+            info!("Generating xcent file");
             let xcent_path = gen_xcent(
                 &app_path,
                 &name,
@@ -151,13 +151,13 @@ impl AppleBuildCommand {
                 &properties.identification.bundle_identifier,
                 false,
             )?;
-            log::info!("Signing the binary");
+            info!("Signing the binary");
             codesign(&app_path.join(&name), true, self.identity.clone(), None)?;
-            log::info!("Signing the bundle itself");
+            info!("Signing the bundle itself");
             codesign(&app_path, true, self.identity.clone(), Some(xcent_path))?;
-            log::info!("Code signing process finished");
+            info!("Code signing process finished");
         }
-        log::info!("Build finished successfully");
+        info!("Build finished successfully");
         Ok(app_path)
     }
 }

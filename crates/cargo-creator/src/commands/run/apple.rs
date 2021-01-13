@@ -35,20 +35,20 @@ impl AppleRunCommand {
         let build_context =
             BuildContext::init(&current_dir, build_command.shared.target_dir.clone())?;
         let (metadata, app_paths) = build_command.execute(&build_context)?;
-        log::info!("Starting run process");
+        info!("Starting run process");
         let bundle_id = &metadata.info_plist.identification.bundle_identifier;
         let app_path = self.get_app_path(&app_paths)?;
         if self.device {
-            log::info!("Lounching app on connected device");
+            info!("Lounching app on connected device");
             run_and_debug(&app_path, self.debug, false, false, self.device_id.as_ref())?;
         } else {
-            log::info!("Installing and launching application on simulator");
+            info!("Installing and launching application on simulator");
             launch_apple_app(&app_path, &self.simulator_name, bundle_id, true)?;
             creator_tools::simctl::Simctl::new()
                 .open()
                 .map_err(|err| Error::CreatorTools(err.into()))?;
         }
-        log::info!("Run finished successfully");
+        info!("Run finished successfully");
         Ok(())
     }
 

@@ -62,7 +62,7 @@ impl BuildContext {
         let project_path = package_manifest_path.parent().unwrap().to_owned();
         let target_dir =
             target_dir.unwrap_or_else(|| workspace_manifest_path.parent().unwrap().join("target"));
-        log::info!("Parsing cargo manifest");
+        info!("Parsing cargo manifest");
         let manifest = Manifest::from_path_with_metadata(&package_manifest_path)?;
         Ok(Self {
             workspace_manifest_path,

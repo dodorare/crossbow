@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate log;
+
 pub mod commands;
 pub mod error;
 pub mod manifest;
@@ -44,14 +47,14 @@ pub fn run() -> std::result::Result<(), Box<dyn std::error::Error>> {
     pretty_env_logger::formatted_builder()
         .filter_level(level_filter)
         .init();
-    log::trace!("Successfully initialized logger");
+    trace!("Successfully initialized logger");
     let current_dir = opts
         .current_dir
         .clone()
         .unwrap_or_else(|| std::env::current_dir().unwrap());
-    log::trace!("Successfully parsed clap commands");
+    trace!("Successfully parsed clap commands");
     opts.cmd.handle_command(current_dir)?;
-    log::trace!("Command finished");
+    trace!("Command finished");
     Ok(())
 }
 
