@@ -3,6 +3,7 @@ mod apple;
 
 use crate::*;
 use clap::Clap;
+use creator_tools::Config;
 use std::path::PathBuf;
 
 #[derive(Clap, Clone, Debug)]
@@ -12,10 +13,10 @@ pub enum RunCommand {
 }
 
 impl RunCommand {
-    pub fn handle_command(&self, current_dir: PathBuf) -> Result<()> {
+    pub fn handle_command(&self, config: &Config, current_dir: PathBuf) -> Result<()> {
         match &self {
-            Self::Android(cmd) => cmd.run(current_dir),
-            Self::Apple(cmd) => cmd.run(current_dir),
+            Self::Android(cmd) => cmd.run(config, current_dir),
+            Self::Apple(cmd) => cmd.run(config, current_dir),
         }
     }
 }

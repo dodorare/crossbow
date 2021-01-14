@@ -9,8 +9,8 @@ pub mod utils;
 use clap::Clap;
 use colored::Colorize;
 use commands::*;
+use creator_tools::{Config, Shell, Verbosity};
 use error::*;
-use log::LevelFilter;
 use manifest::*;
 use std::path::PathBuf;
 
@@ -33,27 +33,32 @@ pub struct Opts {
 
 pub fn run() -> std::result::Result<(), Box<dyn std::error::Error>> {
     let opts = Opts::parse();
-    let level_filter = if opts.quiet {
-        LevelFilter::Error
+    let verbosity = if opts.quiet {
+        Verbosity::Quiet
     } else {
         // Vary the output based on how many times the user used the "verbose" flag.
         // Example: `creator -v -v -v' or 'creator -vvv' vs 'creator -v'
         match opts.verbose {
-            0 => LevelFilter::Info,
-            1 => LevelFilter::Debug,
-            _ => LevelFilter::Trace,
+            0 => Verbosity::Normal,
+            1 => Verbosity::Verbose,
+            _ => {
+                pretty_env_logger::formatted_builder()
+                    .filter_level(log::LevelFilter::Trace)
+                    .init();
+                Verbosity::Verbose
+            }
         }
     };
-    pretty_env_logger::formatted_builder()
-        .filter_level(level_filter)
-        .init();
+    let mut shell = Shell::new();
+    shell.set_verbosity(verbosity);
+    let config = Config::new(shell);
     trace!("Successfully initialized logger");
     let current_dir = opts
         .current_dir
         .clone()
         .unwrap_or_else(|| std::env::current_dir().unwrap());
     trace!("Successfully parsed clap commands");
-    opts.cmd.handle_command(current_dir)?;
+    opts.cmd.handle_command(&config, current_dir)?;
     trace!("Command finished");
     Ok(())
 }

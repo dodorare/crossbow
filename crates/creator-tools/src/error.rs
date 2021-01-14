@@ -71,6 +71,9 @@ pub enum Error {
     Apple(#[from] AppleError),
     /// Other error
     OtherError(#[from] Box<dyn std::error::Error>),
+    /// Failed to choose shell string color.
+    /// Argument for --color must be auto, always, or never, but found `{}`
+    FailedToChooseShellStringColor(String),
 }
 
 pub trait CommandExt {

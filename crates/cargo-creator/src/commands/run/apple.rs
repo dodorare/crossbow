@@ -25,7 +25,7 @@ pub struct AppleRunCommand {
 }
 
 impl AppleRunCommand {
-    pub fn run(&self, current_dir: PathBuf) -> Result<()> {
+    pub fn run(&self, config: &Config, current_dir: PathBuf) -> Result<()> {
         let mut build_command = self.build_command.clone();
         if self.device && build_command.target.is_empty() {
             build_command.target = vec![AppleTarget::Aarch64AppleIos];
@@ -34,21 +34,25 @@ impl AppleRunCommand {
         }
         let build_context =
             BuildContext::init(&current_dir, build_command.shared.target_dir.clone())?;
-        let (metadata, app_paths) = build_command.execute(&build_context)?;
-        info!("Starting run process");
+        let (metadata, app_paths) = build_command.execute(config, &build_context)?;
+        config.shell().status("Starting run process", "")?;
         let bundle_id = &metadata.info_plist.identification.bundle_identifier;
         let app_path = self.get_app_path(&app_paths)?;
         if self.device {
-            info!("Lounching app on connected device");
+            config
+                .shell()
+                .status("Lounching app on connected device", "")?;
             run_and_debug(&app_path, self.debug, false, false, self.device_id.as_ref())?;
         } else {
-            info!("Installing and launching application on simulator");
+            config
+                .shell()
+                .status("Installing and launching application on simulator", "")?;
             launch_apple_app(&app_path, &self.simulator_name, bundle_id, true)?;
             creator_tools::simctl::Simctl::new()
                 .open()
                 .map_err(|err| Error::CreatorTools(err.into()))?;
         }
-        info!("Run finished successfully");
+        config.shell().status("Run finished successfully", "")?;
         Ok(())
     }
 

@@ -16,14 +16,18 @@ pub struct AndroidBuildCommand {
 }
 
 impl AndroidBuildCommand {
-    pub fn run(&self, current_dir: PathBuf) -> Result<()> {
+    pub fn run(&self, config: &Config, current_dir: PathBuf) -> Result<()> {
         let build_context = BuildContext::init(&current_dir, self.shared.target_dir.clone())?;
-        self.execute(&build_context)?;
+        self.execute(config, &build_context)?;
         Ok(())
     }
 
-    pub fn execute(&self, build_context: &BuildContext) -> Result<(String, AndroidSdk, PathBuf)> {
-        info!("Starting build process");
+    pub fn execute(
+        &self,
+        config: &Config,
+        build_context: &BuildContext,
+    ) -> Result<(String, AndroidSdk, PathBuf)> {
+        config.shell().status("Starting build process", "")?;
         let package = build_context
             .manifest
             .package
@@ -64,9 +68,12 @@ impl AndroidBuildCommand {
         } else {
             vec![AndroidTarget::Aarch64LinuxAndroid]
         };
-        info!("Compiling rust lib");
         let mut compiled_libs = Vec::new();
         for build_target in build_targets.iter() {
+            let lib_name = format!("lib{}.so", package_name.replace("-", "_"));
+            let rust_triple = build_target.rust_triple();
+            config.shell().status("Compiling rust lib", &lib_name)?;
+            config.shell().status("for architecture", rust_triple)?;
             compile_rust_for_android(
                 &ndk,
                 target.clone(),
@@ -80,10 +87,10 @@ impl AndroidBuildCommand {
             )
             .unwrap();
             let out_dir = target_dir.join(build_target.rust_triple()).join(&profile);
-            let compiled_lib = out_dir.join(format!("lib{}.so", package_name.replace("-", "_")));
-            compiled_libs.push((compiled_lib, build_target))
+            let compiled_lib = out_dir.join(lib_name);
+            compiled_libs.push((compiled_lib, build_target));
         }
-        info!("Generating AndroidManifest.xml");
+        config.shell().status("Generating", "AndroidManifest.xml")?;
         let android_manifest = metadata.manifest.into_android_manifest(
             &target,
             profile,
@@ -93,7 +100,7 @@ impl AndroidBuildCommand {
         );
         let apk_build_dir = target_dir.join("android").join(&profile);
         let manifest_path = gen_android_manifest(&apk_build_dir, &android_manifest).unwrap();
-        info!("Generating unaligned APK file");
+        config.shell().status("Generating", "unaligned APK file")?;
         let unaligned_apk_path = gen_unaligned_apk(
             &sdk,
             &apk_build_dir,
@@ -103,7 +110,7 @@ impl AndroidBuildCommand {
             &android_manifest,
         )
         .unwrap();
-        info!("Adding all needed libs into unaligned APK file");
+        config.shell().status("Adding libs into APK file", "")?;
         for (compiled_lib, build_target) in compiled_libs {
             add_libs_into_apk(
                 &sdk,
@@ -118,7 +125,7 @@ impl AndroidBuildCommand {
             )
             .unwrap();
         }
-        info!("Aligning APK file");
+        config.shell().status("Aligning APK file", "")?;
         let aligned_apk_path = align_apk(
             &sdk,
             &unaligned_apk_path,
@@ -126,10 +133,11 @@ impl AndroidBuildCommand {
             &apk_build_dir,
         )
         .unwrap();
-        info!("Generating debug key for signing APK file");
+        config.shell().status("Generating", "debug signing key")?;
         let key = gen_debug_key().unwrap();
-        info!("Signing APK file");
+        config.shell().status("Signing APK file", "")?;
         sign_apk(&sdk, &aligned_apk_path, key).unwrap();
+        config.shell().status("Build finished successfully", "")?;
         Ok((android_manifest.package_name, sdk, aligned_apk_path))
     }
 }

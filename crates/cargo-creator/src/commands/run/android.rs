@@ -11,14 +11,16 @@ pub struct AndroidRunCommand {
 }
 
 impl AndroidRunCommand {
-    pub fn run(&self, current_dir: PathBuf) -> Result<()> {
+    pub fn run(&self, config: &Config, current_dir: PathBuf) -> Result<()> {
         let build_context =
             BuildContext::init(&current_dir, self.build_command.shared.target_dir.clone())?;
-        let (package_name, sdk, apk_path) = self.build_command.execute(&build_context)?;
-        info!("Starting run process");
+        let (package_name, sdk, apk_path) = self.build_command.execute(config, &build_context)?;
+        config.shell().status("Starting run process", "")?;
+        config.shell().status("Installing APK file", "")?;
         install_apk(&sdk, &apk_path)?;
+        config.shell().status("Starting APK file", "")?;
         start_apk(&sdk, &package_name)?;
-        info!("Run finished successfully");
+        config.shell().status("Run finished successfully", "")?;
         Ok(())
     }
 }

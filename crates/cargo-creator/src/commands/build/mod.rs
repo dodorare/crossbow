@@ -4,8 +4,9 @@ pub mod apple;
 use android::AndroidBuildCommand;
 use apple::AppleBuildCommand;
 
-use crate::*;
+use crate::{error::Result, utils, Manifest};
 use clap::Clap;
+use creator_tools::Config;
 use std::path::{Path, PathBuf};
 
 #[derive(Clap, Clone, Debug)]
@@ -15,10 +16,10 @@ pub enum BuildCommand {
 }
 
 impl BuildCommand {
-    pub fn handle_command(&self, current_dir: PathBuf) -> Result<()> {
+    pub fn handle_command(&self, config: &Config, current_dir: PathBuf) -> Result<()> {
         match &self {
-            Self::Android(cmd) => cmd.run(current_dir),
-            Self::Apple(cmd) => cmd.run(current_dir),
+            Self::Android(cmd) => cmd.run(config, current_dir),
+            Self::Apple(cmd) => cmd.run(config, current_dir),
         }
     }
 }
@@ -62,7 +63,7 @@ impl BuildContext {
         let project_path = package_manifest_path.parent().unwrap().to_owned();
         let target_dir =
             target_dir.unwrap_or_else(|| workspace_manifest_path.parent().unwrap().join("target"));
-        info!("Parsing cargo manifest");
+        info!("Parsing Cargo.toml");
         let manifest = Manifest::from_path_with_metadata(&package_manifest_path)?;
         Ok(Self {
             workspace_manifest_path,

@@ -22,7 +22,9 @@ mod commands;
 mod deps;
 pub mod error;
 pub mod types;
+mod utils;
 
 pub use commands::*;
 pub use deps::*;
 pub use simctl;
+pub use utils::*;
