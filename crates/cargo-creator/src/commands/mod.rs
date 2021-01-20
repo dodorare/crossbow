@@ -2,9 +2,9 @@ pub mod build;
 pub mod new;
 pub mod run;
 
-use crate::*;
+use crate::error::Result;
 use clap::Clap;
-use std::path::PathBuf;
+use creator_tools::utils::Config;
 
 #[derive(Clap, Clone, Debug)]
 pub enum Commands {
@@ -14,11 +14,11 @@ pub enum Commands {
 }
 
 impl Commands {
-    pub fn handle_command(&self, config: &Config, current_dir: PathBuf) -> Result<()> {
+    pub fn handle_command(&self, config: &Config) -> Result<()> {
         match self {
-            Commands::Build(cmd) => cmd.handle_command(config, current_dir),
-            Commands::Run(cmd) => cmd.handle_command(config, current_dir),
-            Commands::New(cmd) => cmd.handle_command(config, current_dir),
+            Commands::Build(cmd) => cmd.handle_command(config),
+            Commands::Run(cmd) => cmd.handle_command(config),
+            Commands::New(cmd) => cmd.handle_command(config),
         }
     }
 }

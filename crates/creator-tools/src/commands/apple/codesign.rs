@@ -7,6 +7,7 @@ use std::{
 const XCODE_PATH: &str = "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/codesign_allocate";
 const BIN_PATH: &str = "/usr/bin/codesign_allocate";
 
+/// Signs app. Runs `codesign ...` command.
 pub fn codesign(
     item_path: &Path,
     force: bool,

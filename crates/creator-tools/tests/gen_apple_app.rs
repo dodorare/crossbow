@@ -1,6 +1,6 @@
 #![cfg(target_os = "macos")]
 
-use creator_tools::*;
+use creator_tools::commands::{apple::*, gen_minimal_project};
 
 #[test]
 fn test_gen_apple_app() {

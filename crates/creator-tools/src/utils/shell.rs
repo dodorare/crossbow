@@ -194,20 +194,28 @@ impl Shell {
         }
     }
 
+    /// Shortcut to right-align and color green a status.
+    pub fn status<T>(&mut self, status: T) -> Result<()>
+    where
+        T: fmt::Display,
+    {
+        self.print(&status, None, Green, false)
+    }
+
     /// Shortcut to right-align and color green a status message.
-    pub fn status<T, U>(&mut self, status: T, message: U) -> Result<()>
+    pub fn status_message<T, U>(&mut self, status: T, message: U) -> Result<()>
     where
         T: fmt::Display,
         U: fmt::Display,
     {
-        self.print(&status, Some(&message), Green, true)
+        self.print(&status, Some(&message), Green, false)
     }
 
     pub fn status_header<T>(&mut self, status: T) -> Result<()>
     where
         T: fmt::Display,
     {
-        self.print(&status, None, Cyan, true)
+        self.print(&status, None, Cyan, false)
     }
 
     /// Shortcut to right-align a status message.
@@ -216,7 +224,7 @@ impl Shell {
         T: fmt::Display,
         U: fmt::Display,
     {
-        self.print(&status, Some(&message), color, true)
+        self.print(&status, Some(&message), color, false)
     }
 
     /// Runs the callback only if we are in verbose mode.
@@ -365,12 +373,14 @@ impl ShellOut {
                 } else {
                     write!(stderr, "{}", status)?;
                     stderr.set_color(ColorSpec::new().set_bold(true))?;
-                    write!(stderr, ":")?;
+                    if message.is_some() {
+                        write!(stderr, ":")?;
+                    }
                 }
                 stderr.reset()?;
                 match message {
                     Some(message) => writeln!(stderr, " {}", message)?,
-                    None => write!(stderr, " ")?,
+                    None => writeln!(stderr, " ")?,
                 }
             }
             ShellOut::Write(ref mut w) => {

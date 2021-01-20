@@ -4,7 +4,7 @@ use crate::error::*;
 use crate::types::*;
 use std::path::Path;
 
-/// Compile rust lib for android.
+/// Compiles rust code for android.
 pub fn compile_rust_for_android(
     ndk: &AndroidNdk,
     target: Target,

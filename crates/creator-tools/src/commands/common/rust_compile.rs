@@ -1,8 +1,11 @@
 use crate::types::*;
 use itertools::Itertools;
 use std::path::Path;
-use std::process::Command as ProcessCommand;
+use std::process::Command;
 
+/// Initialises `cargo rustc` [`Command`] with given args and return it.
+///
+/// [`Command`]: std::process::Command
 pub fn cargo_rustc_command(
     target: &Target,
     project_path: &Path,
@@ -12,8 +15,8 @@ pub fn cargo_rustc_command(
     no_default_features: bool,
     build_target: &BuildTarget,
     crate_types: &[CrateType],
-) -> ProcessCommand {
-    let mut cargo = ProcessCommand::new("cargo");
+) -> Command {
+    let mut cargo = Command::new("cargo");
     cargo.arg("rustc");
     match &target {
         Target::Bin(name) => cargo.args(&["--bin", name]),

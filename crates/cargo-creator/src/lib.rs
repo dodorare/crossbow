@@ -4,13 +4,11 @@ extern crate log;
 pub mod commands;
 pub mod error;
 pub mod manifest;
-pub mod utils;
 
 use clap::Clap;
 use colored::Colorize;
 use commands::*;
-use creator_tools::{Config, Shell, Verbosity};
-use error::*;
+use creator_tools::utils::{Config, Shell, Verbosity};
 use manifest::*;
 use std::path::PathBuf;
 
@@ -51,14 +49,12 @@ pub fn run() -> std::result::Result<(), Box<dyn std::error::Error>> {
     };
     let mut shell = Shell::new();
     shell.set_verbosity(verbosity);
-    let config = Config::new(shell);
-    trace!("Successfully initialized logger");
     let current_dir = opts
         .current_dir
         .clone()
         .unwrap_or_else(|| std::env::current_dir().unwrap());
-    trace!("Successfully parsed clap commands");
-    opts.cmd.handle_command(&config, current_dir)?;
+    let config = Config::new(shell, current_dir);
+    opts.cmd.handle_command(&config)?;
     trace!("Command finished");
     Ok(())
 }

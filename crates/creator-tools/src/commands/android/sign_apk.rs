@@ -9,7 +9,8 @@ pub struct Key {
     pub password: String,
 }
 
-/// Sign APK with given key.
+/// Signs APK with given key.
+/// Uses `apksigner` build tool.
 pub fn sign_apk(sdk: &AndroidSdk, apk_path: &Path, key: Key) -> Result<()> {
     let mut apksigner = sdk.build_tool(bat!("apksigner"), None)?;
     apksigner

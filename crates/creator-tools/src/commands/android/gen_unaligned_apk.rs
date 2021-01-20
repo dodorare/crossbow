@@ -4,7 +4,8 @@ use crate::types::*;
 use std::fs::create_dir_all;
 use std::path::{Path, PathBuf};
 
-/// Gen unaligned APK with given `manifest_path`, `assets` and `res`.
+/// Generates unaligned APK with given `manifest_path`, `assets` and `res`.
+/// Uses `aapt` build tool.
 pub fn gen_unaligned_apk(
     sdk: &AndroidSdk,
     build_dir: &Path,

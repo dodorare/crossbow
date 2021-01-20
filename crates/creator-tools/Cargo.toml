@@ -18,18 +18,17 @@ dunce = "1.0"
 fs_extra = "1.2"
 dirs = "3.0.1"
 simctl = { version = "0.1.1", package = "creator-simctl" }
-# cargo-generate = "0.5.1"
 
 thiserror = "1.0"
 displaydoc = "0.1"
 which = "4.0"
-tempfile = "3"
 itertools = "0.10"
-
 termcolor = "1.1.2"
 atty = "0.2.14"
-
 log = "0.4"
+
+[dev-dependencies]
+tempfile = "3"
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"

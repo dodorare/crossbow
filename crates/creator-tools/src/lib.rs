@@ -1,3 +1,4 @@
+/// On Windows adds `.exe` to given string.
 macro_rules! bin {
     ($bin:expr) => {{
         #[cfg(not(target_os = "windows"))]
@@ -8,6 +9,7 @@ macro_rules! bin {
     }};
 }
 
+/// On Windows adds `.bat` to given string.
 macro_rules! bat {
     ($bat:expr) => {{
         #[cfg(not(target_os = "windows"))]
@@ -18,13 +20,10 @@ macro_rules! bat {
     }};
 }
 
-mod commands;
-mod deps;
+pub mod commands;
+pub mod deps;
 pub mod error;
 pub mod types;
-mod utils;
+pub mod utils;
 
-pub use commands::*;
-pub use deps::*;
 pub use simctl;
-pub use utils::*;

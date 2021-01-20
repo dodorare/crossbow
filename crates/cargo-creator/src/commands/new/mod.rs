@@ -1,7 +1,11 @@
 use crate::error::Result;
 use clap::Clap;
-use creator_tools::{check_cargo_generate, create_project, Config};
-use std::path::PathBuf;
+use creator_tools::{
+    commands::{check_cargo_generate, create_project},
+    utils::Config,
+};
+
+const TEMPLATES_REPO: &str = "https://github.com/creator-rs/creator-templates.git";
 
 #[derive(Clap, Clone, Debug)]
 pub struct NewCommand {
@@ -18,7 +22,7 @@ pub struct NewCommand {
 }
 
 impl NewCommand {
-    pub fn handle_command(&self, config: &Config, current_dir: PathBuf) -> Result<()> {
+    pub fn handle_command(&self, config: &Config) -> Result<()> {
         if !check_cargo_generate() {
             config
                 .shell()
@@ -26,10 +30,10 @@ impl NewCommand {
             return Ok(());
         };
         create_project(
-            current_dir,
-            "https://github.com/creator-rs/creator-templates.git",
-            self.name.clone(),
-            self.template.clone(),
+            config.current_dir(),
+            &self.name,
+            TEMPLATES_REPO,
+            &self.template,
         )?;
         Ok(())
     }

@@ -5,7 +5,8 @@ use consts::*;
 use std::fs::File;
 use std::path::Path;
 
-pub fn gen_apple_plist(out_dir: &Path, properties: &InfoPlist, binary: bool) -> Result<()> {
+/// Saves given InfoPlist in new `Info.plist` file.
+pub fn create_apple_plist(out_dir: &Path, properties: &InfoPlist, binary: bool) -> Result<()> {
     // Create Info.plist file
     let file_path = out_dir.join(PLIST_FILE_NAME);
     let file = File::create(file_path)?;
@@ -70,7 +71,7 @@ mod tests {
             },
             ..Default::default()
         };
-        gen_apple_plist(dir.path(), &properties, false).unwrap();
+        create_apple_plist(dir.path(), &properties, false).unwrap();
         let file_path = dir.path().join(PLIST_FILE_NAME);
         let result = std::fs::read_to_string(&file_path).unwrap();
         assert_eq!(result, PLIST_TEST_EXAMPLE.replace("    ", "\t"));

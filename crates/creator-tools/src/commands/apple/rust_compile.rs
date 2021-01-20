@@ -3,7 +3,8 @@ use crate::error::*;
 use crate::types::*;
 use std::path::Path;
 
-pub fn apple_rust_compile(
+/// Compiles rust code for iOS.
+pub fn compile_rust_for_ios(
     target: Target,
     build_target: AppleTarget,
     project_path: &Path,

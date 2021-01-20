@@ -1,13 +1,16 @@
-#![allow(dead_code)]
-
-use crate::{deps::*, error::*, types::*};
+use crate::{
+    deps::{AndroidNdk, AndroidSdk},
+    error::*,
+    types::{AndroidTarget, IntoRustTriple, Profile},
+};
 use std::{
     fs::File,
     io::{BufRead, BufReader},
     path::{Path, PathBuf},
 };
 
-/// Add given lib and all reletad libs into APK.
+/// Adds given lib and all reletad libs into APK.
+/// Uses `readelf`, `aapt` tools.
 pub fn add_libs_into_apk(
     sdk: &AndroidSdk,
     ndk: &AndroidNdk,

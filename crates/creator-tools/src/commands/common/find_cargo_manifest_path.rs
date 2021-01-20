@@ -1,18 +1,22 @@
-use crate::{Error, Result};
+use crate::error::{Error, Result};
 use std::{
     path::{Path, PathBuf},
     process::Command,
 };
 
-pub fn find_workspace_manifest_path(current_dir: &Path) -> Result<PathBuf> {
-    find_manifest_path(current_dir, true)
+/// Finds workspace/root `Cargo.toml` in given path or parent's paths.
+pub fn find_workspace_cargo_manifest_path(current_dir: &Path) -> Result<PathBuf> {
+    find_cargo_manifest_path(current_dir, true)
 }
 
-pub fn find_package_manifest_path(current_dir: &Path) -> Result<PathBuf> {
-    find_manifest_path(current_dir, false)
+/// Finds a `Cargo.toml` in given path.
+pub fn find_package_cargo_manifest_path(current_dir: &Path) -> Result<PathBuf> {
+    find_cargo_manifest_path(current_dir, false)
 }
 
-fn find_manifest_path(current_dir: &Path, workspace: bool) -> Result<PathBuf> {
+/// Finds a `Cargo.toml` in given path,
+/// if `workspace` is set tries to find workspace/root manifest.
+fn find_cargo_manifest_path(current_dir: &Path, workspace: bool) -> Result<PathBuf> {
     let mut cargo = Command::new("cargo");
     cargo.current_dir(current_dir);
     cargo.args(&["locate-project", "--message-format", "plain"]);

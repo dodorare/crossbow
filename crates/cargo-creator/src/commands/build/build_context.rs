@@ -1,5 +1,9 @@
-use crate::{error::Result, utils, Manifest};
-use std::path::{Path, PathBuf};
+use crate::{error::Result, Manifest};
+use creator_tools::{
+    commands::{find_package_cargo_manifest_path, find_workspace_cargo_manifest_path},
+    utils::Config,
+};
+use std::path::PathBuf;
 
 pub struct BuildContext {
     pub workspace_manifest_path: PathBuf,
@@ -10,9 +14,9 @@ pub struct BuildContext {
 }
 
 impl BuildContext {
-    pub fn init(current_dir: &Path, target_dir: Option<PathBuf>) -> Result<Self> {
-        let workspace_manifest_path = utils::find_workspace_manifest_path(&current_dir)?;
-        let package_manifest_path = utils::find_package_manifest_path(&current_dir)?;
+    pub fn init(config: &Config, target_dir: Option<PathBuf>) -> Result<Self> {
+        let workspace_manifest_path = find_workspace_cargo_manifest_path(config.current_dir())?;
+        let package_manifest_path = find_package_cargo_manifest_path(config.current_dir())?;
         let project_path = package_manifest_path.parent().unwrap().to_owned();
         let target_dir =
             target_dir.unwrap_or_else(|| workspace_manifest_path.parent().unwrap().join("target"));

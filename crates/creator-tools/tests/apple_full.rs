@@ -1,7 +1,9 @@
 #![cfg(target_os = "macos")]
 
-use creator_tools::types::*;
-use creator_tools::*;
+use creator_tools::{
+    commands::{apple::*, gen_minimal_project},
+    types::*,
+};
 
 fn get_minimal_info_plist(name: &str) -> InfoPlist {
     InfoPlist {

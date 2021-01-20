@@ -1,6 +1,8 @@
 use crate::error::*;
 use std::{path::Path, process::Command};
 
+/// Runs and debugs app on device.
+/// Runs `ios-deploy ...` command.
 pub fn run_and_debug(
     app_path: &Path,
     debug: bool,

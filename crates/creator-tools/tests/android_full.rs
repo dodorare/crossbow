@@ -1,5 +1,8 @@
-use creator_tools::types::*;
-use creator_tools::*;
+use creator_tools::{
+    commands::{android::*, gen_minimal_project},
+    deps::{AndroidNdk, AndroidSdk},
+    types::*,
+};
 
 pub fn get_minimal_android_manifest(
     project_name: &str,
@@ -64,7 +67,7 @@ fn test_android_full() {
     let target_dir = dir.join("target");
     let manifest = get_minimal_android_manifest(&name, target_sdk_version);
     let apk_build_dir = target_dir.join(&profile).join("apk");
-    let manifest_path = gen_android_manifest(&apk_build_dir, &manifest).unwrap();
+    let manifest_path = create_android_manifest(&apk_build_dir, &manifest).unwrap();
     assert!(manifest_path.exists());
 
     // Gen unaligned apk

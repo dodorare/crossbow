@@ -2,6 +2,8 @@ use crate::deps::AndroidSdk;
 use crate::error::*;
 use crate::types::AndroidTarget;
 
+/// Returns current android target.
+/// Runs `adb shell getprop ro.product.cpu.abi` command.
 pub fn detect_abi(sdk: &AndroidSdk) -> Result<AndroidTarget> {
     let mut adb = sdk.platform_tool(bin!("adb"))?;
     adb.arg("shell").arg("getprop").arg("ro.product.cpu.abi");

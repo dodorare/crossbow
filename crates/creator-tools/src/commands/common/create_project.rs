@@ -1,12 +1,14 @@
 use crate::error::*;
-use std::path::PathBuf;
+use std::path::Path;
 use std::process::Command;
 
+/// Creates a new project.
+/// Runs `cargo generate ...` with given args.
 pub fn create_project(
-    current_dir: PathBuf,
+    current_dir: &Path,
+    name: &str,
     git: &str,
-    project_name: String,
-    template: Option<String>,
+    branch: &Option<String>,
 ) -> Result<()> {
     let mut cargo_generate = Command::new("cargo");
     cargo_generate
@@ -15,14 +17,15 @@ pub fn create_project(
         .arg("--git")
         .arg(git)
         .arg("--name")
-        .arg(project_name);
-    if let Some(template) = template {
-        cargo_generate.arg("--branch").arg(template);
+        .arg(name);
+    if let Some(branch) = branch {
+        cargo_generate.arg("--branch").arg(branch);
     };
     cargo_generate.output_err(true)?;
     Ok(())
 }
 
+/// Checks if `cargo-generate` is installed in the system.
 pub fn check_cargo_generate() -> bool {
     Command::new("cargo")
         .arg("generate")

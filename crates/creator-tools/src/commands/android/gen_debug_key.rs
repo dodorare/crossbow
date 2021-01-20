@@ -3,7 +3,8 @@ use crate::error::*;
 use std::path::PathBuf;
 use std::process::Command;
 
-/// Gen debug key for signing APK.
+/// Generates debug key for signing APK.
+/// Runs `keytool ...` command.
 pub fn gen_debug_key() -> Result<Key> {
     let path = android_dir()?.join("debug.keystore");
     let password = "android".to_string();

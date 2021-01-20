@@ -1,5 +1,10 @@
-use creator_tools::types::*;
-use creator_tools::*;
+#[cfg(target_os = "macos")]
+use creator_tools::commands::apple::*;
+use creator_tools::{
+    commands::{android::*, gen_minimal_project},
+    deps::{AndroidNdk, AndroidSdk},
+    types::*,
+};
 
 #[test]
 fn test_compile_android() {

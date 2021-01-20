@@ -1,8 +1,7 @@
 use super::{BuildContext, SharedBuildCommand};
-use crate::*;
+use crate::{error::*, manifest::*};
 use clap::Clap;
-use creator_tools::types::*;
-use creator_tools::*;
+use creator_tools::{commands::apple, types::*, utils::Config};
 use std::path::{Path, PathBuf};
 
 #[derive(Clap, Clone, Debug)]
@@ -31,8 +30,8 @@ pub struct AppleBuildCommand {
 }
 
 impl AppleBuildCommand {
-    pub fn run(&self, config: &Config, current_dir: PathBuf) -> Result<()> {
-        let build_context = BuildContext::init(&current_dir, self.shared.target_dir.clone())?;
+    pub fn run(&self, config: &Config) -> Result<()> {
+        let build_context = BuildContext::init(config, self.shared.target_dir.clone())?;
         self.execute(config, &build_context)?;
         Ok(())
     }
@@ -71,8 +70,10 @@ impl AppleBuildCommand {
             name = package.name.clone();
             Target::Bin(name.clone())
         };
-        config.shell().status("Starting build process", &name)?;
-        config.shell().status("Compiling app", "")?;
+        config
+            .shell()
+            .status_message("Starting build process", &name)?;
+        config.shell().status("Compiling app")?;
         let build_targets = if !self.target.is_empty() {
             &self.target
         } else {
@@ -114,8 +115,8 @@ impl AppleBuildCommand {
         let rust_triple = build_target.rust_triple();
         config
             .shell()
-            .status("Compiling for architecture", rust_triple)?;
-        apple_rust_compile(
+            .status_message("Compiling for architecture", rust_triple)?;
+        apple::compile_rust_for_ios(
             target,
             build_target,
             &project_path,
@@ -126,8 +127,8 @@ impl AppleBuildCommand {
         )?;
         let out_dir = build_context.target_dir.join(rust_triple).join(&profile);
         let bin_path = out_dir.join(&name);
-        config.shell().status("Generating app folder", "")?;
-        let app_path = gen_apple_app(
+        config.shell().status("Generating app folder")?;
+        let app_path = apple::gen_apple_app(
             &build_context
                 .target_dir
                 .join("apple")
@@ -137,19 +138,19 @@ impl AppleBuildCommand {
             metadata.resources.as_ref().map(|r| project_path.join(r)),
             metadata.assets.as_ref().map(|r| project_path.join(r)),
         )?;
-        config.shell().status("Coping binary to app folder", "")?;
+        config.shell().status("Coping binary to app folder")?;
         std::fs::copy(&bin_path, &app_path.join(&name)).unwrap();
-        config.shell().status("Generating", "Info.plist")?;
-        gen_apple_plist(&app_path, properties, false).unwrap();
+        config.shell().status_message("Generating", "Info.plist")?;
+        apple::create_apple_plist(&app_path, properties, false).unwrap();
         if self.identity.is_some() {
-            config.shell().status("Starting code signing process", "")?;
-            copy_profile(
+            config.shell().status("Starting code signing process")?;
+            apple::copy_profile(
                 &app_path,
                 self.profile_name.clone(),
                 self.profile_path.clone(),
             )?;
-            config.shell().status("Generating", "xcent file")?;
-            let xcent_path = gen_xcent(
+            config.shell().status_message("Generating", "xcent file")?;
+            let xcent_path = apple::gen_xcent(
                 &app_path,
                 &name,
                 self.team_identifier
@@ -158,13 +159,13 @@ impl AppleBuildCommand {
                 &properties.identification.bundle_identifier,
                 false,
             )?;
-            config.shell().status("Signing the binary", "")?;
-            codesign(&app_path.join(&name), true, self.identity.clone(), None)?;
-            config.shell().status("Signing the bundle itself", "")?;
-            codesign(&app_path, true, self.identity.clone(), Some(xcent_path))?;
-            config.shell().status("Code signing process finished", "")?;
+            config.shell().status("Signing the binary")?;
+            apple::codesign(&app_path.join(&name), true, self.identity.clone(), None)?;
+            config.shell().status("Signing the bundle itself")?;
+            apple::codesign(&app_path, true, self.identity.clone(), Some(xcent_path))?;
+            config.shell().status("Code signing process finished")?;
         }
-        config.shell().status("Build finished successfully", "")?;
+        config.shell().status("Build finished successfully")?;
         Ok(app_path)
     }
 }

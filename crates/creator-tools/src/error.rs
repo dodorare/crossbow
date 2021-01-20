@@ -1,10 +1,14 @@
+//! Contains `Error`, `AndroidError`, `AppleError` types used by `creator-tools`.
+
 use displaydoc::Display;
 use std::path::PathBuf;
 use std::process::Command;
 use thiserror::Error;
 
+/// `Result` type that used in `creator-tools`.
 pub type Result<T> = std::result::Result<T, Error>;
 
+/// Android specific error type
 #[derive(Display, Debug, Error)]
 pub enum AndroidError {
     /// Android SDK is not found
@@ -27,6 +31,7 @@ pub enum AndroidError {
     InvalidBuildTarget(String),
 }
 
+/// Apple specific error type.
 #[derive(Display, Debug, Error)]
 pub enum AppleError {
     /// Code signing profile not found
@@ -49,6 +54,7 @@ pub enum AppleError {
     Plist(#[from] plist::Error),
 }
 
+/// Main error type.
 #[derive(Display, Debug, Error)]
 pub enum Error {
     /// Command '{0:?}' had a non-zero exit code. Stdout: {1} Stderr: {2}
@@ -61,6 +67,11 @@ pub enum Error {
     InvalidInterfaceOrientation(String),
     /// Path {0:?} doesn't exist
     PathNotFound(PathBuf),
+    /// Failed to find manifest: {0}
+    FailedToFindManifest(String),
+    /// Failed to choose shell string color.
+    /// Argument for --color must be auto, always, or never, but found `{}`
+    FailedToChooseShellStringColor(String),
     /// IO error
     Io(#[from] std::io::Error),
     /// FS Extra error
@@ -71,16 +82,19 @@ pub enum Error {
     Apple(#[from] AppleError),
     /// Other error
     OtherError(#[from] Box<dyn std::error::Error>),
-    /// Failed to choose shell string color.
-    /// Argument for --color must be auto, always, or never, but found `{}`
-    FailedToChooseShellStringColor(String),
 }
 
+/// Extension trait for [`Command`] that helps
+/// to wrap output and print logs from command execution.
+///
+/// [`Command`]: std::process::Command
 pub trait CommandExt {
+    /// Executes the command as a child process, then captures an output and return it.
+    /// If command termination wasn't successful wraps an output into error and return it.
     fn output_err(self, print_logs: bool) -> Result<std::process::Output>;
 }
 
-impl CommandExt for std::process::Command {
+impl CommandExt for Command {
     fn output_err(mut self, print_logs: bool) -> Result<std::process::Output> {
         // Enables log print during command execution
         let output = match print_logs {

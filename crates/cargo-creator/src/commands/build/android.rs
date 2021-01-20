@@ -1,8 +1,12 @@
 use super::{BuildContext, SharedBuildCommand};
-use crate::*;
+use crate::error::*;
 use clap::Clap;
-use creator_tools::types::*;
-use creator_tools::*;
+use creator_tools::{
+    commands::android,
+    deps::{AndroidNdk, AndroidSdk},
+    types::*,
+    utils::Config,
+};
 use std::path::PathBuf;
 
 #[derive(Clap, Clone, Debug)]
@@ -16,8 +20,8 @@ pub struct AndroidBuildCommand {
 }
 
 impl AndroidBuildCommand {
-    pub fn run(&self, config: &Config, current_dir: PathBuf) -> Result<()> {
-        let build_context = BuildContext::init(&current_dir, self.shared.target_dir.clone())?;
+    pub fn run(&self, config: &Config) -> Result<()> {
+        let build_context = BuildContext::init(config, self.shared.target_dir.clone())?;
         self.execute(config, &build_context)?;
         Ok(())
     }
@@ -54,7 +58,7 @@ impl AndroidBuildCommand {
         };
         config
             .shell()
-            .status("Starting build process", &package_name)?;
+            .status_message("Starting build process", &package_name)?;
         let sdk = AndroidSdk::from_env().unwrap();
         let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
         let target_sdk_version = metadata
@@ -76,8 +80,8 @@ impl AndroidBuildCommand {
             let rust_triple = build_target.rust_triple();
             config
                 .shell()
-                .status("Compiling for architecture", rust_triple)?;
-            compile_rust_for_android(
+                .status_message("Compiling for architecture", rust_triple)?;
+            android::compile_rust_for_android(
                 &ndk,
                 target.clone(),
                 *build_target,
@@ -93,7 +97,9 @@ impl AndroidBuildCommand {
             let compiled_lib = out_dir.join(lib_name);
             compiled_libs.push((compiled_lib, build_target));
         }
-        config.shell().status("Generating", "AndroidManifest.xml")?;
+        config
+            .shell()
+            .status_message("Generating", "AndroidManifest.xml")?;
         let android_manifest = metadata.manifest.into_android_manifest(
             &target,
             profile,
@@ -102,9 +108,12 @@ impl AndroidBuildCommand {
             target_sdk_version,
         );
         let apk_build_dir = target_dir.join("android").join(&profile);
-        let manifest_path = gen_android_manifest(&apk_build_dir, &android_manifest).unwrap();
-        config.shell().status("Generating", "unaligned APK file")?;
-        let unaligned_apk_path = gen_unaligned_apk(
+        let manifest_path =
+            android::create_android_manifest(&apk_build_dir, &android_manifest).unwrap();
+        config
+            .shell()
+            .status_message("Generating", "unaligned APK file")?;
+        let unaligned_apk_path = android::gen_unaligned_apk(
             &sdk,
             &apk_build_dir,
             &manifest_path,
@@ -113,9 +122,9 @@ impl AndroidBuildCommand {
             &android_manifest,
         )
         .unwrap();
-        config.shell().status("Adding libs into APK file", "")?;
+        config.shell().status("Adding libs into APK file")?;
         for (compiled_lib, build_target) in compiled_libs {
-            add_libs_into_apk(
+            android::add_libs_into_apk(
                 &sdk,
                 &ndk,
                 &unaligned_apk_path,
@@ -128,19 +137,21 @@ impl AndroidBuildCommand {
             )
             .unwrap();
         }
-        config.shell().status("Aligning APK file", "")?;
-        let aligned_apk_path = align_apk(
+        config.shell().status("Aligning APK file")?;
+        let aligned_apk_path = android::align_apk(
             &sdk,
             &unaligned_apk_path,
             &android_manifest.package_label,
             &apk_build_dir,
         )
         .unwrap();
-        config.shell().status("Generating", "debug signing key")?;
-        let key = gen_debug_key().unwrap();
-        config.shell().status("Signing APK file", "")?;
-        sign_apk(&sdk, &aligned_apk_path, key).unwrap();
-        config.shell().status("Build finished successfully", "")?;
+        config
+            .shell()
+            .status_message("Generating", "debug signing key")?;
+        let key = android::gen_debug_key().unwrap();
+        config.shell().status("Signing APK file")?;
+        android::sign_apk(&sdk, &aligned_apk_path, key).unwrap();
+        config.shell().status("Build finished successfully")?;
         Ok((android_manifest.package_name, sdk, aligned_apk_path))
     }
 }
