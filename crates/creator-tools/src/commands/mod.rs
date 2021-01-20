@@ -1,7 +1,7 @@
 mod android;
 mod apple;
-mod shared;
+mod common;
 
 pub use android::*;
 pub use apple::*;
-pub use shared::*;
+pub use common::*;

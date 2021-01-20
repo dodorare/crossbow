@@ -42,7 +42,6 @@ impl AppleBuildCommand {
         config: &Config,
         build_context: &BuildContext,
     ) -> Result<(AppleMetadata, Vec<PathBuf>)> {
-        config.shell().status("Starting build process", "")?;
         let package = build_context
             .manifest
             .package
@@ -72,6 +71,7 @@ impl AppleBuildCommand {
             name = package.name.clone();
             Target::Bin(name.clone())
         };
+        config.shell().status("Starting build process", &name)?;
         config.shell().status("Compiling app", "")?;
         let build_targets = if !self.target.is_empty() {
             &self.target
@@ -112,8 +112,9 @@ impl AppleBuildCommand {
         name: &str,
     ) -> Result<PathBuf> {
         let rust_triple = build_target.rust_triple();
-        config.shell().status("Compiling rust bin", &name)?;
-        config.shell().status("for architecture", rust_triple)?;
+        config
+            .shell()
+            .status("Compiling for architecture", rust_triple)?;
         apple_rust_compile(
             target,
             build_target,

@@ -1,4 +1,4 @@
-use crate::commands::shared::cargo_rustc_command;
+use crate::commands::common::cargo_rustc_command;
 use crate::error::*;
 use crate::types::*;
 use std::path::Path;

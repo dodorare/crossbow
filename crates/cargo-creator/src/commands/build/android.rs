@@ -27,7 +27,6 @@ impl AndroidBuildCommand {
         config: &Config,
         build_context: &BuildContext,
     ) -> Result<(String, AndroidSdk, PathBuf)> {
-        config.shell().status("Starting build process", "")?;
         let package = build_context
             .manifest
             .package
@@ -53,6 +52,9 @@ impl AndroidBuildCommand {
             package_name = package.name.clone();
             Target::Lib
         };
+        config
+            .shell()
+            .status("Starting build process", &package_name)?;
         let sdk = AndroidSdk::from_env().unwrap();
         let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
         let target_sdk_version = metadata
@@ -72,8 +74,9 @@ impl AndroidBuildCommand {
         for build_target in build_targets.iter() {
             let lib_name = format!("lib{}.so", package_name.replace("-", "_"));
             let rust_triple = build_target.rust_triple();
-            config.shell().status("Compiling rust lib", &lib_name)?;
-            config.shell().status("for architecture", rust_triple)?;
+            config
+                .shell()
+                .status("Compiling for architecture", rust_triple)?;
             compile_rust_for_android(
                 &ndk,
                 target.clone(),
