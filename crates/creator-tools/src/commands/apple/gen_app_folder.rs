@@ -3,7 +3,8 @@ use fs_extra::dir::{copy as copy_dir, CopyOptions};
 use std::fs::{create_dir_all, remove_dir_all};
 use std::path::{Path, PathBuf};
 
-pub fn gen_apple_app(
+/// Generates an apple app folder.
+pub fn gen_apple_app_folder(
     target_dir: &Path,
     project_name: &str,
     resources_dir: Option<PathBuf>,
