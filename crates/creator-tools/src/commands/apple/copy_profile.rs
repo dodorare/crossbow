@@ -4,6 +4,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
+/// Copies profiles into `@app_path/embedded.mobileprovision`.
 pub fn copy_profile(
     app_path: &Path,
     profile_name: Option<String>,

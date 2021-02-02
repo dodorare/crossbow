@@ -128,7 +128,7 @@ impl AppleBuildCommand {
         let out_dir = build_context.target_dir.join(rust_triple).join(&profile);
         let bin_path = out_dir.join(&name);
         config.shell().status("Generating app folder")?;
-        let app_path = apple::gen_apple_app(
+        let app_path = apple::gen_apple_app_folder(
             &build_context
                 .target_dir
                 .join("apple")
