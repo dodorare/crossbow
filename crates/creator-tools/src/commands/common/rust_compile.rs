@@ -1,5 +1,4 @@
 use crate::types::*;
-use itertools::Itertools;
 use std::path::Path;
 use std::process::Command;
 
@@ -40,11 +39,9 @@ pub fn cargo_rustc_command(
     cargo.args(&["--target", &triple]);
     if !crate_types.is_empty() {
         // Creates a comma-separated string
-        let crate_types: String = crate_types
-            .iter()
-            .map(|v| v.as_ref())
-            .intersperse(",")
-            .collect();
+        let crate_types: String =
+            itertools::Itertools::intersperse(crate_types.iter().map(|v| v.as_ref()), ",")
+                .collect();
         cargo.args(&["--", "--crate-type", &crate_types]);
     };
     cargo

@@ -13,7 +13,7 @@ fn test_gen_apple_app() {
     std::fs::create_dir(&target_dir).unwrap();
     // Generate app folder
     let app_dir =
-        gen_apple_app(&target_dir, &name, Default::default(), Default::default()).unwrap();
+        gen_apple_app_folder(&target_dir, &name, Default::default(), Default::default()).unwrap();
     // Check app dir
     assert_eq!(true, app_dir.exists());
 }
