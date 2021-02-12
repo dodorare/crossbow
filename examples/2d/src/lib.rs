@@ -4,7 +4,7 @@ use bevy::prelude::*;
 pub fn main() {
     println!("Initialization.");
     App::build()
-        .add_resource(ClearColor(Color::rgb(0.88, 0.87, 0.86)))
+        .insert_resource(ClearColor(Color::rgb(0.88, 0.87, 0.86)))
         .add_plugins(DefaultPlugins)
         .add_startup_system(audio.system())
         .add_startup_system(icon.system())
@@ -18,7 +18,7 @@ fn icon(
 ) {
     let texture_handle = asset_server.load("branding/icon.png");
     commands
-        .spawn(Camera2dBundle::default())
+        .spawn(OrthographicCameraBundle::new_2d())
         .spawn(SpriteBundle {
             material: materials.add(texture_handle.into()),
             ..Default::default()

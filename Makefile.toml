@@ -62,13 +62,13 @@ powershell Compress-Archive -Path ${OUTPUT_NAME}/* -DestinationPath ${OUTPUT_NAM
 
 [tasks.build-release-examples]
 description = "Compiles the apks in release mode and zips them up"
-# "explorer Creator Explorer"
 script = '''
 mkdir -p target/apks
 examples=(
   "2d Creator 2D"
   "3d Creator 3D"
   "paint Creator Paint"
+  "explorer Creator Explorer"
 )
 for i in "${examples[@]}"
 do

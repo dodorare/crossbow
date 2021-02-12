@@ -65,13 +65,13 @@ fn test_apple_full() {
     std::fs::create_dir(&target_dir).unwrap();
 
     // Generate app folder
-    let app_dir = gen_apple_app(&target_dir, &name, None, None).unwrap();
+    let app_dir = gen_apple_app_folder(&target_dir, &name, None, None).unwrap();
     assert!(app_dir.exists());
 
     // Compile app
     let build_target = AppleTarget::X86_64AppleIos;
     let profile = Profile::Release;
-    apple_rust_compile(
+    compile_rust_for_ios(
         Target::Bin(name.clone()),
         build_target,
         dir,
@@ -92,7 +92,7 @@ fn test_apple_full() {
 
     // Generate Info.plist
     let properties = get_minimal_info_plist(&name);
-    gen_apple_plist(&app_dir, &properties, false).unwrap();
+    create_apple_plist(&app_dir, &properties, false).unwrap();
 
     // Sign bundle
     codesign(&app_dir, true, None, None).unwrap();

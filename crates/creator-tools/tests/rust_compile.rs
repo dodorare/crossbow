@@ -35,7 +35,7 @@ fn test_compile_apple() {
     let dir = tempdir.path();
     let name = gen_minimal_project(dir).unwrap();
 
-    apple_rust_compile(
+    compile_rust_for_ios(
         Target::Bin(name),
         AppleTarget::Aarch64AppleIos,
         dir,
