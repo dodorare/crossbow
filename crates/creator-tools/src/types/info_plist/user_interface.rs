@@ -319,14 +319,14 @@ pub struct Graphics {
         skip_serializing_if = "Option::is_none",
         serialize_with = "serialize_enum_option"
     )]
-    pub gpu_eject_policy: Option<GPUEjectPolicy>,
+    pub gpu_eject_policy: Option<GpuEjectPolicy>,
     /// The app's preference for whether it wants to use external graphics processors.
     #[serde(
         rename(serialize = "GPUSelectionPolicy"),
         skip_serializing_if = "Option::is_none",
         serialize_with = "serialize_enum_option"
     )]
-    pub gpu_selection_policy: Option<GPUSelectionPolicy>,
+    pub gpu_selection_policy: Option<GpuSelectionPolicy>,
 }
 
 /// QuickLook.
@@ -367,7 +367,7 @@ pub struct QuickLook {
 /// GPU Eject Policy.
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 #[serde(rename_all(deserialize = "kebab-case"))]
-pub enum GPUEjectPolicy {
+pub enum GpuEjectPolicy {
     /// Set this value to allow macOS to quit and relaunch your app with another GPU.
     /// Your app can implement the application(_:willEncodeRestorableState:) method to save any
     /// state before it quits, and it can implement the application(_:didDecodeRestorableState:)
@@ -390,7 +390,7 @@ pub enum GPUEjectPolicy {
 /// GPU Selection Policy.
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 #[serde(rename_all(deserialize = "kebab-case"))]
-pub enum GPUSelectionPolicy {
+pub enum GpuSelectionPolicy {
     /// Metal tries to avoid creating contexts on external GPUs. For legacy OpenGL apps, OpenGL also avoids creating
     /// contexts using external GPUs. Set this option only if your app doesn't support external GPU event handling.
     #[serde(rename(serialize = "avoidRemovable"))]

@@ -239,7 +239,7 @@ pub struct BackgroundExecution {
         skip_serializing_if = "Option::is_none",
         serialize_with = "serialize_vec_enum_option"
     )]
-    pub ui_background_modes: Option<Vec<UIBackgroundMode>>,
+    pub ui_background_modes: Option<Vec<UiBackgroundMode>>,
     /// The services a watchOS app provides that require it to continue running in the background.
     ///
     /// You can only enable one of the extended runtime session modes (self-care, mindfulness, physical-therapy, or alarm).
@@ -250,7 +250,7 @@ pub struct BackgroundExecution {
         skip_serializing_if = "Option::is_none",
         serialize_with = "serialize_vec_enum_option"
     )]
-    pub wk_background_modes: Option<Vec<WKBackgroundMode>>,
+    pub wk_background_modes: Option<Vec<WkBackgroundMode>>,
     /// An array of strings containing developer-specified task identifiers in reverse URL notation.
     #[serde(
         rename(serialize = "BGTaskSchedulerPermittedIdentifiers"),
@@ -352,7 +352,7 @@ pub struct Termination {
 /// WK Background Mode.
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 #[serde(rename_all(deserialize = "kebab-case"))]
-pub enum WKBackgroundMode {
+pub enum WkBackgroundMode {
     /// Allows an active workout session to run in the background.
     #[serde(rename(serialize = "workout-processing"))]
     WorkoutProcessing,
@@ -373,7 +373,7 @@ pub enum WKBackgroundMode {
 /// UI Background Mode.
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 #[serde(rename_all(deserialize = "kebab-case"))]
-pub enum UIBackgroundMode {
+pub enum UiBackgroundMode {
     #[serde(rename(serialize = "audio"))]
     Audio,
     #[serde(rename(serialize = "location"))]
@@ -689,7 +689,7 @@ pub enum ExtensionPointIdentifier {
     #[serde(rename(serialize = "com.apple.AudioUnit-UI"))]
     AudioUnitUi,
     #[serde(rename(serialize = "com.apple.AppSSO.idp-extension"))]
-    AppSSOIdpExtension,
+    AppSsoIdpExtension,
     #[serde(rename(serialize = "com.apple.authentication-services-credential-provider-ui"))]
     AuthenticationServicesCredentialProviderUi,
     #[serde(rename(serialize = "com.apple.broadcast-services-setupui"))]

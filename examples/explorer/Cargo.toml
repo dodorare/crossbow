@@ -9,7 +9,7 @@ creator = { version = "0.3.8", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
 substrate-subxt = "0.14"
-bevy = { git = "https://github.com/bevyengine/bevy", rev = "7be096a254e86bd6388d96ea10b56b9ed6210685" }
+bevy = { git = "https://github.com/bevyengine/bevy", rev = "3319195f9036e9ee301545632b98f1090a3ba3b0" }
 tokio = { version = "1.2", features = ["sync", "macros"] }
 
 [lib]
