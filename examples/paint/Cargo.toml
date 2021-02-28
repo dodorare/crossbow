@@ -9,7 +9,7 @@ creator = { version = "0.3.8", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
 itertools = "0.10"
-bevy = { git = "https://github.com/bevyengine/bevy", rev = "3319195f9036e9ee301545632b98f1090a3ba3b0" }
+bevy = { git = "https://github.com/bevyengine/bevy", rev = "bc4fe9b186db3f32eef38fc4241289df480fa949" }
 
 [lib]
 crate-type = ["lib", "cdylib"]

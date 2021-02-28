@@ -21,7 +21,7 @@ pub fn main() {
         .add_startup_system(explorer_startup.system())
         .add_startup_system(explorer_ui.system())
         .add_stage_after(
-            stage::UPDATE,
+            CoreStage::Update,
             "substrate_update",
             SystemStage::parallel()
                 .with_run_criteria(FixedTimestep::steps_per_second(1.0))
