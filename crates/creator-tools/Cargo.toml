@@ -18,7 +18,7 @@ dunce = "1.0"
 fs_extra = "1.2"
 dirs = "3.0.1"
 simctl = { version = "0.1.1", package = "creator-simctl" }
-
+android-manifest = { git = "https://github.com/dodorare/android-manifest-rs", branch = "main", rev = "b11a58e9cbca66441c3a671452a0a8bb27766111"}
 thiserror = "1.0"
 displaydoc = "0.1"
 which = "4.0"

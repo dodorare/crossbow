@@ -7,7 +7,7 @@ use creator_tools::{
     types::*,
     utils::Config,
 };
-use std::path::PathBuf;
+use std::{convert::TryInto, path::PathBuf};
 
 #[derive(Clap, Clone, Debug)]
 pub struct AndroidBuildCommand {
@@ -131,7 +131,7 @@ impl AndroidBuildCommand {
                 &compiled_lib,
                 *build_target,
                 profile,
-                android_manifest.min_sdk_version,
+                android_manifest.uses_sdk.unwrap().min_sdk_version.unwrap().try_into().unwrap(),
                 &apk_build_dir,
                 &target_dir,
             )
@@ -141,7 +141,7 @@ impl AndroidBuildCommand {
         let aligned_apk_path = android::align_apk(
             &sdk,
             &unaligned_apk_path,
-            &android_manifest.package_label,
+            &android_manifest.package,
             &apk_build_dir,
         )
         .unwrap();
@@ -152,6 +152,6 @@ impl AndroidBuildCommand {
         config.shell().status("Signing APK file")?;
         android::sign_apk(&sdk, &aligned_apk_path, key).unwrap();
         config.shell().status("Build finished successfully")?;
-        Ok((android_manifest.package_name, sdk, aligned_apk_path))
+        Ok((android_manifest.package, sdk, aligned_apk_path))
     }
 }
