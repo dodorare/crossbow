@@ -1,5 +1,5 @@
 use super::{BuildContext, SharedBuildCommand};
-use crate::error::*;
+use crate::{error::*, manifest::into_android_manifest};
 use clap::Clap;
 use creator_tools::{
     commands::android,
@@ -61,10 +61,7 @@ impl AndroidBuildCommand {
             .status_message("Starting build process", &package_name)?;
         let sdk = AndroidSdk::from_env().unwrap();
         let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
-        let target_sdk_version = metadata
-            .manifest
-            .target_sdk_version
-            .unwrap_or_else(|| sdk.default_platform());
+        let target_sdk_version = metadata.manifest.uses_sdk.unwrap().target_sdk_version.unwrap_or_else(|| sdk.default_platform().try_into().unwrap());
         let build_targets = if !self.target.is_empty() {
             self.target.clone()
         } else if metadata.build_targets.is_some()
@@ -90,7 +87,7 @@ impl AndroidBuildCommand {
                 self.shared.features.clone(),
                 self.shared.all_features,
                 self.shared.no_default_features,
-                target_sdk_version,
+                target_sdk_version.try_into().unwrap(),
             )
             .unwrap();
             let out_dir = target_dir.join(build_target.rust_triple()).join(&profile);
@@ -100,16 +97,10 @@ impl AndroidBuildCommand {
         config
             .shell()
             .status_message("Generating", "AndroidManifest.xml")?;
-        let android_manifest = metadata.manifest.into_android_manifest(
-            &target,
-            profile,
-            package_name,
-            package.version.clone(),
-            target_sdk_version,
-        );
+        let android_manifest = into_android_manifest(package_name, target_sdk_version);
         let apk_build_dir = target_dir.join("android").join(&profile);
         let manifest_path =
-            android::create_android_manifest(&apk_build_dir, &android_manifest).unwrap();
+            android::create_android_manifest(&apk_build_dir, android_manifest.clone()).unwrap();
         config
             .shell()
             .status_message("Generating", "unaligned APK file")?;
@@ -119,7 +110,7 @@ impl AndroidBuildCommand {
             &manifest_path,
             metadata.assets.clone(),
             metadata.resources,
-            &android_manifest,
+            android_manifest.clone(),
         )
         .unwrap();
         config.shell().status("Adding libs into APK file")?;
@@ -131,7 +122,7 @@ impl AndroidBuildCommand {
                 &compiled_lib,
                 *build_target,
                 profile,
-                android_manifest.uses_sdk.unwrap().min_sdk_version.unwrap().try_into().unwrap(),
+                android_manifest.clone().uses_sdk.unwrap().min_sdk_version.unwrap().try_into().unwrap(),
                 &apk_build_dir,
                 &target_dir,
             )

@@ -1,3 +1,4 @@
+use android_manifest::*;
 use creator_tools::types::*;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
@@ -12,203 +13,119 @@ pub struct AndroidMetadata {
     /// Build targets.
     pub build_targets: Option<Vec<AndroidTarget>>,
     /// Android manifest.
-    pub manifest: AndroidManifestConfig,
+    pub manifest: AndroidManifest,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
-pub struct AndroidManifestConfig {
-    pub apk_label: Option<String>,
-    pub target_sdk_version: Option<u32>,
-    pub min_sdk_version: Option<u32>,
-    pub icon: Option<String>,
-    pub fullscreen: Option<bool>,
-    pub orientation: Option<String>,
-    pub opengles_version: Option<(u8, u8)>,
-    pub feature: Option<Vec<FeatureConfig>>,
-    pub permission: Option<Vec<PermissionConfig>>,
-    pub intent_filter: Option<Vec<IntentFilterConfig>>,
-    pub application_metadatas: Option<Vec<ApplicationMetadataConfig>>,
-    pub activity_metadatas: Option<Vec<ActivityMetadataConfig>>,
-}
-
-impl AndroidManifestConfig {
     pub fn into_android_manifest(
-        self,
-        target: &Target,
-        profile: Profile,
         package_name: String,
-        package_version: String,
-        target_sdk_version: u32,
+        target_sdk_version: i32,
     ) -> AndroidManifest {
-        let pkg_name = match target {
-            Target::Lib => format!("rust.{}", package_name.replace("-", "_")),
-            Target::Example(_) => format!("rust.example.{}", package_name.replace("-", "_")),
-            _ => panic!(),
-        };
-        let package_label = self
-            .apk_label
-            .as_deref()
-            .unwrap_or(&package_name)
-            .to_string();
-        let version_code = VersionCode::from_semver(&package_version)
-            .unwrap()
-            .to_code(1);
-        let version_name = package_version;
-        let min_sdk_version = self.min_sdk_version.unwrap_or(23);
-        let opengles_version = self.opengles_version.unwrap_or((3, 1));
-        let features = self
-            .feature
-            .clone()
-            .unwrap_or_default()
-            .into_iter()
-            .map(Into::into)
-            .collect();
-        let permissions = self
-            .permission
-            .clone()
-            .unwrap_or_default()
-            .into_iter()
-            .map(Into::into)
-            .collect();
-        let intent_filters = self
-            .intent_filter
-            .clone()
-            .unwrap_or_default()
-            .into_iter()
-            .map(Into::into)
-            .collect();
-        let application_metadatas = self
-            .application_metadatas
-            .clone()
-            .unwrap_or_default()
-            .into_iter()
-            .map(Into::into)
-            .collect();
-        let activity_metadatas = self
-            .activity_metadatas
-            .clone()
-            .unwrap_or_default()
-            .into_iter()
-            .map(Into::into)
-            .collect();
-        AndroidManifest {
-            package_name: pkg_name,
-            package_label,
-            version_name,
-            version_code,
-            split: None,
-            target_name: package_name.replace("-", "_"),
-            debuggable: profile == Profile::Debug,
-            target_sdk_version,
-            min_sdk_version,
-            opengles_version,
-            features,
-            permissions,
-            intent_filters,
-            icon: self.icon.clone(),
-            fullscreen: self.fullscreen.unwrap_or(false),
-            orientation: self.orientation,
-            application_metadatas,
-            activity_metadatas,
+        AndroidManifest{
+            package: "com.example.toggletest".to_string(),
+            shared_user_id: Some("com.example".to_string()),
+            target_sandbox_version: None,
+            shared_user_label: None,
+            version_code: None,
+            version_name: None,
+            install_location:  Some(InstallLocation::Auto),
+            application: Application {
+                allow_backup: Some(true),
+                label: Some(StringResourceOrString::string("app_name1")),
+                activity: vec![Activity {
+                    name: "com.example.toggletest.MainActivity".to_string(),
+                    label: Some(StringResourceOrString::string("app_name2")),
+                    intent_filter: vec![IntentFilter {
+                        action: vec![Action {
+                            name: Some("android.intent.action.MAIN".to_string()),
+                        }],
+                        category: vec![Category {
+                            name: Some("android.intent.category.LAUNCHER".to_string()),
+                        }],
+                        ..Default::default()
+                    }],
+                    ..Default::default()
+                }],
+                ..Default::default()
+            },
+            uses_sdk: Some(UsesSdk {
+                min_sdk_version: Some(29),
+                target_sdk_version: Some(29),
+                ..Default::default()
+            }),
+            compatible_screens: None,
+            instrumentation: vec![Instrumentation {
+                functional_test: Some(true),
+                handle_profiling: Some(true),
+                icon: None,
+                label: Some(StringResourceOrString::string("app_name3")),
+                name: "com.example.toggletest.MainActivity".to_string(),
+                target_package: Some("com.example.toggletest.MainActivity".to_string()),
+                target_processes: Some("com.example.toggletest.MainActivity".to_string()),
+            }],
+            permission:  vec![Permission {
+                name: Some("org.domokit.gcm.permission.C2D_MESSAGE".to_string()),
+                protection_level: Some(ProtectionLevel::Signature),
+                ..Default::default()
+            }],
+            permission_group: vec![PermissionGroup {
+                description: None,
+                icon:  None,
+                label: Some(StringResourceOrString::string("app_name4")),
+                name:  Some("com.example.toggletest.MainActivity".to_string()),
+            }],
+            permission_tree: vec![PermissionTree {
+                icon: None,
+                label: Some(StringResourceOrString::string("app_name5")),
+                name:  Some("com.example.toggletest.MainActivity".to_string()),
+            }],
+            supports_gl_texture: vec![SupportsGlTexture {
+                name: Some(SupportsGlTextureName::GL_AMD_compressed_3DC_texture),
+            }],
+            supports_screens: vec![SupportsScreens{
+                resizeable: Some(true),
+                small_screens: Some(false),
+                normal_screens: Some(false),
+                large_screens: Some(true),
+                xlarge_screens: Some(false),
+                any_density: Some(true),
+                requires_smallest_width_dp: Some("600".to_string()),
+                compatible_width_limit_dp: Some("600".to_string()),
+                largest_width_limit_dp: Some("600".to_string()),
+            }],
+            uses_configuration: vec![UsesConfiguration {
+                req_five_way_nav: Some(true),
+                req_hard_keyboard: Some(false),
+                req_keyboard_type: Some(ReqKeyboardType::Undefined),
+                req_navigation: Some(ReqNavigation::Dpad),
+                req_touch_screen: Some(ReqTouchScreen::Stylus),
+            }],
+            uses_feature: vec![UsesFeature {
+                name: Some("com.example.toggletest.MainActiy".to_string()),
+                required: Some(false),
+                gl_es_version: None,
+            }],
+            uses_permission: vec![
+            UsesPermission {
+                name: Some("android.permission.INTERNET".to_string()),
+                ..Default::default()
+            },
+            UsesPermission {
+                name: Some("android.permission.WAKE_LOCK".to_string()),
+                ..Default::default()
+            },
+            UsesPermission {
+                name: Some("com.google.android.c2dm.permission.RECEIVE".to_string()),
+                ..Default::default()
+            },
+            UsesPermission {
+                name: Some("org.domokit.gcm.permission.C2D_MESSAGE".to_string()),
+                ..Default::default()
+            },
+        ],
+        uses_permission_sdk_23: vec![UsesPermissionSdk23 {
+            name: Some("com.google.android.c2dm.permission.RECEIVE".to_string()),
+            max_sdk_version: Some(32),
+        }],
+            queries: None ,
         }
     }
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct FeatureConfig {
-    name: String,
-    required: Option<bool>,
-}
-
-impl From<FeatureConfig> for Feature {
-    fn from(config: FeatureConfig) -> Self {
-        Self {
-            name: config.name,
-            required: config.required.unwrap_or(true),
-        }
-    }
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct PermissionConfig {
-    name: String,
-    max_sdk_version: Option<u32>,
-}
-
-impl From<PermissionConfig> for Permission {
-    fn from(config: PermissionConfig) -> Self {
-        Self {
-            name: config.name,
-            max_sdk_version: config.max_sdk_version,
-        }
-    }
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct IntentFilterConfigData {
-    pub scheme: Option<String>,
-    pub host: Option<String>,
-    pub prefix: Option<String>,
-}
-
-impl From<IntentFilterConfigData> for IntentFilterData {
-    fn from(config: IntentFilterConfigData) -> Self {
-        Self {
-            scheme: config.scheme,
-            host: config.host,
-            prefix: config.prefix,
-        }
-    }
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct IntentFilterConfig {
-    name: String,
-    data: Vec<IntentFilterConfigData>,
-    categories: Vec<String>,
-}
-
-impl From<IntentFilterConfig> for IntentFilter {
-    fn from(config: IntentFilterConfig) -> Self {
-        Self {
-            name: config.name,
-            data: config
-                .data
-                .into_iter()
-                .map(IntentFilterData::from)
-                .rev()
-                .collect(),
-            categories: config.categories,
-        }
-    }
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct ApplicationMetadataConfig {
-    name: String,
-    value: String,
-}
-
-impl From<ApplicationMetadataConfig> for ApplicationMetadata {
-    fn from(config: ApplicationMetadataConfig) -> Self {
-        Self {
-            name: config.name,
-            value: config.value,
-        }
-    }
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct ActivityMetadataConfig {
-    name: String,
-    value: String,
-}
-
-impl From<ActivityMetadataConfig> for ActivityMetadata {
-    fn from(config: ActivityMetadataConfig) -> Self {
-        Self {
-            name: config.name,
-            value: config.value,
-        }
-    }
-}
