@@ -13,8 +13,8 @@ pub enum TtyWidth {
 }
 
 impl TtyWidth {
-    /// Returns the width provided with `-Z terminal-width` to rustc to truncate diagnostics with
-    /// long lines.
+    /// Returns the width provided with `-Z terminal-width` to rustc to truncate
+    /// diagnostics with long lines.
     pub fn diagnostic_terminal_width(&self) -> Option<usize> {
         match *self {
             TtyWidth::NoTty | TtyWidth::Guess(_) => None,
@@ -93,8 +93,8 @@ pub enum ColorChoice {
 }
 
 impl Shell {
-    /// Creates a new shell (color choice and verbosity), defaulting to 'auto' color and verbose
-    /// output.
+    /// Creates a new shell (color choice and verbosity), defaulting to 'auto' color and
+    /// verbose output.
     pub fn new() -> Shell {
         let auto = ColorChoice::CargoAuto.to_termcolor_color_choice();
         Shell {
@@ -118,8 +118,8 @@ impl Shell {
         }
     }
 
-    /// Prints a message, where the status will have `color` color, and can be justified. The
-    /// messages follows without color.
+    /// Prints a message, where the status will have `color` color, and can be justified.
+    /// The messages follows without color.
     fn print(
         &mut self,
         status: &dyn fmt::Display,
@@ -308,8 +308,8 @@ impl Shell {
 
     /// Gets the current color choice.
     ///
-    /// If we are not using a color stream, this will always return `Never`, even if the color
-    /// choice has been set to something else.
+    /// If we are not using a color stream, this will always return `Never`, even if the
+    /// color choice has been set to something else.
     pub fn color_choice(&self) -> ColorChoice {
         match self.output {
             ShellOut::Stream { color_choice, .. } => color_choice,
@@ -354,9 +354,9 @@ impl Default for Shell {
 }
 
 impl ShellOut {
-    /// Prints out a message with a status. The status comes first, and is bold plus the given
-    /// color. The status can be justified, in which case the max width that will right align is
-    /// 12 chars.
+    /// Prints out a message with a status. The status comes first, and is bold plus the
+    /// given color. The status can be justified, in which case the max width that
+    /// will right align is 12 chars.
     fn message_stderr(
         &mut self,
         status: &dyn fmt::Display,

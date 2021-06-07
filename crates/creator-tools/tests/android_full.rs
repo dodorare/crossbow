@@ -1,15 +1,12 @@
 use android_manifest::*;
-use std::{clone::Clone, path::Path};
 use creator_tools::{
     commands::{android::*, gen_minimal_project},
     deps::{AndroidNdk, AndroidSdk},
     types::*,
 };
+use std::{clone::Clone, path::Path};
 
-pub fn get_android_manifest(
-    project_name: &str,
-    target_sdk_version: u32,
-) -> AndroidManifest {
+pub fn get_android_manifest(project_name: &str, target_sdk_version: u32) -> AndroidManifest {
     AndroidManifest {
         package: "com.example.toggletest".to_string(),
         shared_user_id: Some("com.example".to_string()),
@@ -43,10 +40,10 @@ pub fn get_android_manifest(
             ..Default::default()
         }),
         compatible_screens: Some(CompatibleScreens {
-            screen:  vec![Screen {
+            screen: vec![Screen {
                 screen_size: ScreenSize::Normal,
                 screen_density: "mdpi".to_string(),
-            }], 
+            }],
         }),
         instrumentation: vec![Instrumentation {
             functional_test: Some(true),
@@ -64,19 +61,19 @@ pub fn get_android_manifest(
         }],
         permission_group: vec![PermissionGroup {
             description: None,
-            icon:  None,
+            icon: None,
             label: Some(StringResourceOrString::string("app_name4")),
-            name:  Some("com.example.toggletest.MainActivity".to_string()),
+            name: Some("com.example.toggletest.MainActivity".to_string()),
         }],
         permission_tree: vec![PermissionTree {
             icon: None,
             label: Some(StringResourceOrString::string("app_name5")),
-            name:  Some("com.example.toggletest.MainActivity".to_string()),
+            name: Some("com.example.toggletest.MainActivity".to_string()),
         }],
         supports_gl_texture: vec![SupportsGlTexture {
             name: Some(SupportsGlTextureName::GL_AMD_compressed_3DC_texture),
         }],
-        supports_screens: vec![SupportsScreens{
+        supports_screens: vec![SupportsScreens {
             resizeable: Some(true),
             small_screens: Some(false),
             normal_screens: Some(false),
@@ -121,7 +118,7 @@ pub fn get_android_manifest(
             name: Some("com.google.android.c2dm.permission.RECEIVE".to_string()),
             max_sdk_version: Some(32),
         }],
-        queries: None ,
+        queries: None,
     }
 }
 
@@ -130,7 +127,7 @@ fn test_android_full() {
     let tempdir = tempfile::tempdir().unwrap();
     let dir = tempdir.path();
     let name = gen_minimal_project(&dir).unwrap();
-   
+
     // Create dependencies
     let sdk = AndroidSdk::from_env().unwrap();
     let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
@@ -166,7 +163,15 @@ fn test_android_full() {
     assert!(manifest_path.exists());
 
     // Gen unaligned apk
-    let unaligned_apk_path = gen_unaligned_apk(&sdk, &apk_build_dir, &manifest_path, None, None, manifest.clone()).unwrap();
+    let unaligned_apk_path = gen_unaligned_apk(
+        &sdk,
+        &apk_build_dir,
+        &manifest_path,
+        None,
+        None,
+        manifest.clone(),
+    )
+    .unwrap();
     assert!(unaligned_apk_path.exists());
 
     // Add all needed libs into apk
@@ -184,13 +189,8 @@ fn test_android_full() {
     .unwrap();
 
     // Align apk
-    let aligned_apk_path = align_apk(
-        &sdk,
-        &unaligned_apk_path,
-        &manifest.package,
-        &apk_build_dir,
-    )
-    .unwrap();
+    let aligned_apk_path =
+        align_apk(&sdk, &unaligned_apk_path, &manifest.package, &apk_build_dir).unwrap();
     assert!(aligned_apk_path.exists());
 
     // Gen debug key for signing apk

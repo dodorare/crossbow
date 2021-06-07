@@ -106,8 +106,8 @@ fn search_dylibs(deps_dir: &Path) -> Result<Vec<PathBuf>> {
 }
 
 /// Update `needed_libs` hashset with given lib and all related libs.
-/// Note: libc++ is not a system lib. If you use libc++_shared.so, it must be included in your APK.
-/// https://developer.android.com/ndk/guides/cpp-support
+/// Note: libc++ is not a system lib. If you use libc++_shared.so, it must be included in
+/// your APK. https://developer.android.com/ndk/guides/cpp-support
 fn recursively_define_needed_libs(
     (lib_name, lib_path): (String, PathBuf),
     readelf_path: &Path,

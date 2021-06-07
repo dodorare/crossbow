@@ -3,10 +3,11 @@
 /// Control app launch, execution, and termination.
 ///
 /// Your app interacts with the system during normal execution by calling system APIs.
-/// However, you need to communicate information about how to execute your app before you have access to these API calls.
-/// For example, you may need to specify under what conditions your app can launch, the environment that it should launch into,
-/// and what should happen when it terminates. You add keys to your app’s Information Property List file to manage its execution.
-///
+/// However, you need to communicate information about how to execute your app before you
+/// have access to these API calls. For example, you may need to specify under what
+/// conditions your app can launch, the environment that it should launch into,
+/// and what should happen when it terminates. You add keys to your app’s Information
+/// Property List file to manage its execution.
 use super::{serialize_enum_option, serialize_vec_enum_option};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -16,10 +17,12 @@ use std::collections::BTreeMap;
 pub struct Launch {
     /// The name of the bundle’s main executable class.
     ///
-    /// The system uses the class identified by this key to set the principalClass property of a bundle when it’s loaded.
+    /// The system uses the class identified by this key to set the principalClass
+    /// property of a bundle when it’s loaded.
     ///
-    /// Xcode sets the default value of this key to NSApplication for macOS apps, and to UIApplication for iOS and tvOS apps.
-    /// For other types of bundles, you must set this key in The Info.plist File.
+    /// Xcode sets the default value of this key to NSApplication for macOS apps, and to
+    /// UIApplication for iOS and tvOS apps. For other types of bundles, you must set
+    /// this key in The Info.plist File.
     #[serde(
         rename(serialize = "NSPrincipalClass"),
         skip_serializing_if = "Option::is_none"
@@ -27,8 +30,9 @@ pub struct Launch {
     pub principal_class: Option<String>,
     /// The name of the class that implements the complication data source protocol.
     ///
-    /// Xcode automatically includes this key in the information property list when you modify the WatchKit extension’s
-    /// data source (General > Complication Configuration > Data Source class).
+    /// Xcode automatically includes this key in the information property list when you
+    /// modify the WatchKit extension’s data source (General > Complication
+    /// Configuration > Data Source class).
     #[serde(
         rename(serialize = "CLKComplicationPrincipalClass"),
         skip_serializing_if = "Option::is_none"
@@ -36,11 +40,13 @@ pub struct Launch {
     pub complication_principal_class: Option<Vec<String>>,
     /// The name of the bundle’s executable file.
     ///
-    /// For an app, this key is the executable. For a loadable bundle, it's the binary that's loaded dynamically
-    /// by the bundle. For a framework, it's the shared library framework and must have the same name as the
-    /// framework but without the .framework extension.
+    /// For an app, this key is the executable. For a loadable bundle, it's the binary
+    /// that's loaded dynamically by the bundle. For a framework, it's the shared
+    /// library framework and must have the same name as the framework but without the
+    /// .framework extension.
     ///
-    /// macOS uses this key to locate the bundle’s executable or shared library in cases where the user renames the app or bundle directory.
+    /// macOS uses this key to locate the bundle’s executable or shared library in cases
+    /// where the user renames the app or bundle directory.
     #[serde(
         rename(serialize = "CFBundleExecutable"),
         skip_serializing_if = "Option::is_none"
@@ -99,33 +105,41 @@ pub struct ApplicationShortcutItem {
 pub struct LaunchConditions {
     /// The device-related features that your app requires to run.
     ///
-    /// The App Store prevents customers from installing an app on a device that doesn’t support the required capabilities
-    /// for that app. Use this key to declare the capabilities your app requires. For a list of the features that different
+    /// The App Store prevents customers from installing an app on a device that doesn’t
+    /// support the required capabilities for that app. Use this key to declare the
+    /// capabilities your app requires. For a list of the features that different
     /// devices support, see Required Device Capabilities.
     ///
-    /// You typically use an array for the key’s associated value. The presence in that array of any of the above possible values
-    /// indicates that the app requires the corresponding feature. Omit a value to indicate that the app doesn’t require
+    /// You typically use an array for the key’s associated value. The presence in that
+    /// array of any of the above possible values indicates that the app requires the
+    /// corresponding feature. Omit a value to indicate that the app doesn’t require
     /// the feature, but it can be present.
     ///
-    /// Alternatively, you can use a dictionary as the associated value for the UIRequiredDeviceCapabilities key. In that case,
-    /// use the values above as the dictionary’s keys, each with an associated Boolean value. Set the value to true to require
-    /// the corresponding feature. Set the value to false to indicate that the feature must not be present on the device. Omit
-    /// the feature from the dictionary to indicate that your app neither requires nor disallows it.
+    /// Alternatively, you can use a dictionary as the associated value for the
+    /// UIRequiredDeviceCapabilities key. In that case, use the values above as the
+    /// dictionary’s keys, each with an associated Boolean value. Set the value to true to
+    /// require the corresponding feature. Set the value to false to indicate that the
+    /// feature must not be present on the device. Omit the feature from the
+    /// dictionary to indicate that your app neither requires nor disallows it.
     ///
-    /// Specify only the features that your app absolutely requires. If your app can accommodate missing features by avoiding
-    /// the code paths that use those features, don’t include the corresponding key.
+    /// Specify only the features that your app absolutely requires. If your app can
+    /// accommodate missing features by avoiding the code paths that use those
+    /// features, don’t include the corresponding key.
     #[serde(
         rename(serialize = "UIRequiredDeviceCapabilities"),
         skip_serializing_if = "Option::is_none",
         serialize_with = "serialize_vec_enum_option"
     )]
     pub required_device_capabilities: Option<Vec<DeviceCapabilities>>,
-    /// An array of the architectures that the app supports, arranged according to their preferred usage.
+    /// An array of the architectures that the app supports, arranged according to their
+    /// preferred usage.
     ///
-    /// Use this key to prioritize the execution of a specific architecture in a universal binary. This key contains an array
-    /// of strings, with each string specifying the name of a supported architecture. The order of the strings in the array
-    /// represents your preference for executing the app. For example, if you specify the x86_64 architecture first for a
-    /// universal app, the system runs that app under Rosetta translation on Apple silicon. For more information about
+    /// Use this key to prioritize the execution of a specific architecture in a universal
+    /// binary. This key contains an array of strings, with each string specifying the
+    /// name of a supported architecture. The order of the strings in the array
+    /// represents your preference for executing the app. For example, if you specify the
+    /// x86_64 architecture first for a universal app, the system runs that app under
+    /// Rosetta translation on Apple silicon. For more information about
     /// Rosetta translation, see About the Rosetta Translation Environment.
     #[serde(
         rename(serialize = "LSArchitecturePriority"),
@@ -133,22 +147,26 @@ pub struct LaunchConditions {
         serialize_with = "serialize_enum_option"
     )]
     pub architecture_priority: Option<ArchitecturePriority>,
-    /// A Boolean value that indicates whether to require the execution of the app’s native architecture when multiple
-    /// architectures are available.
+    /// A Boolean value that indicates whether to require the execution of the app’s
+    /// native architecture when multiple architectures are available.
     ///
-    /// When an app supports multiple architectures, the presence of this key causes the system to choose the native architecture
-    /// over ones that require translation. For example, this key prevents the system from using the Rosetta translation process
-    /// to execute the Intel portion of a universal app on Apple silicon.
+    /// When an app supports multiple architectures, the presence of this key causes the
+    /// system to choose the native architecture over ones that require translation.
+    /// For example, this key prevents the system from using the Rosetta translation
+    /// process to execute the Intel portion of a universal app on Apple silicon.
     #[serde(
         rename(serialize = "LSRequiresNativeExecution"),
         skip_serializing_if = "Option::is_none"
     )]
     pub requires_native_execution: Option<bool>,
-    /// A Boolean value indicating whether the user can install and run the watchOS app independently of its iOS companion app.
+    /// A Boolean value indicating whether the user can install and run the watchOS app
+    /// independently of its iOS companion app.
     ///
-    /// Xcode automatically includes this key in the WatchKit extension’s information property list and sets its value to true
-    /// when you create a project using the iOS App with Watch App template. When you set the value of this key to true, the app
-    /// doesn’t need its iOS companion app to operate properly. Users can choose to install the iOS app, the watchOS app, or both.
+    /// Xcode automatically includes this key in the WatchKit extension’s information
+    /// property list and sets its value to true when you create a project using the
+    /// iOS App with Watch App template. When you set the value of this key to true, the
+    /// app doesn’t need its iOS companion app to operate properly. Users can choose
+    /// to install the iOS app, the watchOS app, or both.
     #[serde(
         rename(serialize = "WKRunsIndependentlyOfCompanionApp"),
         skip_serializing_if = "Option::is_none"
@@ -156,19 +174,21 @@ pub struct LaunchConditions {
     pub runs_independently_of_companion_app: Option<bool>,
     /// A Boolean value indicating whether the app is a watch-only app.
     ///
-    /// Xcode automatically includes this key in the WatchKit extension’s information property list and sets its value to true
-    /// when you create a project using the Watch App template. When you set the value of this key to true, the app is only available
-    /// on Apple Watch, with no related iOS app.
+    /// Xcode automatically includes this key in the WatchKit extension’s information
+    /// property list and sets its value to true when you create a project using the
+    /// Watch App template. When you set the value of this key to true, the app is only
+    /// available on Apple Watch, with no related iOS app.
     #[serde(
         rename(serialize = "WKWatchOnly"),
         skip_serializing_if = "Option::is_none"
     )]
     pub watch_only: Option<bool>,
-    /// A Boolean value that indicates whether a watchOS app should opt out of automatically launching when its companion iOS
-    /// app starts playing audio content.
+    /// A Boolean value that indicates whether a watchOS app should opt out of
+    /// automatically launching when its companion iOS app starts playing audio
+    /// content.
     ///
-    /// If your watchOS app does not act as a remote control for the iOS app, set this key to true in your WatchKit extension’s
-    /// information property list.
+    /// If your watchOS app does not act as a remote control for the iOS app, set this key
+    /// to true in your WatchKit extension’s information property list.
     #[serde(
         rename(serialize = "PUICAutoLaunchAudioOptOut"),
         skip_serializing_if = "Option::is_none"
@@ -176,8 +196,8 @@ pub struct LaunchConditions {
     pub auto_launch_audio_opt_out: Option<bool>,
     /// The complication families that the app can provide data for.
     ///
-    /// To add this key to the information property list, enable the desired families in the WatchKit extension’s Complication
-    /// Configuration settings.
+    /// To add this key to the information property list, enable the desired families in
+    /// the WatchKit extension’s Complication Configuration settings.
     #[serde(
         rename(serialize = "CLKComplicationSupportedFamilies"),
         skip_serializing_if = "Option::is_none",
@@ -203,15 +223,17 @@ pub struct ExtensionsAndServices {
     pub services: Option<Vec<Service>>,
     /// The name of your watchOS app’s extension delegate.
     ///
-    /// This key provides the name of a class that adopts the WKExtensionDelegate protocol. Xcode automatically includes
-    /// this key in the WatchKit extension’s information property list when you create a watchOS project from a template.
+    /// This key provides the name of a class that adopts the WKExtensionDelegate
+    /// protocol. Xcode automatically includes this key in the WatchKit extension’s
+    /// information property list when you create a watchOS project from a template.
     /// You only modify this value when you rename or replace the extension delegate.
     #[serde(
         rename(serialize = "WKExtensionDelegateClassName"),
         skip_serializing_if = "Option::is_none"
     )]
     pub extension_delegate_class_name: Option<String>,
-    /// The bundle ID of the widget that's available as a Home screen quick action in apps that have more than one widget.
+    /// The bundle ID of the widget that's available as a Home screen quick action in apps
+    /// that have more than one widget.
     #[serde(
         rename(serialize = "UIApplicationShortcutWidget"),
         skip_serializing_if = "Option::is_none"
@@ -240,18 +262,22 @@ pub struct BackgroundExecution {
         serialize_with = "serialize_vec_enum_option"
     )]
     pub ui_background_modes: Option<Vec<UiBackgroundMode>>,
-    /// The services a watchOS app provides that require it to continue running in the background.
+    /// The services a watchOS app provides that require it to continue running in the
+    /// background.
     ///
-    /// You can only enable one of the extended runtime session modes (self-care, mindfulness, physical-therapy, or alarm).
-    /// However, you can enable both an extended runtime session mode and the workout-processing mode. If you set the background
-    /// modes using Xcode’s Signing & Capabilities tab, Xcode insures that these values are set properly.
+    /// You can only enable one of the extended runtime session modes (self-care,
+    /// mindfulness, physical-therapy, or alarm). However, you can enable both an
+    /// extended runtime session mode and the workout-processing mode. If you set the
+    /// background modes using Xcode’s Signing & Capabilities tab, Xcode insures that
+    /// these values are set properly.
     #[serde(
         rename(serialize = "WKBackgroundModes"),
         skip_serializing_if = "Option::is_none",
         serialize_with = "serialize_vec_enum_option"
     )]
     pub wk_background_modes: Option<Vec<WkBackgroundMode>>,
-    /// An array of strings containing developer-specified task identifiers in reverse URL notation.
+    /// An array of strings containing developer-specified task identifiers in reverse URL
+    /// notation.
     #[serde(
         rename(serialize = "BGTaskSchedulerPermittedIdentifiers"),
         skip_serializing_if = "Option::is_none"
@@ -335,13 +361,15 @@ pub struct Termination {
         skip_serializing_if = "Option::is_none"
     )]
     pub get_app_died_events: Option<bool>,
-    /// A Boolean value indicating whether the system may terminate the app to log out or shut down more quickly.
+    /// A Boolean value indicating whether the system may terminate the app to log out or
+    /// shut down more quickly.
     #[serde(
         rename(serialize = "NSSupportsSuddenTermination"),
         skip_serializing_if = "Option::is_none"
     )]
     pub supports_sudden_termination: Option<bool>,
-    /// Deprecated: A Boolean value indicating whether the app terminates, rather than moves to the background, when the app quits.
+    /// Deprecated: A Boolean value indicating whether the app terminates, rather than
+    /// moves to the background, when the app quits.
     #[serde(
         rename(serialize = "UIApplicationExitsOnSuspend"),
         skip_serializing_if = "Option::is_none"
@@ -356,13 +384,15 @@ pub enum WkBackgroundMode {
     /// Allows an active workout session to run in the background.
     #[serde(rename(serialize = "workout-processing"))]
     WorkoutProcessing,
-    /// Enables extended runtime sessions for brief activities focusing on health or emotional well-being.
+    /// Enables extended runtime sessions for brief activities focusing on health or
+    /// emotional well-being.
     #[serde(rename(serialize = "self-care"))]
     SelfCare,
     /// Enables extended runtime sessions for silent meditation.
     #[serde(rename(serialize = "mindfulness"))]
     Mindfulness,
-    /// Enables extended runtime sessions for stretching, strengthening, or range-of-motion exercises.
+    /// Enables extended runtime sessions for stretching, strengthening, or
+    /// range-of-motion exercises.
     #[serde(rename(serialize = "physical-therapy"))]
     PhysicalTherapy,
     /// Enables extended runtime sessions for smart alarms.
@@ -397,18 +427,22 @@ pub enum UiBackgroundMode {
 /// App Clip.
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Default)]
 pub struct AppClip {
-    /// A Boolean value that indicates whether an App Clip can schedule or receive notifications for a limited amount of time.
+    /// A Boolean value that indicates whether an App Clip can schedule or receive
+    /// notifications for a limited amount of time.
     ///
-    /// Set the corresponding value to true to enable your App Clip to schedule or receive notifications for up to 8 hours
-    /// after each launch. For more information, see Enabling Notifications in App Clips.
+    /// Set the corresponding value to true to enable your App Clip to schedule or receive
+    /// notifications for up to 8 hours after each launch. For more information, see
+    /// Enabling Notifications in App Clips.
     #[serde(
         rename(serialize = "NSAppClipRequestEphemeralUserNotification"),
         skip_serializing_if = "Option::is_none"
     )]
     pub request_ephemeral_user_notification: Option<bool>,
-    /// A Boolean value that indicates whether an App Clip can confirm the user’s location.
+    /// A Boolean value that indicates whether an App Clip can confirm the user’s
+    /// location.
     ///
-    /// Set the value to true to allow your App Clip to confirm the user’s location. For more information, see Responding to Invocations.
+    /// Set the value to true to allow your App Clip to confirm the user’s location. For
+    /// more information, see Responding to Invocations.
     #[serde(
         rename(serialize = "NSAppClipRequestLocationConfirmation"),
         skip_serializing_if = "Option::is_none"
@@ -425,7 +459,8 @@ pub struct Extension {
         skip_serializing_if = "Option::is_none"
     )]
     pub intents_supported: Option<Vec<String>>,
-    /// A dictionary that specifies the minimum size of the floating window in which Final Cut Pro hosts the extension view.
+    /// A dictionary that specifies the minimum size of the floating window in which Final
+    /// Cut Pro hosts the extension view.
     #[serde(
         rename(serialize = "ProExtensionAttributes"),
         skip_serializing_if = "Option::is_none"
@@ -433,8 +468,9 @@ pub struct Extension {
     pub pro_extension_attributes: Option<BTreeMap<String, String>>,
     /// The name of the class with the principal implementation of your extension.
     ///
-    /// The Compressor app instantiates the class specified in the ProExtensionPrincipalClass key to convert source files
-    /// to the output format your extension supports.
+    /// The Compressor app instantiates the class specified in the
+    /// ProExtensionPrincipalClass key to convert source files to the output format
+    /// your extension supports.
     #[serde(
         rename(serialize = "ProExtensionPrincipalClass"),
         skip_serializing_if = "Option::is_none"
@@ -442,9 +478,11 @@ pub struct Extension {
     pub pro_extension_principal_class: Option<String>,
     /// The name of the principal view controller class of your extension.
     ///
-    /// This key provides the name of the primary view controller class of your extension that adopts the NSViewController
-    /// protocol. When you create an extension, the Xcode template automatically includes this key in the workflow extension
-    /// information property list. You only modify the value of this key when you rename the primary view controller class in your extension.
+    /// This key provides the name of the primary view controller class of your extension
+    /// that adopts the NSViewController protocol. When you create an extension, the
+    /// Xcode template automatically includes this key in the workflow extension
+    /// information property list. You only modify the value of this key when you rename
+    /// the primary view controller class in your extension.
     #[serde(
         rename(serialize = "ProExtensionPrincipalViewControllerClass"),
         skip_serializing_if = "Option::is_none"
@@ -452,38 +490,42 @@ pub struct Extension {
     pub pro_extension_principal_view_controller_class: Option<String>,
     /// A UUID string that uniquely identifies your extension to the Compressor app.
     ///
-    /// The value for this key is a placeholder UUID the Xcode template generates. Each extension must have a unique UUID.
-    /// When you build an extension for the first time, the build script in the Xcode template replaces the placeholder UUID
-    /// with a new UUID. The new UUID fulfills the uniqueness and persistence requirement for ProExtensionUUID. For subsequent
-    /// rebuilds, the UUID stays the same because the Compressor app uses this UUID to differentiate between previously
+    /// The value for this key is a placeholder UUID the Xcode template generates. Each
+    /// extension must have a unique UUID. When you build an extension for the first
+    /// time, the build script in the Xcode template replaces the placeholder UUID
+    /// with a new UUID. The new UUID fulfills the uniqueness and persistence requirement
+    /// for ProExtensionUUID. For subsequent rebuilds, the UUID stays the same because
+    /// the Compressor app uses this UUID to differentiate between previously
     /// saved and newly discovered extensions.
     #[serde(
         rename(serialize = "ProExtensionUUID"),
         skip_serializing_if = "Option::is_none"
     )]
     pub pro_extension_uuid: Option<String>,
-    /// Account Authentication Modification. The rules the system satisfies when generating a strong password for your
-    /// extension during an automatic upgrade.
+    /// Account Authentication Modification. The rules the system satisfies when
+    /// generating a strong password for your extension during an automatic upgrade.
     #[serde(
         rename(serialize = "ASAccountAuthenticationModificationPasswordGenerationRequirements"),
         skip_serializing_if = "Option::is_none"
     )]
     pub password_generation_requirements: Option<String>,
-    /// Account Authentication Modification. A Boolean value that indicates whether the extension supports upgrading a user’s
-    /// password to a strong password.
+    /// Account Authentication Modification. A Boolean value that indicates whether the
+    /// extension supports upgrading a user’s password to a strong password.
     #[serde(
         rename(serialize = "ASAccountAuthenticationModificationSupportsStrongPasswordUpgrade"),
         skip_serializing_if = "Option::is_none"
     )]
     pub supports_strong_password_upgrade: Option<bool>,
-    /// Account Authentication Modification. A Boolean value that indicates whether the extension supports upgrading from using
-    /// password authentication to using Sign in with Apple.
+    /// Account Authentication Modification. A Boolean value that indicates whether the
+    /// extension supports upgrading from using password authentication to using Sign
+    /// in with Apple.
     #[serde(
         rename(serialize = "ASAccountAuthenticationModificationSupportsUpgradeToSignInWithApple"),
         skip_serializing_if = "Option::is_none"
     )]
     pub supports_upgrade_to_sign_in_with_apple: Option<bool>,
-    /// A Boolean value indicating whether the Action extension is presented in full screen.
+    /// A Boolean value indicating whether the Action extension is presented in full
+    /// screen.
     #[serde(
         rename(serialize = "NSExtensionActionWantsFullScreenPresentation"),
         skip_serializing_if = "Option::is_none"
@@ -497,14 +539,17 @@ pub struct Extension {
     pub extension_attributes: Option<ExtensionAttributes>,
     /// The name of the app extension’s main storyboard file.
     ///
-    /// This key is mutually exclusive with NSExtensionPrincipalClass. Typically, Xcode sets the value of this key when creating
-    /// an App Extension target in your project. If you change the name of your storyboard file, remember to update the value of this key.
+    /// This key is mutually exclusive with NSExtensionPrincipalClass. Typically, Xcode
+    /// sets the value of this key when creating an App Extension target in your
+    /// project. If you change the name of your storyboard file, remember to update the
+    /// value of this key.
     #[serde(
         rename(serialize = "NSExtensionMainStoryboard"),
         skip_serializing_if = "Option::is_none"
     )]
     pub extension_main_storyboard: Option<String>,
-    /// A Boolean value indicating whether the app extension ignores appearance changes made by the host app.
+    /// A Boolean value indicating whether the app extension ignores appearance changes
+    /// made by the host app.
     #[serde(
         rename(serialize = "NSExtensionOverridesHostUIAppearance"),
         skip_serializing_if = "Option::is_none"
@@ -519,8 +564,10 @@ pub struct Extension {
     pub extension_point_identifier: Option<ExtensionPointIdentifier>,
     /// The custom class that implements an app extension’s primary view or functionality.
     ///
-    /// This key is mutually exclusive with NSExtensionMainStoryboard. Typically, Xcode sets the value of this key when creating an App
-    /// Extension target in your project. If you change the name of the specified class, remember to update the value of this key.
+    /// This key is mutually exclusive with NSExtensionMainStoryboard. Typically, Xcode
+    /// sets the value of this key when creating an App Extension target in your
+    /// project. If you change the name of the specified class, remember to update the
+    /// value of this key.
     #[serde(
         rename(serialize = "NSExtensionPrincipalClass"),
         skip_serializing_if = "Option::is_none",
@@ -587,7 +634,8 @@ pub enum SafariWebsiteAccessLevel {
 /// Safari Toolbar Item.
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Default)]
 pub struct SafariToolbarItem {
-    /// The properties of an app extension's toolbar item that's been added to the Safari window.
+    /// The properties of an app extension's toolbar item that's been added to the Safari
+    /// window.
     #[serde(rename(serialize = "Action"), skip_serializing_if = "Option::is_none")]
     pub action: Option<String>,
     /// The identifier for a Safari extension's toolbar item.
@@ -619,7 +667,8 @@ pub struct SafariStyleSheet {
         skip_serializing_if = "Option::is_none"
     )]
     pub excluded_url_patterns: Option<Vec<String>>,
-    /// The path to the style sheet, relative to the Resources folder in the app extension's bundle.
+    /// The path to the style sheet, relative to the Resources folder in the app
+    /// extension's bundle.
     #[serde(
         rename(serialize = "Style Sheet"),
         skip_serializing_if = "Option::is_none"
@@ -630,7 +679,8 @@ pub struct SafariStyleSheet {
 /// The context menu items for a Safari extension.
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Default)]
 pub struct SafariContextMenu {
-    /// The command to send to the app extension when the user selects the context menu item.
+    /// The command to send to the app extension when the user selects the context menu
+    /// item.
     #[serde(rename(serialize = "Command"), skip_serializing_if = "Option::is_none")]
     pub command: Option<String>,
     /// The text to display for the context menu item.
@@ -653,7 +703,8 @@ pub struct SafariContentScript {
         skip_serializing_if = "Option::is_none"
     )]
     pub excluded_url_patterns: Option<Vec<String>>,
-    /// The path to the content script, relative to the Resources folder in the app extension's bundle.
+    /// The path to the content script, relative to the Resources folder in the app
+    /// extension's bundle.
     #[serde(rename(serialize = "Script"), skip_serializing_if = "Option::is_none")]
     pub script: Option<String>,
 }
@@ -737,42 +788,52 @@ pub enum ExtensionPointIdentifier {
 /// Extension Attributes.
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Default)]
 pub struct ExtensionAttributes {
-    /// A Boolean value indicating whether the extension appears in the Finder Preview pane and Quick Actions menu.
+    /// A Boolean value indicating whether the extension appears in the Finder Preview
+    /// pane and Quick Actions menu.
     #[serde(
         rename(serialize = "NSExtensionServiceAllowsFinderPreviewItem"),
         skip_serializing_if = "Option::is_none"
     )]
     pub allows_finder_preview_item: Option<bool>,
-    /// A Boolean value indicating whether an Action extension displays an item in a window’s toolbar.
+    /// A Boolean value indicating whether an Action extension displays an item in a
+    /// window’s toolbar.
     #[serde(
         rename(serialize = "NSExtensionServiceAllowsToolbarItem"),
         skip_serializing_if = "Option::is_none"
     )]
     pub allows_toolbar_item: Option<bool>,
-    /// A Boolean value indicating whether the extension appears as a Quick Action in the Touch Bar.
+    /// A Boolean value indicating whether the extension appears as a Quick Action in the
+    /// Touch Bar.
     #[serde(
         rename(serialize = "NSExtensionServiceAllowsTouchBarItem"),
         skip_serializing_if = "Option::is_none"
     )]
     pub allows_touch_bar_item: Option<bool>,
-    /// The name of an icon for display when the extension appears in the Finder Preview pane and Quick Actions menu.
+    /// The name of an icon for display when the extension appears in the Finder Preview
+    /// pane and Quick Actions menu.
     ///
-    /// This key is used in conjunction with the NSExtensionServiceAllowsFinderPreviewItem key.
+    /// This key is used in conjunction with the NSExtensionServiceAllowsFinderPreviewItem
+    /// key.
     ///
-    /// Set the NSExtensionServiceFinderPreviewIconName key's value to a system icon name or the name of an icon in the
-    /// extension bundle. This icon should be a template image: a monochromatic image with transparency, anti-aliasing,
-    /// and no drop shadow that uses a mask to define its shape. For design guidance, see Human Interface Guidelines > macOS > Custom Icons.
-    /// If no icon is specified, a default icon is used.
+    /// Set the NSExtensionServiceFinderPreviewIconName key's value to a system icon name
+    /// or the name of an icon in the extension bundle. This icon should be a template
+    /// image: a monochromatic image with transparency, anti-aliasing, and no drop
+    /// shadow that uses a mask to define its shape. For design guidance, see Human
+    /// Interface Guidelines > macOS > Custom Icons. If no icon is specified, a
+    /// default icon is used.
     #[serde(
         rename(serialize = "NSExtensionServiceFinderPreviewIconName"),
         skip_serializing_if = "Option::is_none"
     )]
     pub finder_preview_icon_name: Option<String>,
-    /// A name for display when the extension appears in the Finder Preview pane and Quick Actions menu.
+    /// A name for display when the extension appears in the Finder Preview pane and Quick
+    /// Actions menu.
     ///
-    /// This key is used in conjunction with the NSExtensionServiceAllowsFinderPreviewItem key.
+    /// This key is used in conjunction with the NSExtensionServiceAllowsFinderPreviewItem
+    /// key.
     ///
-    /// If the NSExtensionServiceFinderPreviewLabel key isn't provided, the extension's display name is used.
+    /// If the NSExtensionServiceFinderPreviewLabel key isn't provided, the extension's
+    /// display name is used.
     #[serde(
         rename(serialize = "NSExtensionServiceFinderPreviewLabel"),
         skip_serializing_if = "Option::is_none"
@@ -797,24 +858,29 @@ pub struct ExtensionAttributes {
         skip_serializing_if = "Option::is_none"
     )]
     pub toolbar_palette_label: Option<String>,
-    /// The color to use for the bezel around the extension when it appears as a Quick Action in the Touch Bar.
+    /// The color to use for the bezel around the extension when it appears as a Quick
+    /// Action in the Touch Bar.
     ///
     /// This key is used in conjunction with the NSExtensionServiceAllowsTouchBarItem key.
     ///
-    /// Set the NSExtensionServiceTouchBarBezelColorName key's value to the name of a color that exists in your extension's asset
-    /// catalog—a color that matches a system color is recommended. If no color is specified, a default color is used.
+    /// Set the NSExtensionServiceTouchBarBezelColorName key's value to the name of a
+    /// color that exists in your extension's asset catalog—a color that matches a
+    /// system color is recommended. If no color is specified, a default color is used.
     #[serde(
         rename(serialize = "NSExtensionServiceTouchBarBezelColorName"),
         skip_serializing_if = "Option::is_none"
     )]
     pub touch_bar_bezel_color_name: Option<String>,
-    /// The name of an icon for display when the extension appears as a Quick Action in the Touch Bar.
+    /// The name of an icon for display when the extension appears as a Quick Action in
+    /// the Touch Bar.
     ///
     /// This key is used in conjunction with the NSExtensionServiceAllowsTouchBarItem key.
     ///
-    /// Set the NSExtensionServiceTouchBarIconName key's value to a system icon name or the name of an icon within the extension bundle.
-    /// This icon should be a template image: a monochromatic image with transparency, anti-aliasing, and no drop shadow that uses
-    /// a mask to define its shape. For design guidance, see Human Interface Guidelines > macOS > Custom Icons. If no icon is specified,
+    /// Set the NSExtensionServiceTouchBarIconName key's value to a system icon name or
+    /// the name of an icon within the extension bundle. This icon should be a
+    /// template image: a monochromatic image with transparency, anti-aliasing, and no
+    /// drop shadow that uses a mask to define its shape. For design guidance, see
+    /// Human Interface Guidelines > macOS > Custom Icons. If no icon is specified,
     /// a default icon is used.
     #[serde(
         rename(serialize = "NSExtensionServiceTouchBarIconName"),
@@ -825,26 +891,30 @@ pub struct ExtensionAttributes {
     ///
     /// This key is used in conjunction with the NSExtensionServiceAllowsTouchBarItem key.
     ///
-    /// If the NSExtensionServiceTouchBarLabel key isn't provided, the extension's display name is used.
+    /// If the NSExtensionServiceTouchBarLabel key isn't provided, the extension's display
+    /// name is used.
     #[serde(
         rename(serialize = "NSExtensionServiceTouchBarLabel"),
         skip_serializing_if = "Option::is_none"
     )]
     pub touch_bar_label: Option<String>,
-    /// A Boolean value indicating whether the Action extension is presented in full screen.
+    /// A Boolean value indicating whether the Action extension is presented in full
+    /// screen.
     #[serde(
         rename(serialize = "NSExtensionActionWantsFullScreenPresentation"),
         skip_serializing_if = "Option::is_none"
     )]
     pub action_wants_full_screen_presentation: Option<bool>,
-    /// This key is mutually exclusive with NSExtensionPrincipalClass. If the app extension’s Info.plist file contains both keys,
-    /// the system won’t load the extension.
+    /// This key is mutually exclusive with NSExtensionPrincipalClass. If the app
+    /// extension’s Info.plist file contains both keys, the system won’t load the
+    /// extension.
     #[serde(
         rename(serialize = "NSExtensionMainStoryboard"),
         skip_serializing_if = "Option::is_none"
     )]
     pub main_storyboard: Option<bool>,
-    /// A Boolean value indicating whether the app extension ignores appearance changes made by the host app.
+    /// A Boolean value indicating whether the app extension ignores appearance changes
+    /// made by the host app.
     #[serde(
         rename(serialize = "NSExtensionOverridesHostUIAppearance"),
         skip_serializing_if = "Option::is_none"
@@ -857,8 +927,9 @@ pub struct ExtensionAttributes {
         serialize_with = "serialize_enum_option"
     )]
     pub point_identifier: Option<ExtensionPointIdentifier>,
-    /// This key is mutually exclusive with NSExtensionMainStoryboard. If the app extension’s Info.plist file contains both keys,
-    /// the system won’t load the extension.
+    /// This key is mutually exclusive with NSExtensionMainStoryboard. If the app
+    /// extension’s Info.plist file contains both keys, the system won’t load the
+    /// extension.
     #[serde(
         rename(serialize = "NSExtensionPrincipalClass"),
         skip_serializing_if = "Option::is_none"
@@ -884,11 +955,14 @@ pub struct ExtensionAttributes {
     pub intents_supported: Option<Vec<String>>,
     /// Types of media supported by an app extension’s media-playing intents.
     ///
-    /// Specify one or more media categories to allow Siri to invoke your app’s intent handling when a user asks to play media.
-    /// Use INMediaCategoryGeneral for media that doesn’t fit into any of the other categories, like white noise or sound effects.
+    /// Specify one or more media categories to allow Siri to invoke your app’s intent
+    /// handling when a user asks to play media. Use INMediaCategoryGeneral for media
+    /// that doesn’t fit into any of the other categories, like white noise or sound
+    /// effects.
     ///
-    /// To specify this information in Xcode, add INPlayMediaIntent to your extension’s list of Supported Intents. Then select the
-    /// relevant media types in the list that appears.
+    /// To specify this information in Xcode, add INPlayMediaIntent to your extension’s
+    /// list of Supported Intents. Then select the relevant media types in the list
+    /// that appears.
     #[serde(
         rename(serialize = "SupportedMediaCategories"),
         skip_serializing_if = "Option::is_none"
@@ -911,13 +985,15 @@ pub struct ExtensionAttributes {
         skip_serializing_if = "Option::is_none"
     )]
     pub id_message_filter_extension_network_url: Option<String>,
-    /// The phone number that receives SMS messages when the user reports an SMS message or a call.
+    /// The phone number that receives SMS messages when the user reports an SMS message
+    /// or a call.
     #[serde(
         rename(serialize = "ILClassificationExtensionSMSReportDestination"),
         skip_serializing_if = "Option::is_none"
     )]
     pub classification_extension_sms_report_destination: Option<String>,
-    /// A Boolean value indicating whether a custom keyboard displays standard ASCII characters.
+    /// A Boolean value indicating whether a custom keyboard displays standard ASCII
+    /// characters.
     #[serde(
         rename(serialize = "IsASCIICapable"),
         skip_serializing_if = "Option::is_none"
@@ -935,19 +1011,22 @@ pub struct ExtensionAttributes {
         skip_serializing_if = "Option::is_none"
     )]
     pub file_provider_actions: Option<Vec<FileProviderAction>>,
-    /// The identifier of a shared container that can be accessed by a Document Picker extension and its associated File Provider extension.
+    /// The identifier of a shared container that can be accessed by a Document Picker
+    /// extension and its associated File Provider extension.
     #[serde(
         rename(serialize = "NSExtensionFileProviderDocumentGroup"),
         skip_serializing_if = "Option::is_none"
     )]
     pub file_provider_document_group: Option<String>,
-    /// A Boolean value indicating whether a File Provider extension enumerates its content.
+    /// A Boolean value indicating whether a File Provider extension enumerates its
+    /// content.
     #[serde(
         rename(serialize = "NSExtensionFileProviderSupportsEnumeration"),
         skip_serializing_if = "Option::is_none"
     )]
     pub file_provider_supports_enumeration: Option<bool>,
-    /// A Boolean value indicating whether a keyboard extension supports right-to-left languages.
+    /// A Boolean value indicating whether a keyboard extension supports right-to-left
+    /// languages.
     #[serde(
         rename(serialize = "PrefersRightToLeft"),
         skip_serializing_if = "Option::is_none"
@@ -959,7 +1038,8 @@ pub struct ExtensionAttributes {
         skip_serializing_if = "Option::is_none"
     )]
     pub primary_language: Option<String>,
-    /// A Boolean value indicating whether a custom keyboard uses a shared container and accesses the network.
+    /// A Boolean value indicating whether a custom keyboard uses a shared container and
+    /// accesses the network.
     #[serde(
         rename(serialize = "RequestsOpenAccess"),
         skip_serializing_if = "Option::is_none"
@@ -984,25 +1064,29 @@ pub struct ExtensionAttributes {
         skip_serializing_if = "Option::is_none"
     )]
     pub notification_extension_category: Option<String>,
-    /// A Boolean value indicating whether only the app extension's custom view controller is displayed in the notification interface.
+    /// A Boolean value indicating whether only the app extension's custom view controller
+    /// is displayed in the notification interface.
     #[serde(
         rename(serialize = "UNNotificationExtensionDefaultContentHidden"),
         skip_serializing_if = "Option::is_none"
     )]
     pub notification_extension_default_content_hidden: Option<bool>,
-    /// The initial size of the view controller's view for an app extension, expressed as a ratio of its height to its width.
+    /// The initial size of the view controller's view for an app extension, expressed as
+    /// a ratio of its height to its width.
     #[serde(
         rename(serialize = "UNNotificationExtensionInitialContentSizeRatio"),
         skip_serializing_if = "Option::is_none"
     )]
     pub notification_extension_initial_content_size_ratio: Option<f32>,
-    /// A Boolean value indicating whether the title of the app extension's view controller is used as the title of the notification.
+    /// A Boolean value indicating whether the title of the app extension's view
+    /// controller is used as the title of the notification.
     #[serde(
         rename(serialize = "UNNotificationExtensionOverridesDefaultTitle"),
         skip_serializing_if = "Option::is_none"
     )]
     pub notification_extension_overrides_default_title: Option<bool>,
-    /// A Boolean value indicating whether user interactions in a custom notification are enabled.
+    /// A Boolean value indicating whether user interactions in a custom notification are
+    /// enabled.
     #[serde(
         rename(serialize = "UNNotificationExtensionUserInteractionEnabled"),
         skip_serializing_if = "Option::is_none"
@@ -1026,7 +1110,8 @@ pub enum DocumentPickerModes {
 
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Default)]
 pub struct FileProviderAction {
-    /// A predicate that determines whether a File Provider extension action appears in the context menu.
+    /// A predicate that determines whether a File Provider extension action appears in
+    /// the context menu.
     #[serde(
         rename(serialize = "NSExtensionFileProviderActionActivationRule"),
         skip_serializing_if = "Option::is_none"
@@ -1038,7 +1123,8 @@ pub struct FileProviderAction {
         skip_serializing_if = "Option::is_none"
     )]
     pub identifier: Option<String>,
-    /// The localized name for a File Provider extension action that appears in the context menu.
+    /// The localized name for a File Provider extension action that appears in the
+    /// context menu.
     #[serde(
         rename(serialize = "NSExtensionFileProviderActionName"),
         skip_serializing_if = "Option::is_none"
@@ -1139,7 +1225,8 @@ pub struct ActivationRule {
         skip_serializing_if = "Option::is_none"
     )]
     pub supports_web_url_with_max_count: Option<i32>,
-    /// A Boolean value indicating whether strict or fuzzy matching is used when determining the asset types an app extension handles.
+    /// A Boolean value indicating whether strict or fuzzy matching is used when
+    /// determining the asset types an app extension handles.
     #[serde(
         rename(serialize = "NSExtensionActivationUsesStrictMatching"),
         skip_serializing_if = "Option::is_none"
@@ -1190,7 +1277,8 @@ pub struct Service {
         skip_serializing_if = "Option::is_none"
     )]
     pub send_types: Option<Vec<String>>,
-    /// The amount of time, in milliseconds, that the system waits for a response from the service.
+    /// The amount of time, in milliseconds, that the system waits for a response from the
+    /// service.
     #[serde(
         rename(serialize = "NSTimeout"),
         skip_serializing_if = "Option::is_none"
@@ -1260,69 +1348,81 @@ pub enum ArchitecturePriority {
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 #[serde(rename_all(deserialize = "kebab-case"))]
 pub enum DeviceCapabilities {
-    /// The presence of accelerometers. Use the Core Motion framework to receive accelerometer events. You don’t need to
-    /// include this value if your app detects only device orientation changes. Available in iOS 3.0 and later.
+    /// The presence of accelerometers. Use the Core Motion framework to receive
+    /// accelerometer events. You don’t need to include this value if your app detects
+    /// only device orientation changes. Available in iOS 3.0 and later.
     #[serde(rename(serialize = "accelerometer"))]
     Accelerometer,
     /// Support for ARKit. Available in iOS 11.0 and later.
     #[serde(rename(serialize = "arkit"))]
     Arkit,
-    /// Compilation for the armv7 instruction set, or as a 32/64-bit universal app. Available in iOS 3.1 and later.
+    /// Compilation for the armv7 instruction set, or as a 32/64-bit universal app.
+    /// Available in iOS 3.1 and later.
     #[serde(rename(serialize = "armv7"))]
     Armv7,
-    /// Compilation for the arm64 instruction set. Include this key for all 64-bit apps and embedded bundles, like
-    /// extensions and frameworks. Available in iOS 8.0 and later.
+    /// Compilation for the arm64 instruction set. Include this key for all 64-bit apps
+    /// and embedded bundles, like extensions and frameworks. Available in iOS 8.0 and
+    /// later.
     #[serde(rename(serialize = "arm64"))]
     Arm64,
-    /// Autofocus capabilities in the device’s still camera. You might need to include this value if your app supports
-    /// macro photography or requires sharper images to perform certain image-processing tasks. Available in iOS 3.0 and later.
+    /// Autofocus capabilities in the device’s still camera. You might need to include
+    /// this value if your app supports macro photography or requires sharper images
+    /// to perform certain image-processing tasks. Available in iOS 3.0 and later.
     #[serde(rename(serialize = "auto-focus-camera"))]
     AutoFocusCamera,
     /// Bluetooth low-energy hardware. Available in iOS 5.0 and later.
     #[serde(rename(serialize = "bluetooth-le"))]
     BluetoothLe,
-    /// A camera flash. Use the cameraFlashMode property of a UIImagePickerController instance to control the camera’s
-    /// flash. Available in iOS 3.0 and later.
+    /// A camera flash. Use the cameraFlashMode property of a UIImagePickerController
+    /// instance to control the camera’s flash. Available in iOS 3.0 and later.
     #[serde(rename(serialize = "camera-flash"))]
     CameraFlash,
-    /// A forward-facing camera. Use the cameraDevice property of a UIImagePickerController instance to select the
-    /// device’s camera. Available in iOS 3.0 and later.
+    /// A forward-facing camera. Use the cameraDevice property of a
+    /// UIImagePickerController instance to select the device’s camera. Available in
+    /// iOS 3.0 and later.
     #[serde(rename(serialize = "front-facing-camera"))]
     FrontFacingCamera,
-    /// Access to the Game Center service. Enable the Game Center capability in Xcode to add this value to your app.
-    /// Available in iOS 4.1 and later.
+    /// Access to the Game Center service. Enable the Game Center capability in Xcode to
+    /// add this value to your app. Available in iOS 4.1 and later.
     #[serde(rename(serialize = "gamekit"))]
     Gamekit,
-    /// GPS (or AGPS) hardware for tracking locations. If you include this value, you should also include the
-    /// location-services value. Require GPS only if your app needs location data more accurate than the cellular or Wi-Fi
-    /// radios provide. Available in iOS 3.0 and later.
+    /// GPS (or AGPS) hardware for tracking locations. If you include this value, you
+    /// should also include the location-services value. Require GPS only if your app
+    /// needs location data more accurate than the cellular or Wi-Fi radios provide.
+    /// Available in iOS 3.0 and later.
     #[serde(rename(serialize = "gps"))]
     Gps,
-    /// A gyroscope. Use the Core Motion framework to retrieve information from gyroscope hardware. Available in iOS 3.0 and later.
+    /// A gyroscope. Use the Core Motion framework to retrieve information from gyroscope
+    /// hardware. Available in iOS 3.0 and later.
     #[serde(rename(serialize = "gyroscope"))]
     Gyroscope,
     /// Support for HealthKit. Available in iOS 8.0 and later.
     #[serde(rename(serialize = "healthkit"))]
     Healthkit,
-    /// Performance and capabilities of the A12 Bionic and later chips. Available in iOS 12.0 and later.
+    /// Performance and capabilities of the A12 Bionic and later chips. Available in iOS
+    /// 12.0 and later.
     #[serde(rename(serialize = "iphone-ipad-minimum-performance-a12"))]
     IphoneIpadMinimumPerformanceA12,
-    /// Access to the device’s current location using the Core Location framework. This value refers to the general location
-    /// services feature. If you specifically need GPS-level accuracy, also include the gps feature. Available in iOS 3.0 and later.
+    /// Access to the device’s current location using the Core Location framework. This
+    /// value refers to the general location services feature. If you specifically
+    /// need GPS-level accuracy, also include the gps feature. Available in iOS 3.0 and
+    /// later.
     #[serde(rename(serialize = "location-services"))]
     LocationServices,
-    /// Magnetometer hardware. Apps use this hardware to receive heading-related events through the Core Location framework.
-    /// Available in iOS 3.0 and later.
+    /// Magnetometer hardware. Apps use this hardware to receive heading-related events
+    /// through the Core Location framework. Available in iOS 3.0 and later.
     #[serde(rename(serialize = "magnetometer"))]
     Magnetometer,
     // Support for graphics processing with Metal. Available in iOS 8.0 and later.
     #[serde(rename(serialize = "metal"))]
     Metal,
-    /// The built-in microphone or accessories that provide a microphone. Available in iOS 3.0 and later.
+    /// The built-in microphone or accessories that provide a microphone. Available in iOS
+    /// 3.0 and later.
     #[serde(rename(serialize = "microphone"))]
     Microphone,
-    /// Near Field Communication (NFC) tag detection and access to messages that contain NFC Data Exchange Format data.
-    /// Use the Core NFC framework to detect and read NFC tags. Available in iOS 11.0 and later.
+    /// Near Field Communication (NFC) tag detection and access to messages that contain
+    /// NFC Data Exchange Format data. Use the Core NFC framework to detect and read
+    /// NFC tags. Available in iOS 11.0 and later.
     #[serde(rename(serialize = "nfc"))]
     Nfc,
     /// The OpenGL ES 1.1 interface. Available in iOS 3.0 and later.
@@ -1334,21 +1434,25 @@ pub enum DeviceCapabilities {
     /// The OpenGL ES 3.0 interface. Available in iOS 7.0 and later.
     #[serde(rename(serialize = "opengles-2"))]
     Opengles3,
-    /// Peer-to-peer connectivity over a Bluetooth network. Available in iOS 3.1 and later.
+    /// Peer-to-peer connectivity over a Bluetooth network. Available in iOS 3.1 and
+    /// later.
     #[serde(rename(serialize = "peer-peer"))]
     PeerPeer,
-    /// The Messages app. You might require this feature if your app opens URLs with the sms scheme. Available in iOS 3.0 and later.
+    /// The Messages app. You might require this feature if your app opens URLs with the
+    /// sms scheme. Available in iOS 3.0 and later.
     #[serde(rename(serialize = "sms"))]
     Sms,
-    /// A camera on the device. Use the UIImagePickerController interface to capture images from the device’s still camera.
-    /// Available in iOS 3.0 and later.
+    /// A camera on the device. Use the UIImagePickerController interface to capture
+    /// images from the device’s still camera. Available in iOS 3.0 and later.
     #[serde(rename(serialize = "still-camera"))]
     StillCamera,
-    /// The Phone app. You might require this feature if your app opens URLs with the tel scheme. Available in iOS 3.0 and later.
+    /// The Phone app. You might require this feature if your app opens URLs with the tel
+    /// scheme. Available in iOS 3.0 and later.
     #[serde(rename(serialize = "telephony"))]
     Telephony,
-    /// A camera with video capabilities on the device. Use the UIImagePickerController interface to capture video from the
-    /// device’s camera. Available in iOS 3.0 and later.
+    /// A camera with video capabilities on the device. Use the UIImagePickerController
+    /// interface to capture video from the device’s camera. Available in iOS 3.0 and
+    /// later.
     #[serde(rename(serialize = "video-camera"))]
     VideoCamera,
     /// Networking features related to Wi-Fi access. Available in iOS 3.0 and later.
