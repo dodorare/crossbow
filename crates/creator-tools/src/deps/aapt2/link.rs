@@ -1,4 +1,4 @@
-use std::{path::PathBuf, process::Command};
+use std::{path::{Path, PathBuf}, process::Command};
 
 /// ## Link
 /// In the link phase, AAPT2 merges all the intermediate files generated from the
@@ -576,5 +576,46 @@ impl Aapt2LinkBuilder {
 
 #[test]
 fn builder_test() {
+    let aapt2 = Aapt2Link{
+        o: Path::new("bla/bla/bla").to_path_buf(),
+        manifest: Path::new("bla/bla/bla").to_path_buf(),
+        i: false,
+        a: None,
+        r: None,
+        package_id: None,
+        allow_reserved_package_id: false,
+        java_directory: None,
+        proguard_options: None,
+        proguard_conditional_keep_rules: false,
+        no_auto_version: false,
+        no_version_vectors: false,
+        no_version_transitions: false,
+        no_resource_deduping: false,
+        enable_sparse_encoding: false,
+        z: false,
+        config: None,
+        preferred_density: None,
+        output_to_dir: false,
+        min_sdk_version: None,
+        target_sdk_version: None,
+        version_code: None,
+        compile_sdk_version_name: None,
+        proto_format: false,
+        non_final_ids: false,
+        emit_ids: None,
+        stable_ids: None,
+        custom_package: None,
+        extra_packages: None,
+        add_javadoc_annotation: None,
+        output_text_symbols: None,
+        auto_add_overlay: false,
+        rename_manifest_package: None,
+        rename_instrumentation_target_package: None,
+        extension: None,
+        split: None,
+        v: false,
+    };
 
+    let result: Aapt2LinkBuilder::
+    
 }
