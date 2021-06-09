@@ -1,4 +1,6 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
+use std::process::Command;
+
 /// # Compile
 /// AAPT2 supports compilation of all Android resource types, such as drawables and XML files.
 /// When you invoke AAPT2 for compilation, you should pass a single resource file as an input per invocation.
@@ -35,14 +37,15 @@ use std::path::PathBuf;
 ///
 /// ## [Compile options](https://developer.android.com/studio/command-line/aapt2#compile_options)
 pub struct Aapt2Compile {
+    input: PathBuf,
     /// Specifies the output path for the compiled resource(s).
     ///
     /// This is a required flag because you must specify a path to a directory where AAPT2 can output and store the compiled resources.
-    path: PathBuf,
+    o: PathBuf,
     /// Specifies the directory to scan for resources.
     ///
     /// Although you can use this flag to compile multiple resource files with one command, it disables the benefits of incremental compilation and thus, should not be used for large projects.
-    directory: Option<PathBuf>,
+    dir: Option<PathBuf>,
     /// Generates pseudo-localized versions of default strings, such as en-XA and en-XB.
     pseudo_localize: bool,
     /// Disables PNG processing.
@@ -60,8 +63,88 @@ pub struct Aapt2Compile {
     v: bool,
 }
 
-impl Aapt2Compile {
-    pub fn run(self) {
-        todo!();
+pub struct Aapt2CompileBuilder {
+    input: PathBuf,
+    o: Option<PathBuf>,
+    dir: Option<PathBuf>,
+    pseudo_localize: bool,
+    no_crunch: bool,
+    legacy: bool,
+    v: bool,
+}
+
+impl Aapt2CompileBuilder {
+    pub fn new(input: PathBuf) -> Aapt2CompileBuilder {
+        Aapt2CompileBuilder {
+            input: input,
+            o: None,
+            dir: None,
+            pseudo_localize: false,
+            no_crunch: false,
+            legacy: false,
+            v: false,
+        }
+    }
+
+    pub fn input(&mut self, input: &PathBuf) -> &mut Self {
+        self.input = input.to_owned();
+        self
+    }
+
+    pub fn o(&mut self, o: &Path) -> &mut Self {
+        self.o = Some(o.to_owned());
+        self
+    }
+
+    pub fn dir(&mut self, dir: &Path) -> &mut Self {
+        self.dir = Some(dir.to_owned());
+        self
+    }
+
+    pub fn pseudo_localize(&mut self) -> &mut Self {
+        self.pseudo_localize = true;
+        self
+    }
+
+    pub fn no_crunch(&mut self) -> &mut Self {
+        self.no_crunch = true;
+        self
+    }
+
+    pub fn legacy(&mut self) -> &mut Self {
+        self.legacy = true;
+        self
+    }
+
+    pub fn v(&mut self) -> &mut Self {
+        self.v = true;
+        self
+    }
+
+    pub fn run(&self) {
+        let mut aapt2 = Command::new("aapt2");
+        aapt2.arg("compile");
+        aapt2.arg(self.input);
+        if let Some(o) = &self.o {
+            aapt2.arg("-o").arg(o);
+        } else {
+            panic!("Expected -o argument")
+        }
+        if let Some(dir) = &self.dir {
+            aapt2.arg("--dir").arg(dir);
+        }
+        if self.pseudo_localize {
+            aapt2.arg("--pseudo-localize");
+        }
+        if self.no_crunch {
+            aapt2.arg("--no-crunch");
+        }
+        if self.legacy {
+            aapt2.arg("--legacy");
+        }
+        if self.v {
+            aapt2.arg("-v");
+        }
+        aapt2.output().expect("failed to execute process");
     }
 }
