@@ -2,7 +2,6 @@ use android_manifest::*;
 
 use crate::deps::*;
 use crate::error::*;
-use crate::types::*;
 use std::fs::create_dir_all;
 use std::path::{Path, PathBuf};
 
