@@ -9,8 +9,9 @@ creator = { version = "0.3.8", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
 substrate-subxt = "0.14"
-bevy = "0.3"
 tokio = { version = "1.2", features = ["sync", "macros"] }
+# bevy = { git = "https://github.com/bevyengine/bevy", rev = "bc4fe9b186db3f32eef38fc4241289df480fa949" }
+bevy = "0.4"
 
 [lib]
 crate-type = ["lib", "cdylib"]

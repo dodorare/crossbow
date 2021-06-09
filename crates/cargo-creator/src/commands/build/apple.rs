@@ -110,7 +110,7 @@ impl AppleBuildCommand {
                 .as_ref()
                 .map(|r| project_path.join(r)),
         )?;
-        config.status("Coping binary to app folder")?;
+        config.shell().status("Copying binary to app folder")?;
         std::fs::copy(&bin_path, &app_path.join(&name)).unwrap();
         config.status_message("Generating", "Info.plist")?;
         apple::save_apple_plist(&app_path, properties, false).unwrap();
