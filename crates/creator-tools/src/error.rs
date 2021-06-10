@@ -45,6 +45,8 @@ pub enum AppleError {
     CodeSigningProfileNotProvided,
     /// Codesign failed {0}
     CodesignFailed(String),
+    /// Failed to archive payload
+    ZipCommandFailed,
     /// Codesign allocate not found
     CodesignAllocateNotFound,
     /// Simctl error
