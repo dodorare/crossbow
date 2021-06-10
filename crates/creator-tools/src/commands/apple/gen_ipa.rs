@@ -15,16 +15,17 @@ pub fn gen_apple_ipa(target_dir: &Path, app_dir: &Path, project_name: &str) -> R
     create_dir_all(&payload_path)?;
     // Copy options
     let mut options = CopyOptions::new();
-    options.skip_exist = true;
-    options.content_only = true;
+    options.copy_inside = true;
     copy_dir(app_dir, &payload_path, &options)?;
     // Generate result ipa path
-    let ipa_path = target_dir.join(format!("{}.ipa", project_name));
+    let ipa_file = format!("{}.ipa", project_name);
+    let ipa_path = target_dir.join(&ipa_file);
     // Archive Payload into ipa file
     let mut cmd = Command::new("zip");
+    cmd.current_dir(target_dir);
     cmd.arg("-Xvr");
-    cmd.arg(ipa_path.clone());
-    cmd.arg(payload_path.clone());
+    cmd.arg(ipa_file);
+    cmd.arg("Payload");
     let output = cmd.output()?;
     if !output.status.success() {
         return Err(AppleError::ZipCommandFailed.into());

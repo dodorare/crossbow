@@ -48,3 +48,6 @@ bundle_package_type = "APPL"
 launch_storyboard_name = "launch_storyboard_name"
 requires_full_screen = false
 supported_interface_orientations = ["portrait", "portrait-upside-down"]
+minimum_os_version = "13.0"
+required_device_capabilities = ["arm64", "wifi"]
+ui_device_family = [1]
