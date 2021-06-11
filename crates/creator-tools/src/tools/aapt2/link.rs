@@ -39,6 +39,7 @@ use std::{
 /// [`build your app from the command line`]: https://developer.android.com/studio/build/building-cmdline
 #[derive(Debug, PartialEq)]
 pub struct Aapt2Link {
+    inputs: Vec<PathBuf>,
     /// Specifies the output path for the linked resource APK.
     ///
     /// This is a required flag because you must specify the path for the output APK that
@@ -53,7 +54,7 @@ pub struct Aapt2Link {
     /// framework-res.apk  which might be useful while building features. This flag is
     /// required if you are using attributes with android namespace (for example,
     /// android:id) in your resource files.
-    i: bool,
+    i: Option<PathBuf>,
     /// Specifies an assets directory to be included in the APK.
     ///
     /// You can use this directory to store original unprocessed files. To learn more,
@@ -112,7 +113,7 @@ pub struct Aapt2Link {
     /// You must define the language configuration by a two-letter ISO 639-1 language
     /// code, optionally followed by a two letter ISO 3166-1-alpha-2 region code preceded
     /// by lowercase 'r' (for example, en-rUS).
-    config: Option<Vec<String>>,
+    config: Vec<String>,
     /// Allows AAPT2 to select the closest matching density and strip out all others.
     ///
     /// There are several pixel density qualifiers available to use in your app, such as
@@ -175,7 +176,7 @@ pub struct Aapt2Link {
     /// [`instrumentation`]: https://developer.android.com/reference/android/app/Instrumentation
     rename_instrumentation_target_package: Option<String>,
     /// Specifies the extensions of files that you do not want to compress.
-    extension: Option<String>,
+    extensions: Vec<String>,
     /// Splits resources based on a set of configurations to generate a different version of the APK.
     ///
     /// You must specify the path to the output APK along with the set of configurations.
@@ -185,58 +186,12 @@ pub struct Aapt2Link {
 }
 
 impl Aapt2Link {
-    pub fn builder() -> Aapt2LinkBuilder {
-        Aapt2LinkBuilder::default()
-    }
-}
-
-#[derive(Default)]
-pub struct Aapt2LinkBuilder {
-    o: PathBuf,
-    manifest: PathBuf,
-    i: bool,
-    a: Option<PathBuf>,
-    r: Option<PathBuf>,
-    package_id: Option<String>,
-    allow_reserved_package_id: bool,
-    java_directory: Option<PathBuf>,
-    proguard_options: Option<PathBuf>,
-    proguard_conditional_keep_rules: bool,
-    no_auto_version: bool,
-    no_version_vectors: bool,
-    no_version_transitions: bool,
-    no_resource_deduping: bool,
-    enable_sparse_encoding: bool,
-    z: bool,
-    config: Option<Vec<String>>,
-    preferred_density: Option<i32>,
-    output_to_dir: bool,
-    min_sdk_version: Option<i32>,
-    target_sdk_version: Option<i32>,
-    version_code: Option<String>,
-    compile_sdk_version_name: Option<String>,
-    proto_format: bool,
-    non_final_ids: bool,
-    emit_ids: Option<PathBuf>,
-    stable_ids: Option<PathBuf>,
-    custom_package: Option<PathBuf>,
-    extra_packages: Option<PathBuf>,
-    add_javadoc_annotation: Option<String>,
-    output_text_symbols: Option<PathBuf>,
-    auto_add_overlay: bool,
-    rename_manifest_package: Option<String>,
-    rename_instrumentation_target_package: Option<String>,
-    extension: Option<String>,
-    split: Option<PathBuf>,
-    v: bool,
-}
-
-impl Aapt2LinkBuilder {
-    pub fn new(o: PathBuf, manifest: PathBuf, i: bool) -> Aapt2LinkBuilder {
-        Aapt2LinkBuilder {
-            o: o,
-            manifest: manifest,
-            i: i,
+    pub fn new(inputs: &[PathBuf], o: &Path, manifest: &Path) -> Self {
+        Self {
+            inputs: inputs.to_vec(),
+            o: o.to_owned(),
+            manifest: manifest.to_owned(),
+            i: None,
             a: None,
             r: None,
             package_id: None,
@@ -250,7 +205,7 @@ impl Aapt2LinkBuilder {
             no_resource_deduping: false,
             enable_sparse_encoding: false,
             z: false,
-            config: None,
+            config: Vec::new(),
             preferred_density: None,
             output_to_dir: false,
             min_sdk_version: None,
@@ -268,56 +223,43 @@ impl Aapt2LinkBuilder {
             auto_add_overlay: false,
             rename_manifest_package: None,
             rename_instrumentation_target_package: None,
-            extension: None,
+            extensions: Vec::new(),
             split: None,
             v: false,
         }
     }
 
-    pub fn o(&mut self, o: PathBuf) -> &mut Aapt2LinkBuilder {
-        self.o = o;
+    pub fn i(&mut self, i: PathBuf) -> &mut Self {
+        self.i = Some(i);
         self
     }
 
-    pub fn manifest(&mut self, manifest: PathBuf) -> &mut Aapt2LinkBuilder {
-        self.manifest = manifest;
-        self
-    }
-
-    pub fn i(&mut self, i: bool) -> &mut Aapt2LinkBuilder {
-        self.i = i;
-        self
-    }
-
-    pub fn a(&mut self, a: PathBuf) -> &mut Aapt2LinkBuilder {
+    pub fn a(&mut self, a: PathBuf) -> &mut Self {
         self.a = Some(a);
         self
     }
 
-    pub fn r(&mut self, r: PathBuf) -> &mut Aapt2LinkBuilder {
+    pub fn r(&mut self, r: PathBuf) -> &mut Self {
         self.r = Some(r);
         self
     }
 
-    pub fn package_id(&mut self, package_id: String) -> &mut Aapt2LinkBuilder {
+    pub fn package_id(&mut self, package_id: String) -> &mut Self {
         self.package_id = Some(package_id);
         self
     }
 
-    pub fn allow_reserved_package_id(
-        &mut self,
-        allow_reserved_package_id: bool,
-    ) -> &mut Aapt2LinkBuilder {
+    pub fn allow_reserved_package_id(&mut self, allow_reserved_package_id: bool) -> &mut Self {
         self.allow_reserved_package_id = allow_reserved_package_id;
         self
     }
 
-    pub fn java_directory(&mut self, java_directory: PathBuf) -> &mut Aapt2LinkBuilder {
+    pub fn java_directory(&mut self, java_directory: PathBuf) -> &mut Self {
         self.java_directory = Some(java_directory);
         self
     }
 
-    pub fn proguard_options(&mut self, proguard_options: PathBuf) -> &mut Aapt2LinkBuilder {
+    pub fn proguard_options(&mut self, proguard_options: PathBuf) -> &mut Self {
         self.proguard_options = Some(proguard_options);
         self
     }
@@ -325,137 +267,122 @@ impl Aapt2LinkBuilder {
     pub fn proguard_conditional_keep_rules(
         &mut self,
         proguard_conditional_keep_rules: bool,
-    ) -> &mut Aapt2LinkBuilder {
+    ) -> &mut Self {
         self.proguard_conditional_keep_rules = proguard_conditional_keep_rules;
         self
     }
 
-    pub fn no_auto_version(&mut self, no_auto_version: bool) -> &mut Aapt2LinkBuilder {
+    pub fn no_auto_version(&mut self, no_auto_version: bool) -> &mut Self {
         self.no_auto_version = no_auto_version;
         self
     }
 
-    pub fn no_version_vectors(&mut self, no_version_vectors: bool) -> &mut Aapt2LinkBuilder {
+    pub fn no_version_vectors(&mut self, no_version_vectors: bool) -> &mut Self {
         self.no_version_vectors = no_version_vectors;
         self
     }
 
-    pub fn no_version_transitions(
-        &mut self,
-        no_version_transitions: bool,
-    ) -> &mut Aapt2LinkBuilder {
+    pub fn no_version_transitions(&mut self, no_version_transitions: bool) -> &mut Self {
         self.no_version_transitions = no_version_transitions;
         self
     }
 
-    pub fn no_resource_deduping(&mut self, no_resource_deduping: bool) -> &mut Aapt2LinkBuilder {
+    pub fn no_resource_deduping(&mut self, no_resource_deduping: bool) -> &mut Self {
         self.no_resource_deduping = no_resource_deduping;
         self
     }
 
-    pub fn enable_sparse_encoding(
-        &mut self,
-        enable_sparse_encoding: bool,
-    ) -> &mut Aapt2LinkBuilder {
+    pub fn enable_sparse_encoding(&mut self, enable_sparse_encoding: bool) -> &mut Self {
         self.enable_sparse_encoding = enable_sparse_encoding;
         self
     }
 
-    pub fn z(&mut self, z: bool) -> &mut Aapt2LinkBuilder {
+    pub fn z(&mut self, z: bool) -> &mut Self {
         self.z = z;
         self
     }
 
-    pub fn config(&mut self, config: &[String]) -> &mut Aapt2LinkBuilder {
-        self.config = Some(config.to_vec());
+    pub fn config(&mut self, config: String) -> &mut Self {
+        self.config.push(config);
         self
     }
 
-    pub fn preferred_density(&mut self, preferred_density: i32) -> &mut Aapt2LinkBuilder {
+    pub fn preferred_density(&mut self, preferred_density: i32) -> &mut Self {
         self.preferred_density = Some(preferred_density);
         self
     }
 
-    pub fn output_to_dir(&mut self, output_to_dir: bool) -> &mut Aapt2LinkBuilder {
+    pub fn output_to_dir(&mut self, output_to_dir: bool) -> &mut Self {
         self.output_to_dir = output_to_dir;
         self
     }
 
-    pub fn min_sdk_version(&mut self, min_sdk_version: i32) -> &mut Aapt2LinkBuilder {
+    pub fn min_sdk_version(&mut self, min_sdk_version: i32) -> &mut Self {
         self.min_sdk_version = Some(min_sdk_version);
         self
     }
 
-    pub fn target_sdk_version(&mut self, target_sdk_version: i32) -> &mut Aapt2LinkBuilder {
+    pub fn target_sdk_version(&mut self, target_sdk_version: i32) -> &mut Self {
         self.target_sdk_version = Some(target_sdk_version);
         self
     }
 
-    pub fn version_code(&mut self, version_code: String) -> &mut Aapt2LinkBuilder {
+    pub fn version_code(&mut self, version_code: String) -> &mut Self {
         self.version_code = Some(version_code);
         self
     }
 
-    pub fn compile_sdk_version_name(
-        &mut self,
-        compile_sdk_version_name: String,
-    ) -> &mut Aapt2LinkBuilder {
+    pub fn compile_sdk_version_name(&mut self, compile_sdk_version_name: String) -> &mut Self {
         self.compile_sdk_version_name = Some(compile_sdk_version_name);
         self
     }
 
-    pub fn proto_format(&mut self, proto_format: bool) -> &mut Aapt2LinkBuilder {
+    pub fn proto_format(&mut self, proto_format: bool) -> &mut Self {
         self.proto_format = proto_format;
         self
     }
 
-    pub fn non_final_ids(&mut self, non_final_ids: bool) -> &mut Aapt2LinkBuilder {
+    pub fn non_final_ids(&mut self, non_final_ids: bool) -> &mut Self {
         self.non_final_ids = non_final_ids;
         self
     }
 
-    pub fn emit_ids(&mut self, emit_ids: PathBuf) -> &mut Aapt2LinkBuilder {
+    pub fn emit_ids(&mut self, emit_ids: PathBuf) -> &mut Self {
         self.emit_ids = Some(emit_ids);
         self
     }
 
-    pub fn stable_ids(&mut self, stable_ids: PathBuf) -> &mut Aapt2LinkBuilder {
+    pub fn stable_ids(&mut self, stable_ids: PathBuf) -> &mut Self {
         self.stable_ids = Some(stable_ids);
         self
     }
 
-    pub fn custom_package(&mut self, custom_package: PathBuf) -> &mut Aapt2LinkBuilder {
+    pub fn custom_package(&mut self, custom_package: PathBuf) -> &mut Self {
         self.custom_package = Some(custom_package);
         self
     }
 
-    pub fn extra_packages(&mut self, extra_packages: PathBuf) -> &mut Aapt2LinkBuilder {
+    pub fn extra_packages(&mut self, extra_packages: PathBuf) -> &mut Self {
         self.extra_packages = Some(extra_packages);
         self
     }
 
-    pub fn add_javadoc_annotation(
-        &mut self,
-        add_javadoc_annotation: String,
-    ) -> &mut Aapt2LinkBuilder {
+    pub fn add_javadoc_annotation(&mut self, add_javadoc_annotation: String) -> &mut Self {
         self.add_javadoc_annotation = Some(add_javadoc_annotation);
         self
     }
 
-    pub fn output_text_symbols(&mut self, output_text_symbols: PathBuf) -> &mut Aapt2LinkBuilder {
+    pub fn output_text_symbols(&mut self, output_text_symbols: PathBuf) -> &mut Self {
         self.output_text_symbols = Some(output_text_symbols);
         self
     }
 
-    pub fn auto_add_overlay(&mut self, auto_add_overlay: bool) -> &mut Aapt2LinkBuilder {
+    pub fn auto_add_overlay(&mut self, auto_add_overlay: bool) -> &mut Self {
         self.auto_add_overlay = auto_add_overlay;
         self
     }
 
-    pub fn rename_manifest_package(
-        &mut self,
-        rename_manifest_package: String,
-    ) -> &mut Aapt2LinkBuilder {
+    pub fn rename_manifest_package(&mut self, rename_manifest_package: String) -> &mut Self {
         self.rename_manifest_package = Some(rename_manifest_package);
         self
     }
@@ -463,193 +390,170 @@ impl Aapt2LinkBuilder {
     pub fn rename_instrumentation_target_package(
         &mut self,
         rename_instrumentation_target_package: String,
-    ) -> &mut Aapt2LinkBuilder {
+    ) -> &mut Self {
         self.rename_instrumentation_target_package = Some(rename_instrumentation_target_package);
         self
     }
 
-    pub fn extension(&mut self, extension: String) -> &mut Aapt2LinkBuilder {
-        self.extension = Some(extension);
+    pub fn extension(&mut self, extension: String) -> &mut Self {
+        self.extensions.push(extension);
         self
     }
 
-    pub fn split(&mut self, split: PathBuf) -> &mut Aapt2LinkBuilder {
+    pub fn split(&mut self, split: PathBuf) -> &mut Self {
         self.split = Some(split);
         self
     }
 
-    pub fn v(&mut self, v: bool) -> &mut Aapt2LinkBuilder {
+    pub fn v(&mut self, v: bool) -> &mut Self {
         self.v = v;
         self
     }
 
-    pub fn run(self) {
+    pub fn run(&self) {
         let mut aapt2 = Command::new("aapt2");
         aapt2.arg("compile");
-        if let o = self.o {
-            aapt2.arg("-o").arg(o);
+        self.inputs.iter().for_each(|input| {
+            aapt2.arg(input);
+        });
+        aapt2.arg("-o").arg(&self.o);
+        aapt2.arg("--manifest").arg(&self.manifest);
+        if let Some(i) = &self.i {
+            aapt2.arg("-I").arg(i);
         }
-        if let manifest = self.manifest {
-            aapt2.arg("--manifest").arg(manifest);
-        }
-        if let i = self.i != false {
-            aapt2.arg("-I");
-        }
-        if let Some(a) = self.a {
+        if let Some(a) = &self.a {
             aapt2.arg("-A").arg(a);
         }
-        if let Some(r) = self.r {
+        if let Some(r) = &self.r {
             aapt2.arg("-R").arg(r);
         }
-        if let Some(package_id) = self.package_id {
+        if let Some(package_id) = &self.package_id {
             aapt2.arg("--package-id").arg(package_id);
         }
-        if let allow_reserved_package_id = self.allow_reserved_package_id != false {
+        if self.allow_reserved_package_id {
             aapt2.arg("--allow-reserved-package-id");
         }
-        if let Some(java_directory) = self.java_directory {
+        if let Some(java_directory) = &self.java_directory {
             aapt2.arg("--java").arg(java_directory);
         }
-        if let Some(proguard_options) = self.proguard_options {
+        if let Some(proguard_options) = &self.proguard_options {
             aapt2.arg("--proguard").arg(proguard_options);
         }
-        if let proguard_conditional_keep_rules = self.proguard_conditional_keep_rules != false {
+        if self.proguard_conditional_keep_rules {
             aapt2.arg("--proguard-conditional-keep-rules");
         }
-        if let no_auto_version = self.no_auto_version != false {
+        if self.no_auto_version {
             aapt2.arg("--no-auto-version");
         }
-        if let no_version_vectors = self.no_version_vectors != false {
+        if self.no_version_vectors {
             aapt2.arg("--no-version-vectors");
         }
-        if let no_version_transitions = self.no_version_transitions != false {
+        if self.no_version_transitions {
             aapt2.arg("--no-version-transitions");
         }
-        if let no_resource_deduping = self.no_resource_deduping != false {
+        if self.no_resource_deduping {
             aapt2.arg("--no-resource-deduping");
         }
-        if let enable_sparse_encoding = self.enable_sparse_encoding != false {
+        if self.enable_sparse_encoding {
             aapt2.arg("--enable-sparse-encoding");
         }
-        if let z = self.z != false {
+        if self.z {
             aapt2.arg("-z");
         }
-        if let Some(config) = self.config {
-            aapt2.arg("-c");
+        if self.config.len() > 0 {
+            aapt2.arg("-c").arg(self.config.join(","));
         }
         if let Some(preferred_density) = self.preferred_density {
-            aapt2.arg("--preferred-density");
+            aapt2
+                .arg("--preferred-density")
+                .arg(preferred_density.to_string());
         }
-        if let output_to_dir = self.output_to_dir != false {
+        if self.output_to_dir {
             aapt2.arg("--output-to-dir");
         }
         if let Some(min_sdk_version) = self.min_sdk_version {
-            aapt2.arg("--min-sdk-version");
+            aapt2
+                .arg("--min-sdk-version")
+                .arg(min_sdk_version.to_string());
         }
         if let Some(target_sdk_version) = self.target_sdk_version {
-            aapt2.arg("--target-sdk-version");
+            aapt2
+                .arg("--target-sdk-version")
+                .arg(target_sdk_version.to_string());
         }
-        if let Some(version_code) = self.version_code {
+        if let Some(version_code) = &self.version_code {
             aapt2.arg("--version-code").arg(version_code);
         }
-        if let Some(compile_sdk_version_name) = self.compile_sdk_version_name {
+        if let Some(compile_sdk_version_name) = &self.compile_sdk_version_name {
             aapt2
                 .arg("--compile-sdk-version-name")
                 .arg(compile_sdk_version_name);
         }
-        if let proto_format = self.proto_format != false {
+        if self.proto_format {
             aapt2.arg("--proto-format");
         }
-        if let non_final_ids = self.non_final_ids != false {
+        if self.non_final_ids {
             aapt2.arg("--non-final-ids");
         }
-        if let Some(emit_ids) = self.emit_ids {
+        if let Some(emit_ids) = &self.emit_ids {
             aapt2.arg("--emit-ids").arg(emit_ids);
         }
-        if let Some(stable_ids) = self.stable_ids {
+        if let Some(stable_ids) = &self.stable_ids {
             aapt2.arg("--stable-ids").arg(stable_ids);
         }
-        if let Some(custom_package) = self.custom_package {
+        if let Some(custom_package) = &self.custom_package {
             aapt2.arg("--custom-package").arg(custom_package);
         }
-        if let Some(extra_packages) = self.extra_packages {
+        if let Some(extra_packages) = &self.extra_packages {
             aapt2.arg("--extra-packages").arg(extra_packages);
         }
-        if let Some(add_javadoc_annotation) = self.add_javadoc_annotation {
+        if let Some(add_javadoc_annotation) = &self.add_javadoc_annotation {
             aapt2
                 .arg("--add-javadoc-annotation")
                 .arg(add_javadoc_annotation);
         }
-        if let Some(output_text_symbols) = self.output_text_symbols {
+        if let Some(output_text_symbols) = &self.output_text_symbols {
             aapt2.arg("--output-text-symbols").arg(output_text_symbols);
         }
-        if let auto_add_overlay = self.auto_add_overlay != false {
+        if self.auto_add_overlay {
             aapt2.arg("--auto-add-overlay");
         }
-        if let Some(rename_manifest_package) = self.rename_manifest_package {
+        if let Some(rename_manifest_package) = &self.rename_manifest_package {
             aapt2
                 .arg("--rename-manifest-package")
                 .arg(rename_manifest_package);
         }
         if let Some(rename_instrumentation_target_package) =
-            self.rename_instrumentation_target_package
+            &self.rename_instrumentation_target_package
         {
             aapt2
                 .arg("--rename-instrumentation-target-package")
                 .arg(rename_instrumentation_target_package);
         }
-        if let Some(extension) = self.extension {
+        self.extensions.iter().for_each(|extension| {
             aapt2.arg("-0").arg(extension);
-        }
-        if let Some(split) = self.split {
+        });
+        if let Some(split) = &self.split {
             aapt2.arg("--split").arg(split);
         }
-        if let v = self.v != false {
+        if self.v {
             aapt2.arg("-v");
         }
-        aapt2.output().expect("failed to execute process");
+        aapt2.output().expect("failed to execute process"); // TODO: Fix this expect
     }
 }
 
-#[test]
-fn builder_test() {
-    let aapt2 = Aapt2Link {
-        o: Path::new("bla/bla/bla").to_path_buf(),
-        manifest: Path::new("bla/bla/bla").to_path_buf(),
-        i: false,
-        a: None,
-        r: None,
-        package_id: None,
-        allow_reserved_package_id: false,
-        java_directory: None,
-        proguard_options: None,
-        proguard_conditional_keep_rules: false,
-        no_auto_version: false,
-        no_version_vectors: false,
-        no_version_transitions: false,
-        no_resource_deduping: false,
-        enable_sparse_encoding: false,
-        z: false,
-        config: None,
-        preferred_density: None,
-        output_to_dir: false,
-        min_sdk_version: None,
-        target_sdk_version: None,
-        version_code: None,
-        compile_sdk_version_name: None,
-        proto_format: false,
-        non_final_ids: false,
-        emit_ids: None,
-        stable_ids: None,
-        custom_package: None,
-        extra_packages: None,
-        add_javadoc_annotation: None,
-        output_text_symbols: None,
-        auto_add_overlay: false,
-        rename_manifest_package: None,
-        rename_instrumentation_target_package: None,
-        extension: None,
-        split: None,
-        v: false,
-    };
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn builder_test() {
+        let aapt2 = Aapt2Link::new(
+            &[Path::new("bla/bla/bla").to_owned()],
+            &Path::new("bla/bla/bla"),
+            &Path::new("bla/bla/bla"),
+        );
+        aapt2.run();
+    }
 }
