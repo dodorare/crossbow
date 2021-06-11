@@ -52,8 +52,8 @@ impl Aapt2 {
     }
 
     /// Converts an apk between binary and proto formats.
-    pub fn convert(self) -> Aapt2Convert {
-        Aapt2Convert
+    pub fn convert(self, o: &Path, output_format: OutputFormat) -> Aapt2Convert {
+        Aapt2Convert::new(o, output_format)
     }
 
     /// Prints the version of aapt.

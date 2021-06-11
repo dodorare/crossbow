@@ -165,7 +165,8 @@ pub struct Aapt2Link {
     ///
     /// You must specify the path to the output file.
     output_text_symbols: Option<PathBuf>,
-    /// Allows the addition of new resources in overlays without using the <add-resource> tag.
+    /// Allows the addition of new resources in overlays without using the <add-resource>
+    /// tag.
     auto_add_overlay: bool,
     /// Renames the package in AndroidManifest.xml.
     rename_manifest_package: Option<String>,
@@ -177,7 +178,8 @@ pub struct Aapt2Link {
     rename_instrumentation_target_package: Option<String>,
     /// Specifies the extensions of files that you do not want to compress.
     extensions: Vec<String>,
-    /// Splits resources based on a set of configurations to generate a different version of the APK.
+    /// Splits resources based on a set of configurations to generate a different version
+    /// of the APK.
     ///
     /// You must specify the path to the output APK along with the set of configurations.
     split: Option<PathBuf>,
