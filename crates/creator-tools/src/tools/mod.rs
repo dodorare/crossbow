@@ -1,8 +1,8 @@
-// mod aapt2;
+mod aapt2;
 mod android_ndk;
 mod android_sdk;
 
-// pub use aapt2::*;
+pub use aapt2::*;
 pub use android_ndk::*;
 pub use android_sdk::*;
 

@@ -63,37 +63,17 @@ pub struct Aapt2Compile {
     v: bool,
 }
 
-pub struct Aapt2CompileBuilder {
-    input: PathBuf,
-    o: Option<PathBuf>,
-    dir: Option<PathBuf>,
-    pseudo_localize: bool,
-    no_crunch: bool,
-    legacy: bool,
-    v: bool,
-}
-
-impl Aapt2CompileBuilder {
-    pub fn new(input: PathBuf) -> Aapt2CompileBuilder {
-        Aapt2CompileBuilder {
-            input: input,
-            o: None,
+impl Aapt2Compile {
+    pub fn new(input: &Path, o: &Path) -> Self {
+        Self {
+            input: input.to_owned(),
+            o: o.to_owned(),
             dir: None,
             pseudo_localize: false,
             no_crunch: false,
             legacy: false,
             v: false,
         }
-    }
-
-    pub fn input(&mut self, input: &PathBuf) -> &mut Self {
-        self.input = input.to_owned();
-        self
-    }
-
-    pub fn o(&mut self, o: &Path) -> &mut Self {
-        self.o = Some(o.to_owned());
-        self
     }
 
     pub fn dir(&mut self, dir: &Path) -> &mut Self {
@@ -124,12 +104,8 @@ impl Aapt2CompileBuilder {
     pub fn run(&self) {
         let mut aapt2 = Command::new("aapt2");
         aapt2.arg("compile");
-        aapt2.arg(self.input);
-        if let Some(o) = &self.o {
-            aapt2.arg("-o").arg(o);
-        } else {
-            panic!("Expected -o argument")
-        }
+        aapt2.arg(&self.input);
+        aapt2.arg("-o").arg(&self.o);
         if let Some(dir) = &self.dir {
             aapt2.arg("--dir").arg(dir);
         }
@@ -145,6 +121,6 @@ impl Aapt2CompileBuilder {
         if self.v {
             aapt2.arg("-v");
         }
-        aapt2.output().expect("failed to execute process");
+        aapt2.output().expect("failed to execute process"); // TODO: Remove expect
     }
 }

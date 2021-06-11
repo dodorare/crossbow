@@ -1,92 +1,75 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 
 /// # Dump
 /// Dump is used for printing information about the APK you generated using the link command.
 /// For example, the following command prints content from the resource table of the specified APK:
 ///
-/// ```
+/// ```sh
 /// aapt2 dump resources output.apk
 /// ```
 ///
 /// ## Dump syntax
 /// The general syntax for using dump is as follows:
 ///
-/// ```
+/// ```sh
 /// aapt2 dump sub-command filename.apk [options]
 /// ```
-///
-/// ## [Dump options](https://developer.android.com/studio/command-line/aapt2#dump_options)
 pub struct Aapt2Dump {
+    subcommand: SubCommand,
+    filename_apk: PathBuf,
     /// Suppresses the output of values when displaying resource.
     no_values: bool,
     /// Suppresses the output of values when displaying resource.
     file: Option<PathBuf>,
     /// Increases verbosity of the output.
     v: bool,
-    filename_apk: SubCommand,
-    file_name_apk: PathBuf,
 }
 
-pub struct Aapt2DumpBuilder {
-    no_values: bool,
-    file: Option<PathBuf>,
-    v: bool,
-    filename_apk: SubCommand,
-    file_name_apk: PathBuf,
-}
-
-impl Aapt2DumpBuilder {
-    pub fn new() -> Aapt2DumpBuilder {
-        Aapt2DumpBuilder {
+impl Aapt2Dump {
+    pub fn new(subcommand: SubCommand, filename_apk: &Path) -> Aapt2Dump {
+        Aapt2Dump {
+            subcommand,
+            filename_apk: filename_apk.to_owned(),
             no_values: false,
             file: None,
             v: false,
-            filename_apk: SubCommand,
-            file_name_apk: PathBuf,
+        }
     }
 
-    pub fn no_values(&mut self, no_values: &bool) -> &mut Self {
-        self.no_values = *no_values;
+    pub fn no_values(&mut self, no_values: bool) -> &mut Self {
+        self.no_values = no_values;
         self
     }
 
     pub fn file(&mut self, file: &Path) -> &mut Self {
-        self.file = *file;
+        self.file = Some(file.to_owned());
         self
     }
 
-    pub fn v(&mut self, v: &bool) -> &mut Self {
-        self.v = *v;
-        self
-    }
-
-    pub fn filename_apk(&mut self, filename_apk: &bool) -> &mut Self {
-        self.filename_apk = *filename_apk;
-        self
-    }
-
-    pub fn file_name_apk(&mut self, file_name_apk: &bool) -> &mut Self {
-        self.file_name_apk = *file_name_apk;
+    pub fn v(&mut self, v: bool) -> &mut Self {
+        self.v = v;
         self
     }
 
     pub fn run(&self) {
-        let aapt2 = Command::new("aapt2");
+        let mut aapt2 = Command::new("aapt2");
         aapt2.arg("dump");
-        aapt2.arg("filename_apk");
-        if let no_values = &self.no_values {
+        aapt2.arg(self.subcommand.to_string());
+        aapt2.arg(&self.filename_apk);
+        if self.no_values {
             aapt2.arg("--no-values");
         }
-        if let file = &self.file {
-            aapt2.arg("--file");
+        if let Some(file) = &self.file {
+            aapt2.arg("--file").arg(file);
         }
-        if let no_values = &self.v {
-            aapt2.arg("--v");
+        if self.v {
+            aapt2.arg("-v");
         }
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SubCommand {
     /// Print the contents of the AAPT2 Container (APC) generated during compilation.
     Apc,
@@ -110,3 +93,19 @@ pub enum SubCommand {
     Xmltree,
 }
 
+impl std::fmt::Display for SubCommand {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match *self {
+            Self::Apc => write!(f, "apc"),
+            Self::Badging => write!(f, "badging"),
+            Self::Configurations => write!(f, "configurations"),
+            Self::Packagename => write!(f, "packagename"),
+            Self::Permissions => write!(f, "permissions"),
+            Self::Strings => write!(f, "strings"),
+            Self::Styleparents => write!(f, "styleparents"),
+            Self::Resources => write!(f, "resources"),
+            Self::Xmlstrings => write!(f, "xmlstrings"),
+            Self::Xmltree => write!(f, "xmltree"),
+        }
+    }
+}
