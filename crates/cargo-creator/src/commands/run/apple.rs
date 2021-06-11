@@ -31,24 +31,22 @@ impl AppleRunCommand {
         } else if build_command.target.is_empty() {
             build_command.target = vec![AppleTarget::X86_64AppleIos];
         }
-        let build_context = BuildContext::init(config, build_command.shared.target_dir.clone())?;
-        let (metadata, app_paths) = build_command.execute(config, &build_context)?;
-        config.shell().status("Starting run process")?;
-        let bundle_id = &metadata.info_plist.identification.bundle_identifier;
+        let context = BuildContext::new(config, build_command.shared.target_dir.clone())?;
+        let (info_plist, app_paths) = build_command.execute(config, &context)?;
+        config.status("Starting run process")?;
+        let bundle_id = &info_plist.identification.bundle_identifier;
         let app_path = self.get_app_path(&app_paths)?;
         if self.device {
-            config.shell().status("Lounching app on connected device")?;
+            config.status("Lounching app on connected device")?;
             apple::run_and_debug(&app_path, self.debug, false, false, self.device_id.as_ref())?;
         } else {
-            config
-                .shell()
-                .status("Installing and launching application on simulator")?;
+            config.status("Installing and launching application on simulator")?;
             apple::launch_apple_app(&app_path, &self.simulator_name, bundle_id, true)?;
             creator_tools::simctl::Simctl::new()
                 .open()
                 .map_err(|err| Error::CreatorTools(err.into()))?;
         }
-        config.shell().status("Run finished successfully")?;
+        config.status("Run finished successfully")?;
         Ok(())
     }
 

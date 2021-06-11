@@ -13,7 +13,9 @@ edition = "2018"
 version = "0.1.0"
 
 [lib]
+name = "example"
 crate-type = ["lib", "cdylib"]
+path = "src/lib.rs"
 
 [dependencies]
 creator = { git = "https://github.com/creator-rs/creator" }

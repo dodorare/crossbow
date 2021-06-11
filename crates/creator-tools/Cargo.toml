@@ -13,12 +13,12 @@ readme = "../../README.md"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.61"
 serde_plain = "0.3"
-plist = { version = "1.0.1", package = "creator-plist" }
 dunce = "1.0"
 fs_extra = "1.2"
 dirs = "3.0.1"
 simctl = { version = "0.1.1", package = "creator-simctl" }
-
+android-manifest = { git = "https://github.com/dodorare/android-manifest-rs.git", rev = "cec877c14fe5c7599a09d2e1e289ba961dd8d90f" }
+apple-bundle = { version = "0.1.1" }
 thiserror = "1.0"
 displaydoc = "0.1"
 which = "4.0"

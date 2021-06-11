@@ -2,7 +2,7 @@
 use creator_tools::commands::apple::*;
 use creator_tools::{
     commands::{android::*, gen_minimal_project},
-    deps::{AndroidNdk, AndroidSdk},
+    tools::{AndroidNdk, AndroidSdk},
     types::*,
 };
 

@@ -1,14 +1,12 @@
-mod consts;
-
-use crate::{error::*, types::*};
-use consts::*;
+use crate::error::*;
+use apple_bundle::{plist, prelude::*};
 use std::fs::File;
 use std::path::Path;
 
 /// Saves given InfoPlist in new `Info.plist` file.
-pub fn create_apple_plist(out_dir: &Path, properties: &InfoPlist, binary: bool) -> Result<()> {
+pub fn save_apple_plist(out_dir: &Path, properties: &InfoPlist, binary: bool) -> Result<()> {
     // Create Info.plist file
-    let file_path = out_dir.join(PLIST_FILE_NAME);
+    let file_path = out_dir.join("Info.plist");
     let file = File::create(file_path)?;
     // Write to Info.plist file
     match binary {
@@ -21,6 +19,41 @@ pub fn create_apple_plist(out_dir: &Path, properties: &InfoPlist, binary: bool) 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[cfg(test)]
+    pub const PLIST_TEST_EXAMPLE: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.test.test-id</string>
+    <key>CFBundleName</key>
+    <string>Test</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>1.0</string>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>en</string>
+    <key>UILaunchStoryboardName</key>
+    <string>LaunchScreen</string>
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+        <string>UIInterfaceOrientationPortraitUpsideDown</string>
+        <string>UIInterfaceOrientationLandscapeLeft</string>
+        <string>UIInterfaceOrientationLandscapeRight</string>
+    </array>
+    <key>UIRequiresFullScreen</key>
+    <false />
+    <key>CFBundleExecutable</key>
+    <string>test</string>
+</dict>
+</plist>"#;
 
     #[test]
     fn test_plist_equality() {
@@ -71,8 +104,8 @@ mod tests {
             },
             ..Default::default()
         };
-        create_apple_plist(dir.path(), &properties, false).unwrap();
-        let file_path = dir.path().join(PLIST_FILE_NAME);
+        save_apple_plist(dir.path(), &properties, false).unwrap();
+        let file_path = dir.path().join("Info.plist");
         let result = std::fs::read_to_string(&file_path).unwrap();
         assert_eq!(result, PLIST_TEST_EXAMPLE.replace("    ", "\t"));
         // TODO: Fix this. Should be equivalent

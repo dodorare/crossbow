@@ -1,6 +1,6 @@
 use crate::{
-    deps::{AndroidNdk, AndroidSdk},
     error::*,
+    tools::{AndroidNdk, AndroidSdk},
     types::{AndroidTarget, IntoRustTriple, Profile},
 };
 use std::{
@@ -33,7 +33,7 @@ pub fn add_libs_into_apk(
         .join(build_target.rust_triple())
         .join(profile.as_ref());
     let mut dylibs_paths = search_dylibs(&build_path.join("build"))?;
-    dylibs_paths.push(build_path.join("deps"));
+    dylibs_paths.push(build_path.join("tools"));
     // Get list of libs that main lib need for work
     let lib_name = lib_path.file_name().unwrap().to_str().unwrap().to_owned();
     let mut needed_libs = vec![];
@@ -106,8 +106,8 @@ fn search_dylibs(deps_dir: &Path) -> Result<Vec<PathBuf>> {
 }
 
 /// Update `needed_libs` hashset with given lib and all related libs.
-/// Note: libc++ is not a system lib. If you use libc++_shared.so, it must be included in your APK.
-/// https://developer.android.com/ndk/guides/cpp-support
+/// Note: libc++ is not a system lib. If you use libc++_shared.so, it must be included in
+/// your APK. https://developer.android.com/ndk/guides/cpp-support
 fn recursively_define_needed_libs(
     (lib_name, lib_path): (String, PathBuf),
     readelf_path: &Path,

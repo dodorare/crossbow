@@ -1,5 +1,6 @@
 //! Contains `Error`, `AndroidError`, `AppleError` types used by `creator-tools`.
 
+use apple_bundle::plist;
 use displaydoc::Display;
 use std::path::PathBuf;
 use std::process::Command;
@@ -29,6 +30,10 @@ pub enum AndroidError {
     InvalidSemver,
     /// Unsupported or invalid target: {0}
     InvalidBuildTarget(String),
+    /// Failed to find AndroidManifest.xml in path: {0}
+    FailedToFindAndroidManifest(String),
+    /// AndroidManifest error
+    AndroidManifest(#[from] android_manifest::error::Error),
 }
 
 /// Apple specific error type.
@@ -50,6 +55,8 @@ pub enum AppleError {
     ResourcesNotFound,
     /// Assets dir does not exists
     AssetsNotFound,
+    /// Failed to find Info.plist in path: {0}
+    FailedToFindInfoPlist(String),
     /// Plist data error
     Plist(#[from] plist::Error),
 }
@@ -67,8 +74,8 @@ pub enum Error {
     InvalidInterfaceOrientation(String),
     /// Path {0:?} doesn't exist
     PathNotFound(PathBuf),
-    /// Failed to find manifest: {0}
-    FailedToFindManifest(String),
+    /// Failed to find cargo manifest: {0}
+    FailedToFindCargoManifest(String),
     /// Failed to choose shell string color.
     /// Argument for --color must be auto, always, or never, but found `{}`
     FailedToChooseShellStringColor(String),

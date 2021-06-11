@@ -1,5 +1,5 @@
-use crate::deps::*;
 use crate::error::*;
+use crate::tools::*;
 use std::path::{Path, PathBuf};
 
 /// Key for signing APK.

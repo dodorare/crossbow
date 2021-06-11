@@ -1,5 +1,6 @@
 use super::{BuildContext, SharedBuildCommand};
-use crate::{error::*, manifest::*};
+use crate::error::*;
+use apple_bundle::prelude::InfoPlist;
 use clap::Clap;
 use creator_tools::{commands::apple, types::*, utils::Config};
 use std::path::{Path, PathBuf};
@@ -31,80 +32,50 @@ pub struct AppleBuildCommand {
 
 impl AppleBuildCommand {
     pub fn run(&self, config: &Config) -> Result<()> {
-        let build_context = BuildContext::init(config, self.shared.target_dir.clone())?;
-        self.execute(config, &build_context)?;
+        let context = BuildContext::new(config, self.shared.target_dir.clone())?;
+        self.execute(config, &context)?;
         Ok(())
     }
 
     pub fn execute(
         &self,
         config: &Config,
-        build_context: &BuildContext,
-    ) -> Result<(AppleMetadata, Vec<PathBuf>)> {
-        let package = build_context
-            .manifest
-            .package
-            .as_ref()
-            .ok_or(Error::InvalidManifest)?;
-        let metadata = package
-            .metadata
-            .as_ref()
-            .ok_or(Error::InvalidManifestMetadata)?
-            .apple
-            .clone()
-            .unwrap();
-        let properties = &metadata.info_plist;
-        let project_path = &build_context.project_path;
-        let profile = match self.shared.release {
-            true => Profile::Release,
-            false => Profile::Debug,
-        };
-        let name;
-        let target = if let Some(example) = self.shared.example.clone() {
-            name = example;
-            Target::Example(name.clone())
-        } else if let Some(bin) = self.bin.clone() {
-            name = bin;
-            Target::Bin(name.clone())
+        context: &BuildContext,
+    ) -> Result<(InfoPlist, Vec<PathBuf>)> {
+        let project_path = &context.project_path;
+        let profile = self.shared.profile();
+        let (target, package_name) = if let Some(example) = &self.shared.example {
+            (Target::Example(example.clone()), example.clone())
+        } else if let Some(bin) = &self.bin {
+            (Target::Bin(bin.clone()), bin.clone())
         } else {
-            name = package.name.clone();
-            Target::Bin(name.clone())
+            (Target::Bin(context.package_name()), context.package_name())
         };
-        config
-            .shell()
-            .status_message("Starting build process", &name)?;
-        config.shell().status("Compiling app")?;
-        let build_targets = if !self.target.is_empty() {
-            &self.target
-        } else {
-            metadata
-                .build_targets
-                .as_ref()
-                .ok_or(Error::BuildTargetsNotProvided)?
-        };
+        let properties = context.gen_info_plist(&package_name)?;
+        config.status_message("Starting build process", &package_name)?;
+        config.status("Compiling app")?;
+        let build_targets = context.apple_build_targets(&self.target);
         let mut app_paths = vec![];
         for build_target in build_targets {
             let app_path = self.build_app(
                 config,
-                build_context,
-                &metadata,
+                context,
                 target.clone(),
                 project_path,
-                *build_target,
-                properties,
+                build_target,
+                &properties,
                 profile,
-                &name,
+                &package_name,
             )?;
             app_paths.push(app_path);
         }
-        Ok((metadata, app_paths))
+        Ok((properties, app_paths))
     }
 
     fn build_app(
         &self,
         config: &Config,
-        build_context: &BuildContext,
-        metadata: &AppleMetadata,
+        context: &BuildContext,
         target: Target,
         project_path: &Path,
         build_target: AppleTarget,
@@ -113,9 +84,7 @@ impl AppleBuildCommand {
         name: &str,
     ) -> Result<PathBuf> {
         let rust_triple = build_target.rust_triple();
-        config
-            .shell()
-            .status_message("Compiling for architecture", rust_triple)?;
+        config.status_message("Compiling for architecture", rust_triple)?;
         apple::compile_rust_for_ios(
             target,
             build_target,
@@ -125,31 +94,34 @@ impl AppleBuildCommand {
             self.shared.all_features,
             self.shared.no_default_features,
         )?;
-        let out_dir = build_context.target_dir.join(rust_triple).join(&profile);
+        let out_dir = context.target_dir.join(rust_triple).join(&profile);
         let bin_path = out_dir.join(&name);
-        config.shell().status("Generating app folder")?;
+        config.status("Generating app folder")?;
         let app_path = apple::gen_apple_app_folder(
-            &build_context
+            &context
                 .target_dir
                 .join("apple")
                 .join(rust_triple)
                 .join(&profile),
             &name,
-            metadata.resources.as_ref().map(|r| project_path.join(r)),
-            metadata.assets.as_ref().map(|r| project_path.join(r)),
+            context.apple_res().as_ref().map(|r| project_path.join(r)),
+            context
+                .apple_assets()
+                .as_ref()
+                .map(|r| project_path.join(r)),
         )?;
-        config.shell().status("Coping binary to app folder")?;
+        config.status("Coping binary to app folder")?;
         std::fs::copy(&bin_path, &app_path.join(&name)).unwrap();
-        config.shell().status_message("Generating", "Info.plist")?;
-        apple::create_apple_plist(&app_path, properties, false).unwrap();
+        config.status_message("Generating", "Info.plist")?;
+        apple::save_apple_plist(&app_path, properties, false).unwrap();
         if self.identity.is_some() {
-            config.shell().status("Starting code signing process")?;
+            config.status("Starting code signing process")?;
             apple::copy_profile(
                 &app_path,
                 self.profile_name.clone(),
                 self.profile_path.clone(),
             )?;
-            config.shell().status_message("Generating", "xcent file")?;
+            config.status_message("Generating", "xcent file")?;
             let xcent_path = apple::gen_xcent(
                 &app_path,
                 &name,
@@ -159,13 +131,13 @@ impl AppleBuildCommand {
                 &properties.identification.bundle_identifier,
                 false,
             )?;
-            config.shell().status("Signing the binary")?;
+            config.status("Signing the binary")?;
             apple::codesign(&app_path.join(&name), true, self.identity.clone(), None)?;
-            config.shell().status("Signing the bundle itself")?;
+            config.status("Signing the bundle itself")?;
             apple::codesign(&app_path, true, self.identity.clone(), Some(xcent_path))?;
-            config.shell().status("Code signing process finished")?;
+            config.status("Code signing process finished")?;
         }
-        config.shell().status("Build finished successfully")?;
+        config.status("Build finished successfully")?;
         Ok(app_path)
     }
 }

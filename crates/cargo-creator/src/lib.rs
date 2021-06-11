@@ -1,15 +1,14 @@
 #[macro_use]
 extern crate log;
 
+pub mod cargo_manifest;
 pub mod commands;
 pub mod error;
-pub mod manifest;
 
 use clap::Clap;
 use colored::Colorize;
 use commands::*;
 use creator_tools::utils::{Config, Shell, Verbosity};
-use manifest::*;
 use std::path::PathBuf;
 
 #[derive(Clap, Clone, Debug)]
@@ -29,33 +28,39 @@ pub struct Opts {
     pub cmd: Commands,
 }
 
-pub fn run() -> std::result::Result<(), Box<dyn std::error::Error>> {
-    let opts = Opts::parse();
-    let verbosity = if opts.quiet {
-        Verbosity::Quiet
-    } else {
-        // Vary the output based on how many times the user used the "verbose" flag.
-        // Example: `creator -v -v -v' or 'creator -vvv' vs 'creator -v'
-        match opts.verbose {
-            0 => Verbosity::Normal,
-            1 => Verbosity::Verbose,
-            _ => {
-                pretty_env_logger::formatted_builder()
-                    .filter_level(log::LevelFilter::Trace)
-                    .init();
-                Verbosity::Verbose
+impl Opts {
+    pub fn get_verbosity(&self) -> Verbosity {
+        if self.quiet {
+            Verbosity::Quiet
+        } else {
+            // Vary the output based on how many times the user used the "verbose" flag.
+            // Example: `creator -v -v -v' or 'creator -vvv' vs 'creator -v'
+            match self.verbose {
+                0 => Verbosity::Normal,
+                1 => Verbosity::Verbose,
+                _ => {
+                    pretty_env_logger::formatted_builder()
+                        .filter_level(log::LevelFilter::Trace)
+                        .init();
+                    Verbosity::Verbose
+                }
             }
         }
-    };
+    }
+
+    pub fn get_current_dir(&self) -> PathBuf {
+        self.current_dir
+            .clone()
+            .unwrap_or_else(|| std::env::current_dir().unwrap())
+    }
+}
+
+pub fn run() -> std::result::Result<(), Box<dyn std::error::Error>> {
+    let opts = Opts::parse();
     let mut shell = Shell::new();
-    shell.set_verbosity(verbosity);
-    let current_dir = opts
-        .current_dir
-        .clone()
-        .unwrap_or_else(|| std::env::current_dir().unwrap());
-    let config = Config::new(shell, current_dir);
+    shell.set_verbosity(opts.get_verbosity());
+    let config = Config::new(shell, opts.get_current_dir());
     opts.cmd.handle_command(&config)?;
-    trace!("Command finished");
     Ok(())
 }
 

@@ -25,7 +25,7 @@ fn find_cargo_manifest_path(current_dir: &Path, workspace: bool) -> Result<PathB
     }
     let output = cargo.output()?;
     if !output.status.success() {
-        return Err(Error::FailedToFindManifest(
+        return Err(Error::FailedToFindCargoManifest(
             String::from_utf8(output.stderr)
                 .unwrap()
                 .replace("error: ", "")
