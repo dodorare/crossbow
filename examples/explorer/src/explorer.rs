@@ -320,7 +320,7 @@ pub fn explorer_startup(task_pool: Res<AsyncComputeTaskPool>, channel: Res<Explo
         .spawn(async move {
             println!("Connecting to Substrate Node.");
             let client = ClientBuilder::<KusamaRuntime>::new()
-                .set_url("wss://kusama-rpc.polkadot.io")
+                .set_url("wss://rpc.polkadot.io")
                 .build()
                 .await
                 .unwrap();

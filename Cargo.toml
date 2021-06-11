@@ -18,11 +18,7 @@ creator-tools = { path = "crates/creator-tools", version = "0.3.8", optional = t
 creator-permissions = { path = "crates/creator-permissions", version = "0.3.8", optional = true }
 
 [target.'cfg(target_os = "android")'.dependencies]
-ndk-glue = "0.2"
-
-[patch.crates-io]
-# bevy = { path = "../bevy" }
-cpal = { git = "https://github.com/creator-rs/cpal", rev = "1d72ae74535fea1cebc5158d8a63362042e2633f" }
+ndk-glue = "0.3"
 
 [features]
 default = []
