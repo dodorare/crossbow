@@ -1,5 +1,5 @@
-use crate::deps::AndroidSdk;
 use crate::error::*;
+use crate::tools::AndroidSdk;
 use std::path::Path;
 
 /// Installs given APK in emulator or connected device.

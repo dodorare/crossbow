@@ -4,8 +4,8 @@ use std::process::Command as ProcessCommand;
 
 pub struct AndroidSdk {
     sdk_path: PathBuf,
-    build_tools_path: PathBuf,
-    build_tools_version: String,
+    build_deps_path: PathBuf,
+    build_deps_version: String,
     platforms_path: PathBuf,
     platforms: Vec<u32>,
 }
@@ -19,9 +19,9 @@ impl AndroidSdk {
                 .or_else(|| std::env::var("ANDROID_HOME").ok());
             PathBuf::from(sdk_path.ok_or(AndroidError::AndroidSdkNotFound)?)
         };
-        let build_tools_path = sdk_path.join("build-tools");
-        let build_tools_version = std::fs::read_dir(&build_tools_path)
-            .map_err(|_| Error::PathNotFound(build_tools_path.clone()))?
+        let build_deps_path = sdk_path.join("build-tools");
+        let build_deps_version = std::fs::read_dir(&build_deps_path)
+            .map_err(|_| Error::PathNotFound(build_deps_path.clone()))?
             .filter_map(|path| path.ok())
             .filter(|path| path.path().is_dir())
             .filter_map(|path| path.file_name().into_string().ok())
@@ -44,8 +44,8 @@ impl AndroidSdk {
         };
         Ok(Self {
             sdk_path,
-            build_tools_path,
-            build_tools_version,
+            build_deps_path,
+            build_deps_version,
             platforms_path,
             platforms,
         })
@@ -55,12 +55,12 @@ impl AndroidSdk {
         &self.sdk_path
     }
 
-    pub fn build_tools_path(&self) -> &Path {
-        &self.build_tools_path
+    pub fn build_deps_path(&self) -> &Path {
+        &self.build_deps_path
     }
 
-    pub fn build_tools_version(&self) -> &str {
-        &self.build_tools_version
+    pub fn build_deps_version(&self) -> &str {
+        &self.build_deps_version
     }
 
     pub fn platforms_path(&self) -> &Path {
@@ -73,8 +73,8 @@ impl AndroidSdk {
 
     pub fn build_tool(&self, tool: &str, current_dir: Option<&Path>) -> Result<ProcessCommand> {
         let path = self
-            .build_tools_path
-            .join(&self.build_tools_version)
+            .build_deps_path
+            .join(&self.build_deps_version)
             .join(tool);
         if !path.exists() {
             return Err(Error::CmdNotFound(tool.to_string()));

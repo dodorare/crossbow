@@ -1,3 +1,4 @@
+use creator_tools::types::android_manifest;
 use displaydoc::Display;
 use thiserror::Error;
 
@@ -17,8 +18,6 @@ pub enum Error {
     InvalidManifest,
     /// Invalid metadata in manifest
     InvalidManifestMetadata,
-    /// Failed to find manifest: {0}
-    FailedToFindManifest(String),
     /// IO error
     Io(#[from] std::io::Error),
     /// Clap error
@@ -27,6 +26,6 @@ pub enum Error {
     CargoToml(#[from] cargo_toml::Error),
     /// Creator Tools error
     CreatorTools(#[from] creator_tools::error::Error),
-    // /// Specified bin and example
-    // InvalidManifestMetadata,
+    /// AndroidManifest error
+    AndroidManifest(#[from] android_manifest::error::Error),
 }

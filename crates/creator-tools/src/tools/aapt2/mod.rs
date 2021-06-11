@@ -29,9 +29,9 @@ impl Aapt2 {
     }
 
     /// Links resources into an apk.
-    pub fn link(self) -> Aapt2Link {
-        Aapt2Link
-    }
+    // pub fn link(self) -> Aapt2Link {
+    //     Aapt2Link
+    // }
 
     /// Used for printing information about the APK you generated using the link command.
     pub fn dump(self) -> Aapt2Dump {

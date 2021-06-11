@@ -21,7 +21,7 @@ macro_rules! bat {
 }
 
 pub mod commands;
-pub mod deps;
+pub mod tools;
 pub mod error;
 pub mod types;
 pub mod utils;

@@ -1,5 +1,5 @@
-use crate::deps::AndroidSdk;
 use crate::error::*;
+use crate::tools::AndroidSdk;
 use crate::types::AndroidTarget;
 
 /// Returns current android target.

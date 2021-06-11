@@ -1,4 +1,5 @@
 use crate::error::*;
+use apple_bundle::plist;
 use serde::{Deserialize, Serialize};
 use std::{
     fs::File,

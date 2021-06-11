@@ -9,7 +9,7 @@ use apple::AppleBuildCommand;
 
 use crate::error::Result;
 use clap::Clap;
-use creator_tools::utils::Config;
+use creator_tools::{types::Profile, utils::Config};
 use std::path::PathBuf;
 
 #[derive(Clap, Clone, Debug)]
@@ -49,4 +49,13 @@ pub struct SharedBuildCommand {
     /// Directory for generated artifact and intermediate files.
     #[clap(long)]
     pub target_dir: Option<PathBuf>,
+}
+
+impl SharedBuildCommand {
+    pub fn profile(&self) -> Profile {
+        match self.release {
+            true => Profile::Release,
+            false => Profile::Debug,
+        }
+    }
 }

@@ -1,5 +1,5 @@
-use crate::deps::AndroidSdk;
 use crate::error::*;
+use crate::tools::AndroidSdk;
 
 /// Starts installed APK on on emulator or connected device.
 /// Runs `adb shell am start ...` command.

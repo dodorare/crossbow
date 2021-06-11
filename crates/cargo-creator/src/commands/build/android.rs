@@ -1,13 +1,14 @@
 use super::{BuildContext, SharedBuildCommand};
-use crate::{error::*, manifest::into_android_manifest};
+use crate::error::*;
+use android_manifest::AndroidManifest;
 use clap::Clap;
 use creator_tools::{
     commands::android,
-    deps::{AndroidNdk, AndroidSdk},
+    tools::{AndroidNdk, AndroidSdk},
     types::*,
     utils::Config,
 };
-use std::{convert::TryInto, path::PathBuf};
+use std::path::PathBuf;
 
 #[derive(Clap, Clone, Debug)]
 pub struct AndroidBuildCommand {
@@ -21,63 +22,38 @@ pub struct AndroidBuildCommand {
 
 impl AndroidBuildCommand {
     pub fn run(&self, config: &Config) -> Result<()> {
-        let build_context = BuildContext::init(config, self.shared.target_dir.clone())?;
-        self.execute(config, &build_context)?;
+        let context = BuildContext::new(config, self.shared.target_dir.clone())?;
+        self.execute(config, &context)?;
         Ok(())
     }
 
     pub fn execute(
         &self,
         config: &Config,
-        build_context: &BuildContext,
-    ) -> Result<(String, AndroidSdk, PathBuf)> {
-        let package = build_context
-            .manifest
-            .package
-            .as_ref()
-            .ok_or(Error::InvalidManifest)?;
-        let metadata = package
-            .metadata
-            .clone()
-            .ok_or(Error::InvalidManifestMetadata)?
-            .android
-            .unwrap();
-        let project_path = build_context.project_path.clone();
-        let target_dir = build_context.target_dir.clone();
-        let profile = match self.shared.release {
-            true => Profile::Release,
-            false => Profile::Debug,
-        };
-        let package_name;
-        let target = if let Some(example) = self.shared.example.clone() {
-            package_name = example.clone();
-            Target::Example(example)
+        context: &BuildContext,
+    ) -> Result<(AndroidManifest, AndroidSdk, PathBuf)> {
+        let project_path = context.project_path.clone();
+        let target_dir = context.target_dir.clone();
+        let profile = self.shared.profile();
+        let (target, package_name) = if let Some(example) = &self.shared.example {
+            (Target::Example(example.clone()), example.clone())
         } else {
-            package_name = package.name.clone();
-            Target::Lib
+            (Target::Lib, context.package_name())
         };
-        config
-            .shell()
-            .status_message("Starting build process", &package_name)?;
-        let sdk = AndroidSdk::from_env().unwrap();
-        let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
-        let target_sdk_version = metadata.manifest.uses_sdk.unwrap().target_sdk_version.unwrap_or_else(|| sdk.default_platform().try_into().unwrap());
-        let build_targets = if !self.target.is_empty() {
-            self.target.clone()
-        } else if metadata.build_targets.is_some()
-            && !metadata.build_targets.as_ref().unwrap().is_empty()
-        {
-            metadata.build_targets.unwrap()
-        } else {
-            vec![AndroidTarget::Aarch64LinuxAndroid]
-        };
+        config.status_message("Starting build process", &package_name)?;
+        let sdk = AndroidSdk::from_env()?;
+        let ndk = AndroidNdk::from_env(Some(sdk.sdk_path()))?;
+        let build_targets = context.android_build_targets(&self.target);
+        let target_sdk_version = context.target_sdk_version(&sdk);
+        config.status_message("Generating", "AndroidManifest.xml")?;
+        let android_manifest = context.gen_android_manifest(&sdk, &package_name)?;
+        let apk_build_dir = target_dir.join("android").join(&profile);
+        let manifest_path = android::save_android_manifest(&apk_build_dir, &android_manifest)?;
         let mut compiled_libs = Vec::new();
         for build_target in build_targets.iter() {
             let lib_name = format!("lib{}.so", package_name.replace("-", "_"));
             let rust_triple = build_target.rust_triple();
-            config
-                .shell()
-                .status_message("Compiling for architecture", rust_triple)?;
+            config.status_message("Compiling for architecture", rust_triple)?;
             android::compile_rust_for_android(
                 &ndk,
                 target.clone(),
@@ -87,33 +63,29 @@ impl AndroidBuildCommand {
                 self.shared.features.clone(),
                 self.shared.all_features,
                 self.shared.no_default_features,
-                target_sdk_version.try_into().unwrap(),
-            )
-            .unwrap();
+                target_sdk_version,
+            )?;
             let out_dir = target_dir.join(build_target.rust_triple()).join(&profile);
             let compiled_lib = out_dir.join(lib_name);
             compiled_libs.push((compiled_lib, build_target));
         }
-        config
-            .shell()
-            .status_message("Generating", "AndroidManifest.xml")?;
-        let android_manifest = into_android_manifest(package_name, target_sdk_version);
-        let apk_build_dir = target_dir.join("android").join(&profile);
-        let manifest_path =
-            android::create_android_manifest(&apk_build_dir, android_manifest.clone()).unwrap();
-        config
-            .shell()
-            .status_message("Generating", "unaligned APK file")?;
+        config.status_message("Generating", "unaligned APK file")?;
         let unaligned_apk_path = android::gen_unaligned_apk(
             &sdk,
+            &project_path,
             &apk_build_dir,
             &manifest_path,
-            metadata.assets.clone(),
-            metadata.resources,
-            android_manifest.clone(),
-        )
-        .unwrap();
-        config.shell().status("Adding libs into APK file")?;
+            context.android_assets(),
+            context.android_res(),
+            android_manifest
+                .application
+                .label
+                .clone()
+                .unwrap()
+                .to_string(),
+            target_sdk_version,
+        )?;
+        config.status("Adding libs into APK file")?;
         for (compiled_lib, build_target) in compiled_libs {
             android::add_libs_into_apk(
                 &sdk,
@@ -122,27 +94,28 @@ impl AndroidBuildCommand {
                 &compiled_lib,
                 *build_target,
                 profile,
-                android_manifest.clone().uses_sdk.unwrap().min_sdk_version.unwrap().try_into().unwrap(),
+                android_manifest
+                    .uses_sdk
+                    .as_ref()
+                    .unwrap()
+                    .min_sdk_version
+                    .unwrap_or(9),
                 &apk_build_dir,
                 &target_dir,
-            )
-            .unwrap();
+            )?;
         }
-        config.shell().status("Aligning APK file")?;
+        config.status("Aligning APK file")?;
         let aligned_apk_path = android::align_apk(
             &sdk,
             &unaligned_apk_path,
             &android_manifest.package,
             &apk_build_dir,
-        )
-        .unwrap();
-        config
-            .shell()
-            .status_message("Generating", "debug signing key")?;
+        )?;
+        config.status_message("Generating", "debug signing key")?;
         let key = android::gen_debug_key().unwrap();
-        config.shell().status("Signing APK file")?;
+        config.status("Signing APK file")?;
         android::sign_apk(&sdk, &aligned_apk_path, key).unwrap();
-        config.shell().status("Build finished successfully")?;
-        Ok((android_manifest.package, sdk, aligned_apk_path))
+        config.status("Build finished successfully")?;
+        Ok((android_manifest, sdk, aligned_apk_path))
     }
 }

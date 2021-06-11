@@ -1,7 +1,5 @@
-use android_manifest::*;
-
-use crate::deps::*;
 use crate::error::*;
+use crate::tools::*;
 use std::fs::create_dir_all;
 use std::path::{Path, PathBuf};
 
@@ -9,17 +7,19 @@ use std::path::{Path, PathBuf};
 /// Uses `aapt` build tool.
 pub fn gen_unaligned_apk(
     sdk: &AndroidSdk,
+    project_path: &Path,
     build_dir: &Path,
     manifest_path: &Path,
     assets: Option<PathBuf>,
     res: Option<PathBuf>,
-    manifest: AndroidManifest,
+    package_label: String,
+    target_sdk_version: u32,
 ) -> Result<PathBuf> {
     if !build_dir.exists() {
         create_dir_all(&build_dir)?;
     }
-    let apk_path = build_dir.join(format!("{}-unaligned.apk", manifest.package));
-    let mut aapt = sdk.build_tool(bin!("aapt"), None)?;
+    let apk_path = build_dir.join(format!("{}-unaligned.apk", package_label));
+    let mut aapt = sdk.build_tool(bin!("aapt"), Some(project_path))?;
     aapt.arg("package")
         .arg("-f")
         .arg("-F")
@@ -27,7 +27,7 @@ pub fn gen_unaligned_apk(
         .arg("-M")
         .arg(manifest_path)
         .arg("-I")
-        .arg(sdk.android_jar(manifest.uses_sdk.unwrap().target_sdk_version.unwrap() as u32)?);
+        .arg(sdk.android_jar(target_sdk_version)?);
     if let Some(res) = &res {
         aapt.arg("-S").arg(dunce::simplified(res));
     }

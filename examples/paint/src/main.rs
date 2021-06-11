@@ -1,3 +1,3 @@
 fn main() {
-    paint::main();
+    // paint::main();
 }

@@ -1,6 +1,6 @@
 use crate::commands::common::cargo_rustc_command;
-use crate::deps::*;
 use crate::error::*;
+use crate::tools::*;
 use crate::types::*;
 use std::path::Path;
 
