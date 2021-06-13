@@ -112,7 +112,7 @@ impl BuildContext {
                     .unwrap_or_else(|| self.project_path.join("AndroidManifest.xml"));
                 Ok(android::read_android_manifest(&path)?)
             } else {
-                Ok(android::gen_minimal_android_manifest(
+                let mut manifest = android::gen_minimal_android_manifest(
                     package_name,
                     metadata.app_name.clone(),
                     metadata
@@ -126,7 +126,11 @@ impl BuildContext {
                         .unwrap_or_else(|| sdk.default_platform()),
                     metadata.max_sdk_version,
                     metadata.icon.clone(),
-                ))
+                );
+                if !metadata.android_permissions.is_empty() {
+                    manifest.uses_permission = metadata.android_permissions.clone();
+                }
+                Ok(manifest)
             }
         } else {
             let target_sdk_version = sdk.default_platform();
