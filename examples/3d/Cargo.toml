@@ -8,38 +8,20 @@ edition = "2018"
 creator = { version = "0.3.8", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
-bevy = "0.3"
+bevy = { git = "https://github.com/TheRawMeatball/bevy", branch = "android-support" }
 
 [lib]
 crate-type = ["lib", "cdylib"]
 
-[package.metadata.android]
-build_targets = ["aarch64-linux-android"]
-assets = "assets"
-res = "res/android"
-
-[package.metadata.android.manifest]
-apk_label = "Creator 3D"
-fullscreen = true
-icon = "@mipmap/ic_launcher"
+[package.metadata]
+app_name = "Creator 3D"
 target_sdk_version = 30
-min_sdk_version = 16
-build_targets = ["aarch64-linux-android"]
+icon = "ic_launcher"
 
-[package.metadata.apple]
-build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
-assets = "assets"
-res = "res/apple"
+android_build_targets = ["aarch64-linux-android"]
+android_assets = "assets"
+android_res = "res/android"
 
-[package.metadata.apple.info-plist]
-bundle_name = "Creator 3D"
-bundle_identifier = "com.enfipy.threed"
-bundle_executable = "threed"
-bundle_development_region = "en"
-bundle_version = "1"
-bundle_info_dictionary_version = "1.0"
-bundle_short_version_string = "1.0"
-bundle_package_type = "APPL"
-launch_storyboard_name = "launch_storyboard_name"
-requires_full_screen = false
-supported_interface_orientations = ["portrait", "portrait-upside-down", "landscape-left", "landscape-right"]
+apple_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
+apple_assets = "assets"
+apple_res = "res/apple"

@@ -18,7 +18,7 @@ creator-tools = { path = "crates/creator-tools", version = "0.3.8", optional = t
 creator-permissions = { path = "crates/creator-permissions", version = "0.3.8", optional = true }
 
 [target.'cfg(target_os = "android")'.dependencies]
-ndk-glue = "0.2"
+ndk-glue = "0.3"
 
 # [patch.crates-io]
 # # bevy = { path = "../bevy" }
