@@ -1,5 +1,6 @@
 #![cfg(target_os = "macos")]
 
+use apple_bundle::prelude::*;
 use creator_tools::{
     commands::{apple::*, gen_minimal_project},
     types::*,
@@ -92,7 +93,7 @@ fn test_apple_full() {
 
     // Generate Info.plist
     let properties = get_minimal_info_plist(&name);
-    create_apple_plist(&app_dir, &properties, false).unwrap();
+    save_apple_plist(&app_dir, &properties, false).unwrap();
 
     // Sign bundle
     codesign(&app_dir, true, None, None).unwrap();

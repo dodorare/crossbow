@@ -36,7 +36,7 @@ pub fn cargo_rustc_command(
         cargo.arg("--no-default-features");
     };
     let triple = build_target.rust_triple();
-    cargo.args(&["--target", &triple]);
+    cargo.args(&["--target", triple]);
     if !crate_types.is_empty() {
         // Creates a comma-separated string
         let crate_types: String =

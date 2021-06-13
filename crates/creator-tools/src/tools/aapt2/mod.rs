@@ -20,22 +20,24 @@ pub use dump::*;
 pub use link::*;
 pub use optimize::*;
 
+use std::path::{Path, PathBuf};
+
 pub struct Aapt2;
 
 impl Aapt2 {
     /// Compiles resources to be linked into an apk.
-    pub fn compile(self) -> Aapt2Compile {
-        Aapt2Compile
+    pub fn compile(self, o: &Path, manifest: &Path) -> Aapt2Compile {
+        Aapt2Compile::new(o, manifest)
     }
 
     /// Links resources into an apk.
-    // pub fn link(self) -> Aapt2Link {
-    //     Aapt2Link
-    // }
+    pub fn link(self, inputs: &[PathBuf], o: &Path, manifest: &Path) -> Aapt2Link {
+        Aapt2Link::new(inputs, o, manifest)
+    }
 
     /// Used for printing information about the APK you generated using the link command.
-    pub fn dump(self) -> Aapt2Dump {
-        Aapt2Dump
+    pub fn dump(self, subcommand: SubCommand, filename_apk: &Path) -> Aapt2Dump {
+        Aapt2Dump::new(subcommand, filename_apk)
     }
 
     /// Prints the differences in resources of two apks.

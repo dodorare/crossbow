@@ -1,8 +1,9 @@
 use android_manifest::*;
 
-/// Generates minimal [`AndroidManifest`](android_manifest::AndroidManifest) with given changes.
+/// Generates minimal [`AndroidManifest`](android_manifest::AndroidManifest) with given
+/// changes.
 pub fn gen_minimal_android_manifest(
-    package_name: &String,
+    package_name: &str,
     app_name: Option<String>,
     version_name: String,
     version_code: Option<String>,
@@ -28,7 +29,7 @@ pub fn gen_minimal_android_manifest(
         application: Application {
             has_code: Some(false),
             label: Some(StringResourceOrString::string(
-                app_name.as_ref().unwrap_or(package_name),
+                app_name.as_ref().unwrap_or(&package_name.to_owned()),
             )),
             debuggable: Some(true),
             icon: icon.map(|i| MipmapOrDrawableResource::mipmap(&i, None)),
@@ -39,7 +40,7 @@ pub fn gen_minimal_android_manifest(
             activity: vec![Activity {
                 name: "android.app.NativeActivity".to_string(),
                 label: Some(StringResourceOrString::string(
-                    app_name.as_ref().unwrap_or(package_name),
+                    app_name.as_ref().unwrap_or(&package_name.to_owned()),
                 )),
                 config_changes: vec![
                     ConfigChanges::Orientation,

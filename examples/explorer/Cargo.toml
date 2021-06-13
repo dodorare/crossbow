@@ -8,42 +8,30 @@ edition = "2018"
 creator = { version = "0.3.8", path = "../../" }
 # log = "0.4"
 # anyhow = "1.0"
+# # substrate-subxt = { git = "https://github.com/paritytech/substrate-subxt", rev = "08a3e6574d38ed7908e163ac554b81b59e0b8a67" }
 # substrate-subxt = "0.14"
-# bevy = "0.3"
 # tokio = { version = "1.2", features = ["sync", "macros"] }
+# # bevy = { git = "https://github.com/bevyengine/bevy", rev = "bc4fe9b186db3f32eef38fc4241289df480fa949" }
+# bevy = "0.4"
 
 # [lib]
 # crate-type = ["lib", "cdylib"]
 
-# [package.metadata.android]
-# build_targets = ["aarch64-linux-android"]
-# assets = "assets"
-# res = "res/android"
+[package.metadata]
+app_name = "Explorer"
+target_sdk_version = 30
+icon = "ic_launcher"
 
-# [package.metadata.android.manifest]
-# apk_label = "Creator Explorer"
-# fullscreen = true
-# icon = "@mipmap/ic_launcher"
-# target_sdk_version = 30
-# min_sdk_version = 16
+android_build_targets = ["aarch64-linux-android"]
+android_assets = "assets"
+android_res = "res/android"
 
-# [[package.metadata.android.manifest.permission]]
-# name = "android.permission.INTERNET"
+apple_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
+apple_assets = "assets"
+apple_res = "res/apple"
 
-# [package.metadata.apple]
-# build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
-# assets = "assets"
-# res = "res/apple"
+# use_android_manifest = true
+# android_manifest_path = "path/to/AndroidManifest.xml"
 
-# [package.metadata.apple.info-plist]
-# bundle_name = "Creator Explorer"
-# bundle_identifier = "com.enfipy.explorer"
-# bundle_executable = "explorer"
-# bundle_development_region = "en"
-# bundle_version = "1"
-# bundle_info_dictionary_version = "1.0"
-# bundle_short_version_string = "1.0"
-# bundle_package_type = "APPL"
-# launch_storyboard_name = "launch_storyboard_name"
-# requires_full_screen = false
-# supported_interface_orientations = ["portrait", "portrait-upside-down"]
+# use_info_plist = true
+# info_plist_path = "path/to/Info.plist"
