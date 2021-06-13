@@ -97,12 +97,13 @@ impl AppleBuildCommand {
         let out_dir = context.target_dir.join(rust_triple).join(&profile);
         let bin_path = out_dir.join(&name);
         config.status("Generating app folder")?;
+        let apple_target_dir = &context
+            .target_dir
+            .join("apple")
+            .join(rust_triple)
+            .join(&profile);
         let app_path = apple::gen_apple_app_folder(
-            &context
-                .target_dir
-                .join("apple")
-                .join(rust_triple)
-                .join(&profile),
+            &apple_target_dir,
             &name,
             context.apple_res().as_ref().map(|r| project_path.join(r)),
             context
@@ -110,7 +111,7 @@ impl AppleBuildCommand {
                 .as_ref()
                 .map(|r| project_path.join(r)),
         )?;
-        config.status("Coping binary to app folder")?;
+        config.status("Copying binary to app folder")?;
         std::fs::copy(&bin_path, &app_path.join(&name)).unwrap();
         config.status_message("Generating", "Info.plist")?;
         apple::save_apple_plist(&app_path, properties, false).unwrap();
@@ -137,6 +138,8 @@ impl AppleBuildCommand {
             apple::codesign(&app_path, true, self.identity.clone(), Some(xcent_path))?;
             config.status("Code signing process finished")?;
         }
+        config.status("Generating ipa file")?;
+        apple::gen_apple_ipa(&apple_target_dir, &app_path, &name)?;
         config.status("Build finished successfully")?;
         Ok(app_path)
     }

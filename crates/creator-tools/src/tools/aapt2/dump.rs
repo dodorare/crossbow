@@ -2,8 +2,9 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 /// # Dump
-/// Dump is used for printing information about the APK you generated using the link command.
-/// For example, the following command prints content from the resource table of the specified APK:
+/// Dump is used for printing information about the APK you generated using the link
+/// command. For example, the following command prints content from the resource table of
+/// the specified APK:
 ///
 /// ```sh
 /// aapt2 dump resources output.apk

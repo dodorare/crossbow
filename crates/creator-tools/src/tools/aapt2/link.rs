@@ -17,7 +17,7 @@ use std::{
 /// ## Link syntax
 /// The general syntax for using link is as follows:
 ///
-/// ```
+/// ```sh
 /// aapt2 link path-to-input-files [options] -o
 /// outputdirectory/outputfilename.apk --manifest AndroidManifest.xml
 /// ```
@@ -27,7 +27,7 @@ use std::{
 /// file. AAPT2 links the result against `android.jar` file which holds the resources
 /// defined in the android package:
 ///
-/// ```
+/// ```sh
 ///  aapt2 link -o output.apk
 ///  -I android_sdk/platforms/android_version/android.jar
 ///     compiled/res/values_values.arsc.flat
@@ -129,7 +129,7 @@ pub struct Aapt2Link {
     output_to_dir: bool,
     /// Sets the default minimum SDK version to use for `AndroidManifest.xml`.
     min_sdk_version: Option<i32>,
-    ///	Sets the default target SDK version to use for `AndroidManifest.xml`.
+    /// Sets the default target SDK version to use for `AndroidManifest.xml`.
     target_sdk_version: Option<i32>,
     /// Specifies the version code (integer) to inject into the AndroidManifest.xml if
     /// none is present.
@@ -165,7 +165,8 @@ pub struct Aapt2Link {
     ///
     /// You must specify the path to the output file.
     output_text_symbols: Option<PathBuf>,
-    /// Allows the addition of new resources in overlays without using the <add-resource> tag.
+    /// Allows the addition of new resources in overlays without using the <add-resource>
+    /// tag.
     auto_add_overlay: bool,
     /// Renames the package in AndroidManifest.xml.
     rename_manifest_package: Option<String>,
@@ -177,7 +178,8 @@ pub struct Aapt2Link {
     rename_instrumentation_target_package: Option<String>,
     /// Specifies the extensions of files that you do not want to compress.
     extensions: Vec<String>,
-    /// Splits resources based on a set of configurations to generate a different version of the APK.
+    /// Splits resources based on a set of configurations to generate a different version
+    /// of the APK.
     ///
     /// You must specify the path to the output APK along with the set of configurations.
     split: Option<PathBuf>,
@@ -460,7 +462,7 @@ impl Aapt2Link {
         if self.z {
             aapt2.arg("-z");
         }
-        if self.config.len() > 0 {
+        if !self.config.is_empty() {
             aapt2.arg("-c").arg(self.config.join(","));
         }
         if let Some(preferred_density) = self.preferred_density {

@@ -1,3 +1,3 @@
 fn main() {
-    // explorer::main();
+    explorer::main();
 }
