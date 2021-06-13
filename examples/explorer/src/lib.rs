@@ -1,3 +1,4 @@
+// mod button;
 mod explorer;
 
 use bevy::{core::FixedTimestep, prelude::*};
@@ -8,17 +9,17 @@ struct SubstrateUpdate;
 
 #[creator::creator_main]
 pub fn main() {
-    println!("Initialization.");
+    println!("Initialization");
     App::build()
+        .add_plugins(DefaultPlugins)
         .insert_resource(ClearColor(Color::rgb(0.9, 0.9, 0.9)))
         .insert_resource(WindowDescriptor {
-            title: "Explorer".to_string(),
-            width: 640.0,
-            height: 1200.0,
+            title: "Creator Explorer".to_string(),
+            width: 320.0,
+            height: 600.0,
             ..Default::default()
         })
         .insert_resource(ExplorerStateChannel::new())
-        .add_plugins(DefaultPlugins)
         .add_startup_system(explorer_startup.system())
         .add_startup_system(explorer_ui.system())
         .add_stage_after(

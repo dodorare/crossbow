@@ -9,23 +9,23 @@ use std::path::{Path, PathBuf};
 pub struct AppleBuildCommand {
     #[clap(flatten)]
     pub shared: SharedBuildCommand,
-    /// Specify custom cargo binary.
+    /// Specify custom cargo binary
     #[clap(long, conflicts_with = "example")]
     pub bin: Option<String>,
     /// Build for the given apple architecture.
-    /// Supported targets are: 'aarch64-apple-ios`, `armv7-apple-ios`, `armv7s-apple-ios`, `i386-apple-ios`, `x86_64-apple-ios`.
+    /// Supported targets are: 'aarch64-apple-ios`, `armv7-apple-ios`, `armv7s-apple-ios`, `i386-apple-ios`, `x86_64-apple-ios`
     #[clap(long, default_value = "aarch64-apple-ios")]
     pub target: Vec<AppleTarget>,
-    /// Provisioning profile name to find in this directory: `~/Library/MobileDevice/Provisioning\ Profiles/`.
+    /// Provisioning profile name to find in this directory: `~/Library/MobileDevice/Provisioning\ Profiles/`
     #[clap(long, conflicts_with = "profile-path")]
     pub profile_name: Option<String>,
-    /// Absolute path to provisioning profile.
+    /// Absolute path to provisioning profile
     #[clap(long)]
     pub profile_path: Option<PathBuf>,
-    /// The team identifier of your signing identity.
+    /// The team identifier of your signing identity
     #[clap(long)]
     pub team_identifier: Option<String>,
-    /// The id of the identity used for signing. It won't start the signing process until you provide this flag.
+    /// The id of the identity used for signing. It won't start the signing process until you provide this flag
     #[clap(long)]
     pub identity: Option<String>,
 }

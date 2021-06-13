@@ -15,7 +15,7 @@ pub struct AndroidBuildCommand {
     #[clap(flatten)]
     pub shared: SharedBuildCommand,
     /// Build for the given android architecture.
-    /// Supported targets are: `armv7-linux-androideabi`, `aarch64-linux-android`, `i686-linux-android`, `x86_64-linux-android`.
+    /// Supported targets are: `armv7-linux-androideabi`, `aarch64-linux-android`, `i686-linux-android`, `x86_64-linux-android`
     #[clap(long, default_value = "aarch64-linux-android")]
     pub target: Vec<AndroidTarget>,
 }

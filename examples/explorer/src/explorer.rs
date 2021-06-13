@@ -23,7 +23,7 @@ pub fn explorer_startup(task_pool: Res<AsyncComputeTaskPool>, channel: Res<Explo
     let tx = channel.tx.clone();
     task_pool
         .spawn(async move {
-            println!("Connecting to Substrate Node.");
+            println!("Connecting to Substrate Node");
             let client = ClientBuilder::<KusamaRuntime>::new()
                 // .set_url("wss://rpc.polkadot.io")
                 .set_url("ws://207.154.228.105:9944")
@@ -110,13 +110,10 @@ pub fn explorer_text_updater(
     }
 }
 
-// pub struct ExplorerButton;
-
 pub fn explorer_ui(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    // button_materials: Res<ButtonMaterials>,
 ) {
     let font_handle: Handle<Font> = asset_server.load("fonts/FiraSans-Bold.ttf");
     commands.spawn_bundle(UiCameraBundle::default());
@@ -126,7 +123,12 @@ pub fn explorer_ui(
             style: Style {
                 size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
                 #[cfg(not(target_os = "ios"))]
-                padding: Rect::all(Val::Percent(6.0)),
+                padding: Rect {
+                    left: Val::Percent(6.0),
+                    right: Val::Percent(6.0),
+                    top: Val::Percent(6.0),
+                    bottom: Val::Percent(18.0),
+                },
                 #[cfg(target_os = "ios")]
                 padding: Rect {
                     top: Val::Percent(6.0),
@@ -139,8 +141,8 @@ pub fn explorer_ui(
             ..Default::default()
         })
         .with_children(|parent| {
+            // explorer node
             parent
-                // explorer node
                 .spawn_bundle(NodeBundle {
                     style: Style {
                         size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
