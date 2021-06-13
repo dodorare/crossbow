@@ -6,39 +6,38 @@ edition = "2018"
 
 [dependencies]
 creator = { version = "0.3.8", path = "../../" }
-log = "0.4"
-anyhow = "1.0"
-itertools = "0.10"
-# bevy = { git = "https://github.com/bevyengine/bevy", rev = "bc4fe9b186db3f32eef38fc4241289df480fa949" }
-bevy = { git = "https://github.com/creator-rs/bevy", branch = "ios" }
+# log = "0.4"
+# anyhow = "1.0"
+# itertools = "0.10"
+# bevy = "0.3"
 
-[lib]
-crate-type = ["lib", "cdylib"]
+# [lib]
+# crate-type = ["lib", "cdylib"]
 
-[package.metadata.android]
-build_targets = ["aarch64-linux-android"]
-res = "res/android"
+# [package.metadata.android]
+# build_targets = ["aarch64-linux-android"]
+# res = "res/android"
 
-[package.metadata.android.manifest]
-apk_label = "Creator Paint"
-fullscreen = true
-icon = "@mipmap/ic_launcher"
-target_sdk_version = 30
-min_sdk_version = 16
+# [package.metadata.android.manifest]
+# apk_label = "Creator Paint"
+# fullscreen = true
+# icon = "@mipmap/ic_launcher"
+# target_sdk_version = 30
+# min_sdk_version = 16
 
-[package.metadata.apple]
-build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
-res = "res/apple"
+# [package.metadata.apple]
+# build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
+# res = "res/apple"
 
-[package.metadata.apple.info-plist]
-bundle_name = "Creator Paint"
-bundle_identifier = "com.enfipy.paint"
-bundle_executable = "paint"
-bundle_development_region = "en"
-bundle_version = "1"
-bundle_info_dictionary_version = "1.0"
-bundle_short_version_string = "1.0"
-bundle_package_type = "APPL"
-launch_storyboard_name = "launch_storyboard_name"
-requires_full_screen = false
-supported_interface_orientations = ["portrait", "portrait-upside-down", "landscape-left", "landscape-right"]
+# [package.metadata.apple.info-plist]
+# bundle_name = "Creator Paint"
+# bundle_identifier = "com.enfipy.paint"
+# bundle_executable = "paint"
+# bundle_development_region = "en"
+# bundle_version = "1"
+# bundle_info_dictionary_version = "1.0"
+# bundle_short_version_string = "1.0"
+# bundle_package_type = "APPL"
+# launch_storyboard_name = "launch_storyboard_name"
+# requires_full_screen = false
+# supported_interface_orientations = ["portrait", "portrait-upside-down", "landscape-left", "landscape-right"]
