@@ -15,6 +15,7 @@ pub struct Metadata {
     pub max_sdk_version: Option<u32>,
     pub icon: Option<String>,
 
+    #[serde(default)]
     pub android_permissions: Vec<UsesPermission>,
 
     #[serde(default)]
