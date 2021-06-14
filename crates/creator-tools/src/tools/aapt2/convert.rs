@@ -1,4 +1,5 @@
 use std::{path::{Path, PathBuf}, process::Command};
+use crate::error::{CommandExt, Result};
 
 pub struct Aapt2Convert {
     /// Output path
@@ -39,7 +40,7 @@ impl Aapt2Convert {
         self
     }
 
-    pub fn run(&self) {
+    pub fn run(&self) -> Result<()> {
         let mut aapt2 = Command::new("aapt2");
         aapt2.arg("convert");
         aapt2.arg(&self.o);
@@ -53,6 +54,8 @@ impl Aapt2Convert {
         if self.v {
             aapt2.arg("-v");
         }
+        aapt2.output_err(true)?;
+        Ok(())
     }
 }
 
