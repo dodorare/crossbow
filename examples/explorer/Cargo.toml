@@ -11,7 +11,7 @@ anyhow = "1.0"
 # substrate-subxt = { git = "https://github.com/paritytech/substrate-subxt", rev = "08a3e6574d38ed7908e163ac554b81b59e0b8a67" }
 substrate-subxt = "0.14"
 tokio = { version = "1.2", features = ["sync", "macros"] }
-bevy = { git = "https://github.com/TheRawMeatball/bevy", branch = "android-support" }
+bevy = "0.4"
 
 [lib]
 crate-type = ["lib", "cdylib"]

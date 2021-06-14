@@ -6,22 +6,22 @@ edition = "2018"
 
 [dependencies]
 creator = { version = "0.4.0", path = "../../" }
-log = "0.4"
-anyhow = "1.0"
-bevy = { git = "https://github.com/TheRawMeatball/bevy", branch = "android-support" }
+# log = "0.4"
+# anyhow = "1.0"
+# bevy = { git = "https://github.com/TheRawMeatball/bevy", branch = "android-support" }
 
-[lib]
-crate-type = ["lib", "cdylib"]
+# [lib]
+# crate-type = ["lib", "cdylib"]
 
-[package.metadata]
-app_name = "Creator 3D"
-target_sdk_version = 30
-icon = "ic_launcher"
+# [package.metadata]
+# app_name = "Creator 3D"
+# target_sdk_version = 30
+# icon = "ic_launcher"
 
-android_build_targets = ["aarch64-linux-android"]
-android_assets = "assets"
-android_res = "res/android"
+# android_build_targets = ["aarch64-linux-android"]
+# android_assets = "assets"
+# android_res = "res/android"
 
-apple_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
-apple_assets = "assets"
-apple_res = "res/apple"
+# apple_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
+# apple_assets = "assets"
+# apple_res = "res/apple"
