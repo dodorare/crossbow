@@ -3,6 +3,7 @@ use android_manifest::*;
 /// Generates minimal [`AndroidManifest`](android_manifest::AndroidManifest) with given
 /// changes.
 pub fn gen_minimal_android_manifest(
+    app_id: Option<String>,
     package_name: &str,
     app_name: Option<String>,
     version_name: String,
@@ -11,9 +12,10 @@ pub fn gen_minimal_android_manifest(
     target_sdk_version: u32,
     max_sdk_version: Option<u32>,
     icon: Option<String>,
+    debuggable: bool,
 ) -> AndroidManifest {
     AndroidManifest {
-        package: format!("rust.{}", package_name.replace("-", "_")),
+        package: app_id.unwrap_or(format!("com.rust.{}", package_name.replace("-", "_"))),
         version_name: Some(version_name),
         version_code,
         uses_sdk: Some(UsesSdk {
@@ -31,7 +33,7 @@ pub fn gen_minimal_android_manifest(
             label: Some(StringResourceOrString::string(
                 app_name.as_ref().unwrap_or(&package_name.to_owned()),
             )),
-            debuggable: Some(true),
+            debuggable: Some(debuggable),
             icon: icon.map(|i| MipmapOrDrawableResource::mipmap(&i, None)),
             theme: Some(Resource::new_with_package(
                 "Theme.DeviceDefault.NoActionBar.Fullscreen",

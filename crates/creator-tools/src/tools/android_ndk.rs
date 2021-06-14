@@ -108,7 +108,7 @@ impl AndroidNdk {
             llvm_path
                 .exists()
                 .then(|| llvm_path)
-                .ok_or_else(|| Error::ToolchainBinaryNotFound {
+                .ok_or(Error::ToolchainBinaryNotFound {
                     toolchain_path,
                     gnu_bin,
                     llvm_bin,

@@ -26,6 +26,7 @@ pub struct Metadata {
     pub use_info_plist: bool,
     pub info_plist_path: Option<PathBuf>,
 
+    pub android_app_id: Option<String>,
     /// Android resources directory path relatively to project path.
     pub android_res: Option<PathBuf>,
     /// Android assets directory path relatively to project path.

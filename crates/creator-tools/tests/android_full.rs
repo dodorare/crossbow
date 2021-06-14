@@ -40,6 +40,7 @@ fn test_android_full() {
     // Gen android manifest
     let target_dir = dir.join("target");
     let manifest = android::gen_minimal_android_manifest(
+        None,
         &package_name,
         None,
         "0.0.1".to_string(),
@@ -48,6 +49,7 @@ fn test_android_full() {
         target_sdk_version,
         None,
         None,
+        true,
     );
     let apk_build_dir = target_dir.join(&profile).join("apk");
     let manifest_path = android::save_android_manifest(&apk_build_dir, &manifest).unwrap();

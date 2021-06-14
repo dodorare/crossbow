@@ -103,6 +103,7 @@ impl BuildContext {
         &self,
         sdk: &AndroidSdk,
         package_name: &String,
+        debuggable: bool,
     ) -> Result<AndroidManifest> {
         if let Some(metadata) = &self.cargo_package.metadata {
             if metadata.use_android_manifest {
@@ -113,6 +114,7 @@ impl BuildContext {
                 Ok(android::read_android_manifest(&path)?)
             } else {
                 let mut manifest = android::gen_minimal_android_manifest(
+                    metadata.android_app_id.clone(),
                     package_name,
                     metadata.app_name.clone(),
                     metadata
@@ -126,6 +128,7 @@ impl BuildContext {
                         .unwrap_or_else(|| sdk.default_platform()),
                     metadata.max_sdk_version,
                     metadata.icon.clone(),
+                    debuggable,
                 );
                 if !metadata.android_permissions.is_empty() {
                     manifest.uses_permission = metadata.android_permissions.clone();
@@ -135,6 +138,7 @@ impl BuildContext {
         } else {
             let target_sdk_version = sdk.default_platform();
             Ok(android::gen_minimal_android_manifest(
+                None,
                 package_name,
                 None,
                 self.package_version(),
@@ -143,6 +147,7 @@ impl BuildContext {
                 target_sdk_version,
                 None,
                 None,
+                debuggable,
             ))
         }
     }
