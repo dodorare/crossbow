@@ -1,4 +1,3 @@
-// // use crate::button::*;
 // use bevy::{prelude::*, tasks::AsyncComputeTaskPool};
 // use substrate_subxt::{ClientBuilder, KusamaRuntime};
 // use tokio::sync::mpsc;
@@ -24,9 +23,10 @@
 //     let tx = channel.tx.clone();
 //     task_pool
 //         .spawn(async move {
-//             println!("Connecting to Substrate Node.");
+//             println!("Connecting to Substrate Node");
 //             let client = ClientBuilder::<KusamaRuntime>::new()
-//                 .set_url("wss://kusama-rpc.polkadot.io")
+//                 // .set_url("wss://rpc.polkadot.io")
+//                 .set_url("ws://207.154.228.105:9944")
 //                 .build()
 //                 .await
 //                 .unwrap();
@@ -79,26 +79,31 @@
 
 // pub fn explorer_text_updater(
 //     mut channel: ResMut<ExplorerStateChannel>,
-//     mut interaction_query: Query<(&mut Text, &Block)>,
+//     mut interaction_query: Query<(&mut Text, &Block), (With<Block>,)>,
 // ) {
 //     let state = channel.rx.blocking_recv().unwrap();
-//     for (mut text_section, block) in interaction_query.iter_mut() {
-//         let mut text = &mut text_section.sections[0];
+//     for (mut text, block) in interaction_query.iter_mut() {
 //         match block {
 //             Block::Best(texts) => match texts {
-//                 BlockTexts::Number => text.value = format!("Number: {}", state.best_block_number),
-//                 BlockTexts::Hash => text.value = format!("Hash: {}", state.best_block_hash),
+//                 BlockTexts::Number => {
+//                     text.sections[0].value = format!("Number: {}", state.best_block_number)
+//                 }
+//                 BlockTexts::Hash => {
+//                     text.sections[0].value = format!("Hash: {}", state.best_block_hash)
+//                 }
 //                 BlockTexts::Parent => {
-//                     text.value = format!("Parent: {}", state.best_block_parent_hash)
+//                     text.sections[0].value = format!("Parent: {}", state.best_block_parent_hash)
 //                 }
 //             },
 //             Block::Finalized(texts) => match texts {
 //                 BlockTexts::Number => {
-//                     text.value = format!("Number: {}", state.finalized_block_number)
+//                     text.sections[0].value = format!("Number: {}", state.finalized_block_number)
 //                 }
-//                 BlockTexts::Hash => text.value = format!("Hash: {}", state.finalized_block_hash),
+//                 BlockTexts::Hash => {
+//                     text.sections[0].value = format!("Hash: {}", state.finalized_block_hash)
+//                 }
 //                 BlockTexts::Parent => {
-//                     text.value = format!("Parent: {}", state.best_block_parent_hash)
+//                     text.sections[0].value = format!("Parent: {}", state.best_block_parent_hash)
 //                 }
 //             },
 //         };
@@ -106,19 +111,24 @@
 // }
 
 // pub fn explorer_ui(
-//     commands: &mut Commands,
+//     mut commands: Commands,
 //     asset_server: Res<AssetServer>,
 //     mut materials: ResMut<Assets<ColorMaterial>>,
 // ) {
-//     let font: Handle<Font> = asset_server.load("fonts/FiraSans-Bold.ttf");
+//     let font_handle: Handle<Font> = asset_server.load("fonts/FiraSans-Bold.ttf");
+//     commands.spawn_bundle(UiCameraBundle::default());
+//     // root node (padding)
 //     commands
-//         .spawn(UiCameraBundle::default())
-//         // root node (padding)
-//         .spawn(NodeBundle {
+//         .spawn_bundle(NodeBundle {
 //             style: Style {
 //                 size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
 //                 #[cfg(not(target_os = "ios"))]
-//                 padding: Rect::all(Val::Percent(6.0)),
+//                 padding: Rect {
+//                     left: Val::Percent(6.0),
+//                     right: Val::Percent(6.0),
+//                     top: Val::Percent(6.0),
+//                     bottom: Val::Percent(18.0),
+//                 },
 //                 #[cfg(target_os = "ios")]
 //                 padding: Rect {
 //                     top: Val::Percent(6.0),
@@ -131,9 +141,9 @@
 //             ..Default::default()
 //         })
 //         .with_children(|parent| {
+//             // explorer node
 //             parent
-//                 // explorer node
-//                 .spawn(NodeBundle {
+//                 .spawn_bundle(NodeBundle {
 //                     style: Style {
 //                         size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
 //                         flex_direction: FlexDirection::ColumnReverse,
@@ -144,9 +154,9 @@
 //                     ..Default::default()
 //                 })
 //                 .with_children(|parent| {
+//                     // best block
 //                     parent
-//                         // best block
-//                         .spawn(NodeBundle {
+//                         .spawn_bundle(NodeBundle {
 //                             style: Style {
 //                                 size: Size::new(Val::Percent(100.0), Val::Auto),
 //                                 padding: Rect::all(Val::Percent(3.0)),
@@ -158,65 +168,65 @@
 //                             ..Default::default()
 //                         })
 //                         .with_children(|parent| {
+//                             parent.spawn_bundle(TextBundle {
+//                                 text: Text::with_section(
+//                                     "Best block",
+//                                     TextStyle {
+//                                         font: font_handle.clone(),
+//                                         font_size: TEXT_FONT_SIZE / 1.5,
+//                                         color: Color::rgb(0.9, 0.9, 0.9),
+//                                     },
+//                                     Default::default(),
+//                                 ),
+//                                 ..Default::default()
+//                             });
 //                             parent
-//                                 .spawn(TextBundle {
+//                                 .spawn_bundle(TextBundle {
 //                                     text: Text::with_section(
-//                                         "Best block".to_string(),
+//                                         "Number: ",
 //                                         TextStyle {
-//                                             font: font.clone(),
-//                                             font_size: TEXT_FONT_SIZE / 1.5,
-//                                             color: Color::rgb(0.9, 0.9, 0.9),
-//                                             ..Default::default()
-//                                         },
-//                                         Default::default(),
-//                                     ),
-//                                     ..Default::default()
-//                                 })
-//                                 .spawn(TextBundle {
-//                                     text: Text::with_section(
-//                                         "Number: ".to_owned(),
-//                                         TextStyle {
-//                                             font: font.clone(),
+//                                             font: font_handle.clone(),
 //                                             font_size: TEXT_FONT_SIZE,
 //                                             color: Color::rgb(0.9, 0.9, 0.9),
-//                                             ..Default::default()
 //                                         },
 //                                         Default::default(),
 //                                     ),
 //                                     ..Default::default()
 //                                 })
-//                                 .with(Block::Best(BlockTexts::Number))
-//                                 .spawn(TextBundle {
+//                                 .insert(Block::Best(BlockTexts::Number));
+//                             parent
+//                                 .spawn_bundle(TextBundle {
 //                                     text: Text::with_section(
-//                                         "Hash: ".to_owned(),
+//                                         "Hash: ",
 //                                         TextStyle {
-//                                             font: font.clone(),
+//                                             font: font_handle.clone(),
 //                                             font_size: TEXT_FONT_SIZE,
 //                                             color: Color::rgb(0.9, 0.9, 0.9),
-//                                             ..Default::default()
 //                                         },
 //                                         Default::default(),
 //                                     ),
 //                                     ..Default::default()
 //                                 })
-//                                 .with(Block::Best(BlockTexts::Hash))
-//                                 .spawn(TextBundle {
+//                                 .insert(Block::Best(BlockTexts::Hash));
+//                             parent
+//                                 .spawn_bundle(TextBundle {
 //                                     text: Text::with_section(
-//                                         "Parent: ".to_owned(),
+//                                         "Parent: ",
 //                                         TextStyle {
-//                                             font: font.clone(),
+//                                             font: font_handle.clone(),
 //                                             font_size: TEXT_FONT_SIZE,
 //                                             color: Color::rgb(0.9, 0.9, 0.9),
-//                                             ..Default::default()
 //                                         },
 //                                         Default::default(),
 //                                     ),
 //                                     ..Default::default()
 //                                 })
-//                                 .with(Block::Best(BlockTexts::Parent));
-//                         })
-//                         // finalized block
-//                         .spawn(NodeBundle {
+//                                 .insert(Block::Best(BlockTexts::Parent));
+//                         });
+
+//                     // finalized block
+//                     parent
+//                         .spawn_bundle(NodeBundle {
 //                             style: Style {
 //                                 size: Size::new(Val::Percent(100.0), Val::Auto),
 //                                 margin: Rect {
@@ -232,62 +242,60 @@
 //                             ..Default::default()
 //                         })
 //                         .with_children(|parent| {
+//                             parent.spawn_bundle(TextBundle {
+//                                 text: Text::with_section(
+//                                     "Finalized block",
+//                                     TextStyle {
+//                                         font: font_handle.clone(),
+//                                         font_size: TEXT_FONT_SIZE / 1.5,
+//                                         color: Color::rgb(0.9, 0.9, 0.9),
+//                                     },
+//                                     Default::default(),
+//                                 ),
+//                                 ..Default::default()
+//                             });
 //                             parent
-//                                 .spawn(TextBundle {
+//                                 .spawn_bundle(TextBundle {
 //                                     text: Text::with_section(
-//                                         "Finalized block".to_string(),
+//                                         "Number: ",
 //                                         TextStyle {
-//                                             font: font.clone(),
-//                                             font_size: TEXT_FONT_SIZE / 1.5,
-//                                             color: Color::rgb(0.9, 0.9, 0.9),
-//                                             ..Default::default()
-//                                         },
-//                                         Default::default(),
-//                                     ),
-//                                     ..Default::default()
-//                                 })
-//                                 .spawn(TextBundle {
-//                                     text: Text::with_section(
-//                                         "Number: ".to_owned(),
-//                                         TextStyle {
-//                                             font: font.clone(),
+//                                             font: font_handle.clone(),
 //                                             font_size: TEXT_FONT_SIZE,
 //                                             color: Color::rgb(0.9, 0.9, 0.9),
-//                                             ..Default::default()
 //                                         },
 //                                         Default::default(),
 //                                     ),
 //                                     ..Default::default()
 //                                 })
-//                                 .with(Block::Finalized(BlockTexts::Number))
-//                                 .spawn(TextBundle {
+//                                 .insert(Block::Finalized(BlockTexts::Number));
+//                             parent
+//                                 .spawn_bundle(TextBundle {
 //                                     text: Text::with_section(
-//                                         "Hash: ".to_owned(),
+//                                         "Hash: ",
 //                                         TextStyle {
-//                                             font: font.clone(),
+//                                             font: font_handle.clone(),
 //                                             font_size: TEXT_FONT_SIZE,
 //                                             color: Color::rgb(0.9, 0.9, 0.9),
-//                                             ..Default::default()
 //                                         },
 //                                         Default::default(),
 //                                     ),
 //                                     ..Default::default()
 //                                 })
-//                                 .with(Block::Finalized(BlockTexts::Hash))
-//                                 .spawn(TextBundle {
+//                                 .insert(Block::Finalized(BlockTexts::Hash));
+//                             parent
+//                                 .spawn_bundle(TextBundle {
 //                                     text: Text::with_section(
-//                                         "Parent: ".to_owned(),
+//                                         "Parent: ",
 //                                         TextStyle {
-//                                             font: font.clone(),
+//                                             font: font_handle.clone(),
 //                                             font_size: TEXT_FONT_SIZE,
 //                                             color: Color::rgb(0.9, 0.9, 0.9),
-//                                             ..Default::default()
 //                                         },
 //                                         Default::default(),
 //                                     ),
 //                                     ..Default::default()
 //                                 })
-//                                 .with(Block::Finalized(BlockTexts::Parent));
+//                                 .insert(Block::Finalized(BlockTexts::Parent));
 //                         });
 //                 });
 //         });

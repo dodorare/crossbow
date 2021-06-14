@@ -1,6 +1,6 @@
 [package]
 name = "creator-tools"
-version = "0.3.8"
+version = "0.4.0"
 edition = "2018"
 authors = ["enfipy <enfipy@gmail.com>", "olvyko <olvyko@gmail.com>"]
 description = "Mobile Game Framework"
@@ -17,8 +17,8 @@ dunce = "1.0"
 fs_extra = "1.2"
 dirs = "3.0.1"
 simctl = { version = "0.1.1", package = "creator-simctl" }
-android-manifest = { git = "https://github.com/dodorare/android-manifest-rs.git", rev = "cec877c14fe5c7599a09d2e1e289ba961dd8d90f" }
-apple-bundle = { version = "0.1.1" }
+android-manifest = "0.1.2"
+apple-bundle = "0.1.1"
 thiserror = "1.0"
 displaydoc = "0.1"
 which = "4.0"

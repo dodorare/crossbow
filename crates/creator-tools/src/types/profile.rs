@@ -7,6 +7,12 @@ pub enum Profile {
     Release,
 }
 
+impl Profile {
+    pub fn is_debug(&self) -> bool {
+        Self::Debug == *self
+    }
+}
+
 impl AsRef<Path> for Profile {
     fn as_ref(&self) -> &Path {
         Path::new(match self {

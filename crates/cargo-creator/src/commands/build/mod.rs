@@ -14,7 +14,9 @@ use std::path::PathBuf;
 
 #[derive(Clap, Clone, Debug)]
 pub enum BuildCommand {
+    /// Starts the process of building/packaging/signing of the rust crate for Android
     Android(AndroidBuildCommand),
+    /// Starts the process of building/packaging/signing of the rust crate for iOS
     Apple(AppleBuildCommand),
 }
 
@@ -29,24 +31,24 @@ impl BuildCommand {
 
 #[derive(Clap, Clone, Debug)]
 pub struct SharedBuildCommand {
-    /// Build the specified example.
+    /// Build the specified example
     #[clap(long)]
     pub example: Option<String>,
     /// Space or comma separated list of features to activate. These features only apply to the current
     /// directory's package. Features of direct dependencies may be enabled with `<dep-name>/<feature-name>` syntax.
-    /// This flag may be specified multiple times, which enables all specified features.
+    /// This flag may be specified multiple times, which enables all specified features
     #[clap(long)]
     pub features: Vec<String>,
-    /// Activate all available features of selected package.
+    /// Activate all available features of selected package
     #[clap(long)]
     pub all_features: bool,
-    /// Do not activate the `default` feature of the current directory's package.
+    /// Do not activate the `default` feature of the current directory's package
     #[clap(long)]
     pub no_default_features: bool,
-    /// Build optimized artifact with the `release` profile.
+    /// Build optimized artifact with the `release` profile
     #[clap(long)]
     pub release: bool,
-    /// Directory for generated artifact and intermediate files.
+    /// Directory for generated artifact and intermediate files
     #[clap(long)]
     pub target_dir: Option<PathBuf>,
 }

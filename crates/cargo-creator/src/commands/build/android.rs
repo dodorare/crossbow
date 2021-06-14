@@ -15,13 +15,25 @@ pub struct AndroidBuildCommand {
     #[clap(flatten)]
     pub shared: SharedBuildCommand,
     /// Build for the given android architecture.
-    /// Supported targets are: `armv7-linux-androideabi`, `aarch64-linux-android`, `i686-linux-android`, `x86_64-linux-android`.
+    /// Supported targets are: `armv7-linux-androideabi`, `aarch64-linux-android`, `i686-linux-android`, `x86_64-linux-android`
     #[clap(long, default_value = "aarch64-linux-android")]
     pub target: Vec<AndroidTarget>,
+    /// Path to the signing key
+    #[clap(long)]
+    pub sign_key_path: Option<PathBuf>,
+    /// Signing key password
+    #[clap(long)]
+    pub sign_key_pass: Option<String>,
 }
 
 impl AndroidBuildCommand {
     pub fn run(&self, config: &Config) -> Result<()> {
+        if self.sign_key_path.is_some() && self.sign_key_pass.is_none() {
+            config
+                .shell()
+                .warn("You provided a signing key but not password - set password please by providing `sign_key_pass` flag")?;
+        }
+
         let context = BuildContext::new(config, self.shared.target_dir.clone())?;
         self.execute(config, &context)?;
         Ok(())
@@ -46,7 +58,8 @@ impl AndroidBuildCommand {
         let build_targets = context.android_build_targets(&self.target);
         let target_sdk_version = context.target_sdk_version(&sdk);
         config.status_message("Generating", "AndroidManifest.xml")?;
-        let android_manifest = context.gen_android_manifest(&sdk, &package_name)?;
+        let android_manifest =
+            context.gen_android_manifest(&sdk, &package_name, profile.is_debug())?;
         let apk_build_dir = target_dir.join("android").join(&profile);
         let manifest_path = android::save_android_manifest(&apk_build_dir, &android_manifest)?;
         let mut compiled_libs = Vec::new();
@@ -108,11 +121,23 @@ impl AndroidBuildCommand {
         let aligned_apk_path = android::align_apk(
             &sdk,
             &unaligned_apk_path,
-            &android_manifest.package,
+            &android_manifest
+                .application
+                .label
+                .clone()
+                .unwrap()
+                .to_string(),
             &apk_build_dir,
         )?;
-        config.status_message("Generating", "debug signing key")?;
-        let key = android::gen_debug_key().unwrap();
+        let key = if let Some(path) = self.sign_key_path.clone() {
+            android::Key {
+                path,
+                password: self.sign_key_pass.clone().unwrap(),
+            }
+        } else {
+            config.status_message("Generating", "debug signing key")?;
+            android::gen_debug_key().unwrap()
+        };
         config.status("Signing APK file")?;
         android::sign_apk(&sdk, &aligned_apk_path, key).unwrap();
         config.status("Build finished successfully")?;
