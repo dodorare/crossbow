@@ -1,3 +1,4 @@
+use crate::error::*;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
@@ -53,7 +54,7 @@ impl Aapt2Dump {
         self
     }
 
-    pub fn run(&self) {
+    pub fn run(&self) -> Result<()> {
         let mut aapt2 = Command::new("aapt2");
         aapt2.arg("dump");
         aapt2.arg(self.subcommand.to_string());
@@ -67,6 +68,8 @@ impl Aapt2Dump {
         if self.v {
             aapt2.arg("-v");
         }
+        aapt2.output_err(true)?;
+        Ok(())
     }
 }
 

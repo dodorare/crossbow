@@ -1,3 +1,4 @@
+use crate::error::*;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
@@ -35,7 +36,7 @@ use std::process::Command;
 /// aapt2 compile project_root/module_root/src/main/res/values-en/strings.xml -o compiled/
 /// aapt2 compile project_root/module_root/src/main/res/drawable/myImage.png -o compiled/
 /// ```
-/// 
+///
 /// As shown in the table above, the name of the output file depends on the input file
 /// name and the name of its parent directory (the resource type and configuration).
 /// For the example above with strings.xml as input, aapt2 automatically names the output
@@ -113,7 +114,7 @@ impl Aapt2Compile {
         self
     }
 
-    pub fn run(&self) {
+    pub fn run(&self) -> Result<()> {
         let mut aapt2 = Command::new("aapt2");
         aapt2.arg("compile");
         aapt2.arg(&self.input);
@@ -133,6 +134,7 @@ impl Aapt2Compile {
         if self.v {
             aapt2.arg("-v");
         }
-        aapt2.output().expect("failed to execute process"); // TODO: Remove expect
+        aapt2.output_err(true)?;
+        Ok(())
     }
 }
