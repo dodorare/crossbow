@@ -12,6 +12,9 @@ mod convert;
 mod dump;
 mod link;
 mod optimize;
+mod daemon;
+mod diff;
+mod version;
 
 pub use compile::*;
 pub use convert::*;
@@ -20,6 +23,8 @@ pub use link::*;
 pub use optimize::*;
 
 use std::path::{Path, PathBuf};
+
+use self::{daemon::Aapt2Daemon, diff::Aapt2Diff, version::Aapt2Version};
 
 pub struct Aapt2;
 
@@ -41,8 +46,8 @@ impl Aapt2 {
 
     /// Prints the differences in resources of two apks.
     /// https://gerrit.pixelexperience.org/plugins/gitiles/frameworks_base/+/refs/tags/android-10.0.0_r2/tools/aapt2/cmd/Diff.cpp
-    pub fn diff(self) {
-        todo!();
+    pub fn diff(self, file: &[PathBuf]) -> Aapt2Diff {
+        Aapt2Diff::new(file)
     }
 
     /// Preforms resource optimizations on an apk.
@@ -56,14 +61,13 @@ impl Aapt2 {
     }
 
     /// Prints the version of aapt.
-    pub fn version(self) -> String {
-        todo!();
+    pub fn version(self, version: String) -> Aapt2Version {
+        Aapt2Version::new(version.to_string())
     }
 
     /// Runs aapt in daemon mode. Each subsequent line is a single parameter to the
     /// command. The end of an invocation is signaled by providing an empty line.
-    pub fn daemon(self) {
-        // probably stream ...
-        todo!();
+    pub fn daemon(self, trace_folder: &Path) ->  Aapt2Daemon {
+        Aapt2Daemon::new(trace_folder)
     }
 }
