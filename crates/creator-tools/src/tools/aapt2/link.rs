@@ -1,8 +1,8 @@
+use crate::error::{CommandExt, Result};
 use std::{
     path::{Path, PathBuf},
     process::Command,
 };
-use crate::error::{CommandExt, Result};
 
 /// ## Link
 /// In the link phase, AAPT2 merges all the intermediate files generated from the
@@ -537,8 +537,7 @@ impl Aapt2Link {
             aapt2.arg("-0").arg(extension);
         });
         if let Some(split) = &self.split {
-            aapt2.arg("--split")
-            .arg(split);
+            aapt2.arg("--split").arg(split);
         }
         if self.v {
             aapt2.arg("-v");

@@ -41,7 +41,7 @@ fn android_dir() -> Result<PathBuf> {
     std::fs::create_dir_all(&android_dir)?;
     Ok(android_dir)
 }
- fn keytool() -> Result<Command> {
+fn keytool() -> Result<Command> {
     if let Ok(keytool) = which::which(bin!("keytool")) {
         return Ok(Command::new(keytool));
     }

@@ -1,13 +1,12 @@
-#![allow(dead_code)]
+//! Android Asset Packaging Tool 2.0 (AAPT2).
+//! https://developer.android.com/studio/command-line/aapt2
+//! https://android.googlesource.com/platform/frameworks/base/+/master/tools/aapt2
+//!
+//! The main idea behind AAPT2, apart from new features, is that it divides
+//! the 'package' step into two: 'compile' and 'link'. It improves performance,
+//! since if only one file changes, you only need to recompile that one file and
+//! link all the intermediate files with the 'link' command.
 
-/// Android Asset Packaging Tool 2.0 (AAPT2).
-/// https://developer.android.com/studio/command-line/aapt2
-/// https://android.googlesource.com/platform/frameworks/base/+/master/tools/aapt2
-///
-/// The main idea behind AAPT2, apart from new features, is that it divides
-/// the 'package' step into two: 'compile' and 'link'. It improves performance,
-/// since if only one file changes, you only need to recompile that one file and
-/// link all the intermediate files with the 'link' command.
 mod compile;
 mod convert;
 mod dump;
@@ -47,8 +46,8 @@ impl Aapt2 {
     }
 
     /// Preforms resource optimizations on an apk.
-    pub fn optimize(self) -> Aapt2Optimize {
-        Aapt2Optimize
+    pub fn optimize(self, o: &Path, d: &Path, x: &Path) -> Aapt2Optimize {
+        Aapt2Optimize::new(o, d, x)
     }
 
     /// Converts an apk between binary and proto formats.

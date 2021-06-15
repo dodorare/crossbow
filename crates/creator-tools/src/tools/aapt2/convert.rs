@@ -1,5 +1,8 @@
-use std::{path::{Path, PathBuf}, process::Command};
 use crate::error::{CommandExt, Result};
+use std::{
+    path::{Path, PathBuf},
+    process::Command,
+};
 
 pub struct Aapt2Convert {
     /// Output path
@@ -17,14 +20,14 @@ pub struct Aapt2Convert {
 }
 
 impl Aapt2Convert {
-    pub fn new(o: &Path, output_format: OutputFormat) -> Self{
-       Self {
-        o: o.to_owned(),
-        output_format,
-        enable_sparse_encoding: false,
-        keep_raw_values: false,
-        v: false,
-    }
+    pub fn new(o: &Path, output_format: OutputFormat) -> Self {
+        Self {
+            o: o.to_owned(),
+            output_format,
+            enable_sparse_encoding: false,
+            keep_raw_values: false,
+            v: false,
+        }
     }
 
     pub fn enable_sparse_encoding(&mut self, enable_sparse_encoding: bool) -> &mut Self {
@@ -45,7 +48,7 @@ impl Aapt2Convert {
         aapt2.arg("convert");
         aapt2.arg(&self.o);
         aapt2.arg(&self.output_format.to_string());
-        if self.enable_sparse_encoding{
+        if self.enable_sparse_encoding {
             aapt2.arg("--enable-sparse-encoding ");
         }
         if self.keep_raw_values {
@@ -58,7 +61,6 @@ impl Aapt2Convert {
         Ok(())
     }
 }
-
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum OutputFormat {

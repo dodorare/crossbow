@@ -12,12 +12,14 @@ pub struct Aapt2Optimize {
     /// Print the multi APK artifacts and exit.
     p: bool,
     /// Comma separated list of the screen densities that the APK will be optimized for.
-    /// All the resources that would be unused on devices of the given densities will be removed from the APK.
+    /// All the resources that would be unused on devices of the given densities will be
+    /// removed from the APK.
     target_densities: Option<String>,
-    /// Path to the resources.cfg file containing the list of resources and directives to each resource.
-    /// ```Format: type/resource_name#[directive][,directive]```
+    /// Path to the resources.cfg file containing the list of resources and directives to
+    /// each resource. ```Format: type/resource_name#[directive][,directive]```
     resources_config_path: Option<PathBuf>,
-    /// Comma separated list of configurations to include. The default is all configurations.
+    /// Comma separated list of configurations to include. The default is all
+    /// configurations.
     c: Option<String>,
     /// Split resources matching a set of configs out to a Split APK.
     /// ```Syntax: path/to/output.apk;<config>[,<config>[...]].```
@@ -26,10 +28,12 @@ pub struct Aapt2Optimize {
     /// Comma separated list of artifacts to keep.
     /// If none are specified, all artifacts will be kept.
     keep_artifacts: Option<String>,
-    /// Enables encoding sparse entries using a binary search tree. This decreases APK size at the cost of resource retrieval performance.
+    /// Enables encoding sparse entries using a binary search tree. This decreases APK
+    /// size at the cost of resource retrieval performance.
     enable_sparse_encoding: bool,
     /// Collapses resource names to a single value in the key string pool.
-    /// Resources can be exempted using the "no_collapse" directive in a file specified by --resources-config-path.
+    /// Resources can be exempted using the "no_collapse" directive in a file specified by
+    /// --resources-config-path.
     collapse_resource_name: bool,
     /// Shortens the paths of resources inside the APK.
     shorten_resource_paths: bool,
