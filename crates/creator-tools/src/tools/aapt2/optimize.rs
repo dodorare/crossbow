@@ -1,5 +1,5 @@
 use crate::error::*;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 
 pub struct Aapt2Optimize {
@@ -66,11 +66,106 @@ impl Aapt2Optimize {
         }
     }
 
-    fn o(&self, o: &Path) -> &mut Self {
-        self.o
+    fn p(&mut self, p: bool) -> &mut Self {
+        self.p = p;
+        self
+    }
+
+    fn target_densities(&mut self, target_densities: &str) -> &mut Self {
+        self.target_densities = Some(target_densities.to_owned());
+        self
+    }
+
+    fn c(&mut self, c: &str) -> &mut Self {
+        self.c = Some(c.to_owned());
+        self
+    }
+
+    fn split(&mut self, split: &Path) -> &mut Self {
+        self.split = Some(split.to_owned());
+        self
+    }
+
+    fn keep_artifacts(&mut self, keep_artifacts: &str) -> &mut Self {
+        self.keep_artifacts = Some(keep_artifacts.to_owned());
+        self
+    }
+
+    fn enable_sparse_encoding(&mut self, enable_sparse_encoding: bool) -> &mut Self {
+        self.enable_sparse_encoding = enable_sparse_encoding;
+        self
+    }
+
+    fn collapse_resource_name(&mut self, collapse_resource_name: bool) -> &mut Self {
+        self.collapse_resource_name = collapse_resource_name;
+        self
+    }
+
+    fn shorten_resource_paths(&mut self, shorten_resource_paths: bool) -> &mut Self {
+        self.shorten_resource_paths = shorten_resource_paths;
+        self
+    }
+
+    fn resource_path_shortening_map(&mut self, resource_path_shortening_map: &Path) -> &mut Self {
+        self.resource_path_shortening_map = Some(resource_path_shortening_map.to_owned());
+        self
+    }
+
+    fn v(&mut self, v: bool) -> &mut Self {
+        self.v = v;
+        self
+    }
+
+    fn h(&mut self, h: bool) -> &mut Self {
+        self.h = h;
+        self
     }
 
     pub fn run(self) {
-        todo!();
+        let mut aapt2 = Command::new("aapt2");
+        aapt2.arg("optimize");
+        aapt2.arg("-o").arg(&self.o);
+        aapt2.arg("-d").arg(&self.d);
+        aapt2.arg("-x").arg(&self.x);
+        if self.p {
+            aapt2.arg("-p");
+        }
+        if let Some(target_densities) = self.target_densities {
+            aapt2.arg("--target_densities").arg(target_densities);
+        }
+        if let Some(resources_config_path) = self.resources_config_path {
+            aapt2
+                .arg("--resources_config_path")
+                .arg(resources_config_path);
+        }
+        if let Some(c) = self.c {
+            aapt2.arg("-c").arg(c);
+        }
+        if let Some(split) = self.split {
+            aapt2.arg("--split").arg(split);
+        }
+        if let Some(keep_artifacts) = self.keep_artifacts {
+            aapt2.arg("--keep_artifacts").arg(keep_artifacts);
+        }
+        if self.enable_sparse_encoding {
+            aapt2.arg("--enable_sparse_encoding");
+        }
+        if self.collapse_resource_name {
+            aapt2.arg("--collapse_resource_name");
+        }
+        if self.shorten_resource_paths {
+            aapt2.arg("--shorten_resource_paths");
+        }
+        if let Some(resource_path_shortening_map) = self.resource_path_shortening_map {
+            aapt2
+                .arg("--resource_path_shortening_map")
+                .arg(resource_path_shortening_map);
+        }
+        if self.v {
+            aapt2.arg("-v");
+        }
+        if self.h {
+            aapt2.arg("-h");
+        }
     }
 }
