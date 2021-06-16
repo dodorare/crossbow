@@ -1,4 +1,4 @@
-use std::{path::{Path, PathBuf}, process::Command};
+use std::{path::PathBuf, process::Command};
 use crate::error::*;
 
 pub struct Aapt2Diff {

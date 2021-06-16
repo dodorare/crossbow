@@ -74,6 +74,8 @@ pub struct Aapt2Compile {
     legacy: bool,
     /// Enable verbose logging.
     v: bool,
+    /// Displays this help menu
+    h: bool,
 }
 
 impl Aapt2Compile {
@@ -86,6 +88,7 @@ impl Aapt2Compile {
             no_crunch: false,
             legacy: false,
             v: false,
+            h: false,
         }
     }
 
@@ -114,6 +117,11 @@ impl Aapt2Compile {
         self
     }
 
+    pub fn h(&mut self, h: bool) -> &mut Self {
+        self.h = h;
+        self
+    }
+
     pub fn run(&self) -> Result<()> {
         let mut aapt2 = Command::new("aapt2");
         aapt2.arg("compile");
@@ -133,6 +141,9 @@ impl Aapt2Compile {
         }
         if self.v {
             aapt2.arg("-v");
+        }
+        if self.h {
+            aapt2.arg("-h");
         }
         aapt2.output_err(true)?;
         Ok(())

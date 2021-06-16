@@ -186,6 +186,8 @@ pub struct Aapt2Link {
     split: Option<PathBuf>,
     /// Enables increased verbosity of the output.
     v: bool,
+    /// Displays this help menu
+    h: bool,
 }
 
 impl Aapt2Link {
@@ -229,6 +231,7 @@ impl Aapt2Link {
             extensions: Vec::new(),
             split: None,
             v: false,
+            h: false,
         }
     }
 
@@ -413,6 +416,11 @@ impl Aapt2Link {
         self
     }
 
+    pub fn h(&mut self, h: bool) -> &mut Self {
+        self.h = h;
+        self
+    }
+
     pub fn run(&self) -> Result<()> {
         let mut aapt2 = Command::new("aapt2");
         aapt2.arg("compile");
@@ -541,6 +549,9 @@ impl Aapt2Link {
         }
         if self.v {
             aapt2.arg("-v");
+        }
+        if self.h {
+            aapt2.arg("-h");
         }
         aapt2.output_err(true)?;
         Ok(())

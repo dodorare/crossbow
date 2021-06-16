@@ -17,6 +17,8 @@ pub struct Aapt2Convert {
     keep_raw_values: bool,
     /// Enables verbose logging`
     v: bool,
+    /// Displays this help menu
+    h: bool,
 }
 
 impl Aapt2Convert {
@@ -27,6 +29,7 @@ impl Aapt2Convert {
             enable_sparse_encoding: false,
             keep_raw_values: false,
             v: false,
+            h: false,
         }
     }
 
@@ -34,12 +37,19 @@ impl Aapt2Convert {
         self.enable_sparse_encoding = enable_sparse_encoding;
         self
     }
+
     pub fn keep_raw_values(&mut self, keep_raw_values: bool) -> &mut Self {
         self.keep_raw_values = keep_raw_values;
         self
     }
+    
     pub fn v(&mut self, v: bool) -> &mut Self {
         self.v = v;
+        self
+    }
+
+    pub fn h(&mut self, h: bool) -> &mut Self {
+        self.h = h;
         self
     }
 
@@ -49,13 +59,16 @@ impl Aapt2Convert {
         aapt2.arg(&self.o);
         aapt2.arg(&self.output_format.to_string());
         if self.enable_sparse_encoding {
-            aapt2.arg("--enable-sparse-encoding ");
+            aapt2.arg("--enable-sparse-encoding");
         }
         if self.keep_raw_values {
             aapt2.arg("--keep-raw-values");
         }
         if self.v {
             aapt2.arg("-v");
+        }
+        if self.h {
+            aapt2.arg("-h");
         }
         aapt2.output_err(true)?;
         Ok(())
@@ -76,3 +89,8 @@ impl std::fmt::Display for OutputFormat {
         }
     }
 }
+
+#[test]
+    fn builder_test() {
+        let aapt2 = Aapt2Convert::new(&Path::new("bla/bla/bla"), OutputFormat::Binary).keep_raw_values(true).run();
+    }

@@ -26,16 +26,19 @@ pub struct Aapt2Dump {
     file: Option<PathBuf>,
     /// Increases verbosity of the output.
     v: bool,
+    /// Displays this help menu
+    h: bool,
 }
 
 impl Aapt2Dump {
-    pub fn new(subcommand: SubCommand, filename_apk: &Path) -> Aapt2Dump {
-        Aapt2Dump {
+    pub fn new(subcommand: SubCommand, filename_apk: &Path) -> Self {
+        Self {
             subcommand,
             filename_apk: filename_apk.to_owned(),
             no_values: false,
             file: None,
             v: false,
+            h: false,
         }
     }
 
@@ -53,6 +56,11 @@ impl Aapt2Dump {
         self.v = v;
         self
     }
+    
+    pub fn h(&mut self, h: bool) -> &mut Self {
+        self.h = h;
+        self
+    }
 
     pub fn run(&self) -> Result<()> {
         let mut aapt2 = Command::new("aapt2");
@@ -67,6 +75,9 @@ impl Aapt2Dump {
         }
         if self.v {
             aapt2.arg("-v");
+        }
+        if self.h {
+            aapt2.arg("-h");
         }
         aapt2.output_err(true)?;
         Ok(())
