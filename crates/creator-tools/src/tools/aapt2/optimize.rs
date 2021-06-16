@@ -1,5 +1,5 @@
 use crate::error::*;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::process::Command;
 
 pub struct Aapt2Optimize {
@@ -46,7 +46,7 @@ pub struct Aapt2Optimize {
 }
 
 impl Aapt2Optimize {
-    pub fn new(o: &Path, d: &Path, x: &Path) -> Self {
+    pub fn new(o: &PathBuf, d: &PathBuf, x: &PathBuf) -> Self {
         Self {
             o: o.to_owned(),
             d: d.to_owned(),
@@ -66,62 +66,65 @@ impl Aapt2Optimize {
         }
     }
 
-    fn p(&mut self, p: bool) -> &mut Self {
+    pub fn p(&mut self, p: bool) -> &mut Self {
         self.p = p;
         self
     }
 
-    fn target_densities(&mut self, target_densities: &str) -> &mut Self {
+    pub fn target_densities(&mut self, target_densities: &str) -> &mut Self {
         self.target_densities = Some(target_densities.to_owned());
         self
     }
 
-    fn c(&mut self, c: &str) -> &mut Self {
+    pub fn c(&mut self, c: &str) -> &mut Self {
         self.c = Some(c.to_owned());
         self
     }
 
-    fn split(&mut self, split: &Path) -> &mut Self {
+    pub fn split(&mut self, split: &PathBuf) -> &mut Self {
         self.split = Some(split.to_owned());
         self
     }
 
-    fn keep_artifacts(&mut self, keep_artifacts: &str) -> &mut Self {
+    pub fn keep_artifacts(&mut self, keep_artifacts: &str) -> &mut Self {
         self.keep_artifacts = Some(keep_artifacts.to_owned());
         self
     }
 
-    fn enable_sparse_encoding(&mut self, enable_sparse_encoding: bool) -> &mut Self {
+    pub fn enable_sparse_encoding(&mut self, enable_sparse_encoding: bool) -> &mut Self {
         self.enable_sparse_encoding = enable_sparse_encoding;
         self
     }
 
-    fn collapse_resource_name(&mut self, collapse_resource_name: bool) -> &mut Self {
+    pub fn collapse_resource_name(&mut self, collapse_resource_name: bool) -> &mut Self {
         self.collapse_resource_name = collapse_resource_name;
         self
     }
 
-    fn shorten_resource_paths(&mut self, shorten_resource_paths: bool) -> &mut Self {
+    pub fn shorten_resource_paths(&mut self, shorten_resource_paths: bool) -> &mut Self {
         self.shorten_resource_paths = shorten_resource_paths;
         self
     }
 
-    fn resource_path_shortening_map(&mut self, resource_path_shortening_map: &Path) -> &mut Self {
+    pub fn resource_path_shortening_map(
+        &mut self,
+        resource_path_shortening_map: &PathBuf,
+    ) -> &mut Self {
         self.resource_path_shortening_map = Some(resource_path_shortening_map.to_owned());
         self
     }
 
-    fn v(&mut self, v: bool) -> &mut Self {
+    pub fn v(&mut self, v: bool) -> &mut Self {
         self.v = v;
         self
     }
 
-    fn h(&mut self, h: bool) -> &mut Self {
+    pub fn h(&mut self, h: bool) -> &mut Self {
         self.h = h;
         self
     }
 
-    pub fn run(self) {
+    pub fn run(self) -> Result<()> {
         let mut aapt2 = Command::new("aapt2");
         aapt2.arg("optimize");
         aapt2.arg("-o").arg(&self.o);
@@ -167,5 +170,7 @@ impl Aapt2Optimize {
         if self.h {
             aapt2.arg("-h");
         }
+        aapt2.output_err(true)?;
+        Ok(())
     }
 }

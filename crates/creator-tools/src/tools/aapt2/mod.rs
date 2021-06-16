@@ -9,11 +9,11 @@
 
 mod compile;
 mod convert;
+mod daemon;
+mod diff;
 mod dump;
 mod link;
 mod optimize;
-mod daemon;
-mod diff;
 mod version;
 
 pub use compile::*;
@@ -51,7 +51,7 @@ impl Aapt2 {
     }
 
     /// Preforms resource optimizations on an apk.
-    pub fn optimize(self, o: &Path, d: &Path, x: &Path) -> Aapt2Optimize {
+    pub fn optimize(self, o: &PathBuf, d: &PathBuf, x: &PathBuf) -> Aapt2Optimize {
         Aapt2Optimize::new(o, d, x)
     }
 
@@ -67,7 +67,7 @@ impl Aapt2 {
 
     /// Runs aapt in daemon mode. Each subsequent line is a single parameter to the
     /// command. The end of an invocation is signaled by providing an empty line.
-    pub fn daemon(self, trace_folder: &Path) ->  Aapt2Daemon {
+    pub fn daemon(self, trace_folder: &Path) -> Aapt2Daemon {
         Aapt2Daemon::new(trace_folder)
     }
 }
