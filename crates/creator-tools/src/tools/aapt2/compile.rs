@@ -184,8 +184,15 @@ impl Aapt2Compile {
         aapt2.arg("compile");
         aapt2.arg(&self.input);
         aapt2.arg("-o").arg(&self.o);
+        // aapt2.arg("--visibility").arg(&self.visibility.to_string());
         if let Some(dir) = &self.dir {
             aapt2.arg("--dir").arg(dir);
+        }
+        if let Some(zip) = &self.zip {
+            aapt2.arg("--zip").arg(zip);
+        }
+        if let Some(output_text_symbols) = &self.output_text_symbols {
+            aapt2.arg("--output-text-symbols").arg(output_text_symbols);
         }
         if self.pseudo_localize {
             aapt2.arg("--pseudo-localize");
@@ -195,6 +202,12 @@ impl Aapt2Compile {
         }
         if self.legacy {
             aapt2.arg("--legacy");
+        }
+        if self.preserve_visibility_of_styleables {
+            aapt2.arg("--preserve-visibility-of-styleables");
+        }
+        if let Some(trace_folder) = &self.trace_folder {
+            aapt2.arg("--trace-folder").arg(trace_folder);
         }
         if self.v {
             aapt2.arg("-v");
@@ -220,6 +233,30 @@ mod tests {
         );
         // aapt2.dir(&Path::new("C:/Users/den99/AndroidStudioProjects/testimage.png"));
         aapt2.pseudo_localize();
+        aapt2.run();
+    }
+
+    #[test]
+    fn builder_test_two() {
+        let mut aapt2 = Aapt2Compile::new(
+            &Path::new("C:/Users/den99/AndroidStudioProjects/test_image.png"),
+            &Path::new("C:/Users/den99/AndroidStudioProjects/test_image.png"),
+            Visibility::Private,
+        );
+        aapt2.dir(&Path::new(
+            "C:/Users/den99/AndroidStudioProjects/testimage.png",
+        ));
+        aapt2.run();
+    }
+
+    #[test]
+    fn builder_test_three() {
+        let mut aapt2 = Aapt2Compile::new(
+            &Path::new("C:/Users/den99/AndroidStudioProjects/test_image.png"),
+            &Path::new("C:/Users/den99/AndroidStudioProjects/test_image.png"),
+            Visibility::Default,
+        );
+        aapt2.output_text_symbols(String::from("hello"));
         aapt2.run();
     }
 }
