@@ -56,7 +56,7 @@ impl Aapt2Dump {
         self.v = v;
         self
     }
-    
+
     pub fn h(&mut self, h: bool) -> &mut Self {
         self.h = h;
         self
@@ -122,5 +122,28 @@ impl std::fmt::Display for SubCommand {
             Self::Xmlstrings => write!(f, "xmlstrings"),
             Self::Xmltree => write!(f, "xmltree"),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn builder_test_one() {
+        let mut aapt2 = Aapt2Dump::new(
+            // Badging options:
+            // --include-meta-data, Include meta-data information.
+            //
+            // Styleparents options:
+            // --style arg, The name of the style to print
+            //
+            // Xmlstrings and Xmltree options:
+            // --file arg,  A compiled xml file to print
+            SubCommand::Configurations,
+            &Path::new("C:/Users/den99/AndroidStudioProjects/creator_paint.apk"),
+        );
+        aapt2.no_values(true);
+        aapt2.run();
     }
 }
