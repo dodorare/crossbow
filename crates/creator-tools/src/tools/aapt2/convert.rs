@@ -1,7 +1,7 @@
 use crate::error::{CommandExt, Result};
 use std::{
     path::{Path, PathBuf},
-    process::Command,
+    process::{Command, ExitStatus},
 };
 
 pub struct Aapt2Convert {
@@ -42,7 +42,7 @@ impl Aapt2Convert {
         self.keep_raw_values = keep_raw_values;
         self
     }
-    
+
     pub fn v(&mut self, v: bool) -> &mut Self {
         self.v = v;
         self
@@ -56,7 +56,7 @@ impl Aapt2Convert {
     pub fn run(&self) -> Result<()> {
         let mut aapt2 = Command::new("aapt2");
         aapt2.arg("convert");
-        aapt2.arg(&self.o);
+        aapt2.arg("-o").arg(&self.o);
         aapt2.arg(&self.output_format.to_string());
         if self.enable_sparse_encoding {
             aapt2.arg("--enable-sparse-encoding");
@@ -90,7 +90,17 @@ impl std::fmt::Display for OutputFormat {
     }
 }
 
-#[test]
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
     fn builder_test() {
-        let aapt2 = Aapt2Convert::new(&Path::new("bla/bla/bla"), OutputFormat::Binary).keep_raw_values(true).run();
+        let aapt2 = Aapt2Convert::new(
+            &Path::new("C:/Users/den99/AndroidStudioProjects"),
+            OutputFormat::Binary,
+        )
+        .keep_raw_values(true)
+        .run();
     }
+}

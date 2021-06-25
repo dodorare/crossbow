@@ -565,9 +565,9 @@ mod tests {
     #[test]
     fn builder_test() {
         let aapt2 = Aapt2Link::new(
-            &[Path::new("bla/bla/bla").to_owned()],
-            &Path::new("bla/bla/bla"),
-            &Path::new("bla/bla/bla"),
+            &[Path::new("C:/Users/den99/AndroidStudioProjects").to_owned()],
+            &Path::new("C:/Users/den99/AndroidStudioProjects"),
+            &Path::new("C:/Users/den99/AndroidStudioProjects"),
         );
         aapt2.run();
     }
