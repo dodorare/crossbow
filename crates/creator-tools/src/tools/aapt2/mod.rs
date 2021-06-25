@@ -30,8 +30,8 @@ pub struct Aapt2;
 
 impl Aapt2 {
     /// Compiles resources to be linked into an apk.
-    pub fn compile(self, o: &Path, manifest: &Path) -> Aapt2Compile {
-        Aapt2Compile::new(o, manifest)
+    pub fn compile(self, o: &Path, manifest: &Path, visibility: Visibility) -> Aapt2Compile {
+        Aapt2Compile::new(o, manifest, visibility)
     }
 
     /// Links resources into an apk.

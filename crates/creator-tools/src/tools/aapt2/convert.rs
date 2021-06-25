@@ -1,7 +1,7 @@
 use crate::error::{CommandExt, Result};
 use std::{
     path::{Path, PathBuf},
-    process::{Command, ExitStatus},
+    process::Command,
 };
 
 pub struct Aapt2Convert {

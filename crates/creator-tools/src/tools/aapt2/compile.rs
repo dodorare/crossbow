@@ -57,6 +57,10 @@ pub struct Aapt2Compile {
     /// command, it disables the benefits of incremental compilation and thus, should not
     /// be used for large projects.
     dir: Option<PathBuf>,
+    /// Zip file containing the res directory to scan for resources
+    zip: Option<PathBuf>,
+    /// Generates a text file containing the resource symbols in the specified file
+    output_text_symbols: Option<String>,
     /// Generates pseudo-localized versions of default strings, such as en-XA and en-XB.
     pseudo_localize: bool,
     /// Disables PNG processing.
@@ -72,28 +76,68 @@ pub struct Aapt2Compile {
     /// To resolve known behavior changes that you might get while using AAPT2, read
     /// [Behavior changes in AAPT2.](https://developer.android.com/studio/command-line/aapt2#aapt2_changes)
     legacy: bool,
+    /// If specified, apply the same visibility rules for styleables as are used for all other resources.
+    /// Otherwise, all stylesables will be made public.
+    preserve_visibility_of_styleables: bool,
+    /// Sets the visibility of the compiled resources to the specified level.
+    /// Accepted levels: public, private, default.
+    visibility: Visibility,
     /// Enable verbose logging.
     v: bool,
+    /// Generate systrace json trace fragment to specified folder.
+    trace_folder: Option<PathBuf>,
     /// Displays this help menu
     h: bool,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Visibility {
+    Public,
+    Private,
+    Default,
+}
+
+impl std::fmt::Display for Visibility {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match *self {
+            Self::Public => write!(f, "public"),
+            Self::Private => write!(f, "private"),
+            Self::Default => write!(f, "default"),
+        }
+    }
+}
+
 impl Aapt2Compile {
-    pub fn new(input: &Path, o: &Path) -> Self {
+    pub fn new(input: &Path, o: &Path, visibility: Visibility) -> Self {
         Self {
             input: input.to_owned(),
             o: o.to_owned(),
             dir: None,
+            zip: None,
+            output_text_symbols: None,
             pseudo_localize: false,
             no_crunch: false,
             legacy: false,
+            preserve_visibility_of_styleables: false,
+            visibility,
             v: false,
+            trace_folder: None,
             h: false,
         }
     }
 
     pub fn dir(&mut self, dir: &Path) -> &mut Self {
         self.dir = Some(dir.to_owned());
+        self
+    }
+
+    pub fn zip(&mut self, zip: &Path) -> &mut Self {
+        self.zip = Some(zip.to_owned());
+        self
+    }
+
+    pub fn output_text_symbols(&mut self, output_text_symbols: String) -> &mut Self {
+        self.output_text_symbols = Some(output_text_symbols.to_owned());
         self
     }
 
@@ -112,8 +156,21 @@ impl Aapt2Compile {
         self
     }
 
-    pub fn v(&mut self) -> &mut Self {
-        self.v = true;
+    pub fn preserve_visibility_of_styleables(
+        &mut self,
+        preserve_visibility_of_styleables: bool,
+    ) -> &mut Self {
+        self.preserve_visibility_of_styleables = preserve_visibility_of_styleables;
+        self
+    }
+
+    pub fn v(&mut self, v: bool) -> &mut Self {
+        self.v = v;
+        self
+    }
+
+    pub fn trace_folder(&mut self, trace_folder: &Path) -> &mut Self {
+        self.trace_folder = Some(trace_folder.to_owned());
         self
     }
 
@@ -155,12 +212,13 @@ mod tests {
     use super::*;
 
     #[test]
-    fn builder_test() {
+    fn builder_test_one() {
         let mut aapt2 = Aapt2Compile::new(
-            &Path::new("C:/Users/den99/AndroidStudioProjects/"),
-            &Path::new("C:/Users/den99/AndroidStudioProjects/"),
+            &Path::new("C:/Users/den99/AndroidStudioProjects/test_image.png"),
+            &Path::new("C:/Users/den99/AndroidStudioProjects/test_image.png"),
+            Visibility::Public,
         );
-        aapt2.dir(&Path::new("C:/Users/den99/AndroidStudioProjects/"));
+        // aapt2.dir(&Path::new("C:/Users/den99/AndroidStudioProjects/testimage.png"));
         aapt2.pseudo_localize();
         aapt2.run();
     }
