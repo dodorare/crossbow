@@ -1,5 +1,5 @@
-use std::{path::PathBuf, process::Command};
 use crate::error::*;
+use std::{path::PathBuf, process::Command};
 
 pub struct Aapt2Diff {
     file: Vec<PathBuf>,

@@ -1,5 +1,5 @@
-use std::process::Command;
 use crate::error::*;
+use std::process::Command;
 
 pub struct Aapt2Version {
     version: String,

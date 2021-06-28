@@ -56,7 +56,7 @@ impl Aapt2Dump {
         self.v = v;
         self
     }
-    
+
     pub fn h(&mut self, h: bool) -> &mut Self {
         self.h = h;
         self

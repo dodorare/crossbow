@@ -36,7 +36,7 @@ use std::process::Command;
 /// aapt2 compile project_root/module_root/src/main/res/values-en/strings.xml -o compiled/
 /// aapt2 compile project_root/module_root/src/main/res/drawable/myImage.png -o compiled/
 /// ```
-///
+/// 
 /// As shown in the table above, the name of the output file depends on the input file
 /// name and the name of its parent directory (the resource type and configuration).
 /// For the example above with strings.xml as input, aapt2 automatically names the output
@@ -76,8 +76,8 @@ pub struct Aapt2Compile {
     /// To resolve known behavior changes that you might get while using AAPT2, read
     /// [Behavior changes in AAPT2.](https://developer.android.com/studio/command-line/aapt2#aapt2_changes)
     legacy: bool,
-    /// If specified, apply the same visibility rules for styleables as are used for all other resources.
-    /// Otherwise, all stylesables will be made public.
+    /// If specified, apply the same visibility rules for styleables as are used for all
+    /// other resources. Otherwise, all stylesables will be made public.
     preserve_visibility_of_styleables: bool,
     /// Sets the visibility of the compiled resources to the specified level.
     /// Accepted levels: public, private, default.
@@ -251,12 +251,12 @@ mod tests {
 
     #[test]
     fn builder_test_three() {
-        let mut aapt2 = Aapt2Compile::new(
+        let aapt2 = Aapt2Compile::new(
             &Path::new("C:/Users/den99/AndroidStudioProjects/test_image.png"),
             &Path::new("C:/Users/den99/AndroidStudioProjects/test_image.png"),
             Visibility::Default,
-        );
-        aapt2.output_text_symbols(String::from("hello"));
-        aapt2.run();
+        )
+        .output_text_symbols(String::from("hello"))
+        .run();
     }
 }

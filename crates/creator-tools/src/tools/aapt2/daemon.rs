@@ -1,5 +1,8 @@
-use std::{path::{Path, PathBuf}, process::Command};
 use crate::error::*;
+use std::{
+    path::{Path, PathBuf},
+    process::Command,
+};
 
 pub struct Aapt2Daemon {
     trace_folder: PathBuf,
