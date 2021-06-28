@@ -34,3 +34,13 @@ impl Aapt2Daemon {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn builder_test() {
+        let _aapt2 = Aapt2Daemon::new(Path::new("C:\\Users\\adil_\\AppData\\Local\\test\\")).h(false).run();
+    }
+}
