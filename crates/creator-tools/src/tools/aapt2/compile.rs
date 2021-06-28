@@ -226,37 +226,31 @@ mod tests {
 
     #[test]
     fn builder_test_one() {
-        let mut aapt2 = Aapt2Compile::new(
+        let _aapt2 = Aapt2Compile::new(
             &Path::new("C:/Users/den99/AndroidStudioProjects/test_image.png"),
             &Path::new("C:/Users/den99/AndroidStudioProjects/test_image.png"),
             Visibility::Public,
-        );
+        ).pseudo_localize().run();
         // aapt2.dir(&Path::new("C:/Users/den99/AndroidStudioProjects/testimage.png"));
-        aapt2.pseudo_localize();
-        aapt2.run();
     }
 
     #[test]
     fn builder_test_two() {
-        let mut aapt2 = Aapt2Compile::new(
+        let _aapt2 = Aapt2Compile::new(
             &Path::new("C:/Users/den99/AndroidStudioProjects/test_image.png"),
             &Path::new("C:/Users/den99/AndroidStudioProjects/test_image.png"),
             Visibility::Private,
-        );
-        aapt2.dir(&Path::new(
+        ).dir(&Path::new(
             "C:/Users/den99/AndroidStudioProjects/test_image.png",
-        ));
-        aapt2.run();
+        )).run();
     }
 
     #[test]
     fn builder_test_three() {
-        let aapt2 = Aapt2Compile::new(
+        let _aapt2 = Aapt2Compile::new(
             &Path::new("C:/Users/den99/AndroidStudioProjects/test_image.png"),
             &Path::new("C:/Users/den99/AndroidStudioProjects/test_image.png"),
             Visibility::Default,
-        )
-        .output_text_symbols(String::from("hello"))
-        .run();
+        ).output_text_symbols(String::from("hello")).run();
     }
 }

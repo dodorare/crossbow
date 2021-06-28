@@ -131,7 +131,7 @@ mod tests {
 
     #[test]
     fn builder_test_one() {
-        let mut aapt2 = Aapt2Dump::new(
+        let _aapt2 = Aapt2Dump::new(
             // Badging options:
             // --include-meta-data, Include meta-data information.
             //
@@ -142,8 +142,6 @@ mod tests {
             // --file arg,  A compiled xml file to print
             SubCommand::Configurations,
             &Path::new("C:/Users/den99/AndroidStudioProjects/creator_paint.apk"),
-        );
-        aapt2.no_values(true);
-        aapt2.run();
+        ).no_values(true).run();
     }
 }

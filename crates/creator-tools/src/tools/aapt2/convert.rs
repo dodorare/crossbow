@@ -96,11 +96,9 @@ mod tests {
 
     #[test]
     fn builder_test() {
-        let aapt2 = Aapt2Convert::new(
+        let _aapt2 = Aapt2Convert::new(
             &Path::new("C:/Users/den99/AndroidStudioProjects"),
             OutputFormat::Binary,
-        )
-        .keep_raw_values(true)
-        .run();
+        ).keep_raw_values(true).run();
     }
 }
