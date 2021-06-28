@@ -384,7 +384,10 @@ impl Aapt2Link {
         self
     }
 
-    pub fn no_proguard_location_reference(&mut self, no_proguard_location_reference: bool) -> &mut Self {
+    pub fn no_proguard_location_reference(
+        &mut self,
+        no_proguard_location_reference: bool,
+    ) -> &mut Self {
         self.no_proguard_location_reference = no_proguard_location_reference;
         self
     }
@@ -394,7 +397,10 @@ impl Aapt2Link {
         self
     }
 
-    pub fn override_styles_instead_of_overlaying(&mut self, override_styles_instead_of_overlaying: bool) -> &mut Self {
+    pub fn override_styles_instead_of_overlaying(
+        &mut self,
+        override_styles_instead_of_overlaying: bool,
+    ) -> &mut Self {
         self.override_styles_instead_of_overlaying = override_styles_instead_of_overlaying;
         self
     }
@@ -562,20 +568,23 @@ impl Aapt2Link {
         self
     }
 
-    pub fn rename_instrumentation_target_package(&mut self, rename_instrumentation_target_package: String,) -> &mut Self {
+    pub fn rename_instrumentation_target_package(
+        &mut self,
+        rename_instrumentation_target_package: String,
+    ) -> &mut Self {
         self.rename_instrumentation_target_package = Some(rename_instrumentation_target_package);
         self
-    } 
+    }
 
     pub fn no_compress(&mut self, no_compress: bool) -> &mut Self {
         self.no_compress = no_compress;
         self
-    } 
+    }
 
     pub fn keep_raw_values(&mut self, keep_raw_values: bool) -> &mut Self {
         self.keep_raw_values = keep_raw_values;
         self
-    } 
+    }
 
     pub fn extension(&mut self, extension: String) -> &mut Self {
         self.extensions.push(extension);
@@ -609,7 +618,7 @@ impl Aapt2Link {
         self.exclude_sources = exclude_sources;
         self
     }
-    
+
     pub fn merge_only(&mut self, merge_only: bool) -> &mut Self {
         self.merge_only = merge_only;
         self
@@ -757,7 +766,7 @@ impl Aapt2Link {
         if self.h {
             aapt2.arg("-h");
         }
-        if let Some(proguard_main_dex) = &self.proguard_main_dex{
+        if let Some(proguard_main_dex) = &self.proguard_main_dex {
             aapt2.arg("--proguard-main-dex").arg(proguard_main_dex);
         }
         if self.proguard_minimal_keep_rules {
@@ -769,23 +778,27 @@ impl Aapt2Link {
         if self.x {
             aapt2.arg("-x");
         }
-        if let Some(product) = &self.product{
+        if let Some(product) = &self.product {
             aapt2.arg("--product").arg(product);
         }
-        if self.no_xml_namespaces{
+        if self.no_xml_namespaces {
             aapt2.arg("--no-xml-namespaces");
         }
-        if let Some(version_code_major) = &self.version_code_major{
-            aapt2.arg("--version-code-major").arg(version_code_major.to_string());
+        if let Some(version_code_major) = &self.version_code_major {
+            aapt2
+                .arg("--version-code-major")
+                .arg(version_code_major.to_string());
         }
-        if let Some(version_name) = &self.version_name{
+        if let Some(version_name) = &self.version_name {
             aapt2.arg("--version-name").arg(version_name);
         }
         if self.replace_version {
             aapt2.arg("--replace-version");
         }
-        if let Some(compile_sdk_version_code) = &self.compile_sdk_version_code{
-            aapt2.arg("--compile-sdk-version-code").arg(compile_sdk_version_code.to_string());
+        if let Some(compile_sdk_version_code) = &self.compile_sdk_version_code {
+            aapt2
+                .arg("--compile-sdk-version-code")
+                .arg(compile_sdk_version_code.to_string());
         }
         if self.shared_lib {
             aapt2.arg("--shared-lib");
@@ -799,14 +812,16 @@ impl Aapt2Link {
         if self.no_proguard_location_reference {
             aapt2.arg("--no-proguard-location-reference");
         }
-        if let Some(private_symbols) = &self.private_symbols{
+        if let Some(private_symbols) = &self.private_symbols {
             aapt2.arg("--private-symbols").arg(private_symbols);
         }
         if self.override_styles_instead_of_overlaying {
             aapt2.arg("--override-styles-instead-of-overlaying");
         }
-        if let Some(rename_resources_package) = &self.rename_resources_package{
-            aapt2.arg("--rename-resources-package").arg(rename_resources_package);
+        if let Some(rename_resources_package) = &self.rename_resources_package {
+            aapt2
+                .arg("--rename-resources-package")
+                .arg(rename_resources_package);
         }
         if self.no_compress {
             aapt2.arg("--no-compress");
@@ -814,7 +829,7 @@ impl Aapt2Link {
         if self.keep_raw_values {
             aapt2.arg("--keep-raw-values");
         }
-        if let Some(no_compress_regex) = &self.no_compress_regex{
+        if let Some(no_compress_regex) = &self.no_compress_regex {
             aapt2.arg("--no-compress-regex").arg(no_compress_regex);
         }
         if self.warn_manifest_validation {
@@ -826,7 +841,7 @@ impl Aapt2Link {
         if self.exclude_sources {
             aapt2.arg("--exclude-sources");
         }
-        if let Some(trace_folder) = &self.trace_folder{
+        if let Some(trace_folder) = &self.trace_folder {
             aapt2.arg("--trace-folder").arg(trace_folder);
         }
         if self.merge_only {
@@ -845,6 +860,9 @@ mod tests {
         let aapt2 = Aapt2Link::new(
             &[Path::new("C:\\Users\\adil_\\AppData\\Local\\test\\").to_owned()],
             &Path::new("C:\\Users\\adil_\\AppData\\Local\\test\\"),
-            &Path::new("C:\\Users\\adil_\\AppData\\Local\\test\\AndroidManifest.xml"),).min_sdk_version(30).run();
+            &Path::new("C:\\Users\\adil_\\AppData\\Local\\test\\AndroidManifest.xml"),
+        )
+        .min_sdk_version(30)
+        .run();
     }
 }
