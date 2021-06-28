@@ -1,12 +1,13 @@
 use crate::error::*;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 
+#[derive(Clone, Default)]
 pub struct Aapt2Optimize {
     /// Path to the output APK.
-    o: PathBuf,
+    pub o: PathBuf,
     /// Path to the output directory (for splits).
-    d: PathBuf,
+    pub d: PathBuf,
     /// Path to XML configuration file.
     x: PathBuf,
     /// Print the multi APK artifacts and exit.
@@ -46,7 +47,7 @@ pub struct Aapt2Optimize {
 }
 
 impl Aapt2Optimize {
-    pub fn new(o: &PathBuf, d: &PathBuf, x: &PathBuf) -> Self {
+    pub fn new(o: &Path, d: &Path, x: &Path) -> Self {
         Self {
             o: o.to_owned(),
             d: d.to_owned(),
@@ -172,5 +173,22 @@ impl Aapt2Optimize {
         }
         aapt2.output_err(true)?;
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn builder_test() {
+        let _aapt2 = Aapt2Optimize::new(
+            &Path::new("C:/Users/den99/AndroidStudioProjects/2048-3D-v1-0-7.apk"),
+            &Path::new("C:/Users/den99/AndroidStudioProjects/"),
+            &Path::new("C:/Users/den99/AndroidStudioProjects/AndroidManifest.xml"),
+        )
+        .p(true)
+        .clone()
+        .run();
     }
 }

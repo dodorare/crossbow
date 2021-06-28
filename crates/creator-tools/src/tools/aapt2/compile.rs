@@ -244,7 +244,7 @@ mod tests {
             Visibility::Private,
         );
         aapt2.dir(&Path::new(
-            "C:/Users/den99/AndroidStudioProjects/testimage.png",
+            "C:/Users/den99/AndroidStudioProjects/test_image.png",
         ));
         aapt2.run();
     }
