@@ -11,7 +11,7 @@ anyhow = "1.0"
 # substrate-subxt = { git = "https://github.com/paritytech/substrate-subxt", rev = "08a3e6574d38ed7908e163ac554b81b59e0b8a67" }
 substrate-subxt = "0.14"
 tokio = { version = "1.2", features = ["sync", "macros"] }
-bevy = "0.4"
+bevy = { git = "https://github.com/creator-rs/bevy.git", rev = "3ebf26249b698c8379443f73a1cbeb57779e3e6d" }
 
 [lib]
 crate-type = ["lib", "cdylib"]
