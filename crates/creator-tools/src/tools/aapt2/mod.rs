@@ -12,6 +12,7 @@ mod convert;
 mod daemon;
 mod diff;
 mod dump;
+mod gen_apk_aapt2;
 mod link;
 mod optimize;
 mod version;
@@ -19,6 +20,7 @@ mod version;
 pub use compile::*;
 pub use convert::*;
 pub use dump::*;
+pub use gen_apk_aapt2::*;
 pub use link::*;
 pub use optimize::*;
 

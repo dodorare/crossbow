@@ -36,7 +36,7 @@ use std::process::Command;
 /// aapt2 compile project_root/module_root/src/main/res/values-en/strings.xml -o compiled/
 /// aapt2 compile project_root/module_root/src/main/res/drawable/myImage.png -o compiled/
 /// ```
-/// 
+///
 /// As shown in the table above, the name of the output file depends on the input file
 /// name and the name of its parent directory (the resource type and configuration).
 /// For the example above with strings.xml as input, aapt2 automatically names the output
@@ -181,9 +181,7 @@ impl Aapt2Compile {
 
     pub fn run(&self) -> Result<()> {
         let mut aapt2 = Command::new("aapt2");
-        aapt2.arg("compile");
-        aapt2.arg(&self.input);
-        aapt2.arg("-o").arg(&self.o);
+        aapt2.arg("compile").arg(&self.input).arg("-o").arg(&self.o);
         // aapt2.arg("--visibility").arg(&self.visibility.to_string());
         if let Some(dir) = &self.dir {
             aapt2.arg("--dir").arg(dir);
@@ -227,10 +225,11 @@ mod tests {
     #[test]
     fn builder_test_one() {
         let _aapt2 = Aapt2Compile::new(
-            &Path::new("C:/Users/den99/AndroidStudioProjects/test_image.png"),
-            &Path::new("C:/Users/den99/AndroidStudioProjects/test_image.png"),
+            &Path::new("C:/Users/den99/Desktop/Work/DodoRare/creator/examples/3d/res/android/mipmap-hdpi/ic_launcher.flat"),
+            &Path::new("C:/Users/den99/AndroidStudioProjects/"),
             Visibility::Public,
-        ).pseudo_localize().run();
+        )
+        .run();
         // aapt2.dir(&Path::new("C:/Users/den99/AndroidStudioProjects/testimage.png"));
     }
 
@@ -240,9 +239,11 @@ mod tests {
             &Path::new("C:/Users/den99/AndroidStudioProjects/test_image.png"),
             &Path::new("C:/Users/den99/AndroidStudioProjects/test_image.png"),
             Visibility::Private,
-        ).dir(&Path::new(
+        )
+        .dir(&Path::new(
             "C:/Users/den99/AndroidStudioProjects/test_image.png",
-        )).run();
+        ))
+        .run();
     }
 
     #[test]
@@ -251,6 +252,8 @@ mod tests {
             &Path::new("C:/Users/den99/AndroidStudioProjects/test_image.png"),
             &Path::new("C:/Users/den99/AndroidStudioProjects/test_image.png"),
             Visibility::Default,
-        ).output_text_symbols(String::from("hello")).run();
+        )
+        .output_text_symbols(String::from("hello"))
+        .run();
     }
 }
