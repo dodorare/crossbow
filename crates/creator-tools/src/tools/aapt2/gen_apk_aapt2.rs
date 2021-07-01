@@ -55,6 +55,7 @@ fn aapt2_link(
         .arg("-I")
         .arg(sdk.android_jar(target_sdk_version)?)
         .arg(output_filename);
+    aapt2_link.output_err(true)?;
     Ok(apk_path)
 }
 
