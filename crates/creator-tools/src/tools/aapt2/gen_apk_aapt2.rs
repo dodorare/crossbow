@@ -54,9 +54,31 @@ pub fn aapt2_link(
         .arg("--java")
         .arg(project_src)
         .arg("--auto-add-overlay");
-        if let Some(assets) = &assets {
-            aapt2_link.arg("--proto-format").arg(dunce::simplified(assets));
-        }
-        aapt2_link.output_err(true)?;
+    if let Some(assets) = &assets {
+        aapt2_link
+            .arg("--proto-format")
+            .arg(dunce::simplified(assets));
+    }
+    aapt2_link.output_err(true)?;
     Ok(apk_path)
+}
+
+pub fn zipalign_apk(
+    sdk: &AndroidSdk,
+    unaligned_apk_path: &Path,
+    package: &str,
+    build_dir: &Path,
+) -> Result<PathBuf> {
+    let unsigned_apk_path = build_dir.join(format!("{}.apk", package));
+    let mut zipalign = sdk.build_tool(bin!("zipalign"), None)?;
+    // Usage: zipalign [-f] [-p] [-v] [-z] <align> infile.zip outfile.zip
+    zipalign
+        .arg("-f")
+        .arg("-p")
+        .arg("-v")
+        .arg("z")
+        .arg(unaligned_apk_path)
+        .arg(&unsigned_apk_path);
+    zipalign.output_err(true)?;
+    Ok(unsigned_apk_path)
 }

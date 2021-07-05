@@ -2,7 +2,7 @@ use crate::error::*;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-/// # Compile
+// # Compile
 /// AAPT2 supports compilation of all Android resource types, such as drawables and XML
 /// files. When you invoke AAPT2 for compilation, you should pass a single resource file
 /// as an input per invocation. AAPT2 then parses the file and generates an intermediate
@@ -225,24 +225,22 @@ mod tests {
     #[test]
     fn builder_test_one() {
         let _aapt2 = Aapt2Compile::new(
-            &Path::new("C:/Users/den99/Desktop/Work/DodoRare/creator/examples/3d/res/android/mipmap-hdpi/ic_launcher.flat"),
-            &Path::new("C:/Users/den99/AndroidStudioProjects/"),
+            &Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\examples\\3d\\res\\android\\mipmap-hdpi\\ic_launcher.png"),
+            &Path::new("C:\\Users\\den99\\AndroidStudioProjects\\"),
             Visibility::Public,
         )
         .run();
-        // aapt2.dir(&Path::new("C:/Users/den99/AndroidStudioProjects/testimage.png"));
+        // aapt2.dir(&Path::new("C:\\Users\\den99\\AndroidStudioProjects\\testimage.png"));
     }
 
     #[test]
     fn builder_test_two() {
         let _aapt2 = Aapt2Compile::new(
-            &Path::new("C:/Users/den99/AndroidStudioProjects/test_image.png"),
-            &Path::new("C:/Users/den99/AndroidStudioProjects/test_image.png"),
+            &Path::new("C:\\Users\\den99\\AndroidStudioProjects\\test_image.png"),
+            &Path::new("C:\\Users\\den99\\AndroidStudioProjects\\"),
             Visibility::Private,
         )
-        .dir(&Path::new(
-            "C:/Users/den99/AndroidStudioProjects/test_image.png",
-        ))
+        .dir(&Path::new("C:\\Users\\den99\\AndroidStudioProjects\\"))
         .run();
     }
 
