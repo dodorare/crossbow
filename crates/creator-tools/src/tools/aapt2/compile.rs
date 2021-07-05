@@ -249,8 +249,8 @@ mod tests {
     #[test]
     fn builder_test_three() {
         let _aapt2 = Aapt2Compile::new(
-            &Path::new("C:/Users/den99/AndroidStudioProjects/test_image.png"),
-            &Path::new("C:/Users/den99/AndroidStudioProjects/test_image.png"),
+            &Path::new("D:\\programing\\work\\creator-rs\\creator\\examples\\3d\\res\\android\\mipmap-xxhdpi\\ic_launcher.png"),
+            &Path::new("D:\\programing\\work\\creator-rs\\creator\\examples\\3d\\res\\android\\mipmap-xxhdpi\\"),
             Visibility::Default,
         )
         .output_text_symbols(String::from("hello"))
