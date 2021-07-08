@@ -52,14 +52,16 @@ jobs:
       run: rustup target add aarch64-apple-ios x86_64-apple-ios aarch64-linux-android x86_64-linux-android
     - name: Install Cargo Creator
       run: |
-        brew install openssl@1.1
+        brew install openssl@1.1 cmake
         cargo install cargo-generate
         cargo install --git=https://github.com/creator-rs/creator cargo-creator
     - name: Generate project
-      run: creator new explorer --template=fastlane-example
+      run: |
+        cd ~
+        creator new explorer --template=fastlane-example
     - name: Build Apple app
       run: |
-        cd fastlane-example/
+        cd ~/explorer/
         creator build apple --release --target=x86_64-apple-ios
 
   clean:
@@ -69,6 +71,7 @@ jobs:
       - uses: actions/checkout@master
       - uses: actions-rs/toolchain@v1
         with:
+          profile: minimal
           toolchain: nightly
           components: rustfmt, clippy
           override: true
