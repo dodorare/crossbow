@@ -43,6 +43,25 @@ jobs:
         cd examples/3d
         creator build apple --release --target=x86_64-apple-ios
 
+  test-creator-new:
+    name: Generate and Build from template on macOS latest
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Install Apple targets
+      run: rustup target add aarch64-apple-ios x86_64-apple-ios aarch64-linux-android x86_64-linux-android
+    - name: Install Cargo Creator
+      run: |
+        brew install openssl@1.1
+        cargo install cargo-generate
+        cargo install --git=https://github.com/creator-rs/creator cargo-creator
+    - name: Generate project
+      run: creator new explorer --template=fastlane-example
+    - name: Build Apple app
+      run: |
+        cd fastlane-example/
+        creator build apple --release --target=x86_64-apple-ios
+
   clean:
     name: Check code format
     runs-on: ubuntu-latest
