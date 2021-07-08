@@ -12,10 +12,10 @@ mod convert;
 mod daemon;
 mod diff;
 mod dump;
+mod gen_apk_aapt2;
 mod link;
 mod optimize;
 mod version;
-mod gen_apk_aapt2;
 
 pub use compile::*;
 pub use convert::*;
@@ -27,12 +27,13 @@ use std::path::{Path, PathBuf};
 
 use self::{daemon::Aapt2Daemon, diff::Aapt2Diff, version::Aapt2Version};
 
+#[derive(Clone, Copy)]
 pub struct Aapt2;
 
 impl Aapt2 {
     /// Compiles resources to be linked into an apk.
-    pub fn compile(self, o: &Path, manifest: &Path, visibility: Visibility) -> Aapt2Compile {
-        Aapt2Compile::new(o, manifest, visibility)
+    pub fn compile(self, inputs: &[PathBuf], o: &Path) -> Aapt2Compile {
+        Aapt2Compile::new(inputs, o)
     }
 
     /// Links resources into an apk.

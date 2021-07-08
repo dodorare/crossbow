@@ -384,7 +384,10 @@ impl Aapt2Link {
         self
     }
 
-    pub fn no_proguard_location_reference(&mut self, no_proguard_location_reference: bool) -> &mut Self {
+    pub fn no_proguard_location_reference(
+        &mut self,
+        no_proguard_location_reference: bool,
+    ) -> &mut Self {
         self.no_proguard_location_reference = no_proguard_location_reference;
         self
     }
@@ -394,7 +397,10 @@ impl Aapt2Link {
         self
     }
 
-    pub fn override_styles_instead_of_overlaying(&mut self, override_styles_instead_of_overlaying: bool) -> &mut Self {
+    pub fn override_styles_instead_of_overlaying(
+        &mut self,
+        override_styles_instead_of_overlaying: bool,
+    ) -> &mut Self {
         self.override_styles_instead_of_overlaying = override_styles_instead_of_overlaying;
         self
     }
@@ -562,7 +568,10 @@ impl Aapt2Link {
         self
     }
 
-    pub fn rename_instrumentation_target_package(&mut self,rename_instrumentation_target_package: String) -> &mut Self {
+    pub fn rename_instrumentation_target_package(
+        &mut self,
+        rename_instrumentation_target_package: String,
+    ) -> &mut Self {
         self.rename_instrumentation_target_package = Some(rename_instrumentation_target_package);
         self
     }

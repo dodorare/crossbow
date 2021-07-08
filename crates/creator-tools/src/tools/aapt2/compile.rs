@@ -44,8 +44,10 @@ use std::process::Command;
 /// drawable file stored in the drawable directory will be drawable_img.png.flat.
 ///
 /// ## [Compile options](https://developer.android.com/studio/command-line/aapt2#compile_options)
+
+#[derive(Clone)]
 pub struct Aapt2Compile {
-    input: PathBuf,
+    inputs: Vec<PathBuf>,
     /// Specifies the output path for the compiled resource(s).
     ///
     /// This is a required flag because you must specify a path to a directory where AAPT2
@@ -81,7 +83,7 @@ pub struct Aapt2Compile {
     preserve_visibility_of_styleables: bool,
     /// Sets the visibility of the compiled resources to the specified level.
     /// Accepted levels: public, private, default.
-    visibility: Visibility,
+    visibility: Option<Visibility>,
     /// Enable verbose logging.
     v: bool,
     /// Generate systrace json trace fragment to specified folder.
@@ -108,9 +110,9 @@ impl std::fmt::Display for Visibility {
 }
 
 impl Aapt2Compile {
-    pub fn new(input: &Path, o: &Path, visibility: Visibility) -> Self {
+    pub fn new(inputs: &[PathBuf], o: &Path) -> Self {
         Self {
-            input: input.to_owned(),
+            inputs: inputs.to_vec(),
             o: o.to_owned(),
             dir: None,
             zip: None,
@@ -119,7 +121,7 @@ impl Aapt2Compile {
             no_crunch: false,
             legacy: false,
             preserve_visibility_of_styleables: false,
-            visibility,
+            visibility: None,
             v: false,
             trace_folder: None,
             h: false,
@@ -179,12 +181,24 @@ impl Aapt2Compile {
         self
     }
 
+    pub fn visibility(&mut self, visibility: Visibility) -> &mut Self {
+        self.visibility = Some(visibility);
+        self
+    }
+
     pub fn run(&self) -> Result<()> {
         let mut aapt2 = Command::new("aapt2");
-        aapt2.arg("compile").arg(&self.input).arg("-o").arg(&self.o);
-        // aapt2.arg("--visibility").arg(&self.visibility.to_string());
+        aapt2.arg("compile");
+        self.inputs.iter().for_each(|input| {
+            aapt2.arg(input);
+        });
+        aapt2.arg("-o");
+        aapt2.arg(&self.o);
         if let Some(dir) = &self.dir {
             aapt2.arg("--dir").arg(dir);
+        }
+        if let Some(visibility) = &self.visibility {
+            aapt2.arg("--visibility").arg(visibility.to_string());
         }
         if let Some(zip) = &self.zip {
             aapt2.arg("--zip").arg(zip);
@@ -224,34 +238,13 @@ mod tests {
 
     #[test]
     fn builder_test_one() {
-        let _aapt2 = Aapt2Compile::new(
-            &Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\examples\\3d\\res\\android\\mipmap-hdpi\\ic_launcher.png"),
-            &Path::new("C:\\Users\\den99\\AndroidStudioProjects\\"),
-            Visibility::Public,
+        let aapt2 = Aapt2Compile::new(
+            &[Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\examples\\3d\\res\\android\\mipmap-hdpi\\ic_launcher.png").to_owned(),
+            Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\examples\\3d\\res\\android\\mipmap-hdpi\\ic_launcher1.png").to_owned(),
+            Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\examples\\3d\\res\\android\\mipmap-hdpi\\ic_launcher2.png").to_owned(),
+            Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\examples\\3d\\res\\android\\mipmap-hdpi\\ic_launcher3.png").to_owned()],
+            &Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\examples\\3d\\res\\android\\mipmap-hdpi\\"),
         )
-        .run();
-        // aapt2.dir(&Path::new("C:\\Users\\den99\\AndroidStudioProjects\\testimage.png"));
-    }
-
-    #[test]
-    fn builder_test_two() {
-        let _aapt2 = Aapt2Compile::new(
-            &Path::new("C:\\Users\\den99\\AndroidStudioProjects\\test_image.png"),
-            &Path::new("C:\\Users\\den99\\AndroidStudioProjects\\"),
-            Visibility::Private,
-        )
-        .dir(&Path::new("C:\\Users\\den99\\AndroidStudioProjects\\"))
-        .run();
-    }
-
-    #[test]
-    fn builder_test_three() {
-        let _aapt2 = Aapt2Compile::new(
-            &Path::new("D:\\programing\\work\\creator-rs\\creator\\examples\\3d\\res\\android\\mipmap-xxhdpi\\ic_launcher.png"),
-            &Path::new("D:\\programing\\work\\creator-rs\\creator\\examples\\3d\\res\\android\\mipmap-xxhdpi\\"),
-            Visibility::Default,
-        )
-        .output_text_symbols(String::from("hello"))
         .run();
     }
 }

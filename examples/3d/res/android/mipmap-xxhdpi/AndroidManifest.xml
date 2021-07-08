@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="rust.res" android:versionName="0.0.1">
-  <application android:debuggable="true" android:hasCode="false" android:label="res" android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen">
-    <activity android:configChanges="orientation|keyboardHidden|screenSize" android:label="res" android:name="android.app.NativeActivity">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="rust.test" android:versionName="0.0.1">
+  <application android:debuggable="true" android:hasCode="false" android:label="test" android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen">
+    <activity android:configChanges="orientation|keyboardHidden|screenSize" android:label="test" android:name="android.app.NativeActivity">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
-      <meta-data android:name="android.app.lib_name" android:value="res" />
+      <meta-data android:name="android.app.lib_name" android:value="test" />
     </activity>
   </application>
   <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="30" />
