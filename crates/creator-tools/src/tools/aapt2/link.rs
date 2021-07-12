@@ -636,7 +636,7 @@ impl Aapt2Link {
 
     pub fn run(&self) -> Result<()> {
         let mut aapt2 = Command::new("aapt2");
-        aapt2.arg("compile");
+        aapt2.arg("link");
         self.inputs.iter().for_each(|input| {
             aapt2.arg(input);
         });

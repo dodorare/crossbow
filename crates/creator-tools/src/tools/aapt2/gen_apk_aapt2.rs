@@ -5,96 +5,59 @@ use crate::tools::*;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-pub fn aapt2_compile(inputs: &[PathBuf], o: &Path) -> Result<()> {
-    // let aapt2 = Aapt2Compile::new(inputs, o).run();
-    let metadata = fs::metadata(o)?;
+pub fn gen_aapt2_apk(path_to_input_files: &[PathBuf], output_directory: &Path) -> Result<()> {
+    if !output_directory.exists() {
+        Aapt2Compile::new(path_to_input_files, output_directory)
+            .output_text_symbols("text.txt".to_string())
+            .run();
+    }
+    let metadata = fs::metadata(output_directory)?;
     let created = metadata.created()?;
     let modified = metadata.modified()?;
-    if modified != created {
-        let aapt2 = Aapt2Compile::new(inputs, o).run();
+    if modified > created {
+        Aapt2Compile::new(path_to_input_files, output_directory)
+            .output_text_symbols("text.txt".to_string())
+            .run();
     }
-    // aapt2.output_err(true)?;
     Ok(())
 }
 
-// pub fn aapt2_link(
-//     aapt2: &Aapt2,
-//     inputs: &Path,
-//     manifest_path: &Path,
-//     o: &Path,
-//     flat_file: &Path,
-//     build_dir: &Path,
-//     assets: Option<PathBuf>,
-//     package_label: String,
-//     target_sdk_version: u32,
-// ) -> Result<()> {
-//     let mut aapt2_link = aapt2.link(&[inputs.to_path_buf()], o, manifest_path);
-//     Command::new("aapt2")
-//         .arg("link")
-//         .arg("-o")
-//         .arg(o)
-//         .arg("-I")
-//         .arg(aapt2.android_jar(target_sdk_version)?)
-//         .arg("--manifest")
-//         .arg(manifest_path)
-//         .arg("-R")
-//         .arg(flat_file)
-//         .arg("--java")
-//         .arg(project_path)
-//         .arg("--auto-add-overlay");
-//     if let Some(assets) = &assets {
-//         aapt2_link
-//             .arg("--proto-format")
-//             .arg(dunce::simplified(assets));
-//     }
-//     aapt2_link.output_err(true)?;
-//     Ok(())
-// }
+pub fn aapt2_link(
+    sdk: &AndroidSdk,
+    inputs: &[PathBuf],
+    o: &Path,
+    manifest: &Path,
+    target_sdk_version: u32,
+) -> Result<()> {
+    Aapt2Link::new(inputs, o, manifest)
+        .i(sdk.android_jar(target_sdk_version)?)
+        .run()
+}
 
 #[cfg(test)]
 mod tests {
-    use crate::commands::android;
-
     use super::*;
 
-    #[test]
     fn aapt2_compile_test() {
-        let aapt2_compile = aapt2_compile(
-            &[Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\examples\\3d\\res\\android\\mipmap-hdpi\\ic_launcher.png").to_owned(),
-            Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\examples\\3d\\res\\android\\mipmap-hdpi\\ic_launcher1.png").to_owned(),
-            Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\examples\\3d\\res\\android\\mipmap-hdpi\\ic_launcher2.png").to_owned(),
-            Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\examples\\3d\\res\\android\\mipmap-hdpi\\ic_launcher3.png").to_owned()],
-         Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\examples\\3d\\res\\android\\mipmap-hdpi\\")
+        let _aapt2_compile = gen_aapt2_apk(
+            &[Path::new("D:\\programing\\work\\creator-rs\\creator\\examples\\3d\\res\\android\\mipmap-xxhdpi\\ic_launcher.png").to_owned()],
+                Path::new("D:\\programing\\work\\creator-rs\\creator\\examples\\3d\\res\\android\\mipmap-xxhdpi")
     );
     }
-}
 
-//     #[test]
-//     fn aapt2_link_test() {
-//         let sdk = AndroidSdk::from_env().unwrap();
-//         let package_label = "test";
-//         let target_sdk_version = 30;
-//         let manifest = android::gen_minimal_android_manifest(
-//             &package_label.to_string(),
-//             None,
-//             "0.0.1".to_string(),
-//             None,
-//             None,
-//             target_sdk_version,
-//             None,
-//             None,
-//         );
-//         let manifest_path = android::save_android_manifest(Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\examples\\3d\\res\\android\\mipmap-xxhdpi\\"), &manifest).unwrap();
-//         assert!(manifest_path.exists());
-//         let _aapt2_link = aapt2_link(
-//             &sdk,
-//             Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\examples\\3d\\res\\android\\mipmap-xxhdpi\\"),
-//             &manifest_path,
-//             Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\examples\\3d\\res\\android\\mipmap-xxhdpi\\test.apk"),
-//             Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\examples\\3d\\res\\android\\mipmap-xxhdpi\\mipmap-xxhdpi_ic_launcher.png.flat"),
-//             Path::new("D:C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\examples\\3d\\res\\android\\mipmap-xxhdpi\\"),
-//             None,
-//             package_label.to_string(),
-//             target_sdk_version).unwrap();
-//     }
-// }
+    fn aapt2_link_test() {
+        let sdk = AndroidSdk::from_env().unwrap();
+        let _aapt2_link_test = aapt2_link(
+            &sdk,
+            &[Path::new("D:\\programing\\work\\creator-rs\\creator\\examples\\3d\\res\\android\\mipmap-xxhdpi\\mipmap-xxhdpi_ic_launcher.png.flat").to_owned()],
+                  Path::new("D:\\programing\\work\\creator-rs\\creator\\examples\\3d\\res\\android\\mipmap-xxhdpi\\Test_apk.apk"),
+            Path::new("D:\\programing\\work\\creator-rs\\creator\\examples\\3d\\res\\android\\mipmap-xxhdpi\\AndroidManifest.xml"),
+            30
+        );
+    }
+    #[test]
+    fn main() {
+        aapt2_compile_test();
+        aapt2_link_test();
+    }
+}
