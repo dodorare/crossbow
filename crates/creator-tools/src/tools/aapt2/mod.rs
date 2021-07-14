@@ -12,7 +12,7 @@ mod convert;
 mod daemon;
 mod diff;
 mod dump;
-mod gen_apk_aapt2;
+mod gen_unaligned_apk_aapt2;
 mod link;
 mod optimize;
 mod version;
