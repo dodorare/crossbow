@@ -142,6 +142,8 @@ mod tests {
             // --file arg,  A compiled xml file to print
             SubCommand::Configurations,
             &Path::new("C:/Users/den99/AndroidStudioProjects/creator_paint.apk"),
-        ).no_values(true).run();
+        )
+        .no_values(true)
+        .run();
     }
 }

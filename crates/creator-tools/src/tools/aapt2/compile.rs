@@ -36,7 +36,7 @@ use std::process::Command;
 /// aapt2 compile project_root/module_root/src/main/res/values-en/strings.xml -o compiled/
 /// aapt2 compile project_root/module_root/src/main/res/drawable/myImage.png -o compiled/
 /// ```
-///
+/// 
 /// As shown in the table above, the name of the output file depends on the input file
 /// name and the name of its parent directory (the resource type and configuration).
 /// For the example above with strings.xml as input, aapt2 automatically names the output
@@ -238,7 +238,7 @@ mod tests {
 
     #[test]
     fn builder_test_one() {
-        let aapt2 = Aapt2Compile::new(
+        let _aapt2 = Aapt2Compile::new(
             &[Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\examples\\3d\\res\\android\\mipmap-hdpi\\ic_launcher.png").to_owned(),
             Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\examples\\3d\\res\\android\\mipmap-hdpi\\ic_launcher1.png").to_owned(),
             Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\examples\\3d\\res\\android\\mipmap-hdpi\\ic_launcher2.png").to_owned(),
