@@ -55,7 +55,7 @@ impl GetSizeTotal {
     }
 
     fn run(&self) -> Result<()> {
-        let mut get_size_total = Command::new("get-size total").arg("--apks=").arg(self.apks);
+        let mut get_size_total = Command::new("bundletool").arg("get-size total").arg("--apks=").arg(self.apks);
         if let Some(device_spec) = &self.device_spec {
             get_size_total.arg("--device-spec=").arg(&self.device_spec)
         }
