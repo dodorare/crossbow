@@ -220,21 +220,32 @@ impl Bundletool {
             bundletool.arg("--ks").arg(ks);
         }
         if let Some(ks_pass_pass) = &self.ks_pass_pass {
-            bundletool.arg("--ks-pass=pass").arg(ks_pass_pass);
+            bundletool.arg("--ks-pass=pass:").arg(ks_pass_pass);
         }
         if let Some(ks_pass_file) = &self.ks_pass_file {
-            bundletool.arg("--ks-pass=file").arg(ks_pass_file);
+            bundletool.arg("--ks-pass=file:").arg(ks_pass_file);
         }
         if let Some(key_pass_pass) = &self.key_pass_pass {
-            bundletool.arg("--key-pass=pass").arg(key_pass_pass);
+            bundletool.arg("--key-pass=pass:").arg(key_pass_pass);
         }
         if let Some(key_pass_file) = &self.key_pass_file {
-            bundletool.arg("--key-pass=file").arg(key_pass_file);
+            bundletool.arg("--key-pass=file:").arg(key_pass_file);
         }
         if self.connected_device {
             bundletool.arg("--connected-device");
         }
-
+        if let Some(device_id) = &self.device_id {
+            bundletool.arg("--device-id=").arg(device_id);
+        }
+        if let Some(device_spec) = &self.device_spec {
+            bundletool.arg("--device-spec=").arg(device_spec);
+        }
+        if self.mode_universal {
+            bundletool.arg("--mode=universal");
+        }
+        if self.local_testing {
+            bundletool.arg("--local-testing");
+        }
         bundletool.output_err(true)?;
         Ok(())
     }

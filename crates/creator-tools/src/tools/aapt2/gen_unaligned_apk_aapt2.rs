@@ -14,14 +14,6 @@ pub fn gen_aapt2_apk(
 ) -> Result<()> {
     // Aapt2Compile::new(inputs_compile, o_compile).run();
     let mut changed_conpile = Vec::new();
-    for i in inputs_compile {
-        let metadata = fs::metadata(i)?;
-        let created = metadata.created()?;
-        let modified = metadata.modified()?;
-        if modified > created {
-            changed_conpile.push(i.clone());
-        }
-    }
     // let metadata = fs::metadata(&)?;
     if !changed_conpile.is_empty() {
         Aapt2Compile::new(&changed_conpile, o_compile).run()?;
