@@ -9,7 +9,7 @@ pub struct Aapt2Convert {
     o: PathBuf,
     /// Format of the output. Accepted values are 'proto' and 'binary'. When not set,
     /// defaults to 'binary'.
-    output_format: OutputFormat,
+    output_format: Option<OutputFormat>,
     /// Enables encoding sparse entries using a binary search tree. This decreases APK
     /// size at the cost of resource retrieval performance.
     enable_sparse_encoding: bool,
@@ -22,10 +22,10 @@ pub struct Aapt2Convert {
 }
 
 impl Aapt2Convert {
-    pub fn new(o: &Path, output_format: OutputFormat) -> Self {
+    pub fn new(o: &Path) -> Self {
         Self {
             o: o.to_owned(),
-            output_format,
+            output_format: None,
             enable_sparse_encoding: false,
             keep_raw_values: false,
             v: false,
@@ -57,7 +57,9 @@ impl Aapt2Convert {
         let mut aapt2 = Command::new("aapt2");
         aapt2.arg("convert");
         aapt2.arg("-o").arg(&self.o);
-        aapt2.arg(&self.output_format.to_string());
+        if let Some(output_format) = &self.output_format {
+            aapt2.arg("--output-format").arg(output_format.to_string());
+        }
         if self.enable_sparse_encoding {
             aapt2.arg("--enable-sparse-encoding");
         }
@@ -96,7 +98,7 @@ mod tests {
 
     #[test]
     fn builder_test() {
-        let _aapt2 = Aapt2Convert::new(&Path::new("res\\mipmap\\"), OutputFormat::Binary)
+        let _aapt2 = Aapt2Convert::new(&Path::new("res\\mipmap\\"))
             .keep_raw_values(true)
             .run();
     }
