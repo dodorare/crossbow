@@ -29,7 +29,7 @@ use std::process::Command;
 /// `bundletool build-apks` command in greater detail. Only `--bundle` and `--output` are
 /// required—all other flags are optional.
 #[derive(Debug, PartialEq)]
-pub struct Bundletool {
+pub struct BuildApks {
     /// (`Required`) Specifies the path to the app bundle you built using Android Studio.
     /// To learn more, read [`Build your project`].
     ///
@@ -120,7 +120,7 @@ pub enum KeyPass {
     KeyPassFile,
 }
 
-impl Bundletool {
+impl BuildApks {
     pub fn new(bundle: &Path, output: &Path) -> Self {
         Self {
             bundle: bundle.to_owned(),
@@ -206,47 +206,47 @@ impl Bundletool {
     }
 
     pub fn run(&self) -> Result<()> {
-        let mut bundletool = Command::new("bundletool");
-        bundletool.arg("build-apks");
-        bundletool.arg("--bundle=").arg(&self.bundle);
-        bundletool.arg("--output=").arg(&self.output);
+        let mut build_apks = Command::new("bundletool");
+        build_apks.arg("build-apks");
+        build_apks.arg("--bundle=").arg(&self.bundle);
+        build_apks.arg("--output=").arg(&self.output);
         if self.overwrite {
-            bundletool.arg("--overwrite");
+            build_apks.arg("--overwrite");
         }
         if let Some(aapt2) = &self.aapt2 {
-            bundletool.arg("--aapt2=").arg(aapt2);
+            build_apks.arg("--aapt2=").arg(aapt2);
         }
         if let Some(ks) = &self.ks {
-            bundletool.arg("--ks").arg(ks);
+            build_apks.arg("--ks").arg(ks);
         }
         if let Some(ks_pass_pass) = &self.ks_pass_pass {
-            bundletool.arg("--ks-pass=pass:").arg(ks_pass_pass);
+            build_apks.arg("--ks-pass=pass:").arg(ks_pass_pass);
         }
         if let Some(ks_pass_file) = &self.ks_pass_file {
-            bundletool.arg("--ks-pass=file:").arg(ks_pass_file);
+            build_apks.arg("--ks-pass=file:").arg(ks_pass_file);
         }
         if let Some(key_pass_pass) = &self.key_pass_pass {
-            bundletool.arg("--key-pass=pass:").arg(key_pass_pass);
+            build_apks.arg("--key-pass=pass:").arg(key_pass_pass);
         }
         if let Some(key_pass_file) = &self.key_pass_file {
-            bundletool.arg("--key-pass=file:").arg(key_pass_file);
+            build_apks.arg("--key-pass=file:").arg(key_pass_file);
         }
         if self.connected_device {
-            bundletool.arg("--connected-device");
+            build_apks.arg("--connected-device");
         }
         if let Some(device_id) = &self.device_id {
-            bundletool.arg("--device-id=").arg(device_id);
+            build_apks.arg("--device-id=").arg(device_id);
         }
         if let Some(device_spec) = &self.device_spec {
-            bundletool.arg("--device-spec=").arg(device_spec);
+            build_apks.arg("--device-spec=").arg(device_spec);
         }
         if self.mode_universal {
-            bundletool.arg("--mode=universal");
+            build_apks.arg("--mode=universal");
         }
         if self.local_testing {
-            bundletool.arg("--local-testing");
+            build_apks.arg("--local-testing");
         }
-        bundletool.output_err(true)?;
+        build_apks.output_err(true)?;
         Ok(())
     }
 }
