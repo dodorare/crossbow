@@ -96,11 +96,8 @@ mod tests {
 
     #[test]
     fn builder_test() {
-        let _aapt2 = Aapt2Convert::new(
-            &Path::new("C:/Users/den99/AndroidStudioProjects"),
-            OutputFormat::Binary,
-        )
-        .keep_raw_values(true)
-        .run();
+        let _aapt2 = Aapt2Convert::new(&Path::new("res\\mipmap\\"), OutputFormat::Binary)
+            .keep_raw_values(true)
+            .run();
     }
 }

@@ -141,7 +141,7 @@ mod tests {
             // Xmlstrings and Xmltree options:
             // --file arg,  A compiled xml file to print
             SubCommand::Configurations,
-            &Path::new("C:/Users/den99/AndroidStudioProjects/creator_paint.apk"),
+            &Path::new("res\\mipmap\\"),
         )
         .no_values(true)
         .run();

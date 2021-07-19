@@ -858,9 +858,9 @@ mod tests {
     #[test]
     fn builder_test() {
         let _aapt2 = Aapt2Link::new(
-            &[Path::new("C:\\Users\\adil_\\AppData\\Local\\test\\").to_owned()],
-            &Path::new("C:\\Users\\adil_\\AppData\\Local\\test\\"),
-            &Path::new("C:\\Users\\adil_\\AppData\\Local\\test\\AndroidManifest.xml"),
+            &[Path::new("res\\mipmap\\").to_owned()],
+            &Path::new("res\\mipmap\\"),
+            &Path::new("res\\mipmap\\"),
         )
         .min_sdk_version(30)
         .run();

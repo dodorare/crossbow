@@ -183,9 +183,9 @@ mod tests {
     #[test]
     fn builder_test() {
         let _aapt2 = Aapt2Optimize::new(
-            &Path::new("C:/Users/den99/AndroidStudioProjects/2048-3D-v1-0-7.apk"),
-            &Path::new("C:/Users/den99/AndroidStudioProjects/"),
-            &Path::new("C:/Users/den99/AndroidStudioProjects/AndroidManifest.xml"),
+            &Path::new("res\\mipmap\\"),
+            &Path::new("res\\mipmap\\"),
+            &Path::new("res\\mipmap\\"),
         )
         .p(true)
         .clone()
