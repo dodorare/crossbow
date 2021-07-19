@@ -250,3 +250,15 @@ impl BuildApks {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+
+    fn build_apks_test() {
+        let _build_apks =
+            BuildApks::new(Path::new("res\\mipmap\\"), Path::new("res\\mipmap\\")).run();
+    }
+}

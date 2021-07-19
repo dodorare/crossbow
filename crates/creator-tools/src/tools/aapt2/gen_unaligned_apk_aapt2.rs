@@ -13,7 +13,7 @@ pub fn gen_aapt2_apk(
     target_sdk_version: u32,
 ) -> Result<()> {
     // Aapt2Compile::new(inputs_compile, o_compile).run();
-    let mut changed_conpile = Vec::new();
+    let changed_conpile = Vec::new();
     // let metadata = fs::metadata(&)?;
     if !changed_conpile.is_empty() {
         Aapt2Compile::new(&changed_conpile, o_compile).run()?;

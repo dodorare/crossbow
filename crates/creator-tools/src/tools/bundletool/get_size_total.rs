@@ -30,7 +30,7 @@ pub struct GetSizeTotal {
 }
 
 impl GetSizeTotal {
-    fn new(&self, apks: &Path) -> Self {
+    pub fn new(apks: &Path) -> Self {
         Self {
             apks: apks.to_owned(),
             device_spec: None,
@@ -40,27 +40,27 @@ impl GetSizeTotal {
         }
     }
 
-    fn device_spec(&mut self, device_spec: &Path) -> &mut Self {
+    pub fn device_spec(&mut self, device_spec: &Path) -> &mut Self {
         self.device_spec = Some(device_spec.to_owned());
         self
     }
 
-    fn dimensions(&mut self, dimensions: String) -> &mut Self {
+    pub fn dimensions(&mut self, dimensions: String) -> &mut Self {
         self.dimensions = Some(dimensions);
         self
     }
 
-    fn instant(&mut self, instant: bool) -> &mut Self {
+    pub fn instant(&mut self, instant: bool) -> &mut Self {
         self.instant = instant;
         self
     }
 
-    fn modules(&mut self, modules: String) -> &mut Self {
+    pub fn modules(&mut self, modules: String) -> &mut Self {
         self.modules = Some(modules);
         self
     }
 
-    fn run(&self) -> Result<()> {
+    pub fn run(&self) -> Result<()> {
         let mut get_size_total = Command::new("bundletool");
         get_size_total.arg("get-size");
         get_size_total.arg("total");
@@ -80,5 +80,16 @@ impl GetSizeTotal {
         }
         get_size_total.output_err(true)?;
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+
+    fn get_size_total_test() {
+        let _get_size_total = GetSizeTotal::new(Path::new("res\\mipmap\\test.apk")).run();
     }
 }

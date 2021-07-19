@@ -74,3 +74,18 @@ impl BuildBundle {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+
+    fn build_bundle_test() {
+        let _build_bundle = BuildBundle::new(
+            &[Path::new("res\\mipmap\\").to_owned()],
+            Path::new("res\\mipmap\\"),
+        )
+        .run();
+    }
+}
