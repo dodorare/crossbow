@@ -206,7 +206,9 @@ impl BuildApks {
     }
 
     pub fn run(&self) -> Result<()> {
-        let mut build_apks = Command::new("bundletool");
+        let mut build_apks = Command::new("java");
+        build_apks.arg("-jar");
+        build_apks.arg("$BUNDLETOOL_PATH");
         build_apks.arg("build-apks");
         build_apks.arg("--bundle=").arg(&self.bundle);
         build_apks.arg("--output=").arg(&self.output);
@@ -258,7 +260,10 @@ mod tests {
     #[test]
 
     fn build_apks_test() {
-        let _build_apks =
-            BuildApks::new(Path::new("res\\mipmap\\"), Path::new("res\\mipmap\\")).run();
+        let _build_apks = BuildApks::new(
+            Path::new("res\\mipmap\\"),
+            Path::new("res\\mipmap\\test.apk"),
+        )
+        .run();
     }
 }

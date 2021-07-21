@@ -1,6 +1,5 @@
 use crate::error::*;
 use crate::tools::*;
-use std::fs;
 use std::path::{Path, PathBuf};
 
 pub fn gen_aapt2_apk(
@@ -12,14 +11,11 @@ pub fn gen_aapt2_apk(
     manifest: &Path,
     target_sdk_version: u32,
 ) -> Result<()> {
-    // Aapt2Compile::new(inputs_compile, o_compile).run();
-    let changed_conpile = Vec::new();
-    // let metadata = fs::metadata(&)?;
-    if !changed_conpile.is_empty() {
-        Aapt2Compile::new(&changed_conpile, o_compile).run()?;
-    }
+    Aapt2Compile::new(inputs_compile, o_compile).run()?;
     Aapt2Link::new(inputs_link, o_link, manifest)
         .i(sdk.android_jar(target_sdk_version)?)
+        .proto_format(true)
+        .auto_add_overlay(true)
         .run()?;
     Ok(())
 }
@@ -37,8 +33,9 @@ mod tests {
             &sdk,
             &[Path::new("res\\mipmap\\mipmap_Screenshot_2.png.flat").to_owned()],
             Path::new("res\\mipmap\\test.apk"),
-            Path::new("res\\mipmap\\AndroidManifest.xml"),
+            Path::new("src\\main\\AndroidManifest.xml"),
             30,
         );
     }
 }
+// java -jar $BUNDLETOOL_PATH build-bundle  --modules=C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\base.zip --output=C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\test.aab

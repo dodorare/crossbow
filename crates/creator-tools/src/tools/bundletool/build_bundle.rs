@@ -56,9 +56,8 @@ impl BuildBundle {
         self
     }
 
-    fn run(&self) -> Result<()> {
-        let mut build_bundle = Command::new("bundletool");
-        build_bundle.arg("build-bundle");
+    pub fn run(&self) -> Result<()> {
+        let mut build_bundle = Command::new("build-bundle");
         build_bundle.arg("--modules=");
         self.modules.iter().for_each(|modul| {
             build_bundle.arg(modul);
@@ -83,9 +82,10 @@ mod tests {
 
     fn build_bundle_test() {
         let _build_bundle = BuildBundle::new(
-            &[Path::new("res\\mipmap\\").to_owned()],
-            Path::new("res\\mipmap\\"),
+            &[Path::new("res\\mipmap\\base.zip").to_owned()],
+            Path::new("res\\mipmap\\my.aab"),
         )
         .run();
     }
 }
+// java -jar $BUNDLETOOL_PATH build-bundle  --modules=C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\base.zip --output=test.aab

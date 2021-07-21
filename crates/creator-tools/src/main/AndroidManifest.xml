@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="rust.test" android:versionName="0.0.1">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="rust.test" android:versionCode="1" android:versionName="0.0.1">
   <application android:debuggable="true" android:hasCode="false" android:label="test" android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen">
     <activity android:configChanges="orientation|keyboardHidden|screenSize" android:label="test" android:name="android.app.NativeActivity">
       <intent-filter>
