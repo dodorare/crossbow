@@ -12,47 +12,27 @@ pub struct ExtractApks {
     apks: PathBuf,
     /// Specifies the path to the device spec file (from get-device-spec or constructed
     /// manually) to use for matching.
-    device_spec: Option<PathBuf>,
-    output_dir: Option<PathBuf>,
-    /// Specifies the path for bundletool
-    bundletool_path: Option<PathBuf>,
+    device_spec: PathBuf,
+    output_dir: PathBuf,
 }
 
 impl ExtractApks {
-    pub fn new(apks: &Path) -> Self {
+    pub fn new(apks: &Path, device_spec: &Path, output_dir: &Path) -> Self {
         Self {
             apks: apks.to_owned(),
-            device_spec: None,
-            output_dir: None,
-            bundletool_path: None,
+            device_spec: device_spec.to_owned(),
+            output_dir: output_dir.to_owned(),
         }
-    }
-
-    pub fn device_spec(&mut self, device_spec: &Path) -> &mut Self {
-        self.device_spec = Some(device_spec.to_owned());
-        self
-    }
-
-    pub fn output_dir(&mut self, output_dir: &Path) -> &mut Self {
-        self.output_dir = Some(output_dir.to_owned());
-        self
-    }
-
-    pub fn bundletool_path(&mut self, bundletool_path: &Path) -> &mut Self {
-        self.bundletool_path = Some(bundletool_path.to_owned());
-        self
     }
 
     pub fn run(&self) -> Result<()> {
         let mut extract_apks = Command::new("extract-apks");
         extract_apks.arg("--apks=");
         extract_apks.arg(&self.apks);
-        if let Some(device_spec) = &self.device_spec {
-            extract_apks.arg("--device-spec=").arg(device_spec);
-        }
-        if let Some(output_dir) = &self.output_dir {
-            extract_apks.arg("--dimensions=").arg(output_dir);
-        }
+        extract_apks.arg("--device-spec");
+        extract_apks.arg(&self.device_spec);
+        extract_apks.arg("--output-dir=");
+        extract_apks.arg(&self.output_dir);
         extract_apks.output_err(true)?;
         Ok(())
     }
@@ -65,6 +45,9 @@ mod tests {
     #[test]
 
     fn extract_apks_test() {
-        let _extract_apks = ExtractApks::new(&Path::new("res\\mipmap\\")).run();
+        let _extract_apks = ExtractApks::new(
+            &Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\test.apk"),
+        &Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\spec.json"),
+        &Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\")).run();
     }
 }

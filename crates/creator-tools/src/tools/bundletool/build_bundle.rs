@@ -12,7 +12,7 @@ use std::process::Command;
 /// ## Note
 /// If you plan to publish the app bundle, you need to sign it using jarsigner. You can
 /// not use apksigner to sign your app bundle.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, PartialOrd)]
 pub struct BuildBundle {
     /// Specifies the list of module ZIP files bundletool should use to build your app
     /// bundle.
@@ -57,17 +57,28 @@ impl BuildBundle {
     }
 
     pub fn run(&self) -> Result<()> {
-        let mut build_bundle = Command::new("build-bundle");
-        build_bundle.arg("--modules=");
-        self.modules.iter().for_each(|modul| {
-            build_bundle.arg(modul);
-        });
-        build_bundle.arg("--output=").arg(&self.output);
+        let mut build_bundle = Command::new("java");
+        build_bundle.arg("-jar");
+        if let Ok(bundletool_path) = std::env::var("BUNDLETOOL_PATH") {
+            build_bundle.arg(bundletool_path);
+        } else {
+            return Err(AndroidError::BundletoolNotFound.into());
+        }
+        build_bundle.arg("build-bundle");
+        build_bundle.arg("--modules");
+        build_bundle.arg(
+            self.modules
+                .iter()
+                .map(|v| v.to_string_lossy().to_string())
+                .collect::<Vec<String>>()
+                .join(","),
+        );
+        build_bundle.arg("--output").arg(&self.output);
         if let Some(config) = &self.config {
-            build_bundle.arg("--config=").arg(config);
+            build_bundle.arg("--config").arg(config);
         }
         if let Some(metadata_file) = &self.metadata_file {
-            build_bundle.arg("--metadata-file=").arg(metadata_file);
+            build_bundle.arg("--metadata-file").arg(metadata_file);
         }
         build_bundle.output_err(true)?;
         Ok(())
@@ -82,10 +93,10 @@ mod tests {
 
     fn build_bundle_test() {
         let _build_bundle = BuildBundle::new(
-            &[Path::new("res\\mipmap\\base.zip").to_owned()],
-            Path::new("res\\mipmap\\my.aab"),
+            &[Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\base.zip").to_owned()],
+            Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\my.aab"),
         )
         .run();
     }
 }
-// java -jar $BUNDLETOOL_PATH build-bundle  --modules=C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\base.zip --output=test.aab
+// java -jar $BUNDLETOOL_PATH build-bundle  --modules= C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\base.zip --output= C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\my_test.aab

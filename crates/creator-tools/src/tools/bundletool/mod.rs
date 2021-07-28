@@ -26,7 +26,7 @@ impl Bundletool {
         GetSizeTotal::new(apks)
     }
 
-    pub fn extract_apks(self, apks: &Path) -> ExtractApks {
-        ExtractApks::new(apks)
+    pub fn extract_apks(self, apks: &Path, output_dir: &Path, device_spec: &Path) -> ExtractApks {
+        ExtractApks::new(apks, output_dir, device_spec)
     }
 }

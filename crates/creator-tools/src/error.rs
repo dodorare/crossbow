@@ -16,6 +16,8 @@ pub enum AndroidError {
     AndroidSdkNotFound,
     /// Android NDK is not found
     AndroidNdkNotFound,
+    /// Bundletool is not found
+    BundletoolNotFound,
     /// Android SDK has no build tools
     BuildToolsNotFound,
     /// Android SDK has no platforms installed
