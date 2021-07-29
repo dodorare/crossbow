@@ -64,19 +64,19 @@ impl GetSizeTotal {
         let mut get_size_total = Command::new("bundletool");
         get_size_total.arg("get-size");
         get_size_total.arg("total");
-        get_size_total.arg("--apks=");
+        get_size_total.arg("--apks");
         get_size_total.arg(&self.apks);
         if let Some(device_spec) = &self.device_spec {
-            get_size_total.arg("--device-spec=").arg(device_spec);
+            get_size_total.arg("--device-spec").arg(device_spec);
         }
         if let Some(dimensions) = &self.dimensions {
-            get_size_total.arg("--dimensions=").arg(dimensions);
+            get_size_total.arg("--dimensions").arg(dimensions);
         }
         if self.instant {
             get_size_total.arg("--instant");
         }
         if let Some(modules) = &self.modules {
-            get_size_total.arg("--modules=").arg(modules);
+            get_size_total.arg("--modules").arg(modules);
         }
         get_size_total.output_err(true)?;
         Ok(())

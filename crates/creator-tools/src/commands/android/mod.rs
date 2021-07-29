@@ -14,6 +14,7 @@ mod rust_compile;
 mod save_manifest;
 mod sign_apk;
 mod start_apk;
+mod extract_apk;
 
 pub use add_libs_into_apk::*;
 pub use align_apk::*;
@@ -28,3 +29,4 @@ pub use rust_compile::*;
 pub use save_manifest::*;
 pub use sign_apk::*;
 pub use start_apk::*;
+pub use extract_apk::*;

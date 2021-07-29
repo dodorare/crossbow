@@ -22,6 +22,8 @@ pub enum AndroidError {
     BuildToolsNotFound,
     /// Android SDK has no platforms installed
     NoPlatformsFound,
+    /// Failed to create directory
+    DirectoryWasNotCreated,
     /// Platform {0} is not installed
     PlatformNotFound(u32),
     /// Target is not supported

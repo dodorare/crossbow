@@ -210,13 +210,13 @@ impl BuildApks {
         build_apks.arg("-jar");
         build_apks.arg("$BUNDLETOOL_PATH");
         build_apks.arg("build-apks");
-        build_apks.arg("--bundle=").arg(&self.bundle);
-        build_apks.arg("--output=").arg(&self.output);
+        build_apks.arg("--bundle").arg(&self.bundle);
+        build_apks.arg("--output").arg(&self.output);
         if self.overwrite {
             build_apks.arg("--overwrite");
         }
         if let Some(aapt2) = &self.aapt2 {
-            build_apks.arg("--aapt2=").arg(aapt2);
+            build_apks.arg("--aapt2").arg(aapt2);
         }
         if let Some(ks) = &self.ks {
             build_apks.arg("--ks").arg(ks);
@@ -240,7 +240,7 @@ impl BuildApks {
             build_apks.arg("--device-id=").arg(device_id);
         }
         if let Some(device_spec) = &self.device_spec {
-            build_apks.arg("--device-spec=").arg(device_spec);
+            build_apks.arg("--device-spec").arg(device_spec);
         }
         if self.mode_universal {
             build_apks.arg("--mode=universal");

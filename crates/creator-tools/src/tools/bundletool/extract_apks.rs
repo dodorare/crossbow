@@ -27,11 +27,11 @@ impl ExtractApks {
 
     pub fn run(&self) -> Result<()> {
         let mut extract_apks = Command::new("extract-apks");
-        extract_apks.arg("--apks=");
+        extract_apks.arg("--apks");
         extract_apks.arg(&self.apks);
         extract_apks.arg("--device-spec");
         extract_apks.arg(&self.device_spec);
-        extract_apks.arg("--output-dir=");
+        extract_apks.arg("--output-dir");
         extract_apks.arg(&self.output_dir);
         extract_apks.output_err(true)?;
         Ok(())

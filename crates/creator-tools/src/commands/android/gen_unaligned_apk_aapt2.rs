@@ -1,5 +1,6 @@
 use crate::error::*;
 use crate::tools::*;
+use std::fs;
 use std::path::{Path, PathBuf};
 
 pub fn gen_aapt2_apk(
@@ -10,6 +11,7 @@ pub fn gen_aapt2_apk(
     o_link: &Path,
     manifest: &Path,
     target_sdk_version: u32,
+    extract_path: &Path,
 ) -> Result<()> {
     Aapt2Compile::new(inputs_compile, o_compile).run()?;
     Aapt2Link::new(inputs_link, o_link, manifest)
@@ -35,6 +37,7 @@ mod tests {
             Path::new("res\\mipmap\\test.apk"),
             Path::new("src\\main\\AndroidManifest.xml"),
             30,
+            Path::new("res\\mipmap\\"),
         );
     }
 }
