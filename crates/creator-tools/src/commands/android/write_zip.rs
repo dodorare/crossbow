@@ -15,6 +15,9 @@ mod tests {
 
     #[test]
     fn test() {
-        let _write_zip = write(&Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\").to_owned(), Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\doit.zip"));
+        let _write_zip = write(
+            &Path::new("res\\mipmap\\").to_owned(),
+            Path::new("res\\mipmap\\doit.zip"),
+        );
     }
 }

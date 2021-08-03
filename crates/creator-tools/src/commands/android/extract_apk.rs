@@ -15,7 +15,9 @@ mod tests {
 
     #[test]
     fn test() {
-        let _extract_apk = extract_apk(&Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\test.apk"),
-        &Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\"));
+        let _extract_apk = extract_apk(
+            &Path::new("res\\mipmap\\test.apk"),
+            &Path::new("res\\mipmap\\"),
+        );
     }
 }
