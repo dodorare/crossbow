@@ -1,6 +1,6 @@
 use std::{fs, io, path::Path};
 
-fn extract_apk(apk_path: &Path, extracted_apk: &Path) {
+pub fn extract_apk(apk_path: &Path) {
     let filename = Path::new(apk_path);
     let file = fs::File::open(&filename).unwrap();
 
@@ -24,6 +24,6 @@ mod tests {
 
     #[test]
     fn test() {
-        let _extract_apk = extract_apk(&Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\test.apk"), &Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\"));
+        let _extract_apk = extract_apk(&Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\test.apk"));
     }
 }

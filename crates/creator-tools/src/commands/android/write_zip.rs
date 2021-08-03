@@ -9,7 +9,7 @@ use zip::{result::ZipError, write::FileOptions};
 
 fn zip_dir<T>(
     it: &mut dyn Iterator<Item = DirEntry>,
-    prefix: &str,
+    prefix: &Path,
     writer: T,
     method: zip::CompressionMethod,
 ) -> zip::result::ZipResult<()>
@@ -43,9 +43,9 @@ where
     Result::Ok(())
 }
 
-fn write_zip(
-    src_dir: &str,
-    dst_file: &str,
+pub fn write_zip(
+    src_dir: &Path,
+    dst_file: &Path,
     method: zip::CompressionMethod,
 ) -> zip::result::ZipResult<()> {
     if !Path::new(src_dir).is_dir() {
@@ -55,7 +55,7 @@ fn write_zip(
     let path = Path::new(dst_file);
     let file = File::create(&path).unwrap();
 
-    let walkdir = WalkDir::new(src_dir.to_string());
+    let walkdir = WalkDir::new(src_dir);
     let it = walkdir.into_iter();
 
     zip_dir(&mut it.filter_map(|e| e.ok()), src_dir, file, method)?;
@@ -69,6 +69,10 @@ mod tests {
 
     #[test]
     fn test() {
-        let _write_zip = write_zip("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\", "C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\doit.zip", zip::CompressionMethod::Stored);
+        let _write_zip = write_zip(
+            Path::new("res\\mipmap\\"),
+            Path::new("res\\mipmap\\base.zip"),
+            zip::CompressionMethod::Stored,
+        );
     }
 }

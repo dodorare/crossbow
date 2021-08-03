@@ -1,6 +1,5 @@
 use crate::error::*;
 use crate::tools::*;
-use std::fs;
 use std::path::{Path, PathBuf};
 
 pub fn gen_aapt2_apk(
