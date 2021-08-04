@@ -29,6 +29,7 @@ log = "0.4"
 chrono = "0.4"
 zip = "0.5.13"
 walkdir = "2"
+zip-extensions = "0.6"
 
 
 [dev-dependencies]

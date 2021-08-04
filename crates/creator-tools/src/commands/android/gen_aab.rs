@@ -13,6 +13,7 @@ pub fn gen_aab(
     target_sdk_version: u32,
     modules: &[PathBuf],
     save_aab: &Path,
+    extracted_apk: &Path,
 ) -> Result<()> {
     Aapt2Compile::new(inputs_compile, o_compile).run()?;
 
@@ -22,12 +23,11 @@ pub fn gen_aab(
         .auto_add_overlay(true)
         .run()?;
 
-    extract_apk::extract_apk(o_link);
+    extract_apk::extract_apk(o_link, extracted_apk).unwrap();
 
-    write_zip::write_zip(
-        Path::new("res\\mipmap\\"),
+    write_zip::write(
+        &Path::new("res\\mipmap\\").to_owned(),
         Path::new("res\\mipmap\\base.zip"),
-        zip::CompressionMethod::Stored,
     )
     .unwrap();
 
