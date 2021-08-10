@@ -25,11 +25,11 @@ pub fn gen_aab(
 
     extract_apk::extract_apk(o_link, extracted_apk).unwrap();
 
-    write_zip::write(
-        &Path::new("res\\mipmap\\").to_owned(),
-        Path::new("res\\mipmap\\base.zip"),
-    )
-    .unwrap();
+    // write_zip::write(
+    //     &Path::new("res\\mipmap\\").to_owned(),
+    //     Path::new("res\\mipmap\\base.zip"),
+    // )
+    // .unwrap();
 
     BuildBundle::new(modules, save_aab);
     Ok(())
