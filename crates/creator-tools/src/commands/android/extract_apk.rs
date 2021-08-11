@@ -16,7 +16,7 @@ mod tests {
     fn test() {
         let _extract_apk = extract_apk(
             &Path::new("res\\mipmap\\test.apk"),
-            &Path::new("res\\mipmap\\"),
+            &Path::new("res\\extracted_files\\"),
         );
     }
 }
