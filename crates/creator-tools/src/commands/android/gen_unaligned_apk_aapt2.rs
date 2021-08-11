@@ -17,22 +17,3 @@ pub fn gen_aapt2_apk(
         .run()?;
     Ok(())
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn aapt2_compile_test() {
-        let sdk = AndroidSdk::from_env().unwrap();
-        let _aapt2_compile = gen_aapt2_apk(
-            &[Path::new("res\\mipmap\\Screenshot_2.png").to_owned()],
-            Path::new("res\\mipmap\\"),
-            &sdk,
-            &[Path::new("res\\mipmap\\mipmap_Screenshot_2.png.flat").to_owned()],
-            Path::new("res\\mipmap\\test.apk"),
-            Path::new("src\\main\\AndroidManifest.xml"),
-            30,
-        );
-    }
-}

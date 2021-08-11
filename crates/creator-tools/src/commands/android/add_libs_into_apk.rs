@@ -79,7 +79,7 @@ fn aapt_add_lib(
 }
 
 /// Search dylibs in given `deps_dir`.
-fn search_dylibs(deps_dir: &Path) -> Result<Vec<PathBuf>> {
+pub fn search_dylibs(deps_dir: &Path) -> Result<Vec<PathBuf>> {
     let mut paths = Vec::new();
     for dep_dir in deps_dir.read_dir()? {
         let output_file = dep_dir?.path().join("output");
@@ -108,7 +108,7 @@ fn search_dylibs(deps_dir: &Path) -> Result<Vec<PathBuf>> {
 /// Update `needed_libs` hashset with given lib and all related libs.
 /// Note: libc++ is not a system lib. If you use libc++_shared.so, it must be included in
 /// your APK. https://developer.android.com/ndk/guides/cpp-support
-fn recursively_define_needed_libs(
+pub fn recursively_define_needed_libs(
     (lib_name, lib_path): (String, PathBuf),
     readelf_path: &Path,
     libcpp_shared_path: &Path,
@@ -142,7 +142,7 @@ fn recursively_define_needed_libs(
 }
 
 /// List all linked shared libraries.
-fn readelf_list_shared_libs(readelf_path: &Path, lib_path: &Path) -> Result<Vec<String>> {
+pub fn readelf_list_shared_libs(readelf_path: &Path, lib_path: &Path) -> Result<Vec<String>> {
     let mut readelf = std::process::Command::new(readelf_path);
     readelf.arg("-d").arg(lib_path);
     let output = readelf.output_err(false)?;
@@ -163,7 +163,10 @@ fn readelf_list_shared_libs(readelf_path: &Path, lib_path: &Path) -> Result<Vec<
 }
 
 /// Resolves native library using search paths.
-fn find_library_path<S: AsRef<Path>>(paths: &[PathBuf], lib_name: S) -> Result<Option<PathBuf>> {
+pub fn find_library_path<S: AsRef<Path>>(
+    paths: &[PathBuf],
+    lib_name: S,
+) -> Result<Option<PathBuf>> {
     for path in paths {
         let lib_path = path.join(&lib_name);
         if lib_path.exists() {
@@ -174,7 +177,7 @@ fn find_library_path<S: AsRef<Path>>(paths: &[PathBuf], lib_name: S) -> Result<O
 }
 
 /// Return all files in directory with `.so` ending.
-fn get_libs_in_dir(dir: &Path) -> std::io::Result<Vec<String>> {
+pub fn get_libs_in_dir(dir: &Path) -> std::io::Result<Vec<String>> {
     let mut libs = Vec::new();
     if dir.is_dir() {
         for entry in std::fs::read_dir(dir)? {

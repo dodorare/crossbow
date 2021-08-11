@@ -1,0 +1,32 @@
+Manifest-Version: 1.0
+
+Name: AndroidManifest.xml
+SHA1-Digest: kon1nWjvnA0jVZLraFhhgC9Lf2k=
+
+Name: assets/branding/icon.png
+SHA1-Digest: jA7EMziIiNe3/fpSStDO9CSxhKI=
+
+Name: assets/sounds/Windless-Slopes.mp3
+SHA1-Digest: mdI31RLKffvH9jUbGfwYI+5rM4A=
+
+Name: lib/arm64-v8a/libtwod.so
+SHA1-Digest: uGH7fqVtolbutMxdrheZTpe8ipI=
+
+Name: res/mipmap-hdpi-v4/ic_launcher.png
+SHA1-Digest: GBU0B9xRkHiCb4EO56MCOB1J3Kc=
+
+Name: res/mipmap-mdpi-v4/ic_launcher.png
+SHA1-Digest: 59YXh5zeb+ePZ3LaWrcTfHXxXxg=
+
+Name: res/mipmap-xhdpi-v4/ic_launcher.png
+SHA1-Digest: E4mAqkl5fFUBZcVm0KLJEcW9Z+k=
+
+Name: res/mipmap-xxhdpi-v4/ic_launcher.png
+SHA1-Digest: 5tvYXO8ulZ4c327Mao7LFarCKpw=
+
+Name: res/mipmap-xxxhdpi-v4/ic_launcher.png
+SHA1-Digest: sH1ll9yUsT5XK22I15EPRa650BA=
+
+Name: resources.arsc
+SHA1-Digest: mHy46XBTXir7D6FZg1IokpQhsuQ=
+

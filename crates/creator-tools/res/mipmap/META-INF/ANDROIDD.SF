@@ -1,0 +1,35 @@
+Signature-Version: 1.0
+Created-By: 1.0 (Android)
+SHA1-Digest-Manifest: YURyymEP73QIohZ4NyMPjZuCSDs=
+X-Android-APK-Signed: 2, 3
+
+Name: AndroidManifest.xml
+SHA1-Digest: fB3OclC/TpVjLY/28ujES0jbtv4=
+
+Name: assets/branding/icon.png
+SHA1-Digest: VcxkaQhVxwJsRbD1T0mfkshRsUU=
+
+Name: assets/sounds/Windless-Slopes.mp3
+SHA1-Digest: Y9xG+lnNOC3n+OVXa+wht/lmJyQ=
+
+Name: lib/arm64-v8a/libtwod.so
+SHA1-Digest: C/R0HkRaeStbT2C8KkCKoUaUx1k=
+
+Name: res/mipmap-hdpi-v4/ic_launcher.png
+SHA1-Digest: nt6qItMEsXu5tGzRBy3xjNZyH6g=
+
+Name: res/mipmap-mdpi-v4/ic_launcher.png
+SHA1-Digest: QhMbAkrtm8UP24PsOIoIuhRdwnA=
+
+Name: res/mipmap-xhdpi-v4/ic_launcher.png
+SHA1-Digest: ASBRWXO84akGnGpKzSQYiHkAM0w=
+
+Name: res/mipmap-xxhdpi-v4/ic_launcher.png
+SHA1-Digest: +MfwuLNjaG4Dr4it72a8lF8KTE0=
+
+Name: res/mipmap-xxxhdpi-v4/ic_launcher.png
+SHA1-Digest: KpazN7he9cuNjmZUDllkVBikXtI=
+
+Name: resources.arsc
+SHA1-Digest: YliCQr1phGQcGjVia9/mBpG9xTk=
+

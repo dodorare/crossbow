@@ -1,3 +1,4 @@
+mod add_libs_into_aapt2;
 ///! Commands for compiling rust code for `Android`,
 ///! generation/aligning/signing/installing APKs,
 ///! generation `AndroidManifest.xml` and so on.
@@ -18,6 +19,7 @@ mod sign_apk;
 mod start_apk;
 mod write_zip;
 
+pub use add_libs_into_aapt2::*;
 pub use add_libs_into_apk::*;
 pub use align_apk::*;
 pub use detect_abi::*;
