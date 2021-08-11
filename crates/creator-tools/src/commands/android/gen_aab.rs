@@ -23,7 +23,7 @@ pub fn gen_aab(
         .auto_add_overlay(true)
         .run()?;
 
-    extract_apk::extract_apk(o_link, extracted_apk).unwrap();
+    // extract_apk::extract_apk(o_link, extracted_apk).unwrap();
 
     // write_zip::write(
     //     &Path::new("res\\mipmap\\").to_owned(),
