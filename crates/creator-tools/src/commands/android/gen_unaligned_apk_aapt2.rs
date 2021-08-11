@@ -10,13 +10,10 @@ pub fn gen_aapt2_apk(
     o_link: &Path,
     manifest: &Path,
     target_sdk_version: u32,
-    extract_path: &Path,
 ) -> Result<()> {
     Aapt2Compile::new(inputs_compile, o_compile).run()?;
     Aapt2Link::new(inputs_link, o_link, manifest)
         .i(sdk.android_jar(target_sdk_version)?)
-        .proto_format(true)
-        .auto_add_overlay(true)
         .run()?;
     Ok(())
 }
@@ -36,8 +33,6 @@ mod tests {
             Path::new("res\\mipmap\\test.apk"),
             Path::new("src\\main\\AndroidManifest.xml"),
             30,
-            Path::new("res\\mipmap\\"),
         );
     }
 }
-// java -jar $BUNDLETOOL_PATH build-bundle  --modules=C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\base.zip --output=C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\test.aab

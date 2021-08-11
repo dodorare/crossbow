@@ -84,7 +84,7 @@ pub struct Aapt2Link {
     /// This should only be used for packages with a min-sdk version of 26 or lower.
     allow_reserved_package_id: bool,
     /// Specifies the directory in which to generate R.java.
-    java_directory: Option<PathBuf>,
+    java: Option<PathBuf>,
     /// Generates output file for ProGuard rules.
     proguard_options: Option<PathBuf>,
     /// Generates output file for ProGuard rules for the main dex.
@@ -260,7 +260,7 @@ impl Aapt2Link {
             r: None,
             package_id: None,
             allow_reserved_package_id: false,
-            java_directory: None,
+            java: None,
             proguard_options: None,
             proguard_main_dex: None,
             proguard_minimal_keep_rules: false,
@@ -435,8 +435,8 @@ impl Aapt2Link {
         self
     }
 
-    pub fn java_directory(&mut self, java_directory: PathBuf) -> &mut Self {
-        self.java_directory = Some(java_directory);
+    pub fn java(&mut self, java: PathBuf) -> &mut Self {
+        self.java = Some(java);
         self
     }
 
@@ -657,8 +657,8 @@ impl Aapt2Link {
         if self.allow_reserved_package_id {
             aapt2.arg("--allow-reserved-package-id");
         }
-        if let Some(java_directory) = &self.java_directory {
-            aapt2.arg("--java").arg(java_directory);
+        if let Some(java) = &self.java {
+            aapt2.arg("--java").arg(java);
         }
         if let Some(proguard_options) = &self.proguard_options {
             aapt2.arg("--proguard").arg(proguard_options);
