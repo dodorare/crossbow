@@ -12,9 +12,7 @@ use std::{
 
 /// Adds given lib and all reletad libs into APK.
 pub fn add_libs_into_aapt2(
-    sdk: &AndroidSdk,
     ndk: &AndroidNdk,
-    apk_path: &Path,
     lib_path: &Path,
     build_target: AndroidTarget,
     profile: Profile,
@@ -49,31 +47,33 @@ pub fn add_libs_into_aapt2(
     let abi = build_target.android_abi();
     let out_dir = build_dir.join("lib").join(abi);
     for (_lib_name, lib_path) in needed_libs {
-        aapt2_add_lib(sdk, apk_path, &lib_path, &out_dir, abi)?;
+        aapt2_add_lib(&lib_path, &out_dir)?;
     }
     Ok(())
 }
 
 /// Copy lib into `out_dir` then add this lib into apk file.
-fn aapt2_add_lib(
-    sdk: &AndroidSdk,
-    apk_path: &Path,
-    lib_path: &Path,
-    out_dir: &Path,
-    abi: &str,
-) -> Result<()> {
+fn aapt2_add_lib(lib_path: &Path, out_dir: &Path) -> Result<()> {
     if !lib_path.exists() {
         return Err(Error::PathNotFound(lib_path.to_owned()));
     }
     std::fs::create_dir_all(&out_dir)?;
-    let file_name = lib_path.file_name().unwrap();
-    std::fs::copy(lib_path, &out_dir.join(&file_name))?;
-    // `aapt2 a[dd] [-v] file.{zip,jar,apk} file1 [file2 ...]`
-    // Add specified files to Zip-compatible archive.
-    let mut aapt2 = sdk.build_tool(bin!("aapt2"), Some(apk_path.parent().unwrap()))?;
-    aapt2.arg("add")
-        .arg(apk_path)
-        .arg(format!("lib/{}/{}", abi, file_name.to_str().unwrap()));
-    aapt2.output_err(true)?;
+    let options = fs_extra::dir::CopyOptions::new();
+    let mut lib = Vec::new();
+    lib.push(&lib_path);
+    fs_extra::copy_items(&lib, out_dir, &options)?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test() {
+        let one = aapt2_add_lib(
+            Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\target\\android\\debug\\lib\\"),
+            Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\"),
+        );
+    }
 }
