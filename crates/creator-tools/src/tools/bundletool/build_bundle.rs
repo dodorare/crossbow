@@ -99,4 +99,8 @@ mod tests {
         .run();
     }
 }
-// java -jar $BUNDLETOOL_PATH build-bundle  --modules= C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\base.zip --output= C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\my_test.aab
+// java -jar $BUNDLETOOL_PATH build-bundle  --modules=
+// C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\
+// \base.zip --output=
+// C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\
+// \my_test.aab
