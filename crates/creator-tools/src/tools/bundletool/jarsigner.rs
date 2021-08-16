@@ -499,7 +499,7 @@ impl Jarsigner {
                 .iter()
                 .map(|v| v.to_string_lossy().to_string())
                 .collect::<Vec<String>>()
-                .join(","),
+                .join(";"),
         );
         if self.strict {
             jarsigner.arg("-strict");
@@ -507,3 +507,14 @@ impl Jarsigner {
         Ok(())
     }
 }
+
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
+
+//     #[test]
+
+//     fn build_bundle_test() {
+//         Jarsigner::new().verbose()
+//     }
+// }

@@ -111,7 +111,7 @@ mod tests {
         let manifest_path = android::save_android_manifest(&apk_build_dir, &manifest).unwrap();
         assert!(manifest_path.exists());
         // Gen unaligned apk
-        let gen_aab = android::gen_aab(
+        android::gen_aab(
             &[Path::new("res\\mipmap\\Screenshot_2.png").to_owned()],
             Path::new("res\\mipmap\\"),
             &sdk,
