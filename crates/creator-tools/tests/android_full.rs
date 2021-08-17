@@ -15,7 +15,7 @@ fn test_android_full() {
     let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
 
     // Compile rust lib for android
-    let target_sdk_version = 29;
+    let target_sdk_version = 30;
     let profile = Profile::Release;
     let build_target = AndroidTarget::Aarch64LinuxAndroid;
     android::compile_rust_for_android(

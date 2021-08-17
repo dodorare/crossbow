@@ -64,15 +64,14 @@ mod tests {
 
     #[test]
     fn test_aab() {
+        // Create temporary directory
         let tempdir = tempfile::tempdir().unwrap();
         let dir = tempdir.path();
         let package_name = gen_minimal_project(&dir).unwrap();
 
-        // Create dependencies
         let sdk = AndroidSdk::from_env().unwrap();
         let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
 
-        // Compile rust lib for android
         let target_sdk_version = 30;
         let profile = Profile::Release;
         let build_target = AndroidTarget::Aarch64LinuxAndroid;
@@ -95,38 +94,26 @@ mod tests {
         let compiled_lib = out_dir.join(format!("lib{}.so", package_name));
         assert!(compiled_lib.exists());
 
-        // Gen android manifest
+        // Generate manifest
         let target_dir = dir.join("target");
         let manifest = android::gen_minimal_android_manifest(
             &package_name,
             None,
             "0.0.1".to_string(),
-            None,
+            Some("1".to_string()),
             None,
             target_sdk_version,
             None,
             None,
         );
-        let apk_build_dir = target_dir.join(&profile).join("apk");
+        let apk_build_dir = target_dir.join(&profile).join("aab");
         let manifest_path = android::save_android_manifest(&apk_build_dir, &manifest).unwrap();
         assert!(manifest_path.exists());
-        // Gen unaligned apk
-        android::gen_aab(
-            &[Path::new("res\\mipmap\\Screenshot_2.png").to_owned()],
-            Path::new("res\\mipmap\\"),
-            &sdk,
-            &[Path::new("res\\mipmap\\mipmap_Screenshot_2.png.flat").to_owned()],
-            Path::new("res\\mipmap\\test.apk"),
-            Path::new("res\\mipmap\\AndroidManifest.xml"),
-            30,
-            &[Path::new("res\\test\\base.zip").to_owned()],
-            Path::new("res\\mipmap\\test.aab"),
-            Path::new("res\\extracted_files\\"),
-            Path::new("res\\test\\base.zip"),
-        )
-        .unwrap();
 
-        // Add all needed libs into apk
+        // Assign path to lib
+        android::add_lib_aapt2(Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\target\\android\\debug\\lib\\"), 
+        Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\extracted_files\\")).unwrap();
+
         android::add_libs_into_aapt2(
             &ndk,
             &compiled_lib,
@@ -137,5 +124,31 @@ mod tests {
             &target_dir,
         )
         .unwrap();
+
+        // Gen unaligned aab
+        android::gen_aab(
+            &[Path::new("res\\mipmap\\Screenshot_2.png").to_owned()],
+            Path::new("res\\mipmap\\"),
+            &sdk,
+            &[Path::new("res\\mipmap\\mipmap_Screenshot_2.png.flat").to_owned()],
+            Path::new("res\\mipmap\\test.apk"),
+            &manifest_path,
+            30,
+            &[Path::new("res\\base.zip").to_owned()],
+            Path::new("res\\mipmap\\test.aab"),
+            Path::new("res\\extracted_files\\"),
+            Path::new("res\\base.zip"),
+        )
+        .unwrap();
+
+        // Create keystore with keytool command
+        android::gen_debug_key_aab(Path::new("res\\mipmap\\"), "devtools".to_string()).unwrap();
+        android::jarsigner(
+            Path::new("res\\mipmap\\keystore"),
+            Path::new("res\\mipmap\\test.aab"),
+            "devtools".to_string(),
+        )
+        .unwrap();
+        android::verify_aab(Path::new("res\\mipmap\\test.aab")).unwrap();
     }
 }

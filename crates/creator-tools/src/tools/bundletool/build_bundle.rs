@@ -93,14 +93,14 @@ mod tests {
 
     fn build_bundle_test() {
         let _build_bundle = BuildBundle::new(
-            &[Path::new("D:\\programing\\work\\creator-rs\\creator\\crates\\creator-tools\\res\\test\\base.zip").to_owned()],
-            Path::new("D:\\programing\\work\\creator-rs\\creator\\crates\\creator-tools\\res\\test\\test.aab"),
+            &[Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\test.zip").to_owned()],
+            Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\test_one.aab"),
         )
         .run();
     }
 }
 // java -jar $BUNDLETOOL_PATH build-bundle  --modules=
 // C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\
-// \base.zip --output=
+// \test.zip --output=
 // C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\
 // \my_test.aab

@@ -18,6 +18,13 @@ pub fn jarsigner(keystore_path: &Path, aab_path: &Path, alias: String) -> Result
     Ok(())
 }
 
+pub fn verify_aab(aab_path: &Path) -> Result<()> {
+    let mut verify = jarsigner_tool()?;
+    verify.arg("-verify").arg("-verbose").arg(aab_path);
+    verify.output_err(true)?;
+    Ok(())
+}
+
 fn jarsigner_tool() -> Result<Command> {
     if let Ok(jarsigner) = which::which(bin!("jarsigner")) {
         return Ok(Command::new(jarsigner));

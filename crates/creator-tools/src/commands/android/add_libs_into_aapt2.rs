@@ -47,13 +47,13 @@ pub fn add_libs_into_aapt2(
     let abi = build_target.android_abi();
     let out_dir = build_dir.join("lib").join(abi);
     for (_lib_name, lib_path) in needed_libs {
-        aapt2_add_lib(&lib_path, &out_dir)?;
+        add_lib_aapt2(&lib_path, &out_dir)?;
     }
     Ok(())
 }
 
 /// Copy lib into `out_dir` then add this lib into apk file.
-fn aapt2_add_lib(lib_path: &Path, out_dir: &Path) -> Result<()> {
+pub fn add_lib_aapt2(lib_path: &Path, out_dir: &Path) -> Result<()> {
     if !lib_path.exists() {
         return Err(Error::PathNotFound(lib_path.to_owned()));
     }
@@ -71,7 +71,7 @@ mod tests {
 
     #[test]
     fn test() {
-        let one = aapt2_add_lib(
+        let one = add_lib_aapt2(
             Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\target\\android\\debug\\lib\\"),
             Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\"),
         );

@@ -508,13 +508,3 @@ impl Jarsigner {
     }
 }
 
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-
-//     #[test]
-
-//     fn build_bundle_test() {
-//         Jarsigner::new().verbose()
-//     }
-// }
