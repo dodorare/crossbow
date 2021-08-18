@@ -47,12 +47,12 @@ use std::process::Command;
 
 #[derive(Clone)]
 pub struct Aapt2Compile {
-    inputs: Vec<PathBuf>,
+    input_res: Vec<PathBuf>,
     /// Specifies the output path for the compiled resource(s).
     ///
     /// This is a required flag because you must specify a path to a directory where AAPT2
     /// can output and store the compiled resources.
-    o: PathBuf,
+    compiled_res: PathBuf,
     /// Specifies the directory to scan for resources.
     ///
     /// Although you can use this flag to compile multiple resource files with one
@@ -110,10 +110,10 @@ impl std::fmt::Display for Visibility {
 }
 
 impl Aapt2Compile {
-    pub fn new(inputs: &[PathBuf], o: &Path) -> Self {
+    pub fn new(input_res: &[PathBuf], compiled_res: &PathBuf) -> Self {
         Self {
-            inputs: inputs.to_vec(),
-            o: o.to_owned(),
+            input_res: input_res.to_vec(),
+            compiled_res: compiled_res.to_owned(),
             dir: None,
             zip: None,
             output_text_symbols: None,
@@ -189,11 +189,11 @@ impl Aapt2Compile {
     pub fn run(&self) -> Result<()> {
         let mut aapt2 = Command::new("aapt2");
         aapt2.arg("compile");
-        self.inputs.iter().for_each(|input| {
+        self.input_res.iter().for_each(|input| {
             aapt2.arg(input);
         });
         aapt2.arg("-o");
-        aapt2.arg(&self.o);
+        aapt2.arg(&self.compiled_res);
         if let Some(dir) = &self.dir {
             aapt2.arg("--dir").arg(dir);
         }
@@ -229,22 +229,5 @@ impl Aapt2Compile {
         }
         aapt2.output_err(true)?;
         Ok(())
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn builder_test_one() {
-        let _aapt2 = Aapt2Compile::new(
-            &[
-                Path::new("res\\mipmap\\lib\\arm64-v8a\\libtwod.so").to_owned(),
-                Path::new("res\\mipmap\\Screenshot_2.png").to_owned(),
-            ],
-            &Path::new("res\\mipmap\\"),
-        )
-        .run();
     }
 }

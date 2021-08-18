@@ -8,40 +8,41 @@ use crate::{
 };
 use std::path::{Path, PathBuf};
 
-pub fn gen_base_apk(
-    res_path: Option<PathBuf>,
+pub fn gen_base_aab_module(
+    res_path: &[PathBuf],
     assets_path: Option<PathBuf>,
     project_path: &Path,
     build_dir: &Path,
     sdk: &AndroidSdk,
-    package_label: String,
+    package_label: &str,
     manifest_path: &Path,
     target_sdk_version: u32,
 ) -> Result<PathBuf> {
-    // res_path -> inputs_compile
-    // build_dir -> o_compile (build_dir.join("compiled_res"))
-    // o_compile -> inputs_link
+    let compiled_res = build_dir.join("compiled_res");
+    Aapt2Compile::new(res_path, &compiled_res).run()?;
 
-    // Aapt2Compile::new(inputs_compile, o_compile).run()?;
+    let apk_path = build_dir
+        .join(format!("{}_module.apk", package_label))
+        .as_path();
+    Aapt2Link::new(&[compiled_res], apk_path, manifest_path)
+        .i(sdk.android_jar(target_sdk_version)?)
+        .version_code(1)
+        .proto_format(true)
+        .auto_add_overlay(true)
+        .run()?;
+    if let Some(assets_path) = &assets_path {
+        todo!()
+    }
 
-    // Aapt2Link::new(inputs_link, o_link, manifest_path)
-    //     .i(sdk.android_jar(target_sdk_version)?)
-    //     .proto_format(true)
-    //     .auto_add_overlay(true)
-    //     .run()?;
+    let extracted_apk_files = build_dir.join("extracted_apk_files").as_path();
+    extract_apk::extract_apk(apk_path, extracted_apk_files).unwrap();
 
-    // extract_apk::extract_apk(o_link, extracted_apk).unwrap();
-    todo!(); // base_apk_path
-}
-
-pub fn gen_base_aab_module(base_module_dir: &Path) -> Result<PathBuf> {
-    // build_dir -> o_link (package_label + "_module.apk")
-    // build_dir -> extracted_apk (build_dir.join("extracted_apk"))
-    // build_dir -> zip_path (package_label + "_module.zip")
-
-    // write_zip::dirs_to_write(&extracted_apk.to_owned())?;
-    // write_zip::write(&extracted_apk.to_owned(), zip_path).unwrap();
-    todo!(); // zip_path
+    let zip_path = build_dir
+        .join(format!("{}_module.zip", package_label))
+        .as_path();
+    write_zip::dirs_to_write(&extracted_apk_files.to_owned())?;
+    write_zip::write(&extracted_apk_files.to_owned(), zip_path).unwrap();
+    Ok(zip_path.to_path_buf())
 }
 
 #[cfg(test)]

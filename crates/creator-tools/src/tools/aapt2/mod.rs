@@ -31,8 +31,8 @@ pub struct Aapt2;
 
 impl Aapt2 {
     /// Compiles resources to be linked into an apk.
-    pub fn compile(self, inputs: &[PathBuf], o: &Path) -> Aapt2Compile {
-        Aapt2Compile::new(inputs, o)
+    pub fn compile(self, input_res: &[PathBuf], compiled_res: &PathBuf) -> Aapt2Compile {
+        Aapt2Compile::new(input_res, compiled_res)
     }
 
     /// Links resources into an apk.

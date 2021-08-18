@@ -62,7 +62,7 @@ pub struct Aapt2Link {
     /// read [`Accessing original`] files.
     ///
     /// [`Accessing original`]: https://developer.android.com/guide/topics/resources/providing-resources#OriginalFiles
-    a: Option<PathBuf>,
+    assets: Option<PathBuf>,
     /// Pass individual .flat file to link, using `overlay` semantics without using the
     /// `<add-resource>` tag.
     ///
@@ -256,7 +256,7 @@ impl Aapt2Link {
             o: o.to_owned(),
             manifest: manifest.to_owned(),
             i: None,
-            a: None,
+            assets: None,
             r: None,
             package_id: None,
             allow_reserved_package_id: false,
@@ -415,8 +415,8 @@ impl Aapt2Link {
         self
     }
 
-    pub fn a(&mut self, a: PathBuf) -> &mut Self {
-        self.a = Some(a);
+    pub fn assets(&mut self, assets: PathBuf) -> &mut Self {
+        self.assets = Some(assets);
         self
     }
 
@@ -645,8 +645,8 @@ impl Aapt2Link {
         if let Some(i) = &self.i {
             aapt2.arg("-I").arg(i);
         }
-        if let Some(a) = &self.a {
-            aapt2.arg("-A").arg(a);
+        if let Some(assets) = &self.assets {
+            aapt2.arg("-A").arg(assets);
         }
         if let Some(r) = &self.r {
             aapt2.arg("-R").arg(r);
