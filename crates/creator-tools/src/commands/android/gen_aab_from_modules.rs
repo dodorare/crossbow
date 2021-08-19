@@ -9,10 +9,12 @@ use crate::{
 use std::path::{Path, PathBuf};
 
 pub fn gen_aab_from_modules(
-    modules: &[PathBuf],
+    package_label: &str,
+    zip_modules: &[PathBuf],
     project_path: &Path,
     build_dir: &Path,
 ) -> Result<PathBuf> {
-    ///Bundletool::
-    todo!();
+    let aab = build_dir.join(format!("{}_unsigned.aab", package_label));
+    BuildBundle::new(zip_modules, &aab);
+    Ok(aab)
 }
