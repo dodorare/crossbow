@@ -36,8 +36,6 @@ mod tests {
         )
         .unwrap();
         let build_dir = project_path.join("target").join("android").join("debug");
-        let compiled_lib = build_dir.join(format!("lib{}.so", package_name));
-        assert!(compiled_lib.exists());
 
         // Generate manifest
         let manifest = android::gen_minimal_android_manifest(
@@ -55,7 +53,7 @@ mod tests {
 
         // Gen apks and prepare modules (zip, zip, zip)
         let base_apk_path = android::gen_base_aab_module(
-            &[Path::new("creator\\crates\\creator-tools\\res\\mipmap").to_owned()],
+            &[Path::new("res\\mipmap\\Screenshot_2.png").to_owned()],
             None,
             &build_dir,
             &sdk,
@@ -64,35 +62,38 @@ mod tests {
             target_sdk_version,
         )
         .unwrap();
+        assert!(base_apk_path.exists());
+
+        let compiled_lib = build_dir.join(format!("lib{}.so", package_name));
+        assert!(compiled_lib.exists());
 
         // Assign path to lib
-        // android::add_lib_aapt2(Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\target\\android\\debug\\lib\\"),
-        // Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\extracted_files\\")).unwrap();
-
-        // android::add_libs_into_aapt2(
-        //     &ndk,
-        //     &compiled_lib,
-        //     build_target,
-        //     profile,
-        //     30,
-        //     &aab_build_dir,
-        //     &target_dir,
-        // )
-        // .unwrap();
-
-        // let base_aab_module = android::gen_base_aab_module().unwrap();
-
-        // Gen aab from given list of modules (zip, zip, zip)
-        // let aab_path = android::gen_aab_from_modules(&[base_aab_module], &aab_build_dir).unwrap();
-
-        // Create keystore with keytool command
-        android::gen_debug_key_aab(Path::new("res\\mipmap\\"), "devtools".to_string()).unwrap();
-        android::jarsigner(
-            Path::new("res\\mipmap\\keystore"),
-            Path::new("res\\mipmap\\test.aab"),
-            "devtools".to_string(),
+        android::add_libs_into_aapt2(
+            &ndk,
+            &compiled_lib,
+            build_target,
+            profile,
+            30,
+            &build_dir,
+            &project_path,
         )
         .unwrap();
-        android::verify_aab(Path::new("res\\mipmap\\test.aab")).unwrap();
+
+        let gen_zip_modules =
+            android::gen_zip_modules(&build_dir, &package_name, &base_apk_path).unwrap();
+
+        // Gen aab from given list of modules (zip, zip, zip)
+        let aab_path =
+            android::gen_aab_from_modules(&package_name, &[gen_zip_modules], &build_dir).unwrap();
+
+        // // Create keystore with keytool command
+        // android::gen_debug_key_aab(Path::new("res\\mipmap\\"), "devtools".to_string()).unwrap();
+        // android::jarsigner(
+        //     Path::new("res\\mipmap\\keystore"),
+        //     Path::new("res\\mipmap\\test.aab"),
+        //     "devtools".to_string(),
+        // )
+        // .unwrap();
+        // android::verify_aab(Path::new("res\\mipmap\\test.aab")).unwrap();
     }
 }

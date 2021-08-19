@@ -6,8 +6,10 @@ use crate::{
     tools::AndroidSdk,
     types::*,
 };
+use glob::glob;
 use std::path::{Path, PathBuf};
 
+/// Compile resources, link resources and extract apk
 pub fn gen_base_aab_module(
     res_path: &[PathBuf],
     assets_path: Option<PathBuf>,
@@ -21,7 +23,7 @@ pub fn gen_base_aab_module(
     Aapt2Compile::new(res_path, &compiled_res).run()?;
 
     let apk_path = build_dir.join(format!("{}_module.apk", package_label));
-    let link = Aapt2Link::new(&[compiled_res], &apk_path, manifest_path)
+    Aapt2Link::new(&[compiled_res], &apk_path, manifest_path)
         .i(sdk.android_jar(target_sdk_version)?)
         .version_code(1)
         .proto_format(true)
@@ -33,9 +35,45 @@ pub fn gen_base_aab_module(
 
     let extracted_apk_files = build_dir.join("extracted_apk_files");
     extract_apk::extract_apk(&apk_path, &extracted_apk_files).unwrap();
+    Ok(extracted_apk_files)
+}
 
+pub fn gen_zip_modules(
+    build_dir: &Path,
+    package_label: &str,
+    extracted_apk_files: &PathBuf,
+) -> Result<PathBuf> {
     let zip_path = build_dir.join(format!("{}_module.zip", package_label));
     write_zip::dirs_to_write(&extracted_apk_files.to_owned())?;
     write_zip::write(&extracted_apk_files.to_owned(), &zip_path).unwrap();
     Ok(zip_path.to_path_buf())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+
+    fn test() {
+        let sdk = AndroidSdk::from_env().unwrap();
+        gen_base_aab_module(
+            &[Path::new("res\\mipmap\\Screenshot_2.png").to_owned()],
+            None,
+            Path::new("res\\mipmap\\"),
+            &sdk,
+            "label",
+            Path::new("src\\main\\AndroidManifest.xml"),
+            30,
+        )
+        .unwrap();
+    }
+
+    #[test]
+    fn test_one() -> Result<()> {
+        for entry in glob("**\\*.flat").unwrap() {
+            println!("{}", entry.unwrap().display());
+        }
+        Ok(())
+    }
 }
