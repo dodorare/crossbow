@@ -7,6 +7,7 @@ use crate::{
     types::*,
 };
 use glob::glob;
+use std::fs::read_dir;
 use std::path::{Path, PathBuf};
 
 /// Compile resources, link resources and extract apk
@@ -20,15 +21,24 @@ pub fn gen_base_aab_module(
     target_sdk_version: u32,
 ) -> Result<PathBuf> {
     let compiled_res = build_dir.join("compiled_res");
+    if !compiled_res.exists() {
+        std::fs::create_dir_all(&compiled_res)?;
+    }
     Aapt2Compile::new(res_path, &compiled_res).run()?;
-
     let apk_path = build_dir.join(format!("{}_module.apk", package_label));
-    Aapt2Link::new(&[compiled_res], &apk_path, manifest_path)
+    if compiled_res.is_dir(){
+        for entry in read_dir(compiled_res)? {
+            let entry = entry?;
+            let path = entry.path();
+    Aapt2Link::new(&[path], &apk_path, manifest_path)
         .i(sdk.android_jar(target_sdk_version)?)
         .version_code(1)
         .proto_format(true)
         .auto_add_overlay(true)
         .run()?;
+        }
+    }
+
     if let Some(assets_path) = assets_path {
         todo!()
     }
@@ -71,9 +81,11 @@ mod tests {
 
     #[test]
     fn test_one() -> Result<()> {
-        for entry in glob("**\\*.flat").unwrap() {
-            println!("{}", entry.unwrap().display());
-        }
-        Ok(())
+         let paths = std::fs::read_dir("./").unwrap();
+
+        for path in paths {
+        println!("Name: {}", path.unwrap().path().display())
+    }
+    Ok(())
     }
 }
