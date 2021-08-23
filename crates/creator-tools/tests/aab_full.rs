@@ -1,6 +1,6 @@
 use creator_tools::{
     commands::{android, gen_minimal_project},
-    tools::{AndroidNdk, AndroidSdk},
+    tools::*,
     types::*,
 };
 use std::path::Path;
@@ -64,30 +64,44 @@ mod tests {
         .unwrap();
         assert!(base_apk_path.exists());
 
-        let compiled_lib = build_dir.join(format!("lib{}.so", package_name));
-        assert!(compiled_lib.exists());
+        let abi = build_target.android_abi();
+        let compiled_lib = build_dir
+            .join("lib")
+            .join(abi)
+            .join(format!("lib{}.so", package_name));
+        if !compiled_lib.exists() {
+            std::fs::create_dir_all(&compiled_lib).unwrap();
+        }
 
+        // let abi = build_target.android_abi();
+        // let lib_build_dir = base_apk_path.join("lib").join(abi);
+        let target_dir = project_path.join("target");
         // Assign path to lib
-        android::add_libs_into_aapt2(
+        let add_lib = android::add_libs_into_aapt2(
             &ndk,
             &compiled_lib,
             build_target,
             profile,
             30,
-            &build_dir,
-            &project_path,
+            &base_apk_path,
+            &target_dir,
         )
         .unwrap();
+        assert!(add_lib.exists());
 
         let gen_zip_modules =
             android::gen_zip_modules(&build_dir, &package_name, &base_apk_path).unwrap();
+        assert!(gen_zip_modules.exists());
 
         // Gen aab from given list of modules (zip, zip, zip)
         let aab_path =
             android::gen_aab_from_modules(&package_name, &[gen_zip_modules], &build_dir).unwrap();
+        assert!(aab_path.exists());
 
-        // // Create keystore with keytool command
-        // android::gen_debug_key_aab(Path::new("res\\mipmap\\"), "devtools".to_string()).unwrap();
+        // Create keystore with keytool command
+        let build_apks = android::build_apks(&aab_path, &build_dir, &package_name).unwrap();
+        assert!(build_apks.exists());
+
         // android::jarsigner(
         //     Path::new("res\\mipmap\\keystore"),
         //     Path::new("res\\mipmap\\test.aab"),

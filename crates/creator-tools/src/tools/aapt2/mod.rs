@@ -36,8 +36,8 @@ impl Aapt2 {
     }
 
     /// Links resources into an apk.
-    pub fn link(self, inputs: &[PathBuf], o: &Path, manifest: &Path) -> Aapt2Link {
-        Aapt2Link::new(inputs, o, manifest)
+    pub fn link(self, inputs: &[PathBuf], output_apk: PathBuf, manifest: &Path) -> Aapt2Link {
+        Aapt2Link::new(inputs, output_apk, manifest)
     }
 
     /// Used for printing information about the APK you generated using the link command.

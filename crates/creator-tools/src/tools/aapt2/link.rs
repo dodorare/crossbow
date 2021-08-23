@@ -45,7 +45,7 @@ pub struct Aapt2Link {
     ///
     /// This is a required flag because you must specify the path for the output APK that
     /// can hold the linked resources.
-    o: PathBuf,
+    output_apk: PathBuf,
     /// Specifies the path to the Android manifest file to build.
     ///
     /// This is a required flag because the manifest file encloses essential information
@@ -250,10 +250,10 @@ pub struct Aapt2Link {
 }
 
 impl Aapt2Link {
-    pub fn new(inputs: &[PathBuf], o: &Path, manifest: &Path) -> Self {
+    pub fn new(inputs: &[PathBuf], output_apk: PathBuf, manifest: &Path) -> Self {
         Self {
             inputs: inputs.to_vec(),
-            o: o.to_owned(),
+            output_apk: output_apk.to_owned(),
             manifest: manifest.to_owned(),
             i: None,
             assets: None,
@@ -640,7 +640,7 @@ impl Aapt2Link {
         self.inputs.iter().for_each(|input| {
             aapt2.arg(input);
         });
-        aapt2.arg("-o").arg(&self.o);
+        aapt2.arg("-o").arg(&self.output_apk);
         aapt2.arg("--manifest").arg(&self.manifest);
         if let Some(i) = &self.i {
             aapt2.arg("-I").arg(i);
@@ -849,20 +849,5 @@ impl Aapt2Link {
         }
         aapt2.output_err(true)?;
         Ok(())
-    }
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn builder_test() {
-        let _aapt2 = Aapt2Link::new(
-            &[Path::new("res\\mipmap\\").to_owned()],
-            &Path::new("res\\mipmap\\"),
-            &Path::new("res\\mipmap\\"),
-        )
-        .min_sdk_version(30)
-        .run();
     }
 }

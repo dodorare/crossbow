@@ -121,7 +121,7 @@ pub enum KeyPass {
 }
 
 impl BuildApks {
-    pub fn new(bundle: &Path, output: &Path) -> Self {
+    pub fn new(bundle: &Path, output: &PathBuf) -> Self {
         Self {
             bundle: bundle.to_owned(),
             output: output.to_owned(),
@@ -208,7 +208,11 @@ impl BuildApks {
     pub fn run(&self) -> Result<()> {
         let mut build_apks = Command::new("java");
         build_apks.arg("-jar");
-        build_apks.arg("$BUNDLETOOL_PATH");
+        if let Ok(bundletool_path) = std::env::var("BUNDLETOOL_PATH") {
+            build_apks.arg(bundletool_path);
+        } else {
+            return Err(AndroidError::BundletoolNotFound.into());
+        }
         build_apks.arg("build-apks");
         build_apks.arg("--bundle").arg(&self.bundle);
         build_apks.arg("--output").arg(&self.output);
@@ -227,17 +231,20 @@ impl BuildApks {
         if let Some(ks_pass_file) = &self.ks_pass_file {
             build_apks.arg("--ks-pass=file:").arg(ks_pass_file);
         }
+        if let Some(ks_key_alias) = &self.ks_key_alias {
+            build_apks.arg("--ks-key-alias").arg(ks_key_alias);
+        }
         if let Some(key_pass_pass) = &self.key_pass_pass {
-            build_apks.arg("--key-pass=pass:").arg(key_pass_pass);
+            build_apks.arg("--key-pass=pass").arg(key_pass_pass);
         }
         if let Some(key_pass_file) = &self.key_pass_file {
-            build_apks.arg("--key-pass=file:").arg(key_pass_file);
+            build_apks.arg("--key-pass=file").arg(key_pass_file);
         }
         if self.connected_device {
             build_apks.arg("--connected-device");
         }
         if let Some(device_id) = &self.device_id {
-            build_apks.arg("--device-id=").arg(device_id);
+            build_apks.arg("--device-id").arg(device_id);
         }
         if let Some(device_spec) = &self.device_spec {
             build_apks.arg("--device-spec").arg(device_spec);
@@ -259,11 +266,15 @@ mod tests {
 
     #[test]
 
-    fn build_apks_test() {
-        let _build_apks = BuildApks::new(
-            Path::new("res\\mipmap\\"),
-            Path::new("res\\mipmap\\test.apk"),
+    fn test() {
+        let test = BuildApks::new(
+            &Path::new("res\\mipmap\\test.aab"),
+            &Path::new("res\\mipmap\\example.apks").to_owned(),
         )
-        .run();
+        .ks(&Path::new("res\\mipmap\\keystore"))
+        .ks_key_alias("devtools".to_string())
+        .run()
+        .unwrap();
     }
 }
+// java -jar $BUNDLETOOL_PATH build-apks --bundle C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\test.aab --output C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\example.apks  --ks C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\keystore  --ks-pass=pass:123456 --ks-key-alias devtools

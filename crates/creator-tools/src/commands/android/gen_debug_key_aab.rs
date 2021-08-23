@@ -3,7 +3,8 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 pub fn gen_debug_key_aab(keystore_path: &Path, alias: String) -> Result<()> {
-    let path = keystore_path.join("keystore");
+    let path = android_dir()?.join("debug.keystore");
+    let password = "android".to_string();
     if !path.exists() {
         let mut keytool = keytool()?;
         keytool
@@ -35,6 +36,14 @@ fn keytool() -> Result<Command> {
         }
     }
     Err(Error::CmdNotFound("keytool".to_string()))
+}
+
+fn android_dir() -> Result<PathBuf> {
+    let android_dir = dirs::home_dir()
+        .ok_or_else(|| Error::PathNotFound(PathBuf::from("$HOME")))?
+        .join(".android");
+    std::fs::create_dir_all(&android_dir)?;
+    Ok(android_dir)
 }
 
 #[cfg(test)]

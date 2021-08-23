@@ -62,7 +62,13 @@ impl GetSizeTotal {
     }
 
     pub fn run(&self) -> Result<()> {
-        let mut get_size_total = Command::new("bundletool");
+        let mut get_size_total = Command::new("java");
+        get_size_total.arg("-jar");
+        if let Ok(bundletool_path) = std::env::var("BUNDLETOOL_PATH") {
+            get_size_total.arg(bundletool_path);
+        } else {
+            return Err(AndroidError::BundletoolNotFound.into());
+        }
         get_size_total.arg("get-size");
         get_size_total.arg("total");
         get_size_total.arg("--apks");

@@ -16,7 +16,7 @@ use std::path::{Path, PathBuf};
 pub struct Bundletool;
 
 impl Bundletool {
-    pub fn build_apks(self, bundle: &Path, output: &Path) -> BuildApks {
+    pub fn build_apks(self, bundle: &Path, output: &PathBuf) -> BuildApks {
         BuildApks::new(bundle, output)
     }
 

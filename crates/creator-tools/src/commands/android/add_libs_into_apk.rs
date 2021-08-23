@@ -21,7 +21,7 @@ pub fn add_libs_into_apk(
     min_sdk_version: u32,
     build_dir: &Path,
     target_dir: &Path,
-) -> Result<()> {
+) -> Result<PathBuf> {
     // Get list of android system libs (https://developer.android.com/ndk/guides/stable_apis)
     let mut system_libs = Vec::new();
     let sysroot_platform_lib_dir = ndk.sysroot_platform_lib_dir(build_target, min_sdk_version)?;
@@ -51,7 +51,7 @@ pub fn add_libs_into_apk(
     for (_lib_name, lib_path) in needed_libs {
         aapt_add_lib(sdk, apk_path, &lib_path, &out_dir, abi)?;
     }
-    Ok(())
+    Ok(out_dir)
 }
 
 /// Copy lib into `out_dir` then add this lib into apk file.

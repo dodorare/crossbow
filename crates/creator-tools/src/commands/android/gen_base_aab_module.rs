@@ -6,7 +6,7 @@ use crate::{
     tools::AndroidSdk,
     types::*,
 };
-use glob::glob;
+
 use std::fs::read_dir;
 use std::path::{Path, PathBuf};
 
@@ -26,23 +26,18 @@ pub fn gen_base_aab_module(
     }
     Aapt2Compile::new(res_path, &compiled_res).run()?;
     let apk_path = build_dir.join(format!("{}_module.apk", package_label));
-    if compiled_res.is_dir(){
+    if compiled_res.is_dir() {
         for entry in read_dir(compiled_res)? {
             let entry = entry?;
             let path = entry.path();
-    Aapt2Link::new(&[path], &apk_path, manifest_path)
-        .i(sdk.android_jar(target_sdk_version)?)
-        .version_code(1)
-        .proto_format(true)
-        .auto_add_overlay(true)
-        .run()?;
+            Aapt2Link::new(&[path], apk_path.clone(), manifest_path)
+                .i(sdk.android_jar(target_sdk_version)?)
+                .version_code(1)
+                .proto_format(true)
+                .auto_add_overlay(true)
+                .run()?;
         }
     }
-
-    if let Some(assets_path) = assets_path {
-        todo!()
-    }
-
     let extracted_apk_files = build_dir.join("extracted_apk_files");
     extract_apk::extract_apk(&apk_path, &extracted_apk_files).unwrap();
     Ok(extracted_apk_files)
@@ -81,11 +76,11 @@ mod tests {
 
     #[test]
     fn test_one() -> Result<()> {
-         let paths = std::fs::read_dir("./").unwrap();
+        let paths = std::fs::read_dir("./").unwrap();
 
         for path in paths {
-        println!("Name: {}", path.unwrap().path().display())
-    }
-    Ok(())
+            println!("Name: {}", path.unwrap().path().display())
+        }
+        Ok(())
     }
 }

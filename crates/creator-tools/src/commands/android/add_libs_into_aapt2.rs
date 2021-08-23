@@ -19,7 +19,7 @@ pub fn add_libs_into_aapt2(
     min_sdk_version: u32,
     build_dir: &Path,
     target_dir: &Path,
-) -> Result<()> {
+) -> Result<PathBuf> {
     // Get list of android system libs (https://developer.android.com/ndk/guides/stable_apis)
     let mut system_libs = Vec::new();
     let sysroot_platform_lib_dir = ndk.sysroot_platform_lib_dir(build_target, min_sdk_version)?;
@@ -49,7 +49,7 @@ pub fn add_libs_into_aapt2(
     for (_lib_name, lib_path) in needed_libs {
         add_lib_aapt2(&lib_path, &out_dir)?;
     }
-    Ok(())
+    Ok(lib_path.to_path_buf())
 }
 
 /// Copy lib into `out_dir` then add this lib into apk file.
@@ -61,7 +61,8 @@ pub fn add_lib_aapt2(lib_path: &Path, out_dir: &Path) -> Result<()> {
     let options = fs_extra::dir::CopyOptions::new();
     let mut lib = Vec::new();
     lib.push(&lib_path);
-    fs_extra::copy_items(&lib, out_dir, &options)?;
+    let filename = out_dir.file_name().unwrap();
+    fs_extra::copy_items(&lib, out_dir.join(&filename), &options)?;
     Ok(())
 }
 
