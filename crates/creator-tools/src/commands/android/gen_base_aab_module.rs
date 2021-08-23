@@ -24,8 +24,8 @@ pub fn gen_base_aab_module(
     if !compiled_res.exists() {
         std::fs::create_dir_all(&compiled_res)?;
     }
-    if res_path.is_dir(){
-        for entry in read_dir(res_path)?{
+    if res_path.is_dir() {
+        for entry in read_dir(res_path)? {
             let entry = entry?;
             let path = entry.path();
             Aapt2Compile::new(&[path], &compiled_res).run()?;

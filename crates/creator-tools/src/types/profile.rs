@@ -28,6 +28,15 @@ impl FromStr for Profile {
     }
 }
 
+impl ToString for Profile {
+    fn to_string(&self) -> String {
+        match self {
+            Self::Debug => "debug".to_string(),
+            Self::Release => "release".to_string(),
+        }
+    }
+}
+
 impl Default for Profile {
     fn default() -> Self {
         Self::Debug

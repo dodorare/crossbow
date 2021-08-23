@@ -58,10 +58,11 @@ pub fn add_lib_aapt2(lib_path: &Path, out_dir: &Path) -> Result<()> {
         return Err(Error::PathNotFound(lib_path.to_owned()));
     }
     std::fs::create_dir_all(&out_dir)?;
-    let options = fs_extra::dir::CopyOptions::new();
-    let mut lib = Vec::new();
-    lib.push(&lib_path);
-    let filename = out_dir.file_name().unwrap();
-    fs_extra::copy_items(&lib, out_dir.join(&filename), &options)?;
+    let filename = lib_path.file_name().unwrap();
+    fs_extra::file::copy(
+        &lib_path,
+        out_dir.join(&filename),
+        &fs_extra::file::CopyOptions::new(),
+    )?;
     Ok(())
 }
