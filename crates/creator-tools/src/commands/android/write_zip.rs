@@ -21,18 +21,3 @@ pub fn dirs_to_write(source_path: &PathBuf) -> fs_extra::error::Result<()> {
     }
     Ok(())
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-
-    fn test() {
-        write(
-            &Path::new("res\\extracted_files").to_owned(),
-            &Path::new("res\\test.zip"),
-        )
-        .unwrap();
-    }
-}

@@ -259,22 +259,3 @@ impl BuildApks {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-
-    fn test() {
-        let test = BuildApks::new(
-            &Path::new("res\\mipmap\\test.aab"),
-            &Path::new("res\\mipmap\\example.apks").to_owned(),
-        )
-        .ks(&Path::new("res\\mipmap\\keystore"))
-        .ks_key_alias("devtools".to_string())
-        .run()
-        .unwrap();
-    }
-}
-// java -jar $BUNDLETOOL_PATH build-apks --bundle C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\test.aab --output C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\example.apks  --ks C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\keystore  --ks-pass=pass:123456 --ks-key-alias devtools

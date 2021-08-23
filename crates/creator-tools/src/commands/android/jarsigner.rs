@@ -37,19 +37,3 @@ fn jarsigner_tool() -> Result<Command> {
     }
     Err(Error::CmdNotFound("jarsigner".to_string()))
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-
-    fn test() {
-        jarsigner(
-            Path::new("res\\mipmap\\keystore"),
-            Path::new("res\\mipmap\\test.aab"),
-            "devtool".to_string(),
-        )
-        .unwrap();
-    }
-}

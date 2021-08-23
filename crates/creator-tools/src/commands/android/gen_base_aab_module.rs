@@ -12,7 +12,7 @@ use std::path::{Path, PathBuf};
 
 /// Compile resources, link resources and extract apk
 pub fn gen_base_aab_module(
-    res_path: &[PathBuf],
+    res_path: &Path,
     assets_path: Option<PathBuf>,
     build_dir: &Path,
     sdk: &AndroidSdk,
@@ -24,7 +24,13 @@ pub fn gen_base_aab_module(
     if !compiled_res.exists() {
         std::fs::create_dir_all(&compiled_res)?;
     }
-    Aapt2Compile::new(res_path, &compiled_res).run()?;
+    if res_path.is_dir(){
+        for entry in read_dir(res_path)?{
+            let entry = entry?;
+            let path = entry.path();
+            Aapt2Compile::new(&[path], &compiled_res).run()?;
+        }
+    }
     let apk_path = build_dir.join(format!("{}_module.apk", package_label));
     if compiled_res.is_dir() {
         for entry in read_dir(compiled_res)? {
@@ -52,35 +58,4 @@ pub fn gen_zip_modules(
     write_zip::dirs_to_write(&extracted_apk_files.to_owned())?;
     write_zip::write(&extracted_apk_files.to_owned(), &zip_path).unwrap();
     Ok(zip_path.to_path_buf())
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-
-    fn test() {
-        let sdk = AndroidSdk::from_env().unwrap();
-        gen_base_aab_module(
-            &[Path::new("res\\mipmap\\Screenshot_2.png").to_owned()],
-            None,
-            Path::new("res\\mipmap\\"),
-            &sdk,
-            "label",
-            Path::new("src\\main\\AndroidManifest.xml"),
-            30,
-        )
-        .unwrap();
-    }
-
-    #[test]
-    fn test_one() -> Result<()> {
-        let paths = std::fs::read_dir("./").unwrap();
-
-        for path in paths {
-            println!("Name: {}", path.unwrap().path().display())
-        }
-        Ok(())
-    }
 }
