@@ -45,14 +45,3 @@ fn android_dir() -> Result<PathBuf> {
     std::fs::create_dir_all(&android_dir)?;
     Ok(android_dir)
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-
-    fn test() {
-        gen_debug_key_aab(Path::new("res\\mipmap"), "devtool".to_string()).unwrap();
-    }
-}

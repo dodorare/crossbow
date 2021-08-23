@@ -89,14 +89,3 @@ impl GetSizeTotal {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-
-    fn get_size_total_test() {
-        let _get_size_total = GetSizeTotal::new(Path::new("res\\mipmap\\test.apk")).run();
-    }
-}

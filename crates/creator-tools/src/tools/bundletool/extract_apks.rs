@@ -37,17 +37,3 @@ impl ExtractApks {
         Ok(())
     }
 }
-
-#[cfg(test)]
-
-mod tests {
-    use super::*;
-    #[test]
-
-    fn extract_apks_test() {
-        let _extract_apks = ExtractApks::new(
-            &Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\test.apk"),
-        &Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\spec.json"),
-        &Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\crates\\creator-tools\\res\\mipmap\\")).run();
-    }
-}

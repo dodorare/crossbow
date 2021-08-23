@@ -53,7 +53,7 @@ mod tests {
 
         // Gen apks and prepare modules (zip, zip, zip)
         let base_apk_path = android::gen_base_aab_module(
-            &[Path::new("res\\mipmap\\Screenshot_2.png").to_owned()],
+            Path::new("res\\mipmap\\"),
             None,
             &build_dir,
             &sdk,
