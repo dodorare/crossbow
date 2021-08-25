@@ -12,7 +12,7 @@ use std::path::{Path, PathBuf};
 
 /// Compile resources, link resources and extract apk
 pub fn gen_base_aab_module(
-    res_path: &Path,
+    res_path: Option<PathBuf>,
     assets_path: Option<PathBuf>,
     build_dir: &Path,
     sdk: &AndroidSdk,
@@ -24,25 +24,29 @@ pub fn gen_base_aab_module(
     if !compiled_res.exists() {
         std::fs::create_dir_all(&compiled_res)?;
     }
-    if res_path.is_dir() {
-        for entry in read_dir(res_path)? {
-            let entry = entry?;
-            let path = entry.path();
-            Aapt2Compile::new(&[path], &compiled_res).run()?;
-        }
+    if let Some(res) = res_path {
+        let resources = res.as_path();
+        // TODO: handle errors
+        let paths = read_dir(resources)?
+            .map(|e| e.map(|x| x.path()))
+            .flatten()
+            .collect::<Vec<_>>();
+        Aapt2Compile::new(&paths, &compiled_res).run()?;
     }
+
     let apk_path = build_dir.join(format!("{}_module.apk", package_label));
     if compiled_res.is_dir() {
-        for entry in read_dir(compiled_res)? {
-            let entry = entry?;
-            let path = entry.path();
-            Aapt2Link::new(&[path], apk_path.clone(), manifest_path)
-                .i(sdk.android_jar(target_sdk_version)?)
-                .version_code(1)
-                .proto_format(true)
-                .auto_add_overlay(true)
-                .run()?;
-        }
+        // TODO: handle errors
+        let paths = read_dir(compiled_res)?
+            .map(|e| e.map(|x| x.path()))
+            .flatten()
+            .collect::<Vec<_>>();
+        Aapt2Link::new(&paths, apk_path.clone(), manifest_path)
+            .i(sdk.android_jar(target_sdk_version)?)
+            .version_code(1)
+            .proto_format(true)
+            .auto_add_overlay(true)
+            .run()?;
     }
     let extracted_apk_files = build_dir.join("extracted_apk_files");
     extract_apk::extract_apk(&apk_path, &extracted_apk_files).unwrap();
@@ -58,4 +62,23 @@ pub fn gen_zip_modules(
     write_zip::dirs_to_write(&extracted_apk_files.to_owned())?;
     write_zip::write(&extracted_apk_files.to_owned(), &zip_path).unwrap();
     Ok(zip_path.to_path_buf())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn new() {
+        let sdk = AndroidSdk::from_env().unwrap();
+        gen_base_aab_module(
+            Some(Path::new("res\\mipmap").to_owned()),
+            None,
+            Path::new("res\\"),
+            &sdk,
+            "example",
+            Path::new("manifest\\AndroidManifest.xml"),
+            30,
+        )
+        .unwrap();
+    }
 }

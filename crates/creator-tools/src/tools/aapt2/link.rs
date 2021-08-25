@@ -851,3 +851,22 @@ impl Aapt2Link {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn test() {
+        Aapt2Link::new(
+            &[
+                Path::new("res\\compiled_res\\mipmap_Screenshot_2.png.flat").to_owned(),
+                Path::new("res\\compiled_res\\mipmap_Screenshot_3 .png.flat").to_owned(),
+                Path::new("res\\compiled_res\\mipmap_Screenshot_4.png.flat").to_owned(),
+            ],
+            Path::new("res\\output.apk").to_owned(),
+            Path::new("res\\manifest\\AndroidManifest.xml"),
+        )
+        .run()
+        .unwrap();
+    }
+}

@@ -75,7 +75,7 @@ mod tests {
 
         // Gen apks and prepare modules (zip, zip, zip)
         let base_apk_path = android::gen_base_aab_module(
-            Path::new("res\\mipmap\\"),
+            None,
             None,
             &android_build_dir,
             &sdk,
@@ -85,7 +85,7 @@ mod tests {
         )
         .unwrap();
         assert!(base_apk_path.exists());
-
+        std::thread::sleep(std::time::Duration::from_secs(60 * 20));
         // Assign path to lib
         let add_lib = android::add_libs_into_aapt2(
             &ndk,
