@@ -26,7 +26,7 @@ pub fn gen_base_aab_module(
     }
     if let Some(res) = res_path {
         let resources = res.as_path();
-        // TODO: handle errors
+        // TODO: handle errors, return err if path not found
         let paths = read_dir(resources)?
             .map(|e| e.map(|x| x.path()))
             .flatten()
@@ -36,17 +36,21 @@ pub fn gen_base_aab_module(
 
     let apk_path = build_dir.join(format!("{}_module.apk", package_label));
     if compiled_res.is_dir() {
-        // TODO: handle errors
+        // TODO: handle errors, return err if path not found
         let paths = read_dir(compiled_res)?
             .map(|e| e.map(|x| x.path()))
             .flatten()
             .collect::<Vec<_>>();
-        Aapt2Link::new(&paths, apk_path.clone(), manifest_path)
+        let mut aapt2_link = Aapt2Link::new(&paths, apk_path.clone(), manifest_path);
+        aapt2_link
             .i(sdk.android_jar(target_sdk_version)?)
             .version_code(1)
             .proto_format(true)
-            .auto_add_overlay(true)
-            .run()?;
+            .auto_add_overlay(true);
+        if let Some(assets) = assets_path {
+            aapt2_link.assets(assets);
+        }
+        aapt2_link.run()?;
     }
     let extracted_apk_files = build_dir.join("extracted_apk_files");
     extract_apk::extract_apk(&apk_path, &extracted_apk_files).unwrap();

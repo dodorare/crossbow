@@ -3,7 +3,6 @@ use creator_tools::{
     tools::*,
     types::*,
 };
-use std::path::Path;
 
 #[cfg(test)]
 mod tests {
@@ -101,10 +100,6 @@ mod tests {
         .unwrap();
         assert!(add_lib.exists());
 
-        // println!("{}", android_build_dir.to_string_lossy());
-        // println!("{}", android_compiled_lib.to_string_lossy());
-        // std::thread::sleep(std::time::Duration::from_secs(60 * 20));
-
         let gen_zip_modules =
             android::gen_zip_modules(&android_build_dir, &package_name, &base_apk_path).unwrap();
         assert!(gen_zip_modules.exists());
@@ -122,13 +117,6 @@ mod tests {
         // Create keystore with keytool command
         let apks = android_build_dir.join(format!("{}.apks", package_name));
         let build_apks = android::build_apks(&aab_path, &apks, &package_name, key).unwrap();
-
-        // android::jarsigner(
-        //     Path::new("res\\mipmap\\keystore"),
-        //     Path::new("res\\mipmap\\test.aab"),
-        //     "devtools".to_string(),
-        // )
-        // .unwrap();
-        // android::verify_aab(Path::new("res\\mipmap\\test.aab")).unwrap();
+        assert!(build_apks.exists());
     }
 }

@@ -33,33 +33,9 @@ pub fn build_apks(
         .arg("--overwrite")
         .arg("--ks")
         .arg(&key.path)
-        .arg("--ks-pass=pass:android")
+        .arg(format!("--ks-pass=pass:{}", &key.password))
         .arg("--ks-key-alias")
         .arg(alias);
     build_apks.output_err(true)?;
-    // BuildApks::new(&aab_path, &apks)
-    //     .ks(&key.path)
-    //     .ks_pass_pass(key.password)
-    //     .ks_key_alias(alias)
-    //     .run()?;
     Ok(apks)
 }
-
-// #[cfg(test)]
-
-// mod tests {
-//     use super::Key;
-//     use super::*;
-
-//     #[test]
-
-//     fn test() {
-//         build_apks(
-//             &Path::new("res\\mipmap\\test.aab"),
-//             &Path::new("res\\mipmap\\"),
-//             "example",
-//             Key {},
-//         )
-//         .unwrap();
-//     }
-// }
