@@ -2,12 +2,14 @@ mod build_apks;
 mod build_bundle;
 mod extract_apks;
 mod get_size_total;
+mod install_apks;
 mod jarsigner;
 
 pub use build_apks::*;
 pub use build_bundle::*;
 pub use extract_apks::*;
 pub use get_size_total::*;
+pub use install_apks::*;
 pub use jarsigner::*;
 
 use std::path::{Path, PathBuf};

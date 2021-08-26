@@ -80,7 +80,7 @@ fn test_android_full() {
         &target_dir,
     )
     .unwrap();
-    
+
     // Align apk
     let aligned_apk_path =
         android::align_apk(&sdk, &unaligned_apk_path, &manifest.package, &apk_build_dir).unwrap();

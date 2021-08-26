@@ -8,6 +8,8 @@ use std::path::Path;
 #[cfg(test)]
 mod tests {
 
+    use creator_tools::commands::android::gen_debug_key;
+
     use super::*;
 
     #[test]
@@ -85,7 +87,7 @@ mod tests {
         )
         .unwrap();
         assert!(base_apk_path.exists());
-        std::thread::sleep(std::time::Duration::from_secs(60 * 20));
+
         // Assign path to lib
         let add_lib = android::add_libs_into_aapt2(
             &ndk,
@@ -114,8 +116,12 @@ mod tests {
         assert!(aab_path.exists());
 
         // Create keystore with keytool command
-        let build_apks = android::build_apks(&aab_path, &android_build_dir, &package_name).unwrap();
-        assert!(build_apks.exists());
+        let key = gen_debug_key().unwrap();
+        println!("{:?}", key);
+
+        // Create keystore with keytool command
+        let apks = android_build_dir.join(format!("{}.apks", package_name));
+        let build_apks = android::build_apks(&aab_path, &apks, &package_name, key).unwrap();
 
         // android::jarsigner(
         //     Path::new("res\\mipmap\\keystore"),
