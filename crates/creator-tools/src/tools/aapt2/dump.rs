@@ -124,26 +124,3 @@ impl std::fmt::Display for SubCommand {
         }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn builder_test_one() {
-        let _aapt2 = Aapt2Dump::new(
-            // Badging options:
-            // --include-meta-data, Include meta-data information.
-            //
-            // Styleparents options:
-            // --style arg, The name of the style to print
-            //
-            // Xmlstrings and Xmltree options:
-            // --file arg,  A compiled xml file to print
-            SubCommand::Configurations,
-            &Path::new("res\\mipmap\\"),
-        )
-        .no_values(true)
-        .run();
-    }
-}

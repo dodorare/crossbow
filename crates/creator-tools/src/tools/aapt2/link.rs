@@ -55,7 +55,7 @@ pub struct Aapt2Link {
     /// framework-res.apk  which might be useful while building features. This flag is
     /// required if you are using attributes with android namespace (for example,
     /// android:id) in your resource files.
-    i: Option<PathBuf>,
+    android_jar: Option<PathBuf>,
     /// Specifies an assets directory to be included in the APK.
     ///
     /// You can use this directory to store original unprocessed files. To learn more,
@@ -68,7 +68,7 @@ pub struct Aapt2Link {
     ///
     /// When you a provide a resource file that overlays (extends or modifies) an existing
     /// file, the last conflicting resource given is used.
-    r: Option<PathBuf>,
+    individual_flat: Option<PathBuf>,
     /// Specifies the package ID to use for your app.
     ///
     /// The package ID that you specify must be greater than or equal to 0x7f unless used
@@ -110,9 +110,9 @@ pub struct Aapt2Link {
     /// optimization of APK size, but at the cost of resource retrieval performance.
     enable_sparse_encoding: bool,
     /// Legacy flag that specifies to use the package identifier 0x01.
-    x: bool,
+    package_identifier: bool,
     /// Requires localization of strings marked 'suggested'.
-    z: bool,
+    suggested_strings: bool,
     /// Provides a list of configurations separated by commas.
     ///
     /// For example, if you have dependencies on the support library (which contains
@@ -244,9 +244,9 @@ pub struct Aapt2Link {
     /// only be used together with the --static-lib flag.
     merge_only: bool,
     /// Enables increased verbosity of the output.
-    v: bool,
+    verbose: bool,
     /// Displays this help menu
-    h: bool,
+    help: bool,
 }
 
 impl Aapt2Link {
@@ -255,9 +255,9 @@ impl Aapt2Link {
             inputs: inputs.to_vec(),
             output_apk: output_apk.to_owned(),
             manifest: manifest.to_owned(),
-            i: None,
+            android_jar: None,
             assets: None,
-            r: None,
+            individual_flat: None,
             package_id: None,
             allow_reserved_package_id: false,
             java: None,
@@ -271,8 +271,8 @@ impl Aapt2Link {
             no_resource_deduping: false,
             no_resource_removal: false,
             enable_sparse_encoding: false,
-            x: false,
-            z: false,
+            package_identifier: false,
+            suggested_strings: false,
             config: Vec::new(),
             preferred_density: None,
             product: None,
@@ -314,8 +314,8 @@ impl Aapt2Link {
             exclude_sources: false,
             trace_folder: None,
             merge_only: false,
-            v: false,
-            h: false,
+            verbose: false,
+            help: false,
         }
     }
 
@@ -334,8 +334,8 @@ impl Aapt2Link {
         self
     }
 
-    pub fn x(&mut self, x: bool) -> &mut Self {
-        self.x = x;
+    pub fn package_identifier(&mut self, package_identifier: bool) -> &mut Self {
+        self.package_identifier = package_identifier;
         self
     }
 
@@ -410,8 +410,8 @@ impl Aapt2Link {
         self
     }
 
-    pub fn i(&mut self, i: PathBuf) -> &mut Self {
-        self.i = Some(i);
+    pub fn android_jar(&mut self, android_jar: PathBuf) -> &mut Self {
+        self.android_jar = Some(android_jar);
         self
     }
 
@@ -420,8 +420,8 @@ impl Aapt2Link {
         self
     }
 
-    pub fn r(&mut self, r: PathBuf) -> &mut Self {
-        self.r = Some(r);
+    pub fn individual_flat(&mut self, individual_flat: PathBuf) -> &mut Self {
+        self.individual_flat = Some(individual_flat);
         self
     }
 
@@ -478,8 +478,8 @@ impl Aapt2Link {
         self
     }
 
-    pub fn z(&mut self, z: bool) -> &mut Self {
-        self.z = z;
+    pub fn suggested_strings(&mut self, suggested_strings: bool) -> &mut Self {
+        self.suggested_strings = suggested_strings;
         self
     }
 
@@ -624,13 +624,13 @@ impl Aapt2Link {
         self
     }
 
-    pub fn v(&mut self, v: bool) -> &mut Self {
-        self.v = v;
+    pub fn verbose(&mut self, verbose: bool) -> &mut Self {
+        self.verbose = verbose;
         self
     }
 
-    pub fn h(&mut self, h: bool) -> &mut Self {
-        self.h = h;
+    pub fn help(&mut self, help: bool) -> &mut Self {
+        self.help = help;
         self
     }
 
@@ -642,14 +642,14 @@ impl Aapt2Link {
         });
         aapt2.arg("-o").arg(&self.output_apk);
         aapt2.arg("--manifest").arg(&self.manifest);
-        if let Some(i) = &self.i {
-            aapt2.arg("-I").arg(i);
+        if let Some(android_jar) = &self.android_jar {
+            aapt2.arg("-I").arg(android_jar);
         }
         if let Some(assets) = &self.assets {
             aapt2.arg("-A").arg(assets);
         }
-        if let Some(r) = &self.r {
-            aapt2.arg("-R").arg(r);
+        if let Some(individual_flat) = &self.individual_flat {
+            aapt2.arg("-R").arg(individual_flat);
         }
         if let Some(package_id) = &self.package_id {
             aapt2.arg("--package-id").arg(package_id);
@@ -681,7 +681,7 @@ impl Aapt2Link {
         if self.enable_sparse_encoding {
             aapt2.arg("--enable-sparse-encoding");
         }
-        if self.z {
+        if self.suggested_strings {
             aapt2.arg("-z");
         }
         if self.config.len() > 0 {
@@ -760,10 +760,10 @@ impl Aapt2Link {
         if let Some(split) = &self.split {
             aapt2.arg("--split").arg(split);
         }
-        if self.v {
+        if self.verbose {
             aapt2.arg("-v");
         }
-        if self.h {
+        if self.help {
             aapt2.arg("-h");
         }
         if let Some(proguard_main_dex) = &self.proguard_main_dex {
@@ -775,7 +775,7 @@ impl Aapt2Link {
         if self.no_resource_removal {
             aapt2.arg("--no-resource-removal");
         }
-        if self.x {
+        if self.package_identifier {
             aapt2.arg("-x");
         }
         if let Some(product) = &self.product {
@@ -849,24 +849,5 @@ impl Aapt2Link {
         }
         aapt2.output_err(true)?;
         Ok(())
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn test() {
-        Aapt2Link::new(
-            &[
-                Path::new("res\\compiled_res\\mipmap_Screenshot_2.png.flat").to_owned(),
-                Path::new("res\\compiled_res\\mipmap_Screenshot_3 .png.flat").to_owned(),
-                Path::new("res\\compiled_res\\mipmap_Screenshot_4.png.flat").to_owned(),
-            ],
-            Path::new("res\\output.apk").to_owned(),
-            Path::new("res\\manifest\\AndroidManifest.xml"),
-        )
-        .run()
-        .unwrap();
     }
 }

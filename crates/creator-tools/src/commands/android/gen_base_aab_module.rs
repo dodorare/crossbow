@@ -43,7 +43,7 @@ pub fn gen_base_aab_module(
             .collect::<Vec<_>>();
         let mut aapt2_link = Aapt2Link::new(&paths, apk_path.clone(), manifest_path);
         aapt2_link
-            .i(sdk.android_jar(target_sdk_version)?)
+            .android_jar(sdk.android_jar(target_sdk_version)?)
             .version_code(1)
             .proto_format(true)
             .auto_add_overlay(true);

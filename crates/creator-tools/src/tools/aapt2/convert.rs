@@ -91,15 +91,3 @@ impl std::fmt::Display for OutputFormat {
         }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn builder_test() {
-        let _aapt2 = Aapt2Convert::new(&Path::new("res\\mipmap\\"))
-            .keep_raw_values(true)
-            .run();
-    }
-}

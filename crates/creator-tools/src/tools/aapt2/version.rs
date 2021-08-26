@@ -31,13 +31,3 @@ impl Aapt2Version {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn builder_test() {
-        let _aapt2 = Aapt2Version::new("1.0.0".to_string()).h(false).run();
-    }
-}

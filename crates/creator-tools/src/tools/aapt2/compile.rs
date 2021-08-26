@@ -58,9 +58,9 @@ pub struct Aapt2Compile {
     /// Although you can use this flag to compile multiple resource files with one
     /// command, it disables the benefits of incremental compilation and thus, should not
     /// be used for large projects.
-    dir: Option<PathBuf>,
+    res_dir: Option<PathBuf>,
     /// Zip file containing the res directory to scan for resources
-    zip: Option<PathBuf>,
+    res_zip: Option<PathBuf>,
     /// Generates a text file containing the resource symbols in the specified file
     output_text_symbols: Option<String>,
     /// Generates pseudo-localized versions of default strings, such as en-XA and en-XB.
@@ -85,11 +85,11 @@ pub struct Aapt2Compile {
     /// Accepted levels: public, private, default.
     visibility: Option<Visibility>,
     /// Enable verbose logging.
-    v: bool,
+    verbose: bool,
     /// Generate systrace json trace fragment to specified folder.
     trace_folder: Option<PathBuf>,
     /// Displays this help menu
-    h: bool,
+    help: bool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -114,27 +114,27 @@ impl Aapt2Compile {
         Self {
             input_res: input_res.to_vec(),
             compiled_res: compiled_res.to_owned(),
-            dir: None,
-            zip: None,
+            res_dir: None,
+            res_zip: None,
             output_text_symbols: None,
             pseudo_localize: false,
             no_crunch: false,
             legacy: false,
             preserve_visibility_of_styleables: false,
             visibility: None,
-            v: false,
+            verbose: false,
             trace_folder: None,
-            h: false,
+            help: false,
         }
     }
 
-    pub fn dir(&mut self, dir: &Path) -> &mut Self {
-        self.dir = Some(dir.to_owned());
+    pub fn res_dir(&mut self, res_dir: &Path) -> &mut Self {
+        self.res_dir = Some(res_dir.to_owned());
         self
     }
 
-    pub fn zip(&mut self, zip: &Path) -> &mut Self {
-        self.zip = Some(zip.to_owned());
+    pub fn res_zip(&mut self, res_zip: &Path) -> &mut Self {
+        self.res_zip = Some(res_zip.to_owned());
         self
     }
 
@@ -166,8 +166,8 @@ impl Aapt2Compile {
         self
     }
 
-    pub fn v(&mut self, v: bool) -> &mut Self {
-        self.v = v;
+    pub fn verbose(&mut self, verbose: bool) -> &mut Self {
+        self.verbose = verbose;
         self
     }
 
@@ -176,8 +176,8 @@ impl Aapt2Compile {
         self
     }
 
-    pub fn h(&mut self, h: bool) -> &mut Self {
-        self.h = h;
+    pub fn help(&mut self, help: bool) -> &mut Self {
+        self.help = help;
         self
     }
 
@@ -194,14 +194,14 @@ impl Aapt2Compile {
         });
         aapt2.arg("-o");
         aapt2.arg(&self.compiled_res);
-        if let Some(dir) = &self.dir {
-            aapt2.arg("--dir").arg(dir);
+        if let Some(res_dir) = &self.res_dir {
+            aapt2.arg("--dir").arg(res_dir);
         }
         if let Some(visibility) = &self.visibility {
             aapt2.arg("--visibility").arg(visibility.to_string());
         }
-        if let Some(zip) = &self.zip {
-            aapt2.arg("--zip").arg(zip);
+        if let Some(res_zip) = &self.res_zip {
+            aapt2.arg("--zip").arg(res_zip);
         }
         if let Some(output_text_symbols) = &self.output_text_symbols {
             aapt2.arg("--output-text-symbols").arg(output_text_symbols);
@@ -221,10 +221,10 @@ impl Aapt2Compile {
         if let Some(trace_folder) = &self.trace_folder {
             aapt2.arg("--trace-folder").arg(trace_folder);
         }
-        if self.v {
+        if self.verbose {
             aapt2.arg("-v");
         }
-        if self.h {
+        if self.help {
             aapt2.arg("-h");
         }
         aapt2.output_err(true)?;

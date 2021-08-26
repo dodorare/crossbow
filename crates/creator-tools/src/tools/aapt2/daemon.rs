@@ -34,13 +34,3 @@ impl Aapt2Daemon {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn builder_test() {
-        let _aapt2 = Aapt2Daemon::new(Path::new("res\\mipmap\\")).h(false).run();
-    }
-}

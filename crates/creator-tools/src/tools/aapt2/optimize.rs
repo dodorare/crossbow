@@ -175,20 +175,3 @@ impl Aapt2Optimize {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn builder_test() {
-        let _aapt2 = Aapt2Optimize::new(
-            &Path::new("res\\mipmap\\"),
-            &Path::new("res\\mipmap\\"),
-            &Path::new("res\\mipmap\\"),
-        )
-        .p(true)
-        .clone()
-        .run();
-    }
-}

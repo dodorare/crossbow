@@ -33,13 +33,3 @@ impl Aapt2Diff {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn builder_test() {
-        let _aapt2 = Aapt2Diff::new(&Vec::new()).h(false).run();
-    }
-}
