@@ -6,7 +6,7 @@ use std::{
 
 pub struct Aapt2Convert {
     /// Output path
-    o: PathBuf,
+    output_path: PathBuf,
     /// Format of the output. Accepted values are 'proto' and 'binary'. When not set,
     /// defaults to 'binary'.
     output_format: Option<OutputFormat>,
@@ -16,20 +16,20 @@ pub struct Aapt2Convert {
     /// Preserve raw attribute values in xml files when using the 'binary' output format
     keep_raw_values: bool,
     /// Enables verbose logging`
-    v: bool,
+    verbose: bool,
     /// Displays this help menu
-    h: bool,
+    help: bool,
 }
 
 impl Aapt2Convert {
-    pub fn new(o: &Path) -> Self {
+    pub fn new(output_path: &Path) -> Self {
         Self {
-            o: o.to_owned(),
+            output_path: output_path.to_owned(),
             output_format: None,
             enable_sparse_encoding: false,
             keep_raw_values: false,
-            v: false,
-            h: false,
+            verbose: false,
+            help: false,
         }
     }
 
@@ -43,20 +43,20 @@ impl Aapt2Convert {
         self
     }
 
-    pub fn v(&mut self, v: bool) -> &mut Self {
-        self.v = v;
+    pub fn verbose(&mut self, verbose: bool) -> &mut Self {
+        self.verbose = verbose;
         self
     }
 
-    pub fn h(&mut self, h: bool) -> &mut Self {
-        self.h = h;
+    pub fn help(&mut self, help: bool) -> &mut Self {
+        self.help = help;
         self
     }
 
     pub fn run(&self) -> Result<()> {
         let mut aapt2 = Command::new("aapt2");
         aapt2.arg("convert");
-        aapt2.arg("-o").arg(&self.o);
+        aapt2.arg("-o").arg(&self.output_path);
         if let Some(output_format) = &self.output_format {
             aapt2.arg("--output-format").arg(output_format.to_string());
         }
@@ -66,10 +66,10 @@ impl Aapt2Convert {
         if self.keep_raw_values {
             aapt2.arg("--keep-raw-values");
         }
-        if self.v {
+        if self.verbose {
             aapt2.arg("-v");
         }
-        if self.h {
+        if self.help {
             aapt2.arg("-h");
         }
         aapt2.output_err(true)?;

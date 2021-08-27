@@ -21,7 +21,7 @@ path = "src/lib.rs"
 creator = { git = "https://github.com/creator-rs/creator" }
 "#;
 
-const LIB_RS_VALUE: &str = "#[creator::creator_main] pub fn main() {}";
+const LIB_RS_VALUE: &str = r#"#[creator::creator_main] pub fn main() {println!("hello")}"#;
 
 const MAIN_RS_VALUE: &str = "fn main(){example::main();}";
 

@@ -22,12 +22,12 @@ pub struct Aapt2Dump {
     filename_apk: PathBuf,
     /// Suppresses the output of values when displaying resource.
     no_values: bool,
-    /// Suppresses the output of values when displaying resource.
-    file: Option<PathBuf>,
+    /// Specifies a file as an argument to be dumped from the APK.
+    dumped_file: Option<PathBuf>,
     /// Increases verbosity of the output.
-    v: bool,
+    verbose: bool,
     /// Displays this help menu
-    h: bool,
+    help: bool,
 }
 
 impl Aapt2Dump {
@@ -36,9 +36,9 @@ impl Aapt2Dump {
             subcommand,
             filename_apk: filename_apk.to_owned(),
             no_values: false,
-            file: None,
-            v: false,
-            h: false,
+            dumped_file: None,
+            verbose: false,
+            help: false,
         }
     }
 
@@ -47,18 +47,18 @@ impl Aapt2Dump {
         self
     }
 
-    pub fn file(&mut self, file: &Path) -> &mut Self {
-        self.file = Some(file.to_owned());
+    pub fn dumped_file(&mut self, dumped_file: &Path) -> &mut Self {
+        self.dumped_file = Some(dumped_file.to_owned());
         self
     }
 
-    pub fn v(&mut self, v: bool) -> &mut Self {
-        self.v = v;
+    pub fn verbose(&mut self, verbose: bool) -> &mut Self {
+        self.verbose = verbose;
         self
     }
 
-    pub fn h(&mut self, h: bool) -> &mut Self {
-        self.h = h;
+    pub fn help(&mut self, help: bool) -> &mut Self {
+        self.help = help;
         self
     }
 
@@ -70,13 +70,13 @@ impl Aapt2Dump {
         if self.no_values {
             aapt2.arg("--no-values");
         }
-        if let Some(file) = &self.file {
-            aapt2.arg("--file").arg(file);
+        if let Some(dumped_file) = &self.dumped_file {
+            aapt2.arg("--file").arg(dumped_file);
         }
-        if self.v {
+        if self.verbose {
             aapt2.arg("-v");
         }
-        if self.h {
+        if self.help {
             aapt2.arg("-h");
         }
         aapt2.output_err(true)?;

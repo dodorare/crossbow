@@ -4,19 +4,19 @@ use std::process::Command;
 pub struct Aapt2Version {
     version: String,
     /// Displays this help menu
-    h: bool,
+    help: bool,
 }
 
 impl Aapt2Version {
     pub fn new(version: String) -> Self {
         Self {
             version: version.to_owned(),
-            h: false,
+            help: false,
         }
     }
 
-    pub fn h(&mut self, h: bool) -> &mut Self {
-        self.h = h;
+    pub fn help(&mut self, help: bool) -> &mut Self {
+        self.help = help;
         self
     }
 
@@ -24,7 +24,7 @@ impl Aapt2Version {
         let mut aapt2 = Command::new("aapt2");
         aapt2.arg("version");
         aapt2.arg(&self.version);
-        if self.h {
+        if self.help {
             aapt2.arg("-h");
         }
         aapt2.output_err(true)?;

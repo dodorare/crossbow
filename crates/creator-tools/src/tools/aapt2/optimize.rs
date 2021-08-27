@@ -5,13 +5,13 @@ use std::process::Command;
 #[derive(Clone, Default)]
 pub struct Aapt2Optimize {
     /// Path to the output APK.
-    pub o: PathBuf,
+    output_apk: PathBuf,
     /// Path to the output directory (for splits).
-    pub d: PathBuf,
+    output_dir: PathBuf,
     /// Path to XML configuration file.
-    x: PathBuf,
+    config_xml_file: PathBuf,
     /// Print the multi APK artifacts and exit.
-    p: bool,
+    apk_artifacts: bool,
     /// Comma separated list of the screen densities that the APK will be optimized for.
     /// All the resources that would be unused on devices of the given densities will be
     /// removed from the APK.
@@ -21,7 +21,7 @@ pub struct Aapt2Optimize {
     resources_config_path: Option<PathBuf>,
     /// Comma separated list of configurations to include. The default is all
     /// configurations.
-    c: Option<String>,
+    configs_to_include: Option<String>,
     /// Split resources matching a set of configs out to a Split APK.
     /// ```Syntax: path/to/output.apk;<config>[,<config>[...]].```
     /// On Windows, use a semicolon ';' separator instead.
@@ -41,34 +41,34 @@ pub struct Aapt2Optimize {
     /// Path to output the map of old resource paths to shortened paths.
     resource_path_shortening_map: Option<PathBuf>,
     /// Enables verbose logging
-    v: bool,
+    verbose: bool,
     /// Displays this help menu
-    h: bool,
+    help: bool,
 }
 
 impl Aapt2Optimize {
-    pub fn new(o: &Path, d: &Path, x: &Path) -> Self {
+    pub fn new(output_apk: &Path, output_dir: &Path, config_xml_file: &Path) -> Self {
         Self {
-            o: o.to_owned(),
-            d: d.to_owned(),
-            x: x.to_owned(),
-            p: false,
+            output_apk: output_apk.to_owned(),
+            output_dir: output_dir.to_owned(),
+            config_xml_file: config_xml_file.to_owned(),
+            apk_artifacts: false,
             target_densities: None,
             resources_config_path: None,
-            c: None,
+            configs_to_include: None,
             split: None,
             keep_artifacts: None,
             enable_sparse_encoding: false,
             collapse_resource_name: false,
             shorten_resource_paths: false,
             resource_path_shortening_map: None,
-            v: false,
-            h: false,
+            verbose: false,
+            help: false,
         }
     }
 
-    pub fn p(&mut self, p: bool) -> &mut Self {
-        self.p = p;
+    pub fn apk_artifacts(&mut self, apk_artifacts: bool) -> &mut Self {
+        self.apk_artifacts = apk_artifacts;
         self
     }
 
@@ -77,8 +77,8 @@ impl Aapt2Optimize {
         self
     }
 
-    pub fn c(&mut self, c: &str) -> &mut Self {
-        self.c = Some(c.to_owned());
+    pub fn configs_to_include(&mut self, configs_to_include: &str) -> &mut Self {
+        self.configs_to_include = Some(configs_to_include.to_owned());
         self
     }
 
@@ -115,23 +115,23 @@ impl Aapt2Optimize {
         self
     }
 
-    pub fn v(&mut self, v: bool) -> &mut Self {
-        self.v = v;
+    pub fn verbose(&mut self, verbose: bool) -> &mut Self {
+        self.verbose = verbose;
         self
     }
 
-    pub fn h(&mut self, h: bool) -> &mut Self {
-        self.h = h;
+    pub fn help(&mut self, help: bool) -> &mut Self {
+        self.help = help;
         self
     }
 
     pub fn run(self) -> Result<()> {
         let mut aapt2 = Command::new("aapt2");
         aapt2.arg("optimize");
-        aapt2.arg("-o").arg(&self.o);
-        aapt2.arg("-d").arg(&self.d);
-        aapt2.arg("-x").arg(&self.x);
-        if self.p {
+        aapt2.arg("-o").arg(&self.output_apk);
+        aapt2.arg("-d").arg(&self.output_dir);
+        aapt2.arg("-x").arg(&self.config_xml_file);
+        if self.apk_artifacts {
             aapt2.arg("-p");
         }
         if let Some(target_densities) = self.target_densities {
@@ -142,8 +142,8 @@ impl Aapt2Optimize {
                 .arg("--resources_config_path")
                 .arg(resources_config_path);
         }
-        if let Some(c) = self.c {
-            aapt2.arg("-c").arg(c);
+        if let Some(configs_to_include) = self.configs_to_include {
+            aapt2.arg("-c").arg(configs_to_include);
         }
         if let Some(split) = self.split {
             aapt2.arg("--split").arg(split);
@@ -165,10 +165,10 @@ impl Aapt2Optimize {
                 .arg("--resource_path_shortening_map")
                 .arg(resource_path_shortening_map);
         }
-        if self.v {
+        if self.verbose {
             aapt2.arg("-v");
         }
-        if self.h {
+        if self.help {
             aapt2.arg("-h");
         }
         aapt2.output_err(true)?;

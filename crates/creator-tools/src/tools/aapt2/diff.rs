@@ -2,31 +2,31 @@ use crate::error::*;
 use std::{path::PathBuf, process::Command};
 
 pub struct Aapt2Diff {
-    file: Vec<PathBuf>,
+    input_apks: Vec<PathBuf>,
     /// Displays this help menu
-    h: bool,
+    help: bool,
 }
 
 impl Aapt2Diff {
-    pub fn new(file: &[PathBuf]) -> Self {
+    pub fn new(input_apks: &[PathBuf]) -> Self {
         Self {
-            file: file.to_vec(),
-            h: false,
+            input_apks: input_apks.to_vec(),
+            help: false,
         }
     }
 
-    pub fn h(&mut self, h: bool) -> &mut Self {
-        self.h = h;
+    pub fn help(&mut self, help: bool) -> &mut Self {
+        self.help = help;
         self
     }
 
     pub fn run(&self) -> Result<()> {
         let mut aapt2 = Command::new("aapt2");
         aapt2.arg("diff");
-        self.file.iter().for_each(|file| {
-            aapt2.arg(file);
+        self.input_apks.iter().for_each(|input_apks| {
+            aapt2.arg(input_apks);
         });
-        if self.h {
+        if self.help {
             aapt2.arg("-h");
         }
         aapt2.output_err(true)?;
