@@ -143,18 +143,18 @@ impl Aapt2Compile {
         self
     }
 
-    pub fn pseudo_localize(&mut self) -> &mut Self {
-        self.pseudo_localize = true;
+    pub fn pseudo_localize(&mut self, pseudo_localize: bool ) -> &mut Self {
+        self.pseudo_localize = pseudo_localize;
         self
     }
 
-    pub fn no_crunch(&mut self) -> &mut Self {
-        self.no_crunch = true;
+    pub fn no_crunch(&mut self, no_crunch: bool) -> &mut Self {
+        self.no_crunch = no_crunch;
         self
     }
 
-    pub fn legacy(&mut self) -> &mut Self {
-        self.legacy = true;
+    pub fn legacy(&mut self, legacy: bool ) -> &mut Self {
+        self.legacy = legacy;
         self
     }
 

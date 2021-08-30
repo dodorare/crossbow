@@ -80,9 +80,21 @@ mod tests {
             None,
             &android_build_dir,
             &sdk,
+            None,
+            None,
+            false,
             &package_name,
             &manifest_path,
+            Some(28),
             target_sdk_version,
+            None,
+            None,
+            false,
+            None,
+            false,
+            false,
+            false,
+        false
         )
         .unwrap();
         assert!(base_apk_path.exists());
