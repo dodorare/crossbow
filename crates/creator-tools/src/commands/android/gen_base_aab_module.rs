@@ -31,7 +31,7 @@ pub fn gen_base_aab_module(
     no_version_vectors: bool,
     no_version_transitions: bool,
     enable_sparse_encoding: bool,
-) -> Result<PathBuf> { 
+) -> Result<PathBuf> {
     let compiled_res = build_dir.join("compiled_res");
     if !compiled_res.exists() {
         std::fs::create_dir_all(&compiled_res)?;
@@ -53,7 +53,7 @@ pub fn gen_base_aab_module(
         if legacy {
             aapt2_compile.legacy(legacy);
         }
-        aapt2_compile.run()?;    
+        aapt2_compile.run()?;
     }
 
     let apk_path = build_dir.join(format!("{}_module.apk", package_label));
@@ -78,13 +78,13 @@ pub fn gen_base_aab_module(
         if no_auto_version {
             aapt2_link.no_auto_version(no_auto_version);
         }
-        if  no_version_vectors {
+        if no_version_vectors {
             aapt2_link.no_version_vectors(no_version_vectors);
         }
-        if  no_version_transitions {
+        if no_version_transitions {
             aapt2_link.no_version_transitions(no_version_transitions);
         }
-        if  enable_sparse_encoding {
+        if enable_sparse_encoding {
             aapt2_link.enable_sparse_encoding(enable_sparse_encoding);
         }
         if let Some(individual_flat) = individual_flat {
@@ -99,9 +99,9 @@ pub fn gen_base_aab_module(
         if let Some(min_sdk_version) = min_sdk_version {
             aapt2_link.min_sdk_version(min_sdk_version);
         }
-
         aapt2_link.run()?;
     }
+
     let extracted_apk_files = build_dir.join("extracted_apk_files");
     extract_apk::extract_apk(&apk_path, &extracted_apk_files).unwrap();
     Ok(extracted_apk_files)
@@ -115,24 +115,6 @@ pub fn gen_zip_modules(
     let zip_path = build_dir.join(format!("{}_module.zip", package_label));
     write_zip::dirs_to_write(&extracted_apk_files.to_owned())?;
     write_zip::write(&extracted_apk_files.to_owned(), &zip_path).unwrap();
+
     Ok(zip_path.to_path_buf())
 }
-
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-//     #[test]
-//     fn new() {
-//         let sdk = AndroidSdk::from_env().unwrap();
-//         gen_base_aab_module(
-//             Some(Path::new("res\\mipmap").to_owned()),
-//             None,
-//             Path::new("res\\"),
-//             &sdk,
-//             "example",
-//             Path::new("manifest\\AndroidManifest.xml"),
-//             30,
-//         )
-//         .unwrap();
-//     }
-// }

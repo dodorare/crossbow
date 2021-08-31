@@ -12,11 +12,11 @@ use std::path::{Path, PathBuf};
 pub fn gen_aapt2_apk(
     sdk: &AndroidSdk,
     res_path: &[PathBuf],
-    compiled_res:PathBuf,
+    compiled_res: PathBuf,
     res_dir: Option<PathBuf>,
     res_zip: Option<PathBuf>,
     legacy: bool,
-    imputs: &[PathBuf],
+    inputs: &[PathBuf],
     apk_path: PathBuf,
     manifest_path: &Path,
     assets_path: Option<PathBuf>,
@@ -30,8 +30,8 @@ pub fn gen_aapt2_apk(
     no_version_vectors: bool,
     no_version_transitions: bool,
     enable_sparse_encoding: bool,
-) -> Result<()>{
-    let mut aapt2_compile =  Aapt2Compile::new(&res_path, &compiled_res);
+) -> Result<()> {
+    let mut aapt2_compile = Aapt2Compile::new(&res_path, &compiled_res);
     if let Some(res_dir) = res_dir {
         aapt2_compile.res_dir(&res_dir);
     }
@@ -43,12 +43,10 @@ pub fn gen_aapt2_apk(
     }
     aapt2_compile.run()?;
 
-    let mut aapt2_link = Aapt2Link::new(&imputs, apk_path, manifest_path);
+    let mut aapt2_link = Aapt2Link::new(&inputs, apk_path, manifest_path);
     aapt2_link
         .android_jar(sdk.android_jar(target_sdk_version)?)
-        .version_code(1)
-        .proto_format(true)
-        .auto_add_overlay(true);
+        .version_code(1);
     if let Some(assets) = assets_path {
         aapt2_link.assets(assets);
     }
@@ -58,13 +56,13 @@ pub fn gen_aapt2_apk(
     if no_auto_version {
         aapt2_link.no_auto_version(no_auto_version);
     }
-    if  no_version_vectors {
+    if no_version_vectors {
         aapt2_link.no_version_vectors(no_version_vectors);
     }
-    if  no_version_transitions {
+    if no_version_transitions {
         aapt2_link.no_version_transitions(no_version_transitions);
     }
-    if  enable_sparse_encoding {
+    if enable_sparse_encoding {
         aapt2_link.enable_sparse_encoding(enable_sparse_encoding);
     }
     if let Some(individual_flat) = individual_flat {
@@ -79,7 +77,6 @@ pub fn gen_aapt2_apk(
     if let Some(min_sdk_version) = min_sdk_version {
         aapt2_link.min_sdk_version(min_sdk_version);
     }
-
     aapt2_link.run()?;
     Ok(())
 }

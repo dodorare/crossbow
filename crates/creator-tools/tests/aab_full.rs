@@ -94,10 +94,13 @@ mod tests {
             false,
             false,
             false,
-        false
+            false,
         )
         .unwrap();
         assert!(base_apk_path.exists());
+        if manifest_path.exists() {
+            std::fs::remove_file(manifest_path).unwrap();
+        }
 
         // Assign path to lib
         let add_lib = android::add_libs_into_aapt2(
@@ -114,13 +117,25 @@ mod tests {
 
         let gen_zip_modules =
             android::gen_zip_modules(&android_build_dir, &package_name, &base_apk_path).unwrap();
-        assert!(gen_zip_modules.exists());
 
         // Gen aab from given list of modules (zip, zip, zip)
         let aab_path =
             android::gen_aab_from_modules(&package_name, &[gen_zip_modules], &android_build_dir)
                 .unwrap();
         assert!(aab_path.exists());
+        for entry in std::fs::read_dir(&android_build_dir).unwrap() {
+            let entry = entry.unwrap();
+            let path = entry.path();
+            if path.ends_with("compiled_res") {
+                std::fs::remove_dir_all(path.clone()).unwrap();
+            }
+            if path.ends_with("extracted_apk_files") {
+                std::fs::remove_dir_all(path.clone()).unwrap();
+            }
+            if path.ends_with("example_module.zip") {
+                std::fs::remove_file(path).unwrap();
+            }
+        }
 
         // Create keystore with keytool command
         let key = gen_debug_key().unwrap();
@@ -129,6 +144,5 @@ mod tests {
         // Create keystore with keytool command
         let apks = android_build_dir.join(format!("{}.apks", package_name));
         let build_apks = android::build_apks(&aab_path, &apks, &package_name, key).unwrap();
-        assert!(build_apks.exists());
     }
 }
