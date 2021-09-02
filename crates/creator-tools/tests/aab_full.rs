@@ -6,10 +6,8 @@ use creator_tools::{
 
 #[cfg(test)]
 mod tests {
-
-    use creator_tools::commands::android::gen_debug_key;
-
     use super::*;
+    use creator_tools::commands::android::gen_debug_key;
 
     #[test]
     fn test_aab() {
@@ -74,33 +72,30 @@ mod tests {
         let manifest_path = android::save_android_manifest(&android_build_dir, &manifest).unwrap();
         assert!(manifest_path.exists());
 
-        // Gen apks and prepare modules (zip, zip, zip)
-        let base_apk_path = android::gen_base_aab_module(
-            None,
-            None,
-            &android_build_dir,
-            &sdk,
-            None,
-            None,
-            false,
-            &package_name,
-            &manifest_path,
-            Some(28),
-            target_sdk_version,
-            None,
-            None,
-            false,
-            None,
-            false,
-            false,
-            false,
-            false,
-        )
-        .unwrap();
-        assert!(base_apk_path.exists());
-        if manifest_path.exists() {
-            std::fs::remove_file(manifest_path).unwrap();
+        // Compiles resources
+        let compiled_res_path = android_build_dir.join("compiled_res");
+        if !compiled_res_path.exists() {
+            std::fs::create_dir_all(&compiled_res_path).unwrap();
         }
+        let res_path = project_path.join("res");
+        let aapt2_compile = Aapt2.compile_incremental(&res_path, &compiled_res_path);
+        let compiled_res = aapt2_compile.run().unwrap();
+
+        // Links all resources and creates .apk file
+        let apk_path = android_build_dir.join(format!("{}_module.apk", package_name));
+        let mut aapt2_link = Aapt2.link_compiled_res(Some(compiled_res), &apk_path, &manifest_path);
+        aapt2_link
+            .android_jar(sdk.android_jar(target_sdk_version).unwrap())
+            .version_code(1)
+            .proto_format(true)
+            .auto_add_overlay(true);
+        aapt2_link.run().unwrap();
+
+        // Extracts files from .apk into /extracted_apk_files folder
+        let output_dir = android_build_dir.join("extracted_apk_files");
+        let extracted_apk_path = android::extract_apk(&apk_path, &output_dir).unwrap();
+
+        assert!(extracted_apk_path.exists());
 
         // Assign path to lib
         let add_lib = android::add_libs_into_aapt2(
@@ -109,14 +104,15 @@ mod tests {
             build_target,
             profile,
             30,
-            &base_apk_path,
+            &extracted_apk_path,
             &target_dir,
         )
         .unwrap();
         assert!(add_lib.exists());
 
         let gen_zip_modules =
-            android::gen_zip_modules(&android_build_dir, &package_name, &base_apk_path).unwrap();
+            android::gen_zip_modules(&android_build_dir, &package_name, &extracted_apk_path)
+                .unwrap();
 
         // Gen aab from given list of modules (zip, zip, zip)
         let aab_path =
@@ -126,9 +122,6 @@ mod tests {
         for entry in std::fs::read_dir(&android_build_dir).unwrap() {
             let entry = entry.unwrap();
             let path = entry.path();
-            if path.ends_with("compiled_res") {
-                std::fs::remove_dir_all(path.clone()).unwrap();
-            }
             if path.ends_with("extracted_apk_files") {
                 std::fs::remove_dir_all(path.clone()).unwrap();
             }
@@ -143,6 +136,9 @@ mod tests {
 
         // Create keystore with keytool command
         let apks = android_build_dir.join(format!("{}.apks", package_name));
-        let build_apks = android::build_apks(&aab_path, &apks, &package_name, key).unwrap();
+        let _build_apks = android::build_apks(&aab_path, &apks, &package_name, key).unwrap();
+
+        // println!("{}", project_path.to_string_lossy());
+        // std::thread::sleep(std::time::Duration::from_secs(60 * 20));
     }
 }

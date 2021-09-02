@@ -1,6 +1,4 @@
-use crate::commands::android::gen_debug_key;
 use crate::error::*;
-use crate::tools::*;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 

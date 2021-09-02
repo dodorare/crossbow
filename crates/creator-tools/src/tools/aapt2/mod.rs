@@ -22,22 +22,41 @@ pub use dump::*;
 pub use link::*;
 pub use optimize::*;
 
-use std::path::{Path, PathBuf};
-
 use self::{daemon::Aapt2Daemon, diff::Aapt2Diff, version::Aapt2Version};
+use std::path::{Path, PathBuf};
 
 #[derive(Clone, Copy)]
 pub struct Aapt2;
 
 impl Aapt2 {
-    /// Compiles resources to be linked into an apk.
-    pub fn compile(self, input_res: &[PathBuf], compiled_res: &PathBuf) -> Aapt2Compile {
-        Aapt2Compile::new(input_res, compiled_res)
+    /// Compiles resources incrementally from given resource path.
+    pub fn compile_incremental(self, res_path: &Path, compiled_res: &PathBuf) -> Aapt2Compile {
+        Aapt2Compile::new(res_path, compiled_res)
     }
 
-    /// Links resources into an apk.
-    pub fn link(self, inputs: &[PathBuf], output_apk: PathBuf, manifest: &Path) -> Aapt2Link {
+    /// Compiles resources from given resource dir.
+    pub fn compile_dir(self, res_dir: &Path, compiled_res: &PathBuf) -> Aapt2Compile {
+        Aapt2Compile::new_from_res_dir(res_dir, compiled_res)
+    }
+
+    /// Compiles resources from given resource zip.
+    pub fn compile_zip(self, res_zip: &Path, compiled_res: &PathBuf) -> Aapt2Compile {
+        Aapt2Compile::new_from_res_zip(res_zip, compiled_res)
+    }
+
+    /// Links given list of resources into an apk.
+    pub fn link_inputs(self, inputs: &[PathBuf], output_apk: &Path, manifest: &Path) -> Aapt2Link {
         Aapt2Link::new(inputs, output_apk, manifest)
+    }
+
+    /// Links resources from given /compiled_res folder into an apk.
+    pub fn link_compiled_res(
+        self,
+        compiled_res: Option<PathBuf>,
+        output_apk: &Path,
+        manifest: &Path,
+    ) -> Aapt2Link {
+        Aapt2Link::new_from_compiled_res(compiled_res, output_apk, manifest)
     }
 
     /// Used for printing information about the APK you generated using the link command.

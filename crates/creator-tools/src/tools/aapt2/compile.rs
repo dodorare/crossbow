@@ -47,7 +47,7 @@ use std::process::Command;
 
 #[derive(Clone)]
 pub struct Aapt2Compile {
-    input_res: Vec<PathBuf>,
+    res_path: Option<PathBuf>,
     /// Specifies the output path for the compiled resource(s).
     ///
     /// This is a required flag because you must specify a path to a directory where AAPT2
@@ -110,9 +110,9 @@ impl std::fmt::Display for Visibility {
 }
 
 impl Aapt2Compile {
-    pub fn new(input_res: &[PathBuf], compiled_res: &PathBuf) -> Self {
+    pub fn new(res_path: &Path, compiled_res: &PathBuf) -> Self {
         Self {
-            input_res: input_res.to_vec(),
+            res_path: Some(res_path.to_owned()),
             compiled_res: compiled_res.to_owned(),
             res_dir: None,
             res_zip: None,
@@ -128,14 +128,40 @@ impl Aapt2Compile {
         }
     }
 
-    pub fn res_dir(&mut self, res_dir: &Path) -> &mut Self {
-        self.res_dir = Some(res_dir.to_owned());
-        self
+    pub fn new_from_res_dir(res_dir: &Path, compiled_res: &PathBuf) -> Self {
+        Self {
+            res_path: None,
+            compiled_res: compiled_res.to_owned(),
+            res_dir: Some(res_dir.to_owned()),
+            res_zip: None,
+            output_text_symbols: None,
+            pseudo_localize: false,
+            no_crunch: false,
+            legacy: false,
+            preserve_visibility_of_styleables: false,
+            visibility: None,
+            verbose: false,
+            trace_folder: None,
+            help: false,
+        }
     }
 
-    pub fn res_zip(&mut self, res_zip: &Path) -> &mut Self {
-        self.res_zip = Some(res_zip.to_owned());
-        self
+    pub fn new_from_res_zip(res_zip: &Path, compiled_res: &PathBuf) -> Self {
+        Self {
+            res_path: None,
+            compiled_res: compiled_res.to_owned(),
+            res_dir: None,
+            res_zip: Some(res_zip.to_owned()),
+            output_text_symbols: None,
+            pseudo_localize: false,
+            no_crunch: false,
+            legacy: false,
+            preserve_visibility_of_styleables: false,
+            visibility: None,
+            verbose: false,
+            trace_folder: None,
+            help: false,
+        }
     }
 
     pub fn output_text_symbols(&mut self, output_text_symbols: String) -> &mut Self {
@@ -143,7 +169,7 @@ impl Aapt2Compile {
         self
     }
 
-    pub fn pseudo_localize(&mut self, pseudo_localize: bool ) -> &mut Self {
+    pub fn pseudo_localize(&mut self, pseudo_localize: bool) -> &mut Self {
         self.pseudo_localize = pseudo_localize;
         self
     }
@@ -153,7 +179,7 @@ impl Aapt2Compile {
         self
     }
 
-    pub fn legacy(&mut self, legacy: bool ) -> &mut Self {
+    pub fn legacy(&mut self, legacy: bool) -> &mut Self {
         self.legacy = legacy;
         self
     }
@@ -186,12 +212,25 @@ impl Aapt2Compile {
         self
     }
 
-    pub fn run(&self) -> Result<()> {
+    pub fn run(&self) -> Result<PathBuf> {
         let mut aapt2 = Command::new("aapt2");
         aapt2.arg("compile");
-        self.input_res.iter().for_each(|input| {
-            aapt2.arg(input);
-        });
+        if let Some(res_path) = &self.res_path {
+            // TODO: handle errors, return err if path not found
+            // let paths = std::fs::read_dir(res_path)?
+            //     .map(|e| e.map(|x| x.path()))
+            //     .flatten()
+            //     .collect::<Vec<_>>();
+            walkdir::WalkDir::new(res_path)
+                .into_iter()
+                .filter_map(|e| e.ok())
+                .for_each(|input| {
+                    if input.file_type().is_file() {
+                        println!("{}", input.path().to_string_lossy());
+                        aapt2.arg(input.path());
+                    }
+                });
+        }
         aapt2.arg("-o");
         aapt2.arg(&self.compiled_res);
         if let Some(res_dir) = &self.res_dir {
@@ -228,6 +267,6 @@ impl Aapt2Compile {
             aapt2.arg("-h");
         }
         aapt2.output_err(true)?;
-        Ok(())
+        Ok(self.compiled_res.clone())
     }
 }

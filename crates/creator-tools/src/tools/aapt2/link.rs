@@ -38,9 +38,10 @@ use std::{
 /// [`d8`]: https://developer.android.com/studio/command-line/d8
 /// [`apksigner`]: https://developer.android.com/studio/command-line/apksigner
 /// [`build your app from the command line`]: https://developer.android.com/studio/build/building-cmdline
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Default)]
 pub struct Aapt2Link {
     inputs: Vec<PathBuf>,
+    compiled_res: Option<PathBuf>,
     /// Specifies the output path for the linked resource APK.
     ///
     /// This is a required flag because you must specify the path for the output APK that
@@ -250,72 +251,27 @@ pub struct Aapt2Link {
 }
 
 impl Aapt2Link {
-    pub fn new(inputs: &[PathBuf], output_apk: PathBuf, manifest: &Path) -> Self {
+    pub fn new(inputs: &[PathBuf], output_apk: &Path, manifest: &Path) -> Self {
         Self {
             inputs: inputs.to_vec(),
+            compiled_res: None,
             output_apk: output_apk.to_owned(),
             manifest: manifest.to_owned(),
-            android_jar: None,
-            assets: None,
-            individual_flat: None,
-            package_id: None,
-            allow_reserved_package_id: false,
-            java: None,
-            proguard_options: None,
-            proguard_main_dex: None,
-            proguard_minimal_keep_rules: false,
-            proguard_conditional_keep_rules: false,
-            no_auto_version: false,
-            no_version_vectors: false,
-            no_version_transitions: false,
-            no_resource_deduping: false,
-            no_resource_removal: false,
-            enable_sparse_encoding: false,
-            package_identifier: false,
-            suggested_strings: false,
-            config: Vec::new(),
-            preferred_density: None,
-            product: None,
-            output_to_dir: false,
-            no_xml_namespaces: false,
-            min_sdk_version: None,
-            target_sdk_version: None,
-            version_code: None,
-            version_code_major: None,
-            version_name: None,
-            replace_version: false,
-            compile_sdk_version_code: None,
-            compile_sdk_version_name: None,
-            shared_lib: false,
-            static_lib: false,
-            proto_format: false,
-            no_static_lib_packages: false,
-            non_final_ids: false,
-            no_proguard_location_reference: false,
-            emit_ids: None,
-            stable_ids: None,
-            private_symbols: None,
-            custom_package: None,
-            extra_packages: None,
-            add_javadoc_annotation: None,
-            output_text_symbols: None,
-            auto_add_overlay: false,
-            override_styles_instead_of_overlaying: false,
-            rename_manifest_package: None,
-            rename_resources_package: None,
-            rename_instrumentation_target_package: None,
-            extensions: Vec::new(),
-            no_compress: false,
-            keep_raw_values: false,
-            no_compress_regex: None,
-            warn_manifest_validation: false,
-            split: None,
-            strict_visibility: false,
-            exclude_sources: false,
-            trace_folder: None,
-            merge_only: false,
-            verbose: false,
-            help: false,
+            ..Default::default()
+        }
+    }
+
+    pub fn new_from_compiled_res(
+        compiled_res: Option<PathBuf>,
+        output_apk: &Path,
+        manifest: &Path,
+    ) -> Self {
+        Self {
+            inputs: Vec::new(),
+            compiled_res,
+            output_apk: output_apk.to_owned(),
+            manifest: manifest.to_owned(),
+            ..Default::default()
         }
     }
 
@@ -637,9 +593,22 @@ impl Aapt2Link {
     pub fn run(&self) -> Result<()> {
         let mut aapt2 = Command::new("aapt2");
         aapt2.arg("link");
-        self.inputs.iter().for_each(|input| {
-            aapt2.arg(input);
-        });
+        if !self.inputs.is_empty() {
+            self.inputs.iter().for_each(|input| {
+                aapt2.arg(input);
+            });
+        } else {
+            if let Some(compiled_res) = &self.compiled_res {
+                // TODO: handle errors, return err if path not found
+                let paths = std::fs::read_dir(compiled_res)?
+                    .map(|e| e.map(|x| x.path()))
+                    .flatten()
+                    .collect::<Vec<_>>();
+                paths.iter().for_each(|input| {
+                    aapt2.arg(input);
+                });
+            };
+        }
         aapt2.arg("-o").arg(&self.output_apk);
         aapt2.arg("--manifest").arg(&self.manifest);
         if let Some(android_jar) = &self.android_jar {

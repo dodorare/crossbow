@@ -87,6 +87,8 @@ pub enum Error {
     Io(#[from] std::io::Error),
     /// FS Extra error
     FsExtra(#[from] fs_extra::error::Error),
+    /// Zip error
+    Zip(#[from] zip::result::ZipError),
     /// Android error
     Android(#[from] AndroidError),
     /// Apple error

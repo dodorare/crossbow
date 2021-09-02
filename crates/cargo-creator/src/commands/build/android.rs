@@ -118,4 +118,12 @@ impl AndroidBuildCommand {
         config.status("Build finished successfully")?;
         Ok((android_manifest, sdk, aligned_apk_path))
     }
+
+    pub fn execute_aab(
+        &self,
+        config: &Config,
+        context: &BuildContext,
+    ) -> Result<(AndroidManifest, AndroidSdk, PathBuf)> {
+        todo!();
+    }
 }

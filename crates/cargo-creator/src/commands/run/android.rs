@@ -21,4 +21,8 @@ impl AndroidRunCommand {
         config.status("Run finished successfully")?;
         Ok(())
     }
+
+    pub fn run_aab(&self, config: &Config) -> Result<()> {
+        todo!();
+    }
 }

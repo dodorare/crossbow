@@ -1,14 +1,10 @@
 use crate::{
     commands::android::{get_libs_in_dir, recursively_define_needed_libs, search_dylibs},
     error::*,
-    tools::{AndroidNdk, AndroidSdk},
+    tools::AndroidNdk,
     types::{AndroidTarget, IntoRustTriple, Profile},
 };
-use std::{
-    fs::File,
-    io::{BufRead, BufReader},
-    path::{Path, PathBuf},
-};
+use std::path::{Path, PathBuf};
 
 /// Adds given lib and all reletad libs into APK.
 pub fn add_libs_into_aapt2(
