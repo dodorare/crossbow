@@ -52,201 +52,66 @@ pub struct Aapt2Link {
     /// This is a required flag because the manifest file encloses essential information
     /// about your app like package name and application ID.
     manifest: PathBuf,
-    /// Provides the path to the platform's android.jar or other APKs like
-    /// framework-res.apk  which might be useful while building features. This flag is
-    /// required if you are using attributes with android namespace (for example,
-    /// android:id) in your resource files.
     android_jar: Option<PathBuf>,
-    /// Specifies an assets directory to be included in the APK.
-    ///
-    /// You can use this directory to store original unprocessed files. To learn more,
-    /// read [`Accessing original`] files.
-    ///
-    /// [`Accessing original`]: https://developer.android.com/guide/topics/resources/providing-resources#OriginalFiles
     assets: Option<PathBuf>,
-    /// Pass individual .flat file to link, using `overlay` semantics without using the
-    /// `<add-resource>` tag.
-    ///
-    /// When you a provide a resource file that overlays (extends or modifies) an existing
-    /// file, the last conflicting resource given is used.
     individual_flat: Option<PathBuf>,
-    /// Specifies the package ID to use for your app.
-    ///
-    /// The package ID that you specify must be greater than or equal to 0x7f unless used
-    /// in combination with `--allow-reserved-package-id`.
     package_id: Option<String>,
-    /// Allows the use of a reserved package ID.
-    ///
-    /// Reserved package IDs are IDs that are normally assigned to shared libraries and
-    /// are in the range from 0x02 to 0x7e inclusive. By using
-    /// --allow-reserved-package-id, you can assign IDs that fall in the range of reserved
-    /// package IDs.
-    ///
-    /// This should only be used for packages with a min-sdk version of 26 or lower.
     allow_reserved_package_id: bool,
-    /// Specifies the directory in which to generate R.java.
     java: Option<PathBuf>,
-    /// Generates output file for ProGuard rules.
     proguard_options: Option<PathBuf>,
-    /// Generates output file for ProGuard rules for the main dex.
     proguard_main_dex: Option<PathBuf>,
-    /// Output file for generated Proguard rules for the main dex.
     proguard_conditional_keep_rules: bool,
-    /// Generate a minimal set of Proguard keep rules.
     proguard_minimal_keep_rules: bool,
-    /// Disables automatic style and layout SDK versioning.
     no_auto_version: bool,
-    /// Disables automatic versioning of vector drawables. Use this only when building
-    /// your APK with the Vector Drawable Library.
     no_version_vectors: bool,
-    /// Disables automatic versioning of transition resources. Use this only when building
-    /// your APK with Transition Support library.
     no_version_transitions: bool,
-    /// Disables automatic de-duplication of resources with identical values across
-    /// compatible configurations.
     no_resource_deduping: bool,
-    /// Disables automatic removal of resources without
     no_resource_removal: bool,
-    /// Enables encoding of sparse entries using a binary search tree. This is useful for
-    /// optimization of APK size, but at the cost of resource retrieval performance.
     enable_sparse_encoding: bool,
-    /// Legacy flag that specifies to use the package identifier 0x01.
     package_identifier: bool,
-    /// Requires localization of strings marked 'suggested'.
     suggested_strings: bool,
-    /// Provides a list of configurations separated by commas.
-    ///
-    /// For example, if you have dependencies on the support library (which contains
-    /// translations for multiple languages), you can filter resources just for the given
-    /// language configuration, like English or Spanish.
-    ///
-    /// You must define the language configuration by a two-letter ISO 639-1 language
-    /// code, optionally followed by a two letter ISO 3166-1-alpha-2 region code preceded
-    /// by lowercase 'r' (for example, en-rUS).
     config: Vec<String>,
-    /// Allows AAPT2 to select the closest matching density and strip out all others.
-    ///
-    /// There are several pixel density qualifiers available to use in your app, such as
-    /// ldpi, hdpi, and xhdpi. When you specify a preferred density, AAPT2 selects and
-    /// stores the closest matching density in the resource table and removes all others.
     preferred_density: Option<i32>,
-    /// Comma separated list of product names to keep
     product: Option<PathBuf>,
-    /// Outputs the APK contents to a directory specified by -o.
-    ///
-    /// If you get any errors using this flag, you can resolve them by upgrading to
-    /// [`Android SDK Build Tools 28.0.0 or higher`].
-    ///
-    /// [`Android SDK Build Tools 28.0.0 or higher`]: https://developer.android.com/studio/releases/build-tools
     output_to_dir: bool,
-    /// Removes XML namespace prefix and URI information
     no_xml_namespaces: bool,
-    /// Sets the default minimum SDK version to use for `AndroidManifest.xml`.
     min_sdk_version: Option<u32>,
-    ///	Sets the default target SDK version to use for `AndroidManifest.xml`.
     target_sdk_version: Option<u32>,
-    /// Specifies the version code (integer) to inject into the AndroidManifest.xml if
-    /// none is present.
     version_code: Option<u32>,
-    /// Version code major (integer) to inject into the AndroidManifest.xml if none is
-    /// present.
     version_code_major: Option<u32>,
-    /// Version name to inject into the AndroidManifest.xml if none is present.
     version_name: Option<String>,
-    /// If --version-code and/or --version-name are specified, these values will replace
-    /// any value already in the manifest. By default, nothing is changed if the manifest
-    /// already defines these attributes.
     replace_version: bool,
-    ///  Version code (integer) to inject into the AndroidManifest.xml if none is present.
     compile_sdk_version_code: Option<u32>,
-    /// Specifies the version name to inject into the AndroidManifest.xml if none is
-    /// present.
     compile_sdk_version_name: Option<String>,
-    /// Generates a shared Android runtime library.
     shared_lib: bool,
-    /// Generate a static Android library.
     static_lib: bool,
-    /// Generates compiled resources in Protobuf format.
-    /// Suitable as input to the [`bundle tool`] for generating an Android App Bundle.
-    ///
-    /// [`bundle tool`]: https://developer.android.com/studio/build/building-cmdline#bundletool-build
     proto_format: bool,
-    /// Merge all library resources under the app's package.
     no_static_lib_packages: bool,
-    /// Generates `R.java` with non-final resource IDs (references to the IDs from app’s
-    /// code will not get inlined during kotlinc/javac compilation).
     non_final_ids: bool,
-    /// Keep proguard rules files from having a reference to the source file
     no_proguard_location_reference: bool,
-    /// Emits a file at the given path with a list of names of resource types and their ID
-    /// mappings. It is suitable to use with --stable-ids.
     emit_ids: Option<PathBuf>,
-    /// Consumes the file generated with --emit-ids containing the list of names of
-    /// resource types and their assigned IDs.
-    ///
-    /// This option allows assigned IDs to remain stable even when you delete or add new
-    /// resources while linking
     stable_ids: Option<PathBuf>,
-    /// Package name to use when generating R.java for private symbols. If not specified,
-    /// public and private symbols will use the application's package name.
     private_symbols: Option<String>,
-    /// Specifies custom Java package under which to generate R.java.
     custom_package: Option<PathBuf>,
-    /// Generates the same R.java file but with different package names.
     extra_packages: Option<PathBuf>,
-    /// Adds a JavaDoc annotation to all generated Java classes.
     add_javadoc_annotation: Option<String>,
-    /// Generates a text file containing the resource symbols of the R class in the
-    /// specified file.
-    ///
-    /// You must specify the path to the output file.
     output_text_symbols: Option<PathBuf>,
-    /// Allows the addition of new resources in overlays without using the <add-resource>
-    /// tag.
     auto_add_overlay: bool,
-    /// Causes styles defined in -R resources to replace previous definitions instead of
-    /// merging into them
     override_styles_instead_of_overlaying: bool,
-    /// Renames the package in AndroidManifest.xml.
     rename_manifest_package: Option<String>,
-    /// Renames the package in resources table
     rename_resources_package: Option<String>,
-    /// Changes the name of the target package for [`instrumentation`].
-    ///
-    /// It should be used in conjunction with --rename-manifest-package.
-    ///
-    /// [`instrumentation`]: https://developer.android.com/reference/android/app/Instrumentation
     rename_instrumentation_target_package: Option<String>,
-    /// Specifies the extensions of files that you do not want to compress.
     extensions: Vec<String>,
-    /// Do not compress any resources.
     no_compress: bool,
-    /// Preserve raw attribute values in xml files.
     keep_raw_values: bool,
-    /// Do not compress extensions matching the regular expression. Remember to use the
-    /// '$' symbol for end of line. Uses a case-sensitive ECMAScriptregular expression
-    /// grammar.
     no_compress_regex: Option<String>,
-    /// Treat manifest validation errors as warnings.
     warn_manifest_validation: bool,
-    /// Splits resources based on a set of configurations to generate a different version
-    /// of the APK.
-    ///
-    /// You must specify the path to the output APK along with the set of configurations.
     split: Option<PathBuf>,
-    /// Do not allow overlays with different visibility levels.
     strict_visibility: bool,
-    /// Do not serialize source file information when generating resources in Protobuf
-    /// format.
     exclude_sources: bool,
-    /// Generate systrace json trace fragment to specified folder.
     trace_folder: Option<String>,
-    /// Only merge the resources, without verifying resource references. This flag should
-    /// only be used together with the --static-lib flag.
     merge_only: bool,
-    /// Enables increased verbosity of the output.
     verbose: bool,
-    /// Displays this help menu
     help: bool,
 }
 
@@ -274,72 +139,75 @@ impl Aapt2Link {
             ..Default::default()
         }
     }
-
+    /// Generates output file for ProGuard rules for the main dex.
     pub fn proguard_main_dex(&mut self, proguard_main_dex: PathBuf) -> &mut Self {
         self.proguard_main_dex = Some(proguard_main_dex);
         self
     }
-
+    /// Generate a minimal set of Proguard keep rules.
     pub fn proguard_minimal_keep_rules(&mut self, proguard_minimal_keep_rules: bool) -> &mut Self {
         self.proguard_minimal_keep_rules = proguard_minimal_keep_rules;
         self
     }
-
+    /// Disables automatic removal of resources without
     pub fn no_resource_removal(&mut self, no_resource_removal: bool) -> &mut Self {
         self.no_resource_removal = no_resource_removal;
         self
     }
-
+    /// Legacy flag that specifies to use the package identifier 0x01.
     pub fn package_identifier(&mut self, package_identifier: bool) -> &mut Self {
         self.package_identifier = package_identifier;
         self
     }
-
+    /// Comma separated list of product names to keep
     pub fn product(&mut self, product: PathBuf) -> &mut Self {
         self.product = Some(product);
         self
     }
-
+    /// Removes XML namespace prefix and URI information
     pub fn no_xml_namespaces(&mut self, no_xml_namespaces: bool) -> &mut Self {
         self.no_xml_namespaces = no_xml_namespaces;
         self
     }
-
+    /// Version code major (integer) to inject into the AndroidManifest.xml if none is
+    /// present.
     pub fn version_code_major(&mut self, version_code_major: u32) -> &mut Self {
         self.version_code_major = Some(version_code_major);
         self
     }
-
+    /// Version name to inject into the AndroidManifest.xml if none is present.
     pub fn version_name(&mut self, version_name: String) -> &mut Self {
         self.version_name = Some(version_name);
         self
     }
-
+    /// If --version-code and/or --version-name are specified, these values will replace
+    /// any value already in the manifest. By default, nothing is changed if the manifest
+    /// already defines these attributes.
     pub fn replace_version(&mut self, replace_version: bool) -> &mut Self {
         self.replace_version = replace_version;
         self
     }
-
+    /// Version code (integer) to inject into the AndroidManifest.xml if none is present.
     pub fn compile_sdk_version_code(&mut self, compile_sdk_version_code: u32) -> &mut Self {
         self.compile_sdk_version_code = Some(compile_sdk_version_code);
         self
     }
-
+    /// Generates a shared Android runtime library.
     pub fn shared_lib(&mut self, shared_lib: bool) -> &mut Self {
         self.shared_lib = shared_lib;
         self
     }
-
+    /// Generate a static Android library.
     pub fn static_lib(&mut self, static_lib: bool) -> &mut Self {
         self.static_lib = static_lib;
         self
-    }
-
+    }   
+    /// Merge all library resources under the app's package.
     pub fn no_static_lib_packages(&mut self, no_static_lib_packages: bool) -> &mut Self {
         self.no_static_lib_packages = no_static_lib_packages;
         self
     }
-
+    /// Keep proguard rules files from having a reference to the source file
     pub fn no_proguard_location_reference(
         &mut self,
         no_proguard_location_reference: bool,
@@ -347,12 +215,14 @@ impl Aapt2Link {
         self.no_proguard_location_reference = no_proguard_location_reference;
         self
     }
-
+    /// Package name to use when generating R.java for private symbols. If not specified,
+    /// public and private symbols will use the application's package name.
     pub fn private_symbols(&mut self, private_symbols: String) -> &mut Self {
         self.private_symbols = Some(private_symbols);
         self
     }
-
+    /// Causes styles defined in -R resources to replace previous definitions instead of
+    /// merging into them
     pub fn override_styles_instead_of_overlaying(
         &mut self,
         override_styles_instead_of_overlaying: bool,
@@ -360,47 +230,69 @@ impl Aapt2Link {
         self.override_styles_instead_of_overlaying = override_styles_instead_of_overlaying;
         self
     }
-
+    /// Renames the package in resources table
     pub fn rename_resources_package(&mut self, rename_resources_package: String) -> &mut Self {
         self.rename_resources_package = Some(rename_resources_package);
         self
     }
-
+    /// Provides the path to the platform's android.jar or other APKs like
+    /// framework-res.apk  which might be useful while building features. This flag is
+    /// required if you are using attributes with android namespace (for example,
+    /// android:id) in your resource files.
     pub fn android_jar(&mut self, android_jar: PathBuf) -> &mut Self {
         self.android_jar = Some(android_jar);
         self
     }
-
+    /// Specifies an assets directory to be included in the APK.
+    ///
+    /// You can use this directory to store original unprocessed files. To learn more,
+    /// read [`Accessing original`] files.
+    ///
+    /// [`Accessing original`]: https://developer.android.com/guide/topics/resources/providing-resources#OriginalFiles
     pub fn assets(&mut self, assets: PathBuf) -> &mut Self {
         self.assets = Some(assets);
         self
     }
-
+    /// Pass individual .flat file to link, using `overlay` semantics without using the
+    /// `<add-resource>` tag.
+    ///
+    /// When you a provide a resource file that overlays (extends or modifies) an existing
+    /// file, the last conflicting resource given is used.
     pub fn individual_flat(&mut self, individual_flat: PathBuf) -> &mut Self {
         self.individual_flat = Some(individual_flat);
         self
     }
-
+    /// Specifies the package ID to use for your app.
+    ///
+    /// The package ID that you specify must be greater than or equal to 0x7f unless used
+    /// in combination with `--allow-reserved-package-id`.
     pub fn package_id(&mut self, package_id: String) -> &mut Self {
         self.package_id = Some(package_id);
         self
     }
-
+    /// Allows the use of a reserved package ID.
+    ///
+    /// Reserved package IDs are IDs that are normally assigned to shared libraries and
+    /// are in the range from 0x02 to 0x7e inclusive. By using
+    /// --allow-reserved-package-id, you can assign IDs that fall in the range of reserved
+    /// package IDs.
+    ///
+    /// This should only be used for packages with a min-sdk version of 26 or lower.
     pub fn allow_reserved_package_id(&mut self, allow_reserved_package_id: bool) -> &mut Self {
         self.allow_reserved_package_id = allow_reserved_package_id;
         self
     }
-
+    /// Specifies the directory in which to generate R.java.
     pub fn java(&mut self, java: PathBuf) -> &mut Self {
         self.java = Some(java);
         self
     }
-
+    /// Generates output file for ProGuard rules.
     pub fn proguard_options(&mut self, proguard_options: PathBuf) -> &mut Self {
         self.proguard_options = Some(proguard_options);
         self
     }
-
+    /// Output file for generated Proguard rules for the main dex.
     pub fn proguard_conditional_keep_rules(
         &mut self,
         proguard_conditional_keep_rules: bool,
@@ -408,122 +300,162 @@ impl Aapt2Link {
         self.proguard_conditional_keep_rules = proguard_conditional_keep_rules;
         self
     }
-
+    /// Disables automatic style and layout SDK versioning.
     pub fn no_auto_version(&mut self, no_auto_version: bool) -> &mut Self {
         self.no_auto_version = no_auto_version;
         self
     }
-
+    /// Disables automatic versioning of vector drawables. Use this only when building
+    /// your APK with the Vector Drawable Library.
     pub fn no_version_vectors(&mut self, no_version_vectors: bool) -> &mut Self {
         self.no_version_vectors = no_version_vectors;
         self
     }
-
+    /// Disables automatic versioning of transition resources. Use this only when building
+    /// your APK with Transition Support library.
     pub fn no_version_transitions(&mut self, no_version_transitions: bool) -> &mut Self {
         self.no_version_transitions = no_version_transitions;
         self
     }
-
+    /// Disables automatic de-duplication of resources with identical values across
+    /// compatible configurations.
     pub fn no_resource_deduping(&mut self, no_resource_deduping: bool) -> &mut Self {
         self.no_resource_deduping = no_resource_deduping;
         self
     }
-
+    /// Enables encoding of sparse entries using a binary search tree. This is useful for
+    /// optimization of APK size, but at the cost of resource retrieval performance.
     pub fn enable_sparse_encoding(&mut self, enable_sparse_encoding: bool) -> &mut Self {
         self.enable_sparse_encoding = enable_sparse_encoding;
         self
     }
-
+    /// Requires localization of strings marked 'suggested'.
     pub fn suggested_strings(&mut self, suggested_strings: bool) -> &mut Self {
         self.suggested_strings = suggested_strings;
         self
     }
-
+    /// Provides a list of configurations separated by commas.
+    ///
+    /// For example, if you have dependencies on the support library (which contains
+    /// translations for multiple languages), you can filter resources just for the given
+    /// language configuration, like English or Spanish.
+    ///
+    /// You must define the language configuration by a two-letter ISO 639-1 language
+    /// code, optionally followed by a two letter ISO 3166-1-alpha-2 region code preceded
+    /// by lowercase 'r' (for example, en-rUS).
     pub fn config(&mut self, config: String) -> &mut Self {
         self.config.push(config);
         self
     }
-
+    /// Allows AAPT2 to select the closest matching density and strip out all others.
+    ///
+    /// There are several pixel density qualifiers available to use in your app, such as
+    /// ldpi, hdpi, and xhdpi. When you specify a preferred density, AAPT2 selects and
+    /// stores the closest matching density in the resource table and removes all others.
     pub fn preferred_density(&mut self, preferred_density: i32) -> &mut Self {
         self.preferred_density = Some(preferred_density);
         self
     }
-
+    /// Outputs the APK contents to a directory specified by -o.
+    ///
+    /// If you get any errors using this flag, you can resolve them by upgrading to
+    /// [`Android SDK Build Tools 28.0.0 or higher`].
+    ///
+    /// [`Android SDK Build Tools 28.0.0 or higher`]: https://developer.android.com/studio/releases/build-tools
     pub fn output_to_dir(&mut self, output_to_dir: bool) -> &mut Self {
         self.output_to_dir = output_to_dir;
         self
     }
-
+    /// Sets the default minimum SDK version to use for `AndroidManifest.xml`.
     pub fn min_sdk_version(&mut self, min_sdk_version: u32) -> &mut Self {
         self.min_sdk_version = Some(min_sdk_version);
         self
     }
-
+    ///	Sets the default target SDK version to use for `AndroidManifest.xml`.
     pub fn target_sdk_version(&mut self, target_sdk_version: u32) -> &mut Self {
         self.target_sdk_version = Some(target_sdk_version);
         self
     }
-
+    /// Specifies the version code (integer) to inject into the AndroidManifest.xml if
+    /// none is present.
     pub fn version_code(&mut self, version_code: u32) -> &mut Self {
         self.version_code = Some(version_code);
         self
     }
-
+    /// Specifies the version name to inject into the AndroidManifest.xml if none is
+    /// present.
     pub fn compile_sdk_version_name(&mut self, compile_sdk_version_name: String) -> &mut Self {
         self.compile_sdk_version_name = Some(compile_sdk_version_name);
         self
     }
-
+    /// Generates compiled resources in Protobuf format.
+    /// Suitable as input to the [`bundle tool`] for generating an Android App Bundle.
+    ///
+    /// [`bundle tool`]: https://developer.android.com/studio/build/building-cmdline#bundletool-build
     pub fn proto_format(&mut self, proto_format: bool) -> &mut Self {
         self.proto_format = proto_format;
         self
     }
-
+    /// Generates `R.java` with non-final resource IDs (references to the IDs from app’s
+    /// code will not get inlined during kotlinc/javac compilation).
     pub fn non_final_ids(&mut self, non_final_ids: bool) -> &mut Self {
         self.non_final_ids = non_final_ids;
         self
     }
-
+    /// Emits a file at the given path with a list of names of resource types and their ID
+    /// mappings. It is suitable to use with --stable-ids.
     pub fn emit_ids(&mut self, emit_ids: PathBuf) -> &mut Self {
         self.emit_ids = Some(emit_ids);
         self
     }
-
+    /// Consumes the file generated with --emit-ids containing the list of names of
+    /// resource types and their assigned IDs.
+    ///
+    /// This option allows assigned IDs to remain stable even when you delete or add new
+    /// resources while linking
     pub fn stable_ids(&mut self, stable_ids: PathBuf) -> &mut Self {
         self.stable_ids = Some(stable_ids);
         self
     }
-
+    /// Specifies custom Java package under which to generate R.java.
     pub fn custom_package(&mut self, custom_package: PathBuf) -> &mut Self {
         self.custom_package = Some(custom_package);
         self
     }
-
+    /// Generates the same R.java file but with different package names.
     pub fn extra_packages(&mut self, extra_packages: PathBuf) -> &mut Self {
         self.extra_packages = Some(extra_packages);
         self
     }
-
+    /// Adds a JavaDoc annotation to all generated Java classes.
     pub fn add_javadoc_annotation(&mut self, add_javadoc_annotation: String) -> &mut Self {
         self.add_javadoc_annotation = Some(add_javadoc_annotation);
         self
     }
-
+    /// Generates a text file containing the resource symbols of the R class in the
+    /// specified file.
+    ///
+    /// You must specify the path to the output file.
     pub fn output_text_symbols(&mut self, output_text_symbols: PathBuf) -> &mut Self {
         self.output_text_symbols = Some(output_text_symbols);
         self
     }
-
+    /// Allows the addition of new resources in overlays without using the <add-resource>
+    /// tag.
     pub fn auto_add_overlay(&mut self, auto_add_overlay: bool) -> &mut Self {
         self.auto_add_overlay = auto_add_overlay;
         self
     }
-
+    /// Renames the package in AndroidManifest.xml.
     pub fn rename_manifest_package(&mut self, rename_manifest_package: String) -> &mut Self {
         self.rename_manifest_package = Some(rename_manifest_package);
         self
     }
-
+    /// Changes the name of the target package for [`instrumentation`].
+    ///
+    /// It should be used in conjunction with --rename-manifest-package.
+    ///
+    /// [`instrumentation`]: https://developer.android.com/reference/android/app/Instrumentation
     pub fn rename_instrumentation_target_package(
         &mut self,
         rename_instrumentation_target_package: String,
@@ -531,60 +463,69 @@ impl Aapt2Link {
         self.rename_instrumentation_target_package = Some(rename_instrumentation_target_package);
         self
     }
-
+    /// Do not compress any resources.
     pub fn no_compress(&mut self, no_compress: bool) -> &mut Self {
         self.no_compress = no_compress;
         self
     }
-
+    /// Preserve raw attribute values in xml files.
     pub fn keep_raw_values(&mut self, keep_raw_values: bool) -> &mut Self {
         self.keep_raw_values = keep_raw_values;
         self
     }
-
+    /// Specifies the extensions of files that you do not want to compress.
     pub fn extension(&mut self, extension: String) -> &mut Self {
         self.extensions.push(extension);
         self
     }
+    /// Do not compress extensions matching the regular expression. Remember to use the
+    /// '$' symbol for end of line. Uses a case-sensitive ECMAScriptregular expression
+    /// grammar.
     pub fn no_compress_regex(&mut self, no_compress_regex: String) -> &mut Self {
         self.no_compress_regex = Some(no_compress_regex);
         self
     }
-
+    /// Treat manifest validation errors as warnings.
     pub fn warn_manifest_validation(&mut self, warn_manifest_validation: bool) -> &mut Self {
         self.warn_manifest_validation = warn_manifest_validation;
         self
     }
-
+    /// Splits resources based on a set of configurations to generate a different version
+    /// of the APK.
+    ///
+    /// You must specify the path to the output APK along with the set of configurations.
     pub fn split(&mut self, split: PathBuf) -> &mut Self {
         self.split = Some(split);
         self
     }
+    /// Do not allow overlays with different visibility levels.
     pub fn strict_visibility(&mut self, strict_visibility: bool) -> &mut Self {
         self.strict_visibility = strict_visibility;
         self
     }
-
+    /// Generate systrace json trace fragment to specified folder.
     pub fn trace_folder(&mut self, trace_folder: String) -> &mut Self {
         self.trace_folder = Some(trace_folder);
         self
     }
-
+    /// Do not serialize source file information when generating resources in Protobuf
+    /// format.
     pub fn exclude_sources(&mut self, exclude_sources: bool) -> &mut Self {
         self.exclude_sources = exclude_sources;
         self
     }
-
+    /// Only merge the resources, without verifying resource references. This flag should
+    /// only be used together with the --static-lib flag.
     pub fn merge_only(&mut self, merge_only: bool) -> &mut Self {
         self.merge_only = merge_only;
         self
-    }
-
+    }   
+    /// Enables increased verbosity of the output.
     pub fn verbose(&mut self, verbose: bool) -> &mut Self {
         self.verbose = verbose;
         self
     }
-
+    /// Displays this help menu
     pub fn help(&mut self, help: bool) -> &mut Self {
         self.help = help;
         self
