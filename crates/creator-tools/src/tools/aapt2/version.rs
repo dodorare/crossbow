@@ -3,11 +3,11 @@ use std::process::Command;
 
 pub struct Aapt2Version {
     version: String,
-    /// Displays this help menu
     help: bool,
 }
 
 impl Aapt2Version {
+    /// Prints the version of aapt2
     pub fn new(version: String) -> Self {
         Self {
             version: version.to_owned(),
@@ -15,11 +15,13 @@ impl Aapt2Version {
         }
     }
 
+    /// Displays this help menu
     pub fn help(&mut self, help: bool) -> &mut Self {
         self.help = help;
         self
     }
 
+    /// Opens the command line and launches aapt2 version with arguments
     pub fn run(&self) -> Result<()> {
         let mut aapt2 = Command::new("aapt2");
         aapt2.arg("version");

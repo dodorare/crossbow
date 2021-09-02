@@ -3,11 +3,11 @@ use std::{path::PathBuf, process::Command};
 
 pub struct Aapt2Diff {
     input_apks: Vec<PathBuf>,
-    /// Displays this help menu
     help: bool,
 }
 
 impl Aapt2Diff {
+    /// Initialize struct Aapt2Diff and then specifies paths to input apks
     pub fn new(input_apks: &[PathBuf]) -> Self {
         Self {
             input_apks: input_apks.to_vec(),
@@ -15,11 +15,13 @@ impl Aapt2Diff {
         }
     }
 
+    /// Displays this help menu
     pub fn help(&mut self, help: bool) -> &mut Self {
         self.help = help;
         self
     }
 
+    /// Opens the command line and launches aapt2 diff with arguments
     pub fn run(&self) -> Result<()> {
         let mut aapt2 = Command::new("aapt2");
         aapt2.arg("diff");

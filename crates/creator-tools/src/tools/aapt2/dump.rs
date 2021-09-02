@@ -20,17 +20,14 @@ use std::process::Command;
 pub struct Aapt2Dump {
     subcommand: SubCommand,
     filename_apk: PathBuf,
-    /// Suppresses the output of values when displaying resource.
     no_values: bool,
-    /// Specifies a file as an argument to be dumped from the APK.
     dumped_file: Option<PathBuf>,
-    /// Increases verbosity of the output.
     verbose: bool,
-    /// Displays this help menu
     help: bool,
 }
 
 impl Aapt2Dump {
+    /// Initialize struct Aapt2Dump then specifies subcommand and apk file
     pub fn new(subcommand: SubCommand, filename_apk: &Path) -> Self {
         Self {
             subcommand,
@@ -42,26 +39,31 @@ impl Aapt2Dump {
         }
     }
 
+    /// Suppresses the output of values when displaying resource
     pub fn no_values(&mut self, no_values: bool) -> &mut Self {
         self.no_values = no_values;
         self
     }
 
+    /// Specifies a file as an argument to be dumped from the APK
     pub fn dumped_file(&mut self, dumped_file: &Path) -> &mut Self {
         self.dumped_file = Some(dumped_file.to_owned());
         self
     }
 
+    /// Increases verbosity of the output
     pub fn verbose(&mut self, verbose: bool) -> &mut Self {
         self.verbose = verbose;
         self
     }
 
+    /// Displays this help menu
     pub fn help(&mut self, help: bool) -> &mut Self {
         self.help = help;
         self
     }
 
+    /// Opens the command line and launches aapt2 dump with arguments
     pub fn run(&self) -> Result<()> {
         let mut aapt2 = Command::new("aapt2");
         aapt2.arg("dump");

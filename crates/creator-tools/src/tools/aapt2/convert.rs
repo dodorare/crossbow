@@ -4,55 +4,58 @@ use std::{
     process::Command,
 };
 
+#[derive(Default)]
 pub struct Aapt2Convert {
-    /// Output path
     output_path: PathBuf,
-    /// Format of the output. Accepted values are 'proto' and 'binary'. When not set,
-    /// defaults to 'binary'.
     output_format: Option<OutputFormat>,
-    /// Enables encoding sparse entries using a binary search tree. This decreases APK
-    /// size at the cost of resource retrieval performance.
     enable_sparse_encoding: bool,
-    /// Preserve raw attribute values in xml files when using the 'binary' output format
     keep_raw_values: bool,
-    /// Enables verbose logging`
     verbose: bool,
-    /// Displays this help menu
     help: bool,
 }
 
 impl Aapt2Convert {
+    /// Initialize struct Aapt2Convert and then specifies output path to convert
     pub fn new(output_path: &Path) -> Self {
         Self {
             output_path: output_path.to_owned(),
-            output_format: None,
-            enable_sparse_encoding: false,
-            keep_raw_values: false,
-            verbose: false,
-            help: false,
+            ..Default::default()
         }
     }
 
+    /// Format of the output. Accepted values are 'proto' and 'binary'. When not set,
+    /// defaults to 'binary'
+    pub fn output_format(&mut self, output_format: OutputFormat) -> &mut Self {
+        self.output_format = Some(output_format);
+        self
+    }
+
+    /// Enables encoding sparse entries using a binary search tree. This decreases APK
+    /// size at the cost of resource retrieval performance
     pub fn enable_sparse_encoding(&mut self, enable_sparse_encoding: bool) -> &mut Self {
         self.enable_sparse_encoding = enable_sparse_encoding;
         self
     }
 
+    /// Preserve raw attribute values in xml files when using the 'binary' output format
     pub fn keep_raw_values(&mut self, keep_raw_values: bool) -> &mut Self {
         self.keep_raw_values = keep_raw_values;
         self
     }
 
+    /// Enables verbose logging
     pub fn verbose(&mut self, verbose: bool) -> &mut Self {
         self.verbose = verbose;
         self
     }
 
+    /// Displays this help menu
     pub fn help(&mut self, help: bool) -> &mut Self {
         self.help = help;
         self
     }
 
+    /// Opens the command line and launches aapt2 convert with arguments
     pub fn run(&self) -> Result<()> {
         let mut aapt2 = Command::new("aapt2");
         aapt2.arg("convert");
