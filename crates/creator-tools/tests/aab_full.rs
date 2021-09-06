@@ -97,19 +97,6 @@ mod tests {
 
         assert!(extracted_apk_path.exists());
 
-        // Assign path to lib
-        let add_lib = android::add_libs_into_aapt2(
-            &ndk,
-            &android_compiled_lib,
-            build_target,
-            profile,
-            30,
-            &extracted_apk_path,
-            &target_dir,
-        )
-        .unwrap();
-        assert!(add_lib.exists());
-
         let gen_zip_modules =
             android::gen_zip_modules(&android_build_dir, &package_name, &extracted_apk_path)
                 .unwrap();
@@ -132,7 +119,6 @@ mod tests {
 
         // Create keystore with keytool command
         let key = gen_debug_key().unwrap();
-        println!("{:?}", key);
 
         // Create keystore with keytool command
         let apks = android_build_dir.join(format!("{}.apks", package_name));

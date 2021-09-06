@@ -80,7 +80,8 @@ impl std::fmt::Display for Visibility {
 }
 
 impl Aapt2Compile {
-    /// Initialize struct Aapt2Compile then specifies input resource(s) to compile and specifies the output path for the compiled resource(s)
+    /// Initialize struct Aapt2Compile then specifies input resource(s) to compile and
+    /// specifies the output path for the compiled resource(s)
     pub fn new(res_path: &Path, compiled_res: &PathBuf) -> Self {
         Self {
             res_path: Some(res_path.to_owned()),
@@ -89,7 +90,8 @@ impl Aapt2Compile {
         }
     }
 
-    /// Specifies the directory to scan for resources and specifies the output path for the compiled resource(s).
+    /// Specifies the directory to scan for resources and specifies the output path for
+    /// the compiled resource(s).
     ///
     /// Although you can use this flag to compile multiple resource files with one
     /// command, it disables the benefits of incremental compilation and thus, should not
@@ -103,7 +105,8 @@ impl Aapt2Compile {
         }
     }
 
-    /// Specifies zip file containing the res directory to scan for resources and specifies the output path for the compiled resource(s)
+    /// Specifies zip file containing the res directory to scan for resources and
+    /// specifies the output path for the compiled resource(s)
     pub fn new_from_res_zip(res_zip: &Path, compiled_res: &PathBuf) -> Self {
         Self {
             res_path: None,

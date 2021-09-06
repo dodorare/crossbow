@@ -201,7 +201,7 @@ impl Aapt2Link {
     pub fn static_lib(&mut self, static_lib: bool) -> &mut Self {
         self.static_lib = static_lib;
         self
-    }   
+    }
     /// Merge all library resources under the app's package.
     pub fn no_static_lib_packages(&mut self, no_static_lib_packages: bool) -> &mut Self {
         self.no_static_lib_packages = no_static_lib_packages;
@@ -519,7 +519,7 @@ impl Aapt2Link {
     pub fn merge_only(&mut self, merge_only: bool) -> &mut Self {
         self.merge_only = merge_only;
         self
-    }   
+    }
     /// Enables increased verbosity of the output.
     pub fn verbose(&mut self, verbose: bool) -> &mut Self {
         self.verbose = verbose;

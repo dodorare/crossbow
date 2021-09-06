@@ -2,11 +2,13 @@ mod build_apks;
 mod build_bundle;
 mod extract_apks;
 mod get_size_total;
+mod install_apks;
 
 pub use build_apks::*;
 pub use build_bundle::*;
 pub use extract_apks::*;
 pub use get_size_total::*;
+pub use install_apks::*;
 
 use std::path::{Path, PathBuf};
 
@@ -28,5 +30,9 @@ impl Bundletool {
 
     pub fn extract_apks(self, apks: &Path, output_dir: &Path, device_spec: &Path) -> ExtractApks {
         ExtractApks::new(apks, output_dir, device_spec)
+    }
+
+    pub fn install_apks(self, apks: &Path) -> InstallApks {
+        InstallApks::new(apks)
     }
 }

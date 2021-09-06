@@ -22,7 +22,8 @@ pub struct Aapt2Optimize {
 }
 
 impl Aapt2Optimize {
-    /// Initialize struct Aapt2Diff then specifies path to the aapt2 link output APK and Path to the output directory (for splits)
+    /// Initialize struct Aapt2Diff then specifies path to the aapt2 link output APK and
+    /// Path to the output directory (for splits)
     pub fn new(output_apk: &Path, output_dir: &Path) -> Self {
         Self {
             output_apk: output_apk.to_owned(),
