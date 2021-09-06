@@ -18,7 +18,7 @@ use std::{
 /// ## Link syntax
 /// The general syntax for using link is as follows:
 ///
-/// ```
+/// ```xml
 /// aapt2 link path-to-input-files [options] -o
 /// outputdirectory/outputfilename.apk --manifest AndroidManifest.xml
 /// ```
@@ -28,7 +28,7 @@ use std::{
 /// file. AAPT2 links the result against `android.jar` file which holds the resources
 /// defined in the android package:
 ///
-/// ```
+/// ```xml
 ///  aapt2 link -o output.apk
 ///  -I android_sdk/platforms/android_version/android.jar
 ///     compiled/res/values_values.arsc.flat
@@ -42,15 +42,7 @@ use std::{
 pub struct Aapt2Link {
     inputs: Vec<PathBuf>,
     compiled_res: Option<PathBuf>,
-    /// Specifies the output path for the linked resource APK.
-    ///
-    /// This is a required flag because you must specify the path for the output APK that
-    /// can hold the linked resources.
     output_apk: PathBuf,
-    /// Specifies the path to the Android manifest file to build.
-    ///
-    /// This is a required flag because the manifest file encloses essential information
-    /// about your app like package name and application ID.
     manifest: PathBuf,
     android_jar: Option<PathBuf>,
     assets: Option<PathBuf>,
@@ -116,6 +108,15 @@ pub struct Aapt2Link {
 }
 
 impl Aapt2Link {
+    /// Specifies the output path for the linked resource APK.
+    ///
+    /// This is a required flag because you must specify the path for the output APK that
+    /// can hold the linked resources.
+    ///
+    /// Specifies the path to the Android manifest file to build.
+    ///
+    /// This is a required flag because the manifest file encloses essential information
+    /// about your app like package name and application ID.
     pub fn new(inputs: &[PathBuf], output_apk: &Path, manifest: &Path) -> Self {
         Self {
             inputs: inputs.to_vec(),
@@ -125,7 +126,15 @@ impl Aapt2Link {
             ..Default::default()
         }
     }
-
+    /// Specifies the output path for the linked resource APK.
+    ///
+    /// This is a required flag because you must specify the path for the output APK that
+    /// can hold the linked resources.
+    ///
+    /// Specifies the path to the Android manifest file to build.
+    ///
+    /// This is a required flag because the manifest file encloses essential information
+    /// about your app like package name and application ID.
     pub fn new_from_compiled_res(
         compiled_res: Option<PathBuf>,
         output_apk: &Path,

@@ -8,15 +8,14 @@ use std::process::Command;
 /// ```
 /// You can modify the behavior of the get-size total command using the following flags:
 pub struct ExtractApks {
-    /// (Required)
     apks: PathBuf,
-    /// Specifies the path to the device spec file (from get-device-spec or constructed
-    /// manually) to use for matching.
     device_spec: PathBuf,
     output_dir: PathBuf,
 }
 
 impl ExtractApks {
+    /// Specifies the path to the device spec file (from get-device-spec or constructed
+    /// manually) to use for matching.
     pub fn new(apks: &Path, device_spec: &Path, output_dir: &Path) -> Self {
         Self {
             apks: apks.to_owned(),

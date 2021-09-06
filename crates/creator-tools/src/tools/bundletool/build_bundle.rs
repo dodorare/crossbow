@@ -5,7 +5,7 @@ use std::process::Command;
 /// ## Build your app bundle using bundletool
 /// To build your app bundle, you use the bundletool build-bundle command, as shown below:
 ///
-/// ```
+/// ```xml
 /// bundletool build-bundle --modules=base.zip --output=mybundle.aab
 /// ```
 ///
@@ -14,29 +14,17 @@ use std::process::Command;
 /// not use apksigner to sign your app bundle.
 #[derive(Debug, PartialEq, PartialOrd)]
 pub struct BuildBundle {
-    /// Specifies the list of module ZIP files bundletool should use to build your app
-    /// bundle.
     modules: Vec<PathBuf>,
-    /// Specifies the path and filename for the output *.aab file.
     output: PathBuf,
-    /// Specifies the path to an optional configuration file you can use to customize the
-    /// build process. To learn more, see the section about [`customizing downstream APK
-    /// generation`].
-    ///
-    /// [`customizing downstream APK generation`]::https://developer.android.com/studio/build/building-cmdline#bundleconfig
     config: Option<PathBuf>,
-    /// Instructs bundletool to package an optional metadata file inside your app bundle.
-    /// You can use this file to include data, such as ProGuard mappings or the complete
-    /// list of your app's DEX files, that may be useful to other steps in your toolchain
-    /// or an app store.
-    ///
-    /// target-bundle-path specifies a path relative to the root of the app bundle where
-    /// you would like the metadata file to be packaged, and local-file-path specifies the
-    /// path to the local metadata file itself.
     metadata_file: Option<PathBuf>,
 }
 
 impl BuildBundle {
+    /// Specifies the list of module ZIP files bundletool should use to build your app
+    /// bundle.
+    ///
+    /// Specifies the path and filename for the output *.aab file.
     pub fn new(modules: &[PathBuf], output: &Path) -> Self {
         Self {
             modules: modules.to_vec(),
@@ -45,12 +33,23 @@ impl BuildBundle {
             metadata_file: None,
         }
     }
-
+    /// Specifies the path to an optional configuration file you can use to customize the
+    /// build process. To learn more, see the section about [`customizing downstream APK
+    /// generation`].
+    ///
+    /// [`customizing downstream APK generation`]::https://developer.android.com/studio/build/building-cmdline#bundleconfig
     pub fn config(&mut self, config: &Path) -> &mut Self {
         self.config = Some(config.to_owned());
         self
     }
-
+    /// Instructs bundletool to package an optional metadata file inside your app bundle.
+    /// You can use this file to include data, such as ProGuard mappings or the complete
+    /// list of your app's DEX files, that may be useful to other steps in your toolchain
+    /// or an app store.
+    ///
+    /// target-bundle-path specifies a path relative to the root of the app bundle where
+    /// you would like the metadata file to be packaged, and local-file-path specifies the
+    /// path to the local metadata file itself.
     pub fn metadata_file(&mut self, metadata_file: &Path) -> &mut Self {
         self.metadata_file = Some(metadata_file.to_owned());
         self
