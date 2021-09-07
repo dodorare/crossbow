@@ -18,9 +18,12 @@ mod version;
 
 pub use compile::*;
 pub use convert::*;
+pub use daemon::*;
+pub use diff::*;
 pub use dump::*;
 pub use link::*;
 pub use optimize::*;
+pub use version::*;
 
 use self::{daemon::Aapt2Daemon, diff::Aapt2Diff, version::Aapt2Version};
 use std::path::{Path, PathBuf};

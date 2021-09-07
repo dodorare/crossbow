@@ -1,7 +1,7 @@
 use crate::commands::build::{android::AndroidBuildCommand, BuildContext};
 use crate::error::Result;
 use clap::Clap;
-use creator_tools::{commands::android, utils::Config};
+use creator_tools::{commands::android, tools::Bundletool, utils::Config};
 
 #[derive(Clap, Clone, Debug)]
 pub struct AndroidRunCommand {
@@ -23,6 +23,12 @@ impl AndroidRunCommand {
     }
 
     pub fn run_aab(&self, config: &Config) -> Result<()> {
-        todo!();
+        let context = BuildContext::new(config, self.build_command.shared.target_dir.clone())?;
+        let apks_path = self.build_command.execute_aab(config, &context)?;
+        config.status("Starting run process")?;
+        config.status("Installing apks file")?;
+        Bundletool.install_apks(&apks_path);
+        config.status("Run finished successfully")?;
+        Ok(())
     }
 }

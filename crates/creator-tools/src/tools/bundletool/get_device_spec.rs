@@ -2,11 +2,11 @@ use crate::error::*;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-/// Bundletool is capable of generating an APK set that targets a device configuration 
-/// specified by a JSON file. To first generate a JSON file for a connected device, run 
+/// Bundletool is capable of generating an APK set that targets a device configuration
+/// specified by a JSON file. To first generate a JSON file for a connected device, run
 /// the following command:
 #[derive(Debug, PartialEq, PartialOrd)]
-pub struct GetDeviceSpec{
+pub struct GetDeviceSpec {
     output: PathBuf,
 }
 impl GetDeviceSpec {

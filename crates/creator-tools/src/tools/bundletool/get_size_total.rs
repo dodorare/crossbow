@@ -30,6 +30,7 @@ impl GetSizeTotal {
             modules: None,
         }
     }
+
     /// Specifies the path to the device spec file (from get-device-spec or constructed
     /// manually) to use for matching. You can specify a partial path to evaluate a set of
     /// configurations.
@@ -37,6 +38,7 @@ impl GetSizeTotal {
         self.device_spec = Some(device_spec.to_owned());
         self
     }
+
     /// Specifies the dimensions used when computing the size estimates.
     /// Accepts a comma-separated list of: SDK, ABI, SCREEN_DENSITY, and LANGUAGE. To
     /// measure across all dimensions, specify ALL.
@@ -44,12 +46,14 @@ impl GetSizeTotal {
         self.dimensions = Some(dimensions);
         self
     }
+
     /// Measures the download size of the instant-enabled APKs instead of the installable
     /// APKs. By default, bundletool measures the installable APK download sizes
     pub fn instant(&mut self, instant: bool) -> &mut Self {
         self.instant = instant;
         self
     }
+
     /// Specifies a comma-separated list of modules in the APK set to consider in the
     /// measurement. The bundletool command automatically includes any dependent modules
     /// for the specified set. By default, the command measures the download size of

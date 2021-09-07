@@ -114,11 +114,7 @@ impl AndroidBuildCommand {
         Ok((android_manifest, sdk, aligned_apk_path))
     }
 
-    pub fn execute_aab(
-        &self,
-        config: &Config,
-        context: &BuildContext,
-    ) -> Result<(AndroidManifest, AndroidSdk, PathBuf)> {
+    pub fn execute_aab(&self, config: &Config, context: &BuildContext) -> Result<PathBuf> {
         let project_path = context.project_path.clone();
         let target_dir = context.target_dir.clone();
         let profile = self.shared.profile();
@@ -164,7 +160,7 @@ impl AndroidBuildCommand {
                 .join(android_abi)
                 .join(format!("lib{}.so", package_name));
             if !android_compiled_lib.exists() {
-                std::fs::create_dir_all(&android_compiled_lib.parent().unwrap()).unwrap();
+                std::fs::create_dir_all(&android_compiled_lib.parent().unwrap())?;
                 fs_extra::file::copy(
                     &add_libs,
                     &android_compiled_lib,
@@ -176,46 +172,47 @@ impl AndroidBuildCommand {
         config.status_message("Generating", "proto format APK file")?;
         let compiled_res_path = android_build_dir.join("compiled_res");
         if !compiled_res_path.exists() {
-            std::fs::create_dir_all(&compiled_res_path).unwrap();
+            std::fs::create_dir_all(&compiled_res_path)?;
         }
-        let res_path = project_path.join("res");
+        let res_path = project_path
+            .join("res")
+            .join(context.android_res().unwrap());
         let aapt2_compile = Aapt2.compile_incremental(&res_path, &compiled_res_path);
-        let compiled_res = aapt2_compile.run().unwrap();
+        let compiled_res = aapt2_compile.run()?;
         let apk_path = android_build_dir.join(format!("{}_module.apk", package_name));
         let mut aapt2_link = Aapt2.link_compiled_res(Some(compiled_res), &apk_path, &manifest_path);
         aapt2_link
-            .android_jar(sdk.android_jar(target_sdk_version).unwrap())
+            .android_jar(sdk.android_jar(target_sdk_version)?)
+            .assets(context.android_assets().unwrap())
             .version_code(1)
             .proto_format(true)
             .auto_add_overlay(true);
-        aapt2_link.run().unwrap();
+        aapt2_link.run()?;
         config.status("Extracting apk files")?;
         let output_dir = android_build_dir.join("extracted_apk_files");
-        let extracted_apk_path = android::extract_apk(&apk_path, &output_dir).unwrap();
+        let extracted_apk_path = android::extract_apk(&apk_path, &output_dir)?;
         config.status("Generating ZIP module from extracted files")?;
         let gen_zip_modules =
-            android::gen_zip_modules(&android_build_dir, &package_name, &extracted_apk_path)
-                .unwrap();
+            android::gen_zip_modules(&android_build_dir, &package_name, &extracted_apk_path)?;
         config.status("Generating aab from modules")?;
         let aab_path =
-            android::gen_aab_from_modules(&package_name, &[gen_zip_modules], &android_build_dir)
-                .unwrap();
-        for entry in std::fs::read_dir(&android_build_dir).unwrap() {
-            let entry = entry.unwrap();
+            android::gen_aab_from_modules(&package_name, &[gen_zip_modules], &android_build_dir)?;
+        for entry in std::fs::read_dir(&android_build_dir)? {
+            let entry = entry?;
             let path = entry.path();
             if path.ends_with("extracted_apk_files") {
-                std::fs::remove_dir_all(path.clone()).unwrap();
+                std::fs::remove_dir_all(path.clone())?;
             }
             if path.ends_with("example_module.zip") {
-                std::fs::remove_file(path).unwrap();
+                std::fs::remove_file(path)?;
             }
         }
         config.status_message("Generating", "debug signing key")?;
-        let key = android::gen_debug_key().unwrap();
+        let key = android::gen_debug_key()?;
         config.status("Generating apks")?;
         let apks = android_build_dir.join(format!("{}.apks", package_name));
-        let build_apks = android::build_apks(&aab_path, &apks, &package_name, key).unwrap();
+        let apks_path = android::build_apks(&aab_path, &apks, &package_name, key)?;
         config.status("Build finished successfully")?;
-        Ok((android_manifest, sdk, build_apks))
+        Ok(apks_path)
     }
 }

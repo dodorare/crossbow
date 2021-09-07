@@ -33,6 +33,7 @@ impl BuildBundle {
             metadata_file: None,
         }
     }
+
     /// Specifies the path to an optional configuration file you can use to customize the
     /// build process. To learn more, see the section about [`customizing downstream APK
     /// generation`].
@@ -42,6 +43,7 @@ impl BuildBundle {
         self.config = Some(config.to_owned());
         self
     }
+
     /// Instructs bundletool to package an optional metadata file inside your app bundle.
     /// You can use this file to include data, such as ProGuard mappings or the complete
     /// list of your app's DEX files, that may be useful to other steps in your toolchain

@@ -59,16 +59,16 @@ pub enum KeyPass {
     KeyPassFile,
 }
 
-    /// (`Required`) Specifies the path to the app bundle you built using Android Studio.
-    /// To learn more, read [`Build your project`].
-    ///
-    /// [`Build your project`]::https://developer.android.com/studio/run#reference
-    ///
-    /// (Required) Specifies the name of the output `.apks` file, which contains all the
-    /// APK artifacts for your app. To test the artifacts in this file on a device, go to
-    /// the section about how to [`deploy APKs to a connected device`].
-    ///
-    /// [`deploy APKs to a connected device`]::https://developer.android.com/studio/command-line/bundletool#deploy_with_bundletool
+/// (`Required`) Specifies the path to the app bundle you built using Android Studio.
+/// To learn more, read [`Build your project`].
+///
+/// [`Build your project`]::https://developer.android.com/studio/run#reference
+///
+/// (Required) Specifies the name of the output `.apks` file, which contains all the
+/// APK artifacts for your app. To test the artifacts in this file on a device, go to
+/// the section about how to [`deploy APKs to a connected device`].
+///
+/// [`deploy APKs to a connected device`]::https://developer.android.com/studio/command-line/bundletool#deploy_with_bundletool
 impl BuildApks {
     pub fn new(bundle: &Path, output: &PathBuf) -> Self {
         Self {
@@ -97,12 +97,14 @@ impl BuildApks {
         self.overwrite = overwrite;
         self
     }
+
     /// Specifies a custom path to AAPT2. By default, bundletool includes its own version
     /// of AAPT2.
     pub fn aapt2(&mut self, aapt2: &Path) -> &mut Self {
         self.aapt2 = Some(aapt2.to_owned());
         self
     }
+
     /// Specifies the path to the deployment keystore used to sign the APKs. This flag is
     /// optional. If you don't include it, bundletool attempts to sign your APKs with a
     /// debug signing key.
@@ -110,6 +112,7 @@ impl BuildApks {
         self.ks = Some(ks.to_owned());
         self
     }
+
     /// Specifies your keystore’s password. If you’re specifying a password in plain text,
     /// qualify it with pass:. If you’re passing the path to a file that contains the
     /// password, qualify it with file:. If you specify a keystore using the --ks flag
@@ -119,6 +122,7 @@ impl BuildApks {
         self.ks_pass_pass = Some(ks_pass_pass);
         self
     }
+
     /// Specifies your keystore’s password. If you’re specifying a password in plain text,
     /// qualify it with pass:. If you’re passing the path to a file that contains the
     /// password, qualify it with file:. If you specify a keystore using the --ks flag
@@ -128,11 +132,13 @@ impl BuildApks {
         self.ks_pass_file = Some(ks_pass_file.to_owned());
         self
     }
+
     /// Specifies the alias of the signing key you want to use.
     pub fn ks_key_alias(&mut self, ks_key_alias: String) -> &mut Self {
         self.ks_key_alias = Some(ks_key_alias);
         self
     }
+
     ///Specifies the password for the signing key. If you’re specifying a password in
     /// plain text, qualify it with pass:. If you’re passing the path to a file that
     /// contains the password, qualify it with file:.
@@ -143,6 +149,7 @@ impl BuildApks {
         self.key_pass_pass = Some(key_pass_pass);
         self
     }
+
     ///Specifies the password for the signing key. If you’re specifying a password in
     /// plain text, qualify it with pass:. If you’re passing the path to a file that
     /// contains the password, qualify it with file:.
@@ -153,6 +160,7 @@ impl BuildApks {
         self.key_pass_file = Some(key_pass_file.to_owned());
         self
     }
+
     /// Instructs bundletool to build APKs that target the configuration of a connected
     /// device. If you don’t include this flag, bundletool generates APKs for all device
     /// configurations your app supports.
@@ -160,12 +168,14 @@ impl BuildApks {
         self.connected_device = connected_device;
         self
     }
+
     /// If you have more than one connected device, use this flag to specify the serial ID
     /// of the device to which you want to deploy your app.
     pub fn device_id(&mut self, device_id: String) -> &mut Self {
         self.device_id = Some(device_id);
         self
     }
+
     /// Use this flag to provide a path to a .json file that specifies the device
     /// configuration you want to target. To learn more, go to the section about how to
     /// [`Create and use device specification JSON files`].
@@ -175,6 +185,7 @@ impl BuildApks {
         self.device_spec = Some(device_spec.to_owned());
         self
     }
+
     /// Set the mode to universal if you want bundletool to build only a single APK that
     /// includes all of your app's code and resources such that the APK is compatible with
     /// all device configurations your app supports.
@@ -193,6 +204,7 @@ impl BuildApks {
         self.mode_universal = mode_universal;
         self
     }
+
     ///	Use this flag to enable your app bundle for local testing. Local testing allows
     /// for quick, iterative testing cycles without the need to upload to Google Play
     /// servers.
