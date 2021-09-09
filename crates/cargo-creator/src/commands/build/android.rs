@@ -13,12 +13,18 @@ pub struct AndroidBuildCommand {
     /// Supported targets are: `armv7-linux-androideabi`, `aarch64-linux-android`, `i686-linux-android`, `x86_64-linux-android`.
     #[clap(long, default_value = "aarch64-linux-android")]
     pub target: Vec<AndroidTarget>,
+    #[clap(long)]
+    pub aab: bool,
 }
 
 impl AndroidBuildCommand {
     pub fn run(&self, config: &Config) -> Result<()> {
         let context = BuildContext::new(config, self.shared.target_dir.clone())?;
-        self.execute(config, &context)?;
+        if self.aab {
+            self.execute_aab(config, &context)?;
+        } else {
+            self.execute(config, &context)?;
+        }
         Ok(())
     }
 

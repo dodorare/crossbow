@@ -8,8 +8,11 @@ use creator_tools::utils::Config;
 
 #[derive(Clap, Clone, Debug)]
 pub enum Commands {
+    #[clap(subcommand)]
     Build(build::BuildCommand),
+    #[clap(subcommand)]
     Run(run::RunCommand),
+    // #[clap(subcommand)]
     New(new::NewCommand),
 }
 
