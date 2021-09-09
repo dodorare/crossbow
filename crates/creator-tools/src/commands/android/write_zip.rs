@@ -16,7 +16,8 @@ pub fn dirs_to_write(source_path: &PathBuf) -> fs_extra::error::Result<()> {
         if !manifest_path.exists() {
             std::fs::create_dir_all(&manifest_path)?;
         }
-        let options = fs_extra::file::CopyOptions::new();
+        let mut options = fs_extra::file::CopyOptions::new();
+        options.overwrite = true;
         fs_extra::file::move_file(&path, &manifest_path.join("AndroidManifest.xml"), &options)?;
     }
     Ok(())

@@ -60,6 +60,7 @@ mod tests {
 
         // Generate manifest
         let manifest = android::gen_minimal_android_manifest(
+            None,
             &package_name,
             None,
             "0.0.1".to_string(),
@@ -68,6 +69,7 @@ mod tests {
             target_sdk_version,
             None,
             None,
+            false,
         );
         let manifest_path = android::save_android_manifest(&android_build_dir, &manifest).unwrap();
         assert!(manifest_path.exists());

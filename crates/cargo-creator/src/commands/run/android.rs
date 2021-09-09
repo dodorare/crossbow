@@ -13,7 +13,15 @@ impl AndroidRunCommand {
     pub fn run(&self, config: &Config) -> Result<()> {
         let context = BuildContext::new(config, self.build_command.shared.target_dir.clone())?;
         if self.build_command.aab {
-            let apks_path = self.build_command.execute_aab(config, &context)?;
+            let (aab_path, package_name) = self.build_command.execute_aab(config, &context)?;
+            config.status("Generating apks")?;
+            let apks = aab_path
+                .parent()
+                .unwrap()
+                .join(format!("{}.apks", package_name));
+            // TODO: Get rid of this.
+            let key = android::gen_debug_key()?;
+            let apks_path = android::build_apks(&aab_path, &apks, &package_name, key)?;
             config.status("Starting run process")?;
             config.status("Installing apks file")?;
             Bundletool.install_apks(&apks_path);

@@ -21,6 +21,9 @@ pub struct AndroidBuildCommand {
     /// Signing key password
     #[clap(long)]
     pub sign_key_pass: Option<String>,
+    /// Signing key alias
+    #[clap(long)]
+    pub sign_key_alias: Option<String>,
 }
 
 impl AndroidBuildCommand {
@@ -145,7 +148,11 @@ impl AndroidBuildCommand {
         Ok((android_manifest, sdk, aligned_apk_path))
     }
 
-    pub fn execute_aab(&self, config: &Config, context: &BuildContext) -> Result<PathBuf> {
+    pub fn execute_aab(
+        &self,
+        config: &Config,
+        context: &BuildContext,
+    ) -> Result<(PathBuf, String)> {
         let project_path = context.project_path.clone();
         let target_dir = context.target_dir.clone();
         let profile = self.shared.profile();
@@ -193,12 +200,9 @@ impl AndroidBuildCommand {
                 .join(format!("lib{}.so", package_name));
             if !android_compiled_lib.exists() {
                 std::fs::create_dir_all(&android_compiled_lib.parent().unwrap())?;
-                fs_extra::file::copy(
-                    &add_libs,
-                    &android_compiled_lib,
-                    &fs_extra::file::CopyOptions::new(),
-                )
-                .unwrap();
+                let mut options = fs_extra::file::CopyOptions::new();
+                options.overwrite = true;
+                fs_extra::file::copy(&add_libs, &android_compiled_lib, &options).unwrap();
             }
         }
         config.status_message("Generating", "proto format APK file")?;
@@ -206,17 +210,18 @@ impl AndroidBuildCommand {
         if !compiled_res_path.exists() {
             std::fs::create_dir_all(&compiled_res_path)?;
         }
-        let res_path = project_path
-            .join("res")
-            .join(context.android_res().unwrap());
-        let aapt2_compile = Aapt2.compile_incremental(&res_path, &compiled_res_path);
-        let compiled_res = aapt2_compile.run()?;
+        let compiled_res = if let Some(res) = context.android_res() {
+            let aapt2_compile = Aapt2.compile_incremental(&res, &compiled_res_path);
+            let compiled_res = aapt2_compile.run()?;
+            Some(compiled_res)
+        } else {
+            None
+        };
         let apk_path = android_build_dir.join(format!("{}_module.apk", package_name));
-        let mut aapt2_link = Aapt2.link_compiled_res(Some(compiled_res), &apk_path, &manifest_path);
+        let mut aapt2_link = Aapt2.link_compiled_res(compiled_res, &apk_path, &manifest_path);
         aapt2_link
             .android_jar(sdk.android_jar(target_sdk_version)?)
             .assets(context.android_assets().unwrap())
-            .version_code(1)
             .proto_format(true)
             .auto_add_overlay(true);
         aapt2_link.run()?;
@@ -239,12 +244,10 @@ impl AndroidBuildCommand {
                 std::fs::remove_file(path)?;
             }
         }
-        config.status_message("Generating", "debug signing key")?;
-        let key = android::gen_debug_key()?;
-        config.status("Generating apks")?;
-        let apks = android_build_dir.join(format!("{}.apks", package_name));
-        let apks_path = android::build_apks(&aab_path, &apks, &package_name, key)?;
+        // TODO: Add signing
+        // config.status_message("Generating", "debug signing key")?;
+        // let key = android::gen_debug_key()?;
         config.status("Build finished successfully")?;
-        Ok(apks_path)
+        Ok((aab_path, package_name))
     }
 }
