@@ -18,7 +18,7 @@ use std::{
 /// ## Link syntax
 /// The general syntax for using link is as follows:
 ///
-/// ```xml
+/// ```sh
 /// aapt2 link path-to-input-files [options] -o
 /// outputdirectory/outputfilename.apk --manifest AndroidManifest.xml
 /// ```
@@ -28,7 +28,7 @@ use std::{
 /// file. AAPT2 links the result against `android.jar` file which holds the resources
 /// defined in the android package:
 ///
-/// ```xml
+/// ```sh
 ///  aapt2 link -o output.apk
 ///  -I android_sdk/platforms/android_version/android.jar
 ///     compiled/res/values_values.arsc.flat
@@ -603,7 +603,7 @@ impl Aapt2Link {
         if self.suggested_strings {
             aapt2.arg("-z");
         }
-        if self.config.len() > 0 {
+        if !self.config.is_empty() {
             aapt2.arg("-c").arg(self.config.join(","));
         }
         if let Some(preferred_density) = self.preferred_density {

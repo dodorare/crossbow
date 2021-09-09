@@ -1,3 +1,3 @@
 fn main() {
-    // threed::main();
+    threed::main();
 }

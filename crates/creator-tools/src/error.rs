@@ -49,6 +49,8 @@ pub enum AppleError {
     CodeSigningProfileNotProvided,
     /// Codesign failed {0}
     CodesignFailed(String),
+    /// Failed to archive payload
+    ZipCommandFailed,
     /// Codesign allocate not found
     CodesignAllocateNotFound,
     /// Simctl error
@@ -76,6 +78,13 @@ pub enum Error {
     InvalidProfile(String),
     /// Invalid interface orientation: {0:?}
     InvalidInterfaceOrientation(String),
+    /// GNU toolchain binary `{gnu_bin}` nor LLVM toolchain binary `{llvm_bin}` found in
+    /// `{toolchain_path:?}`
+    ToolchainBinaryNotFound {
+        toolchain_path: PathBuf,
+        gnu_bin: String,
+        llvm_bin: String,
+    },
     /// Path {0:?} doesn't exist
     PathNotFound(PathBuf),
     /// Failed to find cargo manifest: {0}

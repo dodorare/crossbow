@@ -8,17 +8,16 @@ use std::path::PathBuf;
 pub struct AppleRunCommand {
     #[clap(flatten)]
     pub build_command: AppleBuildCommand,
-
-    /// Simulator device name.
+    /// Simulator device name
     #[clap(short, long, default_value = "iPhone 8", conflicts_with = "target")]
     pub simulator_name: String,
-    /// Run in debug mode.
+    /// Run in debug mode
     #[clap(short, long)]
     pub debug: bool,
-    /// Install and launch on the connected device.
+    /// Install and launch on the connected device
     #[clap(short, long, conflicts_with = "target")]
     pub device: bool,
-    /// Connected device id.
+    /// Connected device id
     #[clap(short = 'D', long, conflicts_with = "device_name")]
     pub device_id: Option<String>,
 }
@@ -29,7 +28,11 @@ impl AppleRunCommand {
         if self.device && build_command.target.is_empty() {
             build_command.target = vec![AppleTarget::Aarch64AppleIos];
         } else if build_command.target.is_empty() {
-            build_command.target = vec![AppleTarget::X86_64AppleIos];
+            if cfg!(target_arch = "aarch64") {
+                build_command.target = vec![AppleTarget::Aarch64AppleIos];
+            } else {
+                build_command.target = vec![AppleTarget::X86_64AppleIos];
+            }
         }
         let context = BuildContext::new(config, build_command.shared.target_dir.clone())?;
         let (info_plist, app_paths) = build_command.execute(config, &context)?;
@@ -37,7 +40,7 @@ impl AppleRunCommand {
         let bundle_id = &info_plist.identification.bundle_identifier;
         let app_path = self.get_app_path(&app_paths)?;
         if self.device {
-            config.status("Lounching app on connected device")?;
+            config.shell().status("Launching app on connected device")?;
             apple::run_and_debug(&app_path, self.debug, false, false, self.device_id.as_ref())?;
         } else {
             config.status("Installing and launching application on simulator")?;
@@ -54,11 +57,11 @@ impl AppleRunCommand {
         if self.device {
             Self::get_app_path_by_target(app_paths, AppleTarget::Aarch64AppleIos)
         } else {
-            // TODO: Support apple silicon
-            // if cfg!(target_arch = "aarch64") {
-            //     Self::get_app_path_by_target(app_paths, AppleTarget::Aarch64AppleIos)
-            // }
-            Self::get_app_path_by_target(app_paths, AppleTarget::X86_64AppleIos)
+            if cfg!(target_arch = "aarch64") {
+                Self::get_app_path_by_target(app_paths, AppleTarget::Aarch64AppleIos)
+            } else {
+                Self::get_app_path_by_target(app_paths, AppleTarget::X86_64AppleIos)
+            }
         }
     }
 

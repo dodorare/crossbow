@@ -9,23 +9,23 @@ use std::path::{Path, PathBuf};
 pub struct AppleBuildCommand {
     #[clap(flatten)]
     pub shared: SharedBuildCommand,
-    /// Specify custom cargo binary.
+    /// Specify custom cargo binary
     #[clap(long, conflicts_with = "example")]
     pub bin: Option<String>,
     /// Build for the given apple architecture.
-    /// Supported targets are: 'aarch64-apple-ios`, `armv7-apple-ios`, `armv7s-apple-ios`, `i386-apple-ios`, `x86_64-apple-ios`.
+    /// Supported targets are: 'aarch64-apple-ios`, `armv7-apple-ios`, `armv7s-apple-ios`, `i386-apple-ios`, `x86_64-apple-ios`
     #[clap(long, default_value = "aarch64-apple-ios")]
     pub target: Vec<AppleTarget>,
-    /// Provisioning profile name to find in this directory: `~/Library/MobileDevice/Provisioning\ Profiles/`.
+    /// Provisioning profile name to find in this directory: `~/Library/MobileDevice/Provisioning\ Profiles/`
     #[clap(long, conflicts_with = "profile-path")]
     pub profile_name: Option<String>,
-    /// Absolute path to provisioning profile.
+    /// Absolute path to provisioning profile
     #[clap(long)]
     pub profile_path: Option<PathBuf>,
-    /// The team identifier of your signing identity.
+    /// The team identifier of your signing identity
     #[clap(long)]
     pub team_identifier: Option<String>,
-    /// The id of the identity used for signing. It won't start the signing process until you provide this flag.
+    /// The id of the identity used for signing. It won't start the signing process until you provide this flag
     #[clap(long)]
     pub identity: Option<String>,
 }
@@ -97,12 +97,13 @@ impl AppleBuildCommand {
         let out_dir = context.target_dir.join(rust_triple).join(&profile);
         let bin_path = out_dir.join(&name);
         config.status("Generating app folder")?;
+        let apple_target_dir = &context
+            .target_dir
+            .join("apple")
+            .join(rust_triple)
+            .join(&profile);
         let app_path = apple::gen_apple_app_folder(
-            &context
-                .target_dir
-                .join("apple")
-                .join(rust_triple)
-                .join(&profile),
+            &apple_target_dir,
             &name,
             context.apple_res().as_ref().map(|r| project_path.join(r)),
             context
@@ -110,7 +111,7 @@ impl AppleBuildCommand {
                 .as_ref()
                 .map(|r| project_path.join(r)),
         )?;
-        config.status("Coping binary to app folder")?;
+        config.status("Copying binary to app folder")?;
         std::fs::copy(&bin_path, &app_path.join(&name)).unwrap();
         config.status_message("Generating", "Info.plist")?;
         apple::save_apple_plist(&app_path, properties, false).unwrap();
@@ -137,6 +138,8 @@ impl AppleBuildCommand {
             apple::codesign(&app_path, true, self.identity.clone(), Some(xcent_path))?;
             config.status("Code signing process finished")?;
         }
+        config.status("Generating ipa file")?;
+        apple::gen_apple_ipa(&apple_target_dir, &app_path, &name)?;
         config.status("Build finished successfully")?;
         Ok(app_path)
     }

@@ -2,7 +2,7 @@ use crate::error::*;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-/// ## Compile
+/// # Compile
 /// AAPT2 supports compilation of all Android resource types, such as drawables and XML
 /// files. When you invoke AAPT2 for compilation, you should pass a single resource file
 /// as an input per invocation. AAPT2 then parses the file and generates an intermediate
@@ -33,6 +33,7 @@ use std::process::Command;
 ///
 /// In the following example, AAPT2 compiles resource files named values.xml and
 /// myImage.png individually:
+///
 /// ```sh
 /// aapt2 compile project_root/module_root/src/main/res/values-en/strings.xml -o compiled/
 /// aapt2 compile project_root/module_root/src/main/res/drawable/myImage.png -o compiled/

@@ -1,9 +1,9 @@
 use crate::line::*;
-use bevy::{prelude::*, window::CursorMoved};
+use bevy::prelude::*;
 
 pub fn paint_setup(commands: &mut Commands, mut materials: ResMut<Assets<ColorMaterial>>) {
     let camera_entity = commands
-        .spawn(OrthographicCameraBundle::new_2d())
+        .spawn(Camera2dBundle::default())
         .current_entity()
         .unwrap();
     commands.insert_resource(LineDrawingState::new(camera_entity));
@@ -17,15 +17,15 @@ pub fn paint_system(
     mut state: ResMut<LineDrawingState>,
     line_material: Res<LineMaterial>,
     mouse_button_input: Res<Input<MouseButton>>,
-    mut cursor_moved_events: EventReader<CursorMoved>,
+    cursor_moved_events: Res<Events<CursorMoved>>,
     touch_input: Res<Touches>,
-    mut touch_input_events: EventReader<TouchInput>,
+    touch_input_events: Res<Events<TouchInput>>,
     windows: Res<Windows>,
     transforms: Query<&Transform>,
 ) {
     let camera_transform = transforms.get(state.camera_entity).unwrap();
     if mouse_button_input.pressed(MouseButton::Left) {
-        for event in cursor_moved_events.iter() {
+        for event in state.cursor_event_reader.iter(&cursor_moved_events) {
             state.cursor_curve.push_front(screen_to_world(
                 event.position,
                 &camera_transform,
@@ -33,7 +33,7 @@ pub fn paint_system(
             ));
         }
     } else if touch_input.iter().count() > 0 {
-        for event in touch_input_events.iter() {
+        for event in state.touch_event_reader.iter(&touch_input_events) {
             state.cursor_curve.push_front(screen_to_world(
                 event.position,
                 &camera_transform,

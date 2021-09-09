@@ -2,7 +2,7 @@ use apple_bundle::prelude::*;
 
 /// Generates minimal [`InfoPlist`](apple_bundle::prelude::InfoPlist) with given changes.
 pub fn gen_minimal_info_plist(
-    package_name: &String,
+    package_name: &str,
     app_name: Option<String>,
     version_name: String,
 ) -> InfoPlist {
@@ -22,11 +22,11 @@ pub fn gen_minimal_info_plist(
         bundle_version: BundleVersion {
             bundle_version: Some(version_name.clone()),
             bundle_info_dictionary_version: Some(version_name.clone()),
-            bundle_short_version_string: Some(version_name.clone()),
+            bundle_short_version_string: Some(version_name),
             ..Default::default()
         },
         naming: Naming {
-            bundle_name: Some(app_name.unwrap_or(package_name.clone())),
+            bundle_name: Some(app_name.unwrap_or_else(|| package_name.to_owned())),
             ..Default::default()
         },
         categorization: Categorization {
