@@ -191,20 +191,6 @@ impl AndroidBuildCommand {
             let compiled_lib = out_dir.join(lib_name);
             compiled_libs.push((compiled_lib, build_target));
         }
-        config.status("Adding libs")?;
-        for (add_libs, android_target) in compiled_libs {
-            let android_abi = android_target.android_abi();
-            let android_compiled_lib = android_build_dir
-                .join("lib")
-                .join(android_abi)
-                .join(format!("lib{}.so", package_name));
-            if !android_compiled_lib.exists() {
-                std::fs::create_dir_all(&android_compiled_lib.parent().unwrap())?;
-                let mut options = fs_extra::file::CopyOptions::new();
-                options.overwrite = true;
-                fs_extra::file::copy(&add_libs, &android_compiled_lib, &options).unwrap();
-            }
-        }
         config.status_message("Generating", "proto format APK file")?;
         let compiled_res_path = android_build_dir.join("compiled_res");
         if !compiled_res_path.exists() {
@@ -228,6 +214,23 @@ impl AndroidBuildCommand {
         config.status("Extracting apk files")?;
         let output_dir = android_build_dir.join("extracted_apk_files");
         let extracted_apk_path = android::extract_apk(&apk_path, &output_dir)?;
+
+
+        config.status("Adding libs")?;
+        for (compiled_lib, build_target) in compiled_libs{
+            let android_abi = build_target.android_abi();
+            let android_compiled_lib = output_dir
+                .join("lib")
+                .join(android_abi)
+                .join(format!("lib{}.so", package_name));
+            if !android_compiled_lib.exists() {
+                std::fs::create_dir_all(&android_compiled_lib.parent().unwrap())?;
+                let mut options = fs_extra::file::CopyOptions::new();
+                options.overwrite = true;
+                fs_extra::file::copy(&compiled_lib , &android_compiled_lib, &options).unwrap();
+            }
+        }
+
         config.status("Generating ZIP module from extracted files")?;
         let gen_zip_modules =
             android::gen_zip_modules(&android_build_dir, &package_name, &extracted_apk_path)?;
@@ -244,9 +247,12 @@ impl AndroidBuildCommand {
                 std::fs::remove_file(path)?;
             }
         }
-        // TODO: Add signing
-        // config.status_message("Generating", "debug signing key")?;
-        // let key = android::gen_debug_key()?;
+        // // TODO: Add signing
+        config.status_message("Generating", "debug signing key")?;
+        let key = android::gen_aab_key()?;
+        println!("{:?}", key);
+
+        android::jarsigner(&key.path, &android_build_dir, "androiddebugkey".to_string()).unwrap();
         config.status("Build finished successfully")?;
         Ok((aab_path, package_name))
     }

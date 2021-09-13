@@ -770,3 +770,36 @@ impl Aapt2Link {
         Ok(())
     }
 }
+
+// #[cfg(test)]
+// mod tests {
+//     use crate::{commands::android, tools::AndroidSdk};
+
+//     use super::*;
+
+//     #[test]
+//     fn test_command_run() {
+
+//         let manifest = android::gen_minimal_android_manifest(
+//             None,
+//             "example",
+//             None,
+//             "0.0.1".to_string(),
+//             None,
+//             None,
+//             30,
+//             None,
+//             None,
+//             false,
+//         );
+//         let manifest_path = android::save_android_manifest(Path::new("C:\\Users\\ZatNieL\\AppData\\Local\\Temp\\.tmpOz3Ra7\\target\\android\\debug\\compiled_res\\"), &manifest).unwrap();
+//         assert!(manifest_path.exists());
+//         let sdk = AndroidSdk::from_env().unwrap();
+//         Aapt2Link::new_from_compiled_res(Some(Path::new(
+//             "C:\\Users\\ZatNieL\\AppData\\Local\\Temp\\.tmpOz3Ra7\\target\\android\\debug\\compiled_res\\").to_owned()), Path::new(
+//                 "C:\\Users\\ZatNieL\\AppData\\Local\\Temp\\.tmpOz3Ra7\\target\\android\\debug\\compiled_res\\"), &manifest_path).android_jar(sdk.android_jar(30).unwrap())
+//                 .version_code(1)
+//                 .proto_format(true)
+//                 .auto_add_overlay(true).run().unwrap();
+//     }
+// }

@@ -97,17 +97,29 @@ mod tests {
         let output_dir = android_build_dir.join("extracted_apk_files");
         let extracted_apk_path = android::extract_apk(&apk_path, &output_dir).unwrap();
 
+        let android_abi = build_target.android_abi();
+        let android_compiled_lib = output_dir
+            .join("lib")
+            .join(android_abi)
+            .join(format!("lib{}.so", package_name));
+        if !android_compiled_lib.exists() {
+            std::fs::create_dir_all(&android_compiled_lib.parent().unwrap()).unwrap();
+            fs_extra::file::copy(
+                &compiled_lib,
+                &android_compiled_lib,
+                &fs_extra::file::CopyOptions::new(),
+            )
+            .unwrap();
+        }
+        
         assert!(extracted_apk_path.exists());
 
         let gen_zip_modules =
             android::gen_zip_modules(&android_build_dir, &package_name, &extracted_apk_path)
                 .unwrap();
-
+                
         // Gen aab from given list of modules (zip, zip, zip)
-        let aab_path =
-            android::gen_aab_from_modules(&package_name, &[gen_zip_modules], &android_build_dir)
-                .unwrap();
-        assert!(aab_path.exists());
+        let aab_path = android::gen_aab_from_modules(&package_name, &[gen_zip_modules], &android_build_dir).unwrap();
         for entry in std::fs::read_dir(&android_build_dir).unwrap() {
             let entry = entry.unwrap();
             let path = entry.path();
@@ -127,6 +139,6 @@ mod tests {
         let _build_apks = android::build_apks(&aab_path, &apks, &package_name, key).unwrap();
 
         // println!("{}", project_path.to_string_lossy());
-        // std::thread::sleep(std::time::Duration::from_secs(60 * 20));
+     std::thread::sleep(std::time::Duration::from_secs(60 * 20));
     }
 }
