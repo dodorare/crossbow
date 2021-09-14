@@ -44,8 +44,8 @@ impl Bundletool {
 
     /// Use the install-apks command and specify the path of the APK set to deploy your
     /// app from an APK set
-    pub fn install_apks(self, apks: &Path) -> InstallApks {
-        InstallApks::new(apks)
+    pub fn install_apks(self, apks: PathBuf) -> InstallApks {
+        InstallApks::new(&apks)
     }
 
     /// Generate and use device specification JSON files.

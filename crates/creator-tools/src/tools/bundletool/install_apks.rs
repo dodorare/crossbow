@@ -51,7 +51,7 @@ impl InstallApks {
         } else {
             return Err(AndroidError::BundletoolNotFound.into());
         }
-        install_apks.arg("install_apks");
+        install_apks.arg("install-apks");
         install_apks.arg("--apks");
         install_apks.arg(&self.apks);
         if self.local_testing {
@@ -60,6 +60,17 @@ impl InstallApks {
         if let Some(device_id) = &self.device_id {
             install_apks.arg("--device-id").arg(device_id);
         }
+        install_apks.output_err(true)?;
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+    #[test]
+    fn new() {
+        InstallApks::new(Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\target\\android\\debug\\threed.apks")).run().unwrap();
     }
 }

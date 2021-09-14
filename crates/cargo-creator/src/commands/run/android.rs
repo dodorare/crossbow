@@ -24,7 +24,7 @@ impl AndroidRunCommand {
             let apks_path = android::build_apks(&aab_path, &apks, &package_name, key)?;
             config.status("Starting run process")?;
             config.status("Installing apks file")?;
-            Bundletool.install_apks(&apks_path);
+            Bundletool.install_apks(apks_path).run()?;
             config.status("Run finished successfully")?;
         } else {
             let (android_manifest, sdk, apk_path) = self.build_command.execute(config, &context)?;
