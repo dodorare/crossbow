@@ -215,9 +215,8 @@ impl AndroidBuildCommand {
         let output_dir = android_build_dir.join("extracted_apk_files");
         let extracted_apk_path = android::extract_apk(&apk_path, &output_dir)?;
 
-
         config.status("Adding libs")?;
-        for (compiled_lib, build_target) in compiled_libs{
+        for (compiled_lib, build_target) in compiled_libs {
             let android_abi = build_target.android_abi();
             let android_compiled_lib = output_dir
                 .join("lib")
@@ -227,7 +226,7 @@ impl AndroidBuildCommand {
                 std::fs::create_dir_all(&android_compiled_lib.parent().unwrap())?;
                 let mut options = fs_extra::file::CopyOptions::new();
                 options.overwrite = true;
-                fs_extra::file::copy(&compiled_lib , &android_compiled_lib, &options).unwrap();
+                fs_extra::file::copy(&compiled_lib, &android_compiled_lib, &options).unwrap();
             }
         }
 
@@ -247,12 +246,17 @@ impl AndroidBuildCommand {
                 std::fs::remove_file(path)?;
             }
         }
-        // // TODO: Add signing
         config.status_message("Generating", "debug signing key")?;
-        let key = android::gen_aab_key()?;
+        let key = android::gen_debug_key()?;
         println!("{:?}", key);
 
-        android::jarsigner(&key.path, &android_build_dir, "androiddebugkey".to_string()).unwrap();
+        android::jarsigner(
+            key.password,
+            &key.path,
+            &aab_path,
+            "androiddebugkey".to_string(),
+        )
+        .unwrap();
         config.status("Build finished successfully")?;
         Ok((aab_path, package_name))
     }

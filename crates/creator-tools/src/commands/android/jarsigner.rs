@@ -1,8 +1,9 @@
+use super::Key;
 use crate::error::*;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-pub fn jarsigner(keystore_path: &Path, aab_path: &Path, alias: String) -> Result<()> {
+pub fn jarsigner(key: String, keystore_path: &Path, aab_path: &Path, alias: String) -> Result<()> {
     let mut jarsigner = jarsigner_tool()?;
     jarsigner
         .arg("-verbose")
@@ -12,6 +13,8 @@ pub fn jarsigner(keystore_path: &Path, aab_path: &Path, alias: String) -> Result
         .arg("SHA-256")
         .arg("-keystore")
         .arg(keystore_path)
+        .arg("-storepass")
+        .arg(key)
         .arg(aab_path)
         .arg(alias);
     jarsigner.output_err(true)?;
@@ -36,4 +39,19 @@ fn jarsigner_tool() -> Result<Command> {
         }
     }
     Err(Error::CmdNotFound("jarsigner".to_string()))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_command_run() {
+        jarsigner(
+            "android".to_string(),
+            Path::new("C:\\Users\\den99\\.android\\debug.keystore"),
+            Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\target\\android\\debug\\threed_unsigned.aab"),
+            "androiddebugkey".to_string(),
+        ).unwrap();
+    }
 }

@@ -11,12 +11,12 @@ pub fn gen_aab_key() -> Result<Key> {
     if !path.exists() {
         let mut keytool = keytool()?;
         keytool
-        .arg("-list")
-        .arg("-v")
-        .arg("-storetype")
-        .arg("pkcs12")
-        .arg("-keystore")
-        .arg(&path);
+            .arg("-list")
+            .arg("-v")
+            .arg("-storetype")
+            .arg("pkcs12")
+            .arg("-keystore")
+            .arg(&path);
         keytool.output_err(true)?;
     }
     Ok(Key { path, password })
