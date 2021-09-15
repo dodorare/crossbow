@@ -4,13 +4,7 @@ use std::process::Command;
 
 use super::Key;
 
-pub fn build_apks(
-    aab_path: &Path,
-    output_apks: &Path,
-    package_label: &str,
-    key: Key,
-) -> Result<PathBuf> {
-    let apks = output_apks.join(format!("{}.apks", package_label));
+pub fn build_apks(aab_path: &Path, output_apks: &Path, key: Key) -> Result<PathBuf> {
     if !output_apks.exists() {
         std::fs::create_dir_all(&output_apks)?;
     }
@@ -35,5 +29,5 @@ pub fn build_apks(
         .arg("--ks-key-alias")
         .arg(alias);
     build_apks.output_err(true)?;
-    Ok(apks)
+    Ok(output_apks.to_path_buf())
 }

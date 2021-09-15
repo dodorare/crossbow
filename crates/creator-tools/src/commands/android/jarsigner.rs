@@ -1,4 +1,3 @@
-use super::Key;
 use crate::error::*;
 use std::path::{Path, PathBuf};
 use std::process::Command;

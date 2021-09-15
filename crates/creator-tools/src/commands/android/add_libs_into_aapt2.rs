@@ -45,7 +45,7 @@ pub fn add_libs_into_aapt2(
     for (_lib_name, lib_path) in needed_libs {
         add_lib_aapt2(&lib_path, &out_dir)?;
     }
-    Ok(lib_path.to_path_buf())
+    Ok(out_dir)
 }
 
 /// Copy lib into `out_dir` then add this lib into apk file.
@@ -55,10 +55,29 @@ pub fn add_lib_aapt2(lib_path: &Path, out_dir: &Path) -> Result<()> {
     }
     std::fs::create_dir_all(&out_dir)?;
     let filename = lib_path.file_name().unwrap();
-    fs_extra::file::copy(
-        &lib_path,
-        out_dir.join(&filename),
-        &fs_extra::file::CopyOptions::new(),
-    )?;
+    let mut options = fs_extra::file::CopyOptions::new();
+    options.overwrite = true;
+    fs_extra::file::copy(&lib_path, out_dir.join(&filename), &options)?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::tools::AndroidSdk;
+
+    use super::*;
+    #[test]
+    fn add_libs_into_aab_test() {
+        let sdk = AndroidSdk::from_env().unwrap();
+        let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
+        add_libs_into_aapt2(
+            &ndk,
+            &Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\target\\android\\debug\\libthreed.so"),
+            AndroidTarget::Aarch64LinuxAndroid,
+            Profile::Debug,
+            29,
+            &Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\target\\android\\debug\\"),
+            &Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\target\\"),
+        ).unwrap();
+    }
 }

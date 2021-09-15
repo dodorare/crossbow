@@ -111,15 +111,17 @@ mod tests {
             )
             .unwrap();
         }
-        
+
         assert!(extracted_apk_path.exists());
 
         let gen_zip_modules =
             android::gen_zip_modules(&android_build_dir, &package_name, &extracted_apk_path)
                 .unwrap();
-                
+
         // Gen aab from given list of modules (zip, zip, zip)
-        let aab_path = android::gen_aab_from_modules(&package_name, &[gen_zip_modules], &android_build_dir).unwrap();
+        let aab_path =
+            android::gen_aab_from_modules(&package_name, &[gen_zip_modules], &android_build_dir)
+                .unwrap();
         for entry in std::fs::read_dir(&android_build_dir).unwrap() {
             let entry = entry.unwrap();
             let path = entry.path();
@@ -136,9 +138,9 @@ mod tests {
 
         // Create keystore with keytool command
         let apks = android_build_dir.join(format!("{}.apks", package_name));
-        let _build_apks = android::build_apks(&aab_path, &apks, &package_name, key).unwrap();
+        let _build_apks = android::build_apks(&aab_path, &apks, key).unwrap();
 
         // println!("{}", project_path.to_string_lossy());
-     std::thread::sleep(std::time::Duration::from_secs(60 * 20));
+        std::thread::sleep(std::time::Duration::from_secs(60 * 20));
     }
 }

@@ -217,19 +217,32 @@ impl AndroidBuildCommand {
 
         config.status("Adding libs")?;
         for (compiled_lib, build_target) in compiled_libs {
-            let android_abi = build_target.android_abi();
-            let android_compiled_lib = output_dir
-                .join("lib")
-                .join(android_abi)
-                .join(format!("lib{}.so", package_name));
-            if !android_compiled_lib.exists() {
-                std::fs::create_dir_all(&android_compiled_lib.parent().unwrap())?;
-                let mut options = fs_extra::file::CopyOptions::new();
-                options.overwrite = true;
-                fs_extra::file::copy(&compiled_lib, &android_compiled_lib, &options).unwrap();
-            }
+            // let android_abi = build_target.android_abi();
+            // let android_compiled_lib = output_dir
+            //     .join("lib")
+            //     .join(android_abi)
+            //     .join(format!("lib{}.so", package_name));
+            // if !android_compiled_lib.exists() {
+            //     std::fs::create_dir_all(&android_compiled_lib.parent().unwrap())?;
+            //     let mut options = fs_extra::file::CopyOptions::new();
+            //     options.overwrite = true;
+            //     fs_extra::file::copy(&compiled_lib, &android_compiled_lib, &options).unwrap();
+            // }
+            android::add_libs_into_aapt2(
+                &ndk,
+                &compiled_lib,
+                *build_target,
+                profile,
+                android_manifest
+                    .uses_sdk
+                    .as_ref()
+                    .unwrap()
+                    .min_sdk_version
+                    .unwrap_or(9),
+                &extracted_apk_path,
+                &target_dir,
+            )?;
         }
-
         config.status("Generating ZIP module from extracted files")?;
         let gen_zip_modules =
             android::gen_zip_modules(&android_build_dir, &package_name, &extracted_apk_path)?;
