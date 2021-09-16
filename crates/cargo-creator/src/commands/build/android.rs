@@ -2,7 +2,12 @@ use super::{BuildContext, SharedBuildCommand};
 use crate::error::*;
 use android_manifest::AndroidManifest;
 use clap::Clap;
-use creator_tools::{commands::android, tools::*, types::*, utils::Config};
+use creator_tools::{
+    commands::android::{self, AabKey},
+    tools::*,
+    types::*,
+    utils::Config,
+};
 use std::path::PathBuf;
 
 #[derive(Clap, Clone, Debug)]
@@ -152,7 +157,7 @@ impl AndroidBuildCommand {
         &self,
         config: &Config,
         context: &BuildContext,
-    ) -> Result<(PathBuf, String)> {
+    ) -> Result<(PathBuf, String, AabKey)> {
         let project_path = context.project_path.clone();
         let target_dir = context.target_dir.clone();
         let profile = self.shared.profile();
@@ -260,17 +265,21 @@ impl AndroidBuildCommand {
             }
         }
         config.status_message("Generating", "debug signing key")?;
-        let key = android::gen_debug_key()?;
+        let key = android::gen_aab_key(
+            self.sign_key_path.clone(),
+            self.sign_key_pass.clone(),
+            self.sign_key_alias.clone(),
+        )?;
         println!("{:?}", key);
 
         android::jarsigner(
-            key.password,
-            &key.path,
+            key.key_pass.clone(),
+            key.key_path.clone(),
             &aab_path,
-            "androiddebugkey".to_string(),
+            key.key_alias.clone(),
         )
         .unwrap();
         config.status("Build finished successfully")?;
-        Ok((aab_path, package_name))
+        Ok((aab_path, package_name, key))
     }
 }

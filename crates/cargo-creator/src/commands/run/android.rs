@@ -2,7 +2,7 @@ use crate::commands::build::{android::AndroidBuildCommand, BuildContext};
 use crate::error::Result;
 use clap::Clap;
 use creator_tools::tools::InstallApks;
-use creator_tools::{commands::android, tools::Bundletool, utils::Config};
+use creator_tools::{commands::android, utils::Config};
 
 #[derive(Clap, Clone, Debug)]
 pub struct AndroidRunCommand {
@@ -14,14 +14,13 @@ impl AndroidRunCommand {
     pub fn run(&self, config: &Config) -> Result<()> {
         let context = BuildContext::new(config, self.build_command.shared.target_dir.clone())?;
         if self.build_command.aab {
-            let (aab_path, package_name) = self.build_command.execute_aab(config, &context)?;
+            let (aab_path, package_name, key) = self.build_command.execute_aab(config, &context)?;
             config.status("Generating apks")?;
             let apks = aab_path
                 .parent()
                 .unwrap()
                 .join(format!("{}.apks", package_name));
             // TODO: Get rid of this.
-            let key = android::gen_debug_key()?;
             let apks_path = android::build_apks(&aab_path, &apks, key)?;
             config.status("Starting run process")?;
             config.status("Installing apks file")?;

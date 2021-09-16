@@ -2,20 +2,40 @@ use crate::error::*;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-pub fn jarsigner(key: String, keystore_path: &Path, aab_path: &Path, alias: String) -> Result<()> {
+use super::android_dir;
+
+pub fn jarsigner(
+    key: Option<String>,
+    keystore_path: Option<PathBuf>,
+    aab_path: &Path,
+    alias: Option<String>,
+) -> Result<()> {
     let mut jarsigner = jarsigner_tool()?;
+    let path = android_dir()?.join("aab.keystore");
+    let password = "android".to_string();
+    let aab_alias = "androiddebugkey".to_string();
     jarsigner
         .arg("-verbose")
         .arg("-sigalg")
         .arg("SHA256withRSA")
         .arg("-digestalg")
         .arg("SHA-256")
-        .arg("-keystore")
-        .arg(keystore_path)
-        .arg("-storepass")
-        .arg(key)
-        .arg(aab_path)
-        .arg(alias);
+        .arg(aab_path);
+    if let Some(keystore_path) = keystore_path {
+        jarsigner.arg("-keystore").arg(keystore_path);
+    } else {
+        jarsigner.arg("-keystore").arg(&path);
+    }
+    if let Some(key) = key {
+        jarsigner.arg("-storepass").arg(key);
+    } else {
+        jarsigner.arg("-storepass").arg(&password);
+    }
+    if let Some(alias) = alias {
+        jarsigner.arg(alias);
+    } else {
+        jarsigner.arg(&aab_alias);
+    }
     jarsigner.output_err(true)?;
     Ok(())
 }
@@ -47,10 +67,14 @@ mod tests {
     #[test]
     fn test_command_run() {
         jarsigner(
-            "android".to_string(),
-            Path::new("C:\\Users\\den99\\.android\\debug.keystore"),
+            // Some("android".to_string()),
+            None,
+            // Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\target\\android\\debug\\threed_unsigned.aab"),
+            // Some("androiddebugkey".to_string()),
+            None,
             Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\target\\android\\debug\\threed_unsigned.aab"),
-            "androiddebugkey".to_string(),
-        ).unwrap();
+            None,
+        )
+        .unwrap();
     }
 }

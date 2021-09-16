@@ -1,28 +1,63 @@
-use super::Key;
 use crate::error::*;
 use std::path::PathBuf;
 use std::process::Command;
 
 /// Generates debug key for signing APK.
 /// Runs `keytool ...` command.
-pub fn gen_aab_key() -> Result<Key> {
+pub fn gen_aab_key(
+    key_path: Option<PathBuf>,
+    key_pass: Option<String>,
+    key_alias: Option<String>,
+) -> Result<AabKey> {
     let path = android_dir()?.join("aab.keystore");
     let password = "android".to_string();
-    if !path.exists() {
-        let mut keytool = keytool()?;
-        keytool
-            .arg("-list")
-            .arg("-v")
-            .arg("-storetype")
-            .arg("pkcs12")
-            .arg("-keystore")
-            .arg(&path);
-        keytool.output_err(true)?;
+    let alias = "androiddebugkey".to_string();
+    let mut keytool = keytool()?;
+    keytool
+        .arg("-genkey")
+        .arg("-v")
+        .arg("-dname")
+        .arg("CN=Android Debug,O=Android,C=US")
+        .arg("-keyalg")
+        .arg("RSA")
+        .arg("-keysize")
+        .arg("2048")
+        .arg("-validity")
+        .arg("10000");
+    if let Some(key_path) = &key_path {
+        keytool.arg("-keystore").arg(key_path);
+    } else {
+        keytool.arg("-keystore").arg(&path);
     }
-    Ok(Key { path, password })
+    if let Some(key_pass) = &key_pass {
+        keytool.arg("-storepass").arg(&key_pass);
+        keytool.arg("-keypass").arg(key_pass);
+    } else {
+        keytool.arg("-storepass").arg(&password);
+        keytool.arg("-keypass").arg(&password);
+    }
+    if let Some(key_alias) = &key_alias {
+        keytool.arg("-alias").arg(key_alias);
+    } else {
+        keytool.arg("-alias").arg(alias);
+    }
+    keytool.output_err(true)?;
+
+    Ok(AabKey {
+        key_path,
+        key_pass,
+        key_alias,
+    })
 }
 
-fn android_dir() -> Result<PathBuf> {
+#[derive(Debug, Clone)]
+pub struct AabKey {
+    pub key_path: Option<PathBuf>,
+    pub key_pass: Option<String>,
+    pub key_alias: Option<String>,
+}
+
+pub fn android_dir() -> Result<PathBuf> {
     let android_dir = dirs::home_dir()
         .ok_or_else(|| Error::PathNotFound(PathBuf::from("$HOME")))?
         .join(".android");
@@ -41,4 +76,19 @@ fn keytool() -> Result<Command> {
         }
     }
     Err(Error::CmdNotFound("keytool".to_string()))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn aab_key_test() {
+        gen_aab_key(
+            //             Some(std::path::Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\target\\android\\debug\\test_aab_keystore").to_owned()),
+            //     Some("dodorare".to_string()),
+            // Some("devtools".to_string())).unwrap();
+            None, None, None,
+        )
+        .unwrap();
+    }
 }

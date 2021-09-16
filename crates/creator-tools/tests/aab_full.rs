@@ -119,7 +119,7 @@ mod tests {
                 .unwrap();
 
         // Gen aab from given list of modules (zip, zip, zip)
-        let aab_path =
+        let _aab_path =
             android::gen_aab_from_modules(&package_name, &[gen_zip_modules], &android_build_dir)
                 .unwrap();
         for entry in std::fs::read_dir(&android_build_dir).unwrap() {
@@ -134,11 +134,11 @@ mod tests {
         }
 
         // Create keystore with keytool command
-        let key = gen_debug_key().unwrap();
+        let _key = gen_debug_key().unwrap();
 
         // Create keystore with keytool command
-        let apks = android_build_dir.join(format!("{}.apks", package_name));
-        let _build_apks = android::build_apks(&aab_path, &apks, key).unwrap();
+        let _apks = android_build_dir.join(format!("{}.apks", package_name));
+        // let _build_apks = android::build_apks(&aab_path, &apks, key).unwrap();
 
         // println!("{}", project_path.to_string_lossy());
         std::thread::sleep(std::time::Duration::from_secs(60 * 20));
