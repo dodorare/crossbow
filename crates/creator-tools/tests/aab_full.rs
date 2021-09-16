@@ -7,7 +7,7 @@ use creator_tools::{
 #[cfg(test)]
 mod tests {
     use super::*;
-    use creator_tools::commands::android::gen_debug_key;
+    use creator_tools::commands::android::{android_dir, gen_debug_key};
 
     #[test]
     fn test_aab() {
@@ -119,7 +119,7 @@ mod tests {
                 .unwrap();
 
         // Gen aab from given list of modules (zip, zip, zip)
-        let _aab_path =
+        let aab_path =
             android::gen_aab_from_modules(&package_name, &[gen_zip_modules], &android_build_dir)
                 .unwrap();
         for entry in std::fs::read_dir(&android_build_dir).unwrap() {
@@ -134,11 +134,15 @@ mod tests {
         }
 
         // Create keystore with keytool command
-        let _key = gen_debug_key().unwrap();
+        let key = android::gen_aab_key(
+          Some(android_dir().unwrap().join("aab.keystore")),
+             Some("android".to_string()),
+            Some("androiddebugkey".to_string())
+        ).unwrap();
 
         // Create keystore with keytool command
-        let _apks = android_build_dir.join(format!("{}.apks", package_name));
-        // let _build_apks = android::build_apks(&aab_path, &apks, key).unwrap();
+        let apks = android_build_dir.join(format!("{}.apks", package_name));
+        let _build_apks = android::build_apks(&aab_path, &apks, key).unwrap();
 
         // println!("{}", project_path.to_string_lossy());
         std::thread::sleep(std::time::Duration::from_secs(60 * 20));
