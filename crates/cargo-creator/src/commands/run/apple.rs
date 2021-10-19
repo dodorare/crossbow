@@ -1,10 +1,10 @@
 use crate::commands::build::{apple::AppleBuildCommand, BuildContext};
 use crate::error::*;
-use clap::Clap;
+use clap::Parser;
 use creator_tools::{commands::apple, types::*, utils::Config};
 use std::path::PathBuf;
 
-#[derive(Clap, Clone, Debug)]
+#[derive(Parser, Clone, Debug)]
 pub struct AppleRunCommand {
     #[clap(flatten)]
     pub build_command: AppleBuildCommand,

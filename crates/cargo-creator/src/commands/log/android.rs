@@ -1,8 +1,8 @@
 use crate::error::*;
-use clap::Clap;
+use clap::Parser;
 use creator_tools::{commands::android, tools::AndroidSdk, utils::Config};
 
-#[derive(Clap, Clone, Debug)]
+#[derive(Parser, Clone, Debug)]
 pub struct AndroidLogCommand;
 
 impl AndroidLogCommand {

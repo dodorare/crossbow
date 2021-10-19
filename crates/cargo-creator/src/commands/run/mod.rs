@@ -2,10 +2,10 @@ mod android;
 mod apple;
 
 use crate::error::Result;
-use clap::Clap;
+use clap::Parser;
 use creator_tools::utils::Config;
 
-#[derive(Clap, Clone, Debug)]
+#[derive(Parser, Clone, Debug)]
 pub enum RunCommand {
     /// Executes `build` command and then deploy and launches the application on the Android device/emulator
     Android(android::AndroidRunCommand),

@@ -8,11 +8,11 @@ use android::AndroidBuildCommand;
 use apple::AppleBuildCommand;
 
 use crate::error::Result;
-use clap::Clap;
+use clap::Parser;
 use creator_tools::{types::Profile, utils::Config};
 use std::path::PathBuf;
 
-#[derive(Clap, Clone, Debug)]
+#[derive(Parser, Clone, Debug)]
 pub enum BuildCommand {
     /// Starts the process of building/packaging/signing of the rust crate for Android
     Android(AndroidBuildCommand),
@@ -29,7 +29,7 @@ impl BuildCommand {
     }
 }
 
-#[derive(Clap, Clone, Debug)]
+#[derive(Parser, Clone, Debug)]
 pub struct SharedBuildCommand {
     /// Build the specified example
     #[clap(long)]

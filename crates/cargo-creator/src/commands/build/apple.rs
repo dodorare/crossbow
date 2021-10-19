@@ -1,11 +1,11 @@
 use super::{BuildContext, SharedBuildCommand};
 use crate::error::*;
 use apple_bundle::prelude::InfoPlist;
-use clap::Clap;
+use clap::Parser;
 use creator_tools::{commands::apple, types::*, utils::Config};
 use std::path::{Path, PathBuf};
 
-#[derive(Clap, Clone, Debug)]
+#[derive(Parser, Clone, Debug)]
 pub struct AppleBuildCommand {
     #[clap(flatten)]
     pub shared: SharedBuildCommand,

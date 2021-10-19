@@ -1,7 +1,7 @@
 use super::{BuildContext, SharedBuildCommand};
 use crate::error::*;
 use android_manifest::AndroidManifest;
-use clap::Clap;
+use clap::Parser;
 use creator_tools::{
     commands::android::{self, AabKey},
     tools::*,
@@ -10,7 +10,7 @@ use creator_tools::{
 };
 use std::path::PathBuf;
 
-#[derive(Clap, Clone, Debug)]
+#[derive(Parser, Clone, Debug)]
 pub struct AndroidBuildCommand {
     #[clap(flatten)]
     pub shared: SharedBuildCommand,

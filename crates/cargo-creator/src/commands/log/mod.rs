@@ -2,10 +2,10 @@ mod android;
 
 use crate::error::Result;
 use android::AndroidLogCommand;
-use clap::Clap;
+use clap::Parser;
 use creator_tools::utils::Config;
 
-#[derive(Clap, Clone, Debug)]
+#[derive(Parser, Clone, Debug)]
 pub enum LogCommand {
     Android(AndroidLogCommand),
 }

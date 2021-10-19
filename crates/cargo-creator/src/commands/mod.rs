@@ -4,10 +4,10 @@ pub mod new;
 pub mod run;
 
 use crate::error::Result;
-use clap::Clap;
+use clap::Parser;
 use creator_tools::utils::Config;
 
-#[derive(Clap, Clone, Debug)]
+#[derive(Parser, Clone, Debug)]
 pub enum Commands {
     /// Starts the process of building/packaging/signing of the rust crate
     #[clap(subcommand)]

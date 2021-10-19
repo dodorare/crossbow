@@ -5,13 +5,13 @@ pub mod cargo_manifest;
 pub mod commands;
 pub mod error;
 
-use clap::Clap;
+use clap::Parser;
 use colored::Colorize;
 use commands::*;
 use creator_tools::utils::{Config, Shell, Verbosity};
 use std::path::PathBuf;
 
-#[derive(Clap, Clone, Debug)]
+#[derive(Parser, Clone, Debug)]
 #[clap(author, about, version)]
 pub struct Opts {
     /// The current directory where to run all commands

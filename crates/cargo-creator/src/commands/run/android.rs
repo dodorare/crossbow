@@ -1,10 +1,10 @@
 use crate::commands::build::{android::AndroidBuildCommand, BuildContext};
 use crate::error::Result;
-use clap::Clap;
+use clap::Parser;
 use creator_tools::tools::InstallApks;
 use creator_tools::{commands::android, utils::Config};
 
-#[derive(Clap, Clone, Debug)]
+#[derive(Parser, Clone, Debug)]
 pub struct AndroidRunCommand {
     #[clap(flatten)]
     pub build_command: AndroidBuildCommand,

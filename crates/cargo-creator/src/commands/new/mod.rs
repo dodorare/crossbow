@@ -1,5 +1,5 @@
 use crate::error::Result;
-use clap::Clap;
+use clap::Parser;
 use creator_tools::{
     commands::{check_cargo_generate, create_project},
     utils::Config,
@@ -7,7 +7,7 @@ use creator_tools::{
 
 const TEMPLATES_REPO: &str = "https://github.com/creator-rs/creator-templates.git";
 
-#[derive(Clap, Clone, Debug)]
+#[derive(Parser, Clone, Debug)]
 pub struct NewCommand {
     /// Directory to create / project name; if the name isn't in kebab-case, it will be converted
     /// to kebab-case unless `--force` is given.
