@@ -5,15 +5,12 @@ use std::process::Command;
 use super::android_dir;
 
 pub fn jarsigner(
-    key: Option<String>,
-    keystore_path: Option<PathBuf>,
     aab_path: &Path,
-    alias: Option<String>,
+    key_path: Option<PathBuf>,
+    key_pass: Option<String>,
+    key_alias: Option<String>,
 ) -> Result<()> {
     let mut jarsigner = jarsigner_tool()?;
-    let path = android_dir()?.join("aab.keystore");
-    let password = "android".to_string();
-    let aab_alias = "androiddebugkey".to_string();
     jarsigner
         .arg("-verbose")
         .arg("-sigalg")
@@ -21,20 +18,26 @@ pub fn jarsigner(
         .arg("-digestalg")
         .arg("SHA-256")
         .arg(aab_path);
-    if let Some(keystore_path) = keystore_path {
-        jarsigner.arg("-keystore").arg(keystore_path);
+    if let Some(key_path) = &key_path {
+        jarsigner.arg("-keystore").arg(&key_path);
     } else {
+        log::debug!("Using default keystore for generating aab key");
+        let path = android_dir()?.join("aab.keystore");
         jarsigner.arg("-keystore").arg(&path);
     }
-    if let Some(key) = key {
-        jarsigner.arg("-storepass").arg(key);
+    if let Some(key_pass) = &key_pass {
+        jarsigner.arg("-storepass").arg(&key_pass);
     } else {
+        log::debug!("Using default key password for generating aab key");
+        let password = "android".to_string();
         jarsigner.arg("-storepass").arg(&password);
     }
-    if let Some(alias) = alias {
-        jarsigner.arg(alias);
+    if let Some(key_alias) = key_alias {
+        jarsigner.arg(&key_alias);
     } else {
-        jarsigner.arg(&aab_alias);
+        log::debug!("Using default key alias for generating aab key");
+        let alias = "androiddebugkey".to_string();
+        jarsigner.arg(&alias);
     }
     jarsigner.output_err(true)?;
     Ok(())
@@ -66,13 +69,14 @@ mod tests {
 
     #[test]
     fn test_command_run() {
+        // TODO: Fix this test
         jarsigner(
+            Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\target\\android\\debug\\threed_unsigned.aab"),
             // Some("android".to_string()),
-            None,
             // Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\target\\android\\debug\\threed_unsigned.aab"),
             // Some("androiddebugkey".to_string()),
             None,
-            Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\target\\android\\debug\\threed_unsigned.aab"),
+            None,
             None,
         )
         .unwrap();

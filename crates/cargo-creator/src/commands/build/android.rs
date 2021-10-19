@@ -157,7 +157,7 @@ impl AndroidBuildCommand {
         &self,
         config: &Config,
         context: &BuildContext,
-    ) -> Result<(PathBuf, String, AabKey)> {
+    ) -> Result<(AndroidManifest, AndroidSdk, PathBuf, String, AabKey)> {
         let project_path = context.project_path.clone();
         let target_dir = context.target_dir.clone();
         let profile = self.shared.profile();
@@ -222,17 +222,6 @@ impl AndroidBuildCommand {
 
         config.status("Adding libs")?;
         for (compiled_lib, build_target) in compiled_libs {
-            // let android_abi = build_target.android_abi();
-            // let android_compiled_lib = output_dir
-            //     .join("lib")
-            //     .join(android_abi)
-            //     .join(format!("lib{}.so", package_name));
-            // if !android_compiled_lib.exists() {
-            //     std::fs::create_dir_all(&android_compiled_lib.parent().unwrap())?;
-            //     let mut options = fs_extra::file::CopyOptions::new();
-            //     options.overwrite = true;
-            //     fs_extra::file::copy(&compiled_lib, &android_compiled_lib, &options).unwrap();
-            // }
             android::add_libs_into_aapt2(
                 &ndk,
                 &compiled_lib,
@@ -243,7 +232,7 @@ impl AndroidBuildCommand {
                     .as_ref()
                     .unwrap()
                     .min_sdk_version
-                    .unwrap_or(9),
+                    .unwrap_or(9), // TODO: Replace with default value
                 &extracted_apk_path,
                 &target_dir,
             )?;
@@ -270,16 +259,14 @@ impl AndroidBuildCommand {
             self.sign_key_pass.clone(),
             self.sign_key_alias.clone(),
         )?;
-        println!("{:?}", key);
-
         android::jarsigner(
-            key.key_pass.clone(),
-            key.key_path.clone(),
             &aab_path,
+            key.key_path.clone(),
+            key.key_pass.clone(),
             key.key_alias.clone(),
-        )
-        .unwrap();
+        )?;
+        // TODO: Copy or rename signed aab
         config.status("Build finished successfully")?;
-        Ok((aab_path, package_name, key))
+        Ok((android_manifest, sdk, aab_path, package_name, key))
     }
 }

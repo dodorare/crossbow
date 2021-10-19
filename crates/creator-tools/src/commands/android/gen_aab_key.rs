@@ -9,9 +9,6 @@ pub fn gen_aab_key(
     key_pass: Option<String>,
     key_alias: Option<String>,
 ) -> Result<AabKey> {
-    let path = android_dir()?.join("aab.keystore");
-    let password = "android".to_string();
-    let alias = "androiddebugkey".to_string();
     let mut keytool = keytool()?;
     keytool
         .arg("-genkey")
@@ -27,22 +24,27 @@ pub fn gen_aab_key(
     if let Some(key_path) = &key_path {
         keytool.arg("-keystore").arg(key_path);
     } else {
+        log::debug!("Using default keystore for generating aab key");
+        let path = android_dir()?.join("aab.keystore");
         keytool.arg("-keystore").arg(&path);
     }
     if let Some(key_pass) = &key_pass {
         keytool.arg("-storepass").arg(&key_pass);
         keytool.arg("-keypass").arg(key_pass);
     } else {
+        log::debug!("Using default key password for generating aab key");
+        let password = "android".to_string();
         keytool.arg("-storepass").arg(&password);
         keytool.arg("-keypass").arg(&password);
     }
     if let Some(key_alias) = &key_alias {
         keytool.arg("-alias").arg(key_alias);
     } else {
+        log::debug!("Using default key alias for generating aab key");
+        let alias = "androiddebugkey".to_string();
         keytool.arg("-alias").arg(alias);
     }
     keytool.output_err(true)?;
-
     Ok(AabKey {
         key_path,
         key_pass,
@@ -84,7 +86,8 @@ mod tests {
     #[test]
     fn aab_key_test() {
         gen_aab_key(
-            //             Some(std::path::Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\target\\android\\debug\\test_aab_keystore").to_owned()),
+            // TODO: Fix this test with absolute paths
+            //             Some(std::path::Path::new("target").("android").join("debug").join("test_aab_keystore").to_absolute()),
             //     Some("dodorare".to_string()),
             // Some("devtools".to_string())).unwrap();
             None, None, None,

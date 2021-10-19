@@ -7,7 +7,7 @@ use creator_tools::{
 #[cfg(test)]
 mod tests {
     use super::*;
-    use creator_tools::commands::android::{android_dir, gen_debug_key};
+    use creator_tools::commands::android::android_dir;
 
     #[test]
     fn test_aab() {
@@ -135,10 +135,11 @@ mod tests {
 
         // Create keystore with keytool command
         let key = android::gen_aab_key(
-          Some(android_dir().unwrap().join("aab.keystore")),
-             Some("android".to_string()),
-            Some("androiddebugkey".to_string())
-        ).unwrap();
+            Some(android_dir().unwrap().join("aab.keystore")),
+            Some("android".to_string()),
+            Some("androiddebugkey".to_string()),
+        )
+        .unwrap();
 
         // Create keystore with keytool command
         let apks = android_build_dir.join(format!("{}.apks", package_name));
