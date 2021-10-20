@@ -157,7 +157,14 @@ impl AndroidBuildCommand {
         &self,
         config: &Config,
         context: &BuildContext,
-    ) -> Result<(AndroidManifest, AndroidSdk, PathBuf, String, AabKey)> {
+    ) -> Result<(
+        AndroidManifest,
+        AndroidSdk,
+        PathBuf,
+        String,
+        AabKey,
+        PathBuf,
+    )> {
         let project_path = context.project_path.clone();
         let target_dir = context.target_dir.clone();
         let profile = self.shared.profile();
@@ -196,18 +203,24 @@ impl AndroidBuildCommand {
             let compiled_lib = out_dir.join(lib_name);
             compiled_libs.push((compiled_lib, build_target));
         }
+
         config.status_message("Generating", "proto format APK file")?;
         let compiled_res_path = android_build_dir.join("compiled_res");
         if !compiled_res_path.exists() {
             std::fs::create_dir_all(&compiled_res_path)?;
         }
+
         let compiled_res = if let Some(res) = context.android_res() {
-            let aapt2_compile = Aapt2.compile_incremental(&res, &compiled_res_path);
+            let aapt2_compile = Aapt2.compile_incremental(
+                dunce::simplified(&res),
+                &dunce::simplified(&compiled_res_path).to_owned(),
+            );
             let compiled_res = aapt2_compile.run()?;
             Some(compiled_res)
         } else {
             None
         };
+
         let apk_path = android_build_dir.join(format!("{}_module.apk", package_name));
         let mut aapt2_link = Aapt2.link_compiled_res(compiled_res, &apk_path, &manifest_path);
         aapt2_link
@@ -216,6 +229,7 @@ impl AndroidBuildCommand {
             .proto_format(true)
             .auto_add_overlay(true);
         aapt2_link.run()?;
+
         config.status("Extracting apk files")?;
         let output_dir = android_build_dir.join("extracted_apk_files");
         let extracted_apk_path = android::extract_apk(&apk_path, &output_dir)?;
@@ -237,36 +251,63 @@ impl AndroidBuildCommand {
                 &target_dir,
             )?;
         }
+
         config.status("Generating ZIP module from extracted files")?;
         let gen_zip_modules =
             android::gen_zip_modules(&android_build_dir, &package_name, &extracted_apk_path)?;
+
+        for entry in std::fs::read_dir(&android_build_dir)? {
+            let entry = entry?;
+            let path = entry.path();
+            if path.ends_with(format!("{}_unsigned.aab", package_name)) {
+                std::fs::remove_file(&path)?;
+            }
+        }
+
         config.status("Generating aab from modules")?;
         let aab_path =
             android::gen_aab_from_modules(&package_name, &[gen_zip_modules], &android_build_dir)?;
+
         for entry in std::fs::read_dir(&android_build_dir)? {
             let entry = entry?;
             let path = entry.path();
             if path.ends_with("extracted_apk_files") {
-                std::fs::remove_dir_all(path.clone())?;
+                std::fs::remove_dir_all(&path)?;
             }
             if path.ends_with("example_module.zip") {
-                std::fs::remove_file(path)?;
+                std::fs::remove_file(&path)?;
+            }
+            if path.ends_with("aab.keystore") {
+                std::fs::remove_file(&path)?;
             }
         }
+
         config.status_message("Generating", "debug signing key")?;
         let key = android::gen_aab_key(
             self.sign_key_path.clone(),
             self.sign_key_pass.clone(),
             self.sign_key_alias.clone(),
+            android_build_dir.clone(),
         )?;
+
         android::jarsigner(
             &aab_path,
             key.key_path.clone(),
             key.key_pass.clone(),
             key.key_alias.clone(),
+            android_build_dir.clone(),
         )?;
-        // TODO: Copy or rename signed aab
+
+        let signed_aab = android_build_dir.join(format!("{}_signed.aab", package_name));
+        std::fs::rename(&aab_path, &signed_aab)?;
         config.status("Build finished successfully")?;
-        Ok((android_manifest, sdk, aab_path, package_name, key))
+        Ok((
+            android_manifest,
+            sdk,
+            signed_aab,
+            package_name,
+            key,
+            android_build_dir,
+        ))
     }
 }

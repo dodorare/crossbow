@@ -7,7 +7,6 @@ use creator_tools::{
 #[cfg(test)]
 mod tests {
     use super::*;
-    use creator_tools::commands::android::android_dir;
 
     #[test]
     fn test_aab() {
@@ -135,15 +134,17 @@ mod tests {
 
         // Create keystore with keytool command
         let key = android::gen_aab_key(
-            Some(android_dir().unwrap().join("aab.keystore")),
+            Some(android_build_dir.clone().join("aab.keystore")),
             Some("android".to_string()),
             Some("androiddebugkey".to_string()),
+            android_build_dir.clone(),
         )
         .unwrap();
 
         // Create keystore with keytool command
         let apks = android_build_dir.join(format!("{}.apks", package_name));
-        let _build_apks = android::build_apks(&aab_path, &apks, key).unwrap();
+        let _build_apks =
+            android::build_apks(&aab_path, &apks, key, android_build_dir.clone()).unwrap();
 
         // println!("{}", project_path.to_string_lossy());
         std::thread::sleep(std::time::Duration::from_secs(60 * 20));

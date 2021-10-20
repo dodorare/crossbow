@@ -1,11 +1,15 @@
-use crate::commands::android::android_dir;
 use crate::error::*;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use super::AabKey;
 
-pub fn build_apks(aab_path: &Path, output_apks: &Path, key: AabKey) -> Result<PathBuf> {
+pub fn build_apks(
+    aab_path: &Path,
+    output_apks: &Path,
+    key: AabKey,
+    android_build_dir: PathBuf,
+) -> Result<PathBuf> {
     if !output_apks.exists() {
         std::fs::create_dir_all(&output_apks)?;
     }
@@ -24,7 +28,10 @@ pub fn build_apks(aab_path: &Path, output_apks: &Path, key: AabKey) -> Result<Pa
         .arg(output_apks)
         .arg("--overwrite")
         .arg("--ks")
-        .arg(key.key_path.unwrap_or(android_dir()?.join("aab.keystore")))
+        .arg(
+            key.key_path
+                .unwrap_or(android_build_dir.join("aab.keystore")),
+        )
         .arg(format!(
             "--ks-pass=pass:{}",
             key.key_pass.unwrap_or("android".to_string())
