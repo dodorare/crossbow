@@ -39,7 +39,6 @@ mod tests {
             .join(profile.as_ref());
         let compiled_lib = out_dir.join(format!("lib{}.so", package_name));
         assert!(compiled_lib.exists());
-
         let android_build_dir = target_dir.join("android").join(profile.to_string());
 
         let android_abi = build_target.android_abi();

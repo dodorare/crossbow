@@ -99,7 +99,7 @@ mod tests {
     #[test]
     fn remove_aab() {
         let android_build_dir = std::path::Path::new(
-            "C:\\Users\\den99\\Desktop\\Work\\creator\\target\\android\\debug",
+            "target/android/debug",
         );
         let package_label = "twod".to_string();
         let signed_aab = format!("{}_signed.aab", package_label);

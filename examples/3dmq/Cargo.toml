@@ -17,7 +17,7 @@ crate-type = ["lib", "cdylib"]
 app_name = "Creator 3D"
 target_sdk_version = 30
 version_code = "1"
-icon = "rust"
+icon = "ic_launcher"
 
 android_build_targets = ["aarch64-linux-android"]
 android_assets = "assets"
