@@ -10,6 +10,8 @@ use creator_tools::{
 };
 use std::path::PathBuf;
 
+const MIN_SDK_VERSION: u32 = 9;
+
 #[derive(Parser, Clone, Debug)]
 pub struct AndroidBuildCommand {
     #[clap(flatten)]
@@ -165,24 +167,20 @@ impl AndroidBuildCommand {
         AabKey,
         PathBuf,
     )> {
-        let project_path = context.project_path.clone();
-        let target_dir = context.target_dir.clone();
-        let profile = self.shared.profile();
-        let (target, package_name) = if let Some(example) = &self.shared.example {
-            (Target::Example(example.clone()), example.clone())
-        } else {
-            (Target::Lib, context.package_name())
-        };
+        let (project_path, target_dir, profile, target, package_name) =
+            self.needed_project_dirs(context)?;
         config.status_message("Starting build process", &package_name)?;
-        let sdk = AndroidSdk::from_env()?;
-        let ndk = AndroidNdk::from_env(Some(sdk.sdk_path()))?;
-        let build_targets = context.android_build_targets(&self.target);
-        let target_sdk_version = context.target_sdk_version(&sdk);
+        let (sdk, ndk, target_sdk_version) = self.android_toolchain(context)?;
         config.status_message("Generating", "AndroidManifest.xml")?;
-        let android_manifest =
-            context.gen_android_manifest(&sdk, &package_name, profile.is_debug())?;
         let android_build_dir = target_dir.join("android").join(&profile);
-        let manifest_path = android::save_android_manifest(&android_build_dir, &android_manifest)?;
+        let (android_manifest, manifest_path) = self.android_manifest(
+            context,
+            &sdk,
+            package_name.to_string(),
+            profile,
+            &android_build_dir.clone(),
+        )?;
+        let build_targets = context.android_build_targets(&self.target);
         let mut compiled_libs = Vec::new();
         for build_target in build_targets.iter() {
             let lib_name = format!("lib{}.so", package_name.replace("-", "_"));
@@ -242,11 +240,12 @@ impl AndroidBuildCommand {
                 *build_target,
                 profile,
                 android_manifest
+                    .clone()
                     .uses_sdk
                     .as_ref()
                     .unwrap()
                     .min_sdk_version
-                    .unwrap_or(9), // TODO: Replace with default value
+                    .unwrap_or(MIN_SDK_VERSION),
                 &extracted_apk_path,
                 &target_dir,
             )?;
@@ -264,23 +263,11 @@ impl AndroidBuildCommand {
             }
         }
 
+        self.remove_content(&android_build_dir)?;
+
         config.status("Generating aab from modules")?;
         let aab_path =
             android::gen_aab_from_modules(&package_name, &[gen_zip_modules], &android_build_dir)?;
-
-        for entry in std::fs::read_dir(&android_build_dir)? {
-            let entry = entry?;
-            let path = entry.path();
-            if path.ends_with("extracted_apk_files") {
-                std::fs::remove_dir_all(&path)?;
-            }
-            if path.ends_with("example_module.zip") {
-                std::fs::remove_file(&path)?;
-            }
-            if path.ends_with("aab.keystore") {
-                std::fs::remove_file(&path)?;
-            }
-        }
 
         config.status_message("Generating", "debug signing key")?;
         let key = android::gen_aab_key(
@@ -301,6 +288,7 @@ impl AndroidBuildCommand {
         let signed_aab = android_build_dir.join(format!("{}_signed.aab", package_name));
         std::fs::rename(&aab_path, &signed_aab)?;
         config.status("Build finished successfully")?;
+
         Ok((
             android_manifest,
             sdk,
@@ -309,5 +297,58 @@ impl AndroidBuildCommand {
             key,
             android_build_dir,
         ))
+    }
+
+    pub fn needed_project_dirs(
+        &self,
+        context: &BuildContext,
+    ) -> Result<(PathBuf, PathBuf, Profile, Target, String)> {
+        let project_path: PathBuf = context.project_path.clone();
+        let target_dir: PathBuf = context.target_dir.clone();
+        let profile: Profile = self.shared.profile();
+        let (target, package_name) = if let Some(example) = &self.shared.example {
+            (Target::Example(example.clone()), example.clone())
+        } else {
+            (Target::Lib, context.package_name())
+        };
+        Ok((project_path, target_dir, profile, target, package_name))
+    }
+
+    fn android_toolchain(&self, context: &BuildContext) -> Result<(AndroidSdk, AndroidNdk, u32)> {
+        let sdk = AndroidSdk::from_env()?;
+        let ndk = AndroidNdk::from_env(Some(sdk.sdk_path()))?;
+        let target_sdk_version = context.target_sdk_version(&sdk);
+        Ok((sdk, ndk, target_sdk_version))
+    }
+
+    fn android_manifest(
+        &self,
+        context: &BuildContext,
+        sdk: &AndroidSdk,
+        package_name: String,
+        profile: Profile,
+        android_build_dir: &PathBuf,
+    ) -> Result<(AndroidManifest, PathBuf)> {
+        let android_manifest =
+            context.gen_android_manifest(&sdk, &package_name, profile.is_debug())?;
+        let manifest_path = android::save_android_manifest(&android_build_dir, &android_manifest)?;
+        Ok((android_manifest, manifest_path))
+    }
+
+    fn remove_content(&self, android_build_dir: &PathBuf) -> Result<()> {
+        for entry in std::fs::read_dir(&android_build_dir)? {
+            let entry = entry?;
+            let path = entry.path();
+            if path.ends_with("extracted_apk_files") {
+                std::fs::remove_dir_all(&path)?;
+            }
+            if path.ends_with("example_module.zip") {
+                std::fs::remove_file(&path)?;
+            }
+            if path.ends_with("aab.keystore") {
+                std::fs::remove_file(&path)?;
+            }
+        }
+        Ok(())
     }
 }
