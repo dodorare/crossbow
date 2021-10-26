@@ -14,14 +14,14 @@ impl AndroidRunCommand {
     pub fn run(&self, config: &Config) -> Result<()> {
         let context = BuildContext::new(config, self.build_command.shared.target_dir.clone())?;
         if self.build_command.aab {
-            let (android_manifest, sdk, aab_path, package_name, key, android_build_dir) =
+            let (android_manifest, sdk, aab_path, package_name, key) =
                 self.build_command.execute_aab(config, &context)?;
             config.status("Generating apks")?;
             let apks = aab_path
                 .parent()
                 .unwrap()
                 .join(format!("{}.apks", package_name));
-            let apks_path = android::build_apks(&aab_path, &apks, key, android_build_dir)?;
+            let apks_path = android::build_apks(&aab_path, &apks, key)?;
             config.status("Starting run process")?;
             config.status("Installing APKs file")?;
             InstallApks::new(&apks_path).run()?;

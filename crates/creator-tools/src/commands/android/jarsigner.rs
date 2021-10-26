@@ -1,43 +1,32 @@
+use crate::commands::android::android_dir;
 use crate::error::*;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-pub fn jarsigner(
-    aab_path: &Path,
-    key_path: Option<PathBuf>,
-    key_pass: Option<String>,
-    key_alias: Option<String>,
-    android_build_dir: PathBuf,
-) -> Result<()> {
+use super::AabKey;
+
+pub fn jarsigner(aab_path: &Path, key: &AabKey) -> Result<()> {
     let mut jarsigner = jarsigner_tool()?;
+    // let path = android_dir()?.join("aab.keystore");
+    // let password = "android".to_string();
+    // let alias = "androiddebugkey".to_string();
     jarsigner
         .arg("-verbose")
         .arg("-sigalg")
         .arg("SHA256withRSA")
         .arg("-digestalg")
         .arg("SHA-256")
-        .arg(aab_path);
-    if let Some(key_path) = &key_path {
-        jarsigner.arg("-keystore").arg(&key_path);
-    } else {
-        log::debug!("Using default keystore for generating aab key");
-        let path = android_build_dir.join("aab.keystore");
-        jarsigner.arg("-keystore").arg(&path);
-    }
-    if let Some(key_pass) = &key_pass {
-        jarsigner.arg("-storepass").arg(&key_pass);
-    } else {
-        log::debug!("Using default key password for generating aab key");
-        let password = "android".to_string();
-        jarsigner.arg("-storepass").arg(&password);
-    }
-    if let Some(key_alias) = key_alias {
-        jarsigner.arg(&key_alias);
-    } else {
-        log::debug!("Using default key alias for generating aab key");
-        let alias = "androiddebugkey".to_string();
-        jarsigner.arg(&alias);
-    }
+        .arg(aab_path)
+        .arg("-keystore")
+        .arg(&key.key_path)
+        // .arg("-keystore")
+        // .arg(&path)
+        .arg("-storepass")
+        .arg(&key.key_pass)
+        // .arg("-storepass")
+        // .arg(&password)
+        .arg(&key.key_alias);
+    // .arg(&alias);
     jarsigner.output_err(true)?;
     Ok(())
 }

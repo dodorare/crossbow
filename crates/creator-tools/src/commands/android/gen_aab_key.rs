@@ -4,16 +4,38 @@ use std::process::Command;
 
 /// Generates debug key for signing APK.
 /// Runs `keytool ...` command.
-pub fn gen_aab_key(
-    key_path: Option<PathBuf>,
-    key_pass: Option<String>,
-    key_alias: Option<String>,
-    android_build_dir: PathBuf,
-) -> Result<AabKey> {
+pub fn gen_aab_key(key: AabKey) -> Result<AabKey> {
+    // for entry in std::fs::read_dir(android_dir()?)? {
+    //     let path = entry?.path();
+    //     if path.ends_with("aab.keystore") {
+    //         return AabKey;
+    //     }
+    // }
+    let key_path = android_dir()?.join("aab.keystore");
+    let key_pass = "android".to_string();
+    let key_alias = "androidaabkey".to_string();
     let mut keytool = keytool()?;
+    keytool.arg("-genkey").arg("-v");
+    if key.key_path.exists() {
+        keytool
+            .arg("-keystore")
+            .arg(key.key_path.join("aab.keystore"));
+    } else {
+        keytool.arg("-keystore").arg(&key_path);
+    }
+    if !key.key_alias.is_empty() {
+        keytool.arg("-alias").arg(key.key_alias);
+    } else {
+        keytool.arg("-alias").arg(&key_alias);
+    }
+    if !key.key_pass.is_empty() {
+        keytool.arg("-keypass").arg(&key.key_pass);
+        keytool.arg("-storepass").arg(key.key_pass);
+    } else {
+        keytool.arg("-keypass").arg(&key_pass);
+        keytool.arg("-storepass").arg(&key_pass);
+    }
     keytool
-        .arg("-genkey")
-        .arg("-v")
         .arg("-dname")
         .arg("CN=Android Debug,O=Android,C=US")
         .arg("-keyalg")
@@ -22,30 +44,8 @@ pub fn gen_aab_key(
         .arg("2048")
         .arg("-validity")
         .arg("10000");
-    if let Some(key_path) = &key_path {
-        keytool.arg("-keystore").arg(key_path);
-    } else {
-        log::debug!("Using default keystore for generating aab key");
-        let path = android_build_dir.join("aab.keystore");
-        keytool.arg("-keystore").arg(&path);
-    }
-    if let Some(key_pass) = &key_pass {
-        keytool.arg("-storepass").arg(&key_pass);
-        keytool.arg("-keypass").arg(key_pass);
-    } else {
-        log::debug!("Using default key password for generating aab key");
-        let password = "android".to_string();
-        keytool.arg("-storepass").arg(&password);
-        keytool.arg("-keypass").arg(&password);
-    }
-    if let Some(key_alias) = &key_alias {
-        keytool.arg("-alias").arg(key_alias);
-    } else {
-        log::debug!("Using default key alias for generating aab key");
-        let alias = "androiddebugkey".to_string();
-        keytool.arg("-alias").arg(alias);
-    }
     keytool.output_err(true)?;
+
     Ok(AabKey {
         key_path,
         key_pass,
@@ -53,20 +53,20 @@ pub fn gen_aab_key(
     })
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct AabKey {
-    pub key_path: Option<PathBuf>,
-    pub key_pass: Option<String>,
-    pub key_alias: Option<String>,
+    pub key_path: PathBuf,
+    pub key_pass: String,
+    pub key_alias: String,
 }
 
-// pub fn android_dir() -> Result<PathBuf> {
-//     let android_dir = dirs::home_dir()
-//         .ok_or_else(|| Error::PathNotFound(PathBuf::from("$HOME")))?
-//         .join(".android");
-//     std::fs::create_dir_all(&android_dir)?;
-//     Ok(android_dir)
-// }
+pub fn android_dir() -> Result<PathBuf> {
+    let android_dir = dirs::home_dir()
+        .ok_or_else(|| Error::PathNotFound(PathBuf::from("$HOME")))?
+        .join(".android");
+    std::fs::create_dir_all(&android_dir)?;
+    Ok(android_dir)
+}
 
 fn keytool() -> Result<Command> {
     if let Ok(keytool) = which::which(bin!("keytool")) {
@@ -84,31 +84,31 @@ fn keytool() -> Result<Command> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    // #[test]
-    // fn aab_key_test() {
-    //     // gen_aab_key(
-    //     //     // TODO: Fix this test with absolute paths
-    //     //     //             Some(std::path::Path::new("target").("android").join("debug").join("test_aab_keystore").to_absolute()),
-    //     //     //     Some("dodorare".to_string()),
-    //     //     // Some("devtools".to_string())).unwrap();
-    //     //     None, None, None,
-    //     // )
-    //     .unwrap();
-    // }
-
     #[test]
-    fn remove_aab() {
-        let android_build_dir = std::path::Path::new(
-            "target/android/debug",
-        );
-        let package_label = "twod".to_string();
-        let signed_aab = format!("{}_signed.aab", package_label);
-        for entry in std::fs::read_dir(&android_build_dir).unwrap() {
-            let entry = entry.unwrap();
-            let path = entry.path();
-            if path.ends_with(format!("{}_unsigned.aab", package_label)) {
-                std::fs::rename(&path, &signed_aab).unwrap();
-            }
+
+    fn aab_key_test() {
+        gen_aab_key(AabKey {
+            key_path: dunce::simplified(std::path::Path::new(
+                "C:\\Users\\den99\\Desktop\\Work\\creator\\target\\android\\debug\\",
+            ))
+            .to_owned(),
+            key_pass: "dodorare".to_string(),
+            key_alias: "danyaaa".to_string(),
+        })
+        .unwrap();
+    }
+}
+
+#[test]
+fn remove_aab() {
+    let android_build_dir = std::path::Path::new("target/android/debug");
+    let package_label = "twod".to_string();
+    let signed_aab = format!("{}_signed.aab", package_label);
+    for entry in std::fs::read_dir(&android_build_dir).unwrap() {
+        let entry = entry.unwrap();
+        let path = entry.path();
+        if path.ends_with(format!("{}_unsigned.aab", package_label)) {
+            std::fs::rename(&path, &signed_aab).unwrap();
         }
     }
 }

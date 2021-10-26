@@ -3,7 +3,7 @@ use crate::error::*;
 use android_manifest::AndroidManifest;
 use clap::Parser;
 use creator_tools::{
-    commands::android::{self, AabKey},
+    commands::android::{self, android_dir, AabKey},
     tools::*,
     types::*,
     utils::Config,
@@ -23,7 +23,7 @@ pub struct AndroidBuildCommand {
     #[clap(long)]
     pub aab: bool,
     /// Path to the signing key
-    #[clap(long)]
+    #[clap(long, requires_all = &["sign-key-pass", "sign-key-alias"])]
     pub sign_key_path: Option<PathBuf>,
     /// Signing key password
     #[clap(long)]
@@ -159,14 +159,7 @@ impl AndroidBuildCommand {
         &self,
         config: &Config,
         context: &BuildContext,
-    ) -> Result<(
-        AndroidManifest,
-        AndroidSdk,
-        PathBuf,
-        String,
-        AabKey,
-        PathBuf,
-    )> {
+    ) -> Result<(AndroidManifest, AndroidSdk, PathBuf, String, AabKey)> {
         let (project_path, target_dir, profile, target, package_name) =
             self.needed_project_dirs(context)?;
         config.status_message("Starting build process", &package_name)?;
@@ -263,40 +256,45 @@ impl AndroidBuildCommand {
             }
         }
 
-        self.remove_content(&android_build_dir)?;
-
         config.status("Generating aab from modules")?;
-        let aab_path =
-            android::gen_aab_from_modules(&package_name, &[gen_zip_modules], &android_build_dir)?;
+        let aab_path = android::gen_aab_from_modules(
+            &package_name,
+            &[gen_zip_modules.clone()],
+            &android_build_dir,
+        )?;
+
+        self.remove_content(
+            &android_build_dir,
+            vec![extracted_apk_path, gen_zip_modules],
+        )?;
 
         config.status_message("Generating", "debug signing key")?;
-        let key = android::gen_aab_key(
-            self.sign_key_path.clone(),
-            self.sign_key_pass.clone(),
-            self.sign_key_alias.clone(),
-            android_build_dir.clone(),
-        )?;
 
-        android::jarsigner(
-            &aab_path,
-            key.key_path.clone(),
-            key.key_pass.clone(),
-            key.key_alias.clone(),
-            android_build_dir.clone(),
-        )?;
+        let key = if let Some(key_path) = self.sign_key_path.clone() {
+            let aab_key = AabKey {
+                key_path,
+                key_pass: self.sign_key_pass.clone().unwrap(),
+                key_alias: self.sign_key_alias.clone().unwrap(),
+            };
+            if aab_key.key_path.exists() {
+                aab_key
+            } else {
+                android::gen_aab_key(aab_key)?
+            }
+        } else {
+            android::gen_aab_key(Default::default())?
+        };
+        println!("{:?}", key);
+
+        // creator run android --aab --sign-key-path C:/Users/den99/Desktop/Work/creator/target/android/debug --sign-key-pass dodorare --sign-key-alias danya
+        config.status_message("Signing", "debug signing key")?;
+        android::jarsigner(&aab_path, &key)?;
 
         let signed_aab = android_build_dir.join(format!("{}_signed.aab", package_name));
         std::fs::rename(&aab_path, &signed_aab)?;
         config.status("Build finished successfully")?;
 
-        Ok((
-            android_manifest,
-            sdk,
-            signed_aab,
-            package_name,
-            key,
-            android_build_dir,
-        ))
+        Ok((android_manifest, sdk, signed_aab, package_name, key))
     }
 
     pub fn needed_project_dirs(
@@ -335,18 +333,15 @@ impl AndroidBuildCommand {
         Ok((android_manifest, manifest_path))
     }
 
-    fn remove_content(&self, android_build_dir: &PathBuf) -> Result<()> {
+    fn remove_content(&self, android_build_dir: &PathBuf, target: Vec<PathBuf>) -> Result<()> {
         for entry in std::fs::read_dir(&android_build_dir)? {
-            let entry = entry?;
-            let path = entry.path();
-            if path.ends_with("extracted_apk_files") {
+            let path = entry?.path();
+            let target_entry = target.iter().map(|s| s).collect::<PathBuf>();
+            if path.is_file() && path.ends_with(&target_entry) {
+                std::fs::remove_file(&path)?;
+            }
+            if path.is_dir() && path.ends_with(&target_entry) {
                 std::fs::remove_dir_all(&path)?;
-            }
-            if path.ends_with("example_module.zip") {
-                std::fs::remove_file(&path)?;
-            }
-            if path.ends_with("aab.keystore") {
-                std::fs::remove_file(&path)?;
             }
         }
         Ok(())

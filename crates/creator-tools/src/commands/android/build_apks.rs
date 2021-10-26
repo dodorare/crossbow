@@ -4,12 +4,7 @@ use std::process::Command;
 
 use super::AabKey;
 
-pub fn build_apks(
-    aab_path: &Path,
-    output_apks: &Path,
-    key: AabKey,
-    android_build_dir: PathBuf,
-) -> Result<PathBuf> {
+pub fn build_apks(aab_path: &Path, output_apks: &Path, key: AabKey) -> Result<PathBuf> {
     if !output_apks.exists() {
         std::fs::create_dir_all(&output_apks)?;
     }
@@ -28,16 +23,10 @@ pub fn build_apks(
         .arg(output_apks)
         .arg("--overwrite")
         .arg("--ks")
-        .arg(
-            key.key_path
-                .unwrap_or(android_build_dir.join("aab.keystore")),
-        )
-        .arg(format!(
-            "--ks-pass=pass:{}",
-            key.key_pass.unwrap_or("android".to_string())
-        ))
+        .arg(key.key_path)
+        .arg(format!("--ks-pass=pass:{}", key.key_pass))
         .arg("--ks-key-alias")
-        .arg(key.key_alias.unwrap_or("androiddebugkey".to_string()));
+        .arg(key.key_alias);
     build_apks.output_err(true)?;
     Ok(output_apks.to_path_buf())
 }
