@@ -6,6 +6,8 @@ use creator_tools::{
 
 #[cfg(test)]
 mod tests {
+    use creator_tools::commands::android::{AabKey};
+
     use super::*;
 
     #[test]
@@ -134,12 +136,32 @@ mod tests {
         // Create keystore with keytool command
         // let key = android::gen_aab_key().unwrap();
 
-        // Create keystore with keytool command
-        // let apks = android_build_dir.join(format!("{}.apks", package_name));
-        // let _build_apks =
-        //     android::build_apks(&aab_path, &apks, key, android_build_dir.clone()).unwrap();
+        let sign_key_path = Some(compiled_res_path.join("aab.keystore"));
+        let sign_key_pass = Some("android");
+        let sign_key_alias = Some("androiddebugkey");
+        let key = if let Some(key_path) = sign_key_path {
+            let aab_key = AabKey {
+                key_path,
+                key_pass: sign_key_pass.clone().unwrap().to_string(),
+                key_alias: sign_key_alias.clone().unwrap().to_string(),
+            };
+            if aab_key.key_path.exists() {
+                aab_key
+            } else {
+                android::gen_aab_key(aab_key).unwrap()
+            }
+        } else {
+            let aab_key: AabKey = Default::default();
+            if aab_key.key_path.exists() {
+                aab_key
+            } else {
+                android::gen_aab_key(aab_key).unwrap()
+            }
+        };
 
-        // println!("{}", project_path.to_string_lossy());
-        std::thread::sleep(std::time::Duration::from_secs(60 * 20));
+        // Create keystore with keytool command
+        let apks = android_build_dir.join(format!("{}.apks", package_name));
+        let _build_apks =
+            android::build_apks(&aab_path, &apks, key).unwrap();
     }
 }

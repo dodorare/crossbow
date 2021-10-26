@@ -282,11 +282,14 @@ impl AndroidBuildCommand {
                 android::gen_aab_key(aab_key)?
             }
         } else {
-            android::gen_aab_key(Default::default())?
+            let aab_key: AabKey = Default::default();
+            if aab_key.key_path.exists() {
+                aab_key
+            } else {
+                android::gen_aab_key(aab_key)?
+            }
         };
-        println!("{:?}", key);
 
-        // creator run android --aab --sign-key-path C:/Users/den99/Desktop/Work/creator/target/android/debug --sign-key-pass dodorare --sign-key-alias danya
         config.status_message("Signing", "debug signing key")?;
         android::jarsigner(&aab_path, &key)?;
 
