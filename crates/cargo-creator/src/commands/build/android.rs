@@ -3,7 +3,7 @@ use crate::error::*;
 use android_manifest::AndroidManifest;
 use clap::Parser;
 use creator_tools::{
-    commands::android::{self, android_dir, AabKey},
+    commands::android::{self, AabKey},
     tools::*,
     types::*,
     utils::Config,
@@ -40,7 +40,6 @@ impl AndroidBuildCommand {
                 .shell()
                 .warn("You provided a signing key but not password - set password please by providing `sign_key_pass` flag")?;
         }
-
         let context = BuildContext::new(config, self.shared.target_dir.clone())?;
         if self.aab {
             self.execute_aab(config, &context)?;
@@ -173,6 +172,7 @@ impl AndroidBuildCommand {
             profile,
             &android_build_dir.clone(),
         )?;
+
         let build_targets = context.android_build_targets(&self.target);
         let mut compiled_libs = Vec::new();
         for build_target in build_targets.iter() {
@@ -265,11 +265,10 @@ impl AndroidBuildCommand {
 
         self.remove_content(
             &android_build_dir,
-            vec![extracted_apk_path, gen_zip_modules],
+            vec![gen_zip_modules, extracted_apk_path],
         )?;
 
         config.status_message("Generating", "debug signing key")?;
-
         let key = if let Some(key_path) = self.sign_key_path.clone() {
             let aab_key = AabKey {
                 key_path,
@@ -336,17 +335,23 @@ impl AndroidBuildCommand {
         Ok((android_manifest, manifest_path))
     }
 
-    fn remove_content(&self, android_build_dir: &PathBuf, target: Vec<PathBuf>) -> Result<()> {
+    fn remove_content(
+        &self,
+        android_build_dir: &PathBuf,
+        target: Vec<PathBuf>,
+    ) -> std::io::Result<()> {
         for entry in std::fs::read_dir(&android_build_dir)? {
             let path = entry?.path();
-            let target_entry = target.iter().map(|s| s).collect::<PathBuf>();
-            if path.is_file() && path.ends_with(&target_entry) {
-                std::fs::remove_file(&path)?;
-            }
-            if path.is_dir() && path.ends_with(&target_entry) {
-                std::fs::remove_dir_all(&path)?;
-            }
+            target.iter().for_each(|content| {
+                if path.is_file() && path.ends_with(content) {
+                    std::fs::remove_file(&path).unwrap();
+                }
+                if path.is_dir() && path.ends_with(content) {
+                    std::fs::remove_dir_all(&path).unwrap();
+                }
+            });
         }
+
         Ok(())
     }
 }

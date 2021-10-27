@@ -2,7 +2,7 @@ use crate::error::*;
 use std::path::PathBuf;
 use std::process::Command;
 
-/// Generates debug key for signing APK.
+/// Generates debug key for signing aab.
 /// Runs `keytool ...` command.
 pub fn gen_aab_key(key: AabKey) -> Result<AabKey> {
     let mut keytool = keytool()?;

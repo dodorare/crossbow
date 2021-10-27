@@ -60,25 +60,3 @@ pub fn add_lib_aapt2(lib_path: &Path, out_dir: &Path) -> Result<()> {
     fs_extra::file::copy(&lib_path, out_dir.join(&filename), &options)?;
     Ok(())
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::tools::AndroidSdk;
-
-    #[test]
-    fn add_libs_into_aab_test() {
-        let sdk = AndroidSdk::from_env().unwrap();
-        let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
-        // TODO: Fix test
-        add_libs_into_aapt2(
-            &ndk,
-            &Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\target\\android\\debug\\libthreed.so"),
-            AndroidTarget::Aarch64LinuxAndroid,
-            Profile::Debug,
-            29,
-            &Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\target\\android\\debug\\"),
-            &Path::new("C:\\Users\\den99\\Desktop\\Work\\DodoRare\\creator\\target\\"),
-        ).unwrap();
-    }
-}
