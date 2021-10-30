@@ -9,7 +9,7 @@ use std::{
 const CARGO_TOML_VALUE: &str = r#"
 [package]
 name = "example"
-edition = "2018"
+edition = "2021"
 version = "0.1.0"
 
 [lib]
