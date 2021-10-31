@@ -65,13 +65,13 @@ impl InstallApks {
     }
 }
 
-#[cfg(test)]
-mod tests {
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
 
-    use super::*;
-    #[test]
-    fn new() {
-        // TODO: Test install_apks
-        // InstallApks::new(Path::new("\\target\\android\\debug\\threed.apks")).run().unwrap();
-    }
-}
+//     #[test]
+//     fn new() {
+//         // TODO: Test install_apks
+//         // InstallApks::new(Path::new("\\target\\android\\debug\\threed.apks")).run().unwrap();
+//     }
+// }

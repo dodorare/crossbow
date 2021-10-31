@@ -37,5 +37,4 @@ async fn main() -> anyhow::Result<()> {
 
         next_frame().await
     }
-    Ok(())
 }
