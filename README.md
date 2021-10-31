@@ -13,11 +13,7 @@
 
 ## What is Crossbow?
 
-Goal of the `crossbow` project is to make it simple to create and build Android and iOS game projects and connect them with Substrate Blockchain.
-
-## WARNING
-
-The `crossbow` is still in the very early stages of development. APIs, folder structure and features can and will change. Important features are missing. Documentation is sparse. Please don't build any serious projects with `crossbow` unless you are prepared to be broken by api changes constantly.
+A goal of the crossbow project is to provide a complete infrastructure for game development in rust. In addition, the project simplifies the creation and packaging of crates for Android, iOS, and other platforms. We want to make most of our tools - engine agnostic, to help rust game developers integrate them into their games, engines, and crates.
 
 ## Documentation
 
