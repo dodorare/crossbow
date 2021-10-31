@@ -6,6 +6,7 @@
 <a href="https://docs.rs/creator/"><img alt="API Docs" src="https://img.shields.io/badge/docs.rs-creator-green"/></a>
 <a href="https://crates.io/crates/cargo-creator"><img alt="Tool Crate" src="https://img.shields.io/crates/d/cargo-creator?label=cargo%20installs"/></a>
 <a href="https://github.com/creator-rs/creator/releases"><img alt="GitHub All Releases" src="https://img.shields.io/github/downloads/creator-rs/creator/total?label=binary%20downloads"/></a>
+<a href="https://app.fossa.com/projects/git%2Bgithub.com%2Fdodorare%2Fcrossbow?ref=badge_shield" alt="FOSSA Status"><img src="https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdodorare%2Fcrossbow.svg?type=shield"/></a>
 
 <h1>Creator</h1>
 
@@ -35,3 +36,6 @@ This project is [part](https://github.com/w3f/Open-Grants-Program/blob/master/ap
 ## License
 
 Licensed under [Apache-2.0 License](LICENSE).
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdodorare%2Fcrossbow.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdodorare%2Fcrossbow?ref=badge_large)
