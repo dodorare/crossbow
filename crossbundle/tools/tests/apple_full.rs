@@ -1,7 +1,7 @@
 #![cfg(target_os = "macos")]
 
 use apple_bundle::prelude::*;
-use creator_tools::{
+use crossbundle_tools::{
     commands::{apple::*, gen_minimal_project},
     types::*,
 };

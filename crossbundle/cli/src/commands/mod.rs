@@ -5,7 +5,7 @@ pub mod run;
 
 use crate::error::Result;
 use clap::Parser;
-use creator_tools::utils::Config;
+use crossbundle_tools::utils::Config;
 
 #[derive(Parser, Clone, Debug)]
 pub enum Commands {
@@ -15,7 +15,7 @@ pub enum Commands {
     /// Executes `build` command and then deploy and launches the application on the device/emulator
     #[clap(subcommand)]
     Run(run::RunCommand),
-    /// Creates a new Cargo package in the given directory. Project will be ready to build with `creator`
+    /// Creates a new Cargo package in the given directory. Project will be ready to build with `crossbundle`
     New(new::NewCommand),
     /// Attach logger to device with running application
     #[clap(subcommand)]

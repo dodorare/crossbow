@@ -1,4 +1,4 @@
-use creator_tools::{
+use crossbundle_tools::{
     commands::{android, gen_minimal_project},
     tools::*,
     types::*,
@@ -6,7 +6,7 @@ use creator_tools::{
 
 #[cfg(test)]
 mod tests {
-    use creator_tools::commands::android::{AabKey};
+    use crossbundle_tools::commands::android::AabKey;
 
     use super::*;
 
@@ -161,7 +161,6 @@ mod tests {
 
         // Create keystore with keytool command
         let apks = android_build_dir.join(format!("{}.apks", package_name));
-        let _build_apks =
-            android::build_apks(&aab_path, &apks, key).unwrap();
+        let _build_apks = android::build_apks(&aab_path, &apks, key).unwrap();
     }
 }

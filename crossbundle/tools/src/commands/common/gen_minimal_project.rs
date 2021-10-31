@@ -18,10 +18,10 @@ crate-type = ["lib", "cdylib"]
 path = "src/lib.rs"
 
 [dependencies]
-creator = { git = "https://github.com/creator-rs/creator" }
+crossbow = { git = "https://github.com/dodorare/crossbow" }
 "#;
 
-const LIB_RS_VALUE: &str = r#"#[creator::creator_main] pub fn main() {println!("hello")}"#;
+const LIB_RS_VALUE: &str = r#"#[crossbow::crossbundle_main] pub fn main() {println!("hello")}"#;
 
 const MAIN_RS_VALUE: &str = "fn main(){example::main();}";
 

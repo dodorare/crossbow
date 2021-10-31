@@ -9,7 +9,7 @@ use apple::AppleBuildCommand;
 
 use crate::error::Result;
 use clap::Parser;
-use creator_tools::{types::Profile, utils::Config};
+use crossbundle_tools::{types::Profile, utils::Config};
 use std::path::PathBuf;
 
 #[derive(Parser, Clone, Debug)]

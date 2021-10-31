@@ -8,7 +8,7 @@ pub mod error;
 use clap::Parser;
 use colored::Colorize;
 use commands::*;
-use creator_tools::utils::{Config, Shell, Verbosity};
+use crossbundle_tools::utils::{Config, Shell, Verbosity};
 use std::path::PathBuf;
 
 #[derive(Parser, Clone, Debug)]
@@ -34,7 +34,7 @@ impl Opts {
             Verbosity::Quiet
         } else {
             // Vary the output based on how many times the user used the "verbose" flag.
-            // Example: `creator -v -v -v' or 'creator -vvv' vs 'creator -v'
+            // Example: `crossbundle -v -v -v' or 'crossbundle -vvv' vs 'crossbundle -v'
             match self.verbose {
                 0 => Verbosity::Normal,
                 1 => Verbosity::Verbose,

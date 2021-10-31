@@ -3,7 +3,7 @@ mod apple;
 
 use crate::error::Result;
 use clap::Parser;
-use creator_tools::utils::Config;
+use crossbundle_tools::utils::Config;
 
 #[derive(Parser, Clone, Debug)]
 pub enum RunCommand {

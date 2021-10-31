@@ -1,10 +1,10 @@
 use macroquad::prelude::*;
 
-#[creator::creator_main]
-#[macroquad::main("3D")]
+#[crossbow::crossbundle_main]
+#[macroquad::main("Macroquad 3D")]
 async fn main() -> anyhow::Result<()> {
-    let rust_logo = load_texture("examples/3dmq/assets/bob/rust.png").await?;
-    let ferris = load_texture("examples/3dmq/assets/bob/ferris.png").await?;
+    let rust_logo = load_texture("examples/macroquad-3d/assets/bob/rust.png").await?;
+    let ferris = load_texture("examples/macroquad-3d/assets/bob/ferris.png").await?;
 
     loop {
         clear_background(LIGHTGRAY);

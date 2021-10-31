@@ -3,8 +3,8 @@ use crate::error::Result;
 use std::cell::{RefCell, RefMut};
 use std::path::{Path, PathBuf};
 
-/// Configuration information for creator. This is not specific to a build,
-/// it is information relating to creator itself.
+/// Configuration information for crossbundle. This is not specific to a build,
+/// it is information relating to crossbundle itself.
 #[derive(Debug)]
 pub struct Config {
     /// Information about how to write messages to the shell

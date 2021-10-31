@@ -2,7 +2,7 @@ use super::{BuildContext, SharedBuildCommand};
 use crate::error::*;
 use android_manifest::AndroidManifest;
 use clap::Parser;
-use creator_tools::{
+use crossbundle_tools::{
     commands::android::{self, AabKey},
     tools::*,
     types::*,

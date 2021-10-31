@@ -3,7 +3,7 @@
 
 // use bevy::prelude::*;
 
-// #[creator::creator_main]
+// #[crossbow::crossbundle_main]
 // pub fn main() {
 //     println!("Initialization.");
 //     App::build()

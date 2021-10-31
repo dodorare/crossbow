@@ -1,4 +1,4 @@
-//! Contains `Error`, `AndroidError`, `AppleError` types used by `creator-tools`.
+//! Contains `Error`, `AndroidError`, `AppleError` types used by `crossbundle-tools`.
 
 use apple_bundle::plist;
 use displaydoc::Display;
@@ -6,7 +6,7 @@ use std::path::PathBuf;
 use std::process::Command;
 use thiserror::Error;
 
-/// `Result` type that used in `creator-tools`.
+/// `Result` type that used in `crossbundle-tools`.
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Android specific error type

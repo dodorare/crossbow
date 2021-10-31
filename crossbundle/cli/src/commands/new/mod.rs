@@ -1,6 +1,6 @@
 use crate::error::Result;
 use clap::Parser;
-use creator_tools::{
+use crossbundle_tools::{
     commands::{check_cargo_generate, create_project},
     utils::Config,
 };
@@ -26,7 +26,7 @@ impl NewCommand {
         if !check_cargo_generate() {
             config
                 .shell()
-                .warn("To use `creator new ...` command you need to install `cargo-generate`\n         run `cargo install cargo-generate`")?;
+                .warn("To use `crossbundle new ...` command you need to install `cargo-generate`\n         run `cargo install cargo-generate`")?;
             return Ok(());
         };
         create_project(

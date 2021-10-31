@@ -91,7 +91,7 @@ crates=(
   creator-ads
   creator-permissions
   creator-derive
-  creator-tools
+  crossbundle-tools
   cargo-creator
 )
 for crate in "${crates[@]}"

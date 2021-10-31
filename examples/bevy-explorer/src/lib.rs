@@ -7,14 +7,14 @@
 // #[derive(Debug, Hash, PartialEq, Eq, Clone, StageLabel)]
 // struct SubstrateUpdate;
 
-// #[creator::creator_main]
+// #[crossbow::crossbundle_main]
 // pub fn main() {
 //     println!("Initialization");
 //     App::build()
 //         .add_plugins(DefaultPlugins)
 //         .insert_resource(ClearColor(Color::rgb(0.9, 0.9, 0.9)))
 //         .insert_resource(WindowDescriptor {
-//             title: "Creator Explorer".to_string(),
+//             title: "Bevy Explorer".to_string(),
 //             width: 320.0,
 //             height: 600.0,
 //             ..Default::default()
@@ -39,7 +39,7 @@
 // use bevy::{core::FixedTimestep, prelude::*};
 // use explorer::*;
 
-// #[creator::creator_main]
+// #[crossbow::crossbundle_main]
 // pub fn main() {
 //     println!("Initialization.");
 //     App::build()
@@ -71,7 +71,7 @@ mod explorer;
 use bevy::{core::FixedTimestep, prelude::*};
 use explorer::*;
 
-#[creator::creator_main]
+#[crossbow::crossbundle_main]
 pub fn main() {
     println!("Initialization.");
     App::build()

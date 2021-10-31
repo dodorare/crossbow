@@ -2,7 +2,7 @@ use crate::{
     cargo_manifest::{CargoManifest, CargoPackage, Metadata},
     error::{Error, Result},
 };
-use creator_tools::{
+use crossbundle_tools::{
     commands::{
         android, apple, find_package_cargo_manifest_path, find_workspace_cargo_manifest_path,
     },
