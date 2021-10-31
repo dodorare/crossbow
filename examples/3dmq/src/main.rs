@@ -3,7 +3,6 @@ use macroquad::prelude::*;
 #[creator::creator_main]
 #[macroquad::main("3D")]
 async fn main() -> anyhow::Result<()> {
-    
     let rust_logo = load_texture("examples/3dmq/assets/bob/rust.png").await?;
     let ferris = load_texture("examples/3dmq/assets/bob/ferris.png").await?;
 
@@ -38,5 +37,5 @@ async fn main() -> anyhow::Result<()> {
 
         next_frame().await
     }
-Ok(())
+    Ok(())
 }

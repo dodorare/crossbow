@@ -1,0 +1,15 @@
+[package]
+name = "crossbow-permissions"
+version = "0.1.0"
+edition = "2021"
+authors = ["DodoRare Team <support@dodorare.com>"]
+description = "Cross-Platform Rust Toolkit for Games 🏹"
+repository = "https://github.com/dodorare/crossbow"
+license = "Apache-2.0"
+keywords = ["permissions", "android", "ios"]
+readme = "README.md"
+
+[dependencies]
+
+[target.'cfg(target_os = "android")'.dependencies]
+jni = "0.19"

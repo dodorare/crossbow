@@ -1,5 +1,5 @@
 FROM rust:stretch
-LABEL org.opencontainers.image.source https://github.com/creator-rs/creator
+LABEL org.opencontainers.image.source https://github.com/dodorare/crossbow
 
 RUN apt-get update && \
     apt-get install -yq openjdk-8-jre unzip wget cmake && \
@@ -26,8 +26,8 @@ RUN cd /usr/local && \
     rm android-ndk-r22-beta1-linux-x86_64.zip
 ENV ANDROID_NDK_ROOT /usr/local/android-ndk-r22-beta1
 
-# Install Cargo Creator
-RUN cargo install --git=https://github.com/creator-rs/creator cargo-creator
+# Install crossbundle
+RUN cargo install --git=https://github.com/dodorare/crossbow crossbundle
 
 # Make directory for user code
 RUN mkdir -p /src

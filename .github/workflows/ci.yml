@@ -23,7 +23,7 @@ jobs:
     - name: Install Android targets
       run: rustup target add armv7-linux-androideabi aarch64-linux-android i686-linux-android x86_64-linux-android
     - name: Install Cargo Creator
-      run: cargo install --git=https://github.com/creator-rs/creator cargo-creator
+      run: cargo install --git=https://github.com/dodorare/crossbow crossbundle
     - name: Build APK
       run: |
         cd examples/3d
@@ -37,7 +37,7 @@ jobs:
     - name: Install Apple targets
       run: rustup target add aarch64-apple-ios x86_64-apple-ios
     - name: Install Cargo Creator
-      run: cargo install --git=https://github.com/creator-rs/creator cargo-creator
+      run: cargo install --git=https://github.com/dodorare/crossbow crossbundle
     - name: Build Apple app
       run: |
         cd examples/3d
@@ -54,7 +54,7 @@ jobs:
       run: |
         brew install openssl@1.1 cmake
         cargo install cargo-generate
-        cargo install --git=https://github.com/creator-rs/creator cargo-creator
+        cargo install --git=https://github.com/dodorare/crossbow crossbundle
     - name: Generate project
       run: |
         cd ~

@@ -1,13 +1,13 @@
 [package]
-name = "cargo-creator"
-version = "0.4.1"
+name = "crossbundle"
+version = "0.1.0"
 edition = "2021"
-authors = ["enfipy <enfipy@gmail.com>", "olvyko <olvyko@gmail.com>"]
-description = "Tool that helps build apps for Android and iOS"
-repository = "https://github.com/creator-rs/creator"
+authors = ["DodoRare Team <support@dodorare.com>"]
+description = "Build and publish apps for Android/iOS"
+repository = "https://github.com/dodorare/crossbow"
 license = "Apache-2.0"
 keywords = ["tool", "android", "ios"]
-readme = "../../README.md"
+readme = "README.md"
 
 [lib]
 name = "cli"

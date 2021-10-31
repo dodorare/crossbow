@@ -1,5 +1,5 @@
-<div align="center">
-<img src=".github/assets/splash.png" alt="Creator Splash Image" />
+<div>
+<!-- <img src=".github/assets/splash.png" alt="Creator Splash Image" /> -->
 
 <a href="https://github.com/creator-rs/creator/actions"><img alt="CI Info" src="https://github.com/creator-rs/creator/workflows/CI/badge.svg"/></a>
 <a href="https://crates.io/crates/creator"><img alt="Crate Info" src="https://img.shields.io/crates/v/creator.svg"/></a>
@@ -7,16 +7,12 @@
 <a href="https://crates.io/crates/cargo-creator"><img alt="Tool Crate" src="https://img.shields.io/crates/d/cargo-creator?label=cargo%20installs"/></a>
 <a href="https://github.com/creator-rs/creator/releases"><img alt="GitHub All Releases" src="https://img.shields.io/github/downloads/creator-rs/creator/total?label=binary%20downloads"/></a>
 
-<h1>Creator</h1>
-
-<p>
-<strong>Mobile Game Framework for Substrate</strong>
-</p>
+<strong>Cross-Platform Rust Toolkit for Games 🏹</strong>
 </div>
 
-## What is Creator?
+## What is Crossbow?
 
-Goal of the `creator` project is to make it simple to create and build Android and iOS game projects and connect them with Substrate Blockchain.
+Goal of the `crossbow` project is to make it simple to create and build Android and iOS game projects and connect them with Substrate Blockchain.
 
 ## WARNING
 
