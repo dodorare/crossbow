@@ -61,7 +61,7 @@ powershell Compress-Archive -Path ${OUTPUT_NAME}/* -DestinationPath ${OUTPUT_NAM
 '''
 
 [tasks.build-release-examples]
-description = "Compiles the apks in release mode and zips them up"
+description = "Build examples in release mode"
 script = '''
 mkdir -p target/apks
 examples=(
@@ -84,14 +84,14 @@ done
 '''
 
 [tasks.publish-to-crates-io]
-description = "Compiles the apks in release mode and zips them up"
+description = "Publishes crates to crates.io"
 # If crate A depends on crate B, B must come before A in this list
 script = '''
 crates=(
   creator-ads
   creator-permissions
   creator-derive
-  creator-tools
+  crossbundle-tools
   cargo-creator
 )
 for crate in "${crates[@]}"

@@ -1,0 +1,41 @@
+[package]
+name = "crossbundle"
+version = "0.1.0"
+edition = "2021"
+authors = ["DodoRare Team <support@dodorare.com>"]
+description = "Build and publish apps for Android/iOS"
+repository = "https://github.com/dodorare/crossbow"
+license = "Apache-2.0"
+keywords = ["tool", "android", "ios"]
+readme = "README.md"
+
+[lib]
+name = "cli"
+path = "src/lib.rs"
+
+[[bin]]
+name = "crossbundle"
+path = "src/crossbundle.rs"
+
+[[bin]]
+name = "cargo-crossbundle"
+path = "src/main.rs"
+
+[dependencies]
+crossbundle-tools = { path = "../tools", version = "0.1.0" }
+
+clap = "3.0.0-beta.5"
+cargo_toml = "0.8"
+serde = { version = "1.0", features = ["derive"] }
+dunce = "1.0"
+thiserror = "1.0"
+colored = "2.0"
+displaydoc = "0.1"
+pretty_env_logger = "0.4"
+log = "0.4"
+fs_extra = "1.2"
+
+[features]
+default = ["android", "ios"]
+android = []
+ios = []
