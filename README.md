@@ -13,7 +13,7 @@
 
 ## What is Crossbow?
 
-A goal of the crossbow project is to provide a complete infrastructure for game development in rust. In addition, the project simplifies the creation and packaging of crates for Android, iOS, and other platforms. We want to make most of our tools - engine agnostic, to help rust game developers integrate them into their games, engines, and crates.
+A goal of the `crossbow` project is to provide a complete infrastructure for game development in rust. In addition, the project simplifies the creation and packaging of crates for Android, iOS, and other platforms. We want to make most of our tools - engine agnostic, to help rust game developers integrate them into their games, engines, and crates.
 
 ## Documentation
 
