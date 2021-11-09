@@ -80,12 +80,18 @@ mod tests {
             std::fs::create_dir_all(&compiled_res_path).unwrap();
         }
         let res_path = project_path.join("res");
-        let aapt2_compile = Aapt2.compile_incremental(&res_path, &compiled_res_path);
+        let aapt2_compile = sdk
+            .aapt2()
+            .unwrap()
+            .compile_incremental(&res_path, &compiled_res_path);
         let compiled_res = aapt2_compile.run().unwrap();
 
         // Links all resources and creates .apk file
         let apk_path = android_build_dir.join(format!("{}_module.apk", package_name));
-        let mut aapt2_link = Aapt2.link_compiled_res(Some(compiled_res), &apk_path, &manifest_path);
+        let mut aapt2_link =
+            sdk.aapt2()
+                .unwrap()
+                .link_compiled_res(Some(compiled_res), &apk_path, &manifest_path);
         aapt2_link
             .android_jar(sdk.android_jar(target_sdk_version).unwrap())
             .version_code(1)

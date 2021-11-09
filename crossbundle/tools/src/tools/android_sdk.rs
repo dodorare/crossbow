@@ -1,4 +1,4 @@
-use crate::error::*;
+use crate::{error::*, tools::Aapt2};
 use std::path::{Path, PathBuf};
 use std::process::Command as ProcessCommand;
 
@@ -84,6 +84,11 @@ impl AndroidSdk {
             command.current_dir(current_dir);
         };
         Ok(command)
+    }
+
+    pub fn aapt2(&self) -> Result<Aapt2> {
+        self.build_tool("aapt2", None)?;
+        Ok(Aapt2)
     }
 
     pub fn platform_tool(&self, tool: &str) -> Result<ProcessCommand> {
