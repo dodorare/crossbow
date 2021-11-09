@@ -10,7 +10,7 @@ impl Aapt2Version {
     /// Prints the version of aapt2
     pub fn new(version: String) -> Self {
         Self {
-            version: version.to_owned(),
+            version,
             help: false,
         }
     }

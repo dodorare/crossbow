@@ -37,7 +37,7 @@ pub struct Bundletool;
 impl Bundletool {
     /// Generate an APK set for all device configurations your app supports from your app
     /// bundle
-    pub fn build_apks(self, bundle: &Path, output: &PathBuf) -> BuildApks {
+    pub fn build_apks(self, bundle: &Path, output: &Path) -> BuildApks {
         BuildApks::new(bundle, output)
     }
 

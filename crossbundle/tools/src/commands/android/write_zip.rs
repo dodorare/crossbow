@@ -1,15 +1,15 @@
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use zip::ZipWriter;
 use zip_extensions::write::ZipWriterExtensions;
 
-pub fn write(source_path: &PathBuf, archive_file: &Path) -> zip::result::ZipResult<()> {
+pub fn write(source_path: &Path, archive_file: &Path) -> zip::result::ZipResult<()> {
     let file = std::fs::File::create(archive_file)?;
     let mut zip = ZipWriter::new(file);
-    zip.create_from_directory(&source_path)?;
+    zip.create_from_directory(&source_path.to_path_buf())?;
     Ok(())
 }
 
-pub fn dirs_to_write(source_path: &PathBuf) -> fs_extra::error::Result<()> {
+pub fn dirs_to_write(source_path: &Path) -> fs_extra::error::Result<()> {
     let path = source_path.join("AndroidManifest.xml");
     if path.exists() {
         let manifest_path = source_path.join("manifest");

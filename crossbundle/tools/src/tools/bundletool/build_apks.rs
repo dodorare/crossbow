@@ -70,7 +70,7 @@ pub enum KeyPass {
 ///
 /// [`deploy APKs to a connected device`]::https://developer.android.com/studio/command-line/bundletool#deploy_with_bundletool
 impl BuildApks {
-    pub fn new(bundle: &Path, output: &PathBuf) -> Self {
+    pub fn new(bundle: &Path, output: &Path) -> Self {
         Self {
             bundle: bundle.to_owned(),
             output: output.to_owned(),
@@ -205,7 +205,7 @@ impl BuildApks {
         self
     }
 
-    ///	Use this flag to enable your app bundle for local testing. Local testing allows
+    /// Use this flag to enable your app bundle for local testing. Local testing allows
     /// for quick, iterative testing cycles without the need to upload to Google Play
     /// servers.
     ///
