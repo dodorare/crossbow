@@ -72,6 +72,6 @@ impl InstallApks {
 //     #[test]
 //     fn new() {
 //         // TODO: Test install_apks
-//         // InstallApks::new(Path::new("\\target\\android\\debug\\threed.apks")).run().unwrap();
+// InstallApks::new(Path::new("\\target\\android\\debug\\threed.apks")).run().unwrap();
 //     }
 // }

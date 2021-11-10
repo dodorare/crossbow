@@ -33,17 +33,17 @@ pub struct Aapt2;
 
 impl Aapt2 {
     /// Compiles resources incrementally from given resource path
-    pub fn compile_incremental(self, res_path: &Path, compiled_res: &PathBuf) -> Aapt2Compile {
+    pub fn compile_incremental(self, res_path: &Path, compiled_res: &Path) -> Aapt2Compile {
         Aapt2Compile::new(res_path, compiled_res)
     }
 
     /// Compiles resources from given resource dir
-    pub fn compile_dir(self, res_dir: &Path, compiled_res: &PathBuf) -> Aapt2Compile {
+    pub fn compile_dir(self, res_dir: &Path, compiled_res: &Path) -> Aapt2Compile {
         Aapt2Compile::new_from_res_dir(res_dir, compiled_res)
     }
 
     /// Compiles resources from given resource zip
-    pub fn compile_zip(self, res_zip: &Path, compiled_res: &PathBuf) -> Aapt2Compile {
+    pub fn compile_zip(self, res_zip: &Path, compiled_res: &Path) -> Aapt2Compile {
         Aapt2Compile::new_from_res_zip(res_zip, compiled_res)
     }
 
@@ -85,7 +85,7 @@ impl Aapt2 {
 
     /// Prints the version of aapt2
     pub fn version(self, version: String) -> Aapt2Version {
-        Aapt2Version::new(version.to_string())
+        Aapt2Version::new(version)
     }
 
     /// Runs aapt in daemon mode. Each subsequent line is a single parameter to the

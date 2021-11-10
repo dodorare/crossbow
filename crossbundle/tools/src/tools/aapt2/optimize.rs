@@ -69,7 +69,7 @@ impl Aapt2Optimize {
     /// Split resources matching a set of configs out to a Split APK.
     /// ```Syntax: path/to/output.apk;<config>[,<config>[...]].```
     /// On Windows, use a semicolon ';' separator instead
-    pub fn split(&mut self, split: &PathBuf) -> &mut Self {
+    pub fn split(&mut self, split: &Path) -> &mut Self {
         self.split = Some(split.to_owned());
         self
     }
@@ -105,7 +105,7 @@ impl Aapt2Optimize {
     /// Path to output the map of old resource paths to shortened paths
     pub fn resource_path_shortening_map(
         &mut self,
-        resource_path_shortening_map: &PathBuf,
+        resource_path_shortening_map: &Path,
     ) -> &mut Self {
         self.resource_path_shortening_map = Some(resource_path_shortening_map.to_owned());
         self

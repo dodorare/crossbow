@@ -202,7 +202,7 @@ impl AndroidBuildCommand {
         }
 
         let compiled_res = if let Some(res) = context.android_res() {
-            let aapt2_compile = Aapt2.compile_incremental(
+            let aapt2_compile = sdk.aapt2()?.compile_incremental(
                 dunce::simplified(&res),
                 &dunce::simplified(&compiled_res_path).to_owned(),
             );
@@ -213,7 +213,9 @@ impl AndroidBuildCommand {
         };
 
         let apk_path = android_build_dir.join(format!("{}_module.apk", package_name));
-        let mut aapt2_link = Aapt2.link_compiled_res(compiled_res, &apk_path, &manifest_path);
+        let mut aapt2_link =
+            sdk.aapt2()?
+                .link_compiled_res(compiled_res, &apk_path, &manifest_path);
         aapt2_link
             .android_jar(sdk.android_jar(target_sdk_version)?)
             .assets(context.android_assets().unwrap())

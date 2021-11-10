@@ -4,8 +4,7 @@ use std::process::Command;
 
 /// To measure the estimated download sizes of APKs in an APK set as they would be served
 /// compressed over-the-wire, use the get-size total command: ```
-/// bundletool get-size total --apks=/MyApp/my_app.apks
-/// ```
+/// bundletool get-size total --apks=/MyApp/my_app.apks ```
 /// You can modify the behavior of the get-size total command using the following flags:
 pub struct ExtractApks {
     apks: PathBuf,

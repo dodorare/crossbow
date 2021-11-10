@@ -16,16 +16,18 @@ use std::path::{Path, PathBuf};
 
 /// ## Bundletool
 /// `bundletool` is the underlying tool that Android Studio, the Android Gradle plugin,
-/// and Google Play use to build an Android App Bundle, and convert an app bundle into 
-/// the various APKs that are deployed to devices. bundletool is also available to you 
-/// as a command line tool, so you can build app bundles yourself and recreate 
+/// and Google Play use to build an Android App Bundle, and convert an app bundle into
+/// the various APKs that are deployed to devices. bundletool is also available to you
+/// as a command line tool, so you can build app bundles yourself and recreate
 /// Google Play’s server-side build of your app’s APKs.
+///
 ///
 /// ## Download bundletool
 /// If you haven't already done so, download bundletool from the [`GitHub repository`].
-/// 
+///
+///
 /// ## Install bundletool
-/// In variable environments needs to create new variable BUNDLETOOL_PATH and add 
+/// In variable environments needs to create new variable BUNDLETOOL_PATH and add
 /// path to the bundletool
 ///
 /// [`GitHub repository`]::https://github.com/google/bundletool/releases
@@ -35,7 +37,7 @@ pub struct Bundletool;
 impl Bundletool {
     /// Generate an APK set for all device configurations your app supports from your app
     /// bundle
-    pub fn build_apks(self, bundle: &Path, output: &PathBuf) -> BuildApks {
+    pub fn build_apks(self, bundle: &Path, output: &Path) -> BuildApks {
         BuildApks::new(bundle, output)
     }
 
