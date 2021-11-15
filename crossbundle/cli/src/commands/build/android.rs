@@ -20,6 +20,7 @@ pub struct AndroidBuildCommand {
     /// Supported targets are: `armv7-linux-androideabi`, `aarch64-linux-android`, `i686-linux-android`, `x86_64-linux-android`
     #[clap(long, default_value = "aarch64-linux-android")]
     pub target: Vec<AndroidTarget>,
+    /// Generating aab. By default crossbow generating apk
     #[clap(long)]
     pub aab: bool,
     /// Path to the signing key
@@ -44,34 +45,31 @@ impl AndroidBuildCommand {
         if self.aab {
             self.execute_aab(config, &context)?;
         } else {
-            self.execute(config, &context)?;
+            self.execute_apk(config, &context)?;
         }
         Ok(())
     }
 
-    pub fn execute(
+    pub fn execute_apk(
         &self,
         config: &Config,
         context: &BuildContext,
     ) -> Result<(AndroidManifest, AndroidSdk, PathBuf)> {
-        let project_path = context.project_path.clone();
-        let target_dir = context.target_dir.clone();
-        let profile = self.shared.profile();
-        let (target, package_name) = if let Some(example) = &self.shared.example {
-            (Target::Example(example.clone()), example.clone())
-        } else {
-            (Target::Lib, context.package_name())
-        };
+        let (project_path, target_dir, profile, target, package_name) =
+            self.needed_project_dirs(context)?;
         config.status_message("Starting build process", &package_name)?;
-        let sdk = AndroidSdk::from_env()?;
-        let ndk = AndroidNdk::from_env(Some(sdk.sdk_path()))?;
-        let build_targets = context.android_build_targets(&self.target);
-        let target_sdk_version = context.target_sdk_version(&sdk);
+        let (sdk, ndk, target_sdk_version) = self.android_toolchain(context)?;
         config.status_message("Generating", "AndroidManifest.xml")?;
-        let android_manifest =
-            context.gen_android_manifest(&sdk, &package_name, profile.is_debug())?;
-        let apk_build_dir = target_dir.join("android").join(&profile);
-        let manifest_path = android::save_android_manifest(&apk_build_dir, &android_manifest)?;
+        let android_build_dir = target_dir.join("android").join(&profile);
+        let (android_manifest, manifest_path) = self.android_manifest(
+            context,
+            &sdk,
+            package_name.to_string(),
+            profile,
+            &android_build_dir.clone(),
+        )?;
+
+        let build_targets = context.android_build_targets(&self.target);
         let mut compiled_libs = Vec::new();
         for build_target in build_targets.iter() {
             let lib_name = format!("lib{}.so", package_name.replace("-", "_"));
@@ -92,22 +90,26 @@ impl AndroidBuildCommand {
             let compiled_lib = out_dir.join(lib_name);
             compiled_libs.push((compiled_lib, build_target));
         }
+
         config.status_message("Generating", "unaligned APK file")?;
+        let package_label = android_manifest
+            .application
+            .label
+            .clone()
+            .unwrap()
+            .to_string();
+
         let unaligned_apk_path = android::gen_unaligned_apk(
             &sdk,
             &project_path,
-            &apk_build_dir,
+            &android_build_dir,
             &manifest_path,
             context.android_assets(),
             context.android_res(),
-            android_manifest
-                .application
-                .label
-                .clone()
-                .unwrap()
-                .to_string(),
+            &package_label,
             target_sdk_version,
         )?;
+
         config.status("Adding libs into APK file")?;
         for (compiled_lib, build_target) in compiled_libs {
             android::add_libs_into_apk(
@@ -122,23 +124,20 @@ impl AndroidBuildCommand {
                     .as_ref()
                     .unwrap()
                     .min_sdk_version
-                    .unwrap_or(9),
-                &apk_build_dir,
+                    .unwrap_or(MIN_SDK_VERSION),
+                &android_build_dir,
                 &target_dir,
             )?;
         }
+
         config.status("Aligning APK file")?;
         let aligned_apk_path = android::align_apk(
             &sdk,
             &unaligned_apk_path,
-            &android_manifest
-                .application
-                .label
-                .clone()
-                .unwrap()
-                .to_string(),
-            &apk_build_dir,
+            &package_label,
+            &android_build_dir,
         )?;
+
         let key = if let Some(path) = self.sign_key_path.clone() {
             android::Key {
                 path,
@@ -148,6 +147,7 @@ impl AndroidBuildCommand {
             config.status_message("Generating", "debug signing key")?;
             android::gen_debug_key().unwrap()
         };
+
         config.status("Signing APK file")?;
         android::sign_apk(&sdk, &aligned_apk_path, key).unwrap();
         config.status("Build finished successfully")?;
@@ -299,7 +299,7 @@ impl AndroidBuildCommand {
         Ok((android_manifest, sdk, signed_aab, package_name, key))
     }
 
-    pub fn needed_project_dirs(
+    fn needed_project_dirs(
         &self,
         context: &BuildContext,
     ) -> Result<(PathBuf, PathBuf, Profile, Target, String)> {

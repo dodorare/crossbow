@@ -12,7 +12,7 @@ pub fn gen_unaligned_apk(
     manifest_path: &Path,
     assets: Option<PathBuf>,
     res: Option<PathBuf>,
-    package_label: String,
+    package_label: &String,
     target_sdk_version: u32,
 ) -> Result<PathBuf> {
     if !build_dir.exists() {

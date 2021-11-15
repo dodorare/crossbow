@@ -29,7 +29,8 @@ impl AndroidRunCommand {
             android::start_apk(&sdk, &android_manifest.package)?;
             config.status("Run finished successfully")?;
         } else {
-            let (android_manifest, sdk, apk_path) = self.build_command.execute(config, &context)?;
+            let (android_manifest, sdk, apk_path) =
+                self.build_command.execute_apk(config, &context)?;
             config.status("Starting run process")?;
             config.status("Installing APK file")?;
             android::install_apk(&sdk, &apk_path)?;
