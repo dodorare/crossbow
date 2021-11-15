@@ -19,6 +19,7 @@ crossbow-permissions = { path = "plugins/permissions", version = "0.1.0", option
 
 [target.'cfg(target_os = "android")'.dependencies]
 ndk-glue = "0.4"
+miniquad = "0.3.0-alpha.37"
 
 [features]
 default = []
