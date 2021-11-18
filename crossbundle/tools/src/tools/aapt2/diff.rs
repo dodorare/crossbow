@@ -7,7 +7,7 @@ pub struct Aapt2Diff {
 }
 
 impl Aapt2Diff {
-    /// Initialize struct Aapt2Diff and then specifies paths to input apks
+    /// Initialize aapt2 diff and then specifies paths to input apks
     pub fn new(input_apks: &[PathBuf]) -> Self {
         Self {
             input_apks: input_apks.to_vec(),
@@ -21,7 +21,7 @@ impl Aapt2Diff {
         self
     }
 
-    /// Opens the command line and launches aapt2 diff with arguments
+    /// Executes aapt2 diff with arguments
     pub fn run(&self) -> Result<()> {
         let mut aapt2 = Command::new("aapt2");
         aapt2.arg("diff");

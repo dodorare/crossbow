@@ -21,7 +21,7 @@ impl Aapt2Version {
         self
     }
 
-    /// Opens the command line and launches aapt2 version with arguments
+    /// Executes aapt2 version with arguments
     pub fn run(&self) -> Result<()> {
         let mut aapt2 = Command::new("aapt2");
         aapt2.arg("version");

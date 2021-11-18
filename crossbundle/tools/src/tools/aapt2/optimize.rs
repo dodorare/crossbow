@@ -22,7 +22,7 @@ pub struct Aapt2Optimize {
 }
 
 impl Aapt2Optimize {
-    /// Initialize struct Aapt2Diff then specifies path to the aapt2 link output APK and
+    /// Initialize aapt2 optimize then specifies path to the aapt2 link output APK and
     /// Path to the output directory (for splits)
     pub fn new(output_apk: &Path, output_dir: &Path) -> Self {
         Self {
@@ -38,7 +38,7 @@ impl Aapt2Optimize {
         self
     }
 
-    /// Print the multi APK artifacts and exit.
+    /// Print the multi APK artifacts and exit
     pub fn apk_artifacts(&mut self, apk_artifacts: bool) -> &mut Self {
         self.apk_artifacts = apk_artifacts;
         self
@@ -52,7 +52,7 @@ impl Aapt2Optimize {
         self
     }
 
-    /// Path to the resources.cfg file containing the list of resources and directives to
+    /// Path to the `resources.cfg` file containing the list of resources and directives to
     /// each resource. ```Format: type/resource_name#[directive][,directive]```
     pub fn resources_config_path(&mut self, resources_config_path: &Path) -> &mut Self {
         self.resources_config_path = Some(resources_config_path.to_owned());
@@ -68,7 +68,7 @@ impl Aapt2Optimize {
 
     /// Split resources matching a set of configs out to a Split APK.
     /// ```Syntax: path/to/output.apk;<config>[,<config>[...]].```
-    /// On Windows, use a semicolon ';' separator instead
+    /// On Windows, use a semicolon `;` separator instead
     pub fn split(&mut self, split: &Path) -> &mut Self {
         self.split = Some(split.to_owned());
         self
@@ -89,8 +89,8 @@ impl Aapt2Optimize {
     }
 
     /// Collapses resource names to a single value in the key string pool.
-    /// Resources can be exempted using the "no_collapse" directive in a file specified by
-    /// --resources-config-path
+    /// Resources can be exempted using the `no_collapse` directive in a file specified by
+    /// `--resources-config-path`
     pub fn collapse_resource_name(&mut self, collapse_resource_name: bool) -> &mut Self {
         self.collapse_resource_name = collapse_resource_name;
         self
@@ -123,7 +123,7 @@ impl Aapt2Optimize {
         self
     }
 
-    /// Opens the command line and launches aapt2 optimize with arguments
+    /// Executes aapt2 optimize with arguments
     pub fn run(self) -> Result<()> {
         let mut aapt2 = Command::new("aapt2");
         aapt2.arg("optimize");

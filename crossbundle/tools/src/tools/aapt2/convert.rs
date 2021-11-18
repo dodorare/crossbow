@@ -15,7 +15,7 @@ pub struct Aapt2Convert {
 }
 
 impl Aapt2Convert {
-    /// Initialize struct Aapt2Convert and then specifies output path to convert
+    /// Initialize aapt2 convert and then specifies output path to convert
     pub fn new(output_path: &Path) -> Self {
         Self {
             output_path: output_path.to_owned(),
@@ -23,8 +23,8 @@ impl Aapt2Convert {
         }
     }
 
-    /// Format of the output. Accepted values are 'proto' and 'binary'. When not set,
-    /// defaults to 'binary'
+    /// Format of the output. Accepted values are `proto` and `binary`. When not set,
+    /// defaults to `binary`
     pub fn output_format(&mut self, output_format: OutputFormat) -> &mut Self {
         self.output_format = Some(output_format);
         self
@@ -55,7 +55,7 @@ impl Aapt2Convert {
         self
     }
 
-    /// Opens the command line and launches aapt2 convert with arguments
+    /// Executes aapt2 convert with arguments
     pub fn run(&self) -> Result<()> {
         let mut aapt2 = Command::new("aapt2");
         aapt2.arg("convert");
