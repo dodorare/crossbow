@@ -2,6 +2,7 @@ use std::path::Path;
 use zip::ZipWriter;
 use zip_extensions::write::ZipWriterExtensions;
 
+/// Writing files into archive
 pub fn write(source_path: &Path, archive_file: &Path) -> zip::result::ZipResult<()> {
     let file = std::fs::File::create(archive_file)?;
     let mut zip = ZipWriter::new(file);
@@ -9,6 +10,7 @@ pub fn write(source_path: &Path, archive_file: &Path) -> zip::result::ZipResult<
     Ok(())
 }
 
+/// Moving AndroidManifest.xml file into directory to write files to archive
 pub fn dirs_to_write(source_path: &Path) -> fs_extra::error::Result<()> {
     let path = source_path.join("AndroidManifest.xml");
     if path.exists() {

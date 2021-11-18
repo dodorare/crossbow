@@ -1,9 +1,14 @@
+use super::AabKey;
 use crate::error::*;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use super::AabKey;
-
+/// After you build your Android App Bundle, you should test how Google Play uses it to
+/// generate APKs and how those APKs behave when deployed to a device. When `bundletool`
+/// generates APKs from your app bundle, it includes them in a container called an APK
+/// set archive, which uses the `.apks` file extension. To generate an APK set for all
+/// device configurations your app supports from your app bundle, use the `bundletool
+/// build-apks` command, as shown below
 pub fn build_apks(aab_path: &Path, output_apks: &Path, key: AabKey) -> Result<PathBuf> {
     if !output_apks.exists() {
         std::fs::create_dir_all(&output_apks)?;

@@ -2,7 +2,7 @@ use crate::error::*;
 use std::path::PathBuf;
 use std::process::Command;
 
-/// Generates debug key for signing aab.
+/// Generates debug key for signing `.aab`.
 /// Runs `keytool ...` command.
 pub fn gen_aab_key(key: AabKey) -> Result<AabKey> {
     let mut keytool = keytool()?;
@@ -50,6 +50,7 @@ impl Default for AabKey {
     }
 }
 
+/// Returns the path to `android` directory created in the user's home directory
 pub fn android_dir() -> Result<PathBuf> {
     let android_dir = dirs::home_dir()
         .ok_or_else(|| Error::PathNotFound(PathBuf::from("$HOME")))?
@@ -58,7 +59,12 @@ pub fn android_dir() -> Result<PathBuf> {
     Ok(android_dir)
 }
 
-fn keytool() -> Result<Command> {
+/// The `keytool` command is a key and certificate management utility. It enables users to administer
+/// their own public/private key pairs and associated certificates for use in self-authentication
+/// (where the user authenticates himself or herself to other users and services) or data integrity
+/// and authentication services, using digital signatures. The `keytool` command also enables users to
+/// cache the public keys (in the form of certificates) of their communicating peers
+pub fn keytool() -> Result<Command> {
     if let Ok(keytool) = which::which(bin!("keytool")) {
         return Ok(Command::new(keytool));
     }

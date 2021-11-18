@@ -91,7 +91,7 @@ impl BuildApks {
     }
 
     /// Include this flag if you want to overwrite any existing output file with the same
-    /// path you specify using the --output option. If you don't include this flag and the
+    /// path you specify using the `--output` option. If you don't include this flag and the
     /// output file already exists, you get a build error.
     pub fn overwrite(&mut self, overwrite: bool) -> &mut Self {
         self.overwrite = overwrite;

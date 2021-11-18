@@ -6,7 +6,7 @@ use crate::{
 };
 use std::path::{Path, PathBuf};
 
-/// Adds given lib and all reletad libs into APK.
+/// Adds given lib and all reletad libs into APK
 pub fn add_libs_into_aapt2(
     ndk: &AndroidNdk,
     lib_path: &Path,
@@ -48,7 +48,7 @@ pub fn add_libs_into_aapt2(
     Ok(out_dir)
 }
 
-/// Copy lib into `out_dir` then add this lib into apk file.
+/// Copy lib into `out_dir` then add this lib into apk file
 pub fn add_lib_aapt2(lib_path: &Path, out_dir: &Path) -> Result<()> {
     if !lib_path.exists() {
         return Err(Error::PathNotFound(lib_path.to_owned()));

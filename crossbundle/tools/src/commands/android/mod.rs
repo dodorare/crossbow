@@ -1,5 +1,5 @@
 ///! Commands for compiling rust code for `Android`,
-///! generation/aligning/signing/installing APKs,
+///! generation/aligning/signing/installing/starting on device APKs and AAB,
 ///! generation `AndroidManifest.xml` and so on.
 mod add_libs_into_aapt2;
 mod add_libs_into_apk;

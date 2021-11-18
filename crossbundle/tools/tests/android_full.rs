@@ -63,7 +63,7 @@ fn test_android_full() {
         &manifest_path,
         None,
         None,
-        manifest.application.label.unwrap().to_string(),
+        &manifest.application.label.unwrap().to_string(),
         manifest.uses_sdk.unwrap().target_sdk_version.unwrap(),
     )
     .unwrap();
