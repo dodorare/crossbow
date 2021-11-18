@@ -3,15 +3,17 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 /// ## Build your app bundle using bundletool
-/// To build your app bundle, you use the bundletool build-bundle command, as shown below:
+/// To build your app bundle, you use the `bundletool build-bundle` command, as shown below:
 ///
 /// ```xml
 /// bundletool build-bundle --modules=base.zip --output=mybundle.aab
 /// ```
 ///
 /// ## Note
-/// If you plan to publish the app bundle, you need to sign it using jarsigner. You can
+/// If you plan to publish the app bundle, you need to sign it using [`jarsigner`]. You can
 /// not use apksigner to sign your app bundle.
+/// 
+/// [`jarsigner`]::https://docs.oracle.com/javase/8/docs/technotes/tools/windows/jarsigner.html
 #[derive(Debug, PartialEq, PartialOrd)]
 pub struct BuildBundle {
     modules: Vec<PathBuf>,
@@ -21,10 +23,10 @@ pub struct BuildBundle {
 }
 
 impl BuildBundle {
-    /// Specifies the list of module ZIP files bundletool should use to build your app
+    /// Specifies the list of module ZIP files `bundletool` should use to build your app
     /// bundle.
     ///
-    /// Specifies the path and filename for the output *.aab file.
+    /// Specifies the path and filename for the output `*.aab` file.
     pub fn new(modules: &[PathBuf], output: &Path) -> Self {
         Self {
             modules: modules.to_vec(),
@@ -49,8 +51,8 @@ impl BuildBundle {
     /// list of your app's DEX files, that may be useful to other steps in your toolchain
     /// or an app store.
     ///
-    /// target-bundle-path specifies a path relative to the root of the app bundle where
-    /// you would like the metadata file to be packaged, and local-file-path specifies the
+    /// `target-bundle-path` specifies a path relative to the root of the app bundle where
+    /// you would like the metadata file to be packaged, and `local-file-path` specifies the
     /// path to the local metadata file itself.
     pub fn metadata_file(&mut self, metadata_file: &Path) -> &mut Self {
         self.metadata_file = Some(metadata_file.to_owned());

@@ -15,7 +15,7 @@ use std::process::Command;
 ///
 /// If you want to deploy the APKs to a device, you need to also include your app’s
 /// signing information, as shown in the command below. If you do not specify signing
-/// information, bundletool attempts to sign your APKs with a debug key for you.
+/// information, `bundletool` attempts to sign your APKs with a debug key for you.
 ///
 /// ```xml
 /// bundletool build-apks --bundle=/MyApp/my_app.aab --output=/MyApp/my_app.apks
@@ -98,7 +98,7 @@ impl BuildApks {
         self
     }
 
-    /// Specifies a custom path to AAPT2. By default, bundletool includes its own version
+    /// Specifies a custom path to AAPT2. By default, `bundletool` includes its own version
     /// of AAPT2.
     pub fn aapt2(&mut self, aapt2: &Path) -> &mut Self {
         self.aapt2 = Some(aapt2.to_owned());
@@ -106,7 +106,7 @@ impl BuildApks {
     }
 
     /// Specifies the path to the deployment keystore used to sign the APKs. This flag is
-    /// optional. If you don't include it, bundletool attempts to sign your APKs with a
+    /// optional. If you don't include it, `bundletool` attempts to sign your APKs with a
     /// debug signing key.
     pub fn ks(&mut self, ks: &Path) -> &mut Self {
         self.ks = Some(ks.to_owned());
@@ -115,8 +115,8 @@ impl BuildApks {
 
     /// Specifies your keystore’s password. If you’re specifying a password in plain text,
     /// qualify it with pass:. If you’re passing the path to a file that contains the
-    /// password, qualify it with file:. If you specify a keystore using the --ks flag
-    /// without specifying --ks-pass, bundletool prompts you for a password from the
+    /// password, qualify it with file:. If you specify a keystore using the `--ks` flag
+    /// without specifying `--ks-pass`, `bundletool` prompts you for a password from the
     /// command line.
     pub fn ks_pass_pass(&mut self, ks_pass_pass: String) -> &mut Self {
         self.ks_pass_pass = Some(ks_pass_pass);
@@ -125,8 +125,8 @@ impl BuildApks {
 
     /// Specifies your keystore’s password. If you’re specifying a password in plain text,
     /// qualify it with pass:. If you’re passing the path to a file that contains the
-    /// password, qualify it with file:. If you specify a keystore using the --ks flag
-    /// without specifying --ks-pass, bundletool prompts you for a password from the
+    /// password, qualify it with file:. If you specify a keystore using the `--ks` flag
+    /// without specifying `--ks-pass`, `bundletool` prompts you for a password from the
     /// command line.
     pub fn ks_pass_file(&mut self, ks_pass_file: &Path) -> &mut Self {
         self.ks_pass_file = Some(ks_pass_file.to_owned());
@@ -161,8 +161,8 @@ impl BuildApks {
         self
     }
 
-    /// Instructs bundletool to build APKs that target the configuration of a connected
-    /// device. If you don’t include this flag, bundletool generates APKs for all device
+    /// Instructs `bundletool` to build APKs that target the configuration of a connected
+    /// device. If you don’t include this flag, `bundletool` generates APKs for all device
     /// configurations your app supports.
     pub fn connected_device(&mut self, connected_device: bool) -> &mut Self {
         self.connected_device = connected_device;
@@ -176,7 +176,7 @@ impl BuildApks {
         self
     }
 
-    /// Use this flag to provide a path to a .json file that specifies the device
+    /// Use this flag to provide a path to a `.json` file that specifies the device
     /// configuration you want to target. To learn more, go to the section about how to
     /// [`Create and use device specification JSON files`].
     ///
@@ -186,7 +186,7 @@ impl BuildApks {
         self
     }
 
-    /// Set the mode to universal if you want bundletool to build only a single APK that
+    /// Set the mode to universal if you want `bundletool` to build only a single APK that
     /// includes all of your app's code and resources such that the APK is compatible with
     /// all device configurations your app supports.
     ///
@@ -209,7 +209,7 @@ impl BuildApks {
     /// for quick, iterative testing cycles without the need to upload to Google Play
     /// servers.
     ///
-    /// For an example of how to test module installation using the --local-testing flag,
+    /// For an example of how to test module installation using the `--local-testing` flag,
     /// see [`Locally test module installs`].
     ///
     /// [`Locally test module installs`]::https://developer.android.com/guide/app-bundle/test/testing-fakesplitinstallmanager
