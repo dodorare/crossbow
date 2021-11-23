@@ -380,7 +380,7 @@ impl Aapt2Link {
         self.min_sdk_version = Some(min_sdk_version);
         self
     }
-    ///	Sets the default target SDK version to use for `AndroidManifest.xml`.
+    /// Sets the default target SDK version to use for `AndroidManifest.xml`.
     pub fn target_sdk_version(&mut self, target_sdk_version: u32) -> &mut Self {
         self.target_sdk_version = Some(target_sdk_version);
         self
@@ -547,17 +547,15 @@ impl Aapt2Link {
             self.inputs.iter().for_each(|input| {
                 aapt2.arg(input);
             });
-        } else {
-            if let Some(compiled_res) = &self.compiled_res {
-                // TODO: handle errors, return err if path not found
-                let paths = std::fs::read_dir(compiled_res)?
-                    .map(|e| e.map(|x| x.path()))
-                    .flatten()
-                    .collect::<Vec<_>>();
-                paths.iter().for_each(|input| {
-                    aapt2.arg(input);
-                });
-            };
+        } else if let Some(compiled_res) = &self.compiled_res {
+            // TODO: handle errors, return err if path not found
+            let paths = std::fs::read_dir(compiled_res)?
+                .map(|e| e.map(|x| x.path()))
+                .flatten()
+                .collect::<Vec<_>>();
+            paths.iter().for_each(|input| {
+                aapt2.arg(input);
+            });
         }
         aapt2.arg("-o").arg(&self.output_apk);
         aapt2.arg("--manifest").arg(&self.manifest);
@@ -792,14 +790,16 @@ impl Aapt2Link {
 //             None,
 //             false,
 //         );
-//         let manifest_path = android::save_android_manifest(Path::new("C:\\Users\\ZatNieL\\AppData\\Local\\Temp\\.tmpOz3Ra7\\target\\android\\debug\\compiled_res\\"), &manifest).unwrap();
+//         let manifest_path =
+// android::save_android_manifest(Path::new("C:\\Users\\ZatNieL\\AppData\\Local\\Temp\\.
+// tmpOz3Ra7\\target\\android\\debug\\compiled_res\\"), &manifest).unwrap();
 //         assert!(manifest_path.exists());
 //         let sdk = AndroidSdk::from_env().unwrap();
 //         Aapt2Link::new_from_compiled_res(Some(Path::new(
-//             "C:\\Users\\ZatNieL\\AppData\\Local\\Temp\\.tmpOz3Ra7\\target\\android\\debug\\compiled_res\\").to_owned()), Path::new(
-//                 "C:\\Users\\ZatNieL\\AppData\\Local\\Temp\\.tmpOz3Ra7\\target\\android\\debug\\compiled_res\\"), &manifest_path).android_jar(sdk.android_jar(30).unwrap())
-//                 .version_code(1)
-//                 .proto_format(true)
-//                 .auto_add_overlay(true).run().unwrap();
+//"C:\\Users\\ZatNieL\\AppData\\Local\\Temp\\.tmpOz3Ra7\\target\\android\\debug\\compiled_res\\").to_owned()), Path::new(
+//"C:\\Users\\ZatNieL\\AppData\\Local\\Temp\\.tmpOz3Ra7\\target\\android\\debug\\compiled_res\\"), &manifest_path).android_jar(sdk.android_jar(30).unwrap())
+//.version_code(1)
+//.proto_format(true)
+//.auto_add_overlay(true).run().unwrap();
 //     }
 // }

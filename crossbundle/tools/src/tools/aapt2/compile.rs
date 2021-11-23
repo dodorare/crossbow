@@ -83,7 +83,7 @@ impl std::fmt::Display for Visibility {
 impl Aapt2Compile {
     /// Initialize struct Aapt2Compile then specifies input resource(s) to compile and
     /// specifies the output path for the compiled resource(s)
-    pub fn new(res_path: &Path, compiled_res: &PathBuf) -> Self {
+    pub fn new(res_path: &Path, compiled_res: &Path) -> Self {
         Self {
             res_path: Some(res_path.to_owned()),
             compiled_res: compiled_res.to_owned(),
@@ -97,7 +97,7 @@ impl Aapt2Compile {
     /// Although you can use this flag to compile multiple resource files with one
     /// command, it disables the benefits of incremental compilation and thus, should not
     /// be used for large projects
-    pub fn new_from_res_dir(res_dir: &Path, compiled_res: &PathBuf) -> Self {
+    pub fn new_from_res_dir(res_dir: &Path, compiled_res: &Path) -> Self {
         Self {
             res_path: None,
             compiled_res: compiled_res.to_owned(),
@@ -108,7 +108,7 @@ impl Aapt2Compile {
 
     /// Specifies zip file containing the res directory to scan for resources and
     /// specifies the output path for the compiled resource(s)
-    pub fn new_from_res_zip(res_zip: &Path, compiled_res: &PathBuf) -> Self {
+    pub fn new_from_res_zip(res_zip: &Path, compiled_res: &Path) -> Self {
         Self {
             res_path: None,
             compiled_res: compiled_res.to_owned(),
@@ -120,7 +120,7 @@ impl Aapt2Compile {
 
     /// Generates a text file containing the resource symbols in the specified file
     pub fn output_text_symbols(&mut self, output_text_symbols: String) -> &mut Self {
-        self.output_text_symbols = Some(output_text_symbols.to_owned());
+        self.output_text_symbols = Some(output_text_symbols);
         self
     }
 
