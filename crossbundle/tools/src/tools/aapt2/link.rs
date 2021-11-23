@@ -831,37 +831,58 @@ impl Aapt2Link {
     }
 }
 
-// #[cfg(test)]
-// mod tests {
-//     use crate::{commands::android, tools::AndroidSdk};
+#[cfg(test)]
+mod tests {
+    use crate::{
+        commands::android,
+        tools::{Aapt2, Aapt2Link, AndroidSdk},
+    };
 
-//     use super::*;
+    #[test]
+    fn test_command_run() {
+        // Creates a temporary directory and specify resources
+        let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let dir = user_dirs.parent().unwrap().parent().unwrap().to_path_buf();
+        let res_path = dir.join("examples\\bevy-2d\\res\\android\\mipmap-hdpi\\ic_launcher.png");
+        res_path.canonicalize().unwrap();
+        let tempfile = tempfile::tempdir().unwrap();
+        let tempdir = tempfile.path().to_path_buf();
 
-//     #[test]
-//     fn test_command_run() {
+        // Compiles resources for aapt2 link
+        let aapt2_compile = Aapt2.compile_incremental(
+            dunce::simplified(&res_path),
+            &dunce::simplified(&tempdir).to_owned(),
+        );
+        let compiled_res = aapt2_compile.run().unwrap();
 
-//         let manifest = android::gen_minimal_android_manifest(
-//             None,
-//             "example",
-//             None,
-//             "0.0.1".to_string(),
-//             None,
-//             None,
-//             30,
-//             None,
-//             None,
-//             false,
-//         );
-//         let manifest_path =
-// android::save_android_manifest(Path::new("C:\\Users\\ZatNieL\\AppData\\Local\\Temp\\.
-// tmpOz3Ra7\\target\\android\\debug\\compiled_res\\"), &manifest).unwrap();
-//         assert!(manifest_path.exists());
-//         let sdk = AndroidSdk::from_env().unwrap();
-//         Aapt2Link::new_from_compiled_res(Some(Path::new(
-//"C:\\Users\\ZatNieL\\AppData\\Local\\Temp\\.tmpOz3Ra7\\target\\android\\debug\\compiled_res\\").to_owned()), Path::new(
-//"C:\\Users\\ZatNieL\\AppData\\Local\\Temp\\.tmpOz3Ra7\\target\\android\\debug\\compiled_res\\"), &manifest_path).android_jar(sdk.android_jar(30).unwrap())
-//.version_code(1)
-//.proto_format(true)
-//.auto_add_overlay(true).run().unwrap();
-//     }
-// }
+        // Generates minimal android manifest
+        let manifest = android::gen_minimal_android_manifest(
+            None,
+            "example",
+            None,
+            "0.0.1".to_string(),
+            None,
+            None,
+            30,
+            None,
+            None,
+            false,
+        );
+
+        // Saves android manifest into temporary directory
+        let manifest_path = android::save_android_manifest(&tempdir, &manifest).unwrap();
+        assert!(manifest_path.exists());
+
+        // Generates apk file
+        let sdk = AndroidSdk::from_env().unwrap();
+        let target_sdk_version = 30;
+        let apk_path = tempdir.join("test_apk");
+        let mut aapt2_link = Aapt2Link::new(&[compiled_res], &apk_path, &manifest_path);
+        aapt2_link
+            .android_jar(sdk.android_jar(target_sdk_version).unwrap())
+            .proto_format(true)
+            .auto_add_overlay(true)
+            .verbose(true);
+        aapt2_link.run().unwrap();
+    }
+}

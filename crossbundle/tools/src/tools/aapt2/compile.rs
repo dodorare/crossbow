@@ -240,3 +240,44 @@ impl Aapt2Compile {
         Ok(self.compiled_res.clone())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn aapt2_compile_new_test() {
+        // Creates a temporary directory and specify resources
+        let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let dir = user_dirs.parent().unwrap().parent().unwrap().to_path_buf();
+        let res_path = dir.join("examples\\bevy-2d\\res\\android\\mipmap-hdpi\\ic_launcher.png");
+        res_path.canonicalize().unwrap();
+        let tempfile = tempfile::tempdir().unwrap();
+        let compiled_res_dir = tempfile.path().to_path_buf();
+        assert!(compiled_res_dir.exists());
+
+        // Compiles resources
+        let compiled_res = Aapt2Compile::new(&res_path, &compiled_res_dir)
+            .run()
+            .unwrap();
+        assert!(compiled_res.exists());
+    }
+
+    #[test]
+    fn aapt2_compile_new_from_res_dir() {
+        // Creates a temporary directory and specify resources
+        let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let dir = user_dirs.parent().unwrap().parent().unwrap().to_path_buf();
+        let res_path = dir.join("examples\\bevy-3d\\assets\\models\\helmet");
+        res_path.canonicalize().unwrap();
+        let tempfile = tempfile::tempdir().unwrap();
+        let compiled_res_dir = tempfile.path().to_path_buf();
+        assert!(compiled_res_dir.exists());
+
+        // Compiles resources
+        let compiled_res = Aapt2Compile::new_from_res_dir(&res_path, &compiled_res_dir)
+            .run()
+            .unwrap();
+        assert!(compiled_res.exists());
+    }
+}
