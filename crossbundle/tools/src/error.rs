@@ -102,6 +102,8 @@ pub enum Error {
     Android(#[from] AndroidError),
     /// Apple error
     Apple(#[from] AppleError),
+    /// Anyhow error
+    AnyhowError(#[from] anyhow::Error),
     /// Other error
     OtherError(#[from] Box<dyn std::error::Error>),
 }

@@ -75,17 +75,28 @@ impl AndroidBuildCommand {
             let lib_name = format!("lib{}.so", package_name.replace("-", "_"));
             let rust_triple = build_target.rust_triple();
             config.status_message("Compiling for architecture", rust_triple)?;
-            android::compile_rust_for_android(
-                &ndk,
-                target.clone(),
-                *build_target,
-                &project_path,
-                profile,
-                self.shared.features.clone(),
-                self.shared.all_features,
-                self.shared.no_default_features,
-                target_sdk_version,
-            )?;
+            if self.shared.quad {
+                android::compile_macroquad_rust_for_android(
+                    target_sdk_version,
+                    ndk.ndk_path(),
+                    &context.package_manifest_path,
+                    *build_target,
+                    // &project_path,
+                    // profile,
+                )?;
+            } else {
+                android::compile_rust_for_android(
+                    &ndk,
+                    target.clone(),
+                    *build_target,
+                    &project_path,
+                    profile,
+                    self.shared.features.clone(),
+                    self.shared.all_features,
+                    self.shared.no_default_features,
+                    target_sdk_version,
+                )?;
+            }
             let out_dir = target_dir.join(build_target.rust_triple()).join(&profile);
             let compiled_lib = out_dir.join(lib_name);
             compiled_libs.push((compiled_lib, build_target));

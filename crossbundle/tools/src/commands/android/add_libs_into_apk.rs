@@ -193,3 +193,21 @@ pub fn get_libs_in_dir(dir: &Path) -> std::io::Result<Vec<String>> {
     };
     Ok(libs)
 }
+
+// fs::read_dir(version_specific_libraries_path)?
+//         .filter_map(|entry| {
+//             entry
+//                 .map(|entry| {
+//                     if entry.path().is_file() {
+//                         if let Some(file_name) = entry.file_name().to_str() {
+//                             if file_name.ends_with(".so") {
+//                                 return Some(file_name.into());
+//                             }
+//                         }
+//                     }
+//                     None
+//                 })
+//                 .transpose()
+//         })
+//         .collect::<std::result::Result<_, _>>()
+// .map_err(|err| err.into())

@@ -61,6 +61,12 @@ impl AndroidTarget {
     }
 }
 
+impl Default for AndroidTarget {
+    fn default() -> Self {
+        Self::Aarch64LinuxAndroid
+    }
+}
+
 impl std::str::FromStr for AndroidTarget {
     type Err = AndroidError;
 
