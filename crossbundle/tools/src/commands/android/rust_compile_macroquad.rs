@@ -1,11 +1,13 @@
 use crate::error::*;
+use crate::tools::*;
 use crate::types::*;
 
 use anyhow::format_err;
 use cargo::core::compiler::Executor;
 use cargo::core::compiler::{CompileKind, CompileMode, CompileTarget};
 use cargo::core::manifest::TargetSourcePath;
-use cargo::core::{PackageId, Target, TargetKind, Workspace};
+use cargo::core::resolver::CliFeatures;
+use cargo::core::{PackageId, TargetKind, Workspace};
 use cargo::ops::CompileOptions;
 use cargo::util::{CargoResult, Config as CargoConfig};
 use cargo_util::ProcessBuilder;
@@ -24,76 +26,93 @@ pub struct SharedLibrary {
     pub filename: String,
 }
 
-/// For each build target and cargo binary or example target, produce a shared library
+/// Compile macroquuad rust code for android
 pub fn compile_macroquad_rust_for_android(
-    min_sdk_version: u32,
-    ndk_path: &Path,
-    manifest_path: &Path,
+    ndk: &AndroidNdk,
+    target: Target,
     build_target: AndroidTarget,
-) -> Result<SharedLibrary> {
-    let shared_library = Arc::new(Mutex::new(SharedLibrary::default()));
+    project_path: &Path,
+    profile: Profile,
+    features: Vec<String>,
+    all_features: bool,
+    no_default_features: bool,
+    target_sdk_version: u32,
+) -> Result<String> {
+    let shared_library_filename = Arc::new(Mutex::new(String::new()));
 
-    // Directory that will contain files specific to this build target
-    let build_target_dir = manifest_path
-        .parent()
-        .unwrap()
-        .join(build_target.android_abi());
+    let cargo_config = CargoConfig::default()?;
+    let workspace = Workspace::new(&project_path.join("Cargo.toml"), &cargo_config)?;
+
+    let build_target_dir = workspace
+        .root()
+        .join("target")
+        .join(build_target.rust_triple())
+        .join(profile);
     fs::create_dir_all(&build_target_dir).unwrap();
 
+    let triple = build_target.rust_triple();
     // Set environment variables needed for use with the cc crate
-    std::env::set_var(
-        "CC",
-        util::find_clang(min_sdk_version, ndk_path, build_target)?,
-    );
-    std::env::set_var(
-        "CXX",
-        util::find_clang_cpp(min_sdk_version, ndk_path, build_target)?,
-    );
-    std::env::set_var(
-        "AR",
-        util::find_ar(min_sdk_version, ndk_path, build_target)?,
-    );
+    let (clang, clang_pp) = ndk.clang(build_target, target_sdk_version)?;
+    let ar = ndk.toolchain_bin("ar", build_target)?;
+
+    std::env::set_var(format!("CC_{}", triple), &clang);
+    std::env::set_var(format!("CXX_{}", triple), &clang_pp);
+    std::env::set_var(format!("AR_{}", triple), &ar);
 
     // Use libc++. It is current default C++ runtime
     std::env::set_var("CXXSTDLIB", "c++");
 
-    // Generate cmake toolchain and set environment variables to allow projects which use the cmake crate to build correctly
-    let cmake_toolchain_path =
-        write_cmake_toolchain(min_sdk_version, ndk_path, &build_target_dir, build_target)?;
+    // Generate cmake toolchain and set environment variables to allow projects which use the
+    // cmake crate to build correctly
+    let cmake_toolchain_path = write_cmake_toolchain(
+        target_sdk_version,
+        ndk.ndk_path(),
+        &build_target_dir,
+        build_target,
+    )?;
     std::env::set_var("CMAKE_TOOLCHAIN_FILE", cmake_toolchain_path);
     std::env::set_var("CMAKE_GENERATOR", r#"Unix Makefiles"#);
-    std::env::set_var("CMAKE_MAKE_PROGRAM", util::make_path(ndk_path));
+    std::env::set_var("CMAKE_MAKE_PROGRAM", util::make_path(ndk.ndk_path()));
 
     // Configure compilation options so that we will build the desired build_target
-    // TODO: Make it more customizable to allow different cargo options (maybe get CompileOptions from ArgMatches)
-    let cargo_config = CargoConfig::default()?;
-    let workspace = Workspace::new(manifest_path, &cargo_config)?;
+    // TODO: Make it more customizable to allow different cargo options (maybe get
+    // CompileOptions from ArgMatches)
     let mut opts = CompileOptions::new(workspace.config(), CompileMode::Build)?;
+
     opts.build_config.requested_kinds = vec![CompileKind::Target(CompileTarget::new(
         build_target.rust_triple(),
     )?)];
 
+    // Set features options
+    opts.cli_features =
+        CliFeatures::from_command_line(&features, all_features, no_default_features).unwrap();
+
+    // Set profile
+    if profile == Profile::Release {
+        opts.build_config.requested_profile = "release".into();
+    }
+
     // Create executor
     // let nostrip = options.is_present("nostrip");
     let executor: Arc<dyn Executor> = Arc::new(SharedLibraryExecutor {
-        min_sdk_version,
-        ndk_path: ndk_path.to_path_buf(),
+        min_sdk_version: target_sdk_version,
+        ndk_path: ndk.ndk_path().to_path_buf(),
         release: false,
         build_target_dir: build_target_dir.clone(),
         build_target,
-        shared_library: shared_library.clone(),
         nostrip: false,
+        shared_library_filename: shared_library_filename.clone(),
     });
 
     // Compile all targets for the requested build target
     cargo::ops::compile_with_exec(&workspace, &opts, &executor)?;
 
-    // TODO: Do we need it?
     // Remove the shared library from the reference counted mutex
-    let mut shared_library = shared_library.lock().unwrap();
-    let shared_library = std::mem::replace(&mut *shared_library, SharedLibrary::default());
+    let shared_library_filename = shared_library_filename.lock().unwrap();
+    // let shared_library_filename = std::mem::replace(&mut *shared_library_filename,
+    // String::new());
 
-    Ok(shared_library)
+    Ok((*shared_library_filename).clone())
 }
 
 /// Executor which builds binary and example targets as static libraries
@@ -107,8 +126,8 @@ struct SharedLibraryExecutor {
     release: bool,
     nostrip: bool,
 
-    // Shared library built by the executor added to this reference counted mutex
-    shared_library: Arc<Mutex<SharedLibrary>>,
+    // Shared libraries built by the executor are added to this multimap
+    shared_library_filename: Arc<Mutex<String>>,
 }
 
 impl Executor for SharedLibraryExecutor {
@@ -116,7 +135,7 @@ impl Executor for SharedLibraryExecutor {
         &self,
         cmd: &ProcessBuilder,
         _id: PackageId,
-        target: &Target,
+        target: &cargo::core::Target,
         mode: CompileMode,
         on_stdout_line: &mut dyn FnMut(&str) -> CargoResult<()>,
         on_stderr_line: &mut dyn FnMut(&str) -> CargoResult<()>,
@@ -203,10 +222,11 @@ mod cargo_apk_glue_code {
             });
 
             if let Some(source_arg) = source_arg {
-                // Build a new relative path to the temporary source file and use it as the source argument
-                // Using an absolute path causes compatibility issues in some cases under windows
-                // If a UNC path is used then relative paths used in "include* macros" may not work if
-                // the relative path includes "/" instead of "\"
+                // Build a new relative path to the temporary source file and use it as the source
+                // argument Using an absolute path causes compatibility issues in
+                // some cases under windows If a UNC path is used then relative
+                // paths used in "include* macros" may not work if the relative path
+                // includes "/" instead of "\"
                 let path_arg = Path::new(&source_arg);
                 let mut path_arg = path_arg.to_path_buf();
                 path_arg.set_file_name(tmp_file.path.file_name().unwrap());
@@ -221,7 +241,7 @@ mod cargo_apk_glue_code {
             //
             // Create output directory inside the build target directory
             //
-            let build_path = self.build_target_dir.join("build");
+            let build_path = self.build_target_dir.to_path_buf();
             fs::create_dir_all(&build_path).unwrap();
 
             //
@@ -308,17 +328,13 @@ mod cargo_apk_glue_code {
             cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
                 .map(drop)?;
 
-            // Execute the command again with the print flag to determine the name of the produced shared library and then add it to the list of shared librares to be added to the APK
+            // Execute the command again with the print flag to determine the name of the produced
+            // shared library and then add it to the list of shared librares to be added to the APK
             let stdout = cmd.arg("--print").arg("file-names").exec_with_output()?;
             let stdout = String::from_utf8(stdout.stdout).unwrap();
-            let library_path = build_path.join(stdout.lines().next().unwrap());
 
-            let mut shared_library = self.shared_library.lock().unwrap();
-            *shared_library = SharedLibrary {
-                abi: self.build_target,
-                path: library_path.clone(),
-                filename: format!("lib{}.so", target.name()),
-            };
+            let mut shared_library_filename = self.shared_library_filename.lock().unwrap();
+            *shared_library_filename = stdout.lines().next().unwrap().to_string();
         } else if mode == CompileMode::Test {
             // This occurs when --all-targets is specified
             eprintln!("Ignoring CompileMode::Test for target: {}", target.name());
@@ -350,9 +366,9 @@ mod cargo_apk_glue_code {
     }
 }
 
-/// Write a CMake toolchain which will remove references to the rustc build target before including
-/// the NDK provided toolchain. The NDK provided android toolchain will set the target appropriately
-/// Returns the path to the generated toolchain file
+/// Write a CMake toolchain which will remove references to the rustc build target before
+/// including the NDK provided toolchain. The NDK provided android toolchain will set the
+/// target appropriately Returns the path to the generated toolchain file
 fn write_cmake_toolchain(
     min_sdk_version: u32,
     ndk_path: &Path,
@@ -371,7 +387,9 @@ unset(CMAKE_C_COMPILER CACHE)
 unset(CMAKE_CXX_COMPILER CACHE)
 include("{ndk_path}/build/cmake/android.toolchain.cmake")"#,
         min_sdk_version = min_sdk_version,
-        ndk_path = ndk_path.to_string_lossy().replace("\\", "/"), // Use forward slashes even on windows to avoid path escaping issues.
+        ndk_path = ndk_path.to_string_lossy().replace("\\", "/"), /* Use forward slashes even on
+                                                                   * windows to avoid path
+                                                                   * escaping issues. */
         build_target = build_target.rust_triple(),
         abi = build_target.android_abi(),
     )?;
@@ -387,16 +405,16 @@ mod util {
     use std::fs::File;
     use std::path::{Path, PathBuf};
 
-    /// Temporary file implementation that allows creating a file with a specified path which
-    /// will be deleted when dropped.
+    /// Temporary file implementation that allows creating a file with a specified path
+    /// which will be deleted when dropped.
     pub struct TempFile {
         pub path: PathBuf,
     }
 
     impl TempFile {
         /// Create a new `TempFile` using the contents provided by a closure.
-        /// If the file already exists, it will be overwritten and then deleted when the instance
-        /// is dropped.
+        /// If the file already exists, it will be overwritten and then deleted when the
+        /// instance is dropped.
         pub fn new<F>(path: PathBuf, write_contents: F) -> CargoResult<TempFile>
         where
             F: FnOnce(&mut File) -> CargoResult<()>,
@@ -438,7 +456,8 @@ mod util {
         }
     }
 
-    /// Returns the sub directory within the root build directory for the specified target.
+    /// Returns the sub directory within the root build directory for the specified
+    /// target.
     pub fn get_target_directory(root_build_dir: &PathBuf, target: &Target) -> CargoResult<PathBuf> {
         let target_directory = match target.kind() {
             TargetKind::Bin => root_build_dir.join("bin"),
@@ -467,12 +486,13 @@ mod util {
     // TODO: Fix this function logic (don't do while loop)
 
     // Helper function for looking for a path based on the platform version
-    // Calls a closure for each attempt and then return the PathBuf for the first file that exists.
-    // Uses approach that NDK build tools use which is described at:
+    // Calls a closure for each attempt and then return the PathBuf for the first file that
+    // exists. Uses approach that NDK build tools use which is described at:
     // https://developer.android.com/ndk/guides/application_mk
     // " - The platform version matching APP_PLATFORM.
-    //   - The next available API level below APP_PLATFORM. For example, android-19 will be used when
-    //     APP_PLATFORM is android-20, since there were no new native APIs in android-20.
+    //   - The next available API level below APP_PLATFORM. For example, android-19 will be
+    //     used when APP_PLATFORM is android-20, since there were no new native APIs in
+    //     android-20.
     //   - The minimum API level supported by the NDK."
     pub fn find_ndk_path<F>(platform: u32, path_builder: F) -> CargoResult<PathBuf>
     where
@@ -491,7 +511,8 @@ mod util {
             tmp_platform -= 1;
         }
 
-        // If that doesn't exist... Look for a higher one. This would be the minimum API level supported by the NDK
+        // If that doesn't exist... Look for a higher one. This would be the minimum API level
+        // supported by the NDK
         tmp_platform = platform;
         while tmp_platform < 100 {
             let path = path_builder(tmp_platform);
