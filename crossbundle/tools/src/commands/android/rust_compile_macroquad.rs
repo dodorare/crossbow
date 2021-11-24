@@ -7,6 +7,7 @@ use cargo::core::compiler::Executor;
 use cargo::core::compiler::{CompileKind, CompileMode, CompileTarget};
 use cargo::core::manifest::TargetSourcePath;
 use cargo::core::resolver::CliFeatures;
+use cargo::core::shell::Verbosity;
 use cargo::core::{PackageId, TargetKind, Workspace};
 use cargo::ops::CompileOptions;
 use cargo::util::{CargoResult, Config as CargoConfig};
@@ -75,9 +76,9 @@ pub fn compile_macroquad_rust_for_android(
     std::env::set_var("CMAKE_MAKE_PROGRAM", util::make_path(ndk.ndk_path()));
 
     // Configure compilation options so that we will build the desired build_target
-    // TODO: Make it more customizable to allow different cargo options (maybe get
-    // CompileOptions from ArgMatches)
-    let mut opts = CompileOptions::new(workspace.config(), CompileMode::Build)?;
+    let config = workspace.config();
+    config.shell().set_verbosity(Verbosity::Normal);
+    let mut opts = CompileOptions::new(config, CompileMode::Build)?;
 
     opts.build_config.requested_kinds = vec![CompileKind::Target(CompileTarget::new(
         build_target.rust_triple(),
@@ -93,7 +94,6 @@ pub fn compile_macroquad_rust_for_android(
     }
 
     // Create executor
-    // let nostrip = options.is_present("nostrip");
     let executor: Arc<dyn Executor> = Arc::new(SharedLibraryExecutor {
         min_sdk_version: target_sdk_version,
         ndk_path: ndk.ndk_path().to_path_buf(),
@@ -109,8 +109,6 @@ pub fn compile_macroquad_rust_for_android(
 
     // Remove the shared library from the reference counted mutex
     let shared_library_filename = shared_library_filename.lock().unwrap();
-    // let shared_library_filename = std::mem::replace(&mut *shared_library_filename,
-    // String::new());
 
     Ok((*shared_library_filename).clone())
 }
@@ -126,7 +124,7 @@ struct SharedLibraryExecutor {
     release: bool,
     nostrip: bool,
 
-    // Shared libraries built by the executor are added to this multimap
+    // File name of the shared library generated
     shared_library_filename: Arc<Mutex<String>>,
 }
 
@@ -325,8 +323,9 @@ mod cargo_apk_glue_code {
             //
             // Execute the command
             //
-            cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
-                .map(drop)?;
+            // cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
+            //     .map(drop)?;
+            // cmd.exec()?;
 
             // Execute the command again with the print flag to determine the name of the produced
             // shared library and then add it to the list of shared librares to be added to the APK
