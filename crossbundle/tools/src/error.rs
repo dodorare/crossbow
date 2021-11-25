@@ -36,6 +36,8 @@ pub enum AndroidError {
     InvalidBuildTarget(String),
     /// Failed to find AndroidManifest.xml in path: {0}
     FailedToFindAndroidManifest(String),
+    /// Unable to find NDK file
+    UnableToFindNDKFile,
     /// AndroidManifest error
     AndroidManifest(#[from] android_manifest::error::Error),
 }
