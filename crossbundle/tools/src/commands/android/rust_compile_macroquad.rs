@@ -3,22 +3,28 @@ use crate::tools::*;
 use crate::types::*;
 
 use anyhow::format_err;
-use cargo::core::compiler::Executor;
-use cargo::core::compiler::{CompileKind, CompileMode, CompileTarget};
-use cargo::core::manifest::TargetSourcePath;
-use cargo::core::resolver::CliFeatures;
-use cargo::core::shell::Verbosity;
-use cargo::core::{PackageId, TargetKind, Workspace};
-use cargo::ops::CompileOptions;
-use cargo::util::{CargoResult, Config as CargoConfig};
+use cargo::{
+    core::{
+        compiler::{CompileKind, CompileMode, CompileTarget, Executor},
+        manifest::TargetSourcePath,
+        resolver::CliFeatures,
+        shell::Verbosity,
+        {PackageId, TargetKind, Workspace},
+    },
+    ops::CompileOptions,
+    util::{CargoResult, Config as CargoConfig},
+};
 use cargo_util::ProcessBuilder;
-use std::ffi::{OsStr, OsString};
-use std::fs;
-use std::fs::File;
-use std::io::Write;
-use std::path::Path;
-use std::path::PathBuf;
-use std::sync::{Arc, Mutex};
+use std::{
+    ffi::{OsStr, OsString},
+    fs,
+    fs::File,
+    io::Write,
+    path::Path,
+    path::PathBuf,
+    sync::{Arc, Mutex},
+};
+use tempfile::Builder;
 
 #[derive(Debug, Default)]
 pub struct SharedLibrary {
@@ -159,18 +165,20 @@ impl Executor for SharedLibraryExecutor {
             // Generate source file that will be built
             //
             // Determine the name of the temporary file
-            let tmp_lib_filepath = original_src_filepath.parent().unwrap().join(format!(
-                "__cargo_apk_{}.tmp",
+            let tmp_lib_file_prefix = format!(
+                "__cargo_apk_{}",
                 original_src_filepath
                     .file_stem()
                     .map(|s| s.to_string_lossy().into_owned())
                     .unwrap_or_else(String::new)
-            ));
+            );
 
             // Create the temporary file
-            let original_contents = fs::read_to_string(original_src_filepath).unwrap();
-            let tmp_file = util::TempFile::new(tmp_lib_filepath.clone(), |lib_src_file| {
-                let extra_code = r##"
+            let mut tmp_file = Builder::new()
+                .prefix(&tmp_lib_file_prefix)
+                .tempfile_in(original_src_filepath.parent().unwrap())?;
+
+            let extra_code = r##"
 mod cargo_apk_glue_code {
     extern "C" {
         pub fn sapp_ANativeActivity_onCreate(
@@ -197,12 +205,9 @@ mod cargo_apk_glue_code {
     #[link(name = "GLESv3")]
     extern "C" {}
 }"##;
-                writeln!( lib_src_file, "{}\n{}", original_contents, extra_code)?;
 
-                Ok(())
-            }).map_err(|e| format_err!(
-                "Unable to create temporary source file `{}`. Source directory must be writable. Cargo-apk creates temporary source files as part of the build process. {}.", tmp_lib_filepath.to_string_lossy(), e)
-            )?;
+            let original_contents = fs::read_to_string(original_src_filepath).unwrap();
+            writeln!(tmp_file, "{}\n{}", original_contents, extra_code)?;
 
             //
             // Replace source argument
@@ -227,7 +232,7 @@ mod cargo_apk_glue_code {
                 // includes "/" instead of "\"
                 let path_arg = Path::new(&source_arg);
                 let mut path_arg = path_arg.to_path_buf();
-                path_arg.set_file_name(tmp_file.path.file_name().unwrap());
+                path_arg.set_file_name(tmp_file.path().file_name().unwrap());
                 *source_arg = path_arg.into_os_string();
             } else {
                 return Err(format_err!(
@@ -397,76 +402,8 @@ include("{ndk_path}/build/cmake/android.toolchain.cmake")"#,
 
 mod util {
     use super::*;
-    use cargo::core::{Target, TargetKind, Workspace};
     use cargo::util::CargoResult;
-    use cargo_util::ProcessBuilder;
-    use std::ffi::OsStr;
-    use std::fs::File;
     use std::path::{Path, PathBuf};
-
-    /// Temporary file implementation that allows creating a file with a specified path
-    /// which will be deleted when dropped.
-    pub struct TempFile {
-        pub path: PathBuf,
-    }
-
-    impl TempFile {
-        /// Create a new `TempFile` using the contents provided by a closure.
-        /// If the file already exists, it will be overwritten and then deleted when the
-        /// instance is dropped.
-        pub fn new<F>(path: PathBuf, write_contents: F) -> CargoResult<TempFile>
-        where
-            F: FnOnce(&mut File) -> CargoResult<()>,
-        {
-            let tmp_file = TempFile { path };
-
-            // Write the contents to the the temp file
-            let mut file = File::create(&tmp_file.path)?;
-            write_contents(&mut file)?;
-
-            Ok(tmp_file)
-        }
-    }
-
-    impl Drop for TempFile {
-        fn drop(&mut self) {
-            std::fs::remove_file(&self.path).unwrap_or_else(|e| {
-                eprintln!(
-                    "Unable to remove temporary file: {}. {}",
-                    &self.path.to_string_lossy(),
-                    &e
-                );
-            })
-        }
-    }
-
-    /// Returns the directory in which all cargo apk artifacts for the current
-    /// debug/release configuration should be produced.
-    pub fn get_root_build_directory(workspace: &Workspace, release: bool) -> PathBuf {
-        let android_artifacts_dir = workspace
-            .target_dir()
-            .join("android-artifacts")
-            .into_path_unlocked();
-
-        if release {
-            android_artifacts_dir.join("release")
-        } else {
-            android_artifacts_dir.join("debug")
-        }
-    }
-
-    /// Returns the sub directory within the root build directory for the specified
-    /// target.
-    pub fn get_target_directory(root_build_dir: &PathBuf, target: &Target) -> CargoResult<PathBuf> {
-        let target_directory = match target.kind() {
-            TargetKind::Bin => root_build_dir.join("bin"),
-            TargetKind::ExampleBin => root_build_dir.join("examples"),
-            _ => unreachable!("Unexpected target kind"),
-        };
-
-        let target_directory = target_directory.join(target.name());
-        Ok(target_directory)
-    }
 
     /// Returns path to NDK provided make
     pub fn make_path(ndk_path: &Path) -> PathBuf {
@@ -525,63 +462,6 @@ mod util {
         Err(format_err!("Unable to find NDK file"))
     }
 
-    // Returns path to clang executable/script that should be used to build the target
-    pub fn find_clang(
-        min_sdk_version: u32,
-        ndk_path: &Path,
-        build_target: AndroidTarget,
-    ) -> CargoResult<PathBuf> {
-        let bin_folder = llvm_toolchain_root(ndk_path).join("bin");
-        find_ndk_path(min_sdk_version, |platform| {
-            bin_folder.join(format!(
-                "{}{}-clang{}",
-                build_target.ndk_llvm_triple(),
-                platform,
-                EXECUTABLE_SUFFIX_CMD
-            ))
-        })
-        .map_err(|_| format_err!("Unable to find NDK clang"))
-    }
-
-    // Returns path to clang++ executable/script that should be used to build the target
-    pub fn find_clang_cpp(
-        min_sdk_version: u32,
-        ndk_path: &Path,
-        build_target: AndroidTarget,
-    ) -> CargoResult<PathBuf> {
-        let bin_folder = llvm_toolchain_root(ndk_path).join("bin");
-        find_ndk_path(min_sdk_version, |platform| {
-            bin_folder.join(format!(
-                "{}{}-clang++{}",
-                build_target.ndk_llvm_triple(),
-                platform,
-                EXECUTABLE_SUFFIX_CMD
-            ))
-        })
-        .map_err(|_| format_err!("Unable to find NDK clang++"))
-    }
-
-    // Returns path to ar.
-    pub fn find_ar(
-        min_sdk_version: u32,
-        ndk_path: &Path,
-        build_target: AndroidTarget,
-    ) -> CargoResult<PathBuf> {
-        let ar_path = llvm_toolchain_root(ndk_path).join("bin").join(format!(
-            "{}-ar{}",
-            build_target.ndk_triple(),
-            EXECUTABLE_SUFFIX_EXE
-        ));
-        if ar_path.exists() {
-            Ok(ar_path)
-        } else {
-            Err(format_err!(
-                "Unable to find ar at `{}`",
-                ar_path.to_string_lossy()
-            ))
-        }
-    }
-
     #[cfg(all(target_os = "windows", target_pointer_width = "64"))]
     const HOST_TAG: &str = "windows-x86_64";
 
@@ -600,18 +480,9 @@ mod util {
     #[cfg(target_os = "windows")]
     const EXECUTABLE_SUFFIX_EXE: &str = ".exe";
 
-    #[cfg(not(target_os = "windows"))]
-    const EXECUTABLE_SUFFIX_EXE: &str = "";
-
     #[cfg(target_os = "windows")]
     const EXECUTABLE_SUFFIX_CMD: &str = ".cmd";
 
-    #[cfg(not(target_os = "windows"))]
-    const EXECUTABLE_SUFFIX_CMD: &str = "";
-
     #[cfg(target_os = "windows")]
     pub const EXECUTABLE_SUFFIX_BAT: &str = ".bat";
-
-    #[cfg(not(target_os = "windows"))]
-    pub const EXECUTABLE_SUFFIX_BAT: &str = "";
 }
