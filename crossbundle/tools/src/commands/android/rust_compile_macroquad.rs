@@ -36,7 +36,7 @@ pub struct SharedLibrary {
 /// Compile macroquuad rust code for android
 pub fn compile_macroquad_rust_for_android(
     ndk: &AndroidNdk,
-    target: Target,
+    _target: Target,
     build_target: AndroidTarget,
     project_path: &Path,
     profile: Profile,
@@ -101,8 +101,8 @@ pub fn compile_macroquad_rust_for_android(
 
     // Create executor
     let executor: Arc<dyn Executor> = Arc::new(SharedLibraryExecutor {
-        min_sdk_version: target_sdk_version,
         ndk_path: ndk.ndk_path().to_path_buf(),
+        llvm_path: ndk.toolchain_dir()?,
         release: false,
         build_target_dir: build_target_dir.clone(),
         build_target,
@@ -121,8 +121,8 @@ pub fn compile_macroquad_rust_for_android(
 
 /// Executor which builds binary and example targets as static libraries
 struct SharedLibraryExecutor {
-    min_sdk_version: u32,
     ndk_path: PathBuf,
+    llvm_path: PathBuf,
 
     build_target_dir: PathBuf,
     build_target: AndroidTarget,
@@ -271,7 +271,7 @@ mod cargo_apk_glue_code {
             }
 
             // Determine paths
-            let tool_root = util::llvm_toolchain_root(&self.ndk_path);
+            let tool_root = &self.llvm_path;
             let linker_path = tool_root
                 .join("bin")
                 .join(format!("{}-ld.gold", &self.build_target.ndk_triple()));
@@ -280,10 +280,7 @@ mod cargo_apk_glue_code {
                 .join("usr")
                 .join("lib")
                 .join(&self.build_target.ndk_triple());
-            let version_specific_libraries_path =
-                util::find_ndk_path(self.min_sdk_version, |platform| {
-                    version_independent_libraries_path.join(platform.to_string())
-                })?;
+            let version_specific_libraries_path = &self.ndk_path;
             let gcc_lib_path = tool_root
                 .join("lib/gcc")
                 .join(&self.build_target.ndk_triple())
@@ -401,65 +398,11 @@ include("{ndk_path}/build/cmake/android.toolchain.cmake")"#,
 }
 
 mod util {
-    use super::*;
-    use cargo::util::CargoResult;
     use std::path::{Path, PathBuf};
 
     /// Returns path to NDK provided make
     pub fn make_path(ndk_path: &Path) -> PathBuf {
         ndk_path.join("prebuild").join(HOST_TAG).join("make")
-    }
-
-    /// Returns the path to the LLVM toolchain provided by the NDK
-    pub fn llvm_toolchain_root(ndk_path: &Path) -> PathBuf {
-        ndk_path
-            .join("toolchains")
-            .join("llvm")
-            .join("prebuilt")
-            .join(HOST_TAG)
-    }
-
-    // TODO: Fix this function logic (don't do while loop)
-
-    // Helper function for looking for a path based on the platform version
-    // Calls a closure for each attempt and then return the PathBuf for the first file that
-    // exists. Uses approach that NDK build tools use which is described at:
-    // https://developer.android.com/ndk/guides/application_mk
-    // " - The platform version matching APP_PLATFORM.
-    //   - The next available API level below APP_PLATFORM. For example, android-19 will be
-    //     used when APP_PLATFORM is android-20, since there were no new native APIs in
-    //     android-20.
-    //   - The minimum API level supported by the NDK."
-    pub fn find_ndk_path<F>(platform: u32, path_builder: F) -> CargoResult<PathBuf>
-    where
-        F: Fn(u32) -> PathBuf,
-    {
-        let mut tmp_platform = platform;
-
-        // Look for the file which matches the specified platform
-        // If that doesn't exist, look for a lower version
-        while tmp_platform > 1 {
-            let path = path_builder(tmp_platform);
-            if path.exists() {
-                return Ok(path);
-            }
-
-            tmp_platform -= 1;
-        }
-
-        // If that doesn't exist... Look for a higher one. This would be the minimum API level
-        // supported by the NDK
-        tmp_platform = platform;
-        while tmp_platform < 100 {
-            let path = path_builder(tmp_platform);
-            if path.exists() {
-                return Ok(path);
-            }
-
-            tmp_platform += 1;
-        }
-
-        Err(format_err!("Unable to find NDK file"))
     }
 
     #[cfg(all(target_os = "windows", target_pointer_width = "64"))]
