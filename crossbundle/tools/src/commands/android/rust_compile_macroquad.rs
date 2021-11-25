@@ -26,17 +26,9 @@ use std::{
 };
 use tempfile::Builder;
 
-#[derive(Debug, Default)]
-pub struct SharedLibrary {
-    pub abi: AndroidTarget,
-    pub path: PathBuf,
-    pub filename: String,
-}
-
 /// Compile macroquuad rust code for android
 pub fn compile_macroquad_rust_for_android(
     ndk: &AndroidNdk,
-    _target: Target,
     build_target: AndroidTarget,
     project_path: &Path,
     profile: Profile,
@@ -79,7 +71,7 @@ pub fn compile_macroquad_rust_for_android(
     )?;
     std::env::set_var("CMAKE_TOOLCHAIN_FILE", cmake_toolchain_path);
     std::env::set_var("CMAKE_GENERATOR", r#"Unix Makefiles"#);
-    std::env::set_var("CMAKE_MAKE_PROGRAM", util::make_path(ndk.ndk_path()));
+    std::env::set_var("CMAKE_MAKE_PROGRAM", make_path(ndk.ndk_path()));
 
     // Configure compilation options so that we will build the desired build_target
     let config = workspace.config();
@@ -92,7 +84,7 @@ pub fn compile_macroquad_rust_for_android(
 
     // Set features options
     opts.cli_features =
-        CliFeatures::from_command_line(&features, all_features, no_default_features).unwrap();
+        CliFeatures::from_command_line(&features, all_features, no_default_features)?;
 
     // Set profile
     if profile == Profile::Release {
@@ -101,9 +93,9 @@ pub fn compile_macroquad_rust_for_android(
 
     // Create executor
     let executor: Arc<dyn Executor> = Arc::new(SharedLibraryExecutor {
-        ndk_path: ndk.ndk_path().to_path_buf(),
-        llvm_path: ndk.toolchain_dir()?,
-        release: false,
+        ndk: ndk.clone(),
+        target_sdk_version,
+        profile,
         build_target_dir: build_target_dir.clone(),
         build_target,
         nostrip: false,
@@ -114,20 +106,20 @@ pub fn compile_macroquad_rust_for_android(
     cargo::ops::compile_with_exec(&workspace, &opts, &executor)?;
 
     // Remove the shared library from the reference counted mutex
-    let shared_library_filename = shared_library_filename.lock().unwrap();
+    let shared_library_filename = (*shared_library_filename.lock().unwrap()).clone();
 
-    Ok((*shared_library_filename).clone())
+    Ok(shared_library_filename)
 }
 
 /// Executor which builds binary and example targets as static libraries
 struct SharedLibraryExecutor {
-    ndk_path: PathBuf,
-    llvm_path: PathBuf,
+    ndk: AndroidNdk,
+    target_sdk_version: u32,
 
     build_target_dir: PathBuf,
     build_target: AndroidTarget,
 
-    release: bool,
+    profile: Profile,
     nostrip: bool,
 
     // File name of the shared library generated
@@ -149,9 +141,7 @@ impl Executor for SharedLibraryExecutor {
         {
             let mut new_args = cmd.get_args().to_owned();
 
-            //
             // Determine source path
-            //
             let path = if let TargetSourcePath::Path(path) = target.src_path() {
                 path.to_owned()
             } else {
@@ -161,7 +151,6 @@ impl Executor for SharedLibraryExecutor {
 
             let original_src_filepath = path.canonicalize()?;
 
-            //
             // Generate source file that will be built
             //
             // Determine the name of the temporary file
@@ -209,9 +198,7 @@ mod cargo_apk_glue_code {
             let original_contents = fs::read_to_string(original_src_filepath).unwrap();
             writeln!(tmp_file, "{}\n{}", original_contents, extra_code)?;
 
-            //
             // Replace source argument
-            //
             let filename = path.file_name().unwrap().to_owned();
             let source_arg = new_args.iter_mut().find_map(|arg| {
                 let path_arg = Path::new(&arg);
@@ -241,16 +228,12 @@ mod cargo_apk_glue_code {
                 ));
             }
 
-            //
             // Create output directory inside the build target directory
-            //
             let build_path = self.build_target_dir.to_path_buf();
             fs::create_dir_all(&build_path).unwrap();
 
-            //
             // Change crate-type from bin to cdylib
             // Replace output directory with the directory we created
-            //
             let mut iter = new_args.iter_mut().rev().peekable();
             while let Some(arg) = iter.next() {
                 if let Some(prev_arg) = iter.peek() {
@@ -271,7 +254,7 @@ mod cargo_apk_glue_code {
             }
 
             // Determine paths
-            let tool_root = &self.llvm_path;
+            let tool_root = &self.ndk.toolchain_dir().unwrap();
             let linker_path = tool_root
                 .join("bin")
                 .join(format!("{}-ld.gold", &self.build_target.ndk_triple()));
@@ -280,7 +263,11 @@ mod cargo_apk_glue_code {
                 .join("usr")
                 .join("lib")
                 .join(&self.build_target.ndk_triple());
-            let version_specific_libraries_path = &self.ndk_path;
+            let version_specific_libraries_path =
+                AndroidNdk::find_ndk_path(self.target_sdk_version, |platform| {
+                    version_independent_libraries_path.join(platform.to_string())
+                })
+                .map_err(|_| format_err!("unable to find NDK file"))?; // TODO: Fix this error casting
             let gcc_lib_path = tool_root
                 .join("lib/gcc")
                 .join(&self.build_target.ndk_triple())
@@ -309,10 +296,8 @@ mod cargo_apk_glue_code {
             new_args.push(build_arg("-Clink-arg=-L", gcc_lib_path));
 
             // Strip symbols for release builds
-            if self.nostrip == false {
-                if self.release {
-                    new_args.push("-Clink-arg=-strip-all".into());
-                }
+            if self.nostrip == false && self.profile == Profile::Release {
+                new_args.push("-Clink-arg=-strip-all".into());
             }
 
             // Require position independent code
@@ -322,12 +307,9 @@ mod cargo_apk_glue_code {
             let mut cmd = cmd.clone();
             cmd.args_replace(&new_args);
 
-            //
             // Execute the command
-            //
-            // cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
-            //     .map(drop)?;
-            // cmd.exec()?;
+            cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
+                .map(drop)?;
 
             // Execute the command again with the print flag to determine the name of the produced
             // shared library and then add it to the list of shared librares to be added to the APK
@@ -342,9 +324,7 @@ mod cargo_apk_glue_code {
         } else if mode == CompileMode::Build {
             let mut new_args = cmd.get_args().to_owned();
 
-            //
             // Change crate-type from cdylib to rlib
-            //
             let mut iter = new_args.iter_mut().rev().peekable();
             while let Some(arg) = iter.next() {
                 if let Some(prev_arg) = iter.peek() {
@@ -397,35 +377,19 @@ include("{ndk_path}/build/cmake/android.toolchain.cmake")"#,
     Ok(toolchain_path)
 }
 
-mod util {
-    use std::path::{Path, PathBuf};
-
-    /// Returns path to NDK provided make
-    pub fn make_path(ndk_path: &Path) -> PathBuf {
-        ndk_path.join("prebuild").join(HOST_TAG).join("make")
-    }
-
-    #[cfg(all(target_os = "windows", target_pointer_width = "64"))]
-    const HOST_TAG: &str = "windows-x86_64";
-
-    #[cfg(all(target_os = "windows", target_pointer_width = "32"))]
-    const HOST_TAG: &str = "windows";
-
-    #[cfg(target_os = "linux")]
-    const HOST_TAG: &str = "linux-x86_64";
-
-    #[cfg(target_os = "macos")]
-    const HOST_TAG: &str = "darwin-x86_64";
-
-    // These are executable suffixes used to simplify building commands.
-    // On non-windows platforms they are empty.
-
-    #[cfg(target_os = "windows")]
-    const EXECUTABLE_SUFFIX_EXE: &str = ".exe";
-
-    #[cfg(target_os = "windows")]
-    const EXECUTABLE_SUFFIX_CMD: &str = ".cmd";
-
-    #[cfg(target_os = "windows")]
-    pub const EXECUTABLE_SUFFIX_BAT: &str = ".bat";
+/// Returns path to NDK provided make
+fn make_path(ndk_path: &Path) -> PathBuf {
+    ndk_path.join("prebuild").join(HOST_TAG).join("make")
 }
+
+#[cfg(all(target_os = "windows", target_pointer_width = "64"))]
+const HOST_TAG: &str = "windows-x86_64";
+
+#[cfg(all(target_os = "windows", target_pointer_width = "32"))]
+const HOST_TAG: &str = "windows";
+
+#[cfg(target_os = "linux")]
+const HOST_TAG: &str = "linux-x86_64";
+
+#[cfg(target_os = "macos")]
+const HOST_TAG: &str = "darwin-x86_64";

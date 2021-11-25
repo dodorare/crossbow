@@ -80,7 +80,6 @@ impl AndroidBuildCommand {
             if self.shared.quad {
                 lib_name = android::compile_macroquad_rust_for_android(
                     &ndk,
-                    target.clone(),
                     *build_target,
                     &project_path,
                     profile,

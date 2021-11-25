@@ -3,7 +3,7 @@ use crate::types::AndroidTarget;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct AndroidNdk {
     ndk_path: PathBuf,
 }
@@ -159,5 +159,40 @@ impl AndroidNdk {
             tmp_platform += 1;
         }
         Err(AndroidError::PlatformNotFound(min_sdk_version).into())
+    }
+
+    /// Helper function for looking for a path based on the platform version
+    /// Calls a closure for each attempt and then return the PathBuf for the first file that exists.
+    /// Uses approach that NDK build tools use which is described at:
+    /// https://developer.android.com/ndk/guides/application_mk
+    /// " - The platform version matching APP_PLATFORM.
+    ///   - The next available API level below APP_PLATFORM. For example, android-19 will be used when
+    ///     APP_PLATFORM is android-20, since there were no new native APIs in android-20.
+    ///   - The minimum API level supported by the NDK."
+    pub fn find_ndk_path<F>(platform: u32, path_builder: F) -> Result<PathBuf>
+    where
+        F: Fn(u32) -> PathBuf,
+    {
+        let mut tmp_platform = platform;
+        // Look for the file which matches the specified platform
+        // If that doesn't exist, look for a lower version
+        while tmp_platform > 1 {
+            let path = path_builder(tmp_platform);
+            if path.exists() {
+                return Ok(path);
+            }
+            tmp_platform -= 1;
+        }
+        // If that doesn't exist... Look for a higher one. This would be the minimum API level supported by the NDK
+        tmp_platform = platform;
+        while tmp_platform < 100 {
+            let path = path_builder(tmp_platform);
+            if path.exists() {
+                return Ok(path);
+            }
+
+            tmp_platform += 1;
+        }
+        Err(AndroidError::UnableToFindNDKFile.into())
     }
 }
