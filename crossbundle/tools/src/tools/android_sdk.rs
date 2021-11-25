@@ -87,7 +87,7 @@ impl AndroidSdk {
     }
 
     pub fn aapt2(&self) -> Result<Aapt2> {
-        self.build_tool("aapt2", None)?;
+        self.build_tool(bin!("aapt2"), None)?;
         Ok(Aapt2)
     }
 

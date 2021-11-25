@@ -3,7 +3,7 @@ use crate::error::*;
 use android_manifest::AndroidManifest;
 use clap::Parser;
 use crossbundle_tools::{
-    commands::android::{self, remove_content, AabKey},
+    commands::android::{self, remove, AabKey},
     tools::*,
     types::*,
     utils::Config,
@@ -55,13 +55,15 @@ impl AndroidBuildCommand {
         config: &Config,
         context: &BuildContext,
     ) -> Result<(AndroidManifest, AndroidSdk, PathBuf)> {
-        let (project_path, target_dir, profile, target, package_name) =
-            self.needed_project_dirs(context)?;
+        let profile = self.shared.profile();
+        let example = self.shared.example.as_ref();
+        let (project_path, target_dir, target, package_name) =
+            Self::needed_project_dirs(example, context)?;
         config.status_message("Starting build process", &package_name)?;
-        let (sdk, ndk, target_sdk_version) = self.android_toolchain(context)?;
+        let (sdk, ndk, target_sdk_version) = Self::android_toolchain(context)?;
         config.status_message("Generating", "AndroidManifest.xml")?;
         let android_build_dir = target_dir.join("android").join(&profile);
-        let (android_manifest, manifest_path) = self.android_manifest(
+        let (android_manifest, manifest_path) = Self::android_manifest(
             context,
             &sdk,
             package_name.to_string(),
@@ -170,13 +172,15 @@ impl AndroidBuildCommand {
         config: &Config,
         context: &BuildContext,
     ) -> Result<(AndroidManifest, AndroidSdk, PathBuf, String, AabKey)> {
-        let (project_path, target_dir, profile, target, package_name) =
-            self.needed_project_dirs(context)?;
+        let profile = self.shared.profile();
+        let example = self.shared.example.as_ref();
+        let (project_path, target_dir, target, package_name) =
+            Self::needed_project_dirs(example, context)?;
         config.status_message("Starting build process", &package_name)?;
-        let (sdk, ndk, target_sdk_version) = self.android_toolchain(context)?;
+        let (sdk, ndk, target_sdk_version) = Self::android_toolchain(context)?;
         config.status_message("Generating", "AndroidManifest.xml")?;
         let android_build_dir = target_dir.join("android").join(&profile);
-        let (android_manifest, manifest_path) = self.android_manifest(
+        let (android_manifest, manifest_path) = Self::android_manifest(
             context,
             &sdk,
             package_name.to_string(),
@@ -213,7 +217,7 @@ impl AndroidBuildCommand {
         }
 
         let compiled_res = if let Some(res) = context.android_res() {
-            let aapt2_compile = Aapt2.compile_incremental(
+            let aapt2_compile = sdk.aapt2()?.compile_incremental(
                 dunce::simplified(&res),
                 &dunce::simplified(&compiled_res_path).to_owned(),
             );
@@ -224,7 +228,9 @@ impl AndroidBuildCommand {
         };
 
         let apk_path = android_build_dir.join(format!("{}_module.apk", package_name));
-        let mut aapt2_link = Aapt2.link_compiled_res(compiled_res, &apk_path, &manifest_path);
+        let mut aapt2_link =
+            sdk.aapt2()?
+                .link_compiled_res(compiled_res, &apk_path, &manifest_path);
         aapt2_link
             .android_jar(sdk.android_jar(target_sdk_version)?)
             .assets(context.android_assets().unwrap())
@@ -274,10 +280,7 @@ impl AndroidBuildCommand {
             &android_build_dir,
         )?;
 
-        remove_content(
-            &android_build_dir,
-            vec![gen_zip_modules, extracted_apk_path],
-        )?;
+        remove(vec![gen_zip_modules, extracted_apk_path])?;
 
         config.status_message("Generating", "debug signing key")?;
         let key = if let Some(key_path) = self.sign_key_path.clone() {
@@ -311,21 +314,20 @@ impl AndroidBuildCommand {
     }
 
     fn needed_project_dirs(
-        &self,
+        example: Option<&String>,
         context: &BuildContext,
-    ) -> Result<(PathBuf, PathBuf, Profile, Target, String)> {
+    ) -> Result<(PathBuf, PathBuf, Target, String)> {
         let project_path: PathBuf = context.project_path.clone();
         let target_dir: PathBuf = context.target_dir.clone();
-        let profile: Profile = self.shared.profile();
-        let (target, package_name) = if let Some(example) = &self.shared.example {
+        let (target, package_name) = if let Some(example) = example {
             (Target::Example(example.clone()), example.clone())
         } else {
             (Target::Lib, context.package_name())
         };
-        Ok((project_path, target_dir, profile, target, package_name))
+        Ok((project_path, target_dir, target, package_name))
     }
 
-    fn android_toolchain(&self, context: &BuildContext) -> Result<(AndroidSdk, AndroidNdk, u32)> {
+    fn android_toolchain(context: &BuildContext) -> Result<(AndroidSdk, AndroidNdk, u32)> {
         let sdk = AndroidSdk::from_env()?;
         let ndk = AndroidNdk::from_env(Some(sdk.sdk_path()))?;
         let target_sdk_version = context.target_sdk_version(&sdk);
@@ -333,7 +335,6 @@ impl AndroidBuildCommand {
     }
 
     fn android_manifest(
-        &self,
         context: &BuildContext,
         sdk: &AndroidSdk,
         package_name: String,

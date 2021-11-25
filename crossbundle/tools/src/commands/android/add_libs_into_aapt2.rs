@@ -60,3 +60,57 @@ pub fn add_lib_aapt2(lib_path: &Path, out_dir: &Path) -> Result<()> {
     fs_extra::file::copy(&lib_path, out_dir.join(&filename), &options)?;
     Ok(())
 }
+
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
+//     use crate::{
+//         commands::android::{self},
+//         tools::AndroidSdk,
+//         types::Target,
+//     };
+
+//     #[test]
+//     fn add_libs_into_aapt2_test() {
+//         let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+//         let dir = user_dirs.parent().unwrap().parent().unwrap().to_path_buf();
+//         let project_path = dir.join("examples\\bevy-2d\\");
+//         let package_name = "test_lib".to_string();
+//         let sdk = AndroidSdk::from_env().unwrap();
+//         let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
+//         let target_sdk_version = 30;
+//         let profile = Profile::Debug;
+//         let build_target = AndroidTarget::Aarch64LinuxAndroid;
+//         android::compile_rust_for_android(
+//             &ndk,
+//             Target::Lib,
+//             build_target,
+//             &project_path,
+//             profile,
+//             vec![],
+//             false,
+//             false,
+//             target_sdk_version,
+//         )
+//         .unwrap();
+
+//         let target_dir = project_path.join("target");
+//         let out_dir = target_dir
+//             .join(build_target.rust_triple())
+//             .join(profile.as_ref());
+//         let compiled_lib = out_dir.join(format!("lib{}.so", package_name));
+//         assert!(compiled_lib.exists());
+//         let android_build_dir = target_dir.join("android").join(profile.to_string());
+
+//         add_libs_into_aapt2(
+//             &ndk,
+//             &compiled_lib,
+//             build_target,
+//             profile,
+//             target_sdk_version,
+//             &android_build_dir,
+//             &target_dir,
+//         )
+//         .unwrap();
+//     }
+// }

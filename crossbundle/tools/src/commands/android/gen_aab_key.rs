@@ -76,3 +76,21 @@ pub fn keytool() -> Result<Command> {
     }
     Err(Error::CmdNotFound("keytool".to_string()))
 }
+
+#[cfg(test)]
+mod tests {
+
+    use super::{gen_aab_key, AabKey};
+    use crate::commands::android::android_dir;
+
+    #[test]
+    fn gen_aab_key_test() {
+        let android_dir = android_dir().unwrap();
+        let target = vec![android_dir.join("aab.keystore")];
+        crate::commands::android::remove(target).unwrap();
+
+        let aab_key = AabKey::default();
+        let key_path = gen_aab_key(aab_key).unwrap();
+        println!("{:?}", &key_path);
+    }
+}
