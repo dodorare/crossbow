@@ -46,3 +46,42 @@ fn jarsigner_tool() -> Result<Command> {
     }
     Err(Error::CmdNotFound("jarsigner".to_string()))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{
+        commands::android::{gen_aab_key, gen_minimal_unsigned_aab, remove},
+        tools::AndroidSdk,
+    };
+
+    use gen_aab_key::android_dir;
+
+    #[test]
+    fn test_jarsigner() {
+        // Creates a temporary directory
+        let tempdir = tempfile::tempdir().unwrap();
+        let aab_build_dir = tempdir.path();
+
+        // Assigns configuration for aab generation
+        let sdk = AndroidSdk::from_env().unwrap();
+        let package_name = "minimal_unsigned_aab";
+        let target_sdk_version = 30;
+
+        // Generates minimal unsigned aab
+        let aab_path =
+            gen_minimal_unsigned_aab(sdk, package_name, target_sdk_version, aab_build_dir).unwrap();
+
+        // Removes old keystore if it exists
+        let android_dir = android_dir().unwrap();
+        let target = vec![android_dir.join("aab.keystore")];
+        remove(target).unwrap();
+
+        // Creates new keystore to sign aab
+        let aab_key = AabKey::default();
+        let key_path = gen_aab_key(aab_key).unwrap();
+
+        // Signs aab with key
+        jarsigner(&aab_path, &key_path).unwrap();
+    }
+}
