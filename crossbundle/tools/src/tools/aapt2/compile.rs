@@ -243,7 +243,7 @@ impl Aapt2Compile {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use crate::tools::AndroidSdk;
 
     #[test]
     fn aapt2_compile_new_test() {
@@ -252,12 +252,16 @@ mod tests {
         let dir = user_dirs.parent().unwrap().parent().unwrap().to_path_buf();
         let res_path = dir.join("examples\\bevy-2d\\res\\android\\mipmap-hdpi\\ic_launcher.png");
         res_path.canonicalize().unwrap();
+        let sdk = AndroidSdk::from_env().unwrap();
         let tempfile = tempfile::tempdir().unwrap();
         let compiled_res_dir = tempfile.path().to_path_buf();
         assert!(compiled_res_dir.exists());
 
         // Compiles resources
-        let compiled_res = Aapt2Compile::new(&res_path, &compiled_res_dir)
+        let compiled_res = sdk
+            .aapt2()
+            .unwrap()
+            .compile_incremental(&res_path, &compiled_res_dir)
             .run()
             .unwrap();
         assert!(compiled_res.exists());
@@ -270,12 +274,16 @@ mod tests {
         let dir = user_dirs.parent().unwrap().parent().unwrap().to_path_buf();
         let res_path = dir.join("examples\\bevy-3d\\assets\\models\\helmet");
         res_path.canonicalize().unwrap();
+        let sdk = AndroidSdk::from_env().unwrap();
         let tempfile = tempfile::tempdir().unwrap();
         let compiled_res_dir = tempfile.path().to_path_buf();
         assert!(compiled_res_dir.exists());
 
         // Compiles resources
-        let compiled_res = Aapt2Compile::new_from_res_dir(&res_path, &compiled_res_dir)
+        let compiled_res = sdk
+            .aapt2()
+            .unwrap()
+            .compile_dir(&res_path, &compiled_res_dir)
             .run()
             .unwrap();
         assert!(compiled_res.exists());

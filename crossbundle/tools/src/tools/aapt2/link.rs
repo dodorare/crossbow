@@ -65,7 +65,7 @@ pub struct Aapt2Link {
     config: Vec<String>,
     preferred_density: Option<i32>,
     product: Option<PathBuf>,
-    output_to_dir: bool,
+    output_to_dir: Option<PathBuf>,
     no_xml_namespaces: bool,
     min_sdk_version: Option<u32>,
     target_sdk_version: Option<u32>,
@@ -405,8 +405,8 @@ impl Aapt2Link {
     /// [`Android SDK Build Tools 28.0.0 or higher`].
     ///
     /// [`Android SDK Build Tools 28.0.0 or higher`]: https://developer.android.com/studio/releases/build-tools
-    pub fn output_to_dir(&mut self, output_to_dir: bool) -> &mut Self {
-        self.output_to_dir = output_to_dir;
+    pub fn output_to_dir(&mut self, output_to_dir: &PathBuf) -> &mut Self {
+        self.output_to_dir = Some(output_to_dir.to_path_buf());
         self
     }
 
@@ -671,8 +671,8 @@ impl Aapt2Link {
                 .arg("--preferred-density")
                 .arg(preferred_density.to_string());
         }
-        if self.output_to_dir {
-            aapt2.arg("--output-to-dir");
+        if let Some(output_to_dir) = &self.output_to_dir {
+            aapt2.arg("--output-to-dir").arg("-o").arg(output_to_dir);
         }
         if let Some(min_sdk_version) = self.min_sdk_version {
             aapt2
@@ -833,28 +833,29 @@ impl Aapt2Link {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        commands::android,
-        tools::{Aapt2, Aapt2Link, AndroidSdk},
-    };
+    use crate::{commands::android, tools::AndroidSdk};
 
     #[test]
     fn test_command_run() {
         // Creates a temporary directory and specify resources
-        let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        let dir = user_dirs.parent().unwrap().parent().unwrap().to_path_buf();
-        let res_path = dir.join("examples\\bevy-2d\\res\\android\\mipmap-hdpi\\ic_launcher.png");
-        res_path.canonicalize().unwrap();
         let tempfile = tempfile::tempdir().unwrap();
         let tempdir = tempfile.path().to_path_buf();
 
+        // Specifies path to needed resources
+        let sdk = AndroidSdk::from_env().unwrap();
+        let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let dir = user_dirs.parent().unwrap().parent().unwrap().to_path_buf();
+        let res_path = dir.join("examples\\bevy-2d\\res\\android\\mipmap-hdpi");
+        res_path.canonicalize().unwrap();
+
         // Compiles resources for aapt2 link
-        let aapt2_compile = Aapt2.compile_incremental(
+        let aapt2_compile = sdk.aapt2().unwrap().compile_dir(
             dunce::simplified(&res_path),
             &dunce::simplified(&tempdir).to_owned(),
         );
         let compiled_res = aapt2_compile.run().unwrap();
 
+        println!("compiled_res {:?}", compiled_res);
         // Generates minimal android manifest
         let manifest = android::gen_minimal_android_manifest(
             None,
@@ -874,14 +875,22 @@ mod tests {
         assert!(manifest_path.exists());
 
         // Generates apk file
-        let sdk = AndroidSdk::from_env().unwrap();
         let target_sdk_version = 30;
-        let apk_path = tempdir.join("test_apk");
-        let mut aapt2_link = Aapt2Link::new(&[compiled_res], &apk_path, &manifest_path);
+        let apk_path = tempdir.join("test.apk");
+        let extracted_files = tempdir.join("extracted_files");
+        if !extracted_files.exists() {
+            std::fs::create_dir_all(&extracted_files).unwrap();
+        }
+
+        let mut aapt2_link =
+            sdk.aapt2()
+                .unwrap()
+                .link_inputs(&[compiled_res], &apk_path, &manifest_path);
         aapt2_link
             .android_jar(sdk.android_jar(target_sdk_version).unwrap())
             .proto_format(true)
             .auto_add_overlay(true)
+            .output_to_dir(&extracted_files)
             .verbose(true);
         aapt2_link.run().unwrap();
     }
