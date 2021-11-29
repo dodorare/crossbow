@@ -74,11 +74,11 @@ impl AndroidBuildCommand {
         let build_targets = context.android_build_targets(&self.target);
         let mut compiled_libs = Vec::new();
         for build_target in build_targets.iter() {
-            let mut lib_name = format!("lib{}.so", package_name.replace("-", "_"));
+            let lib_name = format!("lib{}.so", package_name.replace("-", "_"));
             let rust_triple = build_target.rust_triple();
             config.status_message("Compiling for architecture", rust_triple)?;
             if self.shared.quad {
-                lib_name = android::compile_macroquad_rust_for_android(
+                android::compile_macroquad_rust_for_android(
                     &ndk,
                     *build_target,
                     &project_path,
@@ -87,8 +87,8 @@ impl AndroidBuildCommand {
                     self.shared.all_features,
                     self.shared.no_default_features,
                     target_sdk_version,
+                    &lib_name,
                 )?;
-                println!("{}", lib_name);
             } else {
                 android::compile_rust_for_android(
                     &ndk,
