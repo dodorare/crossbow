@@ -239,19 +239,31 @@ impl BuildApks {
             build_apks.arg("--ks").arg(ks);
         }
         if let Some(ks_pass_pass) = &self.ks_pass_pass {
-            build_apks.arg("--ks-pass=pass:").arg(ks_pass_pass);
+            build_apks
+                .arg("--ks-pass")
+                .arg(format!("pass:{}", ks_pass_pass));
         }
         if let Some(ks_pass_file) = &self.ks_pass_file {
-            build_apks.arg("--ks-pass=file:").arg(ks_pass_file);
+            build_apks.arg("--ks-pass").arg(format!(
+                "file:{}",
+                ks_pass_file.to_str().expect("Wrong ks_pass_file provided")
+            ));
         }
         if let Some(ks_key_alias) = &self.ks_key_alias {
             build_apks.arg("--ks-key-alias").arg(ks_key_alias);
         }
         if let Some(key_pass_pass) = &self.key_pass_pass {
-            build_apks.arg("--key-pass=pass").arg(key_pass_pass);
+            build_apks
+                .arg("--key-pass")
+                .arg(format!("pass:{}", key_pass_pass));
         }
         if let Some(key_pass_file) = &self.key_pass_file {
-            build_apks.arg("--key-pass=file").arg(key_pass_file);
+            build_apks.arg("--key-pass").arg(format!(
+                "file:{}",
+                key_pass_file
+                    .to_str()
+                    .expect("Wrong key_pass_file provided")
+            ));
         }
         if self.connected_device {
             build_apks.arg("--connected-device");
@@ -263,7 +275,7 @@ impl BuildApks {
             build_apks.arg("--device-spec").arg(device_spec);
         }
         if self.mode_universal {
-            build_apks.arg("--mode=universal");
+            build_apks.arg("--mode").arg("universal");
         }
         if self.local_testing {
             build_apks.arg("--local-testing");

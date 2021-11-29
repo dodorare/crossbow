@@ -3,6 +3,8 @@ use crate::error::*;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+// TODO: Replace this with bundletool tool
+
 /// After you build your Android App Bundle, you should test how Google Play uses it to
 /// generate APKs and how those APKs behave when deployed to a device. When `bundletool`
 /// generates APKs from your app bundle, it includes them in a container called an APK

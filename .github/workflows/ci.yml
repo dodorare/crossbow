@@ -20,8 +20,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - name: Install Android targets
-      run: rustup target add armv7-linux-androideabi aarch64-linux-android i686-linux-android x86_64-linux-android
+    - name: Install Android targets and upgrade rust
+      run: |
+        rustup upgrade
+        rustup target add armv7-linux-androideabi aarch64-linux-android i686-linux-android x86_64-linux-android
     - name: Install Crossbundle
       run: cargo install --git=https://github.com/dodorare/crossbow crossbundle
     - name: Build APK
