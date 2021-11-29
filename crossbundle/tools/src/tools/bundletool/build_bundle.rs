@@ -3,15 +3,16 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 /// ## Build your app bundle using bundletool
-/// To build your app bundle, you use the `bundletool build-bundle` command, as shown below:
+/// To build your app bundle, you use the `bundletool build-bundle` command, as shown
+/// below:
 ///
 /// ```xml
 /// bundletool build-bundle --modules=base.zip --output=mybundle.aab
 /// ```
 ///
 /// ## Note
-/// If you plan to publish the app bundle, you need to sign it using [`jarsigner`]. You can
-/// not use apksigner to sign your app bundle.
+/// If you plan to publish the app bundle, you need to sign it using [`jarsigner`]. You
+/// can not use apksigner to sign your app bundle.
 ///
 /// [`jarsigner`]::https://docs.oracle.com/javase/8/docs/technotes/tools/windows/jarsigner.html
 #[derive(Debug, PartialEq, PartialOrd)]
@@ -52,8 +53,8 @@ impl BuildBundle {
     /// or an app store.
     ///
     /// `target-bundle-path` specifies a path relative to the root of the app bundle where
-    /// you would like the metadata file to be packaged, and `local-file-path` specifies the
-    /// path to the local metadata file itself.
+    /// you would like the metadata file to be packaged, and `local-file-path` specifies
+    /// the path to the local metadata file itself.
     pub fn metadata_file(&mut self, metadata_file: &Path) -> &mut Self {
         self.metadata_file = Some(metadata_file.to_owned());
         self

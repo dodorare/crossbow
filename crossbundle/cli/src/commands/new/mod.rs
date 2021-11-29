@@ -5,7 +5,7 @@ use crossbundle_tools::{
     utils::Config,
 };
 
-const TEMPLATES_REPO: &str = "https://github.com/creator-rs/creator-templates.git";
+const TEMPLATES_REPO: &str = "https://github.com/dodorare/crossbundle-templates.git";
 
 #[derive(Parser, Clone, Debug)]
 pub struct NewCommand {

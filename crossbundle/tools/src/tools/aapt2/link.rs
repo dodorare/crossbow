@@ -198,9 +198,9 @@ impl Aapt2Link {
         self
     }
 
-    /// If `--version-code` and/or `--version-name` are specified, these values will replace
-    /// any value already in the manifest. By default, nothing is changed if the manifest
-    /// already defines these attributes
+    /// If `--version-code` and/or `--version-name` are specified, these values will
+    /// replace any value already in the manifest. By default, nothing is changed if
+    /// the manifest already defines these attributes
     pub fn replace_version(&mut self, replace_version: bool) -> &mut Self {
         self.replace_version = replace_version;
         self
@@ -239,8 +239,8 @@ impl Aapt2Link {
         self
     }
 
-    /// Package name to use when generating `R.java` for private symbols. If not specified,
-    /// public and private symbols will use the application's package name
+    /// Package name to use when generating `R.java` for private symbols. If not
+    /// specified, public and private symbols will use the application's package name
     pub fn private_symbols(&mut self, private_symbols: String) -> &mut Self {
         self.private_symbols = Some(private_symbols);
         self
@@ -305,8 +305,8 @@ impl Aapt2Link {
     ///
     /// Reserved package IDs are IDs that are normally assigned to shared libraries and
     /// are in the range from 0x02 to 0x7e inclusive. By using
-    /// `--allow-reserved-package-id`, you can assign IDs that fall in the range of reserved
-    /// package IDs.
+    /// `--allow-reserved-package-id`, you can assign IDs that fall in the range of
+    /// reserved package IDs.
     ///
     /// This should only be used for packages with a min-sdk version of 26 or lower
     pub fn allow_reserved_package_id(&mut self, allow_reserved_package_id: bool) -> &mut Self {
@@ -405,7 +405,7 @@ impl Aapt2Link {
     /// [`Android SDK Build Tools 28.0.0 or higher`].
     ///
     /// [`Android SDK Build Tools 28.0.0 or higher`]: https://developer.android.com/studio/releases/build-tools
-    pub fn output_to_dir(&mut self, output_to_dir: &PathBuf) -> &mut Self {
+    pub fn output_to_dir(&mut self, output_to_dir: &Path) -> &mut Self {
         self.output_to_dir = Some(output_to_dir.to_path_buf());
         self
     }

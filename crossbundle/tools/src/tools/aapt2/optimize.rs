@@ -52,8 +52,8 @@ impl Aapt2Optimize {
         self
     }
 
-    /// Path to the `resources.cfg` file containing the list of resources and directives to
-    /// each resource. ```Format: type/resource_name#[directive][,directive]```
+    /// Path to the `resources.cfg` file containing the list of resources and directives
+    /// to each resource. ```Format: type/resource_name#[directive][,directive]```
     pub fn resources_config_path(&mut self, resources_config_path: &Path) -> &mut Self {
         self.resources_config_path = Some(resources_config_path.to_owned());
         self

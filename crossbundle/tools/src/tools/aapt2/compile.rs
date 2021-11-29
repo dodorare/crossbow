@@ -42,8 +42,9 @@ use std::process::Command;
 /// As shown in the table above, the name of the output file depends on the input file
 /// name and the name of its parent directory (the resource type and configuration).
 /// For the example above with strings.xml as input, aapt2 automatically names the output
-/// file as `values-en_strings.arsc.flat`. On the other hand, the file name for the compiled
-/// drawable file stored in the drawable directory will be `drawable_img.png.flat`.
+/// file as `values-en_strings.arsc.flat`. On the other hand, the file name for the
+/// compiled drawable file stored in the drawable directory will be
+/// `drawable_img.png.flat`.
 ///
 /// ## [Compile options](https://developer.android.com/studio/command-line/aapt2#compile_options)
 #[derive(Clone, Default)]

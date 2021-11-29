@@ -42,8 +42,8 @@ impl GetSizeTotal {
     }
 
     /// Specifies the dimensions used when computing the size estimates.
-    /// Accepts a comma-separated list of: `SDK`, `ABI`, `SCREEN_DENSITY`, and `LANGUAGE`. To
-    /// measure across all dimensions, specify `ALL`.
+    /// Accepts a comma-separated list of: `SDK`, `ABI`, `SCREEN_DENSITY`, and `LANGUAGE`.
+    /// To measure across all dimensions, specify `ALL`.
     pub fn dimensions(&mut self, dimensions: String) -> &mut Self {
         self.dimensions = Some(dimensions);
         self

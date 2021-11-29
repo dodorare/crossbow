@@ -59,11 +59,12 @@ pub fn android_dir() -> Result<PathBuf> {
     Ok(android_dir)
 }
 
-/// The `keytool` command is a key and certificate management utility. It enables users to administer
-/// their own public/private key pairs and associated certificates for use in self-authentication
-/// (where the user authenticates himself or herself to other users and services) or data integrity
-/// and authentication services, using digital signatures. The `keytool` command also enables users to
-/// cache the public keys (in the form of certificates) of their communicating peers
+/// The `keytool` command is a key and certificate management utility. It enables users to
+/// administer their own public/private key pairs and associated certificates for use in
+/// self-authentication (where the user authenticates himself or herself to other users
+/// and services) or data integrity and authentication services, using digital signatures.
+/// The `keytool` command also enables users to cache the public keys (in the form of
+/// certificates) of their communicating peers
 pub fn keytool() -> Result<Command> {
     if let Ok(keytool) = which::which(bin!("keytool")) {
         return Ok(Command::new(keytool));

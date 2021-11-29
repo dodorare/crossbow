@@ -162,12 +162,13 @@ impl AndroidNdk {
     }
 
     /// Helper function for looking for a path based on the platform version
-    /// Calls a closure for each attempt and then return the PathBuf for the first file that exists.
-    /// Uses approach that NDK build tools use which is described at:
+    /// Calls a closure for each attempt and then return the PathBuf for the first file
+    /// that exists. Uses approach that NDK build tools use which is described at:
     /// https://developer.android.com/ndk/guides/application_mk
     /// " - The platform version matching APP_PLATFORM.
-    ///   - The next available API level below APP_PLATFORM. For example, android-19 will be used when
-    ///     APP_PLATFORM is android-20, since there were no new native APIs in android-20.
+    ///   - The next available API level below APP_PLATFORM. For example, android-19 will
+    ///     be used when APP_PLATFORM is android-20, since there were no new native APIs
+    ///     in android-20.
     ///   - The minimum API level supported by the NDK."
     pub fn find_ndk_path<F>(platform: u32, path_builder: F) -> Result<PathBuf>
     where
@@ -183,7 +184,8 @@ impl AndroidNdk {
             }
             tmp_platform -= 1;
         }
-        // If that doesn't exist... Look for a higher one. This would be the minimum API level supported by the NDK
+        // If that doesn't exist... Look for a higher one. This would be the minimum API level
+        // supported by the NDK
         tmp_platform = platform;
         while tmp_platform < 100 {
             let path = path_builder(tmp_platform);

@@ -22,10 +22,11 @@ pub fn jarsigner(aab_path: &Path, key: &AabKey) -> Result<()> {
     Ok(())
 }
 
-/// The `-verify` option can take zero or more keystore alias names after the JAR file name.
-/// When the `-verify` option is specified, the `jarsigner` command checks that the certificate
-/// used to verify each signed entry in the JAR file matches one of the keystore aliases.
-/// The aliases are defined in the keystore specified by `-keystore` or the default keystore
+/// The `-verify` option can take zero or more keystore alias names after the JAR file
+/// name. When the `-verify` option is specified, the `jarsigner` command checks that the
+/// certificate used to verify each signed entry in the JAR file matches one of the
+/// keystore aliases. The aliases are defined in the keystore specified by `-keystore` or
+/// the default keystore
 pub fn verify_aab(aab_path: &Path) -> Result<()> {
     let mut verify = jarsigner_tool()?;
     verify.arg("-verify").arg("-verbose").arg(aab_path);

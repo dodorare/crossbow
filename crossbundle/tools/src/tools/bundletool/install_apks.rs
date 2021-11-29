@@ -33,8 +33,9 @@ impl InstallApks {
         }
     }
 
-    /// If you're using the `--local-testing` flag with the `build-apks` command, for local
-    /// testing to work correctly, you need to use `install-apks` to install your APKs
+    /// If you're using the `--local-testing` flag with the `build-apks` command, for
+    /// local testing to work correctly, you need to use `install-apks` to install
+    /// your APKs
     pub fn local_testing(&mut self, local_testing: bool) -> &mut Self {
         self.local_testing = local_testing;
         self

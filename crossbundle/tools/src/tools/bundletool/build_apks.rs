@@ -91,15 +91,15 @@ impl BuildApks {
     }
 
     /// Include this flag if you want to overwrite any existing output file with the same
-    /// path you specify using the `--output` option. If you don't include this flag and the
-    /// output file already exists, you get a build error.
+    /// path you specify using the `--output` option. If you don't include this flag and
+    /// the output file already exists, you get a build error.
     pub fn overwrite(&mut self, overwrite: bool) -> &mut Self {
         self.overwrite = overwrite;
         self
     }
 
-    /// Specifies a custom path to AAPT2. By default, `bundletool` includes its own version
-    /// of AAPT2.
+    /// Specifies a custom path to AAPT2. By default, `bundletool` includes its own
+    /// version of AAPT2.
     pub fn aapt2(&mut self, aapt2: &Path) -> &mut Self {
         self.aapt2 = Some(aapt2.to_owned());
         self
@@ -209,8 +209,8 @@ impl BuildApks {
     /// for quick, iterative testing cycles without the need to upload to Google Play
     /// servers.
     ///
-    /// For an example of how to test module installation using the `--local-testing` flag,
-    /// see [`Locally test module installs`].
+    /// For an example of how to test module installation using the `--local-testing`
+    /// flag, see [`Locally test module installs`].
     ///
     /// [`Locally test module installs`]::https://developer.android.com/guide/app-bundle/test/testing-fakesplitinstallmanager
     pub fn local_testing(&mut self, local_testing: bool) -> &mut Self {

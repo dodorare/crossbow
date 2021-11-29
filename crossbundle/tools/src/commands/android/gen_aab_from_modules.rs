@@ -2,7 +2,8 @@ use crate::error::*;
 use crate::tools::*;
 use std::path::{Path, PathBuf};
 
-/// Allows to generate aab from archive with files extracted from apk or set of archives to specified storage
+/// Allows to generate aab from archive with files extracted from apk or set of archives
+/// to specified storage
 pub fn gen_aab_from_modules(
     package_label: &str,
     zip_modules: &[PathBuf],

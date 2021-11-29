@@ -105,7 +105,7 @@ pub fn compile_macroquad_rust_for_android(
         ndk: ndk.clone(),
         target_sdk_version,
         profile,
-        build_target_dir: build_target_dir.clone(),
+        build_target_dir,
         build_target,
         nostrip: false,
     });
@@ -298,7 +298,7 @@ mod cargo_apk_glue_code {
             new_args.push(build_arg("-Clink-arg=-L", gcc_lib_path));
 
             // Strip symbols for release builds
-            if self.nostrip == false && self.profile == Profile::Release {
+            if !self.nostrip && self.profile == Profile::Release {
                 new_args.push("-Clink-arg=-strip-all".into());
             }
 
@@ -347,7 +347,7 @@ mod cargo_apk_glue_code {
 fn write_cmake_toolchain(
     min_sdk_version: u32,
     ndk_path: &Path,
-    build_target_dir: &PathBuf,
+    build_target_dir: &Path,
     build_target: AndroidTarget,
 ) -> CargoResult<PathBuf> {
     let toolchain_path = build_target_dir.join("cargo-apk.toolchain.cmake");
