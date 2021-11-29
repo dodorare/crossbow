@@ -3,19 +3,19 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 /// ## Generate and use device specification JSON files
-/// 
+///
 /// `Bundletool` is capable of generating an APK set that targets a device configuration
 /// specified by a JSON file. To first generate a JSON file for a connected device, run
 /// the following command:
-/// 
+///
 /// ```xml
 /// bundletool get-device-spec --output=/tmp/device-spec.json
 /// ```
-/// 
+///
 /// `bundletool` creates a JSON file for your device in the directory the tool is located.
-/// You can then pass it to `bundletool` to generate a set of APKs that target only the 
+/// You can then pass it to `bundletool` to generate a set of APKs that target only the
 /// configuration described in that JSON file as follows:
-/// 
+///
 /// ```xml
 /// bundletool build-apks --device-spec=/MyApp/pixel2.json
 /// --bundle=/MyApp/my_app.aab --output=/MyApp/my_app.apks
@@ -52,9 +52,14 @@ mod tests {
 
     #[test]
     fn build_apks_test() {
-        // It is necessary to connect the device
-        let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        let dir = user_dirs.parent().unwrap().parent().unwrap().to_path_buf();
-        GetDeviceSpec::new(&dir.join(format!("{}.json", "test"))).run().unwrap();
-}
+        // Creates a temporary directory
+        let tempfile = tempfile::tempdir().unwrap();
+        let build_dir = tempfile.path().to_path_buf();
+        let package_name = "test";
+
+        // Connect your device or emulator to generate device spec in `.json` format
+        GetDeviceSpec::new(&build_dir.join(format!("{}.json", package_name)))
+            .run()
+            .unwrap();
+    }
 }

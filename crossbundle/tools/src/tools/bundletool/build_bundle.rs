@@ -12,7 +12,7 @@ use std::process::Command;
 /// ## Note
 /// If you plan to publish the app bundle, you need to sign it using [`jarsigner`]. You can
 /// not use apksigner to sign your app bundle.
-/// 
+///
 /// [`jarsigner`]::https://docs.oracle.com/javase/8/docs/technotes/tools/windows/jarsigner.html
 #[derive(Debug, PartialEq, PartialOrd)]
 pub struct BuildBundle {
@@ -90,68 +90,61 @@ impl BuildBundle {
 
 #[cfg(test)]
 mod tests {
-    use itertools::Itertools;
 
-    use crate::{commands::android::{self, AabKey}, tools::{Aapt2, Aapt2Compile, Aapt2Link, AndroidSdk, BuildBundle}};
-
-    use super::*;
+    use crate::{
+        commands::android::{
+            self, android_dir, gen_aab_key, gen_minimal_unsigned_aab, jarsigner, remove, AabKey,
+        },
+        tools::{AndroidSdk, BuildBundle},
+    };
 
     #[test]
     fn build_bundle_test() {
-           // Creates a temporary directory and specify resources
-           let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-           let dir = user_dirs.parent().unwrap().parent().unwrap().to_path_buf();
-           let res_path = dir.join("examples\\bevy-3d\\assets\\models\\helmet");
-           res_path.canonicalize().unwrap();
-           let sdk = AndroidSdk::from_env().unwrap();
-           let tempfile = tempfile::tempdir().unwrap();
-           let compiled_res_dir = tempfile.path().to_path_buf();
-           assert!(compiled_res_dir.exists());
+        // Creates a temporary directory
+        let tempfile = tempfile::tempdir().unwrap();
+        let build_dir = tempfile.path().to_path_buf();
 
-           // Compiles resources for aapt2 link
-           let compiled_res = sdk
-            .aapt2()
-            .unwrap()
-            .compile_dir(&res_path, &compiled_res_dir)
-            .run()
-            .unwrap();
-        assert!(compiled_res.exists());
-        
-           // Generates minimal android manifest
-           let manifest = android::gen_minimal_android_manifest(
-               None,
-               "example",
-               None,
-               "0.0.1".to_string(),
-               None,
-               None,
-               30,
-               None,
-               None,
-               false,
-           );
-   
-           // Saves android manifest into temporary directory
-           let manifest_path = android::save_android_manifest(&compiled_res_dir, &manifest).unwrap();
-           assert!(manifest_path.exists());
-   
-           // Generates apk file
-           let sdk = AndroidSdk::from_env().unwrap();
-           let target_sdk_version = 30;
-           let apk_path = dir.join("test_apk");
-           let mut aapt2_link = Aapt2Link::new(&[compiled_res], &apk_path, &manifest_path);
-           aapt2_link
-               .android_jar(sdk.android_jar(target_sdk_version).unwrap())
-               .proto_format(true)
-               .auto_add_overlay(true)
-               .verbose(true)
-               .version_code(1);
-           aapt2_link.run().unwrap();
+        // Assigns configuratin to generate aab
+        let sdk = AndroidSdk::from_env().unwrap();
+        let package_name = "test";
+        let target_sdk_version = 30;
+        assert!(build_dir.exists());
 
-           let extracted_apk_path = android::extract_apk(&apk_path, &compiled_res_dir).unwrap();
-           let gen_zip_modules = android::gen_zip_modules(&dir, "test", &extracted_apk_path).unwrap();
-           let aab = dir.join(format!("{}_unsigned.aab", "test"));
-            BuildBundle::new(&[gen_zip_modules], &aab).run().unwrap();
+        // Generates mininmal unsigned aab
+        let aab_path =
+            gen_minimal_unsigned_aab(sdk, "unsigned", target_sdk_version, &build_dir).unwrap();
+
+        // Removes old keystore if it exists
+        let android_dir = android_dir().unwrap();
+        let target = vec![android_dir.join("aab.keystore")];
+        remove(target).unwrap();
+
+        // Creates new keystore to sign aab
+        let aab_key = AabKey::default();
+        let key_path = gen_aab_key(aab_key).unwrap();
+
+        // Signs aab with key
+        jarsigner(&aab_path, &key_path).unwrap();
+
+        // Replaces unsigned aab with signed aab
+        let signed_aab = build_dir.join(format!("{}_signed.aab", package_name));
+        std::fs::rename(&aab_path, &signed_aab).unwrap();
+
+        // Defines apk path from build directory
+        for apk in std::fs::read_dir(build_dir).unwrap() {
+            let apk_path = apk.unwrap().path();
+            if apk_path.ends_with("apk") {
+                let build_dir = apk_path.parent().unwrap();
+                let output_dir = build_dir.join("extracted_apk_files");
+                // Extracts files from apk to defined path
+                let extracted_files = android::extract_apk(&apk_path, &output_dir).unwrap();
+                // Generates zip archive from extracted files
+                let gen_zip_modules =
+                    android::gen_zip_modules(&build_dir, "test", &extracted_files).unwrap();
+                let aab = build_dir.join(format!("{}_unsigned.aab", package_name));
+                // Builds app bundle
+                BuildBundle::new(&[gen_zip_modules], &aab).run().unwrap();
+            }
         }
+    }
 }
-
