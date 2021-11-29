@@ -45,3 +45,16 @@ impl GetDeviceSpec {
         Ok(())
     }
 }
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    #[test]
+    fn build_apks_test() {
+        // It is necessary to connect the device
+        let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let dir = user_dirs.parent().unwrap().parent().unwrap().to_path_buf();
+        GetDeviceSpec::new(&dir.join(format!("{}.json", "test"))).run().unwrap();
+}
+}
