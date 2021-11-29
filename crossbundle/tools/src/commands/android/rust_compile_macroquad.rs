@@ -22,7 +22,7 @@ use std::{
     io::Write,
     path::Path,
     path::PathBuf,
-    sync::{Arc, Mutex},
+    sync::Arc,
 };
 use tempfile::Builder;
 
@@ -36,9 +36,8 @@ pub fn compile_macroquad_rust_for_android(
     all_features: bool,
     no_default_features: bool,
     target_sdk_version: u32,
-) -> Result<String> {
-    let shared_library_filename = Arc::new(Mutex::new(String::new()));
-
+    lib_name: &str,
+) -> Result<()> {
     let cargo_config = CargoConfig::default()?;
     let workspace = Workspace::new(&project_path.join("Cargo.toml"), &cargo_config)?;
 
@@ -86,6 +85,16 @@ pub fn compile_macroquad_rust_for_android(
     opts.cli_features =
         CliFeatures::from_command_line(&features, all_features, no_default_features)?;
 
+    // Set the file name for the generated shared library
+    opts.target_rustc_args = Some(vec![format!(
+        "--emit=link={}",
+        build_target_dir
+            .join(lib_name)
+            .into_os_string()
+            .into_string()
+            .unwrap()
+    )]);
+
     // Set profile
     if profile == Profile::Release {
         opts.build_config.requested_profile = "release".into();
@@ -99,16 +108,11 @@ pub fn compile_macroquad_rust_for_android(
         build_target_dir: build_target_dir.clone(),
         build_target,
         nostrip: false,
-        shared_library_filename: shared_library_filename.clone(),
     });
 
     // Compile all targets for the requested build target
     cargo::ops::compile_with_exec(&workspace, &opts, &executor)?;
-
-    // Remove the shared library from the reference counted mutex
-    let shared_library_filename = (*shared_library_filename.lock().unwrap()).clone();
-
-    Ok(shared_library_filename)
+    Ok(())
 }
 
 /// Executor which builds binary and example targets as static libraries
@@ -121,9 +125,6 @@ struct SharedLibraryExecutor {
 
     profile: Profile,
     nostrip: bool,
-
-    // File name of the shared library generated
-    shared_library_filename: Arc<Mutex<String>>,
 }
 
 impl Executor for SharedLibraryExecutor {
@@ -267,7 +268,8 @@ mod cargo_apk_glue_code {
                 AndroidNdk::find_ndk_path(self.target_sdk_version, |platform| {
                     version_independent_libraries_path.join(platform.to_string())
                 })
-                .map_err(|_| format_err!("unable to find NDK file"))?; // TODO: Fix this error casting
+                .map_err(|_| format_err!("unable to find NDK file"))?; // TODO: Fix this error
+                                                                       // casting
             let gcc_lib_path = tool_root
                 .join("lib/gcc")
                 .join(&self.build_target.ndk_triple())
@@ -310,14 +312,6 @@ mod cargo_apk_glue_code {
             // Execute the command
             cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
                 .map(drop)?;
-
-            // Execute the command again with the print flag to determine the name of the produced
-            // shared library and then add it to the list of shared librares to be added to the APK
-            let stdout = cmd.arg("--print").arg("file-names").exec_with_output()?;
-            let stdout = String::from_utf8(stdout.stdout).unwrap();
-
-            let mut shared_library_filename = self.shared_library_filename.lock().unwrap();
-            *shared_library_filename = stdout.lines().next().unwrap().to_string();
         } else if mode == CompileMode::Test {
             // This occurs when --all-targets is specified
             eprintln!("Ignoring CompileMode::Test for target: {}", target.name());
