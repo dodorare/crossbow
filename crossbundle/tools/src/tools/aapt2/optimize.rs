@@ -150,7 +150,7 @@ impl Aapt2Optimize {
             aapt2.arg("--split").arg(split);
         }
         if let Some(keep_artifacts) = self.keep_artifacts {
-            aapt2.arg("--keep_artifacts").arg(keep_artifacts);
+            aapt2.arg("--keep-artifacts").arg(keep_artifacts);
         }
         if self.enable_sparse_encoding {
             aapt2.arg("--enable_sparse_encoding");
