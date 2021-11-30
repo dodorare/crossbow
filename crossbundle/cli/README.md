@@ -65,6 +65,7 @@ FLAGS:
                                  package
         --release                Build optimized artifact with the `release` profile
     -V, --version                Prints version information
+	    --quad                   Runs the subcommand for a `macroquad` project
 
 OPTIONS:
         --example <example>               Build the specified example

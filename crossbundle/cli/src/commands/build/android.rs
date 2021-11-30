@@ -77,6 +77,9 @@ impl AndroidBuildCommand {
             let lib_name = format!("lib{}.so", package_name.replace("-", "_"));
             let rust_triple = build_target.rust_triple();
             config.status_message("Compiling for architecture", rust_triple)?;
+
+            // We need a different compilation process for macroquad projects
+            // because of the sokol lib dependency
             if self.shared.quad {
                 android::compile_macroquad_rust_for_android(
                     &ndk,
