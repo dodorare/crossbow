@@ -153,17 +153,17 @@ impl Aapt2Optimize {
             aapt2.arg("--keep-artifacts").arg(keep_artifacts);
         }
         if self.enable_sparse_encoding {
-            aapt2.arg("--enable_sparse_encoding");
+            aapt2.arg("--enable-sparse-encoding");
         }
         if self.collapse_resource_name {
-            aapt2.arg("--collapse_resource_name");
+            aapt2.arg("--collapse-resource-name");
         }
         if self.shorten_resource_paths {
-            aapt2.arg("--shorten_resource_paths");
+            aapt2.arg("--shorten-resource-paths");
         }
         if let Some(resource_path_shortening_map) = self.resource_path_shortening_map {
             aapt2
-                .arg("--resource_path_shortening_map")
+                .arg("--resource-path-shortening-map")
                 .arg(resource_path_shortening_map);
         }
         if self.verbose {
