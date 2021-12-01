@@ -1,12 +1,11 @@
-mod aapt2;
 mod android_ndk;
 mod android_sdk;
-mod bundletool;
 
-pub use aapt2::*;
 pub use android_ndk::*;
 pub use android_sdk::*;
-pub use bundletool::*;
+pub use android_tools::aapt2::*;
+pub use android_tools::bundletool::*;
+pub use android_tools::error::Error as AndroidToolsError;
 
 #[derive(Clone, PartialEq, Eq, Hash)]
 pub struct CheckInfo {
