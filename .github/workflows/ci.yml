@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [master]
+    branches: [main]
     paths:
     - '.github/workflows/ci.yml'
     - '**.rs'
@@ -23,7 +23,7 @@ jobs:
     - name: Install Android targets and upgrade rust
       run: |
         rustup upgrade
-        rustup target add armv7-linux-androideabi aarch64-linux-android i686-linux-android x86_64-linux-android
+        rustup target add aarch64-linux-android x86_64-linux-android
     - name: Install Crossbundle
       run: |
         rustup upgrade
@@ -39,7 +39,7 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Install Apple targets
-      run: rustup target add aarch64-apple-ios x86_64-apple-ios
+      run: rustup target add aarch64-apple-ios
     - name: Install Crossbundle
       run: |
         rustup upgrade
@@ -47,7 +47,7 @@ jobs:
     - name: Build Apple app
       run: |
         cd examples/bevy-3d
-        crossbundle build apple --release --target=x86_64-apple-ios
+        crossbundle build apple --release --target=aarch64-apple-ios
 
   test-crossbundle-new:
     name: Generate and Build from template on macOS latest
@@ -55,7 +55,7 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Install Apple targets
-      run: rustup target add aarch64-apple-ios x86_64-apple-ios aarch64-linux-android x86_64-linux-android
+      run: rustup target add aarch64-linux-android x86_64-linux-android
     - name: Install Crossbundle
       run: |
         brew install openssl@1.1 cmake
@@ -69,7 +69,7 @@ jobs:
     - name: Build Apple app
       run: |
         cd ~/explorer/
-        crossbundle build apple --release --target=x86_64-apple-ios
+        crossbundle build android --release
 
   clean:
     name: Check code format
