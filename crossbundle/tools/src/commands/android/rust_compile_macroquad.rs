@@ -27,6 +27,7 @@ use std::{
 use tempfile::Builder;
 
 /// Compile macroquuad rust code for android
+/// using `cargo` crate with a custom compiler executor
 pub fn compile_macroquad_rust_for_android(
     ndk: &AndroidNdk,
     build_target: AndroidTarget,
@@ -74,9 +75,13 @@ pub fn compile_macroquad_rust_for_android(
 
     // Configure compilation options so that we will build the desired build_target
     let config = workspace.config();
+
+    // Avoid too much log info
     config.shell().set_verbosity(Verbosity::Normal);
+
     let mut opts = CompileOptions::new(config, CompileMode::Build)?;
 
+    // Set the compilation target
     opts.build_config.requested_kinds = vec![CompileKind::Target(CompileTarget::new(
         build_target.rust_triple(),
     )?)];
@@ -85,7 +90,7 @@ pub fn compile_macroquad_rust_for_android(
     opts.cli_features =
         CliFeatures::from_command_line(&features, all_features, no_default_features)?;
 
-    // Set the file name for the generated shared library
+    // Set the path and file name for the generated shared library
     opts.target_rustc_args = Some(vec![format!(
         "--emit=link={}",
         build_target_dir
@@ -95,12 +100,12 @@ pub fn compile_macroquad_rust_for_android(
             .unwrap()
     )]);
 
-    // Set profile
+    // Set desired profile
     if profile == Profile::Release {
         opts.build_config.requested_profile = "release".into();
     }
 
-    // Create executor
+    // Create the executor
     let executor: Arc<dyn Executor> = Arc::new(SharedLibraryExecutor {
         ndk: ndk.clone(),
         target_sdk_version,
