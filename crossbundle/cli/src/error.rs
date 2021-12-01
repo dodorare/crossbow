@@ -29,3 +29,10 @@ pub enum Error {
     /// AndroidManifest error
     AndroidManifest(#[from] android_manifest::error::Error),
 }
+
+// TODO: Fix this error. Is there a better casting for it?
+impl From<crossbundle_tools::tools::AndroidToolsError> for Error {
+    fn from(error: crossbundle_tools::tools::AndroidToolsError) -> Self {
+        Error::CrossbundleTools(error.into()).into()
+    }
+}

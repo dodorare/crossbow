@@ -36,6 +36,8 @@ pub enum AndroidError {
     InvalidBuildTarget(String),
     /// Failed to find AndroidManifest.xml in path: {0}
     FailedToFindAndroidManifest(String),
+    /// AndroidTools error
+    AndroidTools(#[from] android_tools::error::Error),
     /// AndroidManifest error
     AndroidManifest(#[from] android_manifest::error::Error),
 }
@@ -69,6 +71,7 @@ pub enum AppleError {
 
 /// Main error type.
 #[derive(Display, Debug, Error)]
+#[ignore_extra_doc_attributes]
 pub enum Error {
     /// Command '{0:?}' had a non-zero exit code. Stdout: {1} Stderr: {2}
     CmdFailed(Command, String, String),
@@ -143,5 +146,11 @@ impl From<plist::Error> for Error {
 impl From<simctl::Error> for Error {
     fn from(error: simctl::Error) -> Self {
         AppleError::Simctl(error).into()
+    }
+}
+
+impl From<android_tools::error::Error> for Error {
+    fn from(error: android_tools::error::Error) -> Self {
+        AndroidError::AndroidTools(error).into()
     }
 }
