@@ -251,7 +251,13 @@ mod tests {
         // Creates a temporary directory and specify resources
         let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         let dir = user_dirs.parent().unwrap().parent().unwrap().to_path_buf();
-        let res_path = dir.join("examples\\bevy-2d\\res\\android\\mipmap-hdpi\\ic_launcher.png");
+        let res_path = dir
+            .join("examples")
+            .join("bevy-2d")
+            .join("res")
+            .join("android")
+            .join("mipmap-hdpi")
+            .join("ic_launcher.png");
         res_path.canonicalize().unwrap();
         let sdk = AndroidSdk::from_env().unwrap();
         let tempfile = tempfile::tempdir().unwrap();
@@ -273,7 +279,12 @@ mod tests {
         // Creates a temporary directory and specify resources
         let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         let dir = user_dirs.parent().unwrap().parent().unwrap().to_path_buf();
-        let res_path = dir.join("examples\\bevy-3d\\assets\\models\\helmet");
+        let res_path = dir
+            .join("examples")
+            .join("bevy-3d")
+            .join("assets")
+            .join("models")
+            .join("helmet");
         res_path.canonicalize().unwrap();
         let sdk = AndroidSdk::from_env().unwrap();
         let tempfile = tempfile::tempdir().unwrap();

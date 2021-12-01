@@ -845,7 +845,12 @@ mod tests {
         let sdk = AndroidSdk::from_env().unwrap();
         let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         let dir = user_dirs.parent().unwrap().parent().unwrap().to_path_buf();
-        let res_path = dir.join("examples\\bevy-2d\\res\\android\\mipmap-hdpi");
+        let res_path = dir
+            .join("examples")
+            .join("bevy-2d")
+            .join("res")
+            .join("android")
+            .join("mipmap-hdpi");
         res_path.canonicalize().unwrap();
 
         // Compiles resources for aapt2 link
