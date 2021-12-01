@@ -151,6 +151,12 @@ mod tests {
 
         // Creates apks from generate aab
         let apks = android_build_dir.join(format!("{}.apks", package_name));
-        let _build_apks = android::build_apks(&aab_path, &apks, key).unwrap();
+        let _build_apks = BuildApks::new(&aab_path, &apks)
+            .overwrite(true)
+            .ks(&key.key_path)
+            .ks_pass_pass(key.key_pass)
+            .ks_key_alias(key.key_alias)
+            .run()
+            .unwrap();
     }
 }
