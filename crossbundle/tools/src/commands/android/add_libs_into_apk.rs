@@ -10,7 +10,7 @@ use std::{
 };
 
 /// Adds given lib and all reletad libs into APK.
-/// Uses `readelf`, `aapt` tools.
+/// Uses `readelf`, `aapt` tools
 pub fn add_libs_into_apk(
     sdk: &AndroidSdk,
     ndk: &AndroidNdk,
@@ -54,7 +54,7 @@ pub fn add_libs_into_apk(
     Ok(out_dir)
 }
 
-/// Copy lib into `out_dir` then add this lib into apk file.
+/// Copy lib into `out_dir` then add this lib into apk file
 fn aapt_add_lib(
     sdk: &AndroidSdk,
     apk_path: &Path,
@@ -69,7 +69,7 @@ fn aapt_add_lib(
     let file_name = lib_path.file_name().unwrap();
     std::fs::copy(lib_path, &out_dir.join(&file_name))?;
     // `aapt a[dd] [-v] file.{zip,jar,apk} file1 [file2 ...]`
-    // Add specified files to Zip-compatible archive.
+    // Add specified files to Zip-compatible archive
     let mut aapt = sdk.build_tool(bin!("aapt"), Some(apk_path.parent().unwrap()))?;
     aapt.arg("add")
         .arg(apk_path)
@@ -78,7 +78,7 @@ fn aapt_add_lib(
     Ok(())
 }
 
-/// Search dylibs in given `deps_dir`.
+/// Search dylibs in given `deps_dir`
 pub fn search_dylibs(deps_dir: &Path) -> Result<Vec<PathBuf>> {
     let mut paths = Vec::new();
     for dep_dir in deps_dir.read_dir()? {
@@ -141,7 +141,7 @@ pub fn recursively_define_needed_libs(
     Ok(())
 }
 
-/// List all linked shared libraries.
+/// List all linked shared libraries
 pub fn readelf_list_shared_libs(readelf_path: &Path, lib_path: &Path) -> Result<Vec<String>> {
     let mut readelf = std::process::Command::new(readelf_path);
     readelf.arg("-d").arg(lib_path);
@@ -162,7 +162,7 @@ pub fn readelf_list_shared_libs(readelf_path: &Path, lib_path: &Path) -> Result<
     Ok(needed)
 }
 
-/// Resolves native library using search paths.
+/// Resolves native library using search paths
 pub fn find_library_path<S: AsRef<Path>>(
     paths: &[PathBuf],
     lib_name: S,
@@ -176,7 +176,7 @@ pub fn find_library_path<S: AsRef<Path>>(
     Ok(None)
 }
 
-/// Return all files in directory with `.so` ending.
+/// Return all files in directory with `.so` ending
 pub fn get_libs_in_dir(dir: &Path) -> std::io::Result<Vec<String>> {
     let mut libs = Vec::new();
     if dir.is_dir() {
@@ -193,3 +193,21 @@ pub fn get_libs_in_dir(dir: &Path) -> std::io::Result<Vec<String>> {
     };
     Ok(libs)
 }
+
+// fs::read_dir(version_specific_libraries_path)?
+//         .filter_map(|entry| {
+//             entry
+//                 .map(|entry| {
+//                     if entry.path().is_file() {
+//                         if let Some(file_name) = entry.file_name().to_str() {
+//                             if file_name.ends_with(".so") {
+//                                 return Some(file_name.into());
+//                             }
+//                         }
+//                     }
+//                     None
+//                 })
+//                 .transpose()
+//         })
+//         .collect::<std::result::Result<_, _>>()
+// .map_err(|err| err.into())

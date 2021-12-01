@@ -8,14 +8,14 @@ use std::process::Command;
 /// the specified APK:
 ///
 /// ```sh
-/// aapt2 dump resources output.apk
+/// `aapt2 dump resources output.apk`
 /// ```
 ///
 /// ## Dump syntax
 /// The general syntax for using dump is as follows:
 ///
 /// ```sh
-/// aapt2 dump sub-command filename.apk [options]
+/// `aapt2 dump sub-command filename.apk [options]`
 /// ```
 pub struct Aapt2Dump {
     subcommand: SubCommand,
@@ -27,7 +27,7 @@ pub struct Aapt2Dump {
 }
 
 impl Aapt2Dump {
-    /// Initialize struct Aapt2Dump then specifies subcommand and apk file
+    /// Initialize aapt2 dump then specifies subcommand and apk file
     pub fn new(subcommand: SubCommand, filename_apk: &Path) -> Self {
         Self {
             subcommand,
@@ -63,7 +63,7 @@ impl Aapt2Dump {
         self
     }
 
-    /// Opens the command line and launches aapt2 dump with arguments
+    /// Executes aapt2 dump with arguments
     pub fn run(&self) -> Result<()> {
         let mut aapt2 = Command::new("aapt2");
         aapt2.arg("dump");
@@ -86,7 +86,6 @@ impl Aapt2Dump {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SubCommand {
     /// Print the contents of the AAPT2 Container (APC) generated during compilation.
     Apc,

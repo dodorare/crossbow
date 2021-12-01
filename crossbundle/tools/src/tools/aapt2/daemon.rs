@@ -10,7 +10,7 @@ pub struct Aapt2Daemon {
 }
 
 impl Aapt2Daemon {
-    /// Initialize struct Aapt2Daemon and then specifies trace folder
+    /// Initialize aapt2 daemon and then specifies path to trace folder
     pub fn new(trace_folder: &Path) -> Self {
         Self {
             trace_folder: trace_folder.to_owned(),
@@ -24,7 +24,7 @@ impl Aapt2Daemon {
         self
     }
 
-    /// Opens the command line and launches aapt2 daemon with arguments
+    /// Executes aapt2 daemon with arguments
     pub fn run(&self) -> Result<()> {
         let mut aapt2 = Command::new("aapt2");
         aapt2.arg("daemon");

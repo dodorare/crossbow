@@ -3,18 +3,18 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 /// # Compile
-/// AAPT2 supports compilation of all Android resource types, such as drawables and XML
-/// files. When you invoke AAPT2 for compilation, you should pass a single resource file
-/// as an input per invocation. AAPT2 then parses the file and generates an intermediate
-/// binary file with a .flat extension.
+/// `AAPT2` supports compilation of all Android resource types, such as drawables and XML
+/// files. When you invoke `AAPT2` for compilation, you should pass a single resource file
+/// as an input per invocation. `AAPT2` then parses the file and generates an intermediate
+/// binary file with a `.flat` extension.
 ///
 /// Although you can pass resource directories containing more than one resource files to
-/// AAPT2 using the --dir flag, you do not gain the benefits of incremental resource
-/// compilation when doing so. That is, when passing whole directories, AAPT2 recompiles
+/// AAPT2 using the `--dir` flag, you do not gain the benefits of incremental resource
+/// compilation when doing so. That is, when passing whole directories, `AAPT2` recompiles
 /// all files in the directory even when only one resource has changed.
 ///
 /// The output file types can differ based on the input you provide for compilation.
-/// The files AAPT2 outputs are not executables and you must later include these binary
+/// The files `AAPT2` outputs are not executables and you must later include these binary
 /// files as input in the link phase to generate an APK. However, the generated APK file
 /// is not an executable that you can deploy on an Android device right away, as it does
 /// not contain DEX files (compiled bytecode) and is not signed.
@@ -31,8 +31,8 @@ use std::process::Command;
 /// path/resource-type[-config]/file
 /// ```
 ///
-/// In the following example, AAPT2 compiles resource files named values.xml and
-/// myImage.png individually:
+/// In the following example, `AAPT2` compiles resource files named `values.xml` and
+/// `myImage.png` individually:
 ///
 /// ```sh
 /// aapt2 compile project_root/module_root/src/main/res/values-en/strings.xml -o compiled/
@@ -42,8 +42,9 @@ use std::process::Command;
 /// As shown in the table above, the name of the output file depends on the input file
 /// name and the name of its parent directory (the resource type and configuration).
 /// For the example above with strings.xml as input, aapt2 automatically names the output
-/// file as values-en_strings.arsc.flat. On the other hand, the file name for the compiled
-/// drawable file stored in the drawable directory will be drawable_img.png.flat.
+/// file as `values-en_strings.arsc.flat`. On the other hand, the file name for the
+/// compiled drawable file stored in the drawable directory will be
+/// `drawable_img.png.flat`.
 ///
 /// ## [Compile options](https://developer.android.com/studio/command-line/aapt2#compile_options)
 #[derive(Clone, Default)]
@@ -81,7 +82,7 @@ impl std::fmt::Display for Visibility {
 }
 
 impl Aapt2Compile {
-    /// Initialize struct Aapt2Compile then specifies input resource(s) to compile and
+    /// Initialize aapt2 compile then specifies input resource(s) to compile and
     /// specifies the output path for the compiled resource(s)
     pub fn new(res_path: &Path, compiled_res: &Path) -> Self {
         Self {
@@ -140,11 +141,11 @@ impl Aapt2Compile {
         self
     }
 
-    /// Treats errors that are permissible when using earlier versions of AAPT as
+    /// Treats errors that are permissible when using earlier versions of `AAPT` as
     /// warnings.
     ///
     /// This flag should be used for unexpected compile time errors.
-    /// To resolve known behavior changes that you might get while using AAPT2, read
+    /// To resolve known behavior changes that you might get while using `AAPT2`, read
     /// [Behavior changes in AAPT2.](https://developer.android.com/studio/command-line/aapt2#aapt2_changes)
     pub fn legacy(&mut self, legacy: bool) -> &mut Self {
         self.legacy = legacy;
@@ -186,7 +187,7 @@ impl Aapt2Compile {
         self
     }
 
-    /// Opens the command line and launches aapt2 compile with arguments
+    /// Executes aapt2 compile with arguments
     pub fn run(&self) -> Result<PathBuf> {
         let mut aapt2 = Command::new("aapt2");
         aapt2.arg("compile");
@@ -238,5 +239,65 @@ impl Aapt2Compile {
         }
         aapt2.output_err(true)?;
         Ok(self.compiled_res.clone())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::tools::AndroidSdk;
+
+    #[test]
+    fn aapt2_compile_new_test() {
+        // Creates a temporary directory and specify resources
+        let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let dir = user_dirs.parent().unwrap().parent().unwrap().to_path_buf();
+        let res_path = dir
+            .join("examples")
+            .join("bevy-2d")
+            .join("res")
+            .join("android")
+            .join("mipmap-hdpi")
+            .join("ic_launcher.png");
+        res_path.canonicalize().unwrap();
+        let sdk = AndroidSdk::from_env().unwrap();
+        let tempfile = tempfile::tempdir().unwrap();
+        let compiled_res_dir = tempfile.path().to_path_buf();
+        assert!(compiled_res_dir.exists());
+
+        // Compiles resources
+        let compiled_res = sdk
+            .aapt2()
+            .unwrap()
+            .compile_incremental(&res_path, &compiled_res_dir)
+            .run()
+            .unwrap();
+        assert!(compiled_res.exists());
+    }
+
+    #[test]
+    fn aapt2_compile_new_from_res_dir() {
+        // Creates a temporary directory and specify resources
+        let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let dir = user_dirs.parent().unwrap().parent().unwrap().to_path_buf();
+        let res_path = dir
+            .join("examples")
+            .join("bevy-3d")
+            .join("assets")
+            .join("models")
+            .join("helmet");
+        res_path.canonicalize().unwrap();
+        let sdk = AndroidSdk::from_env().unwrap();
+        let tempfile = tempfile::tempdir().unwrap();
+        let compiled_res_dir = tempfile.path().to_path_buf();
+        assert!(compiled_res_dir.exists());
+
+        // Compiles resources
+        let compiled_res = sdk
+            .aapt2()
+            .unwrap()
+            .compile_dir(&res_path, &compiled_res_dir)
+            .run()
+            .unwrap();
+        assert!(compiled_res.exists());
     }
 }

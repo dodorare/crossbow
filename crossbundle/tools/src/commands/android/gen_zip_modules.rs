@@ -2,6 +2,7 @@ use crate::commands::android::write_zip;
 use crate::error::*;
 use std::path::{Path, PathBuf};
 
+/// Allows to generate archive from files extracted from APK
 pub fn gen_zip_modules(
     build_dir: &Path,
     package_label: &str,

@@ -15,7 +15,7 @@ use std::process::Command;
 ///
 /// If you want to deploy the APKs to a device, you need to also include your app’s
 /// signing information, as shown in the command below. If you do not specify signing
-/// information, bundletool attempts to sign your APKs with a debug key for you.
+/// information, `bundletool` attempts to sign your APKs with a debug key for you.
 ///
 /// ```xml
 /// bundletool build-apks --bundle=/MyApp/my_app.aab --output=/MyApp/my_app.apks
@@ -91,22 +91,22 @@ impl BuildApks {
     }
 
     /// Include this flag if you want to overwrite any existing output file with the same
-    /// path you specify using the --output option. If you don't include this flag and the
-    /// output file already exists, you get a build error.
+    /// path you specify using the `--output` option. If you don't include this flag and
+    /// the output file already exists, you get a build error.
     pub fn overwrite(&mut self, overwrite: bool) -> &mut Self {
         self.overwrite = overwrite;
         self
     }
 
-    /// Specifies a custom path to AAPT2. By default, bundletool includes its own version
-    /// of AAPT2.
+    /// Specifies a custom path to AAPT2. By default, `bundletool` includes its own
+    /// version of AAPT2.
     pub fn aapt2(&mut self, aapt2: &Path) -> &mut Self {
         self.aapt2 = Some(aapt2.to_owned());
         self
     }
 
     /// Specifies the path to the deployment keystore used to sign the APKs. This flag is
-    /// optional. If you don't include it, bundletool attempts to sign your APKs with a
+    /// optional. If you don't include it, `bundletool` attempts to sign your APKs with a
     /// debug signing key.
     pub fn ks(&mut self, ks: &Path) -> &mut Self {
         self.ks = Some(ks.to_owned());
@@ -115,8 +115,8 @@ impl BuildApks {
 
     /// Specifies your keystore’s password. If you’re specifying a password in plain text,
     /// qualify it with pass:. If you’re passing the path to a file that contains the
-    /// password, qualify it with file:. If you specify a keystore using the --ks flag
-    /// without specifying --ks-pass, bundletool prompts you for a password from the
+    /// password, qualify it with file:. If you specify a keystore using the `--ks` flag
+    /// without specifying `--ks-pass`, `bundletool` prompts you for a password from the
     /// command line.
     pub fn ks_pass_pass(&mut self, ks_pass_pass: String) -> &mut Self {
         self.ks_pass_pass = Some(ks_pass_pass);
@@ -125,8 +125,8 @@ impl BuildApks {
 
     /// Specifies your keystore’s password. If you’re specifying a password in plain text,
     /// qualify it with pass:. If you’re passing the path to a file that contains the
-    /// password, qualify it with file:. If you specify a keystore using the --ks flag
-    /// without specifying --ks-pass, bundletool prompts you for a password from the
+    /// password, qualify it with file:. If you specify a keystore using the `--ks` flag
+    /// without specifying `--ks-pass`, `bundletool` prompts you for a password from the
     /// command line.
     pub fn ks_pass_file(&mut self, ks_pass_file: &Path) -> &mut Self {
         self.ks_pass_file = Some(ks_pass_file.to_owned());
@@ -161,8 +161,8 @@ impl BuildApks {
         self
     }
 
-    /// Instructs bundletool to build APKs that target the configuration of a connected
-    /// device. If you don’t include this flag, bundletool generates APKs for all device
+    /// Instructs `bundletool` to build APKs that target the configuration of a connected
+    /// device. If you don’t include this flag, `bundletool` generates APKs for all device
     /// configurations your app supports.
     pub fn connected_device(&mut self, connected_device: bool) -> &mut Self {
         self.connected_device = connected_device;
@@ -176,7 +176,7 @@ impl BuildApks {
         self
     }
 
-    /// Use this flag to provide a path to a .json file that specifies the device
+    /// Use this flag to provide a path to a `.json` file that specifies the device
     /// configuration you want to target. To learn more, go to the section about how to
     /// [`Create and use device specification JSON files`].
     ///
@@ -186,7 +186,7 @@ impl BuildApks {
         self
     }
 
-    /// Set the mode to universal if you want bundletool to build only a single APK that
+    /// Set the mode to universal if you want `bundletool` to build only a single APK that
     /// includes all of your app's code and resources such that the APK is compatible with
     /// all device configurations your app supports.
     ///
@@ -209,8 +209,8 @@ impl BuildApks {
     /// for quick, iterative testing cycles without the need to upload to Google Play
     /// servers.
     ///
-    /// For an example of how to test module installation using the --local-testing flag,
-    /// see [`Locally test module installs`].
+    /// For an example of how to test module installation using the `--local-testing`
+    /// flag, see [`Locally test module installs`].
     ///
     /// [`Locally test module installs`]::https://developer.android.com/guide/app-bundle/test/testing-fakesplitinstallmanager
     pub fn local_testing(&mut self, local_testing: bool) -> &mut Self {
@@ -218,7 +218,7 @@ impl BuildApks {
         self
     }
 
-    pub fn run(&self) -> Result<()> {
+    pub fn run(&self) -> Result<PathBuf> {
         let mut build_apks = Command::new("java");
         build_apks.arg("-jar");
         if let Ok(bundletool_path) = std::env::var("BUNDLETOOL_PATH") {
@@ -239,19 +239,31 @@ impl BuildApks {
             build_apks.arg("--ks").arg(ks);
         }
         if let Some(ks_pass_pass) = &self.ks_pass_pass {
-            build_apks.arg("--ks-pass=pass:").arg(ks_pass_pass);
+            build_apks
+                .arg("--ks-pass")
+                .arg(format!("pass:{}", ks_pass_pass));
         }
         if let Some(ks_pass_file) = &self.ks_pass_file {
-            build_apks.arg("--ks-pass=file:").arg(ks_pass_file);
+            build_apks.arg("--ks-pass").arg(format!(
+                "file:{}",
+                ks_pass_file.to_str().expect("Wrong ks_pass_file provided")
+            ));
         }
         if let Some(ks_key_alias) = &self.ks_key_alias {
             build_apks.arg("--ks-key-alias").arg(ks_key_alias);
         }
         if let Some(key_pass_pass) = &self.key_pass_pass {
-            build_apks.arg("--key-pass=pass").arg(key_pass_pass);
+            build_apks
+                .arg("--key-pass")
+                .arg(format!("pass:{}", key_pass_pass));
         }
         if let Some(key_pass_file) = &self.key_pass_file {
-            build_apks.arg("--key-pass=file").arg(key_pass_file);
+            build_apks.arg("--key-pass").arg(format!(
+                "file:{}",
+                key_pass_file
+                    .to_str()
+                    .expect("Wrong key_pass_file provided")
+            ));
         }
         if self.connected_device {
             build_apks.arg("--connected-device");
@@ -263,12 +275,60 @@ impl BuildApks {
             build_apks.arg("--device-spec").arg(device_spec);
         }
         if self.mode_universal {
-            build_apks.arg("--mode=universal");
+            build_apks.arg("--mode").arg("universal");
         }
         if self.local_testing {
             build_apks.arg("--local-testing");
         }
         build_apks.output_err(true)?;
-        Ok(())
+        Ok(self.output.clone())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{
+        commands::android::{
+            android_dir, gen_aab_key, gen_minimal_unsigned_aab, jarsigner, remove, AabKey,
+        },
+        tools::{AndroidSdk, BuildApks, GetSizeTotal},
+    };
+
+    #[test]
+    fn build_apks_test() {
+        // Creates a temporary directory
+        let tempfile = tempfile::tempdir().unwrap();
+        let build_dir = tempfile.path().to_path_buf();
+
+        // Assigns configuratin to generate aab
+        let sdk = AndroidSdk::from_env().unwrap();
+        let package_name = "test";
+        let target_sdk_version = 30;
+        assert!(build_dir.exists());
+
+        // Generates mininmal unsigned aab
+        let aab_path =
+            gen_minimal_unsigned_aab(sdk, "unsigned", target_sdk_version, &build_dir).unwrap();
+
+        // Removes old keystore if it exists
+        let android_dir = android_dir().unwrap();
+        let target = vec![android_dir.join("aab.keystore")];
+        remove(target).unwrap();
+
+        // Creates new keystore to sign aab
+        let aab_key = AabKey::default();
+        let key_path = gen_aab_key(aab_key).unwrap();
+
+        // Signs aab with key
+        jarsigner(&aab_path, &key_path).unwrap();
+
+        // Replace unsigned aab with signed aab
+        let signed_aab = build_dir.join(format!("{}_signed.aab", package_name));
+        std::fs::rename(&aab_path, &signed_aab).unwrap();
+
+        // Test build_apks
+        let apks_path = build_dir.join(format!("{}.apks", package_name));
+        let apks = BuildApks::new(&signed_aab, &apks_path).run().unwrap();
+        GetSizeTotal::new(&apks).run().unwrap();
     }
 }

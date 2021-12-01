@@ -7,7 +7,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-/// Saves given manifest in new `AndroidManifest.xml` file.
+/// Saves given manifest in new `AndroidManifest.xml` file
 pub fn save_android_manifest(out_dir: &Path, manifest: &AndroidManifest) -> Result<PathBuf> {
     if !out_dir.exists() {
         create_dir_all(out_dir)?;

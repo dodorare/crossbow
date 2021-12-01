@@ -1,7 +1,7 @@
 use android_manifest::*;
 
 /// Generates minimal [`AndroidManifest`](android_manifest::AndroidManifest) with given
-/// changes.
+/// changes
 pub fn gen_minimal_android_manifest(
     app_id: Option<String>,
     package_name: &str,

@@ -36,6 +36,8 @@ pub enum AndroidError {
     InvalidBuildTarget(String),
     /// Failed to find AndroidManifest.xml in path: {0}
     FailedToFindAndroidManifest(String),
+    /// Unable to find NDK file
+    UnableToFindNDKFile,
     /// AndroidManifest error
     AndroidManifest(#[from] android_manifest::error::Error),
 }
@@ -102,6 +104,8 @@ pub enum Error {
     Android(#[from] AndroidError),
     /// Apple error
     Apple(#[from] AppleError),
+    /// Anyhow error
+    AnyhowError(#[from] anyhow::Error),
     /// Other error
     OtherError(#[from] Box<dyn std::error::Error>),
 }

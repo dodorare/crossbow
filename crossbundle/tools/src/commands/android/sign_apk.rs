@@ -2,7 +2,7 @@ use crate::error::*;
 use crate::tools::*;
 use std::path::{Path, PathBuf};
 
-/// Key for signing APK.
+/// Key for signing APK
 #[derive(Debug)]
 pub struct Key {
     pub path: PathBuf,
@@ -10,7 +10,7 @@ pub struct Key {
 }
 
 /// Signs APK with given key.
-/// Uses `apksigner` build tool.
+/// Uses `apksigner` build tool
 pub fn sign_apk(sdk: &AndroidSdk, apk_path: &Path, key: Key) -> Result<()> {
     let mut apksigner = sdk.build_tool(bat!("apksigner"), None)?;
     apksigner

@@ -2,7 +2,7 @@
 name = "bevy-2d"
 version = "0.1.0"
 authors = ["DodoRare Team <support@dodorare.com>"]
-edition = "2021"
+edition = "2018"
 
 [dependencies]
 crossbow = { version = "0.1.0", path = "../../" }

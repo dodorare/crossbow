@@ -1,7 +1,7 @@
 use crate::commands::build::{android::AndroidBuildCommand, BuildContext};
 use crate::error::Result;
 use clap::Parser;
-use crossbundle_tools::tools::InstallApks;
+use crossbundle_tools::tools::{BuildApks, InstallApks};
 use crossbundle_tools::{commands::android, utils::Config};
 
 #[derive(Parser, Clone, Debug)]
@@ -21,7 +21,12 @@ impl AndroidRunCommand {
                 .parent()
                 .unwrap()
                 .join(format!("{}.apks", package_name));
-            let apks_path = android::build_apks(&aab_path, &apks, key)?;
+            let apks_path = BuildApks::new(&aab_path, &apks)
+                .overwrite(true)
+                .ks(&key.key_path)
+                .ks_pass_pass(key.key_pass)
+                .ks_key_alias(key.key_alias)
+                .run()?;
             config.status("Starting run process")?;
             config.status("Installing APKs file")?;
             InstallApks::new(&apks_path).run()?;
@@ -29,7 +34,8 @@ impl AndroidRunCommand {
             android::start_apk(&sdk, &android_manifest.package)?;
             config.status("Run finished successfully")?;
         } else {
-            let (android_manifest, sdk, apk_path) = self.build_command.execute(config, &context)?;
+            let (android_manifest, sdk, apk_path) =
+                self.build_command.execute_apk(config, &context)?;
             config.status("Starting run process")?;
             config.status("Installing APK file")?;
             android::install_apk(&sdk, &apk_path)?;

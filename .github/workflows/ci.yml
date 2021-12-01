@@ -20,14 +20,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - name: Install Android targets
-      run: rustup target add armv7-linux-androideabi aarch64-linux-android i686-linux-android x86_64-linux-android
-    - name: Install Cargo Creator
-      run: cargo install --git=https://github.com/dodorare/crossbow crossbundle
+    - name: Install Android targets and upgrade rust
+      run: |
+        rustup upgrade
+        rustup target add armv7-linux-androideabi aarch64-linux-android i686-linux-android x86_64-linux-android
+    - name: Install Crossbundle
+      run: |
+        rustup upgrade
+        cargo install --path=./crossbundle/cli
     - name: Build APK
       run: |
-        cd examples/3d
-        creator build android --release
+        cd examples/bevy-3d
+        crossbundle build android --release
 
   apple-build-ubuntu:
     name: Build Apple example on macOS latest
@@ -36,33 +40,36 @@ jobs:
     - uses: actions/checkout@master
     - name: Install Apple targets
       run: rustup target add aarch64-apple-ios x86_64-apple-ios
-    - name: Install Cargo Creator
-      run: cargo install --git=https://github.com/dodorare/crossbow crossbundle
+    - name: Install Crossbundle
+      run: |
+        rustup upgrade
+        cargo install --path=./crossbundle/cli
     - name: Build Apple app
       run: |
-        cd examples/3d
-        creator build apple --release --target=x86_64-apple-ios
+        cd examples/bevy-3d
+        crossbundle build apple --release --target=x86_64-apple-ios
 
-  test-creator-new:
+  test-crossbundle-new:
     name: Generate and Build from template on macOS latest
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@master
     - name: Install Apple targets
       run: rustup target add aarch64-apple-ios x86_64-apple-ios aarch64-linux-android x86_64-linux-android
-    - name: Install Cargo Creator
+    - name: Install Crossbundle
       run: |
         brew install openssl@1.1 cmake
+        rustup upgrade
         cargo install cargo-generate
-        cargo install --git=https://github.com/dodorare/crossbow crossbundle
+        cargo install --path=./crossbundle/cli
     - name: Generate project
       run: |
         cd ~
-        creator new explorer --template=fastlane-example
+        crossbundle new explorer --template=fastlane-example
     - name: Build Apple app
       run: |
         cd ~/explorer/
-        creator build apple --release --target=x86_64-apple-ios
+        crossbundle build apple --release --target=x86_64-apple-ios
 
   clean:
     name: Check code format

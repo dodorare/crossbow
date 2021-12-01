@@ -2,7 +2,7 @@
 //! https://developer.android.com/studio/command-line/aapt2
 //! https://android.googlesource.com/platform/frameworks/base/+/master/tools/aapt2
 //!
-//! The main idea behind AAPT2, apart from new features, is that it divides
+//! The main idea behind `AAPT2`, apart from new features, is that it divides
 //! the 'package' step into two: 'compile' and 'link'. It improves performance,
 //! since if only one file changes, you only need to recompile that one file and
 //! link all the intermediate files with the 'link' command.
