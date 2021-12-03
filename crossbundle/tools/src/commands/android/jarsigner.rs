@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 /// Sign aab with key
-pub fn jarsigner(aab_path: &Path, key: &AabKey) -> Result<()> {
+pub fn jarsigner(aab_path: &Path, key: &AabKey) -> Result<PathBuf> {
     let mut jarsigner = jarsigner_tool()?;
     jarsigner
         .arg("-verbose")
@@ -12,14 +12,14 @@ pub fn jarsigner(aab_path: &Path, key: &AabKey) -> Result<()> {
         .arg("SHA256withRSA")
         .arg("-digestalg")
         .arg("SHA-256")
-        .arg(aab_path)
+        .arg(aab_path.clone())
         .arg("-keystore")
         .arg(&key.key_path)
         .arg("-storepass")
         .arg(&key.key_pass)
         .arg(&key.key_alias);
     jarsigner.output_err(true)?;
-    Ok(())
+    Ok(aab_path.to_path_buf())
 }
 
 /// The `-verify` option can take zero or more keystore alias names after the JAR file
