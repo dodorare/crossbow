@@ -33,9 +33,19 @@ impl AndroidRunCommand {
             config.status("Starting APK file")?;
             android::start_apk(&sdk, &android_manifest.package)?;
             config.status("Run finished successfully")?;
-        } else {
+        } else if self.build_command.legacy {
             let (android_manifest, sdk, apk_path) =
-                self.build_command.execute_apk(config, &context)?;
+                self.build_command.execute_apk_with_aapt(config, &context)?;
+            config.status("Starting run process")?;
+            config.status("Installing APK file")?;
+            android::install_apk(&sdk, &apk_path)?;
+            config.status("Starting APK file")?;
+            android::start_apk(&sdk, &android_manifest.package)?;
+            config.status("Run finished successfully")?;
+        } else {
+            let (android_manifest, sdk, apk_path) = self
+                .build_command
+                .execute_apk_with_aapt2(config, &context)?;
             config.status("Starting run process")?;
             config.status("Installing APK file")?;
             android::install_apk(&sdk, &apk_path)?;

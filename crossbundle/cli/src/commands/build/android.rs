@@ -33,6 +33,8 @@ pub struct AndroidBuildCommand {
     #[clap(long)]
     pub sign_key_alias: Option<String>,
     // TODO: Add legacy flag that will build the apk with the aapt and apksigner tools
+    #[clap(long)]
+    pub legacy: bool,
 }
 
 impl AndroidBuildCommand {
@@ -45,13 +47,150 @@ impl AndroidBuildCommand {
         let context = BuildContext::new(config, self.shared.target_dir.clone())?;
         if self.aab {
             self.execute_aab(config, &context)?;
+        } else if self.legacy {
+            self.execute_apk_with_aapt(config, &context)?;
         } else {
-            self.execute_apk(config, &context)?;
+            self.execute_apk_with_aapt2(config, &context)?;
         }
         Ok(())
     }
 
-    pub fn execute_apk(
+    pub fn execute_apk_with_aapt2(
+        &self,
+        config: &Config,
+        context: &BuildContext,
+    ) -> Result<(AndroidManifest, AndroidSdk, PathBuf)> {
+        let profile = self.shared.profile();
+        let example = self.shared.example.as_ref();
+        let (project_path, target_dir, target, package_name) =
+            Self::needed_project_dirs(example, context)?;
+        config.status_message("Starting build process", &package_name)?;
+        let (sdk, ndk, target_sdk_version) = Self::android_toolchain(context)?;
+        config.status_message("Generating", "AndroidManifest.xml")?;
+        let android_build_dir = target_dir.join("android").join(&profile);
+        let (android_manifest, manifest_path) = Self::android_manifest(
+            context,
+            &sdk,
+            package_name.to_string(),
+            profile,
+            &android_build_dir.clone(),
+        )?;
+
+        let build_targets = context.android_build_targets(&self.target);
+        let mut compiled_libs = Vec::new();
+        for build_target in build_targets.iter() {
+            let lib_name = format!("lib{}.so", package_name.replace("-", "_"));
+            let rust_triple = build_target.rust_triple();
+            config.status_message("Compiling for architecture", rust_triple)?;
+
+            // We need a different compilation process for macroquad projects
+            // because of the sokol lib dependency
+            if self.shared.quad {
+                android::compile_macroquad_rust_for_android(
+                    &ndk,
+                    *build_target,
+                    &project_path,
+                    profile,
+                    self.shared.features.clone(),
+                    self.shared.all_features,
+                    self.shared.no_default_features,
+                    target_sdk_version,
+                    &lib_name,
+                )?;
+            } else {
+                android::compile_rust_for_android(
+                    &ndk,
+                    target.clone(),
+                    *build_target,
+                    &project_path,
+                    profile,
+                    self.shared.features.clone(),
+                    self.shared.all_features,
+                    self.shared.no_default_features,
+                    target_sdk_version,
+                )?;
+            }
+            let out_dir = target_dir.join(build_target.rust_triple()).join(&profile);
+            let compiled_lib = out_dir.join(lib_name);
+            compiled_libs.push((compiled_lib, build_target));
+        }
+
+        let package_label = android_manifest
+            .application
+            .label
+            .clone()
+            .unwrap()
+            .to_string();
+
+        let compiled_res_path = android_build_dir.join("compiled_res");
+        if !compiled_res_path.exists() {
+            std::fs::create_dir_all(&compiled_res_path)?;
+        }
+
+        config.status("Compiling resources")?;
+        let compiled_res = if let Some(res) = context.android_res() {
+            let aapt2_compile = sdk.aapt2()?.compile_incremental(
+                dunce::simplified(&res),
+                &dunce::simplified(&compiled_res_path).to_owned(),
+            );
+            let compiled_res = aapt2_compile.run()?;
+            Some(compiled_res)
+        } else {
+            None
+        };
+
+        config.status("Links files to generate APK")?;
+        let apk_path = android_build_dir.join(format!("{}_module.apk", package_name));
+        let mut aapt2_link =
+            sdk.aapt2()?
+                .link_compiled_res(compiled_res, &apk_path, &manifest_path);
+        aapt2_link
+            .android_jar(sdk.android_jar(target_sdk_version)?)
+            .assets(context.android_assets().unwrap())
+            .min_sdk_version(9)
+            .static_lib(true);
+        aapt2_link.run()?;
+
+        config.status("Adding libs")?;
+        for (compiled_lib, build_target) in compiled_libs {
+            android::add_libs_into_aapt2(
+                &ndk,
+                &compiled_lib,
+                *build_target,
+                profile,
+                android_manifest
+                    .clone()
+                    .uses_sdk
+                    .as_ref()
+                    .unwrap()
+                    .min_sdk_version
+                    .unwrap_or(MIN_SDK_VERSION),
+                &android_build_dir,
+                &target_dir,
+            )?;
+        }
+
+        config.status("Aligning APK file")?;
+        let aligned_apk_path =
+            android::align_apk(&sdk, &apk_path, &package_label, &android_build_dir)?;
+
+        let key = if let Some(path) = self.sign_key_path.clone() {
+            android::Key {
+                path,
+                password: self.sign_key_pass.clone().unwrap(),
+            }
+        } else {
+            config.status_message("Generating", "debug signing key")?;
+            android::gen_debug_key().unwrap()
+        };
+
+        config.status("Signing APK file")?;
+        android::sign_apk(&sdk, &aligned_apk_path, key).unwrap();
+        config.status("Build finished successfully")?;
+        Ok((android_manifest, sdk, aligned_apk_path))
+    }
+
+    pub fn execute_apk_with_aapt(
         &self,
         config: &Config,
         context: &BuildContext,
