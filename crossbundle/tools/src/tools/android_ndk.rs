@@ -3,6 +3,9 @@ use crate::types::AndroidTarget;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+/// The Android NDK is a toolset that lets you implement parts of your app in native code.
+/// For certain types of apps, this can help you reuse code libraries written in those
+/// languages
 #[derive(Debug, Clone)]
 pub struct AndroidNdk {
     ndk_path: PathBuf,
@@ -29,10 +32,12 @@ impl AndroidNdk {
         Ok(Self { ndk_path })
     }
 
+    // ndk path
     pub fn ndk_path(&self) -> &Path {
         &self.ndk_path
     }
 
+    /// operating system type
     pub fn toolchain_dir(&self) -> Result<PathBuf> {
         let host_os = std::env::var("HOST").ok();
         let host_contains = |s| host_os.as_ref().map(|h| h.contains(s)).unwrap_or(false);

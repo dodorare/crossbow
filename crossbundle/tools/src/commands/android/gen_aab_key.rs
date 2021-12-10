@@ -85,6 +85,8 @@ mod tests {
     use crate::commands::android::android_dir;
 
     #[test]
+    // Key generation and storage of security certificates - authorization certificates or
+    // public key certificates - plus corresponding private keys
     fn gen_aab_key_test() {
         let android_dir = android_dir().unwrap();
         let target = vec![android_dir.join("aab.keystore")];
