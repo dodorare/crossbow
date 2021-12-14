@@ -12,6 +12,7 @@ pub struct AndroidSdk {
 }
 
 impl AndroidSdk {
+    /// Using environment variables tools
     pub fn from_env() -> Result<Self> {
         let sdk_path = {
             let sdk_path = std::env::var("ANDROID_SDK_ROOT")

@@ -1,7 +1,7 @@
 use crate::error::*;
 use std::path::PathBuf;
 
-// function to delete files
+/// Function to delete files
 pub fn remove(target: Vec<PathBuf>) -> Result<()> {
     target.iter().for_each(|content| {
         if content.is_file() {
