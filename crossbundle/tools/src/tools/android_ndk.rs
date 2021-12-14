@@ -12,6 +12,7 @@ pub struct AndroidNdk {
 }
 
 impl AndroidNdk {
+    /// Using environment variables
     pub fn from_env(sdk_path: Option<&Path>) -> Result<Self> {
         let ndk_path = {
             let ndk_path = std::env::var("ANDROID_NDK_ROOT")
@@ -32,7 +33,7 @@ impl AndroidNdk {
         Ok(Self { ndk_path })
     }
 
-    // NDK path
+    /// NDK path
     pub fn ndk_path(&self) -> &Path {
         &self.ndk_path
     }
