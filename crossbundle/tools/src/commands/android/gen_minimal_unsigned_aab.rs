@@ -2,7 +2,7 @@ use super::gen_minimal_android_manifest;
 use crate::{error::*, tools::AndroidSdk};
 use std::path::{Path, PathBuf};
 
-// minimal set to generate aab
+// Minimal set to generate aab
 pub fn gen_minimal_unsigned_aab(
     sdk: AndroidSdk,
     package_name: &str,
@@ -54,7 +54,7 @@ mod tests {
     use super::*;
 
     #[test]
-    // minimal set to generate aab
+    // Minimal set to generate aab
     fn test_gen_minimal_unsigned_aab() {
         // Creates a temporary directory
         let tempdir = tempfile::tempdir().unwrap();

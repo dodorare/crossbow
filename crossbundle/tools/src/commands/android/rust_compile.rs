@@ -39,7 +39,7 @@ pub fn compile_rust_for_android(
     cargo.output_err(true)?;
     Ok(())
 }
-
+/// Cargo config environment variables
 fn cargo_env_target_cfg(tool: &str, target: &str) -> String {
     let utarget = target.replace("-", "_");
     let env = format!("CARGO_TARGET_{}_{}", &utarget, tool);
