@@ -12,7 +12,7 @@ pub fn jarsigner(aab_path: &Path, key: &AabKey) -> Result<PathBuf> {
         .arg("SHA256withRSA")
         .arg("-digestalg")
         .arg("SHA-256")
-        .arg(aab_path.clone())
+        .arg(aab_path)
         .arg("-keystore")
         .arg(&key.key_path)
         .arg("-storepass")
