@@ -8,7 +8,8 @@ use crossbundle_tools::{
 mod tests {
 
     use super::*;
-    use crossbundle_tools::commands::android::{remove, AabKey};
+    use android_tools::java_tools::{gen_key, AabKey, Jarsigner};
+    use crossbundle_tools::commands::android::remove;
 
     #[test]
     fn test_aab_full() {
@@ -125,7 +126,7 @@ mod tests {
         // Removes unnecessary files
         remove(vec![extracted_apk_path, gen_zip_modules]).unwrap();
 
-        // Creates keystore with keytool command
+        // Creates keystore with keytool commands
         let sign_key_path = Some(android_build_dir.join("aab.keystore"));
         let sign_key_pass = Some("android");
         let sign_key_alias = Some("androiddebugkey");
@@ -138,18 +139,27 @@ mod tests {
             if aab_key.key_path.exists() {
                 aab_key
             } else {
-                android::gen_aab_key(aab_key).unwrap()
+                gen_key(aab_key).unwrap()
             }
         } else {
             let aab_key: AabKey = Default::default();
             if aab_key.key_path.exists() {
                 aab_key
             } else {
-                android::gen_aab_key(aab_key).unwrap()
+                gen_key(aab_key).unwrap()
             }
         };
 
-        // Creates apks from generate aab
+        Jarsigner::new(&aab_path, &key.key_alias)
+            .keystore(&key.key_path)
+            .storepass(key.key_pass.to_string())
+            .verbose(true)
+            .sigalg("SHA256withRSA".to_string())
+            .digestalg("SHA-256".to_string())
+            .run()
+            .unwrap();
+
+        // Creates apks from generated aab
         let apks = android_build_dir.join(format!("{}.apks", package_name));
         let _build_apks = BuildApks::new(&aab_path, &apks)
             .overwrite(true)

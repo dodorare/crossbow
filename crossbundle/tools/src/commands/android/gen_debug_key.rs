@@ -1,4 +1,5 @@
-use super::{android_dir, keytool, Key};
+use android_tools::java_tools::{android_dir, keytool};
+use super::Key;
 use crate::error::*;
 
 /// Generates debug key for signing APK.

@@ -1,10 +1,8 @@
 #[cfg(test)]
 mod tests {
+    use android_tools::java_tools::{android_dir, gen_key, AabKey, Jarsigner};
     use crossbundle_tools::{
-        commands::android::{
-            android_dir, extract_apk, gen_aab_key, gen_minimal_unsigned_aab, gen_zip_modules,
-            jarsigner, remove, AabKey,
-        },
+        commands::android::{extract_apk, gen_minimal_unsigned_aab, gen_zip_modules, remove},
         tools::{AndroidSdk, BuildApks, BuildBundle, GetSizeTotal},
     };
 
@@ -31,10 +29,17 @@ mod tests {
 
         // Creates new keystore to sign aab
         let aab_key = AabKey::default();
-        let key_path = gen_aab_key(aab_key).unwrap();
+        gen_key(aab_key.clone()).unwrap();
 
         // Signs aab with key
-        jarsigner(&aab_path, &key_path).unwrap();
+        Jarsigner::new(&aab_path, &aab_key.key_alias)
+            .keystore(&aab_key.key_path)
+            .storepass(aab_key.key_pass.to_string())
+            .verbose(true)
+            .sigalg("SHA256withRSA".to_string())
+            .digestalg("SHA-256".to_string())
+            .run()
+            .unwrap();
 
         // Replace unsigned aab with signed aab
         let signed_aab = build_dir.join(format!("{}_signed.aab", package_name));
@@ -70,10 +75,17 @@ mod tests {
 
         // Creates new keystore to sign aab
         let aab_key = AabKey::default();
-        let key_path = gen_aab_key(aab_key).unwrap();
+        gen_key(aab_key.clone()).unwrap();
 
         // Signs aab with key
-        let jarsigner = jarsigner(&aab_path, &key_path).unwrap();
+        let jarsigner = Jarsigner::new(&aab_path, &aab_key.key_alias)
+            .keystore(&aab_key.key_path)
+            .storepass(aab_key.key_pass.to_string())
+            .verbose(true)
+            .sigalg("SHA256withRSA".to_string())
+            .digestalg("SHA-256".to_string())
+            .run()
+            .unwrap();
         assert!(jarsigner.exists());
 
         // Replaces unsigned aab with signed aab
@@ -98,25 +110,6 @@ mod tests {
                 // Builds app bundle
                 BuildBundle::new(&[gen_zip_modules], &aab).run().unwrap();
             }
-        }
-    }
-
-    #[cfg(test)]
-    mod tests {
-
-        use crossbundle_tools::tools::GetDeviceSpec;
-
-        #[test]
-        fn build_apks_test() {
-            // Creates a temporary directory
-            let tempfile = tempfile::tempdir().unwrap();
-            let build_dir = tempfile.path().to_path_buf();
-            let package_name = "test";
-
-            // Connect your device or emulator to generate device spec in `.json` format
-            GetDeviceSpec::new(&build_dir.join(format!("{}.json", package_name)))
-                .run()
-                .unwrap();
         }
     }
 }
