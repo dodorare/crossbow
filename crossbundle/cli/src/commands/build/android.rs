@@ -161,14 +161,24 @@ impl AndroidBuildCommand {
             &android_build_dir,
         )?;
 
-        let key = if let Some(path) = self.sign_key_path.clone() {
-            android::Key {
-                path,
-                password: self.sign_key_pass.clone().unwrap(),
+        let key = if let Some(key_path) = self.sign_key_path.clone() {
+            let aab_key = AabKey {
+                key_path,
+                key_pass: self.sign_key_pass.clone().unwrap(),
+                key_alias: self.sign_key_alias.clone().unwrap(),
+            };
+            if aab_key.key_path.exists() {
+                aab_key
+            } else {
+                gen_key(aab_key)?
             }
         } else {
-            config.status_message("Generating", "debug signing key")?;
-            android::gen_debug_key().unwrap()
+            let aab_key: AabKey = Default::default();
+            if aab_key.key_path.exists() {
+                aab_key
+            } else {
+                gen_key(aab_key)?
+            }
         };
 
         config.status("Signing APK file")?;

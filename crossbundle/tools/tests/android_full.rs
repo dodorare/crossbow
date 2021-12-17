@@ -1,5 +1,6 @@
+use android_tools::java_tools::{gen_key, AabKey, android_dir};
 use crossbundle_tools::{
-    commands::{android, gen_minimal_project},
+    commands::{android::{self, remove}, gen_minimal_project},
     tools::{AndroidNdk, AndroidSdk},
     types::*,
 };
@@ -88,8 +89,14 @@ fn test_android_full() {
         android::align_apk(&sdk, &unaligned_apk_path, &manifest.package, &apk_build_dir).unwrap();
     assert!(aligned_apk_path.exists());
 
+    // Removes old keystore if it exists
+    let android_dir = android_dir().unwrap();
+    let target = vec![android_dir.join("aab.keystore")];
+    remove(target).unwrap();
+
     // Gen debug key for signing apk
-    let key = android::gen_debug_key().unwrap();
+    let default_key = AabKey::default();
+    let key = gen_key(default_key).unwrap();
     println!("{:?}", key);
 
     // Sign apk
