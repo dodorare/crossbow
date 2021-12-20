@@ -9,6 +9,7 @@ use crossbundle_tools::{
 };
 
 #[test]
+/// Tests all tools for creating apk
 fn test_android_full() {
     let tempdir = tempfile::tempdir().unwrap();
     let dir = tempdir.path();

@@ -124,10 +124,8 @@ pub fn compile_macroquad_rust_for_android(
 struct SharedLibraryExecutor {
     ndk: AndroidNdk,
     target_sdk_version: u32,
-
     build_target_dir: PathBuf,
     build_target: AndroidTarget,
-
     profile: Profile,
     nostrip: bool,
 }

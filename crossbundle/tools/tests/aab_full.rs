@@ -12,6 +12,7 @@ mod tests {
     use crossbundle_tools::commands::android::remove;
 
     #[test]
+    /// Tests all tools for creating aab
     fn test_aab_full() {
         // Creates temporary directory
         let tempdir = tempfile::tempdir().unwrap();
