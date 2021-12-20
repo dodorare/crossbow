@@ -1,9 +1,10 @@
 use super::{BuildContext, SharedBuildCommand};
 use crate::error::*;
 use android_manifest::AndroidManifest;
+use android_tools::java_tools::{gen_key, AabKey, Jarsigner};
 use clap::Parser;
 use crossbundle_tools::{
-    commands::android::{self, remove, AabKey},
+    commands::android::{self, remove},
     tools::*,
     types::*,
     utils::Config,
@@ -36,6 +37,7 @@ pub struct AndroidBuildCommand {
 }
 
 impl AndroidBuildCommand {
+    // Checks options was specified in AndroidBuildCommand and then builds application
     pub fn run(&self, config: &Config) -> Result<()> {
         if self.sign_key_path.is_some() && self.sign_key_pass.is_none() {
             config
@@ -51,7 +53,7 @@ impl AndroidBuildCommand {
         Ok(())
     }
 
-    /// Builds APK with aapt tool and signs it with apksigner 
+    /// Builds APK with aapt tool and signs it with apksigner
     pub fn execute_apk(
         &self,
         config: &Config,
@@ -159,14 +161,24 @@ impl AndroidBuildCommand {
             &android_build_dir,
         )?;
 
-        let key = if let Some(path) = self.sign_key_path.clone() {
-            android::Key {
-                path,
-                password: self.sign_key_pass.clone().unwrap(),
+        let key = if let Some(key_path) = self.sign_key_path.clone() {
+            let aab_key = AabKey {
+                key_path,
+                key_pass: self.sign_key_pass.clone().unwrap(),
+                key_alias: self.sign_key_alias.clone().unwrap(),
+            };
+            if aab_key.key_path.exists() {
+                aab_key
+            } else {
+                gen_key(aab_key)?
             }
         } else {
-            config.status_message("Generating", "debug signing key")?;
-            android::gen_debug_key().unwrap()
+            let aab_key: AabKey = Default::default();
+            if aab_key.key_path.exists() {
+                aab_key
+            } else {
+                gen_key(aab_key)?
+            }
         };
 
         config.status("Signing APK file")?;
@@ -175,7 +187,7 @@ impl AndroidBuildCommand {
         Ok((android_manifest, sdk, aligned_apk_path))
     }
 
-    /// Builds AAB with aapt2 tool and signs it with jarsigner 
+    /// Builds AAB with aapt2 tool and signs it with jarsigner
     pub fn execute_aab(
         &self,
         config: &Config,
@@ -318,19 +330,25 @@ impl AndroidBuildCommand {
             if aab_key.key_path.exists() {
                 aab_key
             } else {
-                android::gen_aab_key(aab_key)?
+                gen_key(aab_key)?
             }
         } else {
             let aab_key: AabKey = Default::default();
             if aab_key.key_path.exists() {
                 aab_key
             } else {
-                android::gen_aab_key(aab_key)?
+                gen_key(aab_key)?
             }
         };
 
         config.status_message("Signing", "debug signing key")?;
-        android::jarsigner(&aab_path, &key)?;
+        Jarsigner::new(&aab_path, &key.key_alias)
+            .keystore(&key.key_path)
+            .storepass(key.key_pass.to_string())
+            .verbose(true)
+            .sigalg("SHA256withRSA".to_string())
+            .digestalg("SHA-256".to_string())
+            .run()?;
 
         let signed_aab = android_build_dir.join(format!("{}_signed.aab", package_name));
         std::fs::rename(&aab_path, &signed_aab)?;
@@ -362,7 +380,7 @@ impl AndroidBuildCommand {
         Ok((sdk, ndk, target_sdk_version))
     }
 
-    /// Generates and saves AndroidManifest.xml 
+    /// Generates and saves AndroidManifest.xml
     fn android_manifest(
         context: &BuildContext,
         sdk: &AndroidSdk,
