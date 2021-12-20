@@ -12,6 +12,7 @@ use std::path::PathBuf;
 
 const MIN_SDK_VERSION: u32 = 9;
 
+/// Specifies flags and options needed to build application
 #[derive(Parser, Clone, Debug)]
 pub struct AndroidBuildCommand {
     #[clap(flatten)]
@@ -32,7 +33,6 @@ pub struct AndroidBuildCommand {
     /// Signing key alias
     #[clap(long)]
     pub sign_key_alias: Option<String>,
-    // TODO: Add legacy flag that will build the apk with the aapt and apksigner tools
 }
 
 impl AndroidBuildCommand {
@@ -51,6 +51,7 @@ impl AndroidBuildCommand {
         Ok(())
     }
 
+    /// Builds APK with aapt tool and signs it with apksigner 
     pub fn execute_apk(
         &self,
         config: &Config,
@@ -174,6 +175,7 @@ impl AndroidBuildCommand {
         Ok((android_manifest, sdk, aligned_apk_path))
     }
 
+    /// Builds AAB with aapt2 tool and signs it with jarsigner 
     pub fn execute_aab(
         &self,
         config: &Config,
@@ -337,6 +339,7 @@ impl AndroidBuildCommand {
         Ok((android_manifest, sdk, signed_aab, package_name, key))
     }
 
+    /// Specifies project path and target directory needed to build application
     fn needed_project_dirs(
         example: Option<&String>,
         context: &BuildContext,
@@ -351,6 +354,7 @@ impl AndroidBuildCommand {
         Ok((project_path, target_dir, target, package_name))
     }
 
+    /// Specifies path to Android SDK and Android NDK
     fn android_toolchain(context: &BuildContext) -> Result<(AndroidSdk, AndroidNdk, u32)> {
         let sdk = AndroidSdk::from_env()?;
         let ndk = AndroidNdk::from_env(Some(sdk.sdk_path()))?;
@@ -358,6 +362,7 @@ impl AndroidBuildCommand {
         Ok((sdk, ndk, target_sdk_version))
     }
 
+    /// Generates and saves AndroidManifest.xml 
     fn android_manifest(
         context: &BuildContext,
         sdk: &AndroidSdk,
