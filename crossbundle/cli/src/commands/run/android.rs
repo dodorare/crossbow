@@ -11,7 +11,7 @@ pub struct AndroidRunCommand {
 }
 
 impl AndroidRunCommand {
-    /// Deployes and runs application in AAB or APK format on your device or emulator 
+    /// Deployes and runs application in AAB or APK format on your device or emulator
     pub fn run(&self, config: &Config) -> Result<()> {
         let context = BuildContext::new(config, self.build_command.shared.target_dir.clone())?;
         if self.build_command.aab {

@@ -1,6 +1,9 @@
-use android_tools::java_tools::{gen_key, AabKey, android_dir};
+use android_tools::java_tools::{android_dir, gen_key, AabKey};
 use crossbundle_tools::{
-    commands::{android::{self, remove}, gen_minimal_project},
+    commands::{
+        android::{self, remove},
+        gen_minimal_project,
+    },
     tools::{AndroidNdk, AndroidSdk},
     types::*,
 };
