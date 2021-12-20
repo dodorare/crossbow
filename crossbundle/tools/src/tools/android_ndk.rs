@@ -3,12 +3,15 @@ use crate::types::AndroidTarget;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+/// Helper structure that contains information about the Android NDK Path
+/// and returns paths to the tools.
 #[derive(Debug, Clone)]
 pub struct AndroidNdk {
     ndk_path: PathBuf,
 }
 
 impl AndroidNdk {
+    /// Using environment variables
     pub fn from_env(sdk_path: Option<&Path>) -> Result<Self> {
         let ndk_path = {
             let ndk_path = std::env::var("ANDROID_NDK_ROOT")
@@ -29,10 +32,12 @@ impl AndroidNdk {
         Ok(Self { ndk_path })
     }
 
+    /// NDK path
     pub fn ndk_path(&self) -> &Path {
         &self.ndk_path
     }
 
+    /// Operating system type
     pub fn toolchain_dir(&self) -> Result<PathBuf> {
         let host_os = std::env::var("HOST").ok();
         let host_contains = |s| host_os.as_ref().map(|h| h.contains(s)).unwrap_or(false);
@@ -69,6 +74,7 @@ impl AndroidNdk {
         Ok(toolchain_dir)
     }
 
+    /// Path to Clang
     pub fn clang(&self, target: AndroidTarget, platform: u32) -> Result<(PathBuf, PathBuf)> {
         #[cfg(target_os = "windows")]
         let ext = ".cmd";
@@ -87,6 +93,7 @@ impl AndroidNdk {
         Ok((clang, clang_pp))
     }
 
+    /// Path to bin
     pub fn toolchain_bin(&self, name: &str, build_target: AndroidTarget) -> Result<PathBuf> {
         #[cfg(target_os = "windows")]
         let ext = ".exe";
@@ -116,11 +123,13 @@ impl AndroidNdk {
         }
     }
 
+    /// Displaying various information
     pub fn readelf(&self, build_target: AndroidTarget) -> Result<Command> {
         let readelf_path = self.toolchain_bin("readelf", build_target)?;
         Ok(Command::new(readelf_path))
     }
 
+    /// Sysroot and lib path
     pub fn sysroot_lib_dir(&self, build_target: AndroidTarget) -> Result<PathBuf> {
         let sysroot_lib_dir = self
             .toolchain_dir()?
@@ -134,6 +143,7 @@ impl AndroidNdk {
         Ok(sysroot_lib_dir)
     }
 
+    /// Sysroot and lib platform
     pub fn sysroot_platform_lib_dir(
         &self,
         build_target: AndroidTarget,

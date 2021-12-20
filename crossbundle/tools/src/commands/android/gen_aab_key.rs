@@ -30,6 +30,7 @@ pub fn gen_aab_key(key: AabKey) -> Result<AabKey> {
     Ok(key)
 }
 
+/// Key for signing AAB
 #[derive(Debug, Clone)]
 pub struct AabKey {
     pub key_path: PathBuf,
@@ -85,6 +86,7 @@ mod tests {
     use crate::commands::android::android_dir;
 
     #[test]
+    /// Tests generation of debug key for signing `.aab`
     fn gen_aab_key_test() {
         let android_dir = android_dir().unwrap();
         let target = vec![android_dir.join("aab.keystore")];
