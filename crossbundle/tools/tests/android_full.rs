@@ -1,4 +1,4 @@
-use android_tools::java_tools::{android_dir, gen_key, AabKey};
+use android_tools::java_tools::{android_dir, AabKey, Keyalg, Keytool};
 use crossbundle_tools::{
     commands::{
         android::{self, remove},
@@ -99,9 +99,20 @@ fn test_android_full() {
     remove(target).unwrap();
 
     // Gen debug key for signing apk
-    let default_key = AabKey::default();
-    let key = gen_key(default_key).unwrap();
-    println!("{:?}", key);
+    let key = AabKey::default();
+    Keytool::new()
+        .genkey(true)
+        .v(true)
+        .keystore(&key.key_path)
+        .alias(&key.key_alias)
+        .keypass(&key.key_pass)
+        .storepass(&key.key_pass)
+        .dname(&["CN=Android Debug,O=Android,C=US".to_owned()])
+        .keyalg(Keyalg::RSA)
+        .keysize(2048)
+        .validity(10000)
+        .run()
+        .unwrap();
 
     // Sign apk
     android::sign_apk(&sdk, &aligned_apk_path, key).unwrap();

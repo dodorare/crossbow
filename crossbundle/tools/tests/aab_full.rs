@@ -8,7 +8,7 @@ use crossbundle_tools::{
 mod tests {
 
     use super::*;
-    use android_tools::java_tools::{gen_key, AabKey, Jarsigner};
+    use android_tools::java_tools::{android_dir, AabKey, Jarsigner, Keyalg, Keytool};
     use crossbundle_tools::commands::android::remove;
 
     #[test]
@@ -128,28 +128,48 @@ mod tests {
         remove(vec![extracted_apk_path, gen_zip_modules]).unwrap();
 
         // Creates keystore with keytool commands
-        let sign_key_path = Some(android_build_dir.join("aab.keystore"));
-        let sign_key_pass = Some("android");
-        let sign_key_alias = Some("androiddebugkey");
-        let key = if let Some(key_path) = sign_key_path {
-            let aab_key = AabKey {
-                key_path,
-                key_pass: sign_key_pass.clone().unwrap().to_string(),
-                key_alias: sign_key_alias.clone().unwrap().to_string(),
-            };
-            if aab_key.key_path.exists() {
-                aab_key
-            } else {
-                gen_key(aab_key).unwrap()
-            }
-        } else {
-            let aab_key: AabKey = Default::default();
-            if aab_key.key_path.exists() {
-                aab_key
-            } else {
-                gen_key(aab_key).unwrap()
-            }
-        };
+        // let sign_key_path = Some(android_build_dir.join("aab.keystore"));
+        // let sign_key_pass = Some("android");
+        // let sign_key_alias = Some("androiddebugkey");
+        // let key = if let Some(key_path) = sign_key_path {
+        //     let aab_key = AabKey {
+        //         key_path,
+        //         key_pass: sign_key_pass.clone().unwrap().to_string(),
+        //         key_alias: sign_key_alias.clone().unwrap().to_string(),
+        //     };
+        //     if aab_key.key_path.exists() {
+        //         aab_key
+        //     } else {
+        //         gen_key(aab_key).unwrap()
+        //     }
+        // } else {
+        //     let aab_key: AabKey = Default::default();
+        //     if aab_key.key_path.exists() {
+        //         aab_key
+        //     } else {
+        //         gen_key(aab_key).unwrap()
+        //     }
+        // };
+
+        // Removes old keystore if it exists
+        let android_dir = android_dir().unwrap();
+        let target = vec![android_dir.join("aab.keystore")];
+        remove(target).unwrap();
+
+        let key = AabKey::default();
+        Keytool::new()
+            .genkey(true)
+            .v(true)
+            .keystore(&key.key_path)
+            .alias(&key.key_alias)
+            .keypass(&key.key_pass)
+            .storepass(&key.key_pass)
+            .dname(&["CN=Android Debug,O=Android,C=US".to_owned()])
+            .keyalg(Keyalg::RSA)
+            .keysize(2048)
+            .validity(10000)
+            .run()
+            .unwrap();
 
         Jarsigner::new(&aab_path, &key.key_alias)
             .keystore(&key.key_path)

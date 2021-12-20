@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use android_tools::java_tools::{android_dir, gen_key, AabKey, Jarsigner};
+    use android_tools::java_tools::{android_dir, AabKey, Jarsigner, Keyalg, Keytool};
     use crossbundle_tools::{
         commands::android::{extract_apk, gen_minimal_unsigned_aab, gen_zip_modules, remove},
         tools::{AndroidSdk, BuildApks, BuildBundle, GetSizeTotal},
@@ -29,7 +29,19 @@ mod tests {
 
         // Creates new keystore to sign aab
         let aab_key = AabKey::default();
-        gen_key(aab_key.clone()).unwrap();
+        Keytool::new()
+            .genkey(true)
+            .v(true)
+            .keystore(&aab_key.key_path)
+            .alias(&aab_key.key_alias)
+            .keypass(&aab_key.key_pass)
+            .storepass(&aab_key.key_pass)
+            .dname(&["CN=Android Debug,O=Android,C=US".to_owned()])
+            .keyalg(Keyalg::RSA)
+            .keysize(2048)
+            .validity(10000)
+            .run()
+            .unwrap();
 
         // Signs aab with key
         Jarsigner::new(&aab_path, &aab_key.key_alias)
@@ -75,7 +87,19 @@ mod tests {
 
         // Creates new keystore to sign aab
         let aab_key = AabKey::default();
-        gen_key(aab_key.clone()).unwrap();
+        Keytool::new()
+            .genkey(true)
+            .v(true)
+            .keystore(&aab_key.key_path)
+            .alias(&aab_key.key_alias)
+            .keypass(&aab_key.key_pass)
+            .storepass(&aab_key.key_pass)
+            .dname(&["CN=Android Debug,O=Android,C=US".to_owned()])
+            .keyalg(Keyalg::RSA)
+            .keysize(2048)
+            .validity(10000)
+            .run()
+            .unwrap();
 
         // Signs aab with key
         let jarsigner = Jarsigner::new(&aab_path, &aab_key.key_alias)
