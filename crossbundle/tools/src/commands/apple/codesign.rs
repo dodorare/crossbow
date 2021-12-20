@@ -45,7 +45,7 @@ pub fn codesign(
             String::from_utf8(output.stderr)
                 .unwrap()
                 .replace("error: ", "")
-                .replace("\n", ""),
+                .replace('\n', ""),
         )
         .into());
     }

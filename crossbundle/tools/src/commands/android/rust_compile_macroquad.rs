@@ -365,7 +365,7 @@ unset(CMAKE_C_COMPILER CACHE)
 unset(CMAKE_CXX_COMPILER CACHE)
 include("{ndk_path}/build/cmake/android.toolchain.cmake")"#,
         min_sdk_version = min_sdk_version,
-        ndk_path = ndk_path.to_string_lossy().replace("\\", "/"), /* Use forward slashes even on
+        ndk_path = ndk_path.to_string_lossy().replace('\\', "/"), /* Use forward slashes even on
                                                                    * windows to avoid path
                                                                    * escaping issues. */
         build_target = build_target.rust_triple(),
