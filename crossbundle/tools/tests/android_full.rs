@@ -99,9 +99,9 @@ fn test_android_full() {
     remove(target).unwrap();
 
     // Gen debug key for signing apk
-    let key = AabKey::default();
+    let key = AabKey::new_default().unwrap();
     Keytool::new()
-        .genkey(true)
+        .genkeypair(true)
         .v(true)
         .keystore(&key.key_path)
         .alias(&key.key_alias)

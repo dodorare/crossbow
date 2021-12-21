@@ -184,9 +184,9 @@ impl AndroidBuildCommand {
         let old_keystore = android_dir()?.join("aab.keystore");
         remove(vec![old_keystore])?;
 
-        let key = AabKey::default();
+        let key = AabKey::new_default()?;
         Keytool::new()
-            .genkey(true)
+            .genkeypair(true)
             .v(true)
             .keystore(&key.key_path)
             .alias(&key.key_alias)
@@ -359,9 +359,9 @@ impl AndroidBuildCommand {
         //     }
         // };
 
-        let key = AabKey::default();
+        let key = AabKey::new_default()?;
         Keytool::new()
-            .genkey(true)
+            .genkeypair(true)
             .v(true)
             .keystore(&key.key_path)
             .alias(&key.key_alias)

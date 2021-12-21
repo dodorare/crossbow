@@ -9,7 +9,7 @@ pub fn gen_zip_modules(
     extracted_apk_files: &Path,
 ) -> Result<PathBuf> {
     let zip_path = build_dir.join(format!("{}_module.zip", package_label));
-    write_zip::dirs_to_write(&extracted_apk_files.to_owned())?;
-    write_zip::write(&extracted_apk_files.to_owned(), &zip_path)?;
+    write_zip::dirs_to_write(extracted_apk_files)?;
+    write_zip::write(extracted_apk_files, &zip_path)?;
     Ok(zip_path)
 }

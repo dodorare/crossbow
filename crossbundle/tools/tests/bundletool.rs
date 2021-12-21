@@ -26,9 +26,9 @@ fn test_build_apks() {
     remove(target).unwrap();
 
     // Creates new keystore to sign aab
-    let aab_key = AabKey::default();
+    let aab_key = AabKey::new_default().unwrap();
     Keytool::new()
-        .genkey(true)
+        .genkeypair(true)
         .v(true)
         .keystore(&aab_key.key_path)
         .alias(&aab_key.key_alias)
@@ -84,9 +84,9 @@ fn build_bundle_test() {
     remove(target).unwrap();
 
     // Creates new keystore to sign aab
-    let aab_key = AabKey::default();
+    let aab_key = AabKey::new_default().unwrap();
     Keytool::new()
-        .genkey(true)
+        .genkeypair(true)
         .v(true)
         .keystore(&aab_key.key_path)
         .alias(&aab_key.key_alias)

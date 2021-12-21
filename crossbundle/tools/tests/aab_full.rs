@@ -150,9 +150,9 @@ fn test_aab_full() {
     let target = vec![android_dir.join("aab.keystore")];
     remove(target).unwrap();
 
-    let key = AabKey::default();
+    let key = AabKey::new_default().unwrap();
     Keytool::new()
-        .genkey(true)
+        .genkeypair(true)
         .v(true)
         .keystore(&key.key_path)
         .alias(&key.key_alias)
