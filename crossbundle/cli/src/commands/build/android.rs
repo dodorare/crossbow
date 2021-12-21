@@ -1,5 +1,4 @@
 use super::{BuildContext, SharedBuildCommand};
-use crate::error::*;
 use android_manifest::AndroidManifest;
 use android_tools::java_tools::{android_dir, AabKey, JarSigner, KeyAlgorithm, Keytool};
 use clap::Parser;
@@ -38,7 +37,7 @@ pub struct AndroidBuildCommand {
 
 impl AndroidBuildCommand {
     // Checks options was specified in AndroidBuildCommand and then builds application
-    pub fn run(&self, config: &Config) -> Result<()> {
+    pub fn run(&self, config: &Config) -> crate::error::Result<()> {
         if self.sign_key_path.is_some() && self.sign_key_pass.is_none() {
             config
                 .shell()
@@ -58,7 +57,7 @@ impl AndroidBuildCommand {
         &self,
         config: &Config,
         context: &BuildContext,
-    ) -> Result<(AndroidManifest, AndroidSdk, PathBuf)> {
+    ) -> crate::error::Result<(AndroidManifest, AndroidSdk, PathBuf)> {
         let profile = self.shared.profile();
         let example = self.shared.example.as_ref();
         let (project_path, target_dir, target, package_name) =
@@ -161,42 +160,15 @@ impl AndroidBuildCommand {
             &android_build_dir,
         )?;
 
-        // let key = if let Some(key_path) = self.sign_key_path.clone() {
-        //     let aab_key = AabKey {
-        //         key_path,
-        //         key_pass: self.sign_key_pass.clone().unwrap(),
-        //         key_alias: self.sign_key_alias.clone().unwrap(),
-        //     };
-        //     if aab_key.key_path.exists() {
-        //         aab_key
-        //     } else {
-        //         gen_key(aab_key)?
-        //     }
-        // } else {
-        //     let aab_key: AabKey = Default::default();
-        //     if aab_key.key_path.exists() {
-        //         aab_key
-        //     } else {
-        //         gen_key(aab_key)?
-        //     }
-        // };
-
         let old_keystore = android_dir()?.join("aab.keystore");
         remove(vec![old_keystore])?;
 
-        let key = AabKey::new_default()?;
-        Keytool::new()
-            .genkeypair(true)
-            .v(true)
-            .keystore(&key.key_path)
-            .alias(&key.key_alias)
-            .keypass(&key.key_pass)
-            .storepass(&key.key_pass)
-            .dname(&["CN=Android Debug,O=Android,C=US".to_owned()])
-            .keyalg(KeyAlgorithm::RSA)
-            .keysize(2048)
-            .validity(10000)
-            .run()?;
+        config.status_message("Generating", "debug signing key")?;
+        let key = Self::gen_key(
+            self.sign_key_path.clone(),
+            self.sign_key_pass.clone(),
+            self.sign_key_alias.clone(),
+        )?;
 
         config.status("Signing APK file")?;
         android::sign_apk(&sdk, &aligned_apk_path, key).unwrap();
@@ -209,7 +181,7 @@ impl AndroidBuildCommand {
         &self,
         config: &Config,
         context: &BuildContext,
-    ) -> Result<(AndroidManifest, AndroidSdk, PathBuf, String, AabKey)> {
+    ) -> crate::error::Result<(AndroidManifest, AndroidSdk, PathBuf, String, AabKey)> {
         let profile = self.shared.profile();
         let example = self.shared.example.as_ref();
         let (project_path, target_dir, target, package_name) =
@@ -339,39 +311,11 @@ impl AndroidBuildCommand {
         remove(vec![gen_zip_modules, extracted_apk_path, old_keystore])?;
 
         config.status_message("Generating", "debug signing key")?;
-        // let key = if let Some(key_path) = self.sign_key_path.clone() {
-        //     let aab_key = AabKey {
-        //         key_path,
-        //         key_pass: self.sign_key_pass.clone().unwrap(),
-        //         key_alias: self.sign_key_alias.clone().unwrap(),
-        //     };
-        //     if aab_key.key_path.exists() {
-        //         aab_key
-        //     } else {
-        //         gen_key(aab_key)?
-        //     }
-        // } else {
-        //     let aab_key: AabKey = Default::default();
-        //     if aab_key.key_path.exists() {
-        //         aab_key
-        //     } else {
-        //         gen_key(aab_key)?
-        //     }
-        // };
-
-        let key = AabKey::new_default()?;
-        Keytool::new()
-            .genkeypair(true)
-            .v(true)
-            .keystore(&key.key_path)
-            .alias(&key.key_alias)
-            .keypass(&key.key_pass)
-            .storepass(&key.key_pass)
-            .dname(&["CN=Android Debug,O=Android,C=US".to_owned()])
-            .keyalg(KeyAlgorithm::RSA)
-            .keysize(2048)
-            .validity(10000)
-            .run()?;
+        let key = Self::gen_key(
+            self.sign_key_path.clone(),
+            self.sign_key_pass.clone(),
+            self.sign_key_alias.clone(),
+        )?;
 
         config.status_message("Signing", "debug signing key")?;
         JarSigner::new(&aab_path, &key.key_alias)
@@ -386,14 +330,14 @@ impl AndroidBuildCommand {
         std::fs::rename(&aab_path, &signed_aab)?;
         config.status("Build finished successfully")?;
 
-        Ok((android_manifest, sdk, aab_path, package_name, key))
+        Ok((android_manifest, sdk, signed_aab, package_name, key))
     }
 
     /// Specifies project path and target directory needed to build application
     fn needed_project_dirs(
         example: Option<&String>,
         context: &BuildContext,
-    ) -> Result<(PathBuf, PathBuf, Target, String)> {
+    ) -> crate::error::Result<(PathBuf, PathBuf, Target, String)> {
         let project_path: PathBuf = context.project_path.clone();
         let target_dir: PathBuf = context.target_dir.clone();
         let (target, package_name) = if let Some(example) = example {
@@ -405,7 +349,9 @@ impl AndroidBuildCommand {
     }
 
     /// Specifies path to Android SDK and Android NDK
-    fn android_toolchain(context: &BuildContext) -> Result<(AndroidSdk, AndroidNdk, u32)> {
+    fn android_toolchain(
+        context: &BuildContext,
+    ) -> crate::error::Result<(AndroidSdk, AndroidNdk, u32)> {
         let sdk = AndroidSdk::from_env()?;
         let ndk = AndroidNdk::from_env(Some(sdk.sdk_path()))?;
         let target_sdk_version = context.target_sdk_version(&sdk);
@@ -419,10 +365,62 @@ impl AndroidBuildCommand {
         package_name: String,
         profile: Profile,
         android_build_dir: &PathBuf,
-    ) -> Result<(AndroidManifest, PathBuf)> {
+    ) -> crate::error::Result<(AndroidManifest, PathBuf)> {
         let android_manifest =
             context.gen_android_manifest(&sdk, &package_name, profile.is_debug())?;
         let manifest_path = android::save_android_manifest(&android_build_dir, &android_manifest)?;
         Ok((android_manifest, manifest_path))
+    }
+
+    /// Generates keystore with default configuration. You can manage configuration with options
+    fn gen_key(
+        sign_key_path: Option<PathBuf>,
+        sign_key_pass: Option<String>,
+        sign_key_alias: Option<String>,
+    ) -> crate::error::Result<AabKey> {
+        let key = if let Some(key_path) = sign_key_path {
+            let aab_key = AabKey {
+                key_path,
+                key_pass: sign_key_pass.unwrap(),
+                key_alias: sign_key_alias.unwrap(),
+            };
+            if aab_key.key_path.exists() {
+                aab_key
+            } else {
+                Keytool::new()
+                    .genkeypair(true)
+                    .v(true)
+                    .keystore(&aab_key.key_path)
+                    .alias(&aab_key.key_alias)
+                    .keypass(&aab_key.key_pass)
+                    .storepass(&aab_key.key_pass)
+                    .dname(&["CN=Android Debug,O=Android,C=US".to_owned()])
+                    .keyalg(KeyAlgorithm::RSA)
+                    .keysize(2048)
+                    .validity(10000)
+                    .run()?
+                    .unwrap()
+            }
+        } else {
+            let aab_key = AabKey::new_default()?;
+            if aab_key.key_path.exists() {
+                aab_key
+            } else {
+                Keytool::new()
+                    .genkeypair(true)
+                    .v(true)
+                    .keystore(&aab_key.key_path)
+                    .alias(&aab_key.key_alias)
+                    .keypass(&aab_key.key_pass)
+                    .storepass(&aab_key.key_pass)
+                    .dname(&["CN=Android Debug,O=Android,C=US".to_owned()])
+                    .keyalg(KeyAlgorithm::RSA)
+                    .keysize(2048)
+                    .validity(10000)
+                    .run()?
+                    .unwrap()
+            }
+        };
+        Ok(key)
     }
 }
