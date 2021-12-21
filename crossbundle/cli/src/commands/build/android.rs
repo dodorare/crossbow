@@ -1,7 +1,7 @@
 use super::{BuildContext, SharedBuildCommand};
 use crate::error::*;
 use android_manifest::AndroidManifest;
-use android_tools::java_tools::{android_dir, AabKey, Jarsigner, Keyalg, Keytool};
+use android_tools::java_tools::{android_dir, AabKey, JarSigner, KeyAlgorithm, Keytool};
 use clap::Parser;
 use crossbundle_tools::{
     commands::android::{self, remove},
@@ -193,7 +193,7 @@ impl AndroidBuildCommand {
             .keypass(&key.key_pass)
             .storepass(&key.key_pass)
             .dname(&["CN=Android Debug,O=Android,C=US".to_owned()])
-            .keyalg(Keyalg::RSA)
+            .keyalg(KeyAlgorithm::RSA)
             .keysize(2048)
             .validity(10000)
             .run()?;
@@ -368,13 +368,13 @@ impl AndroidBuildCommand {
             .keypass(&key.key_pass)
             .storepass(&key.key_pass)
             .dname(&["CN=Android Debug,O=Android,C=US".to_owned()])
-            .keyalg(Keyalg::RSA)
+            .keyalg(KeyAlgorithm::RSA)
             .keysize(2048)
             .validity(10000)
             .run()?;
 
         config.status_message("Signing", "debug signing key")?;
-        Jarsigner::new(&aab_path, &key.key_alias)
+        JarSigner::new(&aab_path, &key.key_alias)
             .keystore(&key.key_path)
             .storepass(key.key_pass.to_string())
             .verbose(true)
@@ -386,7 +386,7 @@ impl AndroidBuildCommand {
         std::fs::rename(&aab_path, &signed_aab)?;
         config.status("Build finished successfully")?;
 
-        Ok((android_manifest, sdk, signed_aab, package_name, key))
+        Ok((android_manifest, sdk, aab_path, package_name, key))
     }
 
     /// Specifies project path and target directory needed to build application

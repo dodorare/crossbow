@@ -1,4 +1,4 @@
-use android_tools::java_tools::{android_dir, AabKey, Keyalg, Keytool};
+use android_tools::java_tools::{android_dir, AabKey, KeyAlgorithm, Keytool};
 use crossbundle_tools::{
     commands::{
         android::{self, remove},
@@ -108,7 +108,7 @@ fn test_android_full() {
         .keypass(&key.key_pass)
         .storepass(&key.key_pass)
         .dname(&["CN=Android Debug,O=Android,C=US".to_owned()])
-        .keyalg(Keyalg::RSA)
+        .keyalg(KeyAlgorithm::RSA)
         .keysize(2048)
         .validity(10000)
         .run()
