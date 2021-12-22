@@ -1,6 +1,6 @@
 use super::{BuildContext, SharedBuildCommand};
 use android_manifest::AndroidManifest;
-use android_tools::java_tools::{android_dir, AabKey, JarSigner, KeyAlgorithm, Keytool};
+use android_tools::java_tools::{android_dir, AabKey, JarSigner};
 use clap::Parser;
 use crossbundle_tools::{
     commands::android::{self, remove},
@@ -139,7 +139,7 @@ impl AndroidBuildCommand {
         remove(vec![old_keystore])?;
 
         config.status_message("Generating", "debug signing key")?;
-        let key = Self::gen_key(
+        let key = android::gen_key(
             self.sign_key_path.clone(),
             self.sign_key_pass.clone(),
             self.sign_key_alias.clone(),
@@ -261,7 +261,7 @@ impl AndroidBuildCommand {
         remove(vec![gen_zip_modules, extracted_apk_path, old_keystore])?;
 
         config.status_message("Generating", "debug signing key")?;
-        let key = Self::gen_key(
+        let key = android::gen_key(
             self.sign_key_path.clone(),
             self.sign_key_pass.clone(),
             self.sign_key_alias.clone(),
@@ -373,57 +373,5 @@ impl AndroidBuildCommand {
             libs.push((compiled_lib, build_target));
         }
         Ok(libs)
-    }
-
-    /// Generates keystore with default configuration. You can manage configuration with options
-    fn gen_key(
-        sign_key_path: Option<PathBuf>,
-        sign_key_pass: Option<String>,
-        sign_key_alias: Option<String>,
-    ) -> crate::error::Result<AabKey> {
-        let key = if let Some(key_path) = sign_key_path {
-            let aab_key = AabKey {
-                key_path,
-                key_pass: sign_key_pass.unwrap(),
-                key_alias: sign_key_alias.unwrap(),
-            };
-            if aab_key.key_path.exists() {
-                aab_key
-            } else {
-                Keytool::new()
-                    .genkeypair(true)
-                    .v(true)
-                    .keystore(&aab_key.key_path)
-                    .alias(&aab_key.key_alias)
-                    .keypass(&aab_key.key_pass)
-                    .storepass(&aab_key.key_pass)
-                    .dname(&["CN=Android Debug,O=Android,C=US".to_owned()])
-                    .keyalg(KeyAlgorithm::RSA)
-                    .keysize(2048)
-                    .validity(10000)
-                    .run()?
-                    .unwrap()
-            }
-        } else {
-            let aab_key = AabKey::new_default()?;
-            if aab_key.key_path.exists() {
-                aab_key
-            } else {
-                Keytool::new()
-                    .genkeypair(true)
-                    .v(true)
-                    .keystore(&aab_key.key_path)
-                    .alias(&aab_key.key_alias)
-                    .keypass(&aab_key.key_pass)
-                    .storepass(&aab_key.key_pass)
-                    .dname(&["CN=Android Debug,O=Android,C=US".to_owned()])
-                    .keyalg(KeyAlgorithm::RSA)
-                    .keysize(2048)
-                    .validity(10000)
-                    .run()?
-                    .unwrap()
-            }
-        };
-        Ok(key)
     }
 }
