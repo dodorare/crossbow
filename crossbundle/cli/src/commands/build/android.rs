@@ -8,7 +8,7 @@ use crossbundle_tools::{
     types::*,
     utils::Config,
 };
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 const MIN_SDK_VERSION: u32 = 9;
 
@@ -74,44 +74,19 @@ impl AndroidBuildCommand {
             &android_build_dir.clone(),
         )?;
 
+        config.status_message("Compiling", "lib")?;
         let build_targets = context.android_build_targets(&self.target);
-        let mut compiled_libs = Vec::new();
-        for build_target in build_targets.iter() {
-            let lib_name = format!("lib{}.so", package_name.replace("-", "_"));
-            let rust_triple = build_target.rust_triple();
-            config.status_message("Compiling for architecture", rust_triple)?;
-
-            // We need a different compilation process for macroquad projects
-            // because of the sokol lib dependency
-            if self.shared.quad {
-                android::compile_macroquad_rust_for_android(
-                    &ndk,
-                    *build_target,
-                    &project_path,
-                    profile,
-                    self.shared.features.clone(),
-                    self.shared.all_features,
-                    self.shared.no_default_features,
-                    target_sdk_version,
-                    &lib_name,
-                )?;
-            } else {
-                android::compile_rust_for_android(
-                    &ndk,
-                    target.clone(),
-                    *build_target,
-                    &project_path,
-                    profile,
-                    self.shared.features.clone(),
-                    self.shared.all_features,
-                    self.shared.no_default_features,
-                    target_sdk_version,
-                )?;
-            }
-            let out_dir = target_dir.join(build_target.rust_triple()).join(&profile);
-            let compiled_lib = out_dir.join(lib_name);
-            compiled_libs.push((compiled_lib, build_target));
-        }
+        let compiled_libs = self.build_target(
+            build_targets,
+            &package_name,
+            &ndk,
+            &project_path,
+            profile,
+            target_sdk_version,
+            target,
+            &target_dir,
+            config,
+        )?;
 
         config.status_message("Generating", "unaligned APK file")?;
         let package_label = android_manifest
@@ -139,7 +114,7 @@ impl AndroidBuildCommand {
                 &ndk,
                 &unaligned_apk_path,
                 &compiled_lib,
-                *build_target,
+                build_target,
                 profile,
                 android_manifest
                     .uses_sdk
@@ -198,44 +173,19 @@ impl AndroidBuildCommand {
             &android_build_dir.clone(),
         )?;
 
+        config.status_message("Compiling", "lib")?;
         let build_targets = context.android_build_targets(&self.target);
-        let mut compiled_libs = Vec::new();
-        for build_target in build_targets.iter() {
-            let lib_name = format!("lib{}.so", package_name.replace("-", "_"));
-            let rust_triple = build_target.rust_triple();
-            config.status_message("Compiling for architecture", rust_triple)?;
-
-            // We need a different compilation process for macroquad projects
-            // because of the sokol lib dependency
-            if self.shared.quad {
-                android::compile_macroquad_rust_for_android(
-                    &ndk,
-                    *build_target,
-                    &project_path,
-                    profile,
-                    self.shared.features.clone(),
-                    self.shared.all_features,
-                    self.shared.no_default_features,
-                    target_sdk_version,
-                    &lib_name,
-                )?;
-            } else {
-                android::compile_rust_for_android(
-                    &ndk,
-                    target.clone(),
-                    *build_target,
-                    &project_path,
-                    profile,
-                    self.shared.features.clone(),
-                    self.shared.all_features,
-                    self.shared.no_default_features,
-                    target_sdk_version,
-                )?;
-            }
-            let out_dir = target_dir.join(build_target.rust_triple()).join(&profile);
-            let compiled_lib = out_dir.join(lib_name);
-            compiled_libs.push((compiled_lib, build_target));
-        }
+        let compiled_libs = self.build_target(
+            build_targets,
+            &package_name,
+            &ndk,
+            &project_path,
+            profile,
+            target_sdk_version,
+            target,
+            &target_dir,
+            config,
+        )?;
 
         config.status_message("Generating", "proto format APK file")?;
         let compiled_res_path = android_build_dir.join("compiled_res");
@@ -274,7 +224,7 @@ impl AndroidBuildCommand {
             android::add_libs_into_aapt2(
                 &ndk,
                 &compiled_lib,
-                *build_target,
+                build_target,
                 profile,
                 android_manifest
                     .clone()
@@ -370,6 +320,59 @@ impl AndroidBuildCommand {
             context.gen_android_manifest(&sdk, &package_name, profile.is_debug())?;
         let manifest_path = android::save_android_manifest(&android_build_dir, &android_manifest)?;
         Ok((android_manifest, manifest_path))
+    }
+
+    /// Compiling libs for architecture and write out it in vector
+    fn build_target(
+        &self,
+        build_targets: Vec<AndroidTarget>,
+        package_name: &str,
+        ndk: &AndroidNdk,
+        project_path: &Path,
+        profile: Profile,
+        target_sdk_version: u32,
+        target: Target,
+        target_dir: &Path,
+        config: &Config,
+    ) -> crate::error::Result<Vec<(PathBuf, AndroidTarget)>> {
+        let mut libs = Vec::new();
+        for build_target in build_targets {
+            let lib_name = format!("lib{}.so", package_name.replace("-", "_"));
+            let rust_triple = build_target.rust_triple();
+            config.status_message("Compiling for architecture", rust_triple)?;
+
+            // We need a different compilation process for macroquad projects
+            // because of the sokol lib dependency
+            if self.shared.quad {
+                android::compile_macroquad_rust_for_android(
+                    &ndk,
+                    build_target,
+                    &project_path,
+                    profile,
+                    self.shared.features.clone(),
+                    self.shared.all_features,
+                    self.shared.no_default_features,
+                    target_sdk_version,
+                    &lib_name,
+                )?;
+            } else {
+                android::compile_rust_for_android(
+                    &ndk,
+                    target.clone(),
+                    build_target,
+                    &project_path,
+                    profile,
+                    self.shared.features.clone(),
+                    self.shared.all_features,
+                    self.shared.no_default_features,
+                    target_sdk_version,
+                )?;
+            }
+            let out_dir = target_dir.join(build_target.rust_triple()).join(&profile);
+            let compiled_lib = out_dir.join(lib_name);
+            libs.push((compiled_lib, build_target));
+        }
+        Ok(libs)
     }
 
     /// Generates keystore with default configuration. You can manage configuration with options
