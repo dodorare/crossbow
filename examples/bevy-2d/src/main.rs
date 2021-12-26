@@ -1,3 +1,3 @@
 fn main() {
-    twod::main();
+    bevy_2d::main();
 }

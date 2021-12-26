@@ -8,7 +8,7 @@ edition = "2018"
 crossbow = { version = "0.1.0", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
-bevy = { git = "https://github.com/creator-rs/bevy.git", rev = "3ebf26249b698c8379443f73a1cbeb57779e3e6d" }
+bevy = { git = "https://github.com/bevyengine/bevy", rev = "a3c53e689d62a2fd403bf0236b5638e569bd5600" }
 
 [lib]
 crate-type = ["lib", "cdylib"]
