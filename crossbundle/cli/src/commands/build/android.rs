@@ -1,17 +1,18 @@
 use super::{BuildContext, SharedBuildCommand};
-use crate::error::*;
 use android_manifest::AndroidManifest;
+use android_tools::java_tools::{android_dir, AabKey, JarSigner};
 use clap::Parser;
 use crossbundle_tools::{
-    commands::android::{self, remove, AabKey},
+    commands::android::{self, remove},
     tools::*,
     types::*,
     utils::Config,
 };
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 const MIN_SDK_VERSION: u32 = 9;
 
+/// Specifies flags and options needed to build application
 #[derive(Parser, Clone, Debug)]
 pub struct AndroidBuildCommand {
     #[clap(flatten)]
@@ -32,11 +33,11 @@ pub struct AndroidBuildCommand {
     /// Signing key alias
     #[clap(long)]
     pub sign_key_alias: Option<String>,
-    // TODO: Add legacy flag that will build the apk with the aapt and apksigner tools
 }
 
 impl AndroidBuildCommand {
-    pub fn run(&self, config: &Config) -> Result<()> {
+    // Checks options was specified in AndroidBuildCommand and then builds application
+    pub fn run(&self, config: &Config) -> crate::error::Result<()> {
         if self.sign_key_path.is_some() && self.sign_key_pass.is_none() {
             config
                 .shell()
@@ -51,11 +52,12 @@ impl AndroidBuildCommand {
         Ok(())
     }
 
+    /// Builds APK with aapt tool and signs it with apksigner
     pub fn execute_apk(
         &self,
         config: &Config,
         context: &BuildContext,
-    ) -> Result<(AndroidManifest, AndroidSdk, PathBuf)> {
+    ) -> crate::error::Result<(AndroidManifest, AndroidSdk, PathBuf)> {
         let profile = self.shared.profile();
         let example = self.shared.example.as_ref();
         let (project_path, target_dir, target, package_name) =
@@ -72,44 +74,19 @@ impl AndroidBuildCommand {
             &android_build_dir.clone(),
         )?;
 
+        config.status_message("Compiling", "lib")?;
         let build_targets = context.android_build_targets(&self.target);
-        let mut compiled_libs = Vec::new();
-        for build_target in build_targets.iter() {
-            let lib_name = format!("lib{}.so", package_name.replace("-", "_"));
-            let rust_triple = build_target.rust_triple();
-            config.status_message("Compiling for architecture", rust_triple)?;
-
-            // We need a different compilation process for macroquad projects
-            // because of the sokol lib dependency
-            if self.shared.quad {
-                android::compile_macroquad_rust_for_android(
-                    &ndk,
-                    *build_target,
-                    &project_path,
-                    profile,
-                    self.shared.features.clone(),
-                    self.shared.all_features,
-                    self.shared.no_default_features,
-                    target_sdk_version,
-                    &lib_name,
-                )?;
-            } else {
-                android::compile_rust_for_android(
-                    &ndk,
-                    target.clone(),
-                    *build_target,
-                    &project_path,
-                    profile,
-                    self.shared.features.clone(),
-                    self.shared.all_features,
-                    self.shared.no_default_features,
-                    target_sdk_version,
-                )?;
-            }
-            let out_dir = target_dir.join(build_target.rust_triple()).join(&profile);
-            let compiled_lib = out_dir.join(lib_name);
-            compiled_libs.push((compiled_lib, build_target));
-        }
+        let compiled_libs = self.build_target(
+            build_targets,
+            &package_name,
+            &ndk,
+            &project_path,
+            profile,
+            target_sdk_version,
+            target,
+            &target_dir,
+            config,
+        )?;
 
         config.status_message("Generating", "unaligned APK file")?;
         let package_label = android_manifest
@@ -137,7 +114,7 @@ impl AndroidBuildCommand {
                 &ndk,
                 &unaligned_apk_path,
                 &compiled_lib,
-                *build_target,
+                build_target,
                 profile,
                 android_manifest
                     .uses_sdk
@@ -158,15 +135,15 @@ impl AndroidBuildCommand {
             &android_build_dir,
         )?;
 
-        let key = if let Some(path) = self.sign_key_path.clone() {
-            android::Key {
-                path,
-                password: self.sign_key_pass.clone().unwrap(),
-            }
-        } else {
-            config.status_message("Generating", "debug signing key")?;
-            android::gen_debug_key().unwrap()
-        };
+        let old_keystore = android_dir()?.join("aab.keystore");
+        remove(vec![old_keystore])?;
+
+        config.status_message("Generating", "debug signing key")?;
+        let key = android::gen_key(
+            self.sign_key_path.clone(),
+            self.sign_key_pass.clone(),
+            self.sign_key_alias.clone(),
+        )?;
 
         config.status("Signing APK file")?;
         android::sign_apk(&sdk, &aligned_apk_path, key).unwrap();
@@ -174,11 +151,12 @@ impl AndroidBuildCommand {
         Ok((android_manifest, sdk, aligned_apk_path))
     }
 
+    /// Builds AAB with aapt2 tool and signs it with jarsigner
     pub fn execute_aab(
         &self,
         config: &Config,
         context: &BuildContext,
-    ) -> Result<(AndroidManifest, AndroidSdk, PathBuf, String, AabKey)> {
+    ) -> crate::error::Result<(AndroidManifest, AndroidSdk, PathBuf, String, AabKey)> {
         let profile = self.shared.profile();
         let example = self.shared.example.as_ref();
         let (project_path, target_dir, target, package_name) =
@@ -195,44 +173,19 @@ impl AndroidBuildCommand {
             &android_build_dir.clone(),
         )?;
 
+        config.status_message("Compiling", "lib")?;
         let build_targets = context.android_build_targets(&self.target);
-        let mut compiled_libs = Vec::new();
-        for build_target in build_targets.iter() {
-            let lib_name = format!("lib{}.so", package_name.replace("-", "_"));
-            let rust_triple = build_target.rust_triple();
-            config.status_message("Compiling for architecture", rust_triple)?;
-
-            // We need a different compilation process for macroquad projects
-            // because of the sokol lib dependency
-            if self.shared.quad {
-                android::compile_macroquad_rust_for_android(
-                    &ndk,
-                    *build_target,
-                    &project_path,
-                    profile,
-                    self.shared.features.clone(),
-                    self.shared.all_features,
-                    self.shared.no_default_features,
-                    target_sdk_version,
-                    &lib_name,
-                )?;
-            } else {
-                android::compile_rust_for_android(
-                    &ndk,
-                    target.clone(),
-                    *build_target,
-                    &project_path,
-                    profile,
-                    self.shared.features.clone(),
-                    self.shared.all_features,
-                    self.shared.no_default_features,
-                    target_sdk_version,
-                )?;
-            }
-            let out_dir = target_dir.join(build_target.rust_triple()).join(&profile);
-            let compiled_lib = out_dir.join(lib_name);
-            compiled_libs.push((compiled_lib, build_target));
-        }
+        let compiled_libs = self.build_target(
+            build_targets,
+            &package_name,
+            &ndk,
+            &project_path,
+            profile,
+            target_sdk_version,
+            target,
+            &target_dir,
+            config,
+        )?;
 
         config.status_message("Generating", "proto format APK file")?;
         let compiled_res_path = android_build_dir.join("compiled_res");
@@ -271,7 +224,7 @@ impl AndroidBuildCommand {
             android::add_libs_into_aapt2(
                 &ndk,
                 &compiled_lib,
-                *build_target,
+                build_target,
                 profile,
                 android_manifest
                     .clone()
@@ -304,31 +257,24 @@ impl AndroidBuildCommand {
             &android_build_dir,
         )?;
 
-        remove(vec![gen_zip_modules, extracted_apk_path])?;
+        let old_keystore = android_dir()?.join("aab.keystore");
+        remove(vec![gen_zip_modules, extracted_apk_path, old_keystore])?;
 
         config.status_message("Generating", "debug signing key")?;
-        let key = if let Some(key_path) = self.sign_key_path.clone() {
-            let aab_key = AabKey {
-                key_path,
-                key_pass: self.sign_key_pass.clone().unwrap(),
-                key_alias: self.sign_key_alias.clone().unwrap(),
-            };
-            if aab_key.key_path.exists() {
-                aab_key
-            } else {
-                android::gen_aab_key(aab_key)?
-            }
-        } else {
-            let aab_key: AabKey = Default::default();
-            if aab_key.key_path.exists() {
-                aab_key
-            } else {
-                android::gen_aab_key(aab_key)?
-            }
-        };
+        let key = android::gen_key(
+            self.sign_key_path.clone(),
+            self.sign_key_pass.clone(),
+            self.sign_key_alias.clone(),
+        )?;
 
         config.status_message("Signing", "debug signing key")?;
-        android::jarsigner(&aab_path, &key)?;
+        JarSigner::new(&aab_path, &key.key_alias)
+            .keystore(&key.key_path)
+            .storepass(key.key_pass.to_string())
+            .verbose(true)
+            .sigalg("SHA256withRSA".to_string())
+            .digestalg("SHA-256".to_string())
+            .run()?;
 
         let signed_aab = android_build_dir.join(format!("{}_signed.aab", package_name));
         std::fs::rename(&aab_path, &signed_aab)?;
@@ -337,10 +283,11 @@ impl AndroidBuildCommand {
         Ok((android_manifest, sdk, signed_aab, package_name, key))
     }
 
+    /// Specifies project path and target directory needed to build application
     fn needed_project_dirs(
         example: Option<&String>,
         context: &BuildContext,
-    ) -> Result<(PathBuf, PathBuf, Target, String)> {
+    ) -> crate::error::Result<(PathBuf, PathBuf, Target, String)> {
         let project_path: PathBuf = context.project_path.clone();
         let target_dir: PathBuf = context.target_dir.clone();
         let (target, package_name) = if let Some(example) = example {
@@ -351,23 +298,80 @@ impl AndroidBuildCommand {
         Ok((project_path, target_dir, target, package_name))
     }
 
-    fn android_toolchain(context: &BuildContext) -> Result<(AndroidSdk, AndroidNdk, u32)> {
+    /// Specifies path to Android SDK and Android NDK
+    fn android_toolchain(
+        context: &BuildContext,
+    ) -> crate::error::Result<(AndroidSdk, AndroidNdk, u32)> {
         let sdk = AndroidSdk::from_env()?;
         let ndk = AndroidNdk::from_env(Some(sdk.sdk_path()))?;
         let target_sdk_version = context.target_sdk_version(&sdk);
         Ok((sdk, ndk, target_sdk_version))
     }
 
+    /// Generates and saves AndroidManifest.xml
     fn android_manifest(
         context: &BuildContext,
         sdk: &AndroidSdk,
         package_name: String,
         profile: Profile,
         android_build_dir: &PathBuf,
-    ) -> Result<(AndroidManifest, PathBuf)> {
+    ) -> crate::error::Result<(AndroidManifest, PathBuf)> {
         let android_manifest =
             context.gen_android_manifest(&sdk, &package_name, profile.is_debug())?;
         let manifest_path = android::save_android_manifest(&android_build_dir, &android_manifest)?;
         Ok((android_manifest, manifest_path))
+    }
+
+    /// Compiling libs for architecture and write out it in vector
+    fn build_target(
+        &self,
+        build_targets: Vec<AndroidTarget>,
+        package_name: &str,
+        ndk: &AndroidNdk,
+        project_path: &Path,
+        profile: Profile,
+        target_sdk_version: u32,
+        target: Target,
+        target_dir: &Path,
+        config: &Config,
+    ) -> crate::error::Result<Vec<(PathBuf, AndroidTarget)>> {
+        let mut libs = Vec::new();
+        for build_target in build_targets {
+            let lib_name = format!("lib{}.so", package_name.replace("-", "_"));
+            let rust_triple = build_target.rust_triple();
+            config.status_message("Compiling for architecture", rust_triple)?;
+
+            // We need a different compilation process for macroquad projects
+            // because of the sokol lib dependency
+            if self.shared.quad {
+                android::compile_macroquad_rust_for_android(
+                    &ndk,
+                    build_target,
+                    &project_path,
+                    profile,
+                    self.shared.features.clone(),
+                    self.shared.all_features,
+                    self.shared.no_default_features,
+                    target_sdk_version,
+                    &lib_name,
+                )?;
+            } else {
+                android::compile_rust_for_android(
+                    &ndk,
+                    target.clone(),
+                    build_target,
+                    &project_path,
+                    profile,
+                    self.shared.features.clone(),
+                    self.shared.all_features,
+                    self.shared.no_default_features,
+                    target_sdk_version,
+                )?;
+            }
+            let out_dir = target_dir.join(build_target.rust_triple()).join(&profile);
+            let compiled_lib = out_dir.join(lib_name);
+            libs.push((compiled_lib, build_target));
+        }
+        Ok(libs)
     }
 }

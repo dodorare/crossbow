@@ -15,7 +15,7 @@ pub fn gen_minimal_android_manifest(
     debuggable: bool,
 ) -> AndroidManifest {
     AndroidManifest {
-        package: app_id.unwrap_or(format!("com.rust.{}", package_name.replace("-", "_"))),
+        package: app_id.unwrap_or(format!("com.rust.{}", package_name.replace('-', "_"))),
         version_name: Some(version_name),
         version_code,
         uses_sdk: Some(UsesSdk {
@@ -52,7 +52,7 @@ pub fn gen_minimal_android_manifest(
                 .into(),
                 meta_data: vec![MetaData {
                     name: Some("android.app.lib_name".to_string()),
-                    value: Some(package_name.replace("-", "_")),
+                    value: Some(package_name.replace('-', "_")),
                     ..Default::default()
                 }],
                 intent_filter: vec![IntentFilter {

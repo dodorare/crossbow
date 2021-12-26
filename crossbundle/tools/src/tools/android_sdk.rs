@@ -2,6 +2,8 @@ use crate::{error::*, tools::Aapt2};
 use std::path::{Path, PathBuf};
 use std::process::Command as ProcessCommand;
 
+/// Helper structure that contains information about the Android SDK path
+/// and returns paths to the tools.
 pub struct AndroidSdk {
     sdk_path: PathBuf,
     build_deps_path: PathBuf,
@@ -11,6 +13,7 @@ pub struct AndroidSdk {
 }
 
 impl AndroidSdk {
+    /// Using environment variables tools
     pub fn from_env() -> Result<Self> {
         let sdk_path = {
             let sdk_path = std::env::var("ANDROID_SDK_ROOT")
@@ -51,22 +54,27 @@ impl AndroidSdk {
         })
     }
 
+    /// Path to SDK
     pub fn sdk_path(&self) -> &Path {
         &self.sdk_path
     }
 
+    /// Build path deps
     pub fn build_deps_path(&self) -> &Path {
         &self.build_deps_path
     }
 
+    /// Build version deps
     pub fn build_deps_version(&self) -> &str {
         &self.build_deps_version
     }
 
+    /// Platforms path
     pub fn platforms_path(&self) -> &Path {
         &self.platforms_path
     }
 
+    /// Platforms
     pub fn platforms(&self) -> &[u32] {
         &self.platforms
     }
@@ -86,11 +94,13 @@ impl AndroidSdk {
         Ok(command)
     }
 
+    /// AAPT2 tools
     pub fn aapt2(&self) -> Result<Aapt2> {
         self.build_tool(bin!("aapt2"), None)?;
         Ok(Aapt2)
     }
 
+    /// Platforms tools
     pub fn platform_tool(&self, tool: &str) -> Result<ProcessCommand> {
         let path = self.sdk_path.join("platform-tools").join(tool);
         if !path.exists() {
@@ -99,10 +109,12 @@ impl AndroidSdk {
         Ok(ProcessCommand::new(dunce::canonicalize(path)?))
     }
 
+    /// Default platforms
     pub fn default_platform(&self) -> u32 {
         self.platforms().iter().max().cloned().unwrap()
     }
 
+    /// Platforms directory path
     pub fn platform_dir(&self, platform: u32) -> Result<PathBuf> {
         let dir = self.platforms_path.join(format!("android-{}", platform));
         if !dir.exists() {
@@ -111,6 +123,7 @@ impl AndroidSdk {
         Ok(dir)
     }
 
+    /// Returns android_jar path
     pub fn android_jar(&self, platform: u32) -> Result<PathBuf> {
         let android_jar = self.platform_dir(platform)?.join("android.jar");
         if !android_jar.exists() {

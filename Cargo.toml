@@ -20,7 +20,6 @@ crossbow-permissions = { path = "plugins/permissions", version = "0.1.0", option
 [target.'cfg(target_os = "android")'.dependencies]
 ndk-glue = { git = "https://github.com/rust-windowing/android-ndk-rs" }
 
-
 [features]
 default = []
 

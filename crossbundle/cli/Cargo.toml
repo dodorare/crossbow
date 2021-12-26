@@ -24,7 +24,7 @@ path = "src/main.rs"
 [dependencies]
 crossbundle-tools = { path = "../tools", version = "0.1.0" }
 
-clap = "3.0.0-beta.5"
+clap = { git = "https://github.com/clap-rs/clap", rev = "33d86effc9b34e207268977ba45c97f80b3f1b57" }
 cargo_toml = "0.10.1"
 serde = { version = "1.0", features = ["derive"] }
 dunce = "1.0"
@@ -34,6 +34,7 @@ displaydoc = "0.1"
 pretty_env_logger = "0.4"
 log = "0.4"
 fs_extra = "1.2"
+android-tools = "0.2.0"
 
 [features]
 default = ["android", "ios"]
