@@ -27,7 +27,7 @@ RUN cd /usr/local && \
 ENV ANDROID_NDK_ROOT /usr/local/android-ndk-r22-beta1
 
 # Install crossbundle cli
-RUN cargo install --git=https://github.com/dodorare/crossbow crossbundle
+RUN cargo install --git=https://github.com/dodorare/crossbow --branch=main crossbundle
 
 # Make directory for user code
 RUN mkdir -p /src
