@@ -12,7 +12,7 @@ pub fn codesign(
     item_path: &Path,
     force: bool,
     sign_identity: Option<String>,
-    ments: Option<PathBuf>,
+    entitlements: Option<PathBuf>,
 ) -> Result<()> {
     if !item_path.exists() {
         return Err(AppleError::CodesignFailed("Item not found".to_owned()).into());
@@ -35,8 +35,8 @@ pub fn codesign(
         cmd.args(&["--sign", "-"]);
     }
     cmd.arg("--timestamp=none");
-    if let Some(ments) = ments {
-        cmd.args(&["--ments", ments.to_str().unwrap()]);
+    if let Some(entitlements) = entitlements {
+        cmd.args(&["--entitlements", entitlements.to_str().unwrap()]);
     }
     cmd.arg(item_path);
     let output = cmd.output()?;

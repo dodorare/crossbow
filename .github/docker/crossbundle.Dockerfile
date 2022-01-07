@@ -1,8 +1,8 @@
-FROM rust:stretch
+FROM rust:1.57-bullseye
 LABEL org.opencontainers.image.source https://github.com/dodorare/crossbow
 
-RUN apt-get update && \
-    apt-get install -yq openjdk-8-jre unzip wget cmake && \
+RUN apt update && \
+    apt install -yq default-jre unzip wget cmake && \
     rustup target add armv7-linux-androideabi \
     aarch64-linux-android i686-linux-android x86_64-linux-android
 
