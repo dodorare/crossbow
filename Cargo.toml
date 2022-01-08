@@ -18,7 +18,7 @@ crossbow-ads = { path = "plugins/ads", version = "0.1.1", optional = true }
 crossbow-permissions = { path = "plugins/permissions", version = "0.1.1", optional = true }
 
 [target.'cfg(target_os = "android")'.dependencies]
-ndk-glue = { git = "https://github.com/rust-windowing/android-ndk-rs" }
+ndk-glue = "0.6.0"
 
 [features]
 default = []
