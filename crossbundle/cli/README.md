@@ -1,15 +1,18 @@
-## CrossBundle CLI
+# CrossBundle CLI
+
+![splash](https://github.com/dodorare/crossbow/blob/main/.github/assets/splash.png?raw=true)
 
 The **crossbundle** is a command-line tool that encapsulates boring stuff of **Android** and **iOS** build/packaging processes and helps mobile developers to create and maintain applications written in **rust** programming language.
 
-## Installation:
+## Installation
 
 ```sh
 cargo install --git=https://github.com/dodorare/crossbow crossbundle
 ```
 
 ---
-***NOTE***
+
+**_NOTE_**
 
 For the correct work of the tool, you need to set up a development environment (ex. install some libraries and tools - such as Android SDK, Android NDK, XCode, etc).
 More information about how to set up the environment in the **Android setup** and **iOS setup** wiki pages.
@@ -19,7 +22,8 @@ More information about how to set up the environment in the **Android setup** an
 ## Syntax
 
 To see the complete documentation for each command/subcommand you can write `-h` or `--help`:
-```
+
+```sh
 crossbundle -h
 crossbundle build android -h
 crossbundle run android -h
@@ -31,7 +35,7 @@ crossbundle run android -h
 crossbundle <SUBCOMMAND> [FLAGS] [OPTIONS]
 ```
 
-<pre>
+```text
 SUBCOMMANDS:
     build    Starts the process of building/packaging/signing of the rust crate
     help     Prints this message or the help of the given subcommand(s)
@@ -49,7 +53,7 @@ FLAGS:
 
 OPTIONS:
     -c, --current-dir <current-dir>    The current directory where to run all commands
-</pre>
+```
 
 ### Command `crossbundle build android`
 
@@ -57,7 +61,7 @@ OPTIONS:
 crossbundle build android [FLAGS] [OPTIONS]
 ```
 
-<pre>
+```text
 FLAGS:
         --all-features           Activate all available features of selected package
     -h, --help                   Prints help information
@@ -65,7 +69,7 @@ FLAGS:
                                  package
         --release                Build optimized artifact with the `release` profile
     -V, --version                Prints version information
-	--quad                   Runs the subcommand for a `macroquad` project
+        --quad                   Runs the subcommand for a `macroquad` project
 
 OPTIONS:
         --example <example>               Build the specified example
@@ -82,7 +86,7 @@ OPTIONS:
                                  android]
 
         --target-dir <target-dir>            Directory for generated artifact and intermediate files
-</pre>
+```
 
 ### Command `crossbundle build apple`
 
@@ -90,7 +94,7 @@ OPTIONS:
 crossbundle build apple [FLAGS] [OPTIONS]
 ```
 
-<pre>
+```text
 FLAGS:
         --all-features           Activate all available features of selected package
     -h, --help                   Prints help information
@@ -123,4 +127,4 @@ OPTIONS:
         --target-dir <target-dir>            Directory for generated artifact and intermediate files
 
         --team-identifier <team-identifier>       The team identifier of your signing identity
-</pre>
+```
