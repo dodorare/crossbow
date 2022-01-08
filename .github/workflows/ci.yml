@@ -1,5 +1,4 @@
 name: CI
-
 on:
   push:
     branches: [main]
@@ -12,9 +11,7 @@ on:
     - '.github/workflows/ci.yml'
     - '**.rs'
     - '**.toml'
-
 jobs:
-
   android-build-ubuntu:
     name: Build Android example on Ubuntu latest
     runs-on: ubuntu-latest

@@ -1,14 +1,11 @@
 name: Docker images
-
 on:
   push:
     branches: [main]
     paths:
     - '.github/docker/*.Dockerfile'
     - '.github/workflows/docker.yml'
-
 jobs:
-
   build-crossbundle-dockerfile:
     name: Build Crossbundle Dockerfile
     runs-on: ubuntu-latest
