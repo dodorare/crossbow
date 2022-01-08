@@ -2,11 +2,11 @@ name: Docker images
 
 on:
   push:
-    branches: [main]
+    # branches: [main]
     paths:
     - '.github/docker/*.Dockerfile'
     - '.github/workflows/docker.yml'
-    tags: ["v*"]
+    # tags: ["v*"]
 
 jobs:
 
