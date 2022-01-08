@@ -1,8 +1,8 @@
-FROM androidsdk/android-30
+FROM openjdk:8-jdk-slim-bullseye
 LABEL org.opencontainers.image.source https://github.com/dodorare/crossbow
 
 RUN apt update \
-    && apt install -yq unzip wget cmake build-essential pkg-config libssl-dev libssl1.1
+    && apt install -yq curl unzip wget cmake build-essential pkg-config libssl-dev libssl1.1
 
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
@@ -11,6 +11,19 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 RUN rustup target add armv7-linux-androideabi aarch64-linux-android i686-linux-android x86_64-linux-android
 # Install crossbundle cli
 RUN cargo install --git=https://github.com/dodorare/crossbow --branch=main crossbundle
+
+# Install Android SDK
+ENV ANDROID_SDK_ROOT /opt/android-sdk-linux
+RUN mkdir ${ANDROID_SDK_ROOT} && \
+    cd ${ANDROID_SDK_ROOT} && \
+    wget -q https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip && \
+    unzip -q sdk-tools-linux-4333796.zip && \
+    rm sdk-tools-linux-4333796.zip && \
+    chown -R root:root /opt
+RUN yes | ${ANDROID_SDK_ROOT}/tools/bin/sdkmanager "platform-tools" | grep -v = || true
+RUN yes | ${ANDROID_SDK_ROOT}/tools/bin/sdkmanager "platforms;android-30" | grep -v = || true
+RUN yes | ${ANDROID_SDK_ROOT}/tools/bin/sdkmanager "build-tools;30.0.0" | grep -v = || true
+RUN ${ANDROID_SDK_ROOT}/tools/bin/sdkmanager --update | grep -v = || true
 
 # Install Android NDK
 RUN cd /usr/local \
