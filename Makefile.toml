@@ -26,7 +26,7 @@ command = "cargo"
 args = [
   "build",
   "--manifest-path",
-  "crates/cargo-creator/Cargo.toml",
+  "crossbundle/cli/Cargo.toml",
   "--release",
   "--all-features",
   "--target",
@@ -44,7 +44,7 @@ env = { OUTPUT_NAME = "${CARGO_MAKE_PROJECT_NAME}-v${CARGO_MAKE_CRATE_VERSION}-$
 script_runner = "@shell"
 script = '''
 mkdir ${OUTPUT_NAME}
-cp target/${CARGO_MAKE_RELEASE_FLOW_TARGET}/release/${CARGO_MAKE_PROJECT_NAME} ${OUTPUT_NAME}/
+cp target/${CARGO_MAKE_RELEASE_FLOW_TARGET}/release/crossbundle ${OUTPUT_NAME}/
 cp README.md LICENSE* ${OUTPUT_NAME}/
 zip -r ${OUTPUT_NAME}.zip ${OUTPUT_NAME}
 '''
@@ -53,7 +53,7 @@ zip -r ${OUTPUT_NAME}.zip ${OUTPUT_NAME}
 script = '''
 mkdir ${OUTPUT_NAME}
 dir target
-powershell copy-item -path target/${CARGO_MAKE_RELEASE_FLOW_TARGET}/release/${CARGO_MAKE_PROJECT_NAME}.exe -destination ${OUTPUT_NAME}
+powershell copy-item -path target/${CARGO_MAKE_RELEASE_FLOW_TARGET}/release/crossbundle.exe -destination ${OUTPUT_NAME}
 powershell copy-item -path README.md -destination ${OUTPUT_NAME}
 powershell copy-item -path LICENSE -destination ${OUTPUT_NAME}
 dir ${OUTPUT_NAME}
@@ -65,10 +65,8 @@ description = "Build examples in release mode"
 script = '''
 mkdir -p target/apks
 examples=(
-  "2d Creator 2D"
-  "3d Creator 3D"
-  "paint Creator Paint"
-  "explorer Creator Explorer"
+  "2d Crossbow 2D"
+  "3d Crossbow 3D"
 )
 for i in "${examples[@]}"
 do
@@ -77,7 +75,7 @@ do
   name="${2} ${3}"
   echo "Building ${name}"
   pushd examples/$crate
-  creator build android --release
+  crossbundle build android --release
   popd
   mv "target/android/release/${name}.apk" target/apks/
 done
@@ -88,16 +86,16 @@ description = "Publishes crates to crates.io"
 # If crate A depends on crate B, B must come before A in this list
 script = '''
 crates=(
-  creator-ads
-  creator-permissions
-  creator-derive
-  crossbundle-tools
-  cargo-creator
+  plugins/ads
+  plugins/permissions
+  crossbundle/derive
+  crossbundle/tools
+  crossbundle/cli
 )
 for crate in "${crates[@]}"
 do
   echo "Publishing ${crate}"
-  cargo publish --manifest-path=crates/$crate/Cargo.toml
+  cargo publish --manifest-path=$crate/Cargo.toml
   sleep 20
 done
 sleep 20

@@ -32,6 +32,8 @@ jobs:
             binary_target: x86_64-pc-windows-msvc
           - os: macos-latest
             binary_target: x86_64-apple-darwin
+          - os: macos-latest
+            binary_target: aarch64-apple-darwin
     steps:
     - uses: actions/checkout@master
     - name: Install cargo make
@@ -47,26 +49,24 @@ jobs:
         overwrite: true
         file_glob: true
 
-  build-and-publish-release-examples:
-    name: Build and publish examples to Github release
-    # TODO: Replace with Github Action or script that will download crossbundle binary
-    needs: build-and-publish-to-crates-io
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@master
-    - name: Install cargo make
-      run: cargo install cargo-make
-    - name: Build binary
-      # TODO: Replace with Github Action or script that will download crossbundle binary
-      run: |
-        cargo install --git=https://github.com/dodorare/crossbow crossbundle
-        rustup target add armv7-linux-androideabi aarch64-linux-android i686-linux-android x86_64-linux-android
-        cargo make build-release-examples
-    - name: Upload zip file
-      uses: svenstaro/upload-release-action@v2
-      with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: 'target/apks/*.apk'
-        tag: ${{ github.ref }}
-        overwrite: true
-        file_glob: true
+  # build-and-publish-release-examples:
+  #   name: Build and publish examples to Github release
+  #   needs: build-and-publish-to-crates-io
+  #   runs-on: macos-latest
+  #   steps:
+  #   - uses: actions/checkout@master
+  #   - name: Install cargo make
+  #     run: cargo install cargo-make
+  #   - name: Build binary
+  #     run: |
+  #       cargo install --git=https://github.com/dodorare/crossbow --branch=main crossbundle
+  #       rustup target add armv7-linux-androideabi aarch64-linux-android i686-linux-android x86_64-linux-android
+  #       cargo make build-release-examples
+  #   - name: Upload zip file
+  #     uses: svenstaro/upload-release-action@v2
+  #     with:
+  #       repo_token: ${{ secrets.GITHUB_TOKEN }}
+  #       file: 'target/apks/*.apk'
+  #       tag: ${{ github.ref }}
+  #       overwrite: true
+  #       file_glob: true
