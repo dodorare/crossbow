@@ -2,7 +2,7 @@ FROM androidsdk/android-30
 LABEL org.opencontainers.image.source https://github.com/dodorare/crossbow
 
 RUN apt update \
-    && apt install -yq unzip wget cmake build-essential
+    && apt install -yq unzip wget cmake build-essential pkg-config libssl-dev libssl1.1
 
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
