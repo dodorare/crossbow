@@ -13,13 +13,14 @@ Then you can create a new project:
 ```sh
 crossbundle new project-name
 # crossbundle new project-name --template bevy
+# crossbundle new project-name --template quad
 ```
 
 All supported templates you can watch [`here`](https://github.com/dodorare/crossbundle-templates) (each branch = template).
 
-### Project overview
+## Project overview
 
-Done! The project has been created. Now let's see what the project consists of.
+The project has been created. Now let's see what the project consists of.
 
 ```toml
 # Cargo.toml
@@ -27,7 +28,7 @@ Done! The project has been created. Now let's see what the project consists of.
 [package]
 name = "project-name"
 version = "0.1.0"
-authors = ["Example <example@nice.com>"]
+authors = ["Example <example@example.com>"]
 edition = "2018"
 
 [lib]
@@ -59,7 +60,7 @@ fn main() {
 }
 ```
 
-### Build an application
+## Build an application
 
 Let's build and run our first CrossBundle application.
 
@@ -70,13 +71,17 @@ crossbundle run android
 crossbundle run apple
 ```
 
-When the application will deploy on your device, you can attach logger
+If you want to build the application for android as AAB - add `--aab` flag.
+
+When the application deploys on your device, you can attach a logger.
 
 ```sh
 crossbundle log android
 ```
 
 and you will see the message: `"Hello, project-name!"`
+
+## Known issues
 
 ### Error `unable to find library -lgcc`
 
@@ -90,4 +95,4 @@ error: linking with `~/Android/Sdk/ndk/23.0.7272597/toolchains/llvm/prebuilt/lin
           clang-12: error: linker command failed with exit code 1 (use -v to see invocation)
 ```
 
-For now, the easiest way to fix it is installing an older version of `Android NDK` (ex. r22).
+For now, the easiest way to fix it is by installing an older version of `Android NDK` (ex. r22).

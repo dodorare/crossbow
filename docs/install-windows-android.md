@@ -10,30 +10,18 @@
    - Android SDK Build-Tools
    - Android SDK Platform-tools
 
-Please note, `Android NDK r23-beta3` and up [`do not include libgcc anymore`](https://github.com/android/ndk/wiki/Changelog-r23#changes).
-Since Rust 1.53.0 still needs `libgcc` to support `Android NDK r23`, an error may occur during linking. This error will most likely be [`fixed`](https://github.com/rust-lang/rust/pull/85806) in a new version of the Rust.
-
-```sh
-error: linking with `~/Android/Sdk/ndk/23.0.7272597/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android30-clang` failed: exit status: 1
-  |
-  = note: ld: error: unable to find library -lgcc
-          clang-12: error: linker command failed with exit code 1 (use -v to see invocation)
-```
-
-For now, the easiest way to fix it is by installing an older version of `Android NDK` (ex. r22).
-
-### Add environment variables
+## Add environment variables
 
 Take these steps to add Android-related environment variables:
 
 - From the Start search bar, enter ‘env’ and select **Edit environment variables for your account**.
-- Add `ANDROID_NDK_ROOT` variable with value `<path_to_sdk>\Sdk\ndk\<version>`.<br/>(ex. `C:\Users\username\AppData\Local\Android\Sdk\ndk\22.1.7171670`)
-- Add `ANDROID_SDK_ROOT` variable with value `<path_to_sdk>\Sdk`.<br/>(ex. `C:\Users\username\AppData\Local\Android\Sdk`)
+- Add `ANDROID_NDK_ROOT` variable with value `<path_to_sdk>\sdk\ndk\<version>`.<br/>(ex. `C:\Users\username\AppData\Local\Android\Sdk\ndk\22.1.7171670`)
+- Add `ANDROID_SDK_ROOT` variable with value `<path_to_sdk>\sdk`.<br/>(ex. `C:\Users\username\AppData\Local\android\sdk`)
 
 If u will build application with emulator u should add this environment variables:
 
-- Add `<path_to_sdk>\Sdk\tools\bin` to `PATH` variable.
-- Add `<path_to_sdk>\Sdk\emulator` to `PATH` variable.
+- Add `<path_to_sdk>\sdk\tools\bin` to `PATH` variable.
+- Add `<path_to_sdk>\sdk\emulator` to `PATH` variable.
 
 Also, we need to make sure we have a java runtime environment (JRE) installed. We need a key tool utility from there. <br/>
 To make sure it's present type this command: `keytool -h`
@@ -48,7 +36,7 @@ If you haven't already done so, download bundletool from the [`GitHub repository
 
 - Add `BUNDLETOOL_PATH` variable with value `<path_to_bundletool>`.
 
-### Set up your Android device
+## Set up your Android device
 
 To prepare to run your `Crossbow` app on an Android device, you need an Android device running Android 4.1 (API level 16) or higher.
 
@@ -56,7 +44,7 @@ To prepare to run your `Crossbow` app on an Android device, you need an Android 
 2. Windows-only: Install the [Google USB Driver](https://developer.android.com/studio/run/win-usb).
 3. Using a USB cable, plug your phone into your computer. If prompted on your device, authorize your computer to access your device.
 
-### Set up the Android emulator
+## Set up the Android emulator
 
 To prepare to run and test your Flutter app on the Android emulator, follow these steps:
 
@@ -68,7 +56,7 @@ To prepare to run and test your Flutter app on the Android emulator, follow thes
 6. Verify the AVD configuration is correct, and select **Finish**. (For details on the above steps, see [`Managing AVDs`](https://developer.android.com/studio/run/managing-avds))
 7. In Android Virtual Device Manager, click Run in the toolbar. The emulator starts up and displays the default canvas for your selected OS version and device.
 
-### Install necessary rustup targets
+## Install necessary rustup targets
 
 Run the following command:
 
@@ -76,6 +64,22 @@ Run the following command:
 rustup target add armv7-linux-androideabi aarch64-linux-android i686-linux-android x86_64-linux-android
 ```
 
-### Next step
+## Next step
 
 [`Hello World! application`](https://github.com/dodorare/crossbow/wiki/Hello-World!) with Crossbow
+
+## Known issues
+
+### Android NDK r23-beta3
+
+Please note, `Android NDK r23-beta3` and up [`do not include libgcc anymore`](https://github.com/android/ndk/wiki/Changelog-r23#changes).
+Since Rust 1.53.0 still needs `libgcc` to support `Android NDK r23`, an error may occur during linking. This error will most likely be [`fixed`](https://github.com/rust-lang/rust/pull/85806) in a new version of the Rust.
+
+```sh
+error: linking with `~/Android/Sdk/ndk/23.0.7272597/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android30-clang` failed: exit status: 1
+  |
+  = note: ld: error: unable to find library -lgcc
+          clang-12: error: linker command failed with exit code 1 (use -v to see invocation)
+```
+
+For now, the easiest way to fix it is by installing an older version of `Android NDK` (ex. r22).

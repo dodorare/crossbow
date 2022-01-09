@@ -29,3 +29,9 @@ adb install ./target/android/release/Macroquad 3D.apk
 ```
 
 Or transfer APK file `./target/android/release/Macroquad 3D.apk` to your phone with any messenger or any file-hosting application.
+
+## Known issues
+
+### Mac M1
+
+There's a bug in docker image that causes the container to crash when running `cargo build` command with one of rust-bindgen dependency. We have an [tracking issue](https://github.com/dodorare/crossbow/issues/58) for this.
