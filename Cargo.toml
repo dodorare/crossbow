@@ -1,6 +1,6 @@
 [package]
 name = "crossbow"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["DodoRare Team <support@dodorare.com>"]
 description = "Cross-Platform Rust Toolkit for Games 🏹"
@@ -11,11 +11,11 @@ readme = "README.md"
 exclude = [".github/**/*"]
 
 [dependencies]
-crossbundle-derive = { path = "crossbundle/derive", version = "0.1.1" }
-crossbundle-tools = { path = "crossbundle/tools", version = "0.1.1", optional = true }
+crossbundle-derive = { path = "crossbundle/derive", version = "0.1.2" }
+crossbundle-tools = { path = "crossbundle/tools", version = "0.1.2", optional = true }
 
-crossbow-ads = { path = "plugins/ads", version = "0.1.1", optional = true }
-crossbow-permissions = { path = "plugins/permissions", version = "0.1.1", optional = true }
+crossbow-ads = { path = "plugins/ads", version = "0.1.2", optional = true }
+crossbow-permissions = { path = "plugins/permissions", version = "0.1.2", optional = true }
 
 [target.'cfg(target_os = "android")'.dependencies]
 ndk-glue = "0.6.0"

@@ -1,11 +1,11 @@
 [package]
 name = "macroquad-3d"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["DodoRare Team <support@dodorare.com>"]
 edition = "2018"
 
 [dependencies]
-crossbow = { version = "0.1.1", path = "../../" }
+crossbow = { version = "0.1.2", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
 macroquad = "0.3"

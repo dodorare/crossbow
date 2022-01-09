@@ -1,6 +1,6 @@
 [package]
 name = "crossbundle"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["DodoRare Team <support@dodorare.com>"]
 description = "Build and publish apps for Android/iOS"
@@ -22,7 +22,7 @@ name = "cargo-crossbundle"
 path = "src/main.rs"
 
 [dependencies]
-crossbundle-tools = { path = "../tools", version = "0.1.1" }
+crossbundle-tools = { path = "../tools", version = "0.1.2" }
 
 clap = { version = "3.0.5", features = ["derive"] }
 cargo_toml = "0.10.1"

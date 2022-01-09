@@ -17,7 +17,22 @@ A goal of the `crossbow` project is to provide a complete infrastructure for gam
 
 ## Documentation
 
-To learn how to run example project on your own - read [this](https://github.com/dodorare/crossbow/wiki).
+To learn how to run an example project on your own, build, test, and start using `crossbow` - read [our documentation](./docs/README.md).
+
+## Project structure
+
+| Name | Description | Status |
+| ---- | ----------- | ------ |
+| [crossbundle](./crossbundle/cli/README.md) | Command-line tool for building applications | ✅ |
+| [crossbundle-tools](./crossbundle/tools/README.md) | Toolkit used in `crossbundle` to build/pack/sign bundles | ✅ |
+| [crossbundle-derive](./crossbundle/derive/README.md) | Derive macros for projects built with `crossbow` | ✅ |
+| [crossbow-ads](./crossbow/ads/README.md) | Plugin for advertisements | 🛠 |
+| [crossbow-permissions](./crossbow/permissions/README.md) | Plugin for runtime permissions | 🛠 |
+| [android-tools-rs](https://github.com/dodorare/android-tools-rs) | Android-related tools for building and developing application | ✅ |
+| [android-manifest-rs](https://github.com/dodorare/android-manifest-rs) | [AndroidManifest](https://developer.android.com/guide/topics/manifest/manifest-intro) serializer and deserializer for Rust | ✅ |
+| [apple-bundle-rs](https://github.com/dodorare/apple-bundle-rs) | [AppleBundleResources](https://developer.apple.com/documentation/bundleresources) serializer and deserializer for Rust | ✅ |
+
+✅ = Works and tested — 🆗 = Works but may contain bugs — 🛠 = Under development
 
 ## Partners
 
