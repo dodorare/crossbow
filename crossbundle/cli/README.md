@@ -36,23 +36,24 @@ crossbundle <SUBCOMMAND> [FLAGS] [OPTIONS]
 ```
 
 ```text
+USAGE:
+    crossbundle [OPTIONS] <SUBCOMMAND>
+
+OPTIONS:
+    -c, --current-dir <CURRENT_DIR>    The current directory where to run all commands
+    -h, --help                         Print help information
+    -q, --quiet                        No output printed to stdout
+    -v, --verbose                      A level of verbosity, and can be used multiple times
+    -V, --version                      Print version information
+
 SUBCOMMANDS:
     build    Starts the process of building/packaging/signing of the rust crate
-    help     Prints this message or the help of the given subcommand(s)
+    help     Print this message or the help of the given subcommand(s)
     log      Attach logger to device with running application
     new      Creates a new Cargo package in the given directory. Project will be ready to build
              with `crossbundle`
     run      Executes `build` command and then deploy and launches the application on the
              device/emulator
-
-FLAGS:
-    -h, --help       Prints help information
-    -q, --quiet      No output printed to stdout
-    -v, --verbose    A level of verbosity, and can be used multiple times
-    -V, --version    Prints version information
-
-OPTIONS:
-    -c, --current-dir <current-dir>    The current directory where to run all commands
 ```
 
 ### Command `crossbundle build android`
@@ -62,30 +63,53 @@ crossbundle build android [FLAGS] [OPTIONS]
 ```
 
 ```text
-FLAGS:
-        --all-features           Activate all available features of selected package
-    -h, --help                   Prints help information
-        --no-default-features    Do not activate the `default` feature of the current directory's
-                                 package
-        --release                Build optimized artifact with the `release` profile
-    -V, --version                Prints version information
-        --quad                   Runs the subcommand for a `macroquad` project
+USAGE:
+    crossbundle build android [OPTIONS]
 
 OPTIONS:
-        --example <example>               Build the specified example
+        --aab
+            Generating aab. By default crossbow generating apk
 
-        --features <features>...           Space or comma separated list of features to activate. These
-                                 features only apply to the current directory's package.
-                                 Features of direct dependencies may be enabled with `dep-
-                                 name/feature-name` syntax. This flag may be specified
-                                 multiple times, which enables all specified features
+        --all-features
+            Activate all available features of selected package
 
-        --target <target>...             Build for the given android architecture. Supported targets
-                                 are: `armv7-linux-androideabi`, `aarch64-linux-android`, `i686-
-                                 linux-android`, `x86_64-linux-android` [default: aarch64-linux-
-                                 android]
+        --example <EXAMPLE>
+            Build the specified example
 
-        --target-dir <target-dir>            Directory for generated artifact and intermediate files
+        --features <FEATURES>...
+            Space or comma separated list of features to activate. These features only apply to the
+            current directory's package. Features of direct dependencies may be enabled with `<dep-
+            name>/<feature-name>` syntax. This flag may be specified multiple times, which enables
+            all specified features
+
+    -h, --help
+            Print help information
+
+        --no-default-features
+            Do not activate the `default` feature of the current directory's package
+
+        --quad
+            Specifies to build macroquad game engine
+
+        --release
+            Build optimized artifact with the `release` profile
+
+        --sign-key-alias <SIGN_KEY_ALIAS>
+            Signing key alias
+
+        --sign-key-pass <SIGN_KEY_PASS>
+            Signing key password
+
+        --sign-key-path <SIGN_KEY_PATH>
+            Path to the signing key
+
+        --target <TARGET>...
+            Build for the given android architecture. Supported targets are: `armv7-linux-
+            androideabi`, `aarch64-linux-android`, `i686-linux-android`, `x86_64-linux-android`
+            [default: aarch64-linux-android]
+
+        --target-dir <TARGET_DIR>
+            Directory for generated artifact and intermediate files
 ```
 
 ### Command `crossbundle build apple`
@@ -95,36 +119,56 @@ crossbundle build apple [FLAGS] [OPTIONS]
 ```
 
 ```text
-FLAGS:
-        --all-features           Activate all available features of selected package
-    -h, --help                   Prints help information
-        --no-default-features    Do not activate the `default` feature of the current directory's
-                                 package
-        --release                Build optimized artifact with the `release` profile
-    -V, --version                Prints version information
+USAGE:
+    crossbundle build apple [OPTIONS]
 
 OPTIONS:
-        --bin <bin>                   Specify custom cargo binary
-        --example <example>               Build the specified example
+        --all-features
+            Activate all available features of selected package
 
-        --features <features>...           Space or comma separated list of features to activate. These features only apply to the
-                                 current directory's package. Features of direct dependencies may be enabled with `dep-
-                                 name/feature-name` syntax. This flag may be specified multiple times, which enables
-                                 all specified features
+        --bin <BIN>
+            Specify custom cargo binary
 
-        --identity <identity>              The id of the identity used for signing. It won't start the signing process until you
-                                 provide this flag
+        --example <EXAMPLE>
+            Build the specified example
 
-        --profile-name <profile-name>          Provisioning profile name to find in this directory:
-                                 `~/Library/MobileDevice/Provisioning\ Profiles/`
+        --features <FEATURES>...
+            Space or comma separated list of features to activate. These features only apply to the
+            current directory's package. Features of direct dependencies may be enabled with `<dep-
+            name>/<feature-name>` syntax. This flag may be specified multiple times, which enables
+            all specified features
 
-        --profile-path <profile-path>          Absolute path to provisioning profile
+    -h, --help
+            Print help information
 
-        --target <target>...             Build for the given apple architecture. Supported targets are: 'aarch64-apple-ios`,
-                                 `armv7-apple-ios`, `armv7s-apple-ios`, `i386-apple-ios`, `x86_64-apple-ios` [default:
-                                 aarch64-apple-ios]
+        --identity <IDENTITY>
+            The id of the identity used for signing. It won't start the signing process until you
+            provide this flag
 
-        --target-dir <target-dir>            Directory for generated artifact and intermediate files
+        --no-default-features
+            Do not activate the `default` feature of the current directory's package
 
-        --team-identifier <team-identifier>       The team identifier of your signing identity
+        --profile-name <PROFILE_NAME>
+            Provisioning profile name to find in this directory:
+            `~/Library/MobileDevice/Provisioning\ Profiles/`
+
+        --profile-path <PROFILE_PATH>
+            Absolute path to provisioning profile
+
+        --quad
+            Specifies to build macroquad game engine
+
+        --release
+            Build optimized artifact with the `release` profile
+
+        --target <TARGET>...
+            Build for the given apple architecture. Supported targets are: 'aarch64-apple-ios`,
+            `armv7-apple-ios`, `armv7s-apple-ios`, `i386-apple-ios`, `x86_64-apple-ios` [default:
+            aarch64-apple-ios]
+
+        --target-dir <TARGET_DIR>
+            Directory for generated artifact and intermediate files
+
+        --team-identifier <TEAM_IDENTIFIER>
+            The team identifier of your signing identity
 ```

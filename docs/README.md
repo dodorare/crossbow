@@ -13,3 +13,5 @@ Installation tutorials are available here:
 |[Android setup](./install-windows-android.md)|[Android setup](./install-macos-android.md)<br/>[iOS setup](./install-macos-ios.md)|[Android setup](./install-linux-android.md)|[Android setup](./other-docker.md)|
 
 Tutorials on how to create and configure the project with `crossbow` you can find here: [Project Configuration](./main-project-configuration.md), [Hello-World](./main-hello-world.md).
+
+Testing guide is available here: [Testing Guide](./testing-guide.md).
