@@ -10,6 +10,8 @@ The **crossbundle** is a command-line tool that encapsulates boring stuff of **A
 cargo install --git=https://github.com/dodorare/crossbow crossbundle
 ```
 
+See [installation documentation](../../docs/README.md) for more details on how to setup environment on your platform.
+
 ---
 
 **_NOTE_**
@@ -172,3 +174,124 @@ OPTIONS:
         --team-identifier <TEAM_IDENTIFIER>
             The team identifier of your signing identity
 ```
+
+### Command `crossbundle run android`
+
+```sh
+crossbundle build android [FLAGS] [OPTIONS]
+```
+
+```sh
+USAGE:
+    crossbundle run android [OPTIONS]
+
+OPTIONS:
+        --aab
+            Generating aab. By default crossbow generating apk
+
+        --all-features
+            Activate all available features of selected package
+
+        --example <EXAMPLE>
+            Build the specified example
+
+        --features <FEATURES>...
+            Space or comma separated list of features to activate. These features only apply to the
+            current directory's package. Features of direct dependencies may be enabled with `<dep-
+            name>/<feature-name>` syntax. This flag may be specified multiple times, which enables
+            all specified features
+
+    -h, --help
+            Print help information
+
+        --no-default-features
+            Do not activate the `default` feature of the current directory's package
+
+        --quad
+            Specifies to build macroquad game engine
+
+        --release
+            Build optimized artifact with the `release` profile
+
+        --sign-key-alias <SIGN_KEY_ALIAS>
+            Signing key alias
+
+        --sign-key-pass <SIGN_KEY_PASS>
+            Signing key password
+
+        --sign-key-path <SIGN_KEY_PATH>
+            Path to the signing key
+
+        --target <TARGET>...
+            Build for the given android architecture. Supported targets are: `armv7-linux-
+            androideabi`, `aarch64-linux-android`, `i686-linux-android`, `x86_64-linux-android`
+            [default: aarch64-linux-android]
+
+        --target-dir <TARGET_DIR>
+            Directory for generated artifact and intermediate files
+```
+
+### Command `crossbundle run apple`
+
+```sh
+crossbundle build apple [FLAGS] [OPTIONS]
+```
+
+```sh
+USAGE:
+    crossbundle build apple [OPTIONS]
+
+OPTIONS:
+        --all-features
+            Activate all available features of selected package
+
+        --bin <BIN>
+            Specify custom cargo binary
+
+        --example <EXAMPLE>
+            Build the specified example
+
+        --features <FEATURES>...
+            Space or comma separated list of features to activate. These features only apply to the
+            current directory's package. Features of direct dependencies may be enabled with `<dep-
+            name>/<feature-name>` syntax. This flag may be specified multiple times, which enables
+            all specified features
+
+    -h, --help
+            Print help information
+
+        --identity <IDENTITY>
+            The id of the identity used for signing. It won't start the signing process until you
+            provide this flag
+
+        --no-default-features
+            Do not activate the `default` feature of the current directory's package
+
+        --profile-name <PROFILE_NAME>
+            Provisioning profile name to find in this directory:
+            `~/Library/MobileDevice/Provisioning\ Profiles/`
+
+        --profile-path <PROFILE_PATH>
+            Absolute path to provisioning profile
+
+        --quad
+            Specifies to build macroquad game engine
+
+        --release
+            Build optimized artifact with the `release` profile
+
+        --target <TARGET>...
+            Build for the given apple architecture. Supported targets are: 'aarch64-apple-ios`,
+            `armv7-apple-ios`, `armv7s-apple-ios`, `i386-apple-ios`, `x86_64-apple-ios` [default:
+            aarch64-apple-ios]
+
+        --target-dir <TARGET_DIR>
+            Directory for generated artifact and intermediate files
+
+        --team-identifier <TEAM_IDENTIFIER>
+            The team identifier of your signing identity
+```
+
+## License
+
+Licensed under [Apache-2.0 License](../../LICENSE).

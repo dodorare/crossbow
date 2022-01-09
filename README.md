@@ -34,6 +34,10 @@ To learn how to run an example project on your own, build, test, and start using
 
 ✅ = Works and tested — 🆗 = Works but may contain bugs — 🛠 = Under development
 
+## Roadmap
+
+Also, check out our [ROADMAP](./ROADMAP.md) for a better understanding of what we are doing right now and what planned.
+
 ## Partners
 
 This project is [part](https://github.com/w3f/Open-Grants-Program/blob/master/applications/mobile-game-framework.md) of Web3 Foundation Grants Program.
