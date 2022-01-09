@@ -35,7 +35,7 @@ jobs:
     - name: Install cargo make
       run: cargo install cargo-make
     - name: Install openssl for linux
-      if: ${{ matrix.binary_target == x86_64-unknown-linux-musl }}
+      if: ${{ matrix.binary_target == 'x86_64-unknown-linux-musl' }}
       run: apt install -yq build-essential pkg-config libssl-dev libssl1.1
     - name: Build binary
       run: |
