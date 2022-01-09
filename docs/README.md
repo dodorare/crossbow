@@ -15,3 +15,5 @@ Installation tutorials are available here:
 Tutorials on how to create and configure the project with `crossbow` you can find here: [Project Configuration](./main-project-configuration.md), [Hello-World](./main-hello-world.md).
 
 Testing guide is available here: [Testing Guide](./testing-guide.md).
+
+Documentation on the `crossbundle` tool and all available commands and flags is available here: [crossbundle-cli](../crossbundle/cli/README.md).
