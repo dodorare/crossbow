@@ -14,12 +14,12 @@ RUN cargo install --git=https://github.com/dodorare/crossbow --branch=main cross
 
 # Install Android SDK
 ENV ANDROID_SDK_ROOT /opt/android-sdk-linux
-RUN mkdir ${ANDROID_SDK_ROOT} && \
-    cd ${ANDROID_SDK_ROOT} && \
-    wget -q https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip && \
-    unzip -q sdk-tools-linux-4333796.zip && \
-    rm sdk-tools-linux-4333796.zip && \
-    chown -R root:root /opt
+RUN mkdir ${ANDROID_SDK_ROOT} \
+    && cd ${ANDROID_SDK_ROOT} \
+    && wget -q https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip \
+    && unzip -q sdk-tools-linux-4333796.zip \
+    && rm sdk-tools-linux-4333796.zip \
+    && chown -R root:root /opt
 RUN yes | ${ANDROID_SDK_ROOT}/tools/bin/sdkmanager "platform-tools" | grep -v = || true
 RUN yes | ${ANDROID_SDK_ROOT}/tools/bin/sdkmanager "platforms;android-30" | grep -v = || true
 RUN yes | ${ANDROID_SDK_ROOT}/tools/bin/sdkmanager "build-tools;29.0.0" | grep -v = || true
@@ -31,6 +31,11 @@ RUN cd /usr/local \
     && unzip -q android-ndk-r22-beta1-linux-x86_64.zip \
     && rm android-ndk-r22-beta1-linux-x86_64.zip
 ENV ANDROID_NDK_ROOT /usr/local/android-ndk-r22-beta1
+
+# Install bundletool
+RUN wget -q https://github.com/google/bundletool/releases/download/1.8.2/bundletool-all-1.8.2.jar \
+    && mv bundletool-all-1.8.2.jar ${ANDROID_SDK_ROOT}/bundletool-all-1.8.2.jar
+ENV BUNDLETOOL_PATH=${ANDROID_SDK_ROOT}/bundletool-all-1.8.2.jar
 
 # Make directory for user code
 RUN mkdir -p /src
