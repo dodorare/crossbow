@@ -10,9 +10,6 @@ log = "0.4"
 anyhow = "1.0"
 bevy = { version = "0.6.0", features = ["mp3"] }
 
-[lib]
-crate-type = ["lib", "cdylib"]
-
 [package.metadata]
 app_name = "Bevy 2D"
 version_code = "1"

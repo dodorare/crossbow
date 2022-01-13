@@ -344,7 +344,7 @@ impl AndroidBuildCommand {
             // We need a different compilation process for macroquad projects
             // because of the sokol lib dependency
             if self.shared.quad {
-                android::compile_macroquad_rust_for_android(
+                android::compile_rust_for_android_with_mq(
                     &ndk,
                     build_target,
                     &project_path,
@@ -356,9 +356,9 @@ impl AndroidBuildCommand {
                     &lib_name,
                 )?;
             } else {
-                android::compile_rust_for_android(
+                android::compile_rust_for_android_with_bevy(
                     &ndk,
-                    target.clone(),
+                    &target,
                     build_target,
                     &project_path,
                     profile,
