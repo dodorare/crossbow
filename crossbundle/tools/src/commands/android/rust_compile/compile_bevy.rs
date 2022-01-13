@@ -41,6 +41,7 @@ pub fn compile_rust_for_android_with_bevy(
     std::fs::create_dir_all(&build_target_dir).unwrap();
     // Configure compilation options so that we will build the desired build_target
     let opts = super::compile_options(
+        ndk,
         &workspace,
         build_target,
         features,
