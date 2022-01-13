@@ -71,6 +71,7 @@ pub fn compile_rust_for_android_with_mq(
 
     // Configure compilation options so that we will build the desired build_target
     let opts = compile_options(
+        ndk,
         &workspace,
         build_target,
         features,
@@ -330,6 +331,7 @@ fn make_path(ndk_path: &Path) -> PathBuf {
 
 /// Configure compilation options so that we will build the desired build_target
 pub(super) fn compile_options(
+    ndk: &AndroidNdk,
     workspace: &Workspace,
     build_target: AndroidTarget,
     features: Vec<String>,
@@ -356,15 +358,31 @@ pub(super) fn compile_options(
     opts.cli_features =
         CliFeatures::from_command_line(&features, all_features, no_default_features)?;
 
-    // Set the path and file name for the generated shared library
-    opts.target_rustc_args = Some(vec![format!(
+    let mut rustc_args = vec![format!(
         "--emit=link={}",
         build_target_dir
             .join(lib_name)
             .into_os_string()
             .into_string()
             .unwrap()
-    )]);
+    )];
+
+    // Workaround from https://github.com/rust-windowing/android-ndk-rs/issues/149:
+    // Rust (1.56 as of writing) still requires libgcc during linking, but this does
+    // not ship with the NDK anymore since NDK r23 beta 3.
+    // See https://github.com/rust-lang/rust/pull/85806 for a discussion on why libgcc
+    // is still required even after replacing it with libunwind in the source.
+    // XXX: Add an upper-bound on the Rust version whenever this is not necessary anymore.
+    if ndk.build_tag() > 7272597 {
+        let cargo_apk_link_dir = build_target_dir.join("cargo-apk-temp-extra-link-libraries");
+        std::fs::create_dir_all(&cargo_apk_link_dir)?;
+        std::fs::write(cargo_apk_link_dir.join("libgcc.a"), "INPUT(-lunwind)")
+            .expect("Failed to write");
+        rustc_args.push(format!("-L{}", cargo_apk_link_dir.to_string_lossy()));
+    }
+
+    // Set the path and file name for the generated shared library
+    opts.target_rustc_args = Some(rustc_args);
 
     // Set desired profile
     if profile == Profile::Release {
