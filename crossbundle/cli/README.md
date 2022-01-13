@@ -4,6 +4,17 @@
 
 The **crossbundle** is a command-line tool that encapsulates boring stuff of **Android** and **iOS** build/packaging processes and helps mobile developers to create and maintain applications written in **rust** programming language.
 
+## Support status
+
+| Name | Description | Status |
+| ---- | ----------- | ------ |
+| Android APK | Default build result method. | ✅ |
+| Android AAB | Supported via `--aab` flag. | ✅ |
+| Apple Debug IPA | Default build result method. Works only on Simulator and could be run on iPhone with Dev Certificate. | 🆗 |
+| Apple Release IPA | Not supported yet. Crossbundle should generate `xcodeproj`, but user should build and sign IPA manually. | 🛠 |
+
+✅ = Works and tested — 🆗 = Works but may contain bugs — 🛠 = Under development
+
 ## Installation
 
 ```sh

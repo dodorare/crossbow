@@ -21,6 +21,8 @@ To learn how to run an example project on your own, build, test, and start using
 
 ## Project structure
 
+Crate structure:
+
 | Name | Description | Status |
 | ---- | ----------- | ------ |
 | [crossbundle](./crossbundle/cli/README.md) | Command-line tool for building applications | ✅ |
@@ -40,7 +42,7 @@ Also, check out our [ROADMAP](./ROADMAP.md) for a better understanding of what w
 
 ## Partners
 
-This project is [part](https://github.com/w3f/Open-Grants-Program/blob/master/applications/mobile-game-framework.md) of Web3 Foundation Grants Program.
+This project is [part](https://github.com/w3f/Grants-Program/blob/master/applications/crossbow.md) of Web3 Foundation Grants Program.
 
 <img src=".github/assets/w3f_grants_badge.svg" alt="W3F Grants Badge" width="400px" />
 
