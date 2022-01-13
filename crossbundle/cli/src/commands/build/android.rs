@@ -358,7 +358,7 @@ impl AndroidBuildCommand {
             } else {
                 android::compile_rust_for_android_with_bevy(
                     &ndk,
-                    &target,
+                    // &target,
                     build_target,
                     &project_path,
                     profile,

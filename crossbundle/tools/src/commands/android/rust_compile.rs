@@ -102,6 +102,19 @@ pub fn compile_rust_for_android_with_mq(
     std::env::set_var(format!("CXX_{}", rust_triple), &clang_pp);
     std::env::set_var(format!("AR_{}", rust_triple), &ar);
 
+    // Return path to toolchain cmake file
+    let cmake_toolchain_path = write_cmake_toolchain(
+        target_sdk_version,
+        ndk.ndk_path(),
+        &build_target_dir,
+        build_target,
+    )?;
+
+    // Set cmake environment variables
+    std::env::set_var("CMAKE_TOOLCHAIN_FILE", cmake_toolchain_path);
+    std::env::set_var("CMAKE_GENERATOR", r#"Unix Makefiles"#);
+    std::env::set_var("CMAKE_MAKE_PROGRAM", make_path(ndk.ndk_path()));
+
     // Use libc++. It is current default C++ runtime
     std::env::set_var("CXXSTDLIB", "c++");
 
@@ -126,6 +139,8 @@ pub fn compile_rust_for_android_with_mq(
         build_target,
         nostrip: false,
         engine: GameEngine::default(),
+        rust_triple: rust_triple.to_string(),
+        clang,
     });
 
     // Compile all targets for the requested build target
@@ -136,7 +151,7 @@ pub fn compile_rust_for_android_with_mq(
 /// Compiles rust code for android with bevy engine
 pub fn compile_rust_for_android_with_bevy(
     ndk: &AndroidNdk,
-    target: &Target,
+    // target: &Target,
     build_target: AndroidTarget,
     project_path: &Path,
     profile: Profile,
@@ -145,28 +160,83 @@ pub fn compile_rust_for_android_with_bevy(
     no_default_features: bool,
     target_sdk_version: u32,
 ) -> Result<()> {
-    let crate_types = vec![CrateType::Cdylib];
-    let mut cargo = cargo_rustc_command(
-        &target,
-        project_path,
-        &profile,
-        &features,
+    // Specify path to workspace
+    let cargo_config = CargoConfig::default()?;
+    let workspace = Workspace::new(&project_path.join("Cargo.toml"), &cargo_config)?;
+    let rust_triple = build_target.rust_triple();
+
+    // Define directory to build project
+    let build_target_dir = workspace
+        .root()
+        .join("target")
+        .join(rust_triple)
+        .join(profile);
+    fs::create_dir_all(&build_target_dir).unwrap();
+
+    // Set environment variables needed for use with the cc crate
+    let (clang, clang_pp) = ndk.clang(build_target, target_sdk_version)?;
+    let ar = ndk.toolchain_bin("ar", build_target)?;
+
+    std::env::set_var(format!("CC_{}", rust_triple), &clang);
+    std::env::set_var(format!("CXX_{}", rust_triple), &clang_pp);
+    std::env::set_var(format!("AR_{}", rust_triple), &ar);
+    std::env::set_var(cargo_env_target_cfg("LINKER", rust_triple), &clang);
+
+    // Use libc++. It is current default C++ runtime
+    std::env::set_var("CXXSTDLIB", "c++");
+
+    let lib_name = "bevy_test_example";
+    // Configure compilation options so that we will build the desired build_target
+    let opts = compile_options(
+        &workspace,
+        build_target,
+        features,
         all_features,
         no_default_features,
-        &build_target.into(),
-        &crate_types,
-    );
-    let triple = build_target.rust_triple();
-    // Takes clang and clang_pp paths
-    let (clang, clang_pp) = ndk.clang(build_target, target_sdk_version)?;
-    cargo.env(format!("CC_{}", triple), &clang);
-    cargo.env(format!("CXX_{}", triple), &clang_pp);
-    cargo.env(cargo_env_target_cfg("LINKER", triple), &clang);
-    let ar = ndk.toolchain_bin("ar", build_target)?;
-    cargo.env(format!("AR_{}", triple), &ar);
-    cargo.env(cargo_env_target_cfg("AR", triple), &ar);
-    cargo.output_err(true)?;
+        &build_target_dir,
+        lib_name,
+        profile,
+    )?;
+
+    // Create the executor
+    let executor: Arc<dyn Executor> = Arc::new(SharedLibraryExecutor {
+        ndk: ndk.clone(),
+        target_sdk_version,
+        profile,
+        build_target_dir,
+        build_target,
+        nostrip: false,
+        engine: GameEngine::Bevy,
+        rust_triple: rust_triple.to_string(),
+        clang,
+    });
+
+    // Compile all targets for the requested build target
+    cargo::ops::compile_with_exec(&workspace, &opts, &executor)?;
     Ok(())
+
+    // let crate_types = vec![CrateType::Cdylib];
+    // let mut cargo = cargo_rustc_command(
+    //     &target,
+    //     project_path,
+    //     &profile,
+    //     &features,
+    //     all_features,
+    //     no_default_features,
+    //     &build_target.into(),
+    //     &crate_types,
+    // );
+    // let triple = build_target.rust_triple();
+    // // Takes clang and clang_pp paths
+    // let (clang, clang_pp) = ndk.clang(build_target, target_sdk_version)?;
+    // cargo.env(format!("CC_{}", triple), &clang);
+    // cargo.env(format!("CXX_{}", triple), &clang_pp);
+    // cargo.env(cargo_env_target_cfg("LINKER", triple), &clang);
+    // let ar = ndk.toolchain_bin("ar", build_target)?;
+    // cargo.env(format!("AR_{}", triple), &ar);
+    // cargo.env(cargo_env_target_cfg("AR", triple), &ar);
+    // cargo.output_err(true)?;
+    // Ok(())
 }
 
 /// Helper function that allows to return environment argument with specified tool
@@ -174,6 +244,61 @@ fn cargo_env_target_cfg(tool: &str, target: &str) -> String {
     let utarget = target.replace("-", "_");
     let env = format!("CARGO_TARGET_{}_{}", &utarget, tool);
     env.to_uppercase()
+}
+
+/// Executor which builds binary and example targets as static libraries
+#[derive(Debug)]
+struct SharedLibraryExecutor {
+    ndk: AndroidNdk,
+    target_sdk_version: u32,
+    build_target_dir: PathBuf,
+    build_target: AndroidTarget,
+    profile: Profile,
+    nostrip: bool,
+    engine: GameEngine,
+    rust_triple: String,
+    clang: PathBuf,
+}
+
+impl Executor for SharedLibraryExecutor {
+    fn exec(
+        &self,
+        cmd: &ProcessBuilder,
+        _id: PackageId,
+        target: &cargo::core::Target,
+        mode: CompileMode,
+        on_stdout_line: &mut dyn FnMut(&str) -> CargoResult<()>,
+        on_stderr_line: &mut dyn FnMut(&str) -> CargoResult<()>,
+    ) -> CargoResult<()> {
+        let sokol_extra_code = SOKOL_EXTRA_CODE;
+        let ndk_glue_extra_code = NDK_GLUE_EXTRA_CODE;
+        match self.engine {
+            GameEngine::Macroquad => set_cmake_vars(
+                self.build_target,
+                &self.ndk,
+                self.target_sdk_version,
+                &self.build_target_dir,
+            )?,
+            GameEngine::Bevy => linker(&self.rust_triple, self.clang.clone())?,
+        };
+        println!("The engine is {:?}", self.engine);
+        exec_compilation(
+            cmd,
+            &self.build_target_dir,
+            self.build_target,
+            &self.ndk,
+            self.target_sdk_version,
+            self.nostrip,
+            self.profile,
+            sokol_extra_code,
+            ndk_glue_extra_code,
+            self.engine.clone(),
+            target,
+            mode,
+            on_stdout_line,
+            on_stderr_line,
+        )
+    }
 }
 
 /// Helper function for Executor trait. Match compile mode and return cmd arguments
@@ -225,6 +350,7 @@ fn exec_compilation(
             on_stdout_line,
             on_stderr_line,
         )?;
+        println!("1st compile mod");
     } else if mode == CompileMode::Test {
         // This occurs when --all-targets is specified
         return Err(anyhow::Error::msg(format!(
@@ -254,62 +380,6 @@ fn exec_compilation(
     }
 
     Ok(())
-}
-
-/// Executor which builds binary and example targets as static libraries
-struct SharedLibraryExecutor {
-    ndk: AndroidNdk,
-    target_sdk_version: u32,
-    build_target_dir: PathBuf,
-    build_target: AndroidTarget,
-    profile: Profile,
-    nostrip: bool,
-    engine: GameEngine,
-}
-
-impl Executor for SharedLibraryExecutor {
-    fn exec(
-        &self,
-        cmd: &ProcessBuilder,
-        _id: PackageId,
-        target: &cargo::core::Target,
-        mode: CompileMode,
-        on_stdout_line: &mut dyn FnMut(&str) -> CargoResult<()>,
-        on_stderr_line: &mut dyn FnMut(&str) -> CargoResult<()>,
-    ) -> CargoResult<()> {
-        let sokol_extra_code = SOKOL_EXTRA_CODE;
-        let ndk_glue_extra_code = NDK_GLUE_EXTRA_CODE;
-        match self.engine {
-            GameEngine::Macroquad => set_cmake_vars(
-                self.build_target,
-                &self.ndk,
-                self.target_sdk_version,
-                &self.build_target_dir,
-            )?,
-            GameEngine::Bevy => set_cmake_vars(
-                self.build_target,
-                &self.ndk,
-                self.target_sdk_version,
-                &self.build_target_dir,
-            )?,
-        };
-        exec_compilation(
-            cmd,
-            &self.build_target_dir,
-            self.build_target,
-            &self.ndk,
-            self.target_sdk_version,
-            self.nostrip,
-            self.profile,
-            sokol_extra_code,
-            ndk_glue_extra_code,
-            self.engine.clone(),
-            target,
-            mode,
-            on_stdout_line,
-            on_stderr_line,
-        )
-    }
 }
 
 /// Write a CMake toolchain which will remove references to the rustc build target before
@@ -576,6 +646,12 @@ fn set_cmake_vars(
     Ok(())
 }
 
+/// Sets needed environment variable for bevy
+fn linker(rust_triple: &str, clang: PathBuf) -> CargoResult<()> {
+    std::env::set_var(cargo_env_target_cfg("LINKER", rust_triple), &clang);
+    Ok(())
+}
+
 #[cfg(all(target_os = "windows", target_pointer_width = "64"))]
 const HOST_TAG: &str = "windows-x86_64";
 
@@ -591,6 +667,7 @@ const HOST_TAG: &str = "darwin-x86_64";
 #[cfg(test)]
 mod tests {
     use super::*;
+
     #[test]
     fn test_compile_rust_with_macroquad() {
         // Specify path to user directory
@@ -618,31 +695,31 @@ mod tests {
         .unwrap();
     }
 
-    // #[test]
-    // fn test_compile_rust_with_bevy() {
-    //     // Specify path to user directory
-    //     let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    //     let project_path = user_dirs.parent().unwrap().parent().unwrap();
+    #[test]
+    fn test_compile_rust_with_bevy() {
+        // Specify path to user directory
+        let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let project_path = user_dirs.parent().unwrap().parent().unwrap();
 
-    //     // Specify path to macroquad project example
-    //     let project_path = project_path.join("examples").join("bevy-2d");
+        // Specify path to macroquad project example
+        let project_path = project_path.join("examples").join("bevy-2d");
 
-    //     // Provide path to Android SDK and Android NDK
-    //     let sdk = AndroidSdk::from_env().unwrap();
-    //     let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
+        // Provide path to Android SDK and Android NDK
+        let sdk = AndroidSdk::from_env().unwrap();
+        let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
 
-    //     let target = Target::Lib;
-    //     compile_rust_for_android_with_bevy(
-    //         &ndk,
-    //         &target,
-    //         AndroidTarget::Aarch64LinuxAndroid,
-    //         &project_path,
-    //         Profile::Debug,
-    //         vec![],
-    //         false,
-    //         false,
-    //         30,
-    //     )
-    //     .unwrap();
-    // }
+        let target = Target::Lib;
+        compile_rust_for_android_with_bevy(
+            &ndk,
+            // &target,
+            AndroidTarget::Aarch64LinuxAndroid,
+            &project_path,
+            Profile::Debug,
+            vec![],
+            false,
+            false,
+            30,
+        )
+        .unwrap();
+    }
 }
