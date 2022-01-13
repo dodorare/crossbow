@@ -11,7 +11,7 @@ The easiest way to configure a project is with metadata. Here's an example:
 name = "game"
 version = "0.1.0"
 authors = ["Example <example@nice.com>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 crossbow = "0.1.0"

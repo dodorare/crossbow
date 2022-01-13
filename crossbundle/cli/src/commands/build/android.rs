@@ -358,7 +358,6 @@ impl AndroidBuildCommand {
             } else {
                 android::compile_rust_for_android_with_bevy(
                     &ndk,
-                    // &target,
                     build_target,
                     &project_path,
                     profile,
@@ -366,6 +365,7 @@ impl AndroidBuildCommand {
                     self.shared.all_features,
                     self.shared.no_default_features,
                     target_sdk_version,
+                    &lib_name,
                 )?;
             }
             let out_dir = target_dir.join(build_target.rust_triple()).join(&profile);

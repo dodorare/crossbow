@@ -1,7 +1,4 @@
-use crate::commands::common::cargo_rustc_command;
-use crate::error::*;
-use crate::tools::*;
-use crate::types::*;
+use crate::{error::*, tools::*, types::*};
 use cargo::{
     core::{
         compiler::{CompileKind, CompileMode, CompileTarget, Executor},
@@ -22,52 +19,6 @@ use std::{
     sync::Arc,
 };
 use tempfile::{Builder, NamedTempFile};
-
-const NDK_GLUE_EXTRA_CODE: &'static str = r#"
-#[no_mangle]
-#[cfg(target_os = "android")]
-unsafe extern "C" fn ANativeActivity_onCreate(
-    activity: *mut std::os::raw::c_void,
-    saved_state: *mut std::os::raw::c_void,
-    saved_state_size: usize,
-) {
-    crossbow::ndk_glue::init(
-        activity as _,
-        saved_state as _,
-        saved_state_size as _,
-        main,
-    );
-}
-"#;
-
-const SOKOL_EXTRA_CODE: &'static str = r##"
-mod cargo_apk_glue_code {
-    extern "C" {
-        pub fn sapp_ANativeActivity_onCreate(
-            activity: *mut std::ffi::c_void,
-            saved_state: *mut std::ffi::c_void,
-            saved_state_size: usize,
-        );
-    }
-    #[no_mangle]
-    pub unsafe extern "C" fn ANativeActivity_onCreate(
-        activity: *mut std::ffi::c_void,
-        saved_state: *mut std::ffi::c_void,
-        saved_state_size: usize,
-    ) {
-        sapp_ANativeActivity_onCreate(activity, saved_state, saved_state_size as _);
-    }
-    #[no_mangle]
-    pub unsafe extern "C" fn sokol_main() {
-        let _ = super::main();
-    }
-    #[link(name = "android")]
-    #[link(name = "log")]
-    #[link(name = "EGL")]
-    #[link(name = "GLESv3")]
-    extern "C" {}
-}
-"##;
 
 /// Compiles rust code for android with macroquad engine
 pub fn compile_rust_for_android_with_mq(
@@ -139,111 +90,13 @@ pub fn compile_rust_for_android_with_mq(
         build_target,
         nostrip: false,
         engine: GameEngine::default(),
-        rust_triple: rust_triple.to_string(),
-        clang,
+        // rust_triple: rust_triple.to_string(),
+        // clang,
     });
 
     // Compile all targets for the requested build target
     cargo::ops::compile_with_exec(&workspace, &opts, &executor)?;
     Ok(())
-}
-
-/// Compiles rust code for android with bevy engine
-pub fn compile_rust_for_android_with_bevy(
-    ndk: &AndroidNdk,
-    // target: &Target,
-    build_target: AndroidTarget,
-    project_path: &Path,
-    profile: Profile,
-    features: Vec<String>,
-    all_features: bool,
-    no_default_features: bool,
-    target_sdk_version: u32,
-) -> Result<()> {
-    // Specify path to workspace
-    let cargo_config = CargoConfig::default()?;
-    let workspace = Workspace::new(&project_path.join("Cargo.toml"), &cargo_config)?;
-    let rust_triple = build_target.rust_triple();
-
-    // Define directory to build project
-    let build_target_dir = workspace
-        .root()
-        .join("target")
-        .join(rust_triple)
-        .join(profile);
-    fs::create_dir_all(&build_target_dir).unwrap();
-
-    // Set environment variables needed for use with the cc crate
-    let (clang, clang_pp) = ndk.clang(build_target, target_sdk_version)?;
-    let ar = ndk.toolchain_bin("ar", build_target)?;
-
-    std::env::set_var(format!("CC_{}", rust_triple), &clang);
-    std::env::set_var(format!("CXX_{}", rust_triple), &clang_pp);
-    std::env::set_var(format!("AR_{}", rust_triple), &ar);
-    std::env::set_var(cargo_env_target_cfg("LINKER", rust_triple), &clang);
-
-    // Use libc++. It is current default C++ runtime
-    std::env::set_var("CXXSTDLIB", "c++");
-
-    let lib_name = "bevy_test_example";
-    // Configure compilation options so that we will build the desired build_target
-    let opts = compile_options(
-        &workspace,
-        build_target,
-        features,
-        all_features,
-        no_default_features,
-        &build_target_dir,
-        lib_name,
-        profile,
-    )?;
-
-    // Create the executor
-    let executor: Arc<dyn Executor> = Arc::new(SharedLibraryExecutor {
-        ndk: ndk.clone(),
-        target_sdk_version,
-        profile,
-        build_target_dir,
-        build_target,
-        nostrip: false,
-        engine: GameEngine::Bevy,
-        rust_triple: rust_triple.to_string(),
-        clang,
-    });
-
-    // Compile all targets for the requested build target
-    cargo::ops::compile_with_exec(&workspace, &opts, &executor)?;
-    Ok(())
-
-    // let crate_types = vec![CrateType::Cdylib];
-    // let mut cargo = cargo_rustc_command(
-    //     &target,
-    //     project_path,
-    //     &profile,
-    //     &features,
-    //     all_features,
-    //     no_default_features,
-    //     &build_target.into(),
-    //     &crate_types,
-    // );
-    // let triple = build_target.rust_triple();
-    // // Takes clang and clang_pp paths
-    // let (clang, clang_pp) = ndk.clang(build_target, target_sdk_version)?;
-    // cargo.env(format!("CC_{}", triple), &clang);
-    // cargo.env(format!("CXX_{}", triple), &clang_pp);
-    // cargo.env(cargo_env_target_cfg("LINKER", triple), &clang);
-    // let ar = ndk.toolchain_bin("ar", build_target)?;
-    // cargo.env(format!("AR_{}", triple), &ar);
-    // cargo.env(cargo_env_target_cfg("AR", triple), &ar);
-    // cargo.output_err(true)?;
-    // Ok(())
-}
-
-/// Helper function that allows to return environment argument with specified tool
-fn cargo_env_target_cfg(tool: &str, target: &str) -> String {
-    let utarget = target.replace("-", "_");
-    let env = format!("CARGO_TARGET_{}_{}", &utarget, tool);
-    env.to_uppercase()
 }
 
 /// Executor which builds binary and example targets as static libraries
@@ -256,8 +109,8 @@ struct SharedLibraryExecutor {
     profile: Profile,
     nostrip: bool,
     engine: GameEngine,
-    rust_triple: String,
-    clang: PathBuf,
+    // rust_triple: String,
+    // clang: PathBuf,
 }
 
 impl Executor for SharedLibraryExecutor {
@@ -270,8 +123,8 @@ impl Executor for SharedLibraryExecutor {
         on_stdout_line: &mut dyn FnMut(&str) -> CargoResult<()>,
         on_stderr_line: &mut dyn FnMut(&str) -> CargoResult<()>,
     ) -> CargoResult<()> {
-        let sokol_extra_code = SOKOL_EXTRA_CODE;
-        let ndk_glue_extra_code = NDK_GLUE_EXTRA_CODE;
+        let sokol_extra_code = super::consts::SOKOL_EXTRA_CODE;
+        let ndk_glue_extra_code = super::consts::NDK_GLUE_EXTRA_CODE;
         match self.engine {
             GameEngine::Macroquad => set_cmake_vars(
                 self.build_target,
@@ -279,9 +132,9 @@ impl Executor for SharedLibraryExecutor {
                 self.target_sdk_version,
                 &self.build_target_dir,
             )?,
-            GameEngine::Bevy => linker(&self.rust_triple, self.clang.clone())?,
+            GameEngine::Bevy => {}
         };
-        println!("The engine is {:?}", self.engine);
+        // println!("The engine is {:?}", self.engine);
         exec_compilation(
             cmd,
             &self.build_target_dir,
@@ -330,27 +183,81 @@ fn exec_compilation(
         };
 
         // Generate source file that will be built
-        let tmp_file = match engine {
-            GameEngine::Macroquad => generate_lib_file(&path, sokol_extra_code)?,
-            GameEngine::Bevy => generate_lib_file(&path, ndk_glue_extra_code)?,
-        };
+        match engine {
+            GameEngine::Macroquad => {
+                let tmp_file = generate_lib_file(&path, sokol_extra_code)?;
+                // Replaces source argument and returns collection of arguments
+                get_cmd_args(
+                    &path,
+                    tmp_file,
+                    build_target_dir,
+                    target,
+                    cmd,
+                    ndk,
+                    &build_target,
+                    target_sdk_version,
+                    nostrip,
+                    profile,
+                    on_stdout_line,
+                    on_stderr_line,
+                )?;
+            }
+            GameEngine::Bevy => {
+                let tmp_file = generate_lib_file(&path, ndk_glue_extra_code)?;
+                // Get the program arguments
+                let mut new_args = cmd.get_args().to_owned();
+                // Replace source argument
+                let filename = path.file_name().unwrap().to_owned();
+                let source_arg = new_args.iter_mut().find_map(|arg| {
+                    let path_arg = Path::new(&arg);
+                    let tmp = path_arg.file_name().unwrap();
+                    if filename == tmp {
+                        Some(arg)
+                    } else {
+                        None
+                    }
+                });
+                if let Some(source_arg) = source_arg {
+                    // Build a new relative path to the temporary source file and use it as the
+                    // source argument Using an absolute path causes
+                    // compatibility issues in some cases under windows If a UNC
+                    // path is used then relative paths used in "include*
+                    // macros" may not work if the relative path includes "/"
+                    // instead of "\"
+                    let path_arg = Path::new(&source_arg);
+                    let mut path_arg = path_arg.to_path_buf();
+                    path_arg.set_file_name(tmp_file.path().file_name().unwrap());
+                    *source_arg = path_arg.into_os_string();
+                } else {
+                    return Err(anyhow::Error::msg(format!(
+                        "Unable to replace source argument when building target: {}",
+                        target.name()
+                    )));
+                }
 
-        // Replaces source argument and returns collection of arguments
-        get_cmd_args(
-            &path,
-            tmp_file,
-            build_target_dir,
-            target,
-            cmd,
-            ndk,
-            &build_target,
-            target_sdk_version,
-            nostrip,
-            profile,
-            on_stdout_line,
-            on_stderr_line,
-        )?;
-        println!("1st compile mod");
+                // Create output directory inside the build target directory
+                let build_path = build_target_dir.to_path_buf();
+                fs::create_dir_all(&build_path).unwrap();
+
+                // Change crate-type from bin to cdylib
+                // Replace output directory with the directory we created
+                let mut iter = new_args.iter_mut().rev().peekable();
+                while let Some(arg) = iter.next() {
+                    if let Some(prev_arg) = iter.peek() {
+                        if *prev_arg == "--crate-type" && arg == "bin" {
+                            *arg = "cdylib".into();
+                        } else if *prev_arg == "--out-dir" {
+                            *arg = build_path.clone().into();
+                        }
+                    }
+                }
+                // println!("### here");
+
+                cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
+                    .map(drop)?;
+                println!("### here");
+            }
+        };
     } else if mode == CompileMode::Test {
         // This occurs when --all-targets is specified
         return Err(anyhow::Error::msg(format!(
@@ -358,27 +265,26 @@ fn exec_compilation(
             target.name()
         )));
     } else if mode == CompileMode::Build {
-        let mut new_args = cmd.get_args().to_owned();
-
-        // Change crate-type from cdylib to rlib
-        let mut iter = new_args.iter_mut().rev().peekable();
-        while let Some(arg) = iter.next() {
-            if let Some(prev_arg) = iter.peek() {
-                if *prev_arg == "--crate-type" && arg == "cdylib" {
-                    *arg = "rlib".into();
+        if engine == GameEngine::Macroquad {
+            let mut new_args = cmd.get_args().to_owned();
+            // Change crate-type from cdylib to rlib
+            let mut iter = new_args.iter_mut().rev().peekable();
+            while let Some(arg) = iter.next() {
+                if let Some(prev_arg) = iter.peek() {
+                    if *prev_arg == "--crate-type" && arg == "cdylib" {
+                        *arg = "rlib".into();
+                    }
                 }
             }
+            let mut cmd = cmd.clone();
+            cmd.args_replace(&new_args);
         }
-
-        let mut cmd = cmd.clone();
-        cmd.args_replace(&new_args);
         cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
             .map(drop)?
     } else {
         cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
             .map(drop)?
     }
-
     Ok(())
 }
 
@@ -416,11 +322,14 @@ fn write_cmake_toolchain(
 
 /// Returns path to NDK provided make
 fn make_path(ndk_path: &Path) -> PathBuf {
-    ndk_path.join("prebuild").join(HOST_TAG).join("make")
+    ndk_path
+        .join("prebuild")
+        .join(super::consts::HOST_TAG)
+        .join("make")
 }
 
 /// Configure compilation options so that we will build the desired build_target
-fn compile_options(
+pub(super) fn compile_options(
     workspace: &Workspace,
     build_target: AndroidTarget,
     features: Vec<String>,
@@ -466,7 +375,10 @@ fn compile_options(
 }
 
 /// Generate source file that will be built
-fn generate_lib_file(path: &Path, extra_code: &'static str) -> CargoResult<NamedTempFile> {
+pub(super) fn generate_lib_file(
+    path: &Path,
+    extra_code: &'static str,
+) -> CargoResult<NamedTempFile> {
     let original_src_filepath = path;
 
     // Determine the name of the temporary file
@@ -486,7 +398,6 @@ fn generate_lib_file(path: &Path, extra_code: &'static str) -> CargoResult<Named
 
     let original_contents = fs::read_to_string(original_src_filepath)?;
     writeln!(tmp_file, "{}\n{}", original_contents, extra_code)?;
-    println!("tmp_file gen lib {:?}", tmp_file);
     Ok(tmp_file)
 }
 
@@ -644,82 +555,4 @@ fn set_cmake_vars(
     std::env::set_var("CMAKE_GENERATOR", r#"Unix Makefiles"#);
     std::env::set_var("CMAKE_MAKE_PROGRAM", make_path(ndk.ndk_path()));
     Ok(())
-}
-
-/// Sets needed environment variable for bevy
-fn linker(rust_triple: &str, clang: PathBuf) -> CargoResult<()> {
-    std::env::set_var(cargo_env_target_cfg("LINKER", rust_triple), &clang);
-    Ok(())
-}
-
-#[cfg(all(target_os = "windows", target_pointer_width = "64"))]
-const HOST_TAG: &str = "windows-x86_64";
-
-#[cfg(all(target_os = "windows", target_pointer_width = "32"))]
-const HOST_TAG: &str = "windows";
-
-#[cfg(target_os = "linux")]
-const HOST_TAG: &str = "linux-x86_64";
-
-#[cfg(target_os = "macos")]
-const HOST_TAG: &str = "darwin-x86_64";
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_compile_rust_with_macroquad() {
-        // Specify path to user directory
-        let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        let project_path = user_dirs.parent().unwrap().parent().unwrap();
-
-        // Specify path to macroquad project example
-        let project_path = project_path.join("examples").join("macroquad-3d");
-
-        // Provide path to Android SDK and Android NDK
-        let sdk = AndroidSdk::from_env().unwrap();
-        let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
-
-        compile_rust_for_android_with_mq(
-            &ndk,
-            AndroidTarget::Aarch64LinuxAndroid,
-            &project_path,
-            Profile::Debug,
-            vec![],
-            false,
-            false,
-            30,
-            "test",
-        )
-        .unwrap();
-    }
-
-    #[test]
-    fn test_compile_rust_with_bevy() {
-        // Specify path to user directory
-        let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        let project_path = user_dirs.parent().unwrap().parent().unwrap();
-
-        // Specify path to macroquad project example
-        let project_path = project_path.join("examples").join("bevy-2d");
-
-        // Provide path to Android SDK and Android NDK
-        let sdk = AndroidSdk::from_env().unwrap();
-        let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
-
-        let target = Target::Lib;
-        compile_rust_for_android_with_bevy(
-            &ndk,
-            // &target,
-            AndroidTarget::Aarch64LinuxAndroid,
-            &project_path,
-            Profile::Debug,
-            vec![],
-            false,
-            false,
-            30,
-        )
-        .unwrap();
-    }
 }

@@ -29,7 +29,7 @@ The project has been created. Now let's see what the project consists of.
 name = "project-name"
 version = "0.1.0"
 authors = ["Example <example@example.com>"]
-edition = "2018"
+edition = "2021"
 
 [lib]
 crate-type = ["lib", "cdylib"]
