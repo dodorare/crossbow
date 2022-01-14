@@ -6,12 +6,23 @@ The **crossbundle** is a command-line tool that encapsulates boring stuff of **A
 
 ## Support status
 
+Packaging status:
+
 | Name | Description | Status |
 | ---- | ----------- | ------ |
 | Android APK | Default build result method. | ✅ |
 | Android AAB | Supported via `--aab` flag. | ✅ |
 | Apple Debug IPA | Default build result method. Works only on Simulator and could be run on iPhone with Dev Certificate. | 🆗 |
 | Apple Release IPA | Not supported yet. Crossbundle should generate `xcodeproj`, but user should build and sign IPA manually. | 🛠 |
+
+Game engines supported:
+
+| Name | Description | Status |
+| ---- | ----------- | ------ |
+| [Bevy](https://github.com/bevyengine/bevy) | Default build method. Injects [ndk-glue](https://github.com/rust-windowing/android-ndk-rs/tree/master/ndk-glue) into generated tmp `lib.rs` file. | ✅ |
+| [Macroquad](https://github.com/not-fl3/macroquad) | Supported via `--quad` flag. Works as [cargo-quad-apk](https://github.com/not-fl3/cargo-quad-apk) | ✅ |
+
+P.S: If you don't find your engine here, open an issue! We are happy to add support for new engines.
 
 ✅ = Works and tested — 🆗 = Works but may contain bugs — 🛠 = Under development
 

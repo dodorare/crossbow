@@ -17,7 +17,9 @@ A goal of the `crossbow` project is to provide a complete infrastructure for gam
 
 ## Documentation
 
-To learn how to run an example project on your own, build, test, and start using `crossbow` - read [our documentation](./docs/README.md).
+To learn how to run an example project on your own, build, test, and start using `crossbow` - read our full documentation [here](./docs/README.md).
+
+If you want learn more about `crossbundle` we recommend you to start from [here](./crossbundle/cli/README.md).
 
 ## Project structure
 
