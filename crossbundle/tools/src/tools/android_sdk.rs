@@ -79,6 +79,7 @@ impl AndroidSdk {
         &self.platforms
     }
 
+    /// Provides path to SDK tool
     pub fn build_tool(&self, tool: &str, current_dir: Option<&Path>) -> Result<ProcessCommand> {
         let path = self
             .build_deps_path

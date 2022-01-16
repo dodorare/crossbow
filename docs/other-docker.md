@@ -22,6 +22,12 @@ Run the following command at the root of this project:
 docker run --rm -it -v "$(pwd)/:/src" -w /src/examples/macroquad-3d ghcr.io/dodorare/crossbundle build android --quad --release
 ```
 
+Run the following command in powershell if you use Windows:
+
+```sh
+docker run --rm -it -v "${pwd}/:/src" -w /src/examples/macroquad-3d ghcr.io/dodorare/crossbundle build android --quad --release
+```
+
 Install APK on connected Android phone via USB:
 
 ```sh
