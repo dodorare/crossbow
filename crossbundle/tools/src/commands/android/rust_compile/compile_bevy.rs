@@ -25,6 +25,7 @@ pub fn compile_rust_for_android_with_bevy(
     lib_name: &str,
 ) -> Result<()> {
     let triple = build_target.rust_triple();
+
     // Takes clang and clang_pp paths
     let (clang, clang_pp) = ndk.clang(build_target, target_sdk_version)?;
     std::env::set_var(format!("CC_{}", triple), &clang);
@@ -36,12 +37,13 @@ pub fn compile_rust_for_android_with_bevy(
     // Specify path to workspace
     let cargo_config = CargoConfig::default()?;
     let workspace = Workspace::new(&project_path.join("Cargo.toml"), &cargo_config)?;
+
     // Define directory to build project
     let build_target_dir = workspace.root().join("target").join(triple).join(profile);
     std::fs::create_dir_all(&build_target_dir).unwrap();
+
     // Configure compilation options so that we will build the desired build_target
-    let opts = super::compile_options(
-        ndk,
+    let opts = super::compile_options::compile_options(
         &workspace,
         build_target,
         features,
@@ -51,12 +53,14 @@ pub fn compile_rust_for_android_with_bevy(
         lib_name,
         profile,
     )?;
+
     // Create the executor
     let lib_path = project_path.join("src").join("main.rs");
     let executor: Arc<dyn cargo_compiler::Executor> = Arc::new(DefaultExecutor {
         build_target_dir,
         lib_path,
     });
+
     // Compile all targets for the requested build target
     cargo::ops::compile_with_exec(&workspace, &opts, &executor)?;
     Ok(())
@@ -85,7 +89,7 @@ impl cargo_compiler::Executor for DefaultExecutor {
         {
             let mut cmd = cmd.clone();
             let ndk_glue_extra_code = super::consts::NDK_GLUE_EXTRA_CODE;
-            let tmp_file = super::generate_lib_file(&self.lib_path, ndk_glue_extra_code)?;
+            let tmp_file = super::gen_tmp_lib_file::generate_lib_file(&self.lib_path, ndk_glue_extra_code)?;
 
             let mut new_args = cmd.get_args().to_owned();
 
@@ -154,4 +158,41 @@ fn cargo_env_target_cfg(tool: &str, target: &str) -> String {
     let utarget = target.replace("-", "_");
     let env = format!("CARGO_TARGET_{}_{}", &utarget, tool);
     env.to_uppercase()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_compile_android() {
+        // Specify path to users directory
+        let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let project_path = user_dirs.parent().unwrap().parent().unwrap();
+
+        // Specify path to bevy project example
+        let project_path = project_path.join("examples").join("bevy-2d");
+
+        // Assign needed configuration to compile rust for android with bevy
+        let sdk = AndroidSdk::from_env().unwrap();
+        let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
+        let build_target = AndroidTarget::Aarch64LinuxAndroid;
+        let profile = Profile::Debug;
+        let target_sdk_version = 30;
+        let lib_name = "bevy_test_lib";
+
+        // Compile rust code for android with bevy engine
+        compile_rust_for_android_with_bevy(
+            &ndk,
+            build_target,
+            &project_path,
+            profile,
+            vec![],
+            false,
+            false,
+            target_sdk_version,
+            lib_name,
+        )
+        .unwrap();
+    }
 }

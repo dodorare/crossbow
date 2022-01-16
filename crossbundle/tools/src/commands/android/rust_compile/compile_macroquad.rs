@@ -1,13 +1,12 @@
-use crate::{error::*, tools::*, types::*};
+use crate::error::*;
+use crate::tools::*;
+use crate::types::*;
 use cargo::{
     core::{
-        compiler::{CompileKind, CompileMode, CompileTarget, Executor},
+        compiler::{CompileMode, Executor},
         manifest::TargetSourcePath,
-        resolver::CliFeatures,
-        shell::Verbosity,
         {PackageId, TargetKind, Workspace},
     },
-    ops::CompileOptions,
     util::{CargoResult, Config as CargoConfig},
 };
 use cargo_util::ProcessBuilder;
@@ -18,7 +17,7 @@ use std::{
     path::{Path, PathBuf},
     sync::Arc,
 };
-use tempfile::{Builder, NamedTempFile};
+use tempfile::NamedTempFile;
 
 /// Compiles rust code for android with macroquad engine
 pub fn compile_rust_for_android_with_mq(
@@ -53,25 +52,13 @@ pub fn compile_rust_for_android_with_mq(
     std::env::set_var(format!("CXX_{}", rust_triple), &clang_pp);
     std::env::set_var(format!("AR_{}", rust_triple), &ar);
 
-    // Return path to toolchain cmake file
-    let cmake_toolchain_path = write_cmake_toolchain(
-        target_sdk_version,
-        ndk.ndk_path(),
-        &build_target_dir,
-        build_target,
-    )?;
-
-    // Set cmake environment variables
-    std::env::set_var("CMAKE_TOOLCHAIN_FILE", cmake_toolchain_path);
-    std::env::set_var("CMAKE_GENERATOR", r#"Unix Makefiles"#);
-    std::env::set_var("CMAKE_MAKE_PROGRAM", make_path(ndk.ndk_path()));
+    set_cmake_vars(build_target, ndk, target_sdk_version, &build_target_dir)?;
 
     // Use libc++. It is current default C++ runtime
     std::env::set_var("CXXSTDLIB", "c++");
 
     // Configure compilation options so that we will build the desired build_target
-    let opts = compile_options(
-        ndk,
+    let opts = super::compile_options::compile_options(
         &workspace,
         build_target,
         features,
@@ -90,69 +77,11 @@ pub fn compile_rust_for_android_with_mq(
         build_target_dir,
         build_target,
         nostrip: false,
-        engine: GameEngine::default(),
-        // rust_triple: rust_triple.to_string(),
-        // clang,
     });
 
     // Compile all targets for the requested build target
     cargo::ops::compile_with_exec(&workspace, &opts, &executor)?;
     Ok(())
-}
-
-/// Executor which builds binary and example targets as static libraries
-#[derive(Debug)]
-struct SharedLibraryExecutor {
-    ndk: AndroidNdk,
-    target_sdk_version: u32,
-    build_target_dir: PathBuf,
-    build_target: AndroidTarget,
-    profile: Profile,
-    nostrip: bool,
-    engine: GameEngine,
-    // rust_triple: String,
-    // clang: PathBuf,
-}
-
-impl Executor for SharedLibraryExecutor {
-    fn exec(
-        &self,
-        cmd: &ProcessBuilder,
-        _id: PackageId,
-        target: &cargo::core::Target,
-        mode: CompileMode,
-        on_stdout_line: &mut dyn FnMut(&str) -> CargoResult<()>,
-        on_stderr_line: &mut dyn FnMut(&str) -> CargoResult<()>,
-    ) -> CargoResult<()> {
-        let sokol_extra_code = super::consts::SOKOL_EXTRA_CODE;
-        let ndk_glue_extra_code = super::consts::NDK_GLUE_EXTRA_CODE;
-        match self.engine {
-            GameEngine::Macroquad => set_cmake_vars(
-                self.build_target,
-                &self.ndk,
-                self.target_sdk_version,
-                &self.build_target_dir,
-            )?,
-            GameEngine::Bevy => {}
-        };
-        // println!("The engine is {:?}", self.engine);
-        exec_compilation(
-            cmd,
-            &self.build_target_dir,
-            self.build_target,
-            &self.ndk,
-            self.target_sdk_version,
-            self.nostrip,
-            self.profile,
-            sokol_extra_code,
-            ndk_glue_extra_code,
-            self.engine.clone(),
-            target,
-            mode,
-            on_stdout_line,
-            on_stderr_line,
-        )
-    }
 }
 
 /// Helper function for Executor trait. Match compile mode and return cmd arguments
@@ -165,8 +94,6 @@ fn exec_compilation(
     nostrip: bool,
     profile: Profile,
     sokol_extra_code: &'static str,
-    ndk_glue_extra_code: &'static str,
-    engine: GameEngine,
     target: &cargo::core::Target,
     mode: CompileMode,
     on_stdout_line: &mut dyn FnMut(&str) -> CargoResult<()>,
@@ -184,81 +111,23 @@ fn exec_compilation(
         };
 
         // Generate source file that will be built
-        match engine {
-            GameEngine::Macroquad => {
-                let tmp_file = generate_lib_file(&path, sokol_extra_code)?;
-                // Replaces source argument and returns collection of arguments
-                get_cmd_args(
-                    &path,
-                    tmp_file,
-                    build_target_dir,
-                    target,
-                    cmd,
-                    ndk,
-                    &build_target,
-                    target_sdk_version,
-                    nostrip,
-                    profile,
-                    on_stdout_line,
-                    on_stderr_line,
-                )?;
-            }
-            GameEngine::Bevy => {
-                let tmp_file = generate_lib_file(&path, ndk_glue_extra_code)?;
-                // Get the program arguments
-                let mut new_args = cmd.get_args().to_owned();
-                // Replace source argument
-                let filename = path.file_name().unwrap().to_owned();
-                let source_arg = new_args.iter_mut().find_map(|arg| {
-                    let path_arg = Path::new(&arg);
-                    let tmp = path_arg.file_name().unwrap();
-                    if filename == tmp {
-                        Some(arg)
-                    } else {
-                        None
-                    }
-                });
-                if let Some(source_arg) = source_arg {
-                    // Build a new relative path to the temporary source file and use it as the
-                    // source argument Using an absolute path causes
-                    // compatibility issues in some cases under windows If a UNC
-                    // path is used then relative paths used in "include*
-                    // macros" may not work if the relative path includes "/"
-                    // instead of "\"
-                    let path_arg = Path::new(&source_arg);
-                    let mut path_arg = path_arg.to_path_buf();
-                    path_arg.set_file_name(tmp_file.path().file_name().unwrap());
-                    *source_arg = path_arg.into_os_string();
-                } else {
-                    return Err(anyhow::Error::msg(format!(
-                        "Unable to replace source argument when building target: {}",
-                        target.name()
-                    )));
-                }
+        let tmp_file = super::gen_tmp_lib_file::generate_lib_file(&path, sokol_extra_code)?;
 
-                // Create output directory inside the build target directory
-                let build_path = build_target_dir.to_path_buf();
-                fs::create_dir_all(&build_path).unwrap();
-
-                // Change crate-type from bin to cdylib
-                // Replace output directory with the directory we created
-                let mut iter = new_args.iter_mut().rev().peekable();
-                while let Some(arg) = iter.next() {
-                    if let Some(prev_arg) = iter.peek() {
-                        if *prev_arg == "--crate-type" && arg == "bin" {
-                            *arg = "cdylib".into();
-                        } else if *prev_arg == "--out-dir" {
-                            *arg = build_path.clone().into();
-                        }
-                    }
-                }
-                // println!("### here");
-
-                cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
-                    .map(drop)?;
-                println!("### here");
-            }
-        };
+        // Replaces source argument and returns collection of arguments
+        get_cmd_args(
+            &path,
+            tmp_file,
+            build_target_dir,
+            target,
+            cmd,
+            ndk,
+            &build_target,
+            target_sdk_version,
+            nostrip,
+            profile,
+            on_stdout_line,
+            on_stderr_line,
+        )?;
     } else if mode == CompileMode::Test {
         // This occurs when --all-targets is specified
         return Err(anyhow::Error::msg(format!(
@@ -266,27 +135,66 @@ fn exec_compilation(
             target.name()
         )));
     } else if mode == CompileMode::Build {
-        if engine == GameEngine::Macroquad {
-            let mut new_args = cmd.get_args().to_owned();
-            // Change crate-type from cdylib to rlib
-            let mut iter = new_args.iter_mut().rev().peekable();
-            while let Some(arg) = iter.next() {
-                if let Some(prev_arg) = iter.peek() {
-                    if *prev_arg == "--crate-type" && arg == "cdylib" {
-                        *arg = "rlib".into();
-                    }
+        let mut new_args = cmd.get_args().to_owned();
+
+        // Change crate-type from cdylib to rlib
+        let mut iter = new_args.iter_mut().rev().peekable();
+        while let Some(arg) = iter.next() {
+            if let Some(prev_arg) = iter.peek() {
+                if *prev_arg == "--crate-type" && arg == "cdylib" {
+                    *arg = "rlib".into();
                 }
             }
-            let mut cmd = cmd.clone();
-            cmd.args_replace(&new_args);
         }
+
+        let mut cmd = cmd.clone();
+        cmd.args_replace(&new_args);
         cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
             .map(drop)?
     } else {
         cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
             .map(drop)?
     }
+
     Ok(())
+}
+
+/// Executor which builds binary and example targets as static libraries
+struct SharedLibraryExecutor {
+    ndk: AndroidNdk,
+    target_sdk_version: u32,
+    build_target_dir: PathBuf,
+    build_target: AndroidTarget,
+    profile: Profile,
+    nostrip: bool,
+}
+
+impl Executor for SharedLibraryExecutor {
+    fn exec(
+        &self,
+        cmd: &ProcessBuilder,
+        _id: PackageId,
+        target: &cargo::core::Target,
+        mode: CompileMode,
+        on_stdout_line: &mut dyn FnMut(&str) -> CargoResult<()>,
+        on_stderr_line: &mut dyn FnMut(&str) -> CargoResult<()>,
+    ) -> CargoResult<()> {
+        let sokol_extra_code = super::consts::SOKOL_EXTRA_CODE;
+        exec_compilation(
+            cmd,
+            &self.build_target_dir,
+            self.build_target,
+            &self.ndk,
+            self.target_sdk_version,
+            self.nostrip,
+            self.profile,
+            sokol_extra_code,
+            target,
+            mode,
+            on_stdout_line,
+            on_stderr_line,
+        )
+    }
 }
 
 /// Write a CMake toolchain which will remove references to the rustc build target before
@@ -327,96 +235,6 @@ fn make_path(ndk_path: &Path) -> PathBuf {
         .join("prebuild")
         .join(super::consts::HOST_TAG)
         .join("make")
-}
-
-/// Configure compilation options so that we will build the desired build_target
-pub(super) fn compile_options(
-    ndk: &AndroidNdk,
-    workspace: &Workspace,
-    build_target: AndroidTarget,
-    features: Vec<String>,
-    all_features: bool,
-    no_default_features: bool,
-    build_target_dir: &Path,
-    lib_name: &str,
-    profile: Profile,
-) -> Result<CompileOptions> {
-    // Configure compilation options so that we will build the desired build_target
-    let config = workspace.config();
-
-    // Avoid too much log info
-    config.shell().set_verbosity(Verbosity::Normal);
-
-    let mut opts = CompileOptions::new(config, CompileMode::Build)?;
-
-    // Set the compilation target
-    opts.build_config.requested_kinds = vec![CompileKind::Target(CompileTarget::new(
-        build_target.rust_triple(),
-    )?)];
-
-    // Set features options
-    opts.cli_features =
-        CliFeatures::from_command_line(&features, all_features, no_default_features)?;
-
-    let mut rustc_args = vec![format!(
-        "--emit=link={}",
-        build_target_dir
-            .join(lib_name)
-            .into_os_string()
-            .into_string()
-            .unwrap()
-    )];
-
-    // Workaround from https://github.com/rust-windowing/android-ndk-rs/issues/149:
-    // Rust (1.56 as of writing) still requires libgcc during linking, but this does
-    // not ship with the NDK anymore since NDK r23 beta 3.
-    // See https://github.com/rust-lang/rust/pull/85806 for a discussion on why libgcc
-    // is still required even after replacing it with libunwind in the source.
-    // XXX: Add an upper-bound on the Rust version whenever this is not necessary anymore.
-    if ndk.build_tag() > 7272597 {
-        let cargo_apk_link_dir = build_target_dir.join("cargo-apk-temp-extra-link-libraries");
-        std::fs::create_dir_all(&cargo_apk_link_dir)?;
-        std::fs::write(cargo_apk_link_dir.join("libgcc.a"), "INPUT(-lunwind)")
-            .expect("Failed to write");
-        rustc_args.push(format!("-L{}", cargo_apk_link_dir.to_string_lossy()));
-    }
-
-    // Set the path and file name for the generated shared library
-    opts.target_rustc_args = Some(rustc_args);
-
-    // Set desired profile
-    if profile == Profile::Release {
-        opts.build_config.requested_profile = "release".into();
-    }
-
-    Ok(opts)
-}
-
-/// Generate source file that will be built
-pub(super) fn generate_lib_file(
-    path: &Path,
-    extra_code: &'static str,
-) -> CargoResult<NamedTempFile> {
-    let original_src_filepath = path;
-
-    // Determine the name of the temporary file
-    let tmp_lib_file_prefix = format!(
-        "__cargo_apk_{}",
-        original_src_filepath
-            .file_stem()
-            .map(|s| s.to_string_lossy().into_owned())
-            .unwrap_or_else(String::new)
-    );
-
-    // Create the temporary file
-    let mut tmp_file = Builder::new()
-        .prefix(&tmp_lib_file_prefix)
-        .suffix(".tmp")
-        .tempfile_in(original_src_filepath.parent().unwrap())?;
-
-    let original_contents = fs::read_to_string(original_src_filepath)?;
-    writeln!(tmp_file, "{}\n{}", original_contents, extra_code)?;
-    Ok(tmp_file)
 }
 
 /// Get the program arguments and execute program with it
@@ -573,4 +391,41 @@ fn set_cmake_vars(
     std::env::set_var("CMAKE_GENERATOR", r#"Unix Makefiles"#);
     std::env::set_var("CMAKE_MAKE_PROGRAM", make_path(ndk.ndk_path()));
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_compile_android() {
+        // Specify path to users directory
+        let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let project_path = user_dirs.parent().unwrap().parent().unwrap();
+
+        // Specify path to macroquad project example
+        let project_path = project_path.join("examples").join("macroquad-3d");
+
+        // Assign needed configuration to compile rust for android with macroquad
+        let sdk = AndroidSdk::from_env().unwrap();
+        let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
+        let build_target = AndroidTarget::Aarch64LinuxAndroid;
+        let profile = Profile::Debug;
+        let target_sdk_version = 30;
+        let lib_name = "mq_test_lib";
+
+        // Compile rust code for android with macroquad engine
+        compile_rust_for_android_with_mq(
+            &ndk,
+            build_target,
+            &project_path,
+            profile,
+            vec![],
+            false,
+            false,
+            target_sdk_version,
+            lib_name,
+        )
+        .unwrap();
+    }
 }

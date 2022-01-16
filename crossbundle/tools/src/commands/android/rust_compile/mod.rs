@@ -1,6 +1,8 @@
 mod compile_bevy;
 mod compile_macroquad;
+mod compile_options;
 mod consts;
+mod gen_tmp_lib_file;
 
 pub use compile_bevy::*;
 pub use compile_macroquad::*;
