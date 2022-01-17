@@ -156,7 +156,7 @@ impl cargo_compiler::Executor for DefaultExecutor {
 
 /// Helper function that allows to return environment argument with specified tool
 fn cargo_env_target_cfg(tool: &str, target: &str) -> String {
-    let utarget = target.replace("-", "_");
+    let utarget = target.replace('-', "_");
     let env = format!("CARGO_TARGET_{}_{}", &utarget, tool);
     env.to_uppercase()
 }
