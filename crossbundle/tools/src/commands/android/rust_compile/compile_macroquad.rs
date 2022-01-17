@@ -382,7 +382,7 @@ fn set_cmake_vars(
     let cmake_toolchain_path = write_cmake_toolchain(
         target_sdk_version,
         ndk.ndk_path(),
-        &build_target_dir,
+        build_target_dir,
         build_target,
     )?;
 

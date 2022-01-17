@@ -73,8 +73,8 @@
 //         None,
 //         false,
 //     );
-//     let manifest_path = android::save_android_manifest(&android_build_dir, &manifest).unwrap();
-//     assert!(manifest_path.exists());
+//     let manifest_path = android::save_android_manifest(&android_build_dir,
+// &manifest).unwrap();     assert!(manifest_path.exists());
 
 //     // Compiles resources
 //     let compiled_res_path = android_build_dir.join("compiled_res");
@@ -108,7 +108,8 @@
 
 //     // Generates zip archive
 //     let gen_zip_modules =
-//         android::gen_zip_modules(&android_build_dir, &package_name, &extracted_apk_path).unwrap();
+//         android::gen_zip_modules(&android_build_dir, &package_name,
+// &extracted_apk_path).unwrap();
 
 //     // Genenerates aab from given list of modules (zip, zip, zip)
 //     let aab_path = android::gen_aab_from_modules(

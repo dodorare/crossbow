@@ -10,7 +10,7 @@ pub const HOST_TAG: &str = "linux-x86_64";
 #[cfg(target_os = "macos")]
 pub const HOST_TAG: &str = "darwin-x86_64";
 
-pub const NDK_GLUE_EXTRA_CODE: &'static str = r#"
+pub const NDK_GLUE_EXTRA_CODE: &str = r#"
 #[no_mangle]
 #[cfg(target_os = "android")]
 unsafe extern "C" fn ANativeActivity_onCreate(
@@ -27,7 +27,7 @@ unsafe extern "C" fn ANativeActivity_onCreate(
 }
 "#;
 
-pub const SOKOL_EXTRA_CODE: &'static str = r##"
+pub const SOKOL_EXTRA_CODE: &str = r##"
 mod cargo_apk_glue_code {
     extern "C" {
         pub fn sapp_ANativeActivity_onCreate(

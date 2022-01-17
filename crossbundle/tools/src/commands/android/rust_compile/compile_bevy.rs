@@ -89,7 +89,8 @@ impl cargo_compiler::Executor for DefaultExecutor {
         {
             let mut cmd = cmd.clone();
             let ndk_glue_extra_code = super::consts::NDK_GLUE_EXTRA_CODE;
-            let tmp_file = super::gen_tmp_lib_file::generate_lib_file(&self.lib_path, ndk_glue_extra_code)?;
+            let tmp_file =
+                super::gen_tmp_lib_file::generate_lib_file(&self.lib_path, ndk_glue_extra_code)?;
 
             let mut new_args = cmd.get_args().to_owned();
 

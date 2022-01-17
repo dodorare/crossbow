@@ -57,8 +57,8 @@
 //         true,
 //     );
 //     let apk_build_dir = target_dir.join(&profile).join("apk");
-//     let manifest_path = android::save_android_manifest(&apk_build_dir, &manifest).unwrap();
-//     assert!(manifest_path.exists());
+//     let manifest_path = android::save_android_manifest(&apk_build_dir,
+// &manifest).unwrap();     assert!(manifest_path.exists());
 
 //     // Gen unaligned apk
 //     let unaligned_apk_path = android::gen_unaligned_apk(
@@ -90,8 +90,8 @@
 
 //     // Align apk
 //     let aligned_apk_path =
-//         android::align_apk(&sdk, &unaligned_apk_path, &manifest.package, &apk_build_dir).unwrap();
-//     assert!(aligned_apk_path.exists());
+//         android::align_apk(&sdk, &unaligned_apk_path, &manifest.package,
+// &apk_build_dir).unwrap();     assert!(aligned_apk_path.exists());
 
 //     // Removes old keystore if it exists
 //     let android_dir = android_dir().unwrap();
