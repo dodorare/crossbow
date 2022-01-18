@@ -22,12 +22,14 @@ pub fn add_libs_into_aapt2(
     for lib in get_libs_in_dir(&sysroot_platform_lib_dir)? {
         system_libs.push(lib);
     }
+
     // Get list of dylibs_paths
     let build_path = target_dir
         .join(build_target.rust_triple())
         .join(profile.as_ref());
     let mut dylibs_paths = search_dylibs(&build_path.join("build"))?;
     dylibs_paths.push(build_path.join("tools"));
+
     // Get list of libs that main lib need for work
     let lib_name = lib_path.file_name().unwrap().to_str().unwrap().to_owned();
     let mut needed_libs = vec![];
@@ -39,25 +41,24 @@ pub fn add_libs_into_aapt2(
         &dylibs_paths,
         &mut needed_libs,
     )?;
+
     // Add all needed libs into apk archive
-    let abi = build_target.android_abi();
-    let out_dir = build_dir.join("lib").join(abi);
     for (_lib_name, lib_path) in needed_libs {
-        add_lib_aapt2(&lib_path, &out_dir)?;
+        add_lib_aapt2(&lib_path, &build_dir)?;
     }
-    Ok(out_dir)
+    Ok(build_dir.to_path_buf())
 }
 
-/// Copy lib into `out_dir` then add this lib into apk file
-pub fn add_lib_aapt2(lib_path: &Path, out_dir: &Path) -> Result<()> {
+/// Copy lib into dir then add this lib into apk file
+pub fn add_lib_aapt2(lib_path: &Path, copy_lib_into_dir: &Path) -> Result<()> {
     if !lib_path.exists() {
         return Err(Error::PathNotFound(lib_path.to_owned()));
     }
-    std::fs::create_dir_all(&out_dir)?;
+    std::fs::create_dir_all(&copy_lib_into_dir)?;
     let filename = lib_path.file_name().unwrap();
     let mut options = fs_extra::file::CopyOptions::new();
     options.overwrite = true;
-    fs_extra::file::copy(&lib_path, out_dir.join(&filename), &options)?;
+    fs_extra::file::copy(&lib_path, copy_lib_into_dir.join(&filename), &options)?;
     Ok(())
 }
 
@@ -67,25 +68,27 @@ mod tests {
     use crate::{
         commands::{
             android::{self, compile_rust_for_android_with_bevy},
-            gen_minimal_project,
+            find_package_cargo_manifest_path,
         },
         tools::AndroidSdk,
     };
 
     #[test]
-    fn test_add_libs_into_aapt2() {
-        // Creates temporary directory
-        let tempdir = tempfile::tempdir().unwrap();
-        let project_path = tempdir.path();
+    fn add_libs_into_aapt2_test() {
+        // Specifies path to workspace
+        let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let current_dir = user_dirs.parent().unwrap().parent().unwrap().to_path_buf();
+        let package_manifest_path = find_package_cargo_manifest_path(&current_dir).unwrap();
+        let project_path = package_manifest_path.parent().unwrap().to_owned();
 
         // Assigns configuration for project
-        let package_name = gen_minimal_project(&project_path).unwrap();
         let sdk = AndroidSdk::from_env().unwrap();
         let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
         let build_target = AndroidTarget::Aarch64LinuxAndroid;
         let profile = Profile::Debug;
         let target_sdk_version = 30;
-        let lib_name = "bevy_test_lib";
+        let package_name = "bevy";
+        let lib_name = format!("lib{}.so", package_name.replace("-", "_"));
 
         // Compile rust code for android with bevy engine
         compile_rust_for_android_with_bevy(
@@ -97,7 +100,7 @@ mod tests {
             false,
             false,
             target_sdk_version,
-            lib_name,
+            &lib_name,
         )
         .unwrap();
 
@@ -108,12 +111,12 @@ mod tests {
             .join(profile.as_ref());
         let compiled_lib = out_dir.join(format!("lib{}.so", package_name));
         assert!(compiled_lib.exists());
-        let android_build_dir = target_dir.join("android").join(profile.to_string());
         let android_abi = build_target.android_abi();
-        let android_compiled_lib = android_build_dir
+        let android_compiled_lib = target_dir
+            .join("android")
+            .join(profile.to_string())
             .join("lib")
-            .join(android_abi)
-            .join(format!("lib{}.so", package_name));
+            .join(android_abi);
 
         // Adds libs into specified directory
         let lib = android::add_libs_into_aapt2(
@@ -127,5 +130,6 @@ mod tests {
         )
         .unwrap();
         assert!(lib.exists());
+        println!("library saved in {:?}", lib);
     }
 }

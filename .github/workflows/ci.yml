@@ -65,8 +65,8 @@ jobs:
         crossbundle new explorer --template=fastlane-example
     - name: Build Apple app
       run: |
-        cd ~/explorer/
-        crossbundle build android --release
+        cd ~/macroquad-3d/
+        crossbundle build android --release --quad
 
   clean:
     name: Check code format
