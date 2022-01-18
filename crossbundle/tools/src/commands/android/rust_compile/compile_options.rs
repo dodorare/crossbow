@@ -16,7 +16,7 @@ use std::path::Path;
 pub fn compile_options(
     workspace: &Workspace,
     build_target: AndroidTarget,
-    features: Vec<String>,
+    features: &[String],
     all_features: bool,
     no_default_features: bool,
     build_target_dir: &Path,
@@ -38,7 +38,7 @@ pub fn compile_options(
 
     // Set features options
     opts.cli_features =
-        CliFeatures::from_command_line(&features, all_features, no_default_features)?;
+        CliFeatures::from_command_line(features, all_features, no_default_features)?;
 
     // Set the path and file name for the generated shared library
     opts.target_rustc_args = Some(vec![format!(

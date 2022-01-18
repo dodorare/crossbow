@@ -46,7 +46,7 @@ pub fn compile_rust_for_android_with_bevy(
     let opts = super::compile_options::compile_options(
         &workspace,
         build_target,
-        features,
+        &features,
         all_features,
         no_default_features,
         &build_target_dir,
@@ -145,6 +145,7 @@ impl cargo_compiler::Executor for DefaultExecutor {
                 }
             }
             cmd.args_replace(&new_args);
+            println!("cmd {:?}", cmd);
             cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
                 .map(drop)
         } else {
@@ -159,41 +160,4 @@ fn cargo_env_target_cfg(tool: &str, target: &str) -> String {
     let utarget = target.replace('-', "_");
     let env = format!("CARGO_TARGET_{}_{}", &utarget, tool);
     env.to_uppercase()
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_compile_android() {
-        // Specify path to users directory
-        let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        let project_path = user_dirs.parent().unwrap().parent().unwrap();
-
-        // Specify path to bevy project example
-        let project_path = project_path.join("examples").join("bevy-2d");
-
-        // Assign needed configuration to compile rust for android with bevy
-        let sdk = AndroidSdk::from_env().unwrap();
-        let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
-        let build_target = AndroidTarget::Aarch64LinuxAndroid;
-        let profile = Profile::Debug;
-        let target_sdk_version = 30;
-        let lib_name = "bevy_test_lib";
-
-        // Compile rust code for android with bevy engine
-        compile_rust_for_android_with_bevy(
-            &ndk,
-            build_target,
-            &project_path,
-            profile,
-            vec![],
-            false,
-            false,
-            target_sdk_version,
-            lib_name,
-        )
-        .unwrap();
-    }
 }

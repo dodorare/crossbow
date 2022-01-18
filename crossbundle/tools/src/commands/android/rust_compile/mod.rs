@@ -40,28 +40,33 @@ mod tests {
     }
 
     #[test]
-    fn test_compile_rust_with_bevy() {
-        // Specify path to user directory
+    fn test_compile_android() {
+        // Specify path to users directory
         let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         let project_path = user_dirs.parent().unwrap().parent().unwrap();
 
-        // Specify path to macroquad project example
+        // Specify path to bevy project example
         let project_path = project_path.join("examples").join("bevy-2d");
 
-        // Provide path to Android SDK and Android NDK
+        // Assign needed configuration to compile rust for android with bevy
         let sdk = AndroidSdk::from_env().unwrap();
         let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
+        let build_target = AndroidTarget::Aarch64LinuxAndroid;
+        let profile = Profile::Debug;
+        let target_sdk_version = 30;
+        let lib_name = "bevy_test_lib";
 
+        // Compile rust code for android with bevy engine
         compile_rust_for_android_with_bevy(
             &ndk,
-            AndroidTarget::Aarch64LinuxAndroid,
+            build_target,
             &project_path,
-            Profile::Release,
+            profile,
             vec![],
             false,
             false,
-            30,
-            "libbevy-2d.so",
+            target_sdk_version,
+            lib_name,
         )
         .unwrap();
     }

@@ -61,7 +61,7 @@ pub fn compile_rust_for_android_with_mq(
     let opts = super::compile_options::compile_options(
         &workspace,
         build_target,
-        features,
+        &features,
         all_features,
         no_default_features,
         &build_target_dir,
