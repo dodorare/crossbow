@@ -314,6 +314,12 @@ OPTIONS:
             The team identifier of your signing identity
 ```
 
+## Troubleshooting
+
+### Shared library "<lib_name>" not found
+
+If you ran into problem of missing shared library in the `apk/aab` - you can fix this by placing your `.so` file into `target/<rust-triple>/<profile>/tools/libname.so`. The builder will pick the library up and put it in the final package.
+
 ## License
 
 Licensed under [Apache-2.0 License](../../LICENSE).
