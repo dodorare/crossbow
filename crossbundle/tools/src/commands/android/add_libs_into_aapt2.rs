@@ -43,22 +43,24 @@ pub fn add_libs_into_aapt2(
     )?;
 
     // Add all needed libs into apk archive
+    let abi = build_target.android_abi();
+    let out_dir = build_dir.join("lib").join(abi);
     for (_lib_name, lib_path) in needed_libs {
-        add_lib_aapt2(&lib_path, &build_dir)?;
+        add_lib_aapt2(&lib_path, &out_dir)?;
     }
-    Ok(build_dir.to_path_buf())
+    Ok(out_dir)
 }
 
 /// Copy lib into dir then add this lib into apk file
-pub fn add_lib_aapt2(lib_path: &Path, copy_lib_into_dir: &Path) -> Result<()> {
+pub fn add_lib_aapt2(lib_path: &Path, out_dir: &Path) -> Result<()> {
     if !lib_path.exists() {
         return Err(Error::PathNotFound(lib_path.to_owned()));
     }
-    std::fs::create_dir_all(&copy_lib_into_dir)?;
+    std::fs::create_dir_all(&out_dir)?;
     let filename = lib_path.file_name().unwrap();
     let mut options = fs_extra::file::CopyOptions::new();
     options.overwrite = true;
-    fs_extra::file::copy(&lib_path, copy_lib_into_dir.join(&filename), &options)?;
+    fs_extra::file::copy(&lib_path, out_dir.join(&filename), &options)?;
     Ok(())
 }
 

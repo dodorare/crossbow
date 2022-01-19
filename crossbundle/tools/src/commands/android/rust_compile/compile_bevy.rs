@@ -145,7 +145,7 @@ impl cargo_compiler::Executor for DefaultExecutor {
                 }
             }
             cmd.args_replace(&new_args);
-            println!("cmd {:?}", cmd);
+
             cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
                 .map(drop)
         } else {

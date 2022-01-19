@@ -62,10 +62,10 @@ jobs:
     - name: Generate project
       run: |
         cd ~
-        crossbundle new explorer --template=fastlane-example
+        crossbundle new example --template=quad
     - name: Build Apple app
       run: |
-        cd ~/macroquad-3d/
+        cd ~/example/
         crossbundle build android --release --quad
 
   clean:
