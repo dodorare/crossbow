@@ -70,18 +70,19 @@ mod tests {
     use crate::{
         commands::{
             android::{self, compile_rust_for_android_with_bevy},
-            find_package_cargo_manifest_path,
+            gen_minimal_mq_project,
         },
         tools::AndroidSdk,
     };
 
     #[test]
     fn add_libs_into_aapt2_test() {
-        // Specifies path to workspace
-        let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        let current_dir = user_dirs.parent().unwrap().parent().unwrap().to_path_buf();
-        let package_manifest_path = find_package_cargo_manifest_path(&current_dir).unwrap();
-        let project_path = package_manifest_path.parent().unwrap().to_owned();
+        // Creates temporary directory
+        let tempdir = tempfile::tempdir().unwrap();
+        let project_path = tempdir.path();
+
+        // Assigns configuration for project
+        let package_name = gen_minimal_mq_project(&project_path).unwrap();
 
         // Assigns configuration for project
         let sdk = AndroidSdk::from_env().unwrap();
@@ -89,8 +90,9 @@ mod tests {
         let build_target = AndroidTarget::Aarch64LinuxAndroid;
         let profile = Profile::Debug;
         let target_sdk_version = 30;
-        let package_name = "bevy";
         let lib_name = format!("lib{}.so", package_name.replace("-", "_"));
+        let target_dir = project_path.join("target");
+        let android_build_dir = target_dir.join("android").join(profile.to_string());
 
         // Compile rust code for android with bevy engine
         compile_rust_for_android_with_bevy(
@@ -106,32 +108,28 @@ mod tests {
         )
         .unwrap();
 
-        // Specifies needed directories
-        let target_dir = project_path.join("target");
+        // Specifies needed directories to manage library location
+        let mut libs = Vec::new();
         let out_dir = target_dir
             .join(build_target.rust_triple())
             .join(profile.as_ref());
-        let compiled_lib = out_dir.join(format!("lib{}.so", package_name));
-        assert!(compiled_lib.exists());
-        let android_abi = build_target.android_abi();
-        let android_compiled_lib = target_dir
-            .join("android")
-            .join(profile.to_string())
-            .join("lib")
-            .join(android_abi);
+        let compiled_lib = out_dir.join(lib_name);
+        libs.push((compiled_lib, build_target));
 
         // Adds libs into specified directory
-        let lib = android::add_libs_into_aapt2(
-            &ndk,
-            &compiled_lib,
-            build_target,
-            profile,
-            target_sdk_version,
-            &android_compiled_lib,
-            &target_dir,
-        )
-        .unwrap();
-        assert!(lib.exists());
-        println!("library saved in {:?}", lib);
+        for (compiled_lib, build_target) in libs {
+            let lib = android::add_libs_into_aapt2(
+                &ndk,
+                &compiled_lib,
+                build_target,
+                profile,
+                target_sdk_version,
+                &android_build_dir,
+                &target_dir,
+            )
+            .unwrap();
+            assert!(lib.exists());
+            println!("library saved in {:?}", lib);
+        }
     }
 }
