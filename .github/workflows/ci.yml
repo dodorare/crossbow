@@ -30,7 +30,7 @@ jobs:
         cd examples/macroquad-3d
         crossbundle build android --release --quad
 
-  apple-build-ubuntu:
+  apple-build-macos:
     name: Build Apple example on macOS latest
     runs-on: macos-latest
     steps:
