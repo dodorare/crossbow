@@ -27,10 +27,10 @@ jobs:
         cargo install --path=./crossbundle/cli
     - name: Build APK
       run: |
-        cd examples/bevy-3d
-        crossbundle build android --release
+        cd examples/macroquad-3d
+        crossbundle build android --release --quad
 
-  apple-build-ubuntu:
+  apple-build-macos:
     name: Build Apple example on macOS latest
     runs-on: macos-latest
     steps:
@@ -43,8 +43,8 @@ jobs:
         cargo install --path=./crossbundle/cli
     - name: Build Apple app
       run: |
-        cd examples/bevy-3d
-        crossbundle build apple --release --target=aarch64-apple-ios
+        cd examples/macroquad-3d
+        crossbundle build apple --release --target=aarch64-apple-ios --quad
 
   test-crossbundle-new:
     name: Generate and Build from template on macOS latest
@@ -62,11 +62,11 @@ jobs:
     - name: Generate project
       run: |
         cd ~
-        crossbundle new explorer --template=fastlane-example
+        crossbundle new example --template=quad
     - name: Build Apple app
       run: |
-        cd ~/explorer/
-        crossbundle build android --release
+        cd ~/example/
+        crossbundle build android --release --quad
 
   clean:
     name: Check code format

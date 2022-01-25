@@ -102,6 +102,8 @@ pub enum AppleTarget {
     I386AppleIos,
     #[serde(rename = "aarch64-apple-ios")]
     Aarch64AppleIos,
+    #[serde(rename = "aarch64-apple-ios-sim")]
+    Aarch64AppleIosSim,
     #[serde(rename = "armv7-apple-ios")]
     Armv7AppleIos,
     #[serde(rename = "armv7s-apple-ios")]
@@ -114,6 +116,7 @@ impl IntoRustTriple for AppleTarget {
             Self::X86_64AppleIos => "x86_64-apple-ios",
             Self::I386AppleIos => "i386-apple-ios",
             Self::Aarch64AppleIos => "aarch64-apple-ios",
+            Self::Aarch64AppleIosSim => "aarch64-apple-ios-sim",
             Self::Armv7AppleIos => "armv7-apple-ios",
             Self::Armv7sAppleIos => "armv7s-apple-ios",
         }
@@ -128,6 +131,7 @@ impl std::str::FromStr for AppleTarget {
             "x86_64-apple-ios" => Ok(Self::X86_64AppleIos),
             "i386-apple-ios" => Ok(Self::I386AppleIos),
             "aarch64-apple-ios" => Ok(Self::Aarch64AppleIos),
+            "aarch64-apple-ios-sim" => Ok(Self::Aarch64AppleIosSim),
             "armv7-apple-ios" => Ok(Self::Armv7AppleIos),
             "armv7s-apple-ios" => Ok(Self::Armv7sAppleIos),
             _ => Err(AndroidError::InvalidBuildTarget(s.to_owned())),

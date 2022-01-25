@@ -1,29 +1,38 @@
 #[cfg(target_os = "macos")]
 use crossbundle_tools::commands::apple::*;
 use crossbundle_tools::{
-    commands::{android::*, gen_minimal_project},
+    commands::*,
     tools::{AndroidNdk, AndroidSdk},
     types::*,
 };
 
 #[test]
 fn test_compile_android() {
+    // Creates temporary directory
     let tempdir = tempfile::tempdir().unwrap();
     let dir = tempdir.path();
-    let _name = gen_minimal_project(dir).unwrap();
+    let package_name = gen_minimal_mq_project(&dir).unwrap();
 
+    // Create dependencies
     let sdk = AndroidSdk::from_env().unwrap();
     let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
-    compile_rust_for_android(
+    let target_sdk_version = 30;
+    let profile = Profile::Release;
+    let build_target = AndroidTarget::Aarch64LinuxAndroid;
+    let lib_name = format!("lib{}.so", package_name.replace("-", "_"));
+
+    // Compile rust code for android with macroquad engine
+    android::compile_rust_for_android(
         &ndk,
-        Target::Lib,
-        AndroidTarget::Aarch64LinuxAndroid,
-        dir,
-        Profile::Release,
+        build_target,
+        &dir,
+        profile,
         vec![],
         false,
         false,
-        30,
+        target_sdk_version,
+        &lib_name,
+        ApplicationWrapper::Sokol,
     )
     .unwrap();
 }

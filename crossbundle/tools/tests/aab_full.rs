@@ -1,10 +1,7 @@
 use android_tools::java_tools::{android_dir, AabKey, JarSigner, KeyAlgorithm, Keytool};
 use crossbundle_tools::commands::android::remove;
-use crossbundle_tools::{
-    commands::{android, gen_minimal_project},
-    tools::*,
-    types::*,
-};
+use crossbundle_tools::commands::gen_minimal_mq_project;
+use crossbundle_tools::{commands::android, tools::*, types::*};
 
 #[test]
 /// Tests all tools for creating aab
@@ -14,15 +11,19 @@ fn test_aab_full() {
     let project_path = tempdir.path();
 
     // Assigns configuration for project
-    let package_name = gen_minimal_project(&project_path).unwrap();
+    let package_name = gen_minimal_mq_project(&project_path).unwrap();
     let sdk = AndroidSdk::from_env().unwrap();
     let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
     let target_sdk_version = 30;
     let profile = Profile::Debug;
     let build_target = AndroidTarget::Aarch64LinuxAndroid;
+    let lib_name = format!("lib{}.so", package_name.replace("-", "_"));
+    let target_dir = project_path.join("target");
+    let android_build_dir = target_dir.join("android").join(profile.to_string());
+
+    // Сompile rust code for android with macroquad engine
     android::compile_rust_for_android(
         &ndk,
-        Target::Lib,
         build_target,
         &project_path,
         profile,
@@ -30,35 +31,10 @@ fn test_aab_full() {
         false,
         false,
         target_sdk_version,
+        &lib_name,
+        ApplicationWrapper::Sokol,
     )
     .unwrap();
-
-    // Specifies needed directories
-    let target_dir = project_path.join("target");
-    let out_dir = target_dir
-        .join(build_target.rust_triple())
-        .join(profile.as_ref());
-    let compiled_lib = out_dir.join(format!("lib{}.so", package_name));
-    assert!(compiled_lib.exists());
-    let android_build_dir = target_dir.join("android").join(profile.to_string());
-    let android_abi = build_target.android_abi();
-    let android_compiled_lib = android_build_dir
-        .join("lib")
-        .join(android_abi)
-        .join(format!("lib{}.so", package_name));
-
-    // Adds libs into specified directory
-    let lib = android::add_libs_into_aapt2(
-        &ndk,
-        &compiled_lib,
-        build_target,
-        profile,
-        target_sdk_version,
-        &android_compiled_lib,
-        &target_dir,
-    )
-    .unwrap();
-    assert!(lib.exists());
 
     // Generates manifest
     let manifest = android::gen_minimal_android_manifest(
@@ -106,6 +82,29 @@ fn test_aab_full() {
     let extracted_apk_path = android::extract_apk(&apk_path, &output_dir).unwrap();
     assert!(extracted_apk_path.exists());
 
+    // Specifies needed directories to manage library location
+    let mut libs = Vec::new();
+    let out_dir = target_dir
+        .join(build_target.rust_triple())
+        .join(profile.as_ref());
+    let compiled_lib = out_dir.join(lib_name);
+    libs.push((compiled_lib, build_target));
+
+    // Adds libs into specified directory
+    for (compiled_lib, build_target) in libs {
+        let lib = android::add_libs_into_aapt2(
+            &ndk,
+            &compiled_lib,
+            build_target,
+            profile,
+            target_sdk_version,
+            &extracted_apk_path,
+            &target_dir,
+        )
+        .unwrap();
+        assert!(lib.exists());
+    }
+
     // Generates zip archive
     let gen_zip_modules =
         android::gen_zip_modules(&android_build_dir, &package_name, &extracted_apk_path).unwrap();
@@ -121,35 +120,12 @@ fn test_aab_full() {
     // Removes unnecessary files
     remove(vec![extracted_apk_path, gen_zip_modules]).unwrap();
 
-    // Creates keystore with keytool commands
-    // let sign_key_path = Some(android_build_dir.join("aab.keystore"));
-    // let sign_key_pass = Some("android");
-    // let sign_key_alias = Some("androiddebugkey");
-    // let key = if let Some(key_path) = sign_key_path {
-    //     let aab_key = AabKey {
-    //         key_path,
-    //         key_pass: sign_key_pass.clone().unwrap().to_string(),
-    //         key_alias: sign_key_alias.clone().unwrap().to_string(),
-    //     };
-    //     if aab_key.key_path.exists() {
-    //         aab_key
-    //     } else {
-    //         gen_key(aab_key).unwrap()
-    //     }
-    // } else {
-    //     let aab_key: AabKey = Default::default();
-    //     if aab_key.key_path.exists() {
-    //         aab_key
-    //     } else {
-    //         gen_key(aab_key).unwrap()
-    //     }
-    // };
-
     // Removes old keystore if it exists
     let android_dir = android_dir().unwrap();
     let target = vec![android_dir.join("aab.keystore")];
     remove(target).unwrap();
 
+    // Create keystore with deafault configuration
     let key = AabKey::new_default().unwrap();
     Keytool::new()
         .genkeypair(true)
@@ -165,6 +141,7 @@ fn test_aab_full() {
         .run()
         .unwrap();
 
+    // Sign AAB with created keystore
     JarSigner::new(&aab_path, &key.key_alias)
         .keystore(&key.key_path)
         .storepass(key.key_pass.to_string())

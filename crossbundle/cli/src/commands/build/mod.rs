@@ -51,7 +51,7 @@ pub struct SharedBuildCommand {
     /// Directory for generated artifact and intermediate files
     #[clap(long)]
     pub target_dir: Option<PathBuf>,
-    /// Specifies to build macroquad game engine
+    /// Specifies to build macroquad game engine with Sokol application wrapper
     #[clap(long)]
     pub quad: bool,
 }

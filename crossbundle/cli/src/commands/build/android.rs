@@ -60,8 +60,7 @@ impl AndroidBuildCommand {
     ) -> crate::error::Result<(AndroidManifest, AndroidSdk, PathBuf)> {
         let profile = self.shared.profile();
         let example = self.shared.example.as_ref();
-        let (project_path, target_dir, target, package_name) =
-            Self::needed_project_dirs(example, context)?;
+        let (project_path, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
         config.status_message("Starting build process", &package_name)?;
         let (sdk, ndk, target_sdk_version) = Self::android_toolchain(context)?;
         config.status_message("Generating", "AndroidManifest.xml")?;
@@ -83,7 +82,6 @@ impl AndroidBuildCommand {
             &project_path,
             profile,
             target_sdk_version,
-            target,
             &target_dir,
             config,
         )?;
@@ -159,8 +157,7 @@ impl AndroidBuildCommand {
     ) -> crate::error::Result<(AndroidManifest, AndroidSdk, PathBuf, String, AabKey)> {
         let profile = self.shared.profile();
         let example = self.shared.example.as_ref();
-        let (project_path, target_dir, target, package_name) =
-            Self::needed_project_dirs(example, context)?;
+        let (project_path, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
         config.status_message("Starting build process", &package_name)?;
         let (sdk, ndk, target_sdk_version) = Self::android_toolchain(context)?;
         config.status_message("Generating", "AndroidManifest.xml")?;
@@ -182,7 +179,6 @@ impl AndroidBuildCommand {
             &project_path,
             profile,
             target_sdk_version,
-            target,
             &target_dir,
             config,
         )?;
@@ -287,15 +283,15 @@ impl AndroidBuildCommand {
     fn needed_project_dirs(
         example: Option<&String>,
         context: &BuildContext,
-    ) -> crate::error::Result<(PathBuf, PathBuf, Target, String)> {
+    ) -> crate::error::Result<(PathBuf, PathBuf, String)> {
         let project_path: PathBuf = context.project_path.clone();
         let target_dir: PathBuf = context.target_dir.clone();
-        let (target, package_name) = if let Some(example) = example {
+        let (_target, package_name) = if let Some(example) = example {
             (Target::Example(example.clone()), example.clone())
         } else {
             (Target::Lib, context.package_name())
         };
-        Ok((project_path, target_dir, target, package_name))
+        Ok((project_path, target_dir, package_name))
     }
 
     /// Specifies path to Android SDK and Android NDK
@@ -331,7 +327,6 @@ impl AndroidBuildCommand {
         project_path: &Path,
         profile: Profile,
         target_sdk_version: u32,
-        target: Target,
         target_dir: &Path,
         config: &Config,
     ) -> crate::error::Result<Vec<(PathBuf, AndroidTarget)>> {
@@ -344,7 +339,7 @@ impl AndroidBuildCommand {
             // We need a different compilation process for macroquad projects
             // because of the sokol lib dependency
             if self.shared.quad {
-                android::compile_macroquad_rust_for_android(
+                android::compile_rust_for_android(
                     &ndk,
                     build_target,
                     &project_path,
@@ -354,11 +349,11 @@ impl AndroidBuildCommand {
                     self.shared.no_default_features,
                     target_sdk_version,
                     &lib_name,
+                    ApplicationWrapper::Sokol,
                 )?;
             } else {
                 android::compile_rust_for_android(
                     &ndk,
-                    target.clone(),
                     build_target,
                     &project_path,
                     profile,
@@ -366,6 +361,8 @@ impl AndroidBuildCommand {
                     self.shared.all_features,
                     self.shared.no_default_features,
                     target_sdk_version,
+                    &lib_name,
+                    ApplicationWrapper::NdkGlue,
                 )?;
             }
             let out_dir = target_dir.join(build_target.rust_triple()).join(&profile);

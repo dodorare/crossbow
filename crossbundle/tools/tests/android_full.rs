@@ -2,7 +2,7 @@ use android_tools::java_tools::{android_dir, AabKey, KeyAlgorithm, Keytool};
 use crossbundle_tools::{
     commands::{
         android::{self, remove},
-        gen_minimal_project,
+        gen_minimal_mq_project,
     },
     tools::{AndroidNdk, AndroidSdk},
     types::*,
@@ -11,21 +11,22 @@ use crossbundle_tools::{
 #[test]
 /// Tests all tools for creating apk
 fn test_android_full() {
+    // Creates temporary directory
     let tempdir = tempfile::tempdir().unwrap();
     let dir = tempdir.path();
-    let package_name = gen_minimal_project(&dir).unwrap();
+    let package_name = gen_minimal_mq_project(&dir).unwrap();
 
     // Create dependencies
     let sdk = AndroidSdk::from_env().unwrap();
     let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
-
-    // Compile rust lib for android
     let target_sdk_version = 30;
     let profile = Profile::Release;
     let build_target = AndroidTarget::Aarch64LinuxAndroid;
+    let lib_name = format!("lib{}.so", package_name.replace("-", "_"));
+
+    // Compile rust code for android with macroquad engine
     android::compile_rust_for_android(
         &ndk,
-        Target::Lib,
         build_target,
         &dir,
         profile,
@@ -33,8 +34,12 @@ fn test_android_full() {
         false,
         false,
         target_sdk_version,
+        &lib_name,
+        ApplicationWrapper::Sokol,
     )
     .unwrap();
+
+    // Create needed directories
     let out_dir = dir
         .join("target")
         .join(build_target.rust_triple())
