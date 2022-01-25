@@ -22,7 +22,7 @@ fn test_aab_full() {
     let android_build_dir = target_dir.join("android").join(profile.to_string());
 
     // Сompile rust code for android with macroquad engine
-    android::compile_rust_for_android_with_mq(
+    android::compile_rust_for_android(
         &ndk,
         build_target,
         &project_path,
@@ -32,6 +32,7 @@ fn test_aab_full() {
         false,
         target_sdk_version,
         &lib_name,
+        ApplicationWrapper::Sokol,
     )
     .unwrap();
 

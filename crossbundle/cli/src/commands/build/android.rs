@@ -339,7 +339,7 @@ impl AndroidBuildCommand {
             // We need a different compilation process for macroquad projects
             // because of the sokol lib dependency
             if self.shared.quad {
-                android::compile_rust_for_android_with_mq(
+                android::compile_rust_for_android(
                     &ndk,
                     build_target,
                     &project_path,
@@ -349,9 +349,10 @@ impl AndroidBuildCommand {
                     self.shared.no_default_features,
                     target_sdk_version,
                     &lib_name,
+                    ApplicationWrapper::Sokol,
                 )?;
             } else {
-                android::compile_rust_for_android_with_bevy(
+                android::compile_rust_for_android(
                     &ndk,
                     build_target,
                     &project_path,
@@ -361,6 +362,7 @@ impl AndroidBuildCommand {
                     self.shared.no_default_features,
                     target_sdk_version,
                     &lib_name,
+                    ApplicationWrapper::NdkGlue,
                 )?;
             }
             let out_dir = target_dir.join(build_target.rust_triple()).join(&profile);

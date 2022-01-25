@@ -69,10 +69,11 @@ mod tests {
     use super::*;
     use crate::{
         commands::{
-            android::{self, compile_rust_for_android_with_bevy},
+            android::{self, compile_rust_for_android},
             gen_minimal_mq_project,
         },
         tools::AndroidSdk,
+        types::ApplicationWrapper,
     };
 
     #[test]
@@ -95,7 +96,7 @@ mod tests {
         let android_build_dir = target_dir.join("android").join(profile.to_string());
 
         // Compile rust code for android with bevy engine
-        compile_rust_for_android_with_bevy(
+        compile_rust_for_android(
             &ndk,
             build_target,
             &project_path,
@@ -105,6 +106,7 @@ mod tests {
             false,
             target_sdk_version,
             &lib_name,
+            ApplicationWrapper::NdkGlue,
         )
         .unwrap();
 

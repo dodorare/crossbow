@@ -25,7 +25,7 @@ fn test_android_full() {
     let lib_name = format!("lib{}.so", package_name.replace("-", "_"));
 
     // Compile rust code for android with macroquad engine
-    android::compile_rust_for_android_with_mq(
+    android::compile_rust_for_android(
         &ndk,
         build_target,
         &dir,
@@ -35,6 +35,7 @@ fn test_android_full() {
         false,
         target_sdk_version,
         &lib_name,
+        ApplicationWrapper::Sokol,
     )
     .unwrap();
 

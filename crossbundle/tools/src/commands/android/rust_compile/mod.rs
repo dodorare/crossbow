@@ -4,13 +4,53 @@ mod compile_options;
 mod consts;
 mod gen_tmp_lib_file;
 
-pub use compile_bevy::*;
-pub use compile_macroquad::*;
+use crate::{error::*, tools::*, types::*};
+use compile_bevy::*;
+use compile_macroquad::*;
+
+/// Compiles rust code for android with macroquad engine
+pub fn compile_rust_for_android(
+    ndk: &AndroidNdk,
+    build_target: AndroidTarget,
+    project_path: &std::path::Path,
+    profile: Profile,
+    features: Vec<String>,
+    all_features: bool,
+    no_default_features: bool,
+    target_sdk_version: u32,
+    lib_name: &str,
+    app_wrapper: ApplicationWrapper,
+) -> Result<()> {
+    if app_wrapper == ApplicationWrapper::Sokol {
+        compile_rust_for_android_with_mq(
+            ndk,
+            build_target,
+            project_path,
+            profile,
+            features,
+            all_features,
+            no_default_features,
+            target_sdk_version,
+            lib_name,
+        )
+    } else {
+        compile_rust_for_android_with_bevy(
+            ndk,
+            build_target,
+            project_path,
+            profile,
+            features,
+            all_features,
+            no_default_features,
+            target_sdk_version,
+            lib_name,
+        )
+    }
+}
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{tools::*, types::*};
 
     #[test]
     fn test_compile_rust_with_macroquad() {

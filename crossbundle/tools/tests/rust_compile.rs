@@ -1,7 +1,7 @@
 #[cfg(target_os = "macos")]
 use crossbundle_tools::commands::apple::*;
 use crossbundle_tools::{
-    commands::{android, gen_minimal_mq_project},
+    commands::*,
     tools::{AndroidNdk, AndroidSdk},
     types::*,
 };
@@ -22,7 +22,7 @@ fn test_compile_android() {
     let lib_name = format!("lib{}.so", package_name.replace("-", "_"));
 
     // Compile rust code for android with macroquad engine
-    android::compile_rust_for_android_with_mq(
+    android::compile_rust_for_android(
         &ndk,
         build_target,
         &dir,
@@ -32,6 +32,7 @@ fn test_compile_android() {
         false,
         target_sdk_version,
         &lib_name,
+        ApplicationWrapper::Sokol,
     )
     .unwrap();
 }
