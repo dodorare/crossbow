@@ -312,7 +312,7 @@ impl AndroidBuildCommand {
         Ok((android_manifest, manifest_path))
     }
 
-    /// Find keystore for signing APK of AAB or create it
+    /// Find keystore for signing application or create it
     fn find_keystore(
         sign_key_path: Option<PathBuf>,
         sign_key_pass: Option<String>,
