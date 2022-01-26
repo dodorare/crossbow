@@ -1,9 +1,9 @@
 use super::{BuildContext, SharedBuildCommand};
 use android_manifest::AndroidManifest;
-use android_tools::java_tools::{android_dir, AabKey, JarSigner};
+use android_tools::java_tools::{AabKey, JarSigner};
 use clap::Parser;
 use crossbundle_tools::{
-    commands::android::{self, remove},
+    commands::android::{self, compile_rust_for_android},
     tools::*,
     types::*,
     utils::Config,
@@ -133,11 +133,8 @@ impl AndroidBuildCommand {
             &android_build_dir,
         )?;
 
-        let old_keystore = android_dir()?.join("aab.keystore");
-        remove(vec![old_keystore])?;
-
         config.status_message("Generating", "debug signing key")?;
-        let key = android::gen_key(
+        let key = Self::find_keystore(
             self.sign_key_path.clone(),
             self.sign_key_pass.clone(),
             self.sign_key_alias.clone(),
@@ -253,11 +250,8 @@ impl AndroidBuildCommand {
             &android_build_dir,
         )?;
 
-        let old_keystore = android_dir()?.join("aab.keystore");
-        remove(vec![gen_zip_modules, extracted_apk_path, old_keystore])?;
-
         config.status_message("Generating", "debug signing key")?;
-        let key = android::gen_key(
+        let key = Self::find_keystore(
             self.sign_key_path.clone(),
             self.sign_key_pass.clone(),
             self.sign_key_alias.clone(),
@@ -318,6 +312,42 @@ impl AndroidBuildCommand {
         Ok((android_manifest, manifest_path))
     }
 
+    /// Find keystore for signing APK of AAB or create it
+    fn find_keystore(
+        sign_key_path: Option<PathBuf>,
+        sign_key_pass: Option<String>,
+        sign_key_alias: Option<String>,
+    ) -> crate::error::Result<AabKey> {
+        let key = if let Some(key_path) = sign_key_path.clone() {
+            let aab_key = AabKey {
+                key_path,
+                key_pass: sign_key_pass.clone().unwrap().to_string(),
+                key_alias: sign_key_alias.clone().unwrap().to_string(),
+            };
+            if aab_key.key_path.exists() {
+                aab_key
+            } else {
+                android::gen_key(
+                    Some(aab_key.key_path),
+                    Some(aab_key.key_pass),
+                    Some(aab_key.key_alias),
+                )?
+            }
+        } else {
+            let aab_key = AabKey::new_default()?;
+            if aab_key.key_path.exists() {
+                aab_key
+            } else {
+                android::gen_key(
+                    Some(aab_key.key_path),
+                    Some(aab_key.key_pass),
+                    Some(aab_key.key_alias),
+                )?
+            }
+        };
+        Ok(key)
+    }
+
     /// Compiling libs for architecture and write out it in vector
     fn build_target(
         &self,
@@ -339,7 +369,7 @@ impl AndroidBuildCommand {
             // We need a different compilation process for macroquad projects
             // because of the sokol lib dependency
             if self.shared.quad {
-                android::compile_rust_for_android(
+                compile_rust_for_android(
                     &ndk,
                     build_target,
                     &project_path,
@@ -352,7 +382,7 @@ impl AndroidBuildCommand {
                     ApplicationWrapper::Sokol,
                 )?;
             } else {
-                android::compile_rust_for_android(
+                compile_rust_for_android(
                     &ndk,
                     build_target,
                     &project_path,
