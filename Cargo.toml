@@ -22,8 +22,9 @@ ndk-glue = "0.6.0"
 
 [patch.crates-io]
 ron = { git = "https://github.com/enfipy/ron", rev = "3b1f28075071d743469347575b34caf2043beeb9" }
-winit = { git = "https://github.com/Heezay/winit", rev = "0a7cb4583c7af6ba201704f082937ed5edf700d2" }
+oboe-sys = { git = "https://github.com/enfipy/oboe-rs", rev = "d07d5352275c0a6122b014f1a8662117d04609fc" }
 cpal = { git = "https://github.com/RustAudio/cpal", rev = "1edf930bb403097ab051d1c7db3a092b365b4fec" }
+bevy = { git = "https://github.com/Heezay/bevy", rev = "2b23b5902bde5b6fadfa40a006554e427d353511" }
 
 [features]
 default = []

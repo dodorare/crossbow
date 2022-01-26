@@ -8,8 +8,7 @@ edition = "2021"
 crossbow = { version = "0.1.2", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
-# bevy = "0.6.0"
-bevy = { git = "https://github.com/Heezay/bevy", rev = "2b23b5902bde5b6fadfa40a006554e427d353511", features = ["mp3"] }
+bevy = { version = "0.6.0", features = ["mp3"] }
 
 [package.metadata]
 app_name = "Bevy 2D"

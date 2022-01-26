@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 pub fn main() {
     println!("Initialization.");
+    std::thread::sleep(std::time::Duration::from_secs(2));
     App::new()
         .add_plugins(DefaultPlugins)
         .add_startup_system(audio.system())
