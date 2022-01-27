@@ -3,7 +3,7 @@ use bevy::{
     prelude::*,
 };
 
-pub fn main() {
+fn main() {
     println!("Initialization.");
     std::thread::sleep(std::time::Duration::from_secs(2));
     App::new()
