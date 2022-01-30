@@ -9,7 +9,7 @@ pub struct AppleRunCommand {
     #[clap(flatten)]
     pub build_command: AppleBuildCommand,
     /// Simulator device name
-    #[clap(short, long, default_value = "iPhone 8", conflicts_with = "target")]
+    #[clap(short, long, default_value = "iPhone 13")]
     pub simulator_name: String,
     /// Run in debug mode
     #[clap(short, long)]
