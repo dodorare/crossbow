@@ -3,7 +3,10 @@ use android_manifest::AndroidManifest;
 use android_tools::java_tools::{android_dir, AabKey, JarSigner};
 use clap::Parser;
 use crossbundle_tools::{
-    commands::android::{self, remove},
+    commands::{
+        android::{self, remove},
+        BundletoolInstall,
+    },
     tools::*,
     types::*,
     utils::Config,
@@ -11,6 +14,7 @@ use crossbundle_tools::{
 use std::path::{Path, PathBuf};
 
 const MIN_SDK_VERSION: u32 = 9;
+const BUNDLETOOL_VERSION: &'static str = "1.8.2";
 
 /// Specifies flags and options needed to build application
 #[derive(Parser, Clone, Debug)]
@@ -24,6 +28,9 @@ pub struct AndroidBuildCommand {
     /// Generating aab. By default crossbow generating apk
     #[clap(long)]
     pub aab: bool,
+    // Install bundletool in home directory
+    #[clap(long)]
+    pub bundletool_install: bool,
     /// Path to the signing key
     #[clap(long, requires_all = &["sign-key-pass", "sign-key-alias"])]
     pub sign_key_path: Option<PathBuf>,
@@ -46,6 +53,9 @@ impl AndroidBuildCommand {
         let context = BuildContext::new(config, self.shared.target_dir.clone())?;
         if self.aab {
             self.execute_aab(config, &context)?;
+            if self.bundletool_install {
+                BundletoolInstall::new(BUNDLETOOL_VERSION).install()?
+            }
         } else {
             self.execute_apk(config, &context)?;
         }

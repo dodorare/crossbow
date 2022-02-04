@@ -19,7 +19,7 @@ dirs = "4.0.0"
 simctl = { version = "0.1.1", package = "creator-simctl" }
 android-manifest = "0.1.3"
 apple-bundle = "0.1.1"
-android-tools = "0.2.3"
+android-tools = { git = "https://github.com/dodorare/android-tools-rs", rev = "289c14d14c46d7530f9555e310e771effefb39bc" }
 thiserror = "1.0"
 anyhow = "1.0"
 displaydoc = "0.2"
@@ -31,6 +31,7 @@ log = "0.4"
 zip = "0.5.13"
 zip-extensions = "0.6"
 tempfile = "3.2"
+ureq = "2.4.0"
 
 cargo = "0.59.0"
 cargo-util = "0.1.1"
