@@ -34,7 +34,7 @@ displaydoc = "0.1"
 pretty_env_logger = "0.4"
 log = "0.4"
 fs_extra = "1.2"
-android-tools = { git = "https://github.com/dodorare/android-tools-rs", rev = "289c14d14c46d7530f9555e310e771effefb39bc" }
+android-tools = { git = "https://github.com/dodorare/android-tools-rs", rev = "773ae94bdbff0aaf9be1a363789af1d36015b013" }
 
 [features]
 default = ["android", "ios"]
