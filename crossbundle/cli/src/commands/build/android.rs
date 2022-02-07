@@ -52,10 +52,10 @@ impl AndroidBuildCommand {
         }
         let context = BuildContext::new(config, self.shared.target_dir.clone())?;
         if self.aab {
-            self.execute_aab(config, &context)?;
             if self.bundletool_install {
                 BundletoolInstall::new(BUNDLETOOL_VERSION).install()?
             }
+            self.execute_aab(config, &context)?;
         } else {
             self.execute_apk(config, &context)?;
         }
