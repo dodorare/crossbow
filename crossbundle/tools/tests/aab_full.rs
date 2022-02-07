@@ -1,5 +1,12 @@
 use android_tools::java_tools::{android_dir, AabKey, JarSigner, KeyAlgorithm, Keytool};
-use crossbundle_tools::{commands::{android::{self, remove}, gen_minimal_project}, tools::*, types::*};
+use crossbundle_tools::{
+    commands::{
+        android::{self, remove},
+        gen_minimal_project,
+    },
+    tools::*,
+    types::*,
+};
 
 #[test]
 /// Tests all tools for creating aab

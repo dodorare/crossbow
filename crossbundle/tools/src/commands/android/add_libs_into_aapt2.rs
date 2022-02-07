@@ -63,4 +63,3 @@ pub fn add_lib_aapt2(lib_path: &Path, out_dir: &Path) -> Result<()> {
     fs_extra::file::copy(&lib_path, out_dir.join(&filename), &options)?;
     Ok(())
 }
-

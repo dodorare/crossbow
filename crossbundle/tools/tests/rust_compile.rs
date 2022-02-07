@@ -14,7 +14,6 @@ fn test_compile_android() {
     let macroquad_project = true;
     let package_name = gen_minimal_project(&dir, macroquad_project).unwrap();
 
-
     // Create dependencies
     let sdk = AndroidSdk::from_env().unwrap();
     let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
