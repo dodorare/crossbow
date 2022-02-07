@@ -1,19 +1,20 @@
+use clap::Parser;
+use crossbundle_tools::utils::Config;
 use std::path::PathBuf;
 
-pub struct BundletoolInstall {
-    version: &'static str,
+#[derive(Parser, Clone, Debug, Default)]
+pub struct AndroidInstallCommand {
+    #[clap(long, short)]
+    version: String,
+    // TODO: impl install_path flag
 }
 
-impl BundletoolInstall {
-    pub fn new(version: &'static str) -> Self {
-        Self { version }
-    }
-
+impl AndroidInstallCommand {
     fn file_name(&self) -> String {
         format!("bundletool-all-{}.jar", self.version)
     }
 
-    pub fn install(&self) -> crate::error::Result<()> {
+    pub fn install(&self, _config: &Config) -> crate::error::Result<()> {
         let default_jar_path = dirs::home_dir()
             .ok_or_else(|| crate::error::Error::PathNotFound(PathBuf::from("$HOME")))?
             .join(self.file_name());
@@ -43,14 +44,5 @@ impl BundletoolInstall {
             })?;
         }
         Ok(())
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn bundletool_install_test() {
-        BundletoolInstall::new("1.8.2").install().unwrap();
     }
 }

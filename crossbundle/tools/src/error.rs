@@ -82,8 +82,6 @@ pub enum Error {
         path: PathBuf,
         cause: std::io::Error,
     },
-    /// Failed to download jar file
-    DownloadFailed(ureq::Error),
     /// Invalid profile: {0}
     InvalidProfile(String),
     /// Invalid interface orientation: {0:?}
