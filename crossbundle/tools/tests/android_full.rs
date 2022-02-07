@@ -2,7 +2,7 @@ use android_tools::java_tools::{android_dir, AabKey, KeyAlgorithm, Keytool};
 use crossbundle_tools::{
     commands::{
         android::{self, remove},
-        gen_minimal_mq_project,
+        gen_minimal_project,
     },
     tools::{AndroidNdk, AndroidSdk},
     types::*,
@@ -14,7 +14,8 @@ fn test_android_full() {
     // Creates temporary directory
     let tempdir = tempfile::tempdir().unwrap();
     let dir = tempdir.path();
-    let package_name = gen_minimal_mq_project(&dir).unwrap();
+    let macroquad_project = true;
+    let package_name = gen_minimal_project(&dir, macroquad_project).unwrap();
 
     // Create dependencies
     let sdk = AndroidSdk::from_env().unwrap();

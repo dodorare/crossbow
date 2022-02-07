@@ -70,7 +70,7 @@ mod tests {
     use crate::{
         commands::{
             android::{self, compile_rust_for_android},
-            gen_minimal_mq_project,
+            gen_minimal_project,
         },
         tools::AndroidSdk,
         types::ApplicationWrapper,
@@ -83,7 +83,8 @@ mod tests {
         let project_path = tempdir.path();
 
         // Assigns configuration for project
-        let package_name = gen_minimal_mq_project(&project_path).unwrap();
+        let macroquad_project = true;
+        let package_name = gen_minimal_project(&project_path, macroquad_project).unwrap();
 
         // Assigns configuration for project
         let sdk = AndroidSdk::from_env().unwrap();

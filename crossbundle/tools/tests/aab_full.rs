@@ -1,7 +1,5 @@
 use android_tools::java_tools::{android_dir, AabKey, JarSigner, KeyAlgorithm, Keytool};
-use crossbundle_tools::commands::android::remove;
-use crossbundle_tools::commands::gen_minimal_mq_project;
-use crossbundle_tools::{commands::android, tools::*, types::*};
+use crossbundle_tools::{commands::{android::{self, remove}, gen_minimal_project}, tools::*, types::*};
 
 #[test]
 /// Tests all tools for creating aab
@@ -11,7 +9,8 @@ fn test_aab_full() {
     let project_path = tempdir.path();
 
     // Assigns configuration for project
-    let package_name = gen_minimal_mq_project(&project_path).unwrap();
+    let macroquad_project = false;
+    let package_name = gen_minimal_project(&project_path, macroquad_project).unwrap();
     let sdk = AndroidSdk::from_env().unwrap();
     let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
     let target_sdk_version = 30;
@@ -32,7 +31,7 @@ fn test_aab_full() {
         false,
         target_sdk_version,
         &lib_name,
-        ApplicationWrapper::Sokol,
+        ApplicationWrapper::NdkGlue,
     )
     .unwrap();
 
