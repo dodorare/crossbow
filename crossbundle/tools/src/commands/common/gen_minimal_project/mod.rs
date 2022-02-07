@@ -1,10 +1,10 @@
 mod consts;
 mod gen_minimal_project;
 
-use std::{fs::File, io::Write};
-
 pub use consts::*;
 pub use gen_minimal_project::*;
+
+use std::{fs::File, io::Write};
 
 /// Creates resource folder with string.xml resource inside to minimal project
 pub fn create_res_folder(out_dir: &std::path::Path) -> crate::error::Result<()> {
