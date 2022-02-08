@@ -216,7 +216,7 @@ impl AndroidBuildCommand {
 
         config.status("Extracting apk files")?;
         let output_dir = android_build_dir.join("extracted_apk_files");
-        let extracted_apk_path = android::extract_apk(&apk_path, &output_dir)?;
+        let extracted_apk_path = android::extract_archive(&apk_path, &output_dir)?;
 
         config.status("Adding libs")?;
         for (compiled_lib, build_target) in compiled_libs {

@@ -85,7 +85,7 @@ fn test_aab_full() {
 
     // Extracts files from .apk into /extracted_apk_files folder
     let output_dir = android_build_dir.join("extracted_apk_files");
-    let extracted_apk_path = android::extract_apk(&apk_path, &output_dir).unwrap();
+    let extracted_apk_path = android::extract_archive(&apk_path, &output_dir).unwrap();
     assert!(extracted_apk_path.exists());
 
     // Specifies needed directories to manage library location

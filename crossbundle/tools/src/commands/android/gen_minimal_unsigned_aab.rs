@@ -38,7 +38,7 @@ pub fn gen_minimal_unsigned_aab(
     aapt2_link.run()?;
 
     let output_dir = aab_build_dir.join("extracted_apk_files");
-    let extracted_apk_path = super::extract_apk(&apk_path, &output_dir)?;
+    let extracted_apk_path = super::extract_archive(&apk_path, &output_dir)?;
 
     let gen_zip_modules = super::gen_zip_modules(aab_build_dir, package_name, &extracted_apk_path)?;
 
