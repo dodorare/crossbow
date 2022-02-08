@@ -1,8 +1,8 @@
 mod consts;
-mod gen_minimal_project;
+mod gen_min_project;
 
 pub use consts::*;
-pub use gen_minimal_project::*;
+pub use gen_min_project::*;
 
 use std::{fs::File, io::Write};
 
