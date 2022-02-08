@@ -6,19 +6,19 @@ use crate::error::Result;
 use clap::Parser;
 use crossbundle_tools::utils::Config;
 
-use self::{bundletool::BundletoolInstallCommand, sdkmanager::SdkmanagerInstallCommand};
+use self::{bundletool::BundletoolInstallCommand, sdkmanager::SdkManagerInstallCommand};
 
 #[derive(Parser, Clone, Debug)]
 pub enum InstallCommand {
     Bundletool(BundletoolInstallCommand),
-    Sdkmanager(SdkmanagerInstallCommand),
+    SdkManager(SdkManagerInstallCommand),
 }
 
 impl InstallCommand {
     pub fn handle_command(&self, config: &Config) -> Result<()> {
         match self {
             InstallCommand::Bundletool(cmd) => cmd.install(config),
-            InstallCommand::Sdkmanager(cmd) => cmd.install(config),
+            InstallCommand::SdkManager(cmd) => cmd.install(config),
         }
     }
 }

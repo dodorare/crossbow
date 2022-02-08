@@ -17,9 +17,9 @@ const OS_TAG: &str = "linux";
 const SDKMANAGER_DOWNLOAD_URL: &'static str = "https://dl.google.com/android/repository/";
 
 #[derive(Parser, Clone, Debug, Default)]
-pub struct SdkmanagerInstallCommand {}
+pub struct SdkManagerInstallCommand {}
 
-impl SdkmanagerInstallCommand {
+impl SdkManagerInstallCommand {
     /// Download command line tools zip archive and extract it in specified sdk root directory
     pub fn install(&self, _config: &Config) -> crate::error::Result<()> {
         let sdkmanager_download_url = SDKMANAGER_DOWNLOAD_URL
