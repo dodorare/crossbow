@@ -1,5 +1,5 @@
 pub mod bundletool;
-pub mod ndk;
+pub mod android_ndk;
 pub mod sdkmanager;
 
 use crate::error::Result;
@@ -12,8 +12,7 @@ use self::{bundletool::BundletoolInstallCommand, sdkmanager::SdkManagerInstallCo
 pub enum InstallCommand {
     /// Install bundletool. You can specify version of bundletool. By default, we have 1.8.2 bundletool version in usage
     Bundletool(BundletoolInstallCommand),
-    /// Install Android Studio's command line tools including sdkmanager command line tool inside.
-    /// Sdkmanager allows to install Android SDK and Android NDK.
+    /// Allows you to view, install, update, and uninstall packages for the Android SDK
     SdkManager(SdkManagerInstallCommand),
 }
 

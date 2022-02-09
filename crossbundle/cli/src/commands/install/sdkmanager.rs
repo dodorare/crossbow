@@ -22,7 +22,7 @@ const SDKMANAGER_DOWNLOAD_URL: &'static str = "https://dl.google.com/android/rep
 pub struct SdkManagerInstallCommand {
     /// Assign path to install command line tools
     #[clap(long, short)]
-    install_path: Option<PathBuf>,
+    pub install_path: Option<PathBuf>,
 }
 
 impl SdkManagerInstallCommand {
