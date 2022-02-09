@@ -17,7 +17,10 @@ const OS_TAG: &str = "linux";
 const SDKMANAGER_DOWNLOAD_URL: &'static str = "https://dl.google.com/android/repository/";
 
 #[derive(Parser, Clone, Debug, Default)]
-pub struct SdkManagerInstallCommand {}
+pub struct SdkManagerInstallCommand {
+    #[clap(long, short)]
+    install_path: Option<PathBuf>,
+}
 
 impl SdkManagerInstallCommand {
     /// Download command line tools zip archive and extract it in specified sdk root directory
@@ -33,7 +36,11 @@ impl SdkManagerInstallCommand {
 
         Self::create_file(&self, sdkmanager_download_url, &file_path)?;
 
-        android::extract_archive(&file_path, &sdk_root)?;
+        if let Some(path) = &self.install_path {
+            android::extract_archive(&file_path, path)?;
+        } else {
+            android::extract_archive(&file_path, &sdk_root)?;
+        }
 
         remove(vec![file_path])?;
         Ok(())
@@ -54,10 +61,15 @@ impl SdkManagerInstallCommand {
 
     /// Set sdk root for sdkmanager storing
     pub fn set_sdk_root(&self) -> crate::error::Result<PathBuf> {
+        #[cfg(target_os = "windows")]
         let root = Path::new("AppData")
             .join("Local")
             .join("Android")
             .join("Sdk");
+
+        #[cfg(not(target_os = "windows"))]
+        let root = Path::new("Android").join("Sdk");
+
         if !root.exists() {
             std::fs::create_dir_all(&root)?
         }
