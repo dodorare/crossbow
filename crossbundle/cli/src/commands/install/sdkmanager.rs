@@ -5,6 +5,8 @@ use crossbundle_tools::{
 };
 use std::path::{Path, PathBuf};
 
+use super::create_file;
+
 #[cfg(target_os = "windows")]
 const OS_TAG: &str = "win";
 
@@ -18,6 +20,7 @@ const SDKMANAGER_DOWNLOAD_URL: &'static str = "https://dl.google.com/android/rep
 
 #[derive(Parser, Clone, Debug, Default)]
 pub struct SdkManagerInstallCommand {
+    /// Assign path to install command line tools
     #[clap(long, short)]
     install_path: Option<PathBuf>,
 }
@@ -34,7 +37,7 @@ impl SdkManagerInstallCommand {
         let file_path = Self::default_file_path(&self)?;
         let sdk_root = Self::set_sdk_root(&self)?;
 
-        Self::create_file(&self, sdkmanager_download_url, &file_path)?;
+        Self::download_and_save_file(&self, sdkmanager_download_url, &file_path)?;
 
         if let Some(path) = &self.install_path {
             android::extract_archive(&file_path, path)?;
@@ -78,8 +81,11 @@ impl SdkManagerInstallCommand {
     }
 
     /// Check home directory for zip file. If it doesn't exists download zip file and save it in the directory
-    pub fn create_file(&self, download_url: PathBuf, file_path: &Path) -> crate::error::Result<()> {
-        // TODO: check the archive for corruption
+    pub fn download_and_save_file(
+        &self,
+        download_url: PathBuf,
+        file_path: &Path,
+    ) -> crate::error::Result<()> {
         for sdkmanager in std::fs::read_dir(file_path.parent().unwrap())? {
             let zip_path = sdkmanager?.path();
             if zip_path.ends_with(Self::sdk_file_name(&self)) {
@@ -87,22 +93,7 @@ impl SdkManagerInstallCommand {
             }
         }
         let url = download_url.to_str().unwrap();
-        let response = ureq::get(url)
-            .call()
-            .map_err(crate::error::Error::DownloadFailed)?;
-
-        let mut out = std::fs::File::create(&file_path).map_err(|cause| {
-            crate::error::Error::JarFileCreationFailed {
-                path: file_path.clone().to_path_buf(),
-                cause,
-            }
-        })?;
-        std::io::copy(&mut response.into_reader(), &mut out).map_err(|cause| {
-            crate::error::Error::CopyToFileFailed {
-                path: file_path.to_path_buf(),
-                cause,
-            }
-        })?;
+        create_file(url.to_string(), file_path.to_path_buf())?;
         Ok(())
     }
 }

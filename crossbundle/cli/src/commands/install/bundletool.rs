@@ -1,4 +1,4 @@
-use super::create_jar_file;
+use super::create_file;
 use clap::Parser;
 use crossbundle_tools::utils::Config;
 use std::path::PathBuf;
@@ -26,12 +26,12 @@ impl BundletoolInstallCommand {
         );
         if let Some(install_path) = &self.path {
             let jar_path = install_path.join(self.file_name());
-            create_jar_file(download_url, jar_path)?;
+            create_file(download_url, jar_path)?;
         } else {
             let default_jar_path = dirs::home_dir()
                 .ok_or_else(|| crate::error::Error::PathNotFound(PathBuf::from("$HOME")))?
                 .join(self.file_name());
-            create_jar_file(download_url, default_jar_path)?;
+            create_file(download_url, default_jar_path)?;
         };
         Ok(())
     }

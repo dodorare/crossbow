@@ -10,7 +10,10 @@ use self::{bundletool::BundletoolInstallCommand, sdkmanager::SdkManagerInstallCo
 
 #[derive(Parser, Clone, Debug)]
 pub enum InstallCommand {
+    /// Install bundletool. You can specify version of bundletool. By default, we have 1.8.2 bundletool version in usage
     Bundletool(BundletoolInstallCommand),
+    /// Install Android Studio's command line tools including sdkmanager command line tool inside.
+    /// Sdkmanager allows to install Android SDK and Android NDK.
     SdkManager(SdkManagerInstallCommand),
 }
 
@@ -24,23 +27,23 @@ impl InstallCommand {
 }
 
 /// Download jar file and save it in directory
-pub fn create_jar_file(
+pub fn create_file(
     download_url: String,
-    jar_path: std::path::PathBuf,
+    file_path: std::path::PathBuf,
 ) -> crate::error::Result<()> {
     let response = ureq::get(&download_url)
         .call()
         .map_err(crate::error::Error::DownloadFailed)?;
 
-    let mut out = std::fs::File::create(&jar_path).map_err(|cause| {
+    let mut out = std::fs::File::create(&file_path).map_err(|cause| {
         crate::error::Error::JarFileCreationFailed {
-            path: jar_path.clone(),
+            path: file_path.clone(),
             cause,
         }
     })?;
     std::io::copy(&mut response.into_reader(), &mut out).map_err(|cause| {
         crate::error::Error::CopyToFileFailed {
-            path: jar_path,
+            path: file_path,
             cause,
         }
     })?;

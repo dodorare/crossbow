@@ -21,7 +21,7 @@ pub enum Commands {
     /// Attach logger to device with running application
     #[clap(subcommand)]
     Log(log::LogCommand),
-    /// Installs tools
+    /// Installs bundletool and Android Studio's sdkmanager
     #[clap(subcommand)]
     Install(install::InstallCommand),
 }
