@@ -32,6 +32,8 @@ pub enum Error {
     AndroidManifest(#[from] android_manifest::error::Error),
     /// Path {0:?} doesn't exist
     PathNotFound(PathBuf),
+    /// Home dir not found
+    HomeDirNotFound,
     /// Failed to download jar file
     DownloadFailed(ureq::Error),
     /// Failed to create jar file in specified path `{path}` cause of `{cause}`

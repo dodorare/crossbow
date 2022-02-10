@@ -1,11 +1,10 @@
+use super::*;
 use clap::Parser;
 use crossbundle_tools::{
     commands::android::{self, remove},
     utils::Config,
 };
 use std::path::{Path, PathBuf};
-
-use super::create_file;
 
 #[cfg(target_os = "windows")]
 const OS_TAG: &str = "win";
@@ -16,19 +15,19 @@ const OS_TAG: &str = "mac";
 #[cfg(target_os = "linux")]
 const OS_TAG: &str = "linux";
 
-const SDKMANAGER_DOWNLOAD_URL: &'static str = "https://dl.google.com/android/repository/";
+const COMMAND_LINE_TOOLS_DOWNLOAD_URL: &'static str = "https://dl.google.com/android/repository/";
 
 #[derive(Parser, Clone, Debug, Default)]
-pub struct SdkManagerInstallCommand {
+pub struct CommandLineToolsInstallCommand {
     /// Assign path to install command line tools
     #[clap(long, short)]
     pub install_path: Option<PathBuf>,
 }
 
-impl SdkManagerInstallCommand {
+impl CommandLineToolsInstallCommand {
     /// Download command line tools zip archive and extract it in specified sdk root directory
     pub fn install(&self, _config: &Config) -> crate::error::Result<()> {
-        let sdkmanager_download_url = SDKMANAGER_DOWNLOAD_URL
+        let command_line_tools_download_url = COMMAND_LINE_TOOLS_DOWNLOAD_URL
             .parse::<PathBuf>()
             .ok()
             .unwrap()
@@ -37,7 +36,7 @@ impl SdkManagerInstallCommand {
         let file_path = Self::default_file_path(&self)?;
         let sdk_root = Self::set_sdk_root(&self)?;
 
-        Self::download_and_save_file(&self, sdkmanager_download_url, &file_path)?;
+        Self::download_and_save_file(&self, command_line_tools_download_url, &file_path)?;
 
         if let Some(path) = &self.install_path {
             android::extract_archive(&file_path, path)?;
@@ -57,13 +56,16 @@ impl SdkManagerInstallCommand {
     /// Make default file path and return it
     pub fn default_file_path(&self) -> crate::error::Result<PathBuf> {
         let default_file_path = dirs::home_dir()
-            .ok_or_else(|| crate::error::Error::PathNotFound(PathBuf::from("$HOME")))?
+            .ok_or_else(|| crate::error::Error::HomeDirNotFound)?
             .join(self.sdk_file_name());
         Ok(default_file_path)
     }
 
+    // TODO: Rethink this stuff
     /// Set sdk root for sdkmanager storing
     pub fn set_sdk_root(&self) -> crate::error::Result<PathBuf> {
+        // TODO: Replace paths with $HOME based ones
+
         #[cfg(target_os = "windows")]
         let root = Path::new("AppData")
             .join("Local")
@@ -73,10 +75,10 @@ impl SdkManagerInstallCommand {
         #[cfg(not(target_os = "windows"))]
         let root = Path::new("Android").join("Sdk");
 
-        if !root.exists() {
-            std::fs::create_dir_all(&root)?
-        }
         let sdk_root = Self::default_file_path(&self)?.parent().unwrap().join(root);
+        if !sdk_root.exists() {
+            std::fs::create_dir_all(&sdk_root)?
+        }
         Ok(sdk_root)
     }
 
@@ -93,7 +95,7 @@ impl SdkManagerInstallCommand {
             }
         }
         let url = download_url.to_str().unwrap();
-        create_file(url.to_string(), file_path.to_path_buf())?;
+        download_to_file(url, file_path)?;
         Ok(())
     }
 }

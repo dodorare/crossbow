@@ -2,7 +2,7 @@ use crate::error::*;
 use clap::Parser;
 use crossbundle_tools::error::CommandExt;
 
-use super::sdkmanager::SdkManagerInstallCommand;
+use super::*;
 
 #[derive(Parser, Clone, Debug, Default)]
 pub struct NdkInstallCommand {
@@ -26,28 +26,20 @@ pub struct NdkInstallCommand {
 
 impl NdkInstallCommand {
     pub fn install(&self) -> Result<()> {
-        let sdkmanager_dir = SdkManagerInstallCommand::set_sdk_root(&SdkManagerInstallCommand {
-            install_path: None,
-        })?
-        .join("cmdline-tools")
-        .join("bin");
+        // TODO: Fix logic. Perhaps replace with our AndroidSDK type
+        let clt_cmd = CommandLineToolsInstallCommand { install_path: None };
+        let sdk_root = clt_cmd.set_sdk_root()?;
+        let sdkmanager_dir = sdk_root.join("cmdline-tools").join("bin");
 
+        // TODO: Try to replace with library
         #[cfg(target_os = "windows")]
         let sdkmanager = sdkmanager_dir.to_string_lossy().replace("\\", "/");
         #[cfg(not(target_os = "windows"))]
-        let sdkmanager = sdkmanager_dir;
+        let sdkmanager = sdkmanager_dir.clone();
 
-        let sdk_root = sdkmanager_dir
-            .parent()
-            .unwrap()
-            .parent()
-            .unwrap()
-            .to_str()
-            .unwrap();
-
-        let sdkmanager_bat = format!("{}/sdkmanager.bat", sdkmanager);
+        let sdkmanager_bat = sdkmanager.join("sdkmanager.bat");
         let mut sdkmanager = std::process::Command::new(sdkmanager_bat);
-        sdkmanager.arg(format!("--sdk_root={}", sdk_root));
+        sdkmanager.arg(format!("--sdk_root={}", sdk_root.to_str().unwrap()));
         if let Some(ndk) = &self.ndk {
             sdkmanager.arg(format!("ndk;{}", ndk));
         }
