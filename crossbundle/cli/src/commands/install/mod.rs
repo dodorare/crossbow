@@ -1,6 +1,6 @@
-pub mod android_ndk;
 pub mod bundletool;
 pub mod command_line_tools;
+pub mod sdkmanager;
 
 use crate::error::Result;
 use clap::Parser;
@@ -8,14 +8,18 @@ use crossbundle_tools::utils::Config;
 
 use self::{
     bundletool::BundletoolInstallCommand, command_line_tools::CommandLineToolsInstallCommand,
+    sdkmanager::SdkManagerInstallCommand,
 };
 
 #[derive(Parser, Clone, Debug)]
 pub enum InstallCommand {
     /// Install bundletool. You can specify version of bundletool. By default, we have 1.8.2 bundletool version in usage
     Bundletool(BundletoolInstallCommand),
-    /// Allows you to view, install, update, and uninstall packages for the Android SDK
+    /// Download the basic Android command line tools below. You can use the included sdkmanager to download other SDK packages.
+    /// These tools are included in Android Studio
     CommandLineTools(CommandLineToolsInstallCommand),
+    /// Allows you to view, install, update, and uninstall packages for the Android SDK
+    SdkManager(SdkManagerInstallCommand),
 }
 
 impl InstallCommand {
@@ -23,6 +27,7 @@ impl InstallCommand {
         match self {
             InstallCommand::Bundletool(cmd) => cmd.install(config),
             InstallCommand::CommandLineTools(cmd) => cmd.install(config),
+            InstallCommand::SdkManager(cmd) => cmd.install(config),
         }
     }
 }
@@ -48,4 +53,12 @@ pub fn download_to_file(
         }
     })?;
     Ok(())
+}
+
+/// Using default file path related on $HOME path for all installed commands
+pub fn default_file_path(file_name: String) -> crate::error::Result<std::path::PathBuf> {
+    let default_file_path = dirs::home_dir()
+        .ok_or_else(|| crate::error::Error::HomeDirNotFound)?
+        .join(file_name);
+    Ok(default_file_path)
 }

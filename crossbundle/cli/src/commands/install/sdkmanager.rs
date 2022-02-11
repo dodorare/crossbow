@@ -1,18 +1,15 @@
-use crate::error::*;
 use clap::Parser;
-use crossbundle_tools::error::CommandExt;
-
-use super::*;
+use crossbundle_tools::{error::CommandExt, tools::AndroidSdk, utils::Config};
 
 #[derive(Parser, Clone, Debug, Default)]
-pub struct NdkInstallCommand {
+pub struct SdkManagerInstallCommand {
     /// List installed and available packages. Use the channel option to include a package from a channel up to and including channel_id.
     /// For example, specify the canary channel to list packages from all channels.
     #[clap(long)]
     list: bool,
     /// Specify needed version for install NDK. By defaut, ndk/22.0.7026061 will be installed
     #[clap(long)]
-    ndk: Option<String>,
+    install: Option<String>,
     /// Specify version Android NDK that need to be uninstalled
     #[clap(long)]
     uninstall: Option<String>,
@@ -24,24 +21,19 @@ pub struct NdkInstallCommand {
     required_tools: bool,
 }
 
-impl NdkInstallCommand {
-    pub fn install(&self) -> Result<()> {
+impl SdkManagerInstallCommand {
+    pub fn install(&self, _config: &Config) -> crate::error::Result<()> {
         // TODO: Fix logic. Perhaps replace with our AndroidSDK type
-        let clt_cmd = CommandLineToolsInstallCommand { install_path: None };
-        let sdk_root = clt_cmd.set_sdk_root()?;
-        let sdkmanager_dir = sdk_root.join("cmdline-tools").join("bin");
+        let sdk = AndroidSdk::from_env()?;
 
         // TODO: Try to replace with library
-        #[cfg(target_os = "windows")]
-        let sdkmanager = sdkmanager_dir.to_string_lossy().replace("\\", "/");
-        #[cfg(not(target_os = "windows"))]
-        let sdkmanager = sdkmanager_dir.clone();
+        let sdkmanager = dunce::simplified(&sdk.sdk_path());
 
         let sdkmanager_bat = sdkmanager.join("sdkmanager.bat");
         let mut sdkmanager = std::process::Command::new(sdkmanager_bat);
-        sdkmanager.arg(format!("--sdk_root={}", sdk_root.to_str().unwrap()));
-        if let Some(ndk) = &self.ndk {
-            sdkmanager.arg(format!("ndk;{}", ndk));
+        sdkmanager.arg(format!("--sdk_root={}", &sdk.sdk_path().to_str().unwrap()));
+        if let Some(install) = &self.install {
+            sdkmanager.arg(install);
         }
         if let Some(uninstall) = &self.uninstall {
             sdkmanager.arg("--uninstall").arg(uninstall);
@@ -54,31 +46,11 @@ impl NdkInstallCommand {
         }
         if self.required_tools {
             sdkmanager
-                .arg("build-tools;30.0.0")
-                .arg("cmdline-tools;latest")
-                .arg("extras;google;usb_driver")
-                .arg("extras;google;Android_Emulator_Hypervisor_Driver")
+                .arg("build-tools;29.0.0")
                 .arg("ndk;22.0.7026061")
-                .arg("platforms;android-30")
-                .arg("sources;android-30");
+                .arg("platforms;android-30");
         }
         sdkmanager.output_err(true)?;
         Ok(())
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn download_test() {
-        NdkInstallCommand::install(&NdkInstallCommand {
-            ndk: None,
-            uninstall: None,
-            required_tools: true,
-            list: false,
-            update: false,
-        })
-        .unwrap();
     }
 }

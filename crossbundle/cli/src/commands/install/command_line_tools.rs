@@ -31,9 +31,9 @@ impl CommandLineToolsInstallCommand {
             .parse::<PathBuf>()
             .ok()
             .unwrap()
-            .join(format!("{}", self.sdk_file_name()));
+            .join(format!("{}", self.file_name()));
 
-        let file_path = Self::default_file_path(&self)?;
+        let file_path = default_file_path(self.file_name())?;
         let sdk_root = Self::set_sdk_root(&self)?;
 
         Self::download_and_save_file(&self, command_line_tools_download_url, &file_path)?;
@@ -49,23 +49,13 @@ impl CommandLineToolsInstallCommand {
     }
 
     /// Return command line tools zip archive for defined operating system
-    fn sdk_file_name(&self) -> String {
+    fn file_name(&self) -> String {
         format!("commandlinetools-{}-8092744_latest.zip", OS_TAG)
-    }
-
-    /// Make default file path and return it
-    pub fn default_file_path(&self) -> crate::error::Result<PathBuf> {
-        let default_file_path = dirs::home_dir()
-            .ok_or_else(|| crate::error::Error::HomeDirNotFound)?
-            .join(self.sdk_file_name());
-        Ok(default_file_path)
     }
 
     // TODO: Rethink this stuff
     /// Set sdk root for sdkmanager storing
     pub fn set_sdk_root(&self) -> crate::error::Result<PathBuf> {
-        // TODO: Replace paths with $HOME based ones
-
         #[cfg(target_os = "windows")]
         let root = Path::new("AppData")
             .join("Local")
@@ -75,7 +65,10 @@ impl CommandLineToolsInstallCommand {
         #[cfg(not(target_os = "windows"))]
         let root = Path::new("Android").join("Sdk");
 
-        let sdk_root = Self::default_file_path(&self)?.parent().unwrap().join(root);
+        let sdk_root = default_file_path(self.file_name())?
+            .parent()
+            .unwrap()
+            .join(root);
         if !sdk_root.exists() {
             std::fs::create_dir_all(&sdk_root)?
         }
@@ -90,7 +83,7 @@ impl CommandLineToolsInstallCommand {
     ) -> crate::error::Result<()> {
         for sdkmanager in std::fs::read_dir(file_path.parent().unwrap())? {
             let zip_path = sdkmanager?.path();
-            if zip_path.ends_with(Self::sdk_file_name(&self)) {
+            if zip_path.ends_with(Self::file_name(&self)) {
                 return Ok(());
             }
         }

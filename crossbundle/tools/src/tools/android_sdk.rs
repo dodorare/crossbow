@@ -13,6 +13,7 @@ pub struct AndroidSdk {
 }
 
 impl AndroidSdk {
+    /// TODO: write default_installation_path function
     /// Using environment variables tools
     pub fn from_env() -> Result<Self> {
         let sdk_path = {

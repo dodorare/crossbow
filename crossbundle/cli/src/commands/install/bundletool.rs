@@ -22,10 +22,18 @@ pub struct BundletoolInstallCommand {
 impl BundletoolInstallCommand {
     /// Download and install bundletool to provided or default path
     pub fn install(&self, config: &Config) -> crate::error::Result<()> {
-        // TODO: Add status messages
         config.status("Installing bundletool")?;
-        // TODO: Check if bundletool is already installed
-        // TODO: Add force installation
+        if self.force == false {
+            for bundletool in
+                std::fs::read_dir(default_file_path(self.file_name())?.parent().unwrap())?
+            {
+                let installed_bundletool = bundletool?.path();
+                if installed_bundletool.ends_with(Self::file_name(&self)) {
+                    config.status("You have installed budletool on your system already")?;
+                    return Ok(());
+                }
+            }
+        }
         let download_url = format!(
             "https://github.com/google/bundletool/releases/download/{}/{}",
             self.version,
@@ -35,12 +43,10 @@ impl BundletoolInstallCommand {
             let jar_path = install_path.join(self.file_name());
             download_to_file(&download_url, &jar_path)?;
         } else {
-            // TODO: Replace $HOME with $HOME/.crossbow path for all installed commands and tmp files
-            let default_jar_path = dirs::home_dir()
-                .ok_or_else(|| crate::error::Error::HomeDirNotFound)?
-                .join(self.file_name());
+            let default_jar_path = default_file_path(self.file_name())?;
             download_to_file(&download_url, &default_jar_path)?;
         };
+        config.status("Bundletool was installed successfully")?;
         Ok(())
     }
 
