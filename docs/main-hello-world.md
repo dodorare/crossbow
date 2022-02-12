@@ -67,6 +67,8 @@ Let's build and run our first CrossBundle application.
 ```sh
 # cd project-name
 crossbundle run android
+# or (if your project uses macroquad)
+crossbundle run android --quad
 # or
 crossbundle run apple
 ```
