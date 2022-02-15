@@ -4,10 +4,10 @@ mod compile_options;
 mod consts;
 mod gen_tmp_lib_file;
 
-use std::ffi::{OsStr, OsString};
 use crate::{error::*, tools::*, types::*};
 use compile_bevy::*;
 use compile_macroquad::*;
+use std::ffi::{OsStr, OsString};
 
 /// Compiles rust code for android with macroquad engine
 pub fn compile_rust_for_android(
@@ -24,7 +24,7 @@ pub fn compile_rust_for_android(
 ) -> Result<()> {
     if app_wrapper == ApplicationWrapper::Sokol {
         compile_rust_for_android_with_mq(
-            ndk,
+            &ndk,
             build_target,
             project_path,
             profile,
@@ -36,7 +36,7 @@ pub fn compile_rust_for_android(
         )
     } else {
         compile_rust_for_android_with_bevy(
-            ndk,
+            &ndk,
             build_target,
             project_path,
             profile,
@@ -55,6 +55,25 @@ fn build_arg(start: &str, end: impl AsRef<OsStr>) -> OsString {
     new_arg.push(start);
     new_arg.push(end.as_ref());
     new_arg
+}
+
+/// Helper function that allows to return environment argument with specified tool
+pub fn cargo_env_target_cfg(tool: &str, target: &str) -> String {
+    let utarget = target.replace('-', "_");
+    let env = format!("CARGO_TARGET_{}_{}", &utarget, tool);
+    env.to_uppercase()
+}
+
+/// Replace libgcc file with unwind. libgcc was removed in ndk versions >=23
+pub fn new_linker_args(tool_root: &std::path::Path) -> crate::error::Result<Vec<OsString>> {
+    let mut new_args = Vec::new();
+    let link_dir = tool_root.join("libgcc");
+
+    std::fs::create_dir_all(&link_dir)?;
+    std::fs::write(link_dir.join("libgcc.a"), "INPUT(-lunwind)")?;
+    new_args.push(build_arg("-L", link_dir));
+
+    Ok(new_args)
 }
 
 #[cfg(test)]

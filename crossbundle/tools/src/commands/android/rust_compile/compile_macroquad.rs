@@ -51,8 +51,9 @@ pub fn compile_rust_for_android_with_mq(
     std::env::set_var(format!("CC_{}", rust_triple), &clang);
     std::env::set_var(format!("CXX_{}", rust_triple), &clang_pp);
     std::env::set_var(format!("AR_{}", rust_triple), &ar);
+    std::env::set_var(super::cargo_env_target_cfg("LINKER", rust_triple), &clang);
 
-    set_cmake_vars(build_target, ndk, target_sdk_version, &build_target_dir)?;
+    set_cmake_vars(build_target, &ndk, target_sdk_version, &build_target_dir)?;
 
     // Use libc++. It is current default C++ runtime
     std::env::set_var("CXXSTDLIB", "c++");
@@ -71,12 +72,10 @@ pub fn compile_rust_for_android_with_mq(
 
     // Create the executor
     let executor: Arc<dyn Executor> = Arc::new(SharedLibraryExecutor {
-        ndk: ndk.clone(),
         target_sdk_version,
-        profile,
         build_target_dir,
         build_target,
-        nostrip: false,
+        ndk: ndk.clone(),
     });
 
     // Compile all targets for the requested build target
@@ -87,12 +86,10 @@ pub fn compile_rust_for_android_with_mq(
 /// Helper function for Executor trait. Match compile mode and return cmd arguments
 fn exec_compilation(
     cmd: &ProcessBuilder,
+    ndk: &AndroidNdk,
     build_target_dir: &Path,
     build_target: AndroidTarget,
-    ndk: &AndroidNdk,
     target_sdk_version: u32,
-    nostrip: bool,
-    profile: Profile,
     sokol_extra_code: &'static str,
     target: &cargo::core::Target,
     mode: CompileMode,
@@ -116,15 +113,13 @@ fn exec_compilation(
         // Replaces source argument and returns collection of arguments
         get_cmd_args(
             &path,
+            ndk,
             tmp_file,
             build_target_dir,
             target,
             cmd,
-            ndk,
             &build_target,
             target_sdk_version,
-            nostrip,
-            profile,
             on_stdout_line,
             on_stderr_line,
         )?;
@@ -161,12 +156,10 @@ fn exec_compilation(
 
 /// Executor which builds binary and example targets as static libraries
 struct SharedLibraryExecutor {
-    ndk: AndroidNdk,
     target_sdk_version: u32,
     build_target_dir: PathBuf,
     build_target: AndroidTarget,
-    profile: Profile,
-    nostrip: bool,
+    ndk: AndroidNdk,
 }
 
 impl Executor for SharedLibraryExecutor {
@@ -182,12 +175,10 @@ impl Executor for SharedLibraryExecutor {
         let sokol_extra_code = super::consts::SOKOL_EXTRA_CODE;
         exec_compilation(
             cmd,
+            &self.ndk,
             &self.build_target_dir,
             self.build_target,
-            &self.ndk,
             self.target_sdk_version,
-            self.nostrip,
-            self.profile,
             sokol_extra_code,
             target,
             mode,
@@ -240,15 +231,13 @@ fn make_path(ndk_path: &Path) -> PathBuf {
 /// Get the program arguments and execute program with it
 fn get_cmd_args(
     path: &Path,
+    ndk: &AndroidNdk,
     tmp_file: NamedTempFile,
     build_target_dir: &Path,
     target: &cargo::core::Target,
     cmd: &ProcessBuilder,
-    ndk: &AndroidNdk,
     build_target: &AndroidTarget,
     target_sdk_version: u32,
-    nostrip: bool,
-    profile: Profile,
     on_stdout_line: &mut dyn FnMut(&str) -> CargoResult<()>,
     on_stderr_line: &mut dyn FnMut(&str) -> CargoResult<()>,
 ) -> CargoResult<()> {
@@ -302,55 +291,33 @@ fn get_cmd_args(
         }
     }
 
-    // Determine paths
+    let build_tag = ndk.build_tag();
     let tool_root = ndk.toolchain_dir().unwrap();
-    let linker_path = tool_root
-        .join("bin")
-        .join(format!("{}-ld.gold", build_target.ndk_triple()));
-    let sysroot = tool_root.join("sysroot");
-    let version_independent_libraries_path = sysroot
-        .join("usr")
-        .join("lib")
-        .join(build_target.ndk_triple());
-    let version_specific_libraries_path =
-        AndroidNdk::find_ndk_path(target_sdk_version, |platform| {
-            version_independent_libraries_path.join(platform.to_string())
-        })
-        .map_err(|_| anyhow::Error::msg("Android SDK not found"))?;
-    let gcc_lib_path = tool_root
-        .join("lib/gcc")
-        .join(build_target.ndk_triple())
-        .join("4.9.x");
+    // Will execute if android ndk has version >= 23
+    if build_tag > 7272597 {
+        let args = new_cmd_args(tool_root, &build_target, target_sdk_version)
+            .map_err(|_| anyhow::Error::msg("Failed to write content into libgcc.a file"))?;
+        for arg in args.into_iter() {
+            new_args.push(arg);
+        }
+    } else {
+        // Determine paths to linker and libgcc using in ndk =< 22
+        let tool_root = ndk.toolchain_dir().unwrap();
+        let linker_path = tool_root
+            .join("bin")
+            .join(format!("{}-ld.gold", build_target.ndk_triple()));
+        let gcc_lib_path = tool_root
+            .join("lib/gcc")
+            .join(build_target.ndk_triple())
+            .join("4.9.x");
 
-    // Add linker arguments
-    // Specify linker
-    new_args.push(build_arg("-Clinker=", linker_path));
+        // Add linker arguments
+        // Specify linker
+        new_args.push(build_arg("-Clinker=", linker_path));
 
-    // Set linker flavor
-    new_args.push("-Clinker-flavor=ld".into());
-
-    // Set system root
-    new_args.push(build_arg("-Clink-arg=--sysroot=", sysroot));
-
-    // Add version specific libraries directory to search path
-    new_args.push(build_arg("-Clink-arg=-L", &version_specific_libraries_path));
-
-    // Add version independent libraries directory to search path
-    new_args.push(build_arg(
-        "-Clink-arg=-L",
-        &version_independent_libraries_path,
-    ));
-
-    // Add path to folder containing libgcc.a to search path
-    new_args.push(build_arg("-Clink-arg=-L", gcc_lib_path));
-
-    // Strip symbols for release builds
-    if !nostrip && profile == Profile::Release {
-        new_args.push("-Clink-arg=-strip-all".into());
+        // Add path to folder containing libgcc.a to search path
+        new_args.push(build_arg("-Clink-arg=-L", gcc_lib_path));
     }
-
-    // Require position independent code
-    new_args.push("-Crelocation-model=pic".into());
 
     // Create new command
     let mut cmd = cmd.clone();
@@ -361,6 +328,27 @@ fn get_cmd_args(
         .map(drop)?;
 
     Ok(())
+}
+
+/// Replace cmd with new arguments
+pub fn new_cmd_args(
+    tool_root: PathBuf,
+    build_target: &AndroidTarget,
+    target_sdk_version: u32,
+) -> crate::error::Result<Vec<OsString>> {
+    let mut new_args = Vec::new();
+    let args = super::new_linker_args(&tool_root)?;
+    for arg in args.into_iter() {
+        new_args.push(arg);
+    }
+    let linker_path = tool_root.join("bin").join(format!(
+        "{}{}-clang.cmd",
+        build_target.rust_triple(),
+        target_sdk_version
+    ));
+    new_args.push(build_arg("-Clinker=", linker_path));
+
+    Ok(new_args)
 }
 
 /// Helper function to build arguments composed of concatenating two strings
@@ -391,41 +379,4 @@ fn set_cmake_vars(
     std::env::set_var("CMAKE_GENERATOR", r#"Unix Makefiles"#);
     std::env::set_var("CMAKE_MAKE_PROGRAM", make_path(ndk.ndk_path()));
     Ok(())
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_compile_android() {
-        // Specify path to users directory
-        let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        let project_path = user_dirs.parent().unwrap().parent().unwrap();
-
-        // Specify path to macroquad project example
-        let project_path = project_path.join("examples").join("macroquad-3d");
-
-        // Assign needed configuration to compile rust for android with macroquad
-        let sdk = AndroidSdk::from_env().unwrap();
-        let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
-        let build_target = AndroidTarget::Aarch64LinuxAndroid;
-        let profile = Profile::Debug;
-        let target_sdk_version = 30;
-        let lib_name = "mq_test_lib";
-
-        // Compile rust code for android with macroquad engine
-        compile_rust_for_android_with_mq(
-            &ndk,
-            build_target,
-            &project_path,
-            profile,
-            vec![],
-            false,
-            false,
-            target_sdk_version,
-            lib_name,
-        )
-        .unwrap();
-    }
 }
