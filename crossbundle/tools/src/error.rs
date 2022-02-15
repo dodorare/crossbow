@@ -86,6 +86,8 @@ pub enum Error {
     InvalidProfile(String),
     /// Invalid interface orientation: {0:?}
     InvalidInterfaceOrientation(String),
+    /// Home dir not found
+    HomeDirNotFound,
     /// Failed to create jar file in specified path `{path}` cause of `{cause}`
     JarFileCreationFailed {
         path: PathBuf,

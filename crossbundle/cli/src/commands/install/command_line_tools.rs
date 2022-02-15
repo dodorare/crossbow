@@ -2,6 +2,7 @@ use super::*;
 use clap::Parser;
 use crossbundle_tools::{
     commands::android::{self, remove},
+    tools::AndroidSdk,
     utils::Config,
 };
 use std::path::{Path, PathBuf};
@@ -22,11 +23,18 @@ pub struct CommandLineToolsInstallCommand {
     /// Assign path to install command line tools
     #[clap(long, short)]
     pub install_path: Option<PathBuf>,
+    /// Remove corrupted zip archive if installation was aborted
+    #[clap(long, short)]
+    pub remove_zip: bool,
 }
 
 impl CommandLineToolsInstallCommand {
     /// Download command line tools zip archive and extract it in specified sdk root directory
-    pub fn install(&self, _config: &Config) -> crate::error::Result<()> {
+    pub fn install(&self, config: &Config) -> crate::error::Result<()> {
+        if self.remove_zip {
+            remove(vec![default_file_path(self.file_name())?])?;
+        }
+
         let command_line_tools_download_url = COMMAND_LINE_TOOLS_DOWNLOAD_URL
             .parse::<PathBuf>()
             .ok()
@@ -34,16 +42,29 @@ impl CommandLineToolsInstallCommand {
             .join(format!("{}", self.file_name()));
 
         let file_path = default_file_path(self.file_name())?;
-        let sdk_root = Self::set_sdk_root(&self)?;
+        let get_sdk_path = AndroidSdk::from_env()?;
+        let sdk_path = get_sdk_path
+            .sdk_path()
+            .join(get_sdk_path.sdk_install_path());
 
+        config.status_message(
+            "Downloading command line tools zip archive into",
+            &file_path.parent().unwrap().to_str().unwrap(),
+        )?;
         Self::download_and_save_file(&self, command_line_tools_download_url, &file_path)?;
 
         if let Some(path) = &self.install_path {
+            config.status_message(
+                "Extracting zip archive contents into",
+                path.to_str().unwrap(),
+            )?;
             android::extract_archive(&file_path, path)?;
         } else {
-            android::extract_archive(&file_path, &sdk_root)?;
+            config.status_message("Extracting zip archive contents into", &sdk_path.to_str().unwrap())?;
+            android::extract_archive(&file_path, &sdk_path)?;
         }
 
+        config.status("Deleting zip archive was left after installation")?;
         remove(vec![file_path])?;
         Ok(())
     }
@@ -51,28 +72,6 @@ impl CommandLineToolsInstallCommand {
     /// Return command line tools zip archive for defined operating system
     fn file_name(&self) -> String {
         format!("commandlinetools-{}-8092744_latest.zip", OS_TAG)
-    }
-
-    // TODO: Rethink this stuff
-    /// Set sdk root for sdkmanager storing
-    pub fn set_sdk_root(&self) -> crate::error::Result<PathBuf> {
-        #[cfg(target_os = "windows")]
-        let root = Path::new("AppData")
-            .join("Local")
-            .join("Android")
-            .join("Sdk");
-
-        #[cfg(not(target_os = "windows"))]
-        let root = Path::new("Android").join("Sdk");
-
-        let sdk_root = default_file_path(self.file_name())?
-            .parent()
-            .unwrap()
-            .join(root);
-        if !sdk_root.exists() {
-            std::fs::create_dir_all(&sdk_root)?
-        }
-        Ok(sdk_root)
     }
 
     /// Check home directory for zip file. If it doesn't exists download zip file and save it in the directory

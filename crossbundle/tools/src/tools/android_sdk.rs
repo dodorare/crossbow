@@ -5,6 +5,7 @@ use std::process::Command as ProcessCommand;
 /// Helper structure that contains information about the Android SDK path
 /// and returns paths to the tools.
 pub struct AndroidSdk {
+    sdk_install_path: PathBuf,
     sdk_path: PathBuf,
     build_deps_path: PathBuf,
     build_deps_version: String,
@@ -13,9 +14,26 @@ pub struct AndroidSdk {
 }
 
 impl AndroidSdk {
-    /// TODO: write default_installation_path function
     /// Using environment variables tools
     pub fn from_env() -> Result<Self> {
+        let sdk_install_path = {
+            let home_dir_path =
+                dirs::home_dir().ok_or_else(|| crate::error::Error::HomeDirNotFound)?;
+            let path = Path::new("Local").join("Android").join("Sdk");
+
+            #[cfg(target_os = "windows")]
+            let app_data = Path::new("AppData");
+            let sdk_path = home_dir_path.join(app_data).join(path);
+
+            #[cfg(not(target_os = "windows"))]
+            let sdk_path = home_dir_path.join(path);
+
+            if !sdk_path.exists() {
+                std::fs::create_dir_all(&sdk_path)?;
+            }
+
+            PathBuf::from(sdk_path)
+        };
         let sdk_path = {
             let sdk_path = std::env::var("ANDROID_SDK_ROOT")
                 .ok()
@@ -52,7 +70,13 @@ impl AndroidSdk {
             build_deps_version,
             platforms_path,
             platforms,
+            sdk_install_path,
         })
+    }
+
+    /// Default installation path
+    pub fn sdk_install_path(&self) -> &Path {
+        &self.sdk_install_path
     }
 
     /// Path to SDK
