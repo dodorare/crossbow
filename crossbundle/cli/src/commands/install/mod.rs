@@ -27,7 +27,7 @@ impl InstallCommand {
         match self {
             InstallCommand::Bundletool(cmd) => cmd.install(config),
             InstallCommand::CommandLineTools(cmd) => cmd.install(config),
-            InstallCommand::SdkManager(cmd) => cmd.install(config),
+            InstallCommand::SdkManager(cmd) => cmd.run(config),
         }
     }
 }

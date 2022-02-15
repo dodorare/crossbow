@@ -17,8 +17,7 @@ impl AndroidSdk {
     /// Using environment variables tools
     pub fn from_env() -> Result<Self> {
         let sdk_install_path = {
-            let home_dir_path =
-                dirs::home_dir().ok_or_else(|| crate::error::Error::HomeDirNotFound)?;
+            let home_dir_path = dirs::home_dir().unwrap();
             let path = Path::new("Local").join("Android").join("Sdk");
 
             #[cfg(target_os = "windows")]
@@ -32,7 +31,7 @@ impl AndroidSdk {
                 std::fs::create_dir_all(&sdk_path)?;
             }
 
-            PathBuf::from(sdk_path)
+            sdk_path
         };
         let sdk_path = {
             let sdk_path = std::env::var("ANDROID_SDK_ROOT")

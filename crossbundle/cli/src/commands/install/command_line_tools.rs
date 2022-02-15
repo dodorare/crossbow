@@ -60,7 +60,10 @@ impl CommandLineToolsInstallCommand {
             )?;
             android::extract_archive(&file_path, path)?;
         } else {
-            config.status_message("Extracting zip archive contents into", &sdk_path.to_str().unwrap())?;
+            config.status_message(
+                "Extracting zip archive contents into",
+                &sdk_path.to_str().unwrap(),
+            )?;
             android::extract_archive(&file_path, &sdk_path)?;
         }
 
