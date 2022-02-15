@@ -76,6 +76,8 @@ pub fn compile_rust_for_android_with_mq(
         build_target_dir,
         build_target,
         ndk: ndk.clone(),
+        profile,
+        nostrip: false,
     });
 
     // Compile all targets for the requested build target
@@ -90,6 +92,8 @@ fn exec_compilation(
     build_target_dir: &Path,
     build_target: AndroidTarget,
     target_sdk_version: u32,
+    nostrip: bool,
+    profile: Profile,
     sokol_extra_code: &'static str,
     target: &cargo::core::Target,
     mode: CompileMode,
@@ -120,6 +124,8 @@ fn exec_compilation(
             cmd,
             &build_target,
             target_sdk_version,
+            nostrip,
+            profile,
             on_stdout_line,
             on_stderr_line,
         )?;
@@ -160,6 +166,8 @@ struct SharedLibraryExecutor {
     build_target_dir: PathBuf,
     build_target: AndroidTarget,
     ndk: AndroidNdk,
+    profile: Profile,
+    nostrip: bool,
 }
 
 impl Executor for SharedLibraryExecutor {
@@ -179,6 +187,8 @@ impl Executor for SharedLibraryExecutor {
             &self.build_target_dir,
             self.build_target,
             self.target_sdk_version,
+            self.nostrip,
+            self.profile,
             sokol_extra_code,
             target,
             mode,
@@ -238,6 +248,8 @@ fn get_cmd_args(
     cmd: &ProcessBuilder,
     build_target: &AndroidTarget,
     target_sdk_version: u32,
+    nostrip: bool,
+    profile: Profile,
     on_stdout_line: &mut dyn FnMut(&str) -> CargoResult<()>,
     on_stderr_line: &mut dyn FnMut(&str) -> CargoResult<()>,
 ) -> CargoResult<()> {
@@ -310,13 +322,46 @@ fn get_cmd_args(
             .join("lib/gcc")
             .join(build_target.ndk_triple())
             .join("4.9.x");
+        let sysroot = tool_root.join("sysroot");
+        let version_independent_libraries_path = sysroot
+            .join("usr")
+            .join("lib")
+            .join(build_target.ndk_triple());
+        let version_specific_libraries_path =
+            AndroidNdk::find_ndk_path(target_sdk_version, |platform| {
+                version_independent_libraries_path.join(platform.to_string())
+            })
+            .map_err(|_| anyhow::Error::msg("Android SDK not found"))?;
 
         // Add linker arguments
         // Specify linker
         new_args.push(build_arg("-Clinker=", linker_path));
 
+        // Set linker flavor
+        new_args.push("-Clinker-flavor=ld".into());
+
+        // Set system root
+        new_args.push(build_arg("-Clink-arg=--sysroot=", sysroot));
+
+        // Add version specific libraries directory to search path
+        new_args.push(build_arg("-Clink-arg=-L", &version_specific_libraries_path));
+
+        // Add version independent libraries directory to search path
+        new_args.push(build_arg(
+            "-Clink-arg=-L",
+            &version_independent_libraries_path,
+        ));
+
         // Add path to folder containing libgcc.a to search path
         new_args.push(build_arg("-Clink-arg=-L", gcc_lib_path));
+
+        // Strip symbols for release builds
+        if !nostrip && profile == Profile::Release {
+            new_args.push("-Clink-arg=-strip-all".into());
+        }
+
+        // Require position independent code
+        new_args.push("-Crelocation-model=pic".into());
     }
 
     // Create new command
