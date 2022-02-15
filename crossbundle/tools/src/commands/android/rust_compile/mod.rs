@@ -4,6 +4,7 @@ mod compile_options;
 mod consts;
 mod gen_tmp_lib_file;
 
+use std::ffi::{OsStr, OsString};
 use crate::{error::*, tools::*, types::*};
 use compile_bevy::*;
 use compile_macroquad::*;
@@ -48,6 +49,14 @@ pub fn compile_rust_for_android(
     }
 }
 
+/// Helper function to build arguments composed of concatenating two strings
+fn build_arg(start: &str, end: impl AsRef<OsStr>) -> OsString {
+    let mut new_arg = OsString::new();
+    new_arg.push(start);
+    new_arg.push(end.as_ref());
+    new_arg
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -80,7 +89,7 @@ mod tests {
     }
 
     #[test]
-    fn test_compile_android() {
+    fn test_compile_rust_with_bevy() {
         // Specify path to users directory
         let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         let project_path = user_dirs.parent().unwrap().parent().unwrap();

@@ -8,6 +8,7 @@ use cargo::{
 };
 use cargo_util::*;
 use std::{
+    ffi::OsString,
     path::{Path, PathBuf},
     sync::Arc,
 };
@@ -144,6 +145,19 @@ impl cargo_compiler::Executor for DefaultExecutor {
                     }
                 }
             }
+
+            let sdk = AndroidSdk::from_env().unwrap();
+            let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
+            let build_tag = ndk.build_tag();
+            if build_tag > 7272597 {
+                let args = using_android_ndk23_and_upper(ndk).map_err(|_| {
+                    anyhow::Error::msg("Failed to write content into libgcc.a file")
+                })?;
+                for arg in args.into_iter() {
+                    new_args.push(arg);
+                }
+            }
+
             cmd.args_replace(&new_args);
 
             cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
@@ -156,8 +170,20 @@ impl cargo_compiler::Executor for DefaultExecutor {
 }
 
 /// Helper function that allows to return environment argument with specified tool
-fn cargo_env_target_cfg(tool: &str, target: &str) -> String {
+pub fn cargo_env_target_cfg(tool: &str, target: &str) -> String {
     let utarget = target.replace('-', "_");
     let env = format!("CARGO_TARGET_{}_{}", &utarget, tool);
     env.to_uppercase()
+}
+
+fn using_android_ndk23_and_upper(ndk: AndroidNdk) -> crate::error::Result<Vec<OsString>> {
+    let mut new_args = Vec::new();
+    let tool_root = ndk.toolchain_dir()?;
+    let link_dir = tool_root.join("libgcc");
+
+    std::fs::create_dir_all(&link_dir)?;
+    std::fs::write(link_dir.join("libgcc.a"), "INPUT(-lunwind)")?;
+    new_args.push(super::build_arg("-L", link_dir));
+
+    Ok(new_args)
 }
