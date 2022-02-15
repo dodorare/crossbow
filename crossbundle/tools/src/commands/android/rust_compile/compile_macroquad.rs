@@ -53,7 +53,7 @@ pub fn compile_rust_for_android_with_mq(
     std::env::set_var(format!("AR_{}", rust_triple), &ar);
     std::env::set_var(super::cargo_env_target_cfg("LINKER", rust_triple), &clang);
 
-    set_cmake_vars(build_target, &ndk, target_sdk_version, &build_target_dir)?;
+    set_cmake_vars(build_target, ndk, target_sdk_version, &build_target_dir)?;
 
     // Use libc++. It is current default C++ runtime
     std::env::set_var("CXXSTDLIB", "c++");
@@ -307,7 +307,7 @@ fn get_cmd_args(
     let tool_root = ndk.toolchain_dir().unwrap();
     // Will execute if android ndk has version >= 23
     if build_tag > 7272597 {
-        let args = new_cmd_args(tool_root, &build_target, target_sdk_version)
+        let args = new_cmd_args(tool_root, build_target, target_sdk_version)
             .map_err(|_| anyhow::Error::msg("Failed to write content into libgcc.a file"))?;
         for arg in args.into_iter() {
             new_args.push(arg);

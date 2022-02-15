@@ -24,7 +24,7 @@ pub fn compile_rust_for_android(
 ) -> Result<()> {
     if app_wrapper == ApplicationWrapper::Sokol {
         compile_rust_for_android_with_mq(
-            &ndk,
+            ndk,
             build_target,
             project_path,
             profile,
@@ -36,7 +36,7 @@ pub fn compile_rust_for_android(
         )
     } else {
         compile_rust_for_android_with_bevy(
-            &ndk,
+            ndk,
             build_target,
             project_path,
             profile,
