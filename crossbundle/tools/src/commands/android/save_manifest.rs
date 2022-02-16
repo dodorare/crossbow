@@ -1,4 +1,4 @@
-use crate::error::Result;
+use crate::error::{AndroidError, Result};
 use android_manifest::AndroidManifest;
 use std::fs::create_dir_all;
 use std::{
@@ -14,7 +14,8 @@ pub fn save_android_manifest(out_dir: &Path, manifest: &AndroidManifest) -> Resu
     }
     let manifest_path = out_dir.join("AndroidManifest.xml");
     let mut file = File::create(&manifest_path)?;
-    let given_xml = android_manifest::to_string_pretty(manifest).unwrap();
+    let given_xml =
+        android_manifest::to_string_pretty(manifest).map_err(|err| AndroidError::from(err))?;
     file.write_all(given_xml.as_bytes())?;
     Ok(manifest_path)
 }
