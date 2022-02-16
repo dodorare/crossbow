@@ -14,8 +14,7 @@ pub fn save_android_manifest(out_dir: &Path, manifest: &AndroidManifest) -> Resu
     }
     let manifest_path = out_dir.join("AndroidManifest.xml");
     let mut file = File::create(&manifest_path)?;
-    let given_xml =
-        android_manifest::to_string_pretty(manifest).map_err(|err| AndroidError::from(err))?;
+    let given_xml = android_manifest::to_string_pretty(manifest).map_err(AndroidError::from)?;
     file.write_all(given_xml.as_bytes())?;
     Ok(manifest_path)
 }

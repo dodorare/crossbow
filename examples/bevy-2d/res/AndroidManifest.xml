@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.rust.test123" android:versionCode="1" android:versionName="0.1.2">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.rust.test123" android:versionCode="1" android:versionName="0.1.3">
   <application android:debuggable="false" android:hasCode="false" android:icon="@mipmap/ic_launcher" android:label="Bevy 2D" android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen">
     <activity android:configChanges="orientation|keyboardHidden|screenSize" android:label="Bevy 2D" android:name="android.app.NativeActivity">
       <intent-filter>
