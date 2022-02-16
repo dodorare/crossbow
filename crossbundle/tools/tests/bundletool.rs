@@ -1,6 +1,6 @@
 use android_tools::java_tools::{android_dir, AabKey, JarSigner, KeyAlgorithm, Keytool};
 use crossbundle_tools::{
-    commands::android::{extract_apk, gen_minimal_unsigned_aab, gen_zip_modules, remove},
+    commands::android::{extract_archive, gen_minimal_unsigned_aab, gen_zip_modules, remove},
     tools::{AndroidSdk, BuildApks, BuildBundle, GetSizeTotal},
 };
 
@@ -122,7 +122,7 @@ fn build_bundle_test() {
             let output_dir = build_dir.join("extracted_apk_files");
 
             // Extracts files from apk to defined path
-            let extracted_files = extract_apk(&apk_path, &output_dir).unwrap();
+            let extracted_files = extract_archive(&apk_path, &output_dir).unwrap();
 
             // Generates zip archive from extracted files
             let gen_zip_modules = gen_zip_modules(&build_dir, "test", &extracted_files).unwrap();

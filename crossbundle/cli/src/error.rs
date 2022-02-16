@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use crossbundle_tools::types::android_manifest;
 use displaydoc::Display;
 use thiserror::Error;
@@ -28,6 +30,22 @@ pub enum Error {
     CrossbundleTools(#[from] crossbundle_tools::error::Error),
     /// AndroidManifest error
     AndroidManifest(#[from] android_manifest::error::Error),
+    /// Path {0:?} doesn't exist
+    PathNotFound(PathBuf),
+    /// Home dir not found
+    HomeDirNotFound,
+    /// Failed to download jar file
+    DownloadFailed(ureq::Error),
+    /// Failed to create jar file in specified path `{path}` cause of `{cause}`
+    JarFileCreationFailed {
+        path: PathBuf,
+        cause: std::io::Error,
+    },
+    /// Failed to copy file in specified path `{path}` cause of `{cause}`
+    CopyToFileFailed {
+        path: PathBuf,
+        cause: std::io::Error,
+    },
 }
 
 // TODO: Fix this. Is there a better casting for it?

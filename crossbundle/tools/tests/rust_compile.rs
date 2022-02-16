@@ -11,7 +11,8 @@ fn test_compile_android() {
     // Creates temporary directory
     let tempdir = tempfile::tempdir().unwrap();
     let dir = tempdir.path();
-    let package_name = gen_minimal_mq_project(&dir).unwrap();
+    let macroquad_project = true;
+    let package_name = gen_minimal_project(&dir, macroquad_project).unwrap();
 
     // Create dependencies
     let sdk = AndroidSdk::from_env().unwrap();

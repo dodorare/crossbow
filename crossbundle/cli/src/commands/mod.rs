@@ -1,4 +1,5 @@
 pub mod build;
+pub mod install;
 pub mod log;
 pub mod new;
 pub mod run;
@@ -20,6 +21,9 @@ pub enum Commands {
     /// Attach logger to device with running application
     #[clap(subcommand)]
     Log(log::LogCommand),
+    /// Installs bundletool and Android Studio's sdkmanager
+    #[clap(subcommand)]
+    Install(install::InstallCommand),
 }
 
 impl Commands {
@@ -29,6 +33,7 @@ impl Commands {
             Commands::Run(cmd) => cmd.handle_command(config),
             Commands::New(cmd) => cmd.handle_command(config),
             Commands::Log(cmd) => cmd.handle_command(config),
+            Commands::Install(cmd) => cmd.handle_command(config),
         }
     }
 }

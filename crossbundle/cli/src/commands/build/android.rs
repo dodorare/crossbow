@@ -24,6 +24,9 @@ pub struct AndroidBuildCommand {
     /// Generating aab. By default crossbow generating apk
     #[clap(long)]
     pub aab: bool,
+    // Install bundletool in home directory
+    #[clap(long)]
+    pub bundletool_install: bool,
     /// Path to the signing key
     #[clap(long, requires_all = &["sign-key-pass", "sign-key-alias"])]
     pub sign_key_path: Option<PathBuf>,
@@ -210,7 +213,7 @@ impl AndroidBuildCommand {
 
         config.status("Extracting apk files")?;
         let output_dir = android_build_dir.join("extracted_apk_files");
-        let extracted_apk_path = android::extract_apk(&apk_path, &output_dir)?;
+        let extracted_apk_path = android::extract_archive(&apk_path, &output_dir)?;
 
         config.status("Adding libs")?;
         for (compiled_lib, build_target) in compiled_libs {
