@@ -42,16 +42,15 @@ impl CommandLineToolsInstallCommand {
             .join(format!("{}", self.file_name()));
 
         let file_path = default_file_path(self.file_name())?;
-        let get_sdk_path = AndroidSdk::from_env()?;
-        let sdk_path = get_sdk_path
-            .sdk_path()
-            .join(get_sdk_path.sdk_install_path());
 
         config.status_message(
             "Downloading command line tools zip archive into",
             &file_path.parent().unwrap().to_str().unwrap(),
         )?;
         Self::download_and_save_file(&self, command_line_tools_download_url, &file_path)?;
+
+        let sdk_path = AndroidSdk::sdk_install_path()?;
+        println!("sdk_path {:?}", sdk_path);
 
         if let Some(path) = &self.install_path {
             config.status_message(

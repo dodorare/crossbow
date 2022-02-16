@@ -3,6 +3,9 @@ use crossbundle_tools::{error::CommandExt, tools::AndroidSdk, utils::Config};
 
 #[derive(Parser, Clone, Debug, Default)]
 pub struct SdkManagerInstallCommand {
+    /// Install all preferred tools for correct crossbundle work
+    #[clap(long)]
+    preferred_tools: bool,
     /// List installed and available packages. Use the channel option to include a package from a channel up to and including channel_id.
     /// For example, specify the canary channel to list packages from all channels.
     #[clap(long)]
@@ -16,20 +19,11 @@ pub struct SdkManagerInstallCommand {
     /// Update all installed packages
     #[clap(long)]
     update: bool,
-    /// Install all required tools for correct crossbundle work
-    #[clap(long)]
-    required_tools: bool,
     /// Use the specified SDK path instead of the SDK containing this tool
-    ///  ```sh
-    /// --sdk_root=path
-    /// ```
     #[clap(long)]
     sdk_root: Option<std::path::PathBuf>,
     /// Include packages in channels up to and including channel_id. Available channels are:
     /// 0 (Stable), 1 (Beta), 2 (Dev), and 3 (Canary).
-    /// ```sh
-    /// --channel=channel_id
-    /// ```
     #[clap(long)]
     channel: Option<u32>,
     /// Include obsolete packages in the package listing or package updates. For use with --list and --update only.
@@ -42,26 +36,18 @@ pub struct SdkManagerInstallCommand {
     #[clap(long)]
     verbose: bool,
     /// Connect via a proxy of the given type: either http for high level protocols such as HTTP or FTP, or socks for a SOCKS (V4 or V5) proxy.
-    /// ```sh
-    /// --proxy={http | socks}
-    /// ```
     #[clap(long)]
     proxy: Option<String>,
     /// IP or DNS address of the proxy to use.
-    /// ```sh
-    /// --proxy_host={IP_address | DNS_address}
-    /// ```
     #[clap(long)]
     proxy_host: Option<String>,
     /// Proxy port number to connect to.
-    /// ```sh
-    /// --proxy_port=port_number
-    /// ```
     #[clap(long)]
     proxy_port: Option<String>,
 }
 
 impl SdkManagerInstallCommand {
+    /// Creates a new empty instance.
     pub fn new(&self) -> Self {
         Self {
             ..Default::default()
@@ -94,8 +80,8 @@ impl SdkManagerInstallCommand {
     }
 
     /// Install all required tools for correct crossbundle work
-    pub fn required_tools(&mut self, required_tools: bool) -> &mut Self {
-        self.required_tools = required_tools;
+    pub fn preferred_tools(&mut self, preferred_tools: bool) -> &mut Self {
+        self.preferred_tools = preferred_tools;
         self
     }
 
@@ -164,12 +150,16 @@ impl SdkManagerInstallCommand {
     }
 
     pub fn run(&self, _config: &Config) -> crate::error::Result<()> {
-        let sdk = AndroidSdk::from_env()?;
-        let sdkmanager = dunce::simplified(&sdk.sdk_path());
-        let sdkmanager_bat = sdkmanager.join("sdkmanager.bat");
+        let sdk_root = AndroidSdk::sdk_install_path()?;
+        let sdkmanager_path = sdk_root.join("cmdline-tools").join("bin");
+        let sdkmanager_bat = sdkmanager_path.join("sdkmanager.bat");
 
         let mut sdkmanager = std::process::Command::new(sdkmanager_bat);
-        sdkmanager.arg(format!("--sdk_root={}", &sdk.sdk_path().to_str().unwrap()));
+        if let Some(sdk_root) = &self.sdk_root {
+            sdkmanager.arg(sdk_root);
+        } else {
+            sdkmanager.arg(format!("--sdk_root={}", sdk_root.to_str().unwrap()));
+        }
         if let Some(install) = &self.install {
             sdkmanager.arg(install);
         }
@@ -182,11 +172,32 @@ impl SdkManagerInstallCommand {
         if self.list {
             sdkmanager.arg("--list");
         }
-        if self.required_tools {
+        if self.preferred_tools {
             sdkmanager
                 .arg("build-tools;29.0.0")
-                .arg("ndk;22.0.7026061")
+                .arg("ndk;23.1.7779620")
                 .arg("platforms;android-30");
+        }
+        if let Some(channel) = &self.channel {
+            sdkmanager.arg(format!("--channel={}", channel));
+        }
+        if self.include_obsolete {
+            sdkmanager.arg("--include_obsolete");
+        }
+        if self.no_https {
+            sdkmanager.arg("--no_https");
+        }
+        if self.verbose {
+            sdkmanager.arg("--verbose");
+        }
+        if let Some(http_or_socks) = &self.proxy {
+            sdkmanager.arg(format!("--proxy={}", http_or_socks));
+        }
+        if let Some(ip_or_dns) = &self.proxy_host {
+            sdkmanager.arg(format!("--proxy_host={}", ip_or_dns));
+        }
+        if let Some(port_number) = &self.proxy_port {
+            sdkmanager.arg(format!("--proxy_port={}", port_number));
         }
         sdkmanager.output_err(true)?;
         Ok(())
