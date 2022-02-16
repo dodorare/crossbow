@@ -64,7 +64,8 @@ pub fn cargo_env_target_cfg(tool: &str, target: &str) -> String {
     env.to_uppercase()
 }
 
-/// Replace libgcc file with unwind. libgcc was removed in ndk versions >=23
+/// Replace libgcc file with unwind. libgcc was removed in ndk versions >=23.
+/// This is workaround for gcc not found issue.
 pub fn new_linker_args(tool_root: &std::path::Path) -> crate::error::Result<Vec<OsString>> {
     let mut new_args = Vec::new();
     let link_dir = tool_root.join("libgcc");
@@ -102,7 +103,7 @@ mod tests {
             false,
             false,
             30,
-            "libbevy-2d.so",
+            "macroquad_test_lib.so",
         )
         .unwrap();
     }
@@ -122,7 +123,7 @@ mod tests {
         let build_target = AndroidTarget::Aarch64LinuxAndroid;
         let profile = Profile::Debug;
         let target_sdk_version = 30;
-        let lib_name = "bevy_test_lib";
+        let lib_name = "bevy_test_lib.so";
 
         // Compile rust code for android with bevy engine
         compile_rust_for_android_with_bevy(

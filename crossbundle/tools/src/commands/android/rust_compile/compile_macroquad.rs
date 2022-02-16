@@ -305,7 +305,12 @@ fn get_cmd_args(
 
     let build_tag = ndk.build_tag();
     let tool_root = ndk.toolchain_dir().unwrap();
-    // Will execute if android ndk has version >= 23
+    // Workaround from https://github.com/rust-windowing/android-ndk-rs/issues/149:
+    // Rust (1.56 as of writing) still requires libgcc during linking, but this does
+    // not ship with the NDK anymore since NDK r23 beta 3.
+    // See https://github.com/rust-lang/rust/pull/85806 for a discussion on why libgcc
+    // is still required even after replacing it with libunwind in the source.
+    // XXX: Add an upper-bound on the Rust version whenever this is not necessary anymore.
     if build_tag > 7272597 {
         let args = new_cmd_args(tool_root, build_target, target_sdk_version)
             .map_err(|_| anyhow::Error::msg("Failed to write content into libgcc.a file"))?;
@@ -386,10 +391,15 @@ pub fn new_cmd_args(
     for arg in args.into_iter() {
         new_args.push(arg);
     }
+    #[cfg(target_os = "windows")]
+    let ext = ".cmd";
+    #[cfg(not(target_os = "windows"))]
+    let ext = "";
     let linker_path = tool_root.join("bin").join(format!(
-        "{}{}-clang.cmd",
+        "{}{}-clang{}",
         build_target.rust_triple(),
-        target_sdk_version
+        target_sdk_version,
+        ext,
     ));
     new_args.push(build_arg("-Clinker=", linker_path));
 

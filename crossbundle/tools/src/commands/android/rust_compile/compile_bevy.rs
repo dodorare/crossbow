@@ -149,6 +149,12 @@ impl cargo_compiler::Executor for DefaultExecutor {
             let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
             let build_tag = ndk.build_tag();
             let tool_root = ndk.toolchain_dir().unwrap();
+            // Workaround from https://github.com/rust-windowing/android-ndk-rs/issues/149:
+            // Rust (1.56 as of writing) still requires libgcc during linking, but this does
+            // not ship with the NDK anymore since NDK r23 beta 3.
+            // See https://github.com/rust-lang/rust/pull/85806 for a discussion on why libgcc
+            // is still required even after replacing it with libunwind in the source.
+            // XXX: Add an upper-bound on the Rust version whenever this is not necessary anymore.
             if build_tag > 7272597 {
                 let args = super::new_linker_args(&tool_root).map_err(|_| {
                     anyhow::Error::msg("Failed to write content into libgcc.a file")
