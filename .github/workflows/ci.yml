@@ -51,7 +51,7 @@ jobs:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@master
-    - name: Install Apple targets
+    - name: Install Android targets
       run: rustup target add aarch64-linux-android x86_64-linux-android
     - name: Install Crossbundle
       run: |
@@ -98,5 +98,15 @@ jobs:
           profile: minimal
           toolchain: stable
           override: true
+      - name: Install Apple targets
+        run: rustup target add aarch64-apple-ios
+      - name: Install Android targets
+        run: rustup target add aarch64-linux-android x86_64-linux-android
+      - name: Install bundletool
+        run: |
+          wget https://github.com/google/bundletool/releases/download/1.8.2/bundletool-all-1.8.2.jar
+          mv bundletool-all-1.8.2.jar $HOME/bundletool.jar
       - name: Run all tests
-        run: cargo test --all
+        run: |
+          export BUNDLETOOL_PATH="$HOME/bundletool.jar"
+          cargo test --all
