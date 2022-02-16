@@ -66,9 +66,11 @@ impl AndroidBuildCommand {
         let (project_path, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
         config.status_message("Starting build process", &package_name)?;
         let (sdk, ndk, target_sdk_version) = Self::android_toolchain(context)?;
-        config.status_message("Generating", "AndroidManifest.xml")?;
+
+        // Get AndroidManifest.xml from file or generate from Cargo.toml
         let android_build_dir = target_dir.join("android").join(&profile);
         let (android_manifest, manifest_path) = Self::android_manifest(
+            config,
             context,
             &sdk,
             package_name.to_string(),
@@ -160,9 +162,11 @@ impl AndroidBuildCommand {
         let (project_path, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
         config.status_message("Starting build process", &package_name)?;
         let (sdk, ndk, target_sdk_version) = Self::android_toolchain(context)?;
-        config.status_message("Generating", "AndroidManifest.xml")?;
+
+        // Get AndroidManifest.xml from file or generate from Cargo.toml
         let android_build_dir = target_dir.join("android").join(&profile);
         let (android_manifest, manifest_path) = Self::android_manifest(
+            config,
             context,
             &sdk,
             package_name.to_string(),
@@ -301,14 +305,16 @@ impl AndroidBuildCommand {
         Ok((sdk, ndk, target_sdk_version))
     }
 
-    /// Generates and saves AndroidManifest.xml
+    /// Generates or copies AndroidManifest.xml from specified path, then saves it to android folder
     fn android_manifest(
+        config: &Config,
         context: &BuildContext,
         sdk: &AndroidSdk,
         package_name: String,
         profile: Profile,
         android_build_dir: &PathBuf,
     ) -> crate::error::Result<(AndroidManifest, PathBuf)> {
+        config.status_message("Generating", "AndroidManifest.xml")?;
         let android_manifest =
             context.gen_android_manifest(&sdk, &package_name, profile.is_debug())?;
         let manifest_path = android::save_android_manifest(&android_build_dir, &android_manifest)?;

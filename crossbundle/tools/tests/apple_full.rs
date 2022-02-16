@@ -99,12 +99,12 @@ fn test_apple_full() {
     codesign(&app_dir, true, None, None).unwrap();
 
     // Install and launch on simulator
-    let device = launch_apple_app(
-        &app_dir,
-        "iPhone 8",
-        &properties.identification.bundle_identifier,
-        false,
-    )
-    .unwrap();
-    device.shutdown().unwrap();
+    // let device = launch_apple_app(
+    //     &app_dir,
+    //     "iPhone 8",
+    //     &properties.identification.bundle_identifier,
+    //     false,
+    // )
+    // .unwrap();
+    // device.shutdown().unwrap();
 }

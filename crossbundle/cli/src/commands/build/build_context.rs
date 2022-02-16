@@ -19,7 +19,6 @@ pub struct BuildContext {
     pub workspace_manifest_path: PathBuf,
     pub package_manifest_path: PathBuf,
     pub project_path: PathBuf,
-    pub cargo_manifest: CargoManifest,
     pub cargo_package: CargoPackage<Metadata>,
     pub target_dir: PathBuf,
 }
@@ -33,15 +32,11 @@ impl BuildContext {
             target_dir.unwrap_or_else(|| workspace_manifest_path.parent().unwrap().join("target"));
         info!("Parsing Cargo.toml");
         let cargo_manifest = CargoManifest::from_path_with_metadata(&package_manifest_path)?;
-        let cargo_package = cargo_manifest
-            .package
-            .clone()
-            .ok_or(Error::InvalidManifest)?;
+        let cargo_package = cargo_manifest.package.ok_or(Error::InvalidManifest)?;
         Ok(Self {
             workspace_manifest_path,
             package_manifest_path,
             project_path,
-            cargo_manifest,
             cargo_package,
             target_dir,
         })

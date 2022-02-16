@@ -1,0 +1,48 @@
+use bevy::{
+    log::{Level, LogSettings},
+    prelude::*,
+};
+
+fn main() {
+    println!("Initialization.");
+    std::thread::sleep(std::time::Duration::from_secs(2));
+    App::new()
+        .insert_resource(LogSettings {
+            level: Level::DEBUG,
+            filter: "wgpu=debug,wgpu_hal=debug,bevy_render=info".to_string(),
+        })
+        .add_plugins(DefaultPlugins)
+        .add_startup_system(audio.system())
+        .add_startup_system(icon.system())
+        .run();
+}
+
+fn icon(mut commands: Commands, asset_server: Res<AssetServer>) {
+    commands.spawn_bundle(OrthographicCameraBundle::new_2d());
+    commands.spawn_bundle(SpriteBundle {
+        texture: asset_server.load("branding/icon.png"),
+        ..Default::default()
+    });
+}
+
+fn audio(asset_server: Res<AssetServer>, audio: Res<Audio>) {
+    let music = asset_server.load("sounds/Windless-Slopes.mp3");
+    audio.play(music);
+}
+
+
+#[no_mangle]
+#[cfg(target_os = "android")]
+unsafe extern "C" fn ANativeActivity_onCreate(
+    activity: *mut std::os::raw::c_void,
+    saved_state: *mut std::os::raw::c_void,
+    saved_state_size: usize,
+) {
+    crossbow::ndk_glue::init(
+        activity as _,
+        saved_state as _,
+        saved_state_size as _,
+        main,
+    );
+}
+
