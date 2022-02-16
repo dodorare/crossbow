@@ -68,9 +68,9 @@ jobs:
         cd ~/example/
         crossbundle build android --release --quad
 
-  clean:
-    name: Check code format
-    runs-on: ubuntu-latest
+  clean-and-test:
+    name: Check code format and run tests
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@master
       - uses: actions-rs/toolchain@v1
@@ -87,3 +87,5 @@ jobs:
         run: |
           cargo install cargo-deadlinks
           cargo deadlinks --check-http
+      - name: Run all tests
+        run: cargo test --all

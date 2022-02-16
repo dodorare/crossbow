@@ -6,7 +6,7 @@ use crossbundle_tools::commands::{apple::*, gen_minimal_project};
 fn test_gen_apple_app() {
     let tempdir = tempfile::tempdir().unwrap();
     let dir = tempdir.path();
-    let name = gen_minimal_project(dir).unwrap();
+    let name = gen_minimal_project(dir, false).unwrap();
 
     // Creates target dir
     let target_dir = dir.join("target");

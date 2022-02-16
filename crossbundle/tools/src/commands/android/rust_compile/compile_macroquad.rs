@@ -312,11 +312,9 @@ fn get_cmd_args(
     // is still required even after replacing it with libunwind in the source.
     // XXX: Add an upper-bound on the Rust version whenever this is not necessary anymore.
     if build_tag > 7272597 {
-        let args = new_cmd_args(tool_root, build_target, target_sdk_version)
+        let mut args = new_cmd_args(tool_root, build_target, target_sdk_version)
             .map_err(|_| anyhow::Error::msg("Failed to write content into libgcc.a file"))?;
-        for arg in args.into_iter() {
-            new_args.push(arg);
-        }
+        new_args.append(&mut args);
     } else {
         // Determine paths to linker and libgcc using in ndk =< 22
         let tool_root = ndk.toolchain_dir().unwrap();
@@ -386,11 +384,7 @@ pub fn new_cmd_args(
     build_target: &AndroidTarget,
     target_sdk_version: u32,
 ) -> crate::error::Result<Vec<OsString>> {
-    let mut new_args = Vec::new();
-    let args = super::new_linker_args(&tool_root)?;
-    for arg in args.into_iter() {
-        new_args.push(arg);
-    }
+    let mut new_args = super::new_linker_args(&tool_root)?;
     #[cfg(target_os = "windows")]
     let ext = ".cmd";
     #[cfg(not(target_os = "windows"))]
@@ -402,7 +396,6 @@ pub fn new_cmd_args(
         ext,
     ));
     new_args.push(build_arg("-Clinker=", linker_path));
-
     Ok(new_args)
 }
 
