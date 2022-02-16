@@ -19,8 +19,8 @@ impl AndroidSdk {
         let home_dir_path = dirs::home_dir().unwrap();
         let path = Path::new("Local").join("Android").join("Sdk");
 
-        #[cfg(target_os = "windows")]
         let app_data = Path::new("AppData");
+        #[cfg(target_os = "windows")]
         let sdk_path = home_dir_path.join(app_data).join(path);
 
         #[cfg(not(target_os = "windows"))]
