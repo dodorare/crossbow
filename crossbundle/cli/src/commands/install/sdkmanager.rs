@@ -149,6 +149,7 @@ impl SdkManagerInstallCommand {
         self
     }
 
+    /// Run sdkmanager command with specified flags and options
     pub fn run(&self, _config: &Config) -> crate::error::Result<()> {
         let sdk_root = AndroidSdk::sdk_install_path()?;
         let sdkmanager_path = sdk_root.join("cmdline-tools").join("bin");
