@@ -32,17 +32,17 @@ impl BundletoolInstallCommand {
                 }
             }
         }
-        let download_url = format!(
-            "https://github.com/google/bundletool/releases/download/{}/{}",
-            self.version,
-            self.file_name()
-        );
+        let download_url = std::path::Path::new(super::BUNDLETOOL_JAR_FILE_DOWNLOAD_URL)
+            .join(self.version.clone())
+            .join(self.file_name());
+        let download_url_str = String::from(download_url.to_str().unwrap());
+
         if let Some(install_path) = &self.path {
             let jar_path = install_path.join(self.file_name());
-            download_to_file(&download_url, &jar_path)?;
+            download_to_file(&download_url_str, &jar_path)?;
         } else {
             let default_jar_path = default_file_path(self.file_name())?;
-            download_to_file(&download_url, &default_jar_path)?;
+            download_to_file(&download_url_str, &default_jar_path)?;
         };
         config.status("Bundletool was installed successfully")?;
         Ok(())

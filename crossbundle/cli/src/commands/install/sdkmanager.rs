@@ -153,7 +153,8 @@ impl SdkManagerInstallCommand {
     pub fn run(&self, _config: &Config) -> crate::error::Result<()> {
         let sdk_root = AndroidSdk::sdk_install_path()?;
         let sdkmanager_path = sdk_root.join("cmdline-tools").join("bin");
-        let sdkmanager_bat = sdkmanager_path.join("sdkmanager.bat");
+        let sdkmanager_bat =
+            sdkmanager_path.join(format!("sdkmanager{}", super::EXECUTABLE_SUFFIX_BAT));
 
         let mut sdkmanager = std::process::Command::new(sdkmanager_bat);
         if let Some(sdk_root) = &self.sdk_root {
