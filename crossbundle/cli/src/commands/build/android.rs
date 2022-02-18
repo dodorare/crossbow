@@ -146,11 +146,10 @@ impl AndroidBuildCommand {
         )?;
 
         config.status("Signing APK file")?;
-        android::sign_apk(&sdk, &aligned_apk_path, key).unwrap();
+        android::sign_apk(&sdk, &aligned_apk_path, key)?;
         config.status("Build finished successfully")?;
         Ok((android_manifest, sdk, aligned_apk_path))
     }
-
     /// Builds AAB with aapt2 tool and signs it with jarsigner
     pub fn execute_aab(
         &self,

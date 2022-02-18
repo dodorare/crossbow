@@ -162,6 +162,7 @@ impl SdkManagerInstallCommand {
         } else {
             sdkmanager.arg(format!("--sdk_root={}", sdk_root.to_str().unwrap()));
         }
+        // TODO: Resolve the problem about installation several packages
         if let Some(install) = &self.install {
             sdkmanager.arg(install);
         }
