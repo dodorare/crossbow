@@ -83,18 +83,3 @@ crossbundle log android
 
 and you will see the message: `"Hello, project-name!"`
 
-## Known issues
-
-### Error `unable to find library -lgcc`
-
-Please note, if you are using the `Rust 1.53.0` and `Android NDK r23-beta3` and up, an error may occur during linking.<br/>
-This error will most likely be [`fixed`](https://github.com/rust-lang/rust/pull/85806) in a new version of the Rust.
-
-```sh
-error: linking with `~/Android/Sdk/ndk/23.0.7272597/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android30-clang` failed: exit status: 1
-  |
-  = note: ld: error: unable to find library -lgcc
-          clang-12: error: linker command failed with exit code 1 (use -v to see invocation)
-```
-
-For now, the easiest way to fix it is by installing an older version of `Android NDK` (ex. r22).

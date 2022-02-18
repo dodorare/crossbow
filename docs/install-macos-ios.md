@@ -35,7 +35,7 @@ Install `ios-deploy` for installing your app on iPhone:
 brew install ios-deploy
 ```
 
-Install `Xcode` from [App Store](https://apps.apple.com/us/app/xcode/id497799835).
+Use crossbundle install command or install `Xcode` from [App Store](https://apps.apple.com/us/app/xcode/id497799835).
 
 <img alt="Xcode installation" src="https://i.imgur.com/2RhOz1t.png" width="400px"></img>
 
