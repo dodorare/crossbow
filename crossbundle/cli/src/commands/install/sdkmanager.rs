@@ -4,36 +4,36 @@ use crossbundle_tools::{error::CommandExt, tools::AndroidSdk, utils::Config};
 #[derive(Parser, Clone, Debug, Default)]
 pub struct SdkManagerInstallCommand {
     /// Install all preferred tools for correct crossbundle work
-    #[clap(long)]
+    #[clap(long, short)]
     preferred_tools: bool,
     /// List installed and available packages. Use the channel option to include a package from a channel up to and including channel_id.
     /// For example, specify the canary channel to list packages from all channels.
-    #[clap(long)]
+    #[clap(long, short)]
     list: bool,
-    /// Specify needed version for install NDK. By defaut, ndk/22.0.7026061 will be installed
-    #[clap(long)]
+    /// Install package. To see all available packages use --list. Example: crossbundle install sdk-manager "ndk;23.1.7779620"
+    #[clap(long, short)]
     install: Option<String>,
     /// Specify version Android NDK that need to be uninstalled
-    #[clap(long)]
+    #[clap(long, short)]
     uninstall: Option<String>,
     /// Update all installed packages
     #[clap(long)]
     update: bool,
     /// Use the specified SDK path instead of the SDK containing this tool
-    #[clap(long)]
+    #[clap(long, short)]
     sdk_root: Option<std::path::PathBuf>,
     /// Include packages in channels up to and including channel_id. Available channels are:
     /// 0 (Stable), 1 (Beta), 2 (Dev), and 3 (Canary).
-    #[clap(long)]
+    #[clap(long, short)]
     channel: Option<u32>,
     /// Include obsolete packages in the package listing or package updates. For use with --list and --update only.
     #[clap(long)]
     include_obsolete: bool,
     /// Force all connections to use HTTP rather than HTTPS.
-    #[clap(long)]
+    #[clap(long, short)]
     no_https: bool,
     /// Verbose output mode. Errors, warnings and informational messages are printed.
-    #[clap(long)]
+    #[clap(long, short)]
     verbose: bool,
     /// Connect via a proxy of the given type: either http for high level protocols such as HTTP or FTP, or socks for a SOCKS (V4 or V5) proxy.
     #[clap(long)]
@@ -61,7 +61,7 @@ impl SdkManagerInstallCommand {
         self
     }
 
-    /// Specify needed version for install NDK. By defaut, ndk/22.0.7026061 will be installed
+    /// Install package. To see all available packages use --list. Example: crossbundle install sdk-manager "ndk;23.1.7779620"
     pub fn install(&mut self, install: String) -> &mut Self {
         self.install = Some(install);
         self
