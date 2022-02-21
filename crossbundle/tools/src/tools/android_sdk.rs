@@ -17,7 +17,12 @@ impl AndroidSdk {
     /// Default installation path
     pub fn sdk_install_path() -> Result<PathBuf> {
         let home_dir_path = dirs::home_dir().unwrap();
+        #[cfg(target_os = "windows")]
         let path = Path::new("Local").join("Android").join("Sdk");
+        #[cfg(target_os = "macos")]
+        let path = Path::new("Library").join("Android").join("sdk");
+        #[cfg(target_os = "linux")]
+        let path = Path::new("Android").join("sdk");
 
         #[cfg(target_os = "windows")]
         let app_data = Path::new("AppData");
