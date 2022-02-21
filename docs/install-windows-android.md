@@ -1,8 +1,8 @@
 # Android setup on Windows
 
-## Install Android Studio
+## Install necessary packages
 
-1. Download and install [Android Studio](https://developer.android.com/studio).
+1. Use crossbundle install command or download and install [Android Studio](https://developer.android.com/studio).
 2. Start Android Studio, and go through the `Android Studio Setup Wizard` with the `Custom` option and install the following (or install them in `SDK Manager`):
    - Android SDK
    - NDK (Side by side)
@@ -68,18 +68,3 @@ rustup target add armv7-linux-androideabi aarch64-linux-android i686-linux-andro
 
 [`Hello World! application`](https://github.com/dodorare/crossbow/wiki/Hello-World!) with Crossbow
 
-## Known issues
-
-### Android NDK r23-beta3
-
-Please note, `Android NDK r23-beta3` and up [`do not include libgcc anymore`](https://github.com/android/ndk/wiki/Changelog-r23#changes).
-Since Rust 1.53.0 still needs `libgcc` to support `Android NDK r23`, an error may occur during linking. This error will most likely be [`fixed`](https://github.com/rust-lang/rust/pull/85806) in a new version of the Rust.
-
-```sh
-error: linking with `~/Android/Sdk/ndk/23.0.7272597/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android30-clang` failed: exit status: 1
-  |
-  = note: ld: error: unable to find library -lgcc
-          clang-12: error: linker command failed with exit code 1 (use -v to see invocation)
-```
-
-For now, the easiest way to fix it is by installing an older version of `Android NDK` (ex. r22).

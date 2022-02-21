@@ -7,17 +7,6 @@ use crossbundle_tools::{
 };
 use std::path::{Path, PathBuf};
 
-#[cfg(target_os = "windows")]
-const OS_TAG: &str = "win";
-
-#[cfg(target_os = "macos")]
-const OS_TAG: &str = "mac";
-
-#[cfg(target_os = "linux")]
-const OS_TAG: &str = "linux";
-
-const COMMAND_LINE_TOOLS_DOWNLOAD_URL: &'static str = "https://dl.google.com/android/repository/";
-
 #[derive(Parser, Clone, Debug, Default)]
 pub struct CommandLineToolsInstallCommand {
     /// Assign path to install command line tools

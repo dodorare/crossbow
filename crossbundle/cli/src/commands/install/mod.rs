@@ -11,6 +11,25 @@ use self::{
     sdkmanager::SdkManagerInstallCommand,
 };
 
+#[cfg(target_os = "windows")]
+const OS_TAG: &str = "win";
+
+#[cfg(target_os = "macos")]
+const OS_TAG: &str = "mac";
+
+#[cfg(target_os = "linux")]
+const OS_TAG: &str = "linux";
+
+#[cfg(target_os = "windows")]
+pub const EXECUTABLE_SUFFIX_BAT: &str = ".bat";
+
+#[cfg(not(target_os = "windows"))]
+pub const EXECUTABLE_SUFFIX_BAT: &str = "";
+
+const COMMAND_LINE_TOOLS_DOWNLOAD_URL: &'static str = "https://dl.google.com/android/repository/";
+const BUNDLETOOL_JAR_FILE_DOWNLOAD_URL: &'static str =
+    "https://github.com/google/bundletool/releases/download";
+
 #[derive(Parser, Clone, Debug)]
 pub enum InstallCommand {
     /// Install bundletool. You can specify version of bundletool. By default, we have 1.8.2 bundletool version in usage
