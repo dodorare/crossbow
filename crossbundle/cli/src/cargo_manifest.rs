@@ -16,9 +16,6 @@ pub struct Metadata {
     pub icon: Option<String>,
 
     #[serde(default)]
-    pub android_permissions: Vec<UsesPermission>,
-
-    #[serde(default)]
     pub use_android_manifest: bool,
     pub android_manifest_path: Option<PathBuf>,
 
@@ -41,4 +38,8 @@ pub struct Metadata {
     pub apple_res: Option<PathBuf>,
     /// Apple assets directory path relatively to project path.
     pub apple_assets: Option<PathBuf>,
+
+    /// TODO: Add android android_uses_features.
+    #[serde(default)]
+    pub android_permissions: Vec<UsesPermission>,
 }
