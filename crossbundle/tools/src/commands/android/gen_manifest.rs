@@ -41,6 +41,7 @@ pub fn gen_minimal_android_manifest(
             )),
             activity: vec![Activity {
                 name: "android.app.NativeActivity".to_string(),
+                resizeable_activity: Some(true),
                 label: Some(StringResourceOrString::string(
                     app_name.as_ref().unwrap_or(&package_name.to_owned()),
                 )),
