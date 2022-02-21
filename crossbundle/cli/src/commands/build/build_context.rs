@@ -43,6 +43,11 @@ impl BuildContext {
     }
 
     pub fn package_name(&self) -> String {
+        if let Some(metadata) = &self.cargo_package.metadata {
+            if let Some(package_name) = metadata.android_package_name.clone() {
+                return package_name;
+            };
+        };
         self.cargo_package.name.clone()
     }
 
@@ -109,7 +114,7 @@ impl BuildContext {
                 Ok(android::read_android_manifest(&path)?)
             } else {
                 let mut manifest = android::gen_minimal_android_manifest(
-                    metadata.android_app_id.clone(),
+                    metadata.android_package_name.clone(),
                     package_name,
                     metadata.app_name.clone(),
                     metadata

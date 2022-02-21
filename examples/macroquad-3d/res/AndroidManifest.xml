@@ -12,6 +12,7 @@
         <activity
                 android:name="android.app.NativeActivity"
                 android:label="Macroquad 3D"
+                android:resizeableActivity="true"
                 android:configChanges="orientation|keyboardHidden|screenSize"  >
             <meta-data android:name="android.app.lib_name" android:value="macroquad_3d" />
             <intent-filter>

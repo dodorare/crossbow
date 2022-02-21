@@ -67,7 +67,7 @@ fn test_aapt2_link() {
         "example",
         None,
         "0.0.1".to_string(),
-        Some("1".to_string()),
+        Some(1),
         Some(9),
         30,
         None,

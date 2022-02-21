@@ -7,7 +7,7 @@ pub fn gen_minimal_android_manifest(
     package_name: &str,
     app_name: Option<String>,
     version_name: String,
-    version_code: Option<String>,
+    version_code: Option<u32>,
     min_sdk_version: Option<u32>,
     target_sdk_version: u32,
     max_sdk_version: Option<u32>,
@@ -41,6 +41,7 @@ pub fn gen_minimal_android_manifest(
             )),
             activity: vec![Activity {
                 name: "android.app.NativeActivity".to_string(),
+                resizeable_activity: Some(true),
                 label: Some(StringResourceOrString::string(
                     app_name.as_ref().unwrap_or(&package_name.to_owned()),
                 )),
