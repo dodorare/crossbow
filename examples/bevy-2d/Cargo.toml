@@ -12,7 +12,7 @@ bevy = { version = "0.6.0", features = ["mp3"] }
 
 [package.metadata]
 app_name = "Bevy 2D"
-version_code = "1"
+version_code = 1
 target_sdk_version = 30
 icon = "ic_launcher"
 

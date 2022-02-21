@@ -13,7 +13,7 @@ macroquad = "0.3"
 [package.metadata]
 app_name = "Macroquad 3D"
 target_sdk_version = 30
-version_code = "1"
+version_code = 1
 icon = "ic_launcher"
 
 use_android_manifest = true

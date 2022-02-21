@@ -52,7 +52,7 @@ app_name = "Example"
 version_name = "0.1.0"
 # Internal version number used to determine whether one version is more recent than another
 # See https://developer.android.com/guide/topics/manifest/manifest-element
-version_code = "1"
+version_code = 1
 # Min SDK version
 min_sdk_version = 21
 # Target SDK version

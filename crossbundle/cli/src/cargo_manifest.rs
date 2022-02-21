@@ -9,7 +9,7 @@ pub type CargoManifest = cargo_toml::Manifest<Metadata>;
 pub struct Metadata {
     pub app_name: Option<String>,
     pub version_name: Option<String>,
-    pub version_code: Option<String>,
+    pub version_code: Option<u32>,
     pub min_sdk_version: Option<u32>,
     pub target_sdk_version: Option<u32>,
     pub max_sdk_version: Option<u32>,
