@@ -5,7 +5,7 @@ use tokio::sync::mpsc;
 #[cfg(not(target_os = "android"))]
 pub const TEXT_FONT_SIZE: f32 = 30.0;
 #[cfg(target_os = "android")]
-pub const TEXT_FONT_SIZE: f32 = 90.0;
+pub const TEXT_FONT_SIZE: f32 = 30.0;
 
 pub struct ExplorerStateChannel {
     pub tx: mpsc::Sender<ExplorerState>,
