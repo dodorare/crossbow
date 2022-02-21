@@ -96,8 +96,8 @@ for crate in "${crates[@]}"
 do
   echo "Publishing ${crate}"
   cargo publish --manifest-path=$crate/Cargo.toml
-  sleep 20
+  sleep 40
 done
-sleep 20
+sleep 40
 cargo publish
 '''
