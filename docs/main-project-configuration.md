@@ -16,9 +16,6 @@ edition = "2021"
 [dependencies]
 crossbow = "0.1.0"
 
-[lib]
-crate-type = ["lib", "cdylib"]
-
 [package.metadata]
 app_name = "Creator 3D"
 target_sdk_version = 30
