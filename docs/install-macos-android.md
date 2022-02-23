@@ -18,13 +18,13 @@ brew install --cask adoptopenjdk8
 
 ## Add environment variables
 
-We need to make sure that Android-related environment variables are set in `PATH`, `ANDROID_SDK_ROOT`, and `ANDROID_NDK_ROOT`.
+We need to make sure that Android-related environment variables are set in `PATH`, `ANDROID_SDK_ROOT`|| `ANDROID_SDK_PATH` || `ANDROID_HOME`, and `ANDROID_NDK_ROOT`.
 
 For that edit **~/.bash_profile**/**~/.bashrc** or **~/.zshrc** files so they contain those lines:
 
 ```sh
 export ANDROID_SDK_ROOT=$HOME/android/sdk
-export ANDROID_NDK_ROOT=$ANDROID_SDK_ROOT/ndk/22.0.7026061
+export ANDROID_NDK_ROOT=$ANDROID_SDK_ROOT/ndk/23.1.7779620
 ```
 
 If u will build application with emulator u should add this environment variables:

@@ -31,9 +31,6 @@ version = "0.1.0"
 authors = ["Example <example@example.com>"]
 edition = "2021"
 
-[lib]
-crate-type = ["lib", "cdylib"]
-
 [dependencies]
 crossbundle = "*"
 
@@ -44,19 +41,10 @@ apple_res = "res/apple"
 ```
 
 ```rust
-// lib.rs
-
-#[crossbow::crossbundle_main]
-pub fn main() {
-    println!("Hello, project-name!");
-}
-```
-
-```rust
 // main.rs
 
 fn main() {
-    project_name::main();
+    println!("Hello, project-name!");
 }
 ```
 
