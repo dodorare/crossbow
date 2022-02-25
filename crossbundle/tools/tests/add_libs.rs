@@ -14,7 +14,7 @@ fn add_libs_into_aapt2_test() {
     let project_path = tempdir.path();
 
     // Assigns configuration for project
-    let macroquad_project = true;
+    let macroquad_project = false;
     let package_name = gen_minimal_project(&project_path, macroquad_project).unwrap();
 
     // Assigns configuration for project

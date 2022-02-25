@@ -1,4 +1,3 @@
-pub use cargo_toml::Package as CargoPackage;
 use crossbundle_tools::types::{android_manifest::UsesPermission, *};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
