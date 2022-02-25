@@ -99,9 +99,13 @@ jobs:
           toolchain: stable
           override: true
       - name: Install Apple targets
-        run: rustup target add aarch64-apple-ios x86_64-apple-ios
+        run: |
+        rustup upgrade
+        rustup target add aarch64-apple-ios x86_64-apple-ios
       - name: Install Android targets
-        run: rustup target add aarch64-linux-android x86_64-linux-android
+        run: |
+        rustup upgrade
+        rustup target add aarch64-linux-android x86_64-linux-android
       - name: Install bundletool
         run: |
           wget https://github.com/google/bundletool/releases/download/1.8.2/bundletool-all-1.8.2.jar
