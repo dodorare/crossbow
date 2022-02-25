@@ -82,6 +82,8 @@ pub enum Error {
         path: PathBuf,
         cause: std::io::Error,
     },
+    /// Failed to find the manifest in path: {0}
+    FailedToFindManifest(String),
     /// Invalid profile: {0}
     InvalidProfile(String),
     /// Invalid interface orientation: {0:?}

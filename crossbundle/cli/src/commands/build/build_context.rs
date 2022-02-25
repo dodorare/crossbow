@@ -1,8 +1,9 @@
 use crate::{cargo_manifest::Metadata, error::Result};
-use cargo::core::{Manifest, SourceId};
+use cargo::core::Manifest;
 use crossbundle_tools::{
     commands::{
         android, apple, find_package_cargo_manifest_path, find_workspace_cargo_manifest_path,
+        parse_manifest,
     },
     tools::AndroidSdk,
     types::{
@@ -30,16 +31,7 @@ impl BuildContext {
         let target_dir =
             target_dir.unwrap_or_else(|| workspace_manifest_path.parent().unwrap().join("target"));
         info!("Parsing Cargo.toml");
-        let source_id = SourceId::for_path(&package_manifest_path).unwrap();
-        let config = cargo::util::config::Config::default().unwrap();
-        let either_manifest =
-            cargo::util::toml::read_manifest(&package_manifest_path, source_id, &config)
-                .unwrap()
-                .0;
-        let manifest = match either_manifest {
-            cargo::core::EitherManifest::Real(manifest) => manifest,
-            cargo::core::EitherManifest::Virtual(..) => todo!(),
-        };
+        let manifest = parse_manifest(&package_manifest_path)?;
         let custom_metadata = manifest.custom_metadata().unwrap().to_owned();
         let metadata = custom_metadata.try_into::<Metadata>().unwrap();
         Ok(Self {
