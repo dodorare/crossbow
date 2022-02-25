@@ -36,6 +36,8 @@ fs_extra = "1.2"
 android-tools = "0.2.7"
 dirs = "4.0.0"
 ureq = "2.4.0"
+cargo = "0.59.0"
+cargo-util = "0.1.1"
 
 [features]
 default = ["android", "ios"]
