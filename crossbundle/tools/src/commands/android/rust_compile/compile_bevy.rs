@@ -156,7 +156,7 @@ impl cargo_compiler::Executor for DefaultExecutor {
             // is still required even after replacing it with libunwind in the source.
             // XXX: Add an upper-bound on the Rust version whenever this is not necessary anymore.
             if build_tag > 7272597 {
-                let args = super::new_linker_args(&tool_root).map_err(|_| {
+                let args = super::linker_args(&tool_root).map_err(|_| {
                     anyhow::Error::msg("Failed to write content into libgcc.a file")
                 })?;
                 for arg in args.into_iter() {

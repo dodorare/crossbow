@@ -384,7 +384,7 @@ pub fn new_cmd_args(
     build_target: &AndroidTarget,
     target_sdk_version: u32,
 ) -> crate::error::Result<Vec<OsString>> {
-    let mut new_args = super::new_linker_args(&tool_root)?;
+    let mut new_args = super::linker_args(&tool_root)?;
     #[cfg(target_os = "windows")]
     let ext = ".cmd";
     #[cfg(not(target_os = "windows"))]
