@@ -1,3 +1,4 @@
+use super::*;
 use crate::error::*;
 use crate::tools::*;
 use crate::types::*;
@@ -12,7 +13,7 @@ pub fn rust_compile(
     no_default_features: bool,
     target_sdk_version: u32,
     lib_name: &str,
-    quad: bool,
+    app_wrapper: ApplicationWrapper,
 ) -> Result<()> {
     // Specify path to workspace
     let cargo_config = cargo::util::Config::default()?;
@@ -34,15 +35,15 @@ pub fn rust_compile(
     std::env::set_var(format!("CC_{}", rust_triple), &clang);
     std::env::set_var(format!("CXX_{}", rust_triple), &clang_pp);
     std::env::set_var(format!("AR_{}", rust_triple), &ar);
-    std::env::set_var(super::cargo_env_target_cfg("LINKER", rust_triple), &clang);
+    std::env::set_var(cargo_env_target_cfg("LINKER", rust_triple), &clang);
 
-    super::set_cmake_vars(build_target, ndk, target_sdk_version, &build_target_dir)?;
+    set_cmake_vars(build_target, ndk, target_sdk_version, &build_target_dir)?;
 
     // Use libc++. It is current default C++ runtime
     std::env::set_var("CXXSTDLIB", "c++");
 
     // Configure compilation options so that we will build the desired build_target
-    let opts = super::compile_options::compile_options(
+    let opts = compile_options::compile_options(
         &workspace,
         build_target,
         &features,
@@ -62,7 +63,7 @@ pub fn rust_compile(
             ndk: ndk.clone(),
             profile,
             nostrip: false,
-            quad,
+            app_wrapper,
         });
 
     // Compile all targets for the requested build target
@@ -78,7 +79,7 @@ struct SharedLibraryExecutor {
     ndk: AndroidNdk,
     profile: Profile,
     nostrip: bool,
-    quad: bool,
+    app_wrapper: ApplicationWrapper,
 }
 
 impl cargo::core::compiler::Executor for SharedLibraryExecutor {
@@ -104,12 +105,12 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
                     return Ok(());
                 };
 
-            let extra_code = match self.quad {
-                true => super::consts::SOKOL_EXTRA_CODE,
-                false => super::consts::NDK_GLUE_EXTRA_CODE,
+            let extra_code = match self.app_wrapper {
+                ApplicationWrapper::Sokol => consts::SOKOL_EXTRA_CODE,
+                ApplicationWrapper::NdkGlue => consts::NDK_GLUE_EXTRA_CODE,
             };
 
-            let tmp_file = super::gen_tmp_lib_file::generate_lib_file(&path, extra_code)?;
+            let tmp_file = gen_tmp_lib_file::generate_lib_file(&path, extra_code)?;
 
             // Replaces source argument and returns collection of arguments
             get_cmd_args(
@@ -123,7 +124,7 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
                 self.target_sdk_version,
                 self.nostrip,
                 self.profile,
-                self.quad,
+                self.app_wrapper,
                 on_stdout_line,
                 on_stderr_line,
             )?;
@@ -169,7 +170,7 @@ fn get_cmd_args(
     target_sdk_version: u32,
     nostrip: bool,
     profile: Profile,
-    quad: bool,
+    app_wrapper: ApplicationWrapper,
     on_stdout_line: &mut dyn FnMut(&str) -> cargo::util::errors::CargoResult<()>,
     on_stderr_line: &mut dyn FnMut(&str) -> cargo::util::errors::CargoResult<()>,
 ) -> cargo::util::CargoResult<()> {
@@ -233,130 +234,74 @@ fn get_cmd_args(
     // XXX: Add an upper-bound on the Rust version whenever this is not necessary anymore.
     if build_tag > 7272597 {
         let error_msg = anyhow::Error::msg("Failed to write content into libgcc.a file");
-        let mut args = match quad {
-            true => new_quad_cmd_args(tool_root, build_target, target_sdk_version)
-                .map_err(|_| error_msg)?,
-            false => super::linker_args(&tool_root).map_err(|_| error_msg)?,
+        let mut args = match app_wrapper {
+            ApplicationWrapper::Sokol => {
+                new_ndk_quad_args(tool_root, build_target, target_sdk_version)
+                    .map_err(|_| error_msg)?
+            }
+            ApplicationWrapper::NdkGlue => linker_args(&tool_root).map_err(|_| error_msg)?,
         };
         new_args.append(&mut args);
     } else {
-        if quad {
-            let mut old_ndk_args = old_ndk_quad_args(
-                ndk,
-                build_target,
-                target_sdk_version,
-                nostrip,
-                profile,
-                cmd,
-                on_stdout_line,
-                on_stderr_line,
-            )
-            .map_err(|_| {
-                anyhow::Error::msg("Failed to get arguments for macroquad in old ndk version")
-            })?;
-            new_args.append(&mut old_ndk_args)
+        if app_wrapper == ApplicationWrapper::Sokol {
+            // Determine paths to linker and libgcc using in ndk =< 22
+            let tool_root = ndk.toolchain_dir().unwrap();
+            let linker_path = tool_root
+                .join("bin")
+                .join(format!("{}-ld.gold", build_target.ndk_triple()));
+            let gcc_lib_path = tool_root
+                .join("lib/gcc")
+                .join(build_target.ndk_triple())
+                .join("4.9.x");
+            let sysroot = tool_root.join("sysroot");
+            let version_independent_libraries_path = sysroot
+                .join("usr")
+                .join("lib")
+                .join(build_target.ndk_triple());
+            let version_specific_libraries_path =
+                AndroidNdk::find_ndk_path(target_sdk_version, |platform| {
+                    version_independent_libraries_path.join(platform.to_string())
+                })
+                .map_err(|_| anyhow::Error::msg("Android SDK not found"))?;
+
+            // Add linker arguments
+            // Specify linker
+            new_args.push(build_arg("-Clinker=", linker_path));
+
+            // Set linker flavor
+            new_args.push("-Clinker-flavor=ld".into());
+
+            // Set system root
+            new_args.push(build_arg("-Clink-arg=--sysroot=", sysroot));
+
+            // Add version specific libraries directory to search path
+            new_args.push(build_arg("-Clink-arg=-L", &version_specific_libraries_path));
+
+            // Add version independent libraries directory to search path
+            new_args.push(build_arg(
+                "-Clink-arg=-L",
+                &version_independent_libraries_path,
+            ));
+
+            // Add path to folder containing libgcc.a to search path
+            new_args.push(build_arg("-Clink-arg=-L", gcc_lib_path));
+
+            // Strip symbols for release builds
+            if !nostrip && profile == Profile::Release {
+                new_args.push("-Clink-arg=-strip-all".into());
+            }
+
+            // Require position independent code
+            new_args.push("-Crelocation-model=pic".into());
         }
+
+        // Create new command
+        let mut cmd = cmd.clone();
+        cmd.args_replace(&new_args);
+
+        // Execute the command
+        cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
+            .map(drop)?;
     }
     Ok(())
-}
-
-/// Invocate vector of arguments if ndk version <23 was found
-pub fn old_ndk_quad_args(
-    ndk: &AndroidNdk,
-    build_target: &AndroidTarget,
-    target_sdk_version: u32,
-    nostrip: bool,
-    profile: Profile,
-    cmd: &cargo_util::ProcessBuilder,
-    on_stdout_line: &mut dyn FnMut(&str) -> cargo::util::errors::CargoResult<()>,
-    on_stderr_line: &mut dyn FnMut(&str) -> cargo::util::errors::CargoResult<()>,
-) -> crate::error::Result<Vec<std::ffi::OsString>> {
-    let mut new_args = cmd.get_args().to_owned();
-    // Determine paths to linker and libgcc using in ndk =< 22
-    let tool_root = ndk.toolchain_dir().unwrap();
-    let linker_path = tool_root
-        .join("bin")
-        .join(format!("{}-ld.gold", build_target.ndk_triple()));
-    let gcc_lib_path = tool_root
-        .join("lib/gcc")
-        .join(build_target.ndk_triple())
-        .join("4.9.x");
-    let sysroot = tool_root.join("sysroot");
-    let version_independent_libraries_path = sysroot
-        .join("usr")
-        .join("lib")
-        .join(build_target.ndk_triple());
-    let version_specific_libraries_path =
-        AndroidNdk::find_ndk_path(target_sdk_version, |platform| {
-            version_independent_libraries_path.join(platform.to_string())
-        })
-        .map_err(|_| anyhow::Error::msg("Android SDK not found"))?;
-
-    // Add linker arguments
-    // Specify linker
-    new_args.push(build_arg("-Clinker=", linker_path));
-
-    // Set linker flavor
-    new_args.push("-Clinker-flavor=ld".into());
-
-    // Set system root
-    new_args.push(build_arg("-Clink-arg=--sysroot=", sysroot));
-
-    // Add version specific libraries directory to search path
-    new_args.push(build_arg("-Clink-arg=-L", &version_specific_libraries_path));
-
-    // Add version independent libraries directory to search path
-    new_args.push(build_arg(
-        "-Clink-arg=-L",
-        &version_independent_libraries_path,
-    ));
-
-    // Add path to folder containing libgcc.a to search path
-    new_args.push(build_arg("-Clink-arg=-L", gcc_lib_path));
-
-    // Strip symbols for release builds
-    if !nostrip && profile == Profile::Release {
-        new_args.push("-Clink-arg=-strip-all".into());
-    }
-
-    // Require position independent code
-    new_args.push("-Crelocation-model=pic".into());
-
-    // Create new command
-    let mut cmd = cmd.clone();
-    cmd.args_replace(&new_args);
-
-    // Execute the command
-    cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
-        .map(drop)?;
-    Ok(new_args)
-}
-
-/// Replace cmd with new arguments
-pub fn new_quad_cmd_args(
-    tool_root: std::path::PathBuf,
-    build_target: &AndroidTarget,
-    target_sdk_version: u32,
-) -> crate::error::Result<Vec<std::ffi::OsString>> {
-    let mut new_args = super::linker_args(&tool_root)?;
-    #[cfg(target_os = "windows")]
-    let ext = ".cmd";
-    #[cfg(not(target_os = "windows"))]
-    let ext = "";
-    let linker_path = tool_root.join("bin").join(format!(
-        "{}{}-clang{}",
-        build_target.rust_triple(),
-        target_sdk_version,
-        ext,
-    ));
-    new_args.push(build_arg("-Clinker=", linker_path));
-    Ok(new_args)
-}
-
-/// Helper function to build arguments composed of concatenating two strings
-fn build_arg(start: &str, end: impl AsRef<std::ffi::OsStr>) -> std::ffi::OsString {
-    let mut new_arg = std::ffi::OsString::new();
-    new_arg.push(start);
-    new_arg.push(end.as_ref());
-    new_arg
 }

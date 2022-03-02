@@ -8,7 +8,7 @@ mod rust_compile;
 use crate::{error::*, tools::*, types::*};
 use compile_bevy::*;
 use compile_macroquad::*;
-use rust_compile::*;
+pub use rust_compile::*;
 use std::{
     ffi::{OsStr, OsString},
     io::Write,
@@ -67,6 +67,27 @@ pub fn cargo_env_target_cfg(tool: &str, target: &str) -> String {
     let utarget = target.replace('-', "_");
     let env = format!("CARGO_TARGET_{}_{}", &utarget, tool);
     env.to_uppercase()
+}
+
+/// Replace cmd with new arguments
+pub fn new_ndk_quad_args(
+    tool_root: std::path::PathBuf,
+    build_target: &AndroidTarget,
+    target_sdk_version: u32,
+) -> crate::error::Result<Vec<std::ffi::OsString>> {
+    let mut new_args = super::linker_args(&tool_root)?;
+    #[cfg(target_os = "windows")]
+    let ext = ".cmd";
+    #[cfg(not(target_os = "windows"))]
+    let ext = "";
+    let linker_path = tool_root.join("bin").join(format!(
+        "{}{}-clang{}",
+        build_target.rust_triple(),
+        target_sdk_version,
+        ext,
+    ));
+    new_args.push(build_arg("-Clinker=", linker_path));
+    Ok(new_args)
 }
 
 /// Replace libgcc file with unwind. libgcc was removed in ndk versions >=23.
@@ -145,66 +166,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_compile_rust_with_macroquad() {
-        // Specify path to user directory
-        let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        let project_path = user_dirs.parent().unwrap().parent().unwrap();
-
-        // Specify path to macroquad project example
-        let project_path = project_path.join("examples").join("macroquad-3d");
-
-        // Provide path to Android SDK and Android NDK
-        let sdk = AndroidSdk::from_env().unwrap();
-        let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
-
-        compile_rust_for_android_with_mq(
-            &ndk,
-            AndroidTarget::Aarch64LinuxAndroid,
-            &project_path,
-            Profile::Debug,
-            vec![],
-            false,
-            false,
-            30,
-            "macroquad_test_lib.so",
-        )
-        .unwrap();
-    }
-
-    #[test]
-    fn test_compile_rust_with_bevy() {
-        // Specify path to users directory
-        let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        let project_path = user_dirs.parent().unwrap().parent().unwrap();
-
-        // Specify path to bevy project example
-        let project_path = project_path.join("examples").join("bevy-2d");
-
-        // Assign needed configuration to compile rust for android with bevy
-        let sdk = AndroidSdk::from_env().unwrap();
-        let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
-        let build_target = AndroidTarget::Aarch64LinuxAndroid;
-        let profile = Profile::Debug;
-        let target_sdk_version = 30;
-        let lib_name = "bevy_test_lib.so";
-
-        // Compile rust code for android with bevy engine
-        compile_rust_for_android_with_bevy(
-            &ndk,
-            build_target,
-            &project_path,
-            profile,
-            vec![],
-            false,
-            false,
-            target_sdk_version,
-            lib_name,
-        )
-        .unwrap();
-    }
-
-    #[test]
-    fn test_compile_rust() {
+    fn test_rust_compile() {
         // Specify path to users directory
         let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         let dir = user_dirs
@@ -226,6 +188,8 @@ mod tests {
         let target_sdk_version = 30;
         let bevy_lib_name = "bevy_test_lib.so";
         let quad_lib_name = "quad_test_lib.so";
+        let app_wrapper_for_quad = ApplicationWrapper::Sokol;
+        let app_wrapper_for_bevy = ApplicationWrapper::NdkGlue;
 
         // Compile rust code for android with bevy engine
         rust_compile(
@@ -238,7 +202,7 @@ mod tests {
             false,
             target_sdk_version,
             bevy_lib_name,
-            false,
+            app_wrapper_for_bevy,
         )
         .unwrap();
         println!("rust was compiled for bevy example");
@@ -254,7 +218,7 @@ mod tests {
             false,
             target_sdk_version,
             quad_lib_name,
-            true,
+            app_wrapper_for_quad,
         )
         .unwrap();
         println!("rust was compiled for quad example");
