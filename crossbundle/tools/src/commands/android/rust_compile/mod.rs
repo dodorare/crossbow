@@ -83,7 +83,7 @@ pub fn linker_args(tool_root: &std::path::Path) -> crate::error::Result<Vec<OsSt
 }
 
 /// Sets needed environment variables
-fn set_cmake_vars(
+pub fn set_cmake_vars(
     build_target: AndroidTarget,
     ndk: &AndroidNdk,
     target_sdk_version: u32,
@@ -105,7 +105,7 @@ fn set_cmake_vars(
 }
 
 /// Returns path to NDK provided make
-fn make_path(ndk_path: &std::path::Path) -> std::path::PathBuf {
+pub fn make_path(ndk_path: &std::path::Path) -> std::path::PathBuf {
     ndk_path
         .join("prebuild")
         .join(self::consts::HOST_TAG)
@@ -115,7 +115,7 @@ fn make_path(ndk_path: &std::path::Path) -> std::path::PathBuf {
 /// Write a CMake toolchain which will remove references to the rustc build target before
 /// including the NDK provided toolchain. The NDK provided android toolchain will set the
 /// target appropriately Returns the path to the generated toolchain file
-fn write_cmake_toolchain(
+pub fn write_cmake_toolchain(
     min_sdk_version: u32,
     ndk_path: &std::path::Path,
     build_target_dir: &std::path::Path,
@@ -207,10 +207,16 @@ mod tests {
     fn test_compile_rust() {
         // Specify path to users directory
         let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        let project_path = user_dirs.parent().unwrap().parent().unwrap();
+        let dir = user_dirs
+            .parent()
+            .unwrap()
+            .parent()
+            .unwrap()
+            .join("examples");
 
         // Specify path to bevy project example
-        let project_path = project_path.join("examples").join("bevy-2d");
+        let bevy_project_path = dir.join("bevy-2d");
+        let quad_project_path = dir.join("macroquad-3d");
 
         // Assign needed configuration to compile rust for android with bevy
         let sdk = AndroidSdk::from_env().unwrap();
@@ -218,23 +224,39 @@ mod tests {
         let build_target = AndroidTarget::Aarch64LinuxAndroid;
         let profile = Profile::Debug;
         let target_sdk_version = 30;
-        let lib_name = "bevy_test_lib.so";
-        let lib_path = project_path.join("src").join("main.rs");
+        let bevy_lib_name = "bevy_test_lib.so";
+        let quad_lib_name = "quad_test_lib.so";
 
         // Compile rust code for android with bevy engine
-        compile_rust(
+        rust_compile(
             &ndk,
             build_target,
-            &project_path,
+            &bevy_project_path,
             profile,
             vec![],
             false,
             false,
             target_sdk_version,
-            lib_name,
-            true,
-            &lib_path,
+            bevy_lib_name,
+            false,
         )
         .unwrap();
+        println!("rust was compiled for bevy example");
+
+        // Compile rust code for android with quad engine
+        rust_compile(
+            &ndk,
+            build_target,
+            &quad_project_path,
+            profile,
+            vec![],
+            false,
+            false,
+            target_sdk_version,
+            quad_lib_name,
+            true,
+        )
+        .unwrap();
+        println!("rust was compiled for quad example");
     }
 }

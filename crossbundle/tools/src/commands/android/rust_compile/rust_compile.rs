@@ -2,7 +2,7 @@ use crate::error::*;
 use crate::tools::*;
 use crate::types::*;
 
-pub fn compile_rust(
+pub fn rust_compile(
     ndk: &AndroidNdk,
     build_target: AndroidTarget,
     project_path: &std::path::Path,
@@ -13,7 +13,6 @@ pub fn compile_rust(
     target_sdk_version: u32,
     lib_name: &str,
     quad: bool,
-    lib_path: &std::path::Path,
 ) -> Result<()> {
     // Specify path to workspace
     let cargo_config = cargo::util::Config::default()?;
@@ -37,12 +36,10 @@ pub fn compile_rust(
     std::env::set_var(format!("AR_{}", rust_triple), &ar);
     std::env::set_var(super::cargo_env_target_cfg("LINKER", rust_triple), &clang);
 
-    if quad {
-        super::set_cmake_vars(build_target, ndk, target_sdk_version, &build_target_dir)?;
+    super::set_cmake_vars(build_target, ndk, target_sdk_version, &build_target_dir)?;
 
-        // Use libc++. It is current default C++ runtime
-        std::env::set_var("CXXSTDLIB", "c++");
-    }
+    // Use libc++. It is current default C++ runtime
+    std::env::set_var("CXXSTDLIB", "c++");
 
     // Configure compilation options so that we will build the desired build_target
     let opts = super::compile_options::compile_options(
@@ -65,7 +62,6 @@ pub fn compile_rust(
             ndk: ndk.clone(),
             profile,
             nostrip: false,
-            lib_path: lib_path.to_path_buf(),
             quad,
         });
 
@@ -82,7 +78,6 @@ struct SharedLibraryExecutor {
     ndk: AndroidNdk,
     profile: Profile,
     nostrip: bool,
-    lib_path: std::path::PathBuf,
     quad: bool,
 }
 
@@ -100,14 +95,6 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
             && (target.kind() == &cargo::core::manifest::TargetKind::Bin
                 || target.kind() == &cargo::core::manifest::TargetKind::ExampleBin)
         {
-            let extra_code = match self.quad {
-                true => super::consts::SOKOL_EXTRA_CODE,
-                false => super::consts::NDK_GLUE_EXTRA_CODE,
-            };
-            let tmp_file = super::gen_tmp_lib_file::generate_lib_file(&self.lib_path, extra_code)?;
-
-            let mut new_args = cmd.get_args().to_owned();
-
             // Determine source path
             let path =
                 if let cargo::core::manifest::TargetSourcePath::Path(path) = target.src_path() {
@@ -117,8 +104,15 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
                     return Ok(());
                 };
 
+            let extra_code = match self.quad {
+                true => super::consts::SOKOL_EXTRA_CODE,
+                false => super::consts::NDK_GLUE_EXTRA_CODE,
+            };
+
+            let tmp_file = super::gen_tmp_lib_file::generate_lib_file(&path, extra_code)?;
+
             // Replaces source argument and returns collection of arguments
-            let mut args = get_cmd_args(
+            get_cmd_args(
                 &path,
                 &self.ndk,
                 tmp_file,
@@ -133,19 +127,33 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
                 on_stdout_line,
                 on_stderr_line,
             )?;
+        } else if mode == cargo::core::compiler::CompileMode::Test {
+            // This occurs when --all-targets is specified
+            return Err(anyhow::Error::msg(format!(
+                "Ignoring CompileMode::Test for target: {}",
+                target.name()
+            )));
+        } else if mode == cargo::core::compiler::CompileMode::Build {
+            let mut new_args = cmd.get_args().to_owned();
 
-            println!("args {:?}", args);
-            new_args.append(&mut args);
-            println!("last args {:?}", new_args);
+            // Change crate-type from cdylib to rlib
+            let mut iter = new_args.iter_mut().rev().peekable();
+            while let Some(arg) = iter.next() {
+                if let Some(prev_arg) = iter.peek() {
+                    if *prev_arg == "--crate-type" && arg == "cdylib" {
+                        *arg = "rlib".into();
+                    }
+                }
+            }
             let mut cmd = cmd.clone();
             cmd.args_replace(&new_args);
-
             cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
-                .map(drop)
+                .map(drop)?
         } else {
             cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
-                .map(drop)
+                .map(drop)?
         }
+        Ok(())
     }
 }
 
@@ -164,7 +172,7 @@ fn get_cmd_args(
     quad: bool,
     on_stdout_line: &mut dyn FnMut(&str) -> cargo::util::errors::CargoResult<()>,
     on_stderr_line: &mut dyn FnMut(&str) -> cargo::util::errors::CargoResult<()>,
-) -> cargo::util::CargoResult<Vec<std::ffi::OsString>> {
+) -> cargo::util::CargoResult<()> {
     let mut new_args = cmd.get_args().to_owned();
 
     // Replace source argument
@@ -198,7 +206,9 @@ fn get_cmd_args(
     }
 
     // Create output directory inside the build target directory
-    std::fs::create_dir_all(&build_target_dir).unwrap();
+    if !build_target_dir.exists() {
+        std::fs::create_dir_all(&build_target_dir).unwrap();
+    }
 
     // Change crate-type from bin to cdylib
     // Replace output directory with the directory we created
@@ -231,19 +241,23 @@ fn get_cmd_args(
         new_args.append(&mut args);
     } else {
         if quad {
-            let mut old_ndk_args =
-                old_ndk_quad_args(ndk, build_target, target_sdk_version, nostrip, profile, cmd)
-                    .map_err(|_| {
-                        anyhow::Error::msg(
-                            "Failed to get arguments for macroquad in old ndk version",
-                        )
-                    })?;
-            println!("old_ndk_args {:?}", old_ndk_args);
+            let mut old_ndk_args = old_ndk_quad_args(
+                ndk,
+                build_target,
+                target_sdk_version,
+                nostrip,
+                profile,
+                cmd,
+                on_stdout_line,
+                on_stderr_line,
+            )
+            .map_err(|_| {
+                anyhow::Error::msg("Failed to get arguments for macroquad in old ndk version")
+            })?;
             new_args.append(&mut old_ndk_args)
         }
     }
-    println!("get_cmd_args {:?}", new_args);
-    Ok(new_args)
+    Ok(())
 }
 
 /// Invocate vector of arguments if ndk version <23 was found
@@ -254,6 +268,8 @@ pub fn old_ndk_quad_args(
     nostrip: bool,
     profile: Profile,
     cmd: &cargo_util::ProcessBuilder,
+    on_stdout_line: &mut dyn FnMut(&str) -> cargo::util::errors::CargoResult<()>,
+    on_stderr_line: &mut dyn FnMut(&str) -> cargo::util::errors::CargoResult<()>,
 ) -> crate::error::Result<Vec<std::ffi::OsString>> {
     let mut new_args = cmd.get_args().to_owned();
     // Determine paths to linker and libgcc using in ndk =< 22
@@ -305,7 +321,14 @@ pub fn old_ndk_quad_args(
 
     // Require position independent code
     new_args.push("-Crelocation-model=pic".into());
-    println!("quad_old_ndk_args {:?}", new_args);
+
+    // Create new command
+    let mut cmd = cmd.clone();
+    cmd.args_replace(&new_args);
+
+    // Execute the command
+    cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
+        .map(drop)?;
     Ok(new_args)
 }
 
