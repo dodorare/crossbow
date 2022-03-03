@@ -264,35 +264,46 @@ fn get_cmd_args(
                 })
                 .map_err(|_| anyhow::Error::msg("Android SDK not found"))?;
 
-            // Add linker arguments
-            // Specify linker
-            new_args.push(build_arg("-Clinker=", linker_path));
+            let mut linker_args = vec![
+                build_arg("-Clinker=", linker_path),
+                "-Clinker-flavor=ld".into(),
+                build_arg("-Clink-arg=--sysroot=", sysroot),
+                build_arg("-Clink-arg=-L", &version_specific_libraries_path),
+                build_arg("-Clink-arg=-L", &version_independent_libraries_path),
+                build_arg("-Clink-arg=-L", gcc_lib_path),
+                "-Crelocation-model=pic".into(),
+            ];
 
-            // Set linker flavor
-            new_args.push("-Clinker-flavor=ld".into());
+            new_args.append(&mut linker_args);
+            // // Add linker arguments
+            // // Specify linker
+            // new_args.push(build_arg("-Clinker=", linker_path));
 
-            // Set system root
-            new_args.push(build_arg("-Clink-arg=--sysroot=", sysroot));
+            // // Set linker flavor
+            // new_args.push("-Clinker-flavor=ld".into());
 
-            // Add version specific libraries directory to search path
-            new_args.push(build_arg("-Clink-arg=-L", &version_specific_libraries_path));
+            // // Set system root
+            // new_args.push(build_arg("-Clink-arg=--sysroot=", sysroot));
 
-            // Add version independent libraries directory to search path
-            new_args.push(build_arg(
-                "-Clink-arg=-L",
-                &version_independent_libraries_path,
-            ));
+            // // Add version specific libraries directory to search path
+            // new_args.push(build_arg("-Clink-arg=-L", &version_specific_libraries_path));
 
-            // Add path to folder containing libgcc.a to search path
-            new_args.push(build_arg("-Clink-arg=-L", gcc_lib_path));
+            // // Add version independent libraries directory to search path
+            // new_args.push(build_arg(
+            //     "-Clink-arg=-L",
+            //     &version_independent_libraries_path,
+            // ));
+
+            // // Add path to folder containing libgcc.a to search path
+            // new_args.push(build_arg("-Clink-arg=-L", gcc_lib_path));
+
+            // // Require position independent code
+            // new_args.push("-Crelocation-model=pic".into());
 
             // Strip symbols for release builds
             if !nostrip && profile == Profile::Release {
                 new_args.push("-Clink-arg=-strip-all".into());
             }
-
-            // Require position independent code
-            new_args.push("-Crelocation-model=pic".into());
         }
 
         // Create new command
@@ -305,3 +316,4 @@ fn get_cmd_args(
     }
     Ok(())
 }
+
