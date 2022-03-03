@@ -167,7 +167,7 @@ impl AndroidNdk {
         build_target: AndroidTarget,
         min_sdk_version: u32,
     ) -> Result<PathBuf> {
-        let sysroot_lib_dir = self.sysroot_lib_dir(build_target)?;
+        let sysroot_lib_dir = self.sysroot_lib_dir(&build_target)?;
         // Look for a platform <= min_sdk_version
         let mut tmp_platform = min_sdk_version;
         while tmp_platform > 1 {
@@ -227,26 +227,25 @@ impl AndroidNdk {
     }
 
     /// Return tool root from the toolchain directory
-    pub fn tool_root(&self) -> crate::error::Result<PathBuf> {
-        let tool_root = self.toolchain_dir()?;
+    pub fn tool_root(&self) -> cargo::CargoResult<PathBuf> {
+        let tool_root = self
+            .toolchain_dir()
+            .map_err(|_| anyhow::Error::msg("The path not found"))?;
         Ok(tool_root)
     }
 
     /// Return path to linker
-    pub fn linker_path(
-        &self,
-        build_target: &AndroidTarget,
-    ) -> crate::error::Result<std::path::PathBuf> {
+    pub fn linker_path(&self, build_target: &AndroidTarget) -> cargo::CargoResult<PathBuf> {
         let linker = format!("{}-ld.gold", build_target.ndk_triple());
         let linker_path = self.tool_root()?.join("bin").join(linker);
+        if !linker_path.exists() {
+            return Err(anyhow::Error::msg("Path is not found"));
+        }
         Ok(linker_path)
     }
 
     /// Return path to gcc library
-    pub fn gcc_lib_path(
-        &self,
-        build_target: &AndroidTarget,
-    ) -> crate::error::Result<std::path::PathBuf> {
+    pub fn gcc_lib_path(&self, build_target: &AndroidTarget) -> cargo::CargoResult<PathBuf> {
         let triple = build_target.ndk_triple();
         let gcc_lib_path = self
             .tool_root()?
@@ -254,17 +253,23 @@ impl AndroidNdk {
             .join("gcc")
             .join(triple)
             .join("4.9.x");
+        if !gcc_lib_path.exists() {
+            return Err(anyhow::Error::msg("Path is not found"));
+        }
         Ok(gcc_lib_path)
     }
 
     /// Return path to sysroot
-    pub fn sysroot(&self) -> crate::error::Result<std::path::PathBuf> {
+    pub fn sysroot(&self) -> cargo::CargoResult<PathBuf> {
         let sysroot = self.tool_root()?.join("sysroot");
+        if !sysroot.exists() {
+            return Err(anyhow::Error::msg("Path is not found"));
+        }
         Ok(sysroot)
     }
 
     /// Return path to sysroot library
-    pub fn sysroot_lib_dir(&self, build_target: AndroidTarget) -> Result<PathBuf> {
+    pub fn sysroot_lib_dir(&self, build_target: &AndroidTarget) -> Result<PathBuf> {
         let sysroot_lib_dir = self
             .toolchain_dir()?
             .join(self.sysroot()?)
@@ -282,19 +287,19 @@ impl AndroidNdk {
         &self,
         target_sdk_version: u32,
         build_target: &AndroidTarget,
-    ) -> crate::error::Result<PathBuf> {
-        let version_specific_libraries_path =
-            Self::find_ndk_path(target_sdk_version, |plarform| {
-                self.sysroot_lib_dir(*build_target)
-                    .map_err(|_| {
-                        Error::PathNotFound(self.sysroot_lib_dir(*build_target).unwrap());
-                    })
-                    .unwrap()
-                    .join(plarform.to_string())
-            })?;
+    ) -> cargo::CargoResult<PathBuf> {
+        let version_specific_libraries_path = Self::find_ndk_path(target_sdk_version, |plarform| {
+            self.sysroot_lib_dir(build_target)
+                .map_err(|_| {
+                    Error::PathNotFound(self.sysroot_lib_dir(build_target).unwrap());
+                })
+                .unwrap()
+                .join(plarform.to_string())
+        })
+        .map_err(|_| anyhow::Error::msg("Failed to get access to the ndk path"))?;
 
         if !version_specific_libraries_path.exists() {
-            return Err(Error::PathNotFound(version_specific_libraries_path));
+            return Err(anyhow::Error::msg("Path is not found"));
         }
         Ok(version_specific_libraries_path)
     }

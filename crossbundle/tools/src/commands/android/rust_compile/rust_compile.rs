@@ -245,60 +245,29 @@ fn get_cmd_args(
         new_args.append(&mut args);
     } else {
         if app_wrapper == ApplicationWrapper::Sokol {
-            // Determine paths to linker and libgcc using in ndk =< 22
-            let linker_path = tool_root
-                .join("bin")
-                .join(format!("{}-ld.gold", build_target.ndk_triple()));
-            let gcc_lib_path = tool_root
-                .join("lib/gcc")
-                .join(build_target.ndk_triple())
-                .join("4.9.x");
-            let sysroot = tool_root.join("sysroot");
-            let version_independent_libraries_path = sysroot
-                .join("usr")
-                .join("lib")
-                .join(build_target.ndk_triple());
-            let version_specific_libraries_path =
-                AndroidNdk::find_ndk_path(target_sdk_version, |platform| {
-                    version_independent_libraries_path.join(platform.to_string())
-                })
-                .map_err(|_| anyhow::Error::msg("Android SDK not found"))?;
-
+            // Set linker arguments using in ndk =< 22
             let mut linker_args = vec![
-                build_arg("-Clinker=", linker_path),
+                build_arg("-Clinker=", ndk.linker_path(build_target)?),
                 "-Clinker-flavor=ld".into(),
-                build_arg("-Clink-arg=--sysroot=", sysroot),
-                build_arg("-Clink-arg=-L", &version_specific_libraries_path),
-                build_arg("-Clink-arg=-L", &version_independent_libraries_path),
-                build_arg("-Clink-arg=-L", gcc_lib_path),
+                build_arg("-Clink-arg=--sysroot=", ndk.sysroot()?),
+                build_arg(
+                    "-Clink-arg=-L",
+                    ndk.version_specific_libraries_path(target_sdk_version, build_target)?,
+                ),
+                build_arg(
+                    "-Clink-arg=-L",
+                    ndk.sysroot_lib_dir(build_target).map_err(|_| {
+                        anyhow::Error::msg(format!(
+                            "Failed to get access to the {:?}",
+                            ndk.sysroot_lib_dir(build_target)
+                        ))
+                    })?,
+                ),
+                build_arg("-Clink-arg=-L", ndk.gcc_lib_path(build_target)?),
                 "-Crelocation-model=pic".into(),
             ];
 
             new_args.append(&mut linker_args);
-            // // Add linker arguments
-            // // Specify linker
-            // new_args.push(build_arg("-Clinker=", linker_path));
-
-            // // Set linker flavor
-            // new_args.push("-Clinker-flavor=ld".into());
-
-            // // Set system root
-            // new_args.push(build_arg("-Clink-arg=--sysroot=", sysroot));
-
-            // // Add version specific libraries directory to search path
-            // new_args.push(build_arg("-Clink-arg=-L", &version_specific_libraries_path));
-
-            // // Add version independent libraries directory to search path
-            // new_args.push(build_arg(
-            //     "-Clink-arg=-L",
-            //     &version_independent_libraries_path,
-            // ));
-
-            // // Add path to folder containing libgcc.a to search path
-            // new_args.push(build_arg("-Clink-arg=-L", gcc_lib_path));
-
-            // // Require position independent code
-            // new_args.push("-Crelocation-model=pic".into());
 
             // Strip symbols for release builds
             if !nostrip && profile == Profile::Release {
@@ -316,4 +285,3 @@ fn get_cmd_args(
     }
     Ok(())
 }
-

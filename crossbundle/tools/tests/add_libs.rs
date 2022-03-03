@@ -1,7 +1,5 @@
 use crossbundle_tools::{
-    commands::{
-        android::{self, rust_compile},
-    },
+    commands::android::{self, rust_compile},
     tools::{AndroidNdk, AndroidSdk},
     types::{AndroidTarget, ApplicationWrapper, IntoRustTriple, Profile},
 };

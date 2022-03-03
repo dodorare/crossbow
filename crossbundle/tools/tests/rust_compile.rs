@@ -1,5 +1,5 @@
 #[cfg(target_os = "macos")]
-use crossbundle_tools::commands::apple::*;
+use crossbundle_tools::commands::{apple::*, gen_minimal_project};
 use crossbundle_tools::{
     commands::android::rust_compile,
     tools::{AndroidNdk, AndroidSdk},
