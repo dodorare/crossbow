@@ -1,7 +1,6 @@
 use crossbundle_tools::{
     commands::{
-        android::{self, compile_rust_for_android},
-        gen_minimal_project,
+        android::{self, rust_compile},
     },
     tools::{AndroidNdk, AndroidSdk},
     types::{AndroidTarget, ApplicationWrapper, IntoRustTriple, Profile},
@@ -9,48 +8,54 @@ use crossbundle_tools::{
 
 #[test]
 fn add_libs_into_aapt2_test() {
-    // Creates temporary directory
-    let tempdir = tempfile::tempdir().unwrap();
-    let project_path = tempdir.path();
+    // Specify path to users directory
+    let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let dir = user_dirs
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .join("examples");
 
-    // Assigns configuration for project
-    let macroquad_project = true;
-    let package_name = gen_minimal_project(&project_path, macroquad_project).unwrap();
+    // Specify path to bevy project example
+    let bevy_project_path = dir.join("bevy-2d");
 
-    // Assigns configuration for project
+    // Assign needed configuration to compile rust for android with bevy
     let sdk = AndroidSdk::from_env().unwrap();
     let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
     let build_target = AndroidTarget::Aarch64LinuxAndroid;
     let profile = Profile::Debug;
     let target_sdk_version = 30;
-    let lib_name = format!("lib{}.so", package_name.replace("-", "_"));
-    let target_dir = project_path.join("target");
-    let android_build_dir = target_dir.join("android").join(profile.to_string());
+    let bevy_lib_name = "bevy_test_lib.so";
+    let app_wrapper_for_bevy = ApplicationWrapper::NdkGlue;
 
-    // Compile rust code for android with bevy engine
-    compile_rust_for_android(
+    rust_compile(
         &ndk,
         build_target,
-        &project_path,
+        &bevy_project_path,
         profile,
         vec![],
         false,
         false,
         target_sdk_version,
-        &lib_name,
-        ApplicationWrapper::NdkGlue,
+        &bevy_lib_name,
+        app_wrapper_for_bevy,
     )
     .unwrap();
+    println!("rust was compiled for bevy example");
 
     // Specifies needed directories to manage library location
     let mut libs = Vec::new();
-    let out_dir = target_dir
+    let out_dir = dir
+        .parent()
+        .unwrap()
+        .join("target")
         .join(build_target.rust_triple())
         .join(profile.as_ref());
-    let compiled_lib = out_dir.join(lib_name);
+    let compiled_lib = out_dir.join(bevy_lib_name);
     libs.push((compiled_lib, build_target));
 
-    // Adds libs into specified directory
+    // Adds libs into ./target/aarch64-linux-android/debug/
     for (compiled_lib, build_target) in libs {
         let lib = android::add_libs_into_aapt2(
             &ndk,
@@ -58,8 +63,8 @@ fn add_libs_into_aapt2_test() {
             build_target,
             profile,
             target_sdk_version,
-            &android_build_dir,
-            &target_dir,
+            &out_dir,
+            &dir.parent().unwrap().join("target"),
         )
         .unwrap();
         assert!(lib.exists());

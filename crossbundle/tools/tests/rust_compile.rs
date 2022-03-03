@@ -1,41 +1,69 @@
 #[cfg(target_os = "macos")]
 use crossbundle_tools::commands::apple::*;
 use crossbundle_tools::{
-    commands::*,
+    commands::android::rust_compile,
     tools::{AndroidNdk, AndroidSdk},
     types::*,
 };
 
 #[test]
-fn test_compile_android() {
-    // Creates temporary directory
-    let tempdir = tempfile::tempdir().unwrap();
-    let dir = tempdir.path();
-    let macroquad_project = true;
-    let package_name = gen_minimal_project(&dir, macroquad_project).unwrap();
+fn test_rust_compile() {
+    // Specify path to example directory
+    let current_dir = std::env::current_dir().unwrap();
+    let dir = current_dir
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .join("examples");
 
-    // Create dependencies
+    // Specify path to bevy project example
+    let bevy_project_path = dir.join("bevy-2d");
+    let quad_project_path = dir.join("macroquad-3d");
+
+    // Assign needed configuration to compile rust for android with bevy
     let sdk = AndroidSdk::from_env().unwrap();
     let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
-    let target_sdk_version = 30;
-    let profile = Profile::Release;
     let build_target = AndroidTarget::Aarch64LinuxAndroid;
-    let lib_name = format!("lib{}.so", package_name.replace("-", "_"));
+    let profile = Profile::Debug;
+    let target_sdk_version = 30;
+    let bevy_lib_name = "bevy_test_lib.so";
+    let quad_lib_name = "quad_test_lib.so";
+    let app_wrapper_for_quad = ApplicationWrapper::Sokol;
+    let app_wrapper_for_bevy = ApplicationWrapper::NdkGlue;
 
-    // Compile rust code for android with macroquad engine
-    android::compile_rust_for_android(
+    // TODO: Implement drop trait
+    // Compile rust code for android with bevy engine
+    rust_compile(
         &ndk,
         build_target,
-        &dir,
+        &bevy_project_path,
         profile,
         vec![],
         false,
         false,
         target_sdk_version,
-        &lib_name,
-        ApplicationWrapper::Sokol,
+        bevy_lib_name,
+        app_wrapper_for_bevy,
     )
     .unwrap();
+    println!("rust was compiled for bevy example");
+
+    // Compile rust code for android with quad engine
+    rust_compile(
+        &ndk,
+        build_target,
+        &quad_project_path,
+        profile,
+        vec![],
+        false,
+        false,
+        target_sdk_version,
+        quad_lib_name,
+        app_wrapper_for_quad,
+    )
+    .unwrap();
+    println!("rust was compiled for quad example");
 }
 
 #[test]
