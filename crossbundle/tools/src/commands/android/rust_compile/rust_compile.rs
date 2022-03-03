@@ -110,6 +110,7 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
                 ApplicationWrapper::NdkGlue => consts::NDK_GLUE_EXTRA_CODE,
             };
 
+            // Generate tmp_file with bevy or quad extra code depending on either sokol or ndk glue dependency
             let tmp_file = gen_tmp_lib_file::generate_lib_file(&path, extra_code)?;
 
             // Replaces source argument and returns collection of arguments
@@ -245,7 +246,6 @@ fn get_cmd_args(
     } else {
         if app_wrapper == ApplicationWrapper::Sokol {
             // Determine paths to linker and libgcc using in ndk =< 22
-            let tool_root = ndk.toolchain_dir().unwrap();
             let linker_path = tool_root
                 .join("bin")
                 .join(format!("{}-ld.gold", build_target.ndk_triple()));
