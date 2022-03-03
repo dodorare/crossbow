@@ -6,6 +6,7 @@ use cargo::{
 };
 use std::path::Path;
 
+/// Read manifest files and deserialize it
 pub fn parse_manifest(manifest_path: &Path) -> crate::error::Result<Manifest> {
     let source_id = SourceId::for_path(manifest_path)
         .map_err(|_| Error::msg("Failed to create source_id from filesystem path"))?;
