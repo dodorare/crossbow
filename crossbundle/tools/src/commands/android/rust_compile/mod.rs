@@ -4,13 +4,13 @@ mod compile_macroquad;
 mod compile_options;
 mod consts;
 mod gen_tmp_lib_file;
-mod rust_compile;
+mod rust_compiler;
 
 use crate::{error::*, tools::*, types::*};
-use cmake_toolchain::*;
-use compile_bevy::*;
+pub use cmake_toolchain::*;
+pub use compile_bevy::*;
 use compile_macroquad::*;
-pub use rust_compile::*;
+pub use rust_compiler::*;
 use std::ffi::{OsStr, OsString};
 
 /// Compiles rust code for android with macroquad engine

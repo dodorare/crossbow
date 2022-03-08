@@ -1,22 +1,13 @@
-use crate::{error::*, tools::*, types::*};
-use cargo::{
-    core::{
-        self as cargo_core, compiler as cargo_compiler, manifest::TargetSourcePath, TargetKind,
-        Workspace,
-    },
-    util::{CargoResult, Config as CargoConfig},
-};
-use cargo_util::*;
-use std::{
-    path::{Path, PathBuf},
-    sync::Arc,
-};
+use super::*;
+use crate::error::*;
+use crate::tools::*;
+use crate::types::*;
 
 /// Compiles rust code for android with bevy engine
 pub fn compile_rust_for_android_with_bevy(
     ndk: &AndroidNdk,
     build_target: AndroidTarget,
-    project_path: &Path,
+    project_path: &std::path::Path,
     profile: Profile,
     features: Vec<String>,
     all_features: bool,
@@ -35,8 +26,8 @@ pub fn compile_rust_for_android_with_bevy(
     std::env::set_var(format!("AR_{}", triple), &ar);
 
     // Specify path to workspace
-    let cargo_config = CargoConfig::default()?;
-    let workspace = Workspace::new(&project_path.join("Cargo.toml"), &cargo_config)?;
+    let cargo_config = cargo::util::Config::default()?;
+    let workspace = cargo::core::Workspace::new(&project_path.join("Cargo.toml"), &cargo_config)?;
 
     // Define directory to build project
     let build_target_dir = workspace.root().join("target").join(triple).join(profile);
@@ -56,10 +47,11 @@ pub fn compile_rust_for_android_with_bevy(
 
     // Create the executor
     let lib_path = project_path.join("src").join("main.rs");
-    let executor: Arc<dyn cargo_compiler::Executor> = Arc::new(DefaultExecutor {
-        build_target_dir,
-        lib_path,
-    });
+    let executor: std::sync::Arc<dyn cargo::core::compiler::Executor> =
+        std::sync::Arc::new(DefaultExecutor {
+            build_target_dir,
+            lib_path,
+        });
 
     // Compile all targets for the requested build target
     cargo::ops::compile_with_exec(&workspace, &opts, &executor)?;
@@ -70,22 +62,23 @@ pub fn compile_rust_for_android_with_bevy(
 /// default behaviour.
 #[derive(Clone)]
 pub struct DefaultExecutor {
-    build_target_dir: PathBuf,
-    lib_path: PathBuf,
+    build_target_dir: std::path::PathBuf,
+    lib_path: std::path::PathBuf,
 }
 
-impl cargo_compiler::Executor for DefaultExecutor {
+impl cargo::core::compiler::Executor for DefaultExecutor {
     fn exec(
         &self,
-        cmd: &ProcessBuilder,
-        _id: cargo_core::PackageId,
-        target: &cargo_core::Target,
-        mode: cargo_compiler::CompileMode,
-        on_stdout_line: &mut dyn FnMut(&str) -> CargoResult<()>,
-        on_stderr_line: &mut dyn FnMut(&str) -> CargoResult<()>,
-    ) -> CargoResult<()> {
-        if mode == cargo_compiler::CompileMode::Build
-            && (target.kind() == &TargetKind::Bin || target.kind() == &TargetKind::ExampleBin)
+        cmd: &cargo_util::ProcessBuilder,
+        _id: cargo::core::PackageId,
+        target: &cargo::core::Target,
+        mode: cargo::core::compiler::CompileMode,
+        on_stdout_line: &mut dyn FnMut(&str) -> cargo::util::CargoResult<()>,
+        on_stderr_line: &mut dyn FnMut(&str) -> cargo::util::CargoResult<()>,
+    ) -> cargo::util::CargoResult<()> {
+        if mode == cargo::core::compiler::CompileMode::Build
+            && (target.kind() == &cargo::core::manifest::TargetKind::Bin
+                || target.kind() == &cargo::core::manifest::TargetKind::ExampleBin)
         {
             let mut cmd = cmd.clone();
             let ndk_glue_extra_code = super::consts::NDK_GLUE_EXTRA_CODE;
@@ -95,18 +88,18 @@ impl cargo_compiler::Executor for DefaultExecutor {
             let mut new_args = cmd.get_args().to_owned();
 
             // Determine source path
-            let path = if let TargetSourcePath::Path(path) = target.src_path() {
-                path.to_owned()
-            } else {
-                // Ignore other values
-                return Ok(());
-            };
+            let path =
+                if let cargo::core::manifest::TargetSourcePath::Path(path) = target.src_path() {
+                    path.to_owned()
+                } else {
+                    // Ignore other values
+                    return Ok(());
+                };
             // Replace source argument
             let filename = path.file_name().unwrap().to_owned();
             let source_arg = new_args.iter_mut().find_map(|arg| {
-                let path_arg = Path::new(&arg);
+                let path_arg = std::path::Path::new(&arg);
                 let tmp = path_arg.file_name().unwrap();
-
                 if filename == tmp {
                     Some(arg)
                 } else {
@@ -119,7 +112,7 @@ impl cargo_compiler::Executor for DefaultExecutor {
                 // some cases under windows If a UNC path is used then relative
                 // paths used in "include* macros" may not work if the relative path
                 // includes "/" instead of "\"
-                let path_arg = Path::new(&source_arg);
+                let path_arg = std::path::Path::new(&source_arg);
                 let mut path_arg = path_arg.to_path_buf();
                 path_arg.set_file_name(tmp_file.path().file_name().unwrap());
                 *source_arg = path_arg.into_os_string();

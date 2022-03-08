@@ -49,21 +49,21 @@ fn test_rust_compile() {
     .unwrap();
     println!("rust was compiled for bevy example");
 
-    // Compile rust code for android with quad engine
-    rust_compile(
-        &ndk,
-        build_target,
-        &quad_project_path,
-        profile,
-        vec![],
-        false,
-        false,
-        target_sdk_version,
-        quad_lib_name,
-        app_wrapper_for_quad,
-    )
-    .unwrap();
-    println!("rust was compiled for quad example");
+    //     // Compile rust code for android with quad engine
+    //     rust_compile(
+    //         &ndk,
+    //         build_target,
+    //         &quad_project_path,
+    //         profile,
+    //         vec![],
+    //         false,
+    //         false,
+    //         target_sdk_version,
+    //         quad_lib_name,
+    //         app_wrapper_for_quad,
+    //     )
+    //     .unwrap();
+    //     println!("rust was compiled for quad example");
 }
 
 #[test]
