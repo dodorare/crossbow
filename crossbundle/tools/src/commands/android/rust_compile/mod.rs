@@ -53,6 +53,34 @@ pub fn compile_rust_for_android(
     }
 }
 
+pub fn add_clinker_args(
+    ndk: &AndroidNdk,
+    build_target: &AndroidTarget,
+    target_sdk_version: u32,
+) -> cargo::CargoResult<Vec<OsString>> {
+    let linker_args = vec![
+        build_arg("-Clinker=", ndk.linker_path(&build_target)?),
+        "-Clinker-flavor=ld".into(),
+        build_arg("-Clink-arg=--sysroot=", ndk.sysroot()?),
+        build_arg(
+            "-Clink-arg=-L",
+            ndk.version_specific_libraries_path(target_sdk_version, &build_target)?,
+        ),
+        build_arg(
+            "-Clink-arg=-L",
+            ndk.sysroot_lib_dir(&build_target).map_err(|_| {
+                anyhow::Error::msg(format!(
+                    "Failed to get access to the {:?}",
+                    ndk.sysroot_lib_dir(&build_target)
+                ))
+            })?,
+        ),
+        build_arg("-Clink-arg=-L", ndk.gcc_lib_path(&build_target)?),
+        "-Crelocation-model=pic".into(),
+    ];
+    Ok(linker_args)
+}
+
 /// Helper function to build arguments composed of concatenating two strings
 fn build_arg(start: &str, end: impl AsRef<OsStr>) -> OsString {
     let mut new_arg = OsString::new();

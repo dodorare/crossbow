@@ -113,7 +113,7 @@ fn add_quad_libs() {
         app_wrapper_for_quad,
     )
     .unwrap();
-    println!("rust was compiled for bevy example");
+    println!("rust was compiled for quad example");
 
     // Specifies needed directories to manage library location
     let mut libs = Vec::new();
