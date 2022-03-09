@@ -26,7 +26,7 @@ fn test_android_full() {
     let quad_lib_name = format!("lib{}.so", quad_package_name.replace("-", "_"));
     let app_wrapper_for_quad = ApplicationWrapper::Sokol;
 
-    // Compile rust code for android with bevy engine
+    // Compile rust code for android with quad engine
     rust_compile(
         &ndk,
         build_target,
@@ -48,6 +48,9 @@ fn test_android_full() {
         .join(build_target.rust_triple())
         .join(profile.as_ref());
     let compiled_lib = out_dir.join(format!("lib{}.so", quad_package_name));
+    // Check the size of the library to ensure it is not corrupted
+    let size = std::fs::metadata(&compiled_lib).unwrap().len();
+    println!("library size is {:?}", size);
     assert!(compiled_lib.exists());
 
     // Gen android manifest

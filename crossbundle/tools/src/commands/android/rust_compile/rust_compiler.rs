@@ -175,7 +175,7 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
             let mut cmd = cmd.clone();
             let build_tag = self.ndk.build_tag();
             let tool_root = self.ndk.toolchain_dir().map_err(|_| {
-                anyhow::Error::msg(format!("Failed to get access to the toolchain directory"))
+                anyhow::Error::msg("Failed to get access to the toolchain directory")
             })?;
             if build_tag > 7272597 {
                 let error_msg = anyhow::Error::msg("Failed to write content into libgcc.a file");

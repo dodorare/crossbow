@@ -1,5 +1,5 @@
-use std::io::Write;
 use crate::types::*;
+use std::io::Write;
 
 /// Sets needed environment variables
 pub fn set_cmake_vars(

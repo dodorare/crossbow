@@ -17,23 +17,23 @@ pub fn add_clinker_args(
     target_sdk_version: u32,
 ) -> cargo::CargoResult<Vec<OsString>> {
     let linker_args = vec![
-        build_arg("-Clinker=", ndk.linker_path(&build_target)?),
+        build_arg("-Clinker=", ndk.linker_path(build_target)?),
         "-Clinker-flavor=ld".into(),
         build_arg("-Clink-arg=--sysroot=", ndk.sysroot()?),
         build_arg(
             "-Clink-arg=-L",
-            ndk.version_specific_libraries_path(target_sdk_version, &build_target)?,
+            ndk.version_specific_libraries_path(target_sdk_version, build_target)?,
         ),
         build_arg(
             "-Clink-arg=-L",
-            ndk.sysroot_lib_dir(&build_target).map_err(|_| {
+            ndk.sysroot_lib_dir(build_target).map_err(|_| {
                 anyhow::Error::msg(format!(
                     "Failed to get access to the {:?}",
-                    ndk.sysroot_lib_dir(&build_target)
+                    ndk.sysroot_lib_dir(build_target)
                 ))
             })?,
         ),
-        build_arg("-Clink-arg=-L", ndk.gcc_lib_path(&build_target)?),
+        build_arg("-Clink-arg=-L", ndk.gcc_lib_path(build_target)?),
         "-Crelocation-model=pic".into(),
     ];
     Ok(linker_args)

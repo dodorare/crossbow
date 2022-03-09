@@ -291,7 +291,7 @@ impl AndroidNdk {
         let version_specific_libraries_path = Self::find_ndk_path(target_sdk_version, |plarform| {
             self.sysroot_lib_dir(build_target)
                 .map_err(|_| {
-                    Error::PathNotFound(self.sysroot_lib_dir(build_target).unwrap());
+                    self.sysroot_lib_dir(build_target).unwrap();
                 })
                 .unwrap()
                 .join(plarform.to_string())

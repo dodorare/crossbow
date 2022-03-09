@@ -14,9 +14,7 @@ fn add_bevy_libs() {
     let project_path = tempdir.path();
 
     // Assigns configuration for project
-    let bevy_path = project_path.join("bevy");
-    std::fs::create_dir_all(&bevy_path).unwrap();
-    let bevy_package_name = gen_minimal_project(&bevy_path, false).unwrap();
+    let bevy_package_name = gen_minimal_project(&project_path, false).unwrap();
 
     // Assign needed configuration to compile rust for android with bevy
     let sdk = AndroidSdk::from_env().unwrap();
@@ -31,7 +29,7 @@ fn add_bevy_libs() {
     rust_compile(
         &ndk,
         build_target,
-        &bevy_path,
+        &project_path,
         profile,
         vec![],
         false,
@@ -45,13 +43,11 @@ fn add_bevy_libs() {
 
     // Specifies needed directories to manage library location
     let mut libs = Vec::new();
-    let out_dir = bevy_path
+    let out_dir = project_path
         .join("target")
         .join(build_target.rust_triple())
         .join(profile.as_ref());
-    let bevy_out_dir = bevy_path.join(out_dir.clone());
-    std::fs::create_dir_all(&bevy_out_dir).unwrap();
-    let bevy_compiled_lib = bevy_out_dir.join(bevy_lib_name);
+    let bevy_compiled_lib = out_dir.join(bevy_lib_name);
     libs.push((bevy_compiled_lib, build_target));
 
     // Add libs into the directory ./target/aarch64-linux-android/debug/
@@ -63,14 +59,13 @@ fn add_bevy_libs() {
             profile,
             target_sdk_version,
             &out_dir,
-            &bevy_path.join("target"),
+            &project_path.join("target"),
         )
         .unwrap();
         assert!(lib.exists());
         println!("library saved in {:?}", lib);
 
         // Check the size of the library to ensure it is not corrupted
-        // The normal size is about 6,42 MB
         for entry in std::fs::read_dir(&lib).unwrap() {
             let library = entry.unwrap().path();
             let size = std::fs::metadata(&library).unwrap().len();
@@ -86,9 +81,7 @@ fn add_quad_libs() {
     let project_path = tempdir.path();
 
     // Assigns configuration for project
-    let quad_path = project_path.join("quad");
-    std::fs::create_dir_all(&quad_path).unwrap();
-    let quad_package_name = gen_minimal_project(&quad_path, true).unwrap();
+    let quad_package_name = gen_minimal_project(&project_path, true).unwrap();
 
     // Assign needed configuration to compile rust for android with bevy
     let sdk = AndroidSdk::from_env().unwrap();
@@ -103,7 +96,7 @@ fn add_quad_libs() {
     rust_compile(
         &ndk,
         build_target,
-        &quad_path,
+        &project_path,
         profile,
         vec![],
         false,
@@ -117,12 +110,11 @@ fn add_quad_libs() {
 
     // Specifies needed directories to manage library location
     let mut libs = Vec::new();
-    let out_dir = std::path::Path::new("target")
+    let out_dir = project_path
+        .join("target")
         .join(build_target.rust_triple())
         .join(profile.as_ref());
-    let quad_out_dir = quad_path.join(out_dir.clone());
-    std::fs::create_dir_all(&quad_out_dir).unwrap();
-    let quad_compiled_lib = quad_out_dir.join(quad_lib_name);
+    let quad_compiled_lib = out_dir.join(quad_lib_name);
     libs.push((quad_compiled_lib, build_target));
 
     // Adds libs into ./target/aarch64-linux-android/debug/
@@ -134,7 +126,7 @@ fn add_quad_libs() {
             profile,
             target_sdk_version,
             &out_dir,
-            &quad_path.join("target"),
+            &project_path.join("target"),
         )
         .unwrap();
         assert!(lib.exists());
@@ -142,7 +134,6 @@ fn add_quad_libs() {
         println!("library saved in {:?}", lib);
 
         // Check the size of the library to ensure it is not corrupted
-        // The normal size is about 6,42 MB
         for entry in std::fs::read_dir(&lib).unwrap() {
             let library = entry.unwrap().path();
             let size = std::fs::metadata(&library).unwrap().len();
