@@ -1,5 +1,5 @@
 use clap::Parser;
-use crossbundle_tools::{error::CommandExt, tools::AndroidSdk, utils::Config};
+use crossbundle_tools::{error::CommandExt, tools::AndroidSdk, utils::Config, EXECUTABLE_SUFFIX_BAT};
 
 #[derive(Parser, Clone, Debug, Default)]
 pub struct SdkManagerInstallCommand {
@@ -157,7 +157,7 @@ impl SdkManagerInstallCommand {
         let sdk_root = AndroidSdk::sdk_install_path()?;
         let sdkmanager_path = sdk_root.join("cmdline-tools").join("bin");
         let sdkmanager_bat =
-            sdkmanager_path.join(format!("sdkmanager{}", super::EXECUTABLE_SUFFIX_BAT));
+            sdkmanager_path.join(format!("sdkmanager{}", EXECUTABLE_SUFFIX_BAT));
 
         let mut sdkmanager = std::process::Command::new(sdkmanager_bat);
         if let Some(sdk_root) = &self.sdk_root {

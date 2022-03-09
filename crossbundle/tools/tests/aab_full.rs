@@ -97,8 +97,10 @@ fn test_aab_full() {
         .join(profile.as_ref());
     let compiled_lib = out_dir.join(&bevy_lib_name);
     // Check the size of the library to ensure it is not corrupted
-    let size = std::fs::metadata(&compiled_lib).unwrap().len();
-    println!("library size is {:?}", size);
+    if compiled_lib.exists() {
+        let size = std::fs::metadata(&compiled_lib).unwrap().len();
+        println!("library size is {:?}", size);
+    }
     assert!(compiled_lib.exists());
     libs.push((compiled_lib, build_target));
 

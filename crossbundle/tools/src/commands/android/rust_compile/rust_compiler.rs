@@ -202,6 +202,19 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
                 if !self.nostrip && self.profile == Profile::Release {
                     new_args.push("-Clink-arg=-strip-all".into());
                 }
+
+                // Create new command
+                let mut cmd = cmd.clone();
+                cmd.args_replace(&new_args);
+
+                // Execute the command
+                cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
+                    .map(drop)?;
+            } else if self.app_wrapper == ApplicationWrapper::NdkGlue {
+                cmd.args_replace(&new_args);
+
+                cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
+                    .map(drop)?;
             }
         } else if mode == cargo::core::compiler::CompileMode::Test {
             // This occurs when --all-targets is specified

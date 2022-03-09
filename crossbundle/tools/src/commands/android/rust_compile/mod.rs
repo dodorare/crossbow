@@ -36,6 +36,7 @@ pub fn add_clinker_args(
         build_arg("-Clink-arg=-L", ndk.gcc_lib_path(build_target)?),
         "-Crelocation-model=pic".into(),
     ];
+
     Ok(linker_args)
 }
 

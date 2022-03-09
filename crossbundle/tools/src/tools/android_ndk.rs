@@ -230,16 +230,23 @@ impl AndroidNdk {
     pub fn tool_root(&self) -> cargo::CargoResult<PathBuf> {
         let tool_root = self
             .toolchain_dir()
-            .map_err(|_| anyhow::Error::msg("The path not found"))?;
+            .map_err(|_| anyhow::Error::msg("The path to tool root not found"))?;
         Ok(tool_root)
     }
 
     /// Return path to linker
     pub fn linker_path(&self, build_target: &AndroidTarget) -> cargo::CargoResult<PathBuf> {
-        let linker = format!("{}-ld.gold", build_target.ndk_triple());
-        let linker_path = self.tool_root()?.join("bin").join(linker);
+        let linker = bin!("ld.gold");
+        let linker_path = self
+            .tool_root()?
+            .join(build_target.ndk_triple())
+            .join("bin")
+            .join(linker);
         if !linker_path.exists() {
-            return Err(anyhow::Error::msg("Path is not found"));
+            return Err(anyhow::Error::msg(format!(
+                "The path to the {} not found",
+                linker_path.to_string_lossy()
+            )));
         }
         Ok(linker_path)
     }
@@ -254,7 +261,10 @@ impl AndroidNdk {
             .join(triple)
             .join("4.9.x");
         if !gcc_lib_path.exists() {
-            return Err(anyhow::Error::msg("Path is not found"));
+            return Err(anyhow::Error::msg(format!(
+                "The path to {} not found",
+                gcc_lib_path.to_string_lossy()
+            )));
         }
         Ok(gcc_lib_path)
     }
@@ -263,7 +273,10 @@ impl AndroidNdk {
     pub fn sysroot(&self) -> cargo::CargoResult<PathBuf> {
         let sysroot = self.tool_root()?.join("sysroot");
         if !sysroot.exists() {
-            return Err(anyhow::Error::msg("Path is not found"));
+            return Err(anyhow::Error::msg(format!(
+                "The path to {} not found",
+                sysroot.to_string_lossy()
+            )));
         }
         Ok(sysroot)
     }
@@ -299,7 +312,10 @@ impl AndroidNdk {
         .map_err(|_| anyhow::Error::msg("Failed to get access to the ndk path"))?;
 
         if !version_specific_libraries_path.exists() {
-            return Err(anyhow::Error::msg("Path is not found"));
+            return Err(anyhow::Error::msg(format!(
+                "The path to {} not found",
+                version_specific_libraries_path.to_string_lossy()
+            )));
         }
         Ok(version_specific_libraries_path)
     }

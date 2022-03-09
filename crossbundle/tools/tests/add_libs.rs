@@ -48,6 +48,7 @@ fn add_bevy_libs() {
         .join(build_target.rust_triple())
         .join(profile.as_ref());
     let bevy_compiled_lib = out_dir.join(bevy_lib_name);
+    assert!(bevy_compiled_lib.exists());
     libs.push((bevy_compiled_lib, build_target));
 
     // Add libs into the directory ./target/aarch64-linux-android/debug/
@@ -115,6 +116,7 @@ fn add_quad_libs() {
         .join(build_target.rust_triple())
         .join(profile.as_ref());
     let quad_compiled_lib = out_dir.join(quad_lib_name);
+    assert!(quad_compiled_lib.exists());
     libs.push((quad_compiled_lib, build_target));
 
     // Adds libs into ./target/aarch64-linux-android/debug/

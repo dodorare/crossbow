@@ -20,6 +20,12 @@ macro_rules! bat {
     }};
 }
 
+#[cfg(target_os = "windows")]
+pub const EXECUTABLE_SUFFIX_BAT: &str = ".bat";
+
+#[cfg(not(target_os = "windows"))]
+pub const EXECUTABLE_SUFFIX_BAT: &str = "";
+
 pub mod commands;
 pub mod error;
 pub mod tools;
