@@ -1,58 +1,16 @@
 mod cmake_toolchain;
-mod compile_bevy;
-mod compile_macroquad;
+
 mod compile_options;
 mod consts;
 mod gen_tmp_lib_file;
 mod rust_compiler;
 
-use crate::{error::*, tools::*, types::*};
+use crate::{tools::*, types::*};
 pub use cmake_toolchain::*;
-pub use compile_bevy::*;
-use compile_macroquad::*;
 pub use rust_compiler::*;
 use std::ffi::{OsStr, OsString};
 
-/// Compiles rust code for android with macroquad engine
-pub fn compile_rust_for_android(
-    ndk: &AndroidNdk,
-    build_target: AndroidTarget,
-    project_path: &std::path::Path,
-    profile: Profile,
-    features: Vec<String>,
-    all_features: bool,
-    no_default_features: bool,
-    target_sdk_version: u32,
-    lib_name: &str,
-    app_wrapper: ApplicationWrapper,
-) -> Result<()> {
-    if app_wrapper == ApplicationWrapper::Sokol {
-        compile_rust_for_android_with_mq(
-            ndk,
-            build_target,
-            project_path,
-            profile,
-            features,
-            all_features,
-            no_default_features,
-            target_sdk_version,
-            lib_name,
-        )
-    } else {
-        compile_rust_for_android_with_bevy(
-            ndk,
-            build_target,
-            project_path,
-            profile,
-            features,
-            all_features,
-            no_default_features,
-            target_sdk_version,
-            lib_name,
-        )
-    }
-}
-
+/// Add linker args for quad engine using NDK versions <=22
 pub fn add_clinker_args(
     ndk: &AndroidNdk,
     build_target: &AndroidTarget,
@@ -128,68 +86,4 @@ pub fn linker_args(tool_root: &std::path::Path) -> crate::error::Result<Vec<OsSt
     new_args.push(build_arg("-L", link_dir));
 
     Ok(new_args)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_rust_compile() {
-        // Specify path to users directory
-        let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        let dir = user_dirs
-            .parent()
-            .unwrap()
-            .parent()
-            .unwrap()
-            .join("examples");
-
-        // Specify path to bevy project example
-        let bevy_project_path = dir.join("bevy-2d");
-        let quad_project_path = dir.join("macroquad-3d");
-
-        // Assign needed configuration to compile rust for android with bevy
-        let sdk = AndroidSdk::from_env().unwrap();
-        let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
-        let build_target = AndroidTarget::Aarch64LinuxAndroid;
-        let profile = Profile::Debug;
-        let target_sdk_version = 30;
-        let bevy_lib_name = "bevy_test_lib.so";
-        let quad_lib_name = "quad_test_lib.so";
-        let app_wrapper_for_quad = ApplicationWrapper::Sokol;
-        let app_wrapper_for_bevy = ApplicationWrapper::NdkGlue;
-
-        // Compile rust code for android with bevy engine
-        rust_compile(
-            &ndk,
-            build_target,
-            &bevy_project_path,
-            profile,
-            vec![],
-            false,
-            false,
-            target_sdk_version,
-            bevy_lib_name,
-            app_wrapper_for_bevy,
-        )
-        .unwrap();
-        println!("rust was compiled for bevy example");
-
-        // Compile rust code for android with quad engine
-        rust_compile(
-            &ndk,
-            build_target,
-            &quad_project_path,
-            profile,
-            vec![],
-            false,
-            false,
-            target_sdk_version,
-            quad_lib_name,
-            app_wrapper_for_quad,
-        )
-        .unwrap();
-        println!("rust was compiled for quad example");
-    }
 }

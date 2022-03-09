@@ -54,7 +54,6 @@ pub fn rust_compile(
         profile,
     )?;
 
-    let lib_path = project_path.join("src").join("main.rs");
     // Create the executor
     let executor: std::sync::Arc<dyn cargo::core::compiler::Executor> =
         std::sync::Arc::new(SharedLibraryExecutor {
@@ -65,7 +64,6 @@ pub fn rust_compile(
             profile,
             nostrip: false,
             app_wrapper,
-            lib_path,
         });
 
     // Compile all targets for the requested build target
@@ -82,7 +80,6 @@ struct SharedLibraryExecutor {
     profile: Profile,
     nostrip: bool,
     app_wrapper: ApplicationWrapper,
-    lib_path: std::path::PathBuf,
 }
 
 impl cargo::core::compiler::Executor for SharedLibraryExecutor {
@@ -99,11 +96,6 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
             && (target.kind() == &cargo::core::manifest::TargetKind::Bin
                 || target.kind() == &cargo::core::manifest::TargetKind::ExampleBin)
         {
-            let mut cmd = cmd.clone();
-            // let ndk_glue_extra_code = super::consts::NDK_GLUE_EXTRA_CODE;
-            // let tmp_file =
-            //     super::gen_tmp_lib_file::generate_lib_file(&self.lib_path, ndk_glue_extra_code)?;
-
             let mut new_args = cmd.get_args().to_owned();
 
             let extra_code = match self.app_wrapper {
@@ -129,7 +121,6 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
                     gen_tmp_lib_file::generate_lib_file(&path, extra_code)?
                 }
             };
-            println!("JJJJJJJJJJJJJJJJJJJJJJJJ");
 
             // Replace source argument
             let filename = path.file_name().unwrap().to_owned();
@@ -159,7 +150,8 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
                 )));
             }
             // Create output directory inside the build target directory
-            std::fs::create_dir_all(&self.build_target_dir).unwrap();
+            std::fs::create_dir_all(&self.build_target_dir)
+                .map_err(|_| anyhow::Error::msg("Failed to create build target directory"))?;
 
             // Change crate-type from bin to cdylib
             // Replace output directory with the directory we created
@@ -173,25 +165,18 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
                     }
                 }
             }
+
             // Workaround from https://github.com/rust-windowing/android-ndk-rs/issues/149:
             // Rust (1.56 as of writing) still requires libgcc during linking, but this does
             // not ship with the NDK anymore since NDK r23 beta 3.
             // See https://github.com/rust-lang/rust/pull/85806 for a discussion on why libgcc
             // is still required even after replacing it with libunwind in the source.
             // XXX: Add an upper-bound on the Rust version whenever this is not necessary anymore.
-            println!("::::::::::::::::::::::::::::::::::::::::::::::");
+            let mut cmd = cmd.clone();
             let build_tag = self.ndk.build_tag();
             let tool_root = self.ndk.toolchain_dir().map_err(|_| {
                 anyhow::Error::msg(format!("Failed to get access to the toolchain directory"))
             })?;
-            // if build_tag > 7272597 {
-            //     let args = super::linker_args(&tool_root).map_err(|_| {
-            //         anyhow::Error::msg("Failed to write content into libgcc.a file")
-            //     })?;
-            //     for arg in args.into_iter() {
-            //         new_args.push(arg);
-            //     }
-            // }
             if build_tag > 7272597 {
                 let error_msg = anyhow::Error::msg("Failed to write content into libgcc.a file");
                 let mut args = match self.app_wrapper {
@@ -203,15 +188,10 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
                         linker_args(&tool_root).map_err(|_| error_msg)?
                     }
                 };
-                println!("args: {:?}", args);
                 new_args.append(&mut args);
-                if self.app_wrapper == ApplicationWrapper::NdkGlue {
-                    cmd.args_replace(&new_args);
-                    println!("cmd: {:?}", cmd);
-                    cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
-                        .map(drop)?;
-                }
-                println!("new args after append: {:?}", new_args);
+                cmd.args_replace(&new_args);
+                cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
+                    .map(drop)?;
             } else if self.app_wrapper == ApplicationWrapper::Sokol {
                 // Set linker arguments using in ndk =< 22
                 let mut linker_args =
@@ -223,19 +203,8 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
                     new_args.push("-Clink-arg=-strip-all".into());
                 }
             }
-            if self.app_wrapper == ApplicationWrapper::Sokol {
-                // Create new command
-                let mut cmd = cmd.clone();
-                cmd.args_replace(&new_args);
-
-                // Execute the command
-                cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
-                    .map(drop)?;
-            }
-            println!("FFFFFFFFFFF");
         } else if mode == cargo::core::compiler::CompileMode::Test {
             // This occurs when --all-targets is specified
-            println!("LLLLLLLLLLLLLLLLLLLLLLLL");
             return Err(anyhow::Error::msg(format!(
                 "Ignoring CompileMode::Test for target: {}",
                 target.name()
@@ -252,84 +221,14 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
                     }
                 }
             }
-            println!("IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII");
             let mut cmd = cmd.clone();
             cmd.args_replace(&new_args);
             cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
                 .map(drop)?
         } else {
-            println!("jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj");
             cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
                 .map(drop)?
         }
         Ok(())
     }
-}
-
-/// Get the program arguments and execute program with it
-pub fn add_cmd_arguments(
-    mut new_args: Vec<std::ffi::OsString>,
-    build_tag: u32,
-    tool_root: std::path::PathBuf,
-    ndk: &AndroidNdk,
-    cmd: &cargo_util::ProcessBuilder,
-    build_target: &AndroidTarget,
-    target_sdk_version: u32,
-    nostrip: bool,
-    profile: Profile,
-    app_wrapper: ApplicationWrapper,
-    on_stdout_line: &mut dyn FnMut(&str) -> cargo::util::errors::CargoResult<()>,
-    on_stderr_line: &mut dyn FnMut(&str) -> cargo::util::errors::CargoResult<()>,
-) -> cargo::util::CargoResult<Vec<std::ffi::OsString>> {
-    if build_tag > 7272597 {
-        let error_msg = anyhow::Error::msg("Failed to write content into libgcc.a file");
-        let mut args = match app_wrapper {
-            ApplicationWrapper::Sokol => {
-                new_ndk_quad_args(tool_root, build_target, target_sdk_version)
-                    .map_err(|_| error_msg)?
-            }
-            ApplicationWrapper::NdkGlue => linker_args(&tool_root).map_err(|_| error_msg)?,
-        };
-        println!("args: {:?}", args);
-        new_args.append(&mut args);
-        println!("new args after append: {:?}", new_args);
-    } else if app_wrapper == ApplicationWrapper::Sokol {
-        // Set linker arguments using in ndk =< 22
-        let mut linker_args = vec![
-            build_arg("-Clinker=", ndk.linker_path(&build_target)?),
-            "-Clinker-flavor=ld".into(),
-            build_arg("-Clink-arg=--sysroot=", ndk.sysroot()?),
-            build_arg(
-                "-Clink-arg=-L",
-                ndk.version_specific_libraries_path(target_sdk_version, &build_target)?,
-            ),
-            build_arg(
-                "-Clink-arg=-L",
-                ndk.sysroot_lib_dir(&build_target).map_err(|_| {
-                    anyhow::Error::msg(format!(
-                        "Failed to get access to the {:?}",
-                        ndk.sysroot_lib_dir(&build_target)
-                    ))
-                })?,
-            ),
-            build_arg("-Clink-arg=-L", ndk.gcc_lib_path(&build_target)?),
-            "-Crelocation-model=pic".into(),
-        ];
-        new_args.append(&mut linker_args);
-
-        // Strip symbols for release builds
-        if !nostrip && profile == Profile::Release {
-            new_args.push("-Clink-arg=-strip-all".into());
-        }
-    }
-    if app_wrapper == ApplicationWrapper::Sokol {
-        // Create new command
-        let mut cmd = cmd.clone();
-        cmd.args_replace(&new_args);
-
-        // Execute the command
-        cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
-            .map(drop)?;
-    }
-    Ok(new_args)
 }

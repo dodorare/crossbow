@@ -1,7 +1,7 @@
 use android_tools::java_tools::{android_dir, AabKey, KeyAlgorithm, Keytool};
 use crossbundle_tools::{
     commands::{
-        android::{self, remove},
+        android::{self, remove, rust_compile},
         gen_minimal_project,
     },
     tools::{AndroidNdk, AndroidSdk},
@@ -13,9 +13,9 @@ use crossbundle_tools::{
 fn test_android_full() {
     // Creates temporary directory
     let tempdir = tempfile::tempdir().unwrap();
-    let dir = tempdir.path();
+    let project_path = tempdir.path();
     let macroquad_project = true;
-    let package_name = gen_minimal_project(&dir, macroquad_project).unwrap();
+    let quad_package_name = gen_minimal_project(&project_path, macroquad_project).unwrap();
 
     // Create dependencies
     let sdk = AndroidSdk::from_env().unwrap();
@@ -23,36 +23,38 @@ fn test_android_full() {
     let target_sdk_version = 30;
     let profile = Profile::Release;
     let build_target = AndroidTarget::Aarch64LinuxAndroid;
-    let lib_name = format!("lib{}.so", package_name.replace("-", "_"));
+    let quad_lib_name = format!("lib{}.so", quad_package_name.replace("-", "_"));
+    let app_wrapper_for_quad = ApplicationWrapper::Sokol;
 
-    // Compile rust code for android with macroquad engine
-    android::compile_rust_for_android(
+    // Compile rust code for android with bevy engine
+    rust_compile(
         &ndk,
         build_target,
-        &dir,
+        &project_path,
         profile,
         vec![],
         false,
         false,
         target_sdk_version,
-        &lib_name,
-        ApplicationWrapper::Sokol,
+        &quad_lib_name,
+        app_wrapper_for_quad,
     )
     .unwrap();
+    println!("rust was compiled for quad example");
 
     // Create needed directories
-    let out_dir = dir
+    let out_dir = project_path
         .join("target")
         .join(build_target.rust_triple())
         .join(profile.as_ref());
-    let compiled_lib = out_dir.join(format!("lib{}.so", package_name));
+    let compiled_lib = out_dir.join(format!("lib{}.so", quad_package_name));
     assert!(compiled_lib.exists());
 
     // Gen android manifest
-    let target_dir = dir.join("target");
+    let target_dir = project_path.join("target");
     let manifest = android::gen_minimal_android_manifest(
         None,
-        &package_name,
+        &quad_package_name,
         None,
         "0.0.1".to_string(),
         None,
@@ -69,7 +71,7 @@ fn test_android_full() {
     // Gen unaligned apk
     let unaligned_apk_path = android::gen_unaligned_apk(
         &sdk,
-        &dir,
+        &project_path,
         &apk_build_dir,
         &manifest_path,
         None,
