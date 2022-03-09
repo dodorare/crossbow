@@ -125,22 +125,21 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
             // Replace source argument
             let filename = path.file_name().unwrap().to_owned();
             let source_arg = new_args.iter_mut().find_map(|arg| {
-                let path_arg = std::path::Path::new(&arg);
-                let tmp = path_arg.file_name().unwrap();
+                let tmp = std::path::Path::new(&arg).file_name().unwrap();
                 if filename == tmp {
                     Some(arg)
                 } else {
                     None
                 }
             });
+
             if let Some(source_arg) = source_arg {
                 // Build a new relative path to the temporary source file and use it as the source
                 // argument Using an absolute path causes compatibility issues in
                 // some cases under windows If a UNC path is used then relative
                 // paths used in "include* macros" may not work if the relative path
                 // includes "/" instead of "\"
-                let path_arg = std::path::Path::new(&source_arg);
-                let mut path_arg = path_arg.to_path_buf();
+                let mut path_arg = std::path::PathBuf::from(&source_arg);
                 path_arg.set_file_name(tmp_file.path().file_name().unwrap());
                 *source_arg = path_arg.into_os_string();
             } else {
@@ -149,22 +148,20 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
                     target.name()
                 )));
             }
+
             // Create output directory inside the build target directory
             std::fs::create_dir_all(&self.build_target_dir)
                 .map_err(|_| anyhow::Error::msg("Failed to create build target directory"))?;
 
             // Change crate-type from bin to cdylib
             // Replace output directory with the directory we created
-            let mut iter = new_args.iter_mut().rev().peekable();
-            while let Some(arg) = iter.next() {
-                if let Some(prev_arg) = iter.peek() {
-                    if *prev_arg == "--crate-type" && arg == "bin" {
-                        *arg = "cdylib".into();
-                    } else if *prev_arg == "--out-dir" {
-                        *arg = self.build_target_dir.clone().into();
-                    }
-                }
-            }
+            super::change_crate_name(
+                &self.build_target_dir,
+                cmd,
+                true,
+                CrateType::Bin.as_ref(),
+                CrateType::Cdylib.as_ref(),
+            )?;
 
             // Workaround from https://github.com/rust-windowing/android-ndk-rs/issues/149:
             // Rust (1.56 as of writing) still requires libgcc during linking, but this does
@@ -223,17 +220,14 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
                 target.name()
             )));
         } else if mode == cargo::core::compiler::CompileMode::Build {
-            let mut new_args = cmd.get_args().to_owned();
-
             // Change crate-type from cdylib to rlib
-            let mut iter = new_args.iter_mut().rev().peekable();
-            while let Some(arg) = iter.next() {
-                if let Some(prev_arg) = iter.peek() {
-                    if *prev_arg == "--crate-type" && arg == "cdylib" {
-                        *arg = "rlib".into();
-                    }
-                }
-            }
+            let new_args = super::change_crate_name(
+                &self.build_target_dir,
+                cmd,
+                false,
+                CrateType::Cdylib.as_ref(),
+                CrateType::Rlib.as_ref(),
+            )?;
             let mut cmd = cmd.clone();
             cmd.args_replace(&new_args);
             cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
@@ -244,4 +238,11 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
         }
         Ok(())
     }
+}
+
+/// Helper function that allows to return environment argument with specified tool
+pub fn cargo_env_target_cfg(tool: &str, target: &str) -> String {
+    let utarget = target.replace('-', "_");
+    let env = format!("CARGO_TARGET_{}_{}", &utarget, tool);
+    env.to_uppercase()
 }
