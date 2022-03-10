@@ -3,7 +3,7 @@ use android_manifest::AndroidManifest;
 use android_tools::java_tools::{AabKey, JarSigner};
 use clap::Parser;
 use crossbundle_tools::{
-    commands::android::{self, compile_rust_for_android},
+    commands::android::{self, rust_compile},
     tools::*,
     types::*,
     utils::Config,
@@ -372,37 +372,27 @@ impl AndroidBuildCommand {
         for build_target in build_targets {
             let lib_name = format!("lib{}.so", package_name.replace("-", "_"));
             let rust_triple = build_target.rust_triple();
-            config.status_message("Compiling for architecture", rust_triple)?;
 
-            // We need a different compilation process for macroquad projects
-            // because of the sokol lib dependency
-            if self.shared.quad {
-                compile_rust_for_android(
-                    &ndk,
-                    build_target,
-                    &project_path,
-                    profile,
-                    self.shared.features.clone(),
-                    self.shared.all_features,
-                    self.shared.no_default_features,
-                    target_sdk_version,
-                    &lib_name,
-                    ApplicationWrapper::Sokol,
-                )?;
-            } else {
-                compile_rust_for_android(
-                    &ndk,
-                    build_target,
-                    &project_path,
-                    profile,
-                    self.shared.features.clone(),
-                    self.shared.all_features,
-                    self.shared.no_default_features,
-                    target_sdk_version,
-                    &lib_name,
-                    ApplicationWrapper::NdkGlue,
-                )?;
-            }
+            config.status_message("Compiling for architecture", rust_triple)?;
+            let app_wrapper = match self.shared.quad {
+                true => ApplicationWrapper::Sokol,
+                false => ApplicationWrapper::NdkGlue,
+            };
+
+            // Compile rust code for android depending on application wrapper
+            rust_compile(
+                &ndk,
+                build_target,
+                &project_path,
+                profile,
+                self.shared.features.clone(),
+                self.shared.all_features,
+                self.shared.no_default_features,
+                target_sdk_version,
+                &lib_name,
+                app_wrapper,
+            )?;
+
             let out_dir = target_dir.join(build_target.rust_triple()).join(&profile);
             let compiled_lib = out_dir.join(lib_name);
             libs.push((compiled_lib, build_target));

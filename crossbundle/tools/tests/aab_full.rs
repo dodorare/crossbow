@@ -1,7 +1,7 @@
 use android_tools::java_tools::{android_dir, AabKey, JarSigner, KeyAlgorithm, Keytool};
 use crossbundle_tools::{
     commands::{
-        android::{self, remove},
+        android::{self, remove, rust_compile},
         gen_minimal_project,
     },
     tools::*,
@@ -23,12 +23,13 @@ fn test_aab_full() {
     let target_sdk_version = 30;
     let profile = Profile::Debug;
     let build_target = AndroidTarget::Aarch64LinuxAndroid;
-    let lib_name = format!("lib{}.so", package_name.replace("-", "_"));
+    let bevy_lib_name = format!("lib{}.so", package_name.replace("-", "_"));
     let target_dir = project_path.join("target");
     let android_build_dir = target_dir.join("android").join(profile.to_string());
+    let app_wrapper_for_bevy = ApplicationWrapper::NdkGlue;
 
-    // Сompile rust code for android with macroquad engine
-    android::compile_rust_for_android(
+    // Compile rust code for android with bevy engine
+    rust_compile(
         &ndk,
         build_target,
         project_path,
@@ -37,10 +38,11 @@ fn test_aab_full() {
         false,
         false,
         target_sdk_version,
-        &lib_name,
-        ApplicationWrapper::NdkGlue,
+        &bevy_lib_name,
+        app_wrapper_for_bevy,
     )
     .unwrap();
+    println!("rust was compiled for bevy example");
 
     // Generates manifest
     let manifest = android::gen_minimal_android_manifest(
@@ -93,7 +95,13 @@ fn test_aab_full() {
     let out_dir = target_dir
         .join(build_target.rust_triple())
         .join(profile.as_ref());
-    let compiled_lib = out_dir.join(lib_name);
+    let compiled_lib = out_dir.join(&bevy_lib_name);
+    // Check the size of the library to ensure it is not corrupted
+    if compiled_lib.exists() {
+        let size = std::fs::metadata(&compiled_lib).unwrap().len();
+        println!("library size is {:?}", size);
+    }
+    assert!(compiled_lib.exists());
     libs.push((compiled_lib, build_target));
 
     // Adds libs into specified directory

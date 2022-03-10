@@ -36,7 +36,7 @@ pub fn add_libs_into_aapt2(
     recursively_define_needed_libs(
         (lib_name, lib_path.to_owned()),
         &ndk.toolchain_bin("readelf", build_target)?,
-        &ndk.sysroot_lib_dir(build_target)?.join("libc++_shared.so"),
+        &ndk.sysroot_lib_dir(&build_target)?.join("libc++_shared.so"),
         &system_libs,
         &dylibs_paths,
         &mut needed_libs,
