@@ -97,7 +97,7 @@ fn add_quad_libs() {
     rust_compile(
         &ndk,
         build_target,
-        &project_path,
+        project_path,
         profile,
         vec![],
         false,
