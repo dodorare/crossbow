@@ -125,7 +125,7 @@ fn build_bundle_test() {
             let extracted_files = extract_archive(&apk_path, &output_dir).unwrap();
 
             // Generates zip archive from extracted files
-            let gen_zip_modules = gen_zip_modules(&build_dir, "test", &extracted_files).unwrap();
+            let gen_zip_modules = gen_zip_modules(build_dir, "test", &extracted_files).unwrap();
             let aab = build_dir.join(format!("{}_unsigned.aab", package_name));
 
             // Builds app bundle

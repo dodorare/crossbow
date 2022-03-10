@@ -24,8 +24,6 @@ pub enum Error {
     Io(#[from] std::io::Error),
     /// Clap error
     Clap(#[from] clap::Error),
-    /// Cargo toml parse error
-    CargoToml(#[from] cargo_toml::Error),
     /// Crossbundle Tools error
     CrossbundleTools(#[from] crossbundle_tools::error::Error),
     /// AndroidManifest error

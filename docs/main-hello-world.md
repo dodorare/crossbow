@@ -70,4 +70,3 @@ crossbundle log android
 ```
 
 and you will see the message: `"Hello, project-name!"`
-
