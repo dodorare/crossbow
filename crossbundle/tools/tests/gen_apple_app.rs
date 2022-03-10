@@ -15,5 +15,5 @@ fn test_gen_apple_app() {
     let app_dir =
         gen_apple_app_folder(&target_dir, &name, Default::default(), Default::default()).unwrap();
     // Check app dir
-    assert_eq!(true, app_dir.exists());
+    assert!(app_dir.exists());
 }

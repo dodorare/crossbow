@@ -1,4 +1,4 @@
-use anyhow::Error;
+use crate::error::Error;
 use cargo::{
     core::{EitherManifest, Manifest, SourceId},
     util::toml::read_manifest,
@@ -8,19 +8,13 @@ use std::path::Path;
 
 /// Read manifest files and deserialize it
 pub fn parse_manifest(manifest_path: &Path) -> crate::error::Result<Manifest> {
-    let source_id = SourceId::for_path(manifest_path)
-        .map_err(|_| Error::msg("Failed to create source_id from filesystem path"))?;
-    let cargo_config =
-        Config::default().map_err(|_| Error::msg("Failed to create a new config instance"))?;
+    let source_id = SourceId::for_path(manifest_path)?;
+    let cargo_config = Config::default()?;
     let either_manifest = read_manifest(manifest_path, source_id, &cargo_config)
-        .map_err(|_| Error::msg("Failed to read. Check the path to the manifest"))?
+        .map_err(|_| Error::FailedToFindManifest(manifest_path.to_owned()))?
         .0;
-    let manifest = match either_manifest {
-        EitherManifest::Real(manifest) => manifest,
-        _ => {
-            let description = String::from("Received a virtual Cargo.toml data.");
-            return Err(crate::error::Error::FailedToFindManifest(description));
-        }
-    };
-    Ok(manifest)
+    match either_manifest {
+        EitherManifest::Real(manifest) => Ok(manifest),
+        _ => Err(Error::FailedToFindManifest(manifest_path.to_owned())),
+    }
 }

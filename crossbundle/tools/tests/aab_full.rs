@@ -17,7 +17,7 @@ fn test_aab_full() {
 
     // Assigns configuration for project
     let macroquad_project = false;
-    let package_name = gen_minimal_project(&project_path, macroquad_project).unwrap();
+    let package_name = gen_minimal_project(project_path, macroquad_project).unwrap();
     let sdk = AndroidSdk::from_env().unwrap();
     let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
     let target_sdk_version = 30;
@@ -31,7 +31,7 @@ fn test_aab_full() {
     android::compile_rust_for_android(
         &ndk,
         build_target,
-        &project_path,
+        project_path,
         profile,
         vec![],
         false,

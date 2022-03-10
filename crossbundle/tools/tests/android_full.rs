@@ -15,7 +15,7 @@ fn test_android_full() {
     let tempdir = tempfile::tempdir().unwrap();
     let dir = tempdir.path();
     let macroquad_project = true;
-    let package_name = gen_minimal_project(&dir, macroquad_project).unwrap();
+    let package_name = gen_minimal_project(dir, macroquad_project).unwrap();
 
     // Create dependencies
     let sdk = AndroidSdk::from_env().unwrap();
@@ -29,7 +29,7 @@ fn test_android_full() {
     android::compile_rust_for_android(
         &ndk,
         build_target,
-        &dir,
+        dir,
         profile,
         vec![],
         false,
@@ -69,7 +69,7 @@ fn test_android_full() {
     // Gen unaligned apk
     let unaligned_apk_path = android::gen_unaligned_apk(
         &sdk,
-        &dir,
+        dir,
         &apk_build_dir,
         &manifest_path,
         None,

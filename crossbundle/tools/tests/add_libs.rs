@@ -15,7 +15,7 @@ fn add_libs_into_aapt2_test() {
 
     // Assigns configuration for project
     let macroquad_project = false;
-    let package_name = gen_minimal_project(&project_path, macroquad_project).unwrap();
+    let package_name = gen_minimal_project(project_path, macroquad_project).unwrap();
 
     // Assigns configuration for project
     let sdk = AndroidSdk::from_env().unwrap();
@@ -31,7 +31,7 @@ fn add_libs_into_aapt2_test() {
     compile_rust_for_android(
         &ndk,
         build_target,
-        &project_path,
+        project_path,
         profile,
         vec![],
         false,

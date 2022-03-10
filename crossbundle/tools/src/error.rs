@@ -83,7 +83,7 @@ pub enum Error {
         cause: std::io::Error,
     },
     /// Failed to find the manifest in path: {0}
-    FailedToFindManifest(String),
+    FailedToFindManifest(PathBuf),
     /// Invalid profile: {0}
     InvalidProfile(String),
     /// Invalid interface orientation: {0:?}

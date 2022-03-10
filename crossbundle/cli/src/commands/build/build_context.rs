@@ -1,4 +1,7 @@
-use crate::{cargo_manifest::Metadata, error::Result};
+use crate::{
+    cargo_manifest::Metadata,
+    error::{Error, Result},
+};
 use cargo::core::Manifest;
 use crossbundle_tools::{
     commands::{
@@ -32,8 +35,13 @@ impl BuildContext {
             target_dir.unwrap_or_else(|| workspace_manifest_path.parent().unwrap().join("target"));
         info!("Parsing Cargo.toml");
         let manifest = parse_manifest(&package_manifest_path)?;
-        let custom_metadata = manifest.custom_metadata().unwrap().to_owned();
-        let metadata = custom_metadata.try_into::<Metadata>().unwrap();
+        let custom_metadata = manifest
+            .custom_metadata()
+            .ok_or(Error::InvalidManifestMetadata)?
+            .to_owned();
+        let metadata = custom_metadata
+            .try_into::<Metadata>()
+            .map_err(|_| Error::InvalidManifestMetadata)?;
         Ok(Self {
             workspace_manifest_path,
             package_manifest_path,
