@@ -154,14 +154,16 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
                 .map_err(|_| anyhow::Error::msg("Failed to create build target directory"))?;
 
             // Change crate-type from bin to cdylib
-            // Replace output directory with the directory we created
-            super::change_crate_name(
-                &self.build_target_dir,
-                cmd,
-                true,
-                CrateType::Bin.as_ref(),
-                CrateType::Cdylib.as_ref(),
-            )?;
+            let mut iter = new_args.iter_mut().rev().peekable();
+            while let Some(arg) = iter.next() {
+                if let Some(prev_arg) = iter.peek() {
+                    if *prev_arg == "--crate-type" && arg == "bin" {
+                        *arg = "cdylib".into();
+                    } else if *prev_arg == "--out-dir" {
+                        *arg = self.build_target_dir.clone().into();
+                    }
+                }
+            }
 
             // Workaround from https://github.com/rust-windowing/android-ndk-rs/issues/149:
             // Rust (1.56 as of writing) still requires libgcc during linking, but this does
@@ -220,14 +222,17 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
                 target.name()
             )));
         } else if mode == cargo::core::compiler::CompileMode::Build {
+            let mut new_args = cmd.get_args().to_owned();
+
             // Change crate-type from cdylib to rlib
-            let new_args = super::change_crate_name(
-                &self.build_target_dir,
-                cmd,
-                false,
-                CrateType::Cdylib.as_ref(),
-                CrateType::Rlib.as_ref(),
-            )?;
+            let mut iter = new_args.iter_mut().rev().peekable();
+            while let Some(arg) = iter.next() {
+                if let Some(prev_arg) = iter.peek() {
+                    if *prev_arg == "--crate-type" && arg == "cdylib" {
+                        *arg = "rlib".into();
+                    }
+                }
+            }
             let mut cmd = cmd.clone();
             cmd.args_replace(&new_args);
             cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
