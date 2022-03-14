@@ -12,8 +12,8 @@ fn main() {
             filter: "wgpu=debug,wgpu_hal=debug,bevy_render=info".to_string(),
         })
         .add_plugins(DefaultPlugins)
-        .add_startup_system(audio.system())
-        .add_startup_system(icon.system())
+        .add_startup_system(audio)
+        .add_startup_system(icon)
         .run();
 }
 
