@@ -123,6 +123,8 @@ impl BuildContext {
                 self.metadata.icon.clone(),
                 debuggable,
                 self.metadata.android_permissions_sdk_23.clone(),
+                self.metadata.android_permissions.clone(),
+                self.metadata.android_features.clone(),
             );
             Ok(manifest)
         } else {
@@ -138,6 +140,8 @@ impl BuildContext {
                 None,
                 None,
                 debuggable,
+                None,
+                None,
                 None,
             ))
         }

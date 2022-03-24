@@ -29,7 +29,12 @@ apple_res = "res/apple"
 name = "android.permission.INTERNET"
 max_sdk_version = 31
 
-[[package.metadata.android_permissions_sdk_23]]
+[[package.metadata.android_permissions]]
 name = "android.permission.CAMERA"
 max_sdk_version = 31
+
+[[package.metadata.android_features]]
+name = "android.hardware.camera"
+required = false
+
 

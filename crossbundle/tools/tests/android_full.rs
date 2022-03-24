@@ -69,6 +69,8 @@ fn test_android_full() {
         None,
         true,
         None,
+        None,
+        None,
     );
     let apk_build_dir = target_dir.join(&profile).join("apk");
     let manifest_path = android::save_android_manifest(&apk_build_dir, &manifest).unwrap();

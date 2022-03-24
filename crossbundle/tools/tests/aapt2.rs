@@ -74,6 +74,8 @@ fn test_aapt2_link() {
         None,
         false,
         None,
+        None,
+        None,
     );
 
     // Saves android manifest into temporary directory
