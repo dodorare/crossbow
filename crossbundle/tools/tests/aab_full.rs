@@ -56,6 +56,7 @@ fn test_aab_full() {
         None,
         None,
         false,
+        None,
     );
     let manifest_path = android::save_android_manifest(&android_build_dir, &manifest).unwrap();
     assert!(manifest_path.exists());

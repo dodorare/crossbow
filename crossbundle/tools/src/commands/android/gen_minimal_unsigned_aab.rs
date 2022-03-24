@@ -20,6 +20,7 @@ pub fn gen_minimal_unsigned_aab(
         None,
         None,
         false,
+        None,
     );
     let manifest_path = super::save_android_manifest(aab_build_dir, &android_manifest)?;
     let apk_path = aab_build_dir.join(format!("{}_module.apk", package_name));

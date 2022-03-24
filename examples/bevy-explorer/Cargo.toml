@@ -25,5 +25,11 @@ apple_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
 apple_assets = "assets"
 apple_res = "res/apple"
 
-[[package.metadata.android_permissions]]
+[[package.metadata.android_permissions_sdk_23]]
 name = "android.permission.INTERNET"
+max_sdk_version = 31
+
+[[package.metadata.android_permissions_sdk_23]]
+name = "android.permission.CAMERA"
+max_sdk_version = 31
+

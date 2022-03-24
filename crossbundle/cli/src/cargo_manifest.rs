@@ -1,4 +1,4 @@
-use crossbundle_tools::types::{android_manifest::UsesPermission, *};
+use crossbundle_tools::types::{android_manifest::UsesPermissionSdk23, *};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
@@ -29,14 +29,19 @@ pub struct Metadata {
     /// Android build targets.
     pub android_build_targets: Option<Vec<AndroidTarget>>,
 
+    // // Android permissions for target sdk version = 22 and lower
+    // pub android_permissions: Option<String>,
+    // /// To declare a permission only on devices that support runtime permissions—that is,
+    // /// devices that run Android 6.0 (API level 23) or higher—include the uses-permission-sdk-23
+    // /// element instead of the uses-permission element.
+    #[serde(default)]
+    pub android_permissions_sdk_23: Option<Vec<UsesPermissionSdk23>>,
+    // /// Declares a single hardware or software android feature that is used by the application
+    // pub android_features: Option<String>,
     /// Apple build targets.
     pub apple_build_targets: Option<Vec<AppleTarget>>,
     /// Apple resources directory path relatively to project path.
     pub apple_res: Option<PathBuf>,
     /// Apple assets directory path relatively to project path.
     pub apple_assets: Option<PathBuf>,
-
-    /// TODO: Add android android_uses_features.
-    #[serde(default)]
-    pub android_permissions: Vec<UsesPermission>,
 }

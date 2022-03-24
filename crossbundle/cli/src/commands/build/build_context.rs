@@ -95,7 +95,7 @@ impl BuildContext {
     pub fn gen_android_manifest(
         &self,
         sdk: &AndroidSdk,
-        package_name: &String,
+        package_name: &str,
         debuggable: bool,
     ) -> Result<AndroidManifest> {
         if self.metadata.use_android_manifest {
@@ -106,7 +106,7 @@ impl BuildContext {
                 .unwrap_or_else(|| self.project_path.join("AndroidManifest.xml"));
             Ok(android::read_android_manifest(&path)?)
         } else if !self.metadata.use_android_manifest {
-            let mut manifest = android::gen_minimal_android_manifest(
+            let manifest = android::gen_minimal_android_manifest(
                 self.metadata.android_package_name.clone(),
                 package_name,
                 self.metadata.app_name.clone(),
@@ -122,10 +122,8 @@ impl BuildContext {
                 self.metadata.max_sdk_version,
                 self.metadata.icon.clone(),
                 debuggable,
+                self.metadata.android_permissions_sdk_23.clone(),
             );
-            if !self.metadata.android_permissions.is_empty() {
-                manifest.uses_permission = self.metadata.android_permissions.clone();
-            }
             Ok(manifest)
         } else {
             let target_sdk_version = sdk.default_platform();
@@ -140,6 +138,7 @@ impl BuildContext {
                 None,
                 None,
                 debuggable,
+                None,
             ))
         }
     }
