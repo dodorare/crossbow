@@ -18,10 +18,10 @@ pub extern "C" fn Java_com_startup_hip_RustCode_doStuff<'a>(
     return env.new_string(result).unwrap();
 }
 
-pub fn string(arg: String) -> String {
+pub fn string(arg: String) -> crate::error::Result<String> {
     let mut string = String::new();
     string.push_str(&arg);
-    string
+    Ok(string)
 }
 
 #[cfg(test)]
@@ -29,7 +29,8 @@ mod tests {
     #[test]
     fn test_string_function() {
         let arg = String::from("Call rust from java");
-        let result = super::string(arg);
+        let result = super::string(arg).unwrap();
+        // TODO: use assert macro instead of println
         println!("Result of function is {}", result);
     }
 }

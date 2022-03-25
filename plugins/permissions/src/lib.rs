@@ -2,6 +2,7 @@
 // TODO: Add JNI calls to request permissions
 
 mod call_java_from_rust;
+mod error;
 
 #[cfg(target_os = "android")]
 pub fn request_permission() {}
