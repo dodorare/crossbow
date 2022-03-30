@@ -1,0 +1,33 @@
+plugins {
+	id 'com.android.application'
+}
+
+android {
+	compileSdkVersion 30
+	buildToolsVersion "30.0.2"
+
+	defaultConfig {
+		applicationId "java.com.permissions"
+		minSdkVersion 21
+		targetSdkVersion 30
+		versionCode 1
+		versionName "1.0"
+	}
+
+	buildTypes {
+		release {
+			minifyEnabled false
+			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+		}
+	}
+	compileOptions {
+		sourceCompatibility JavaVersion.VERSION_1_8
+		targetCompatibility JavaVersion.VERSION_1_8
+	}
+}
+
+dependencies {
+	implementation 'androidx.appcompat:appcompat:1.1.0'
+	implementation 'com.google.android.material:material:1.1.0'
+	implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+}

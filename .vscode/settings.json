@@ -1,0 +1,6 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "c:\\Users\\den99\\AppData\\Local\\Android\\Sdk\\platforms\\android-30\\android.jar"
+    ]
+}
