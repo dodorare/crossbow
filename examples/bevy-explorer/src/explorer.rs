@@ -1,6 +1,9 @@
 use bevy::{prelude::*, tasks::AsyncComputeTaskPool};
-use substrate_subxt::{ClientBuilder, KusamaRuntime};
+use subxt::{ClientBuilder, DefaultConfig, DefaultExtra};
 use tokio::sync::mpsc;
+
+#[subxt::subxt(runtime_metadata_path = "res/metadata.scale")]
+pub mod bevy_explorer {}
 
 #[cfg(not(target_os = "android"))]
 pub const TEXT_FONT_SIZE: f32 = 30.0;
@@ -23,31 +26,40 @@ pub fn explorer_startup(task_pool: Res<AsyncComputeTaskPool>, channel: Res<Explo
     let tx = channel.tx.clone();
     task_pool
         .spawn(async move {
-            println!("Connecting to Substrate Node");
-            let client = ClientBuilder::<KusamaRuntime>::new()
-                // .set_url("wss://rpc.polkadot.io")
-                .set_url("ws://207.154.228.105:9944")
-                .build()
-                .await
-                .unwrap();
-            loop {
-                let (best, finalized) =
-                    tokio::try_join!(client.block_hash(None), client.finalized_head()).unwrap();
-                let (best, finalized) =
-                    tokio::try_join!(client.header(best), client.header(Some(finalized))).unwrap();
-                let best = best.unwrap();
-                let finalized = finalized.unwrap();
-                tx.send(ExplorerState {
-                    best_block_number: best.number,
-                    best_block_hash: best.hash().to_string(),
-                    best_block_parent_hash: best.parent_hash.to_string(),
-                    finalized_block_number: finalized.number,
-                    finalized_block_hash: finalized.hash().to_string(),
-                    finalized_block_parent_hash: finalized.parent_hash.to_string(),
-                })
-                .await
-                .unwrap();
-            }
+            let rt = tokio::runtime::Runtime::new().unwrap();
+            rt.block_on(async {
+                println!("Connecting to Substrate Node");
+                let api = ClientBuilder::new()
+                    .set_url("wss://rpc.polkadot.io:443")
+                    .build()
+                    .await
+                    .unwrap()
+                    .to_runtime_api::<bevy_explorer::RuntimeApi<DefaultConfig, DefaultExtra<DefaultConfig>>>();
+                loop {
+                    let (block_hash, finalized_head) = tokio::try_join!(
+                        api.client.rpc().block_hash(None),
+                        api.client.rpc().finalized_head()
+                    )
+                    .unwrap();
+                    let (best, finalized) = tokio::try_join!(
+                        api.client.rpc().header(block_hash),
+                        api.client.rpc().header(Some(finalized_head))
+                    )
+                    .unwrap();
+                    let best = best.unwrap();
+                    let finalized = finalized.unwrap();
+                    tx.send(ExplorerState {
+                        best_block_number: best.number,
+                        best_block_hash: best.hash().to_string(),
+                        best_block_parent_hash: best.parent_hash.to_string(),
+                        finalized_block_number: finalized.number,
+                        finalized_block_hash: finalized.hash().to_string(),
+                        finalized_block_parent_hash: finalized.parent_hash.to_string(),
+                    })
+                    .await
+                    .unwrap();
+                }
+            });
         })
         .detach();
 }

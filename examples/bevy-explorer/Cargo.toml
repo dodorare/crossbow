@@ -8,9 +8,10 @@ edition = "2021"
 crossbow = { version = "0.1.0", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
-substrate-subxt = "0.15"
-tokio = { version = "1.2", features = ["sync", "macros"] }
+subxt = "0.19"
+tokio = { version = "1.17", features = ["sync", "macros", "rt-multi-thread"] }
 bevy = { version = "0.6.0", features = ["mp3"] }
+codec = { package = "parity-scale-codec", version = "3.0.0", default-features = false, features = ["derive", "full", "bit-vec"] }
 
 [package.metadata]
 app_name = "Bevy Explorer"
