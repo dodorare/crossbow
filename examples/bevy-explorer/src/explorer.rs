@@ -35,15 +35,16 @@ pub fn explorer_startup(task_pool: Res<AsyncComputeTaskPool>, channel: Res<Explo
                     .await
                     .unwrap()
                     .to_runtime_api::<bevy_explorer::RuntimeApi<DefaultConfig, DefaultExtra<DefaultConfig>>>();
+                let client = api.client.rpc();
                 loop {
                     let (block_hash, finalized_head) = tokio::try_join!(
-                        api.client.rpc().block_hash(None),
-                        api.client.rpc().finalized_head()
+                        client.block_hash(None),
+                        client.finalized_head()
                     )
                     .unwrap();
                     let (best, finalized) = tokio::try_join!(
-                        api.client.rpc().header(block_hash),
-                        api.client.rpc().header(Some(finalized_head))
+                        client.header(block_hash),
+                        client.header(Some(finalized_head))
                     )
                     .unwrap();
                     let best = best.unwrap();
