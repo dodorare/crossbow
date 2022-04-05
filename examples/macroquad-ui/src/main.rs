@@ -64,7 +64,7 @@ async fn main() {
     };
 
     let mut window_skin = skin.clone();
-
+    // let action_font = load_ttf_font("ui_assets/HTOWERT.TTF").await.unwrap();
     loop {
         clear_background(BROWN);
 
@@ -79,13 +79,13 @@ async fn main() {
         root_ui().push_skin(&window_skin);
         root_ui().window(hash!(), vec2(250., 150.), vec2(300., 300.), |ui| {
             if ui.button(vec2(65.0, 15.0), "Play") {
-                println!("Let's play!")
+                draw_text_ex("Let's play!", 100.0, 400.0, TextParams::default());
             }
             if ui.button(vec2(40.0, 75.0), "Options") {
-                println!("Some options")
+                draw_text_ex("Some options", 100.0, 400.0, TextParams::default());
             }
             if ui.button(vec2(65.0, 195.0), "Quit") {
-                println!("Quit")
+                draw_text_ex("Quit", 100.0, 400.0, TextParams::default());
             }
         });
         root_ui().pop_skin();
