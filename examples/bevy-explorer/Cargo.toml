@@ -14,7 +14,7 @@ bevy = { version = "0.6.0", features = ["mp3"] }
 codec = { package = "parity-scale-codec", version = "3.0.0", default-features = false, features = ["derive", "full", "bit-vec"] }
 
 [package.metadata]
-app_name = "Bevy Explorer"
+app_name = "Bevy_Explorer"
 target_sdk_version = 30
 icon = "ic_launcher"
 

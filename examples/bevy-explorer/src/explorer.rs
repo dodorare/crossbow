@@ -32,7 +32,7 @@ pub fn explorer_startup(task_pool: Res<AsyncComputeTaskPool>, channel: Res<Explo
                 let api = ClientBuilder::new()
                     .set_url("wss://rpc.polkadot.io:443")
                     .build()
-                     .await
+                    .await
                     .unwrap()
                     .to_runtime_api::<bevy_explorer::RuntimeApi<DefaultConfig, DefaultExtra<DefaultConfig>>>();
                 let client = api.client.rpc();
