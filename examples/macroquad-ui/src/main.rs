@@ -83,7 +83,7 @@ async fn main() {
 
         root_ui().push_skin(&window1_skin);
 
-        root_ui().window(hash!(), vec2(40., 350.), vec2(300., 300.), |ui| {
+        root_ui().window(hash!(), vec2(250., 150.), vec2(300., 300.), |ui| {
             widgets::Button::new("Play")
                 .position(vec2(65.0, 15.0))
                 .ui(ui);
