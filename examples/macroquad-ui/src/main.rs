@@ -1,9 +1,9 @@
 use macroquad::prelude::*;
-use macroquad::ui::{hash, root_ui, widgets, Skin};
+use macroquad::ui::{hash, root_ui, Skin};
 
 #[macroquad::main("UI showcase")]
 async fn main() {
-    let skin1 = {
+    let skin = {
         let label_style = root_ui()
             .style_builder()
             .font(include_bytes!("ui_assets/HTOWERT.TTF"))
@@ -63,31 +63,30 @@ async fn main() {
         }
     };
 
-    let mut window1_skin = skin1.clone();
+    let mut window_skin = skin.clone();
 
     loop {
         clear_background(BROWN);
 
         root_ui().group(hash!(), vec2(70.0, 100.0), |ui| {
-            ui.label(None, "Window 1");
+            ui.label(None, "Window");
 
-            if ui.button(None, "Skin 1") {
-                window1_skin = skin1.clone();
+            if ui.button(None, "Skin") {
+                window_skin = skin.clone();
             }
         });
 
-        root_ui().push_skin(&window1_skin);
+        root_ui().push_skin(&window_skin);
         root_ui().window(hash!(), vec2(250., 150.), vec2(300., 300.), |ui| {
-            widgets::Button::new("Play")
-                .position(vec2(65.0, 15.0))
-                .ui(ui);
-            widgets::Button::new("Options")
-                .position(vec2(40.0, 75.0))
-                .ui(ui);
-
-            widgets::Button::new("Quit")
-                .position(vec2(65.0, 195.0))
-                .ui(ui);
+            if ui.button(vec2(65.0, 15.0), "Play") {
+                println!("Let's play!")
+            }
+            if ui.button(vec2(40.0, 75.0), "Options") {
+                println!("Some options")
+            }
+            if ui.button(vec2(65.0, 195.0), "Quit") {
+                println!("Quit")
+            }
         });
         root_ui().pop_skin();
 
