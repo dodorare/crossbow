@@ -11,7 +11,7 @@ anyhow = "1.0"
 macroquad = "0.3"
 
 [package.metadata]
-app_name = "Macroquad 3D"
+app_name = "Macroquad_3D"
 target_sdk_version = 30
 version_code = 1
 icon = "ic_launcher"
