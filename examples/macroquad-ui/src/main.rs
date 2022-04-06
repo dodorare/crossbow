@@ -15,19 +15,19 @@ async fn main() -> anyhow::Result<()> {
         let window_style = root_ui()
             .style_builder()
             // .background(Image::from_file_with_format(
-            //     include_bytes!("ui_assets/window_background.png"),
+            //     load_texture("window_background.png").await?,
             //     None,
             // ))
             .background_margin(RectOffset::new(20.0, 20.0, 10.0, 10.0))
             .margin(RectOffset::new(-20.0, -30.0, 0.0, 0.0))
             .build();
-
+        // let bytes = std::fs::read(
+        //     "C:/Users/den99/Desktop/Work/crossbow/examples/macroquad-ui/assets/button_background.png",
+        // )?;
+        // let slice = bytes.as_slice();
         let button_style = root_ui()
             .style_builder()
-            // .background(Image::from_file_with_format(
-            //     include_bytes!("ui_assets/button_background.png"),
-            //     None,
-            // ))
+            // .background(Image::from_file_with_format(slice, None))
             .background_margin(RectOffset::new(37.0, 37.0, 5.0, 5.0))
             .margin(RectOffset::new(10.0, 10.0, 0.0, 0.0))
             // .background_hovered(Image::from_file_with_format(

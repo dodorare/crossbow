@@ -17,7 +17,7 @@ version_code = 1
 icon = "ic_launcher"
 
 android_build_targets = ["aarch64-linux-android"]
-android_assets = "assets"
+# android_assets = "assets"
 android_res = "res/android"
 
 apple_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
