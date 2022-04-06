@@ -5,6 +5,7 @@ authors = ["DodoRare Team <support@dodorare.com>"]
 edition = "2021"
 
 [dependencies]
+crossbundle-tools = { path = "../../crossbundle/tools", version = "0.1.3" }
 crossbow = { version = "0.1.3", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
@@ -17,7 +18,7 @@ version_code = 1
 icon = "ic_launcher"
 
 android_build_targets = ["aarch64-linux-android"]
-# android_assets = "assets"
+android_assets = "assets"
 android_res = "res/android"
 
 apple_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]

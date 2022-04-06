@@ -1,45 +1,62 @@
+use crossbundle_tools::commands::android::parse_the_file_to_slice_u8;
 use macroquad::prelude::*;
 use macroquad::ui::{hash, root_ui, Skin};
 
 #[macroquad::main("Macroquad UI")]
 async fn main() -> anyhow::Result<()> {
+    let app_name = "macroquad-ui";
     let skin = {
         let label_style = root_ui()
             .style_builder()
-            // .font()
-            // .unwrap()
+            .font(
+                parse_the_file_to_slice_u8("HTOWERT.TTF", app_name, None)
+                    .unwrap()
+                    .as_slice(),
+            )?
             .text_color(Color::from_rgba(180, 180, 120, 255))
             .font_size(30)
             .build();
 
         let window_style = root_ui()
             .style_builder()
-            // .background(Image::from_file_with_format(
-            //     load_texture("window_background.png").await?,
-            //     None,
-            // ))
+            .background(Image::from_file_with_format(
+                parse_the_file_to_slice_u8("window_background.png", app_name, None)
+                    .unwrap()
+                    .as_slice(),
+                None,
+            ))
             .background_margin(RectOffset::new(20.0, 20.0, 10.0, 10.0))
             .margin(RectOffset::new(-20.0, -30.0, 0.0, 0.0))
             .build();
-        // let bytes = std::fs::read(
-        //     "C:/Users/den99/Desktop/Work/crossbow/examples/macroquad-ui/assets/button_background.png",
-        // )?;
-        // let slice = bytes.as_slice();
+
         let button_style = root_ui()
             .style_builder()
-            // .background(Image::from_file_with_format(slice, None))
+            .background(Image::from_file_with_format(
+                parse_the_file_to_slice_u8("button_background.png", app_name, None)
+                    .unwrap()
+                    .as_slice(),
+                None,
+            ))
             .background_margin(RectOffset::new(37.0, 37.0, 5.0, 5.0))
             .margin(RectOffset::new(10.0, 10.0, 0.0, 0.0))
-            // .background_hovered(Image::from_file_with_format(
-            //     include_bytes!("ui_assets/button_hovered_background.png"),
-            //     None,
-            // ))
-            // .background_clicked(Image::from_file_with_format(
-            //     include_bytes!("ui_assets/button_clicked_background.png"),
-            //     None,
-            // ))
-            // .font(include_bytes!("ui_assets/HTOWERT.TTF"))
-            // .unwrap()
+            .background_hovered(Image::from_file_with_format(
+                parse_the_file_to_slice_u8("button_hovered_background.png", app_name, None)
+                    .unwrap()
+                    .as_slice(),
+                None,
+            ))
+            .background_clicked(Image::from_file_with_format(
+                parse_the_file_to_slice_u8("button_clicked_background.png", app_name, None)
+                    .unwrap()
+                    .as_slice(),
+                None,
+            ))
+            .font(
+                parse_the_file_to_slice_u8("HTOWERT.TTF", app_name, None)
+                    .unwrap()
+                    .as_slice(),
+            )
+            .unwrap()
             .text_color(Color::from_rgba(180, 180, 100, 255))
             .font_size(40)
             .build();
@@ -47,8 +64,12 @@ async fn main() -> anyhow::Result<()> {
         let editbox_style = root_ui()
             .style_builder()
             .background_margin(RectOffset::new(0., 0., 0., 0.))
-            // .font(include_bytes!("ui_assets/HTOWERT.TTF"))
-            // .unwrap()
+            .font(
+                parse_the_file_to_slice_u8("HTOWERT.TTF", app_name, None)
+                    .unwrap()
+                    .as_slice(),
+            )
+            .unwrap()
             .text_color(Color::from_rgba(120, 120, 120, 255))
             .color_selected(Color::from_rgba(190, 190, 190, 255))
             .font_size(50)
