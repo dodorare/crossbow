@@ -20,7 +20,7 @@ pub fn parse_the_file_to_slice_u8(
     additional_dir: Option<String>,
 ) -> Result<Vec<u8>> {
     let current_dir = std::env::current_dir()?;
-    let mut buf = std::path::PathBuf::from(current_dir);
+    let mut buf = current_dir;
     buf.push("examples");
     buf.push(app_name);
     buf.push("assets");
@@ -28,7 +28,6 @@ pub fn parse_the_file_to_slice_u8(
         buf.push(add);
     }
     buf.push(file_name);
-    println!("buf: {:?}", buf);
     let bytes = std::fs::read(buf)?;
     Ok(bytes)
 }

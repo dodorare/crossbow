@@ -109,7 +109,6 @@ async fn main() -> anyhow::Result<()> {
             }
         });
         root_ui().pop_skin();
-
         next_frame().await;
     }
 }
