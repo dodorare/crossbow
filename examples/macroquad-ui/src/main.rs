@@ -46,15 +46,15 @@ async fn main() -> anyhow::Result<()> {
         clear_background(BROWN);
 
         root_ui().push_skin(&window_skin);
-        root_ui().window(hash!(), vec2(250., 150.), vec2(300., 300.), |ui| {
+        root_ui().window(hash!(), vec2(150.0, 250.0), vec2(300., 300.), |ui| {
             if ui.button(vec2(65.0, 15.0), "Play") {
-                draw_text_ex("Let's play!", 100.0, 400.0, TextParams::default());
+                draw_text_ex("Let's play!", 100.0, 200.0, TextParams::default());
             }
             if ui.button(vec2(40.0, 75.0), "Options") {
-                draw_text_ex("Some options", 100.0, 400.0, TextParams::default());
+                draw_text_ex("Some options", 100.0, 200.0, TextParams::default());
             }
             if ui.button(vec2(65.0, 195.0), "Quit") {
-                draw_text_ex("Quit", 100.0, 400.0, TextParams::default());
+                draw_text_ex("Quit", 100.0, 200.0, TextParams::default());
             }
         });
         root_ui().pop_skin();
