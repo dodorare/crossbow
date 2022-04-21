@@ -47,17 +47,48 @@ async fn main() -> anyhow::Result<()> {
 
         root_ui().push_skin(&window_skin);
         root_ui().window(hash!(), vec2(150.0, 250.0), vec2(300., 300.), |ui| {
-            if ui.button(vec2(65.0, 15.0), "Play") {
-                draw_text_ex("Let's play!", 100.0, 200.0, TextParams::default());
-            }
-            if ui.button(vec2(40.0, 75.0), "Options") {
-                draw_text_ex("Some options", 100.0, 200.0, TextParams::default());
-            }
-            if ui.button(vec2(65.0, 195.0), "Quit") {
-                draw_text_ex("Quit", 100.0, 200.0, TextParams::default());
+            if ui.button(vec2(-25.0, 100.0), "Ask permission") {
+                draw_text_ex("Permission asked!", 100.0, 200.0, TextParams::default());
+
+                #[cfg(target_os = "android")]
+                ask_for_permission();
             }
         });
         root_ui().pop_skin();
         next_frame().await;
+    }
+}
+
+#[cfg(target_os = "android")]
+fn ask_for_permission() {
+    use jni::objects::*;
+    use jni::*;
+
+    let jvm_args = InitArgsBuilder::new()
+        .version(JNIVersion::V8)
+        .option("-Xcheck:jni")
+        .build()
+        .unwrap();
+
+    let jvm = JavaVM::new(jvm_args).unwrap();
+    let guard = jvm.attach_current_thread().unwrap();
+
+    let system = guard.find_class("java/lang/System").unwrap();
+    let print_stream = guard.find_class("java/io/PrintStream").unwrap();
+
+    let out = guard
+        .get_static_field(system, "out", "Ljava/io/PrintStream;")
+        .unwrap();
+
+    if let JValue::Object(out) = out {
+        let message = guard.new_string("Hello World").unwrap();
+        guard
+            .call_method(
+                out,
+                "println",
+                "(Ljava/lang/String;)V",
+                &[JValue::Object(message.into())],
+            )
+            .unwrap();
     }
 }
