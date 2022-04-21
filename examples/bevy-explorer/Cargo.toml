@@ -8,13 +8,15 @@ edition = "2021"
 crossbow = { version = "0.1.0", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
-subxt = "0.19"
+subxt = "0.20"
 tokio = { version = "1.17", features = ["sync", "macros", "rt-multi-thread"] }
 bevy = { version = "0.6.0", features = ["mp3"] }
 codec = { package = "parity-scale-codec", version = "3.0.0", default-features = false, features = ["derive", "full", "bit-vec"] }
+jsonrpsee = { version = "0.9.0", features = ["async-client", "client-ws-transport"] }
 
 [package.metadata]
 app_name = "Bevy Explorer"
+version_code = 1
 target_sdk_version = 30
 icon = "ic_launcher"
 
