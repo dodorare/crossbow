@@ -56,11 +56,3 @@ crossbundle run android --aab
 # or
 crossbundle run apple --aab
 ```
-
-## Known issues
-
-You can face the problem with jsonrpsee-utils library used in subxt. One of the solutions is to downgrade the version. Use the command below:
-
-```sh
-cargo update -p jsonrpsee-utils --precise 0.2.0-alpha.3
-```

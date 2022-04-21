@@ -1,16 +1,13 @@
-use bevy::{
-    log::{Level, LogSettings},
-    prelude::*,
-};
+use bevy::prelude::*;
 
 fn main() {
     println!("Initialization.");
     std::thread::sleep(std::time::Duration::from_secs(2));
     App::new()
-        .insert_resource(LogSettings {
-            level: Level::DEBUG,
-            filter: "wgpu=debug,wgpu_hal=debug,bevy_render=info".to_string(),
-        })
+        // .insert_resource(LogSettings {
+        //     level: Level::DEBUG,
+        //     filter: "wgpu=debug,wgpu_hal=debug,bevy_render=info".to_string(),
+        // })
         .add_plugins(DefaultPlugins)
         .add_startup_system(audio)
         .add_startup_system(icon)
