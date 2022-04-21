@@ -1,6 +1,17 @@
 {
-    "java.project.referencedLibraries": [
-        "lib/**/*.jar",
-        "c:\\Users\\den99\\AppData\\Local\\Android\\Sdk\\platforms\\android-30\\android.jar"
+    "java.project.referencedLibraries": {
+        "include": [
+            "lib/**/*.jar",
+            "c:\\Users\\den99\\Downloads\\react-native-0.20.1-sources.jar",
+            "c:\\Users\\den99\\AppData\\Local\\Android\\Sdk\\platforms\\android-29\\android.jar",
+            "c:\\Users\\den99\\AppData\\Local\\Android\\Sdk\\platforms\\android-29\\android-stubs-src.jar"
+        ],
+        "exclude": [
+            "c:\\Users\\den99\\AppData\\Local\\Android\\Sdk\\platforms\\android-30\\annotation-1.3.0 (1).jar"
+        ]
+    },
+    "java.dependency.packagePresentation": "hierarchical",
+    "java.project.sourcePaths": [
+        "plugins\\permissions\\src\\permission\\app\\src\\main\\java\\com\\crossbow\\permission"
     ]
 }
