@@ -1,177 +1,165 @@
-// TODO: Add enum with all android permissions
-// TODO: Add JNI calls to request permissions
 
-#[cfg(target_os = "android")]
-pub fn request_permission() {}
+pub fn has_permission(permission: &str) -> Result<bool, Box<dyn std::error::Error>> {
+   // Create a VM for executing Java calls
+   let ctx = ndk_context::android_context();
+   let vm = unsafe { jni::JavaVM::from_raw(ctx.vm().cast()) }?;
+   let java_env = vm.attach_current_thread()?;
+   // TODO: Replace with android context?
+   // unsafe { ndk::native_activity::NativeActivity::from_ptr(ctx.vm()) };
+   let native_activity = ndk_glue::native_activity();
 
-/*
-/**
- * \brief Gets the internal name for an android permission.
- * \param[in] lJNIEnv a pointer to the JNI environment
- * \param[in] perm_name the name of the permission, e.g.,
- *   "READ_EXTERNAL_STORAGE", "WRITE_EXTERNAL_STORAGE".
- * \return a jstring with the internal name of the permission,
- *   to be used with android Java functions
- *   Context.checkSelfPermission() or Activity.requestPermissions()
- */
- jstring android_permission_name(JNIEnv* lJNIEnv, const char* perm_name) {
-    // nested class permission in class android.Manifest,
-    // hence android 'slash' Manifest 'dollar' permission
-    jclass ClassManifestpermission = lJNIEnv->FindClass(
-       "android/Manifest$permission"
-    );
-    jfieldID lid_PERM = lJNIEnv->GetStaticFieldID(
-       ClassManifestpermission, perm_name, "Ljava/lang/String;"
-    );
-    jstring ls_PERM = (jstring)(lJNIEnv->GetStaticObjectField(
-        ClassManifestpermission, lid_PERM
-    ));
-    return ls_PERM;
+   let class_manifest_permission = java_env.find_class("android/Manifest$permission")?;
+   let field_permission = java_env.get_static_field_id(
+       class_manifest_permission,
+       permission,
+       "Ljava/lang/String;",
+   )?;
+   let string_permission = java_env.get_static_field_unchecked(
+       class_manifest_permission,
+       field_permission,
+       jni::signature::JavaType::Object("java/lang/String".to_owned()),
+   )?;
+
+   let class_package_manager = java_env.find_class("android/content/pm/PackageManager")?;
+   let field_permission_granted =
+       java_env.get_static_field_id(class_package_manager, "PERMISSION_GRANTED", "I")?;
+   let int_permission_granted = java_env.get_static_field_unchecked(
+       class_package_manager,
+       field_permission_granted,
+       jni::signature::JavaType::Primitive(jni::signature::Primitive::Int),
+   )?;
+
+   let class_context = java_env.find_class("android/content/Context")?;
+   let method_check_self_permission = java_env.get_method_id(
+       class_context,
+       "checkSelfPermission",
+       "(Ljava/lang/String;)I",
+   )?;
+   let ret = java_env.call_method_unchecked(
+       native_activity.activity(),
+       method_check_self_permission,
+       jni::signature::JavaType::Primitive(jni::signature::Primitive::Int),
+       &[string_permission],
+   )?;
+   Ok(ret.i()? == int_permission_granted.i()?)
 }
 
-/**
- * \brief Tests whether a permission is granted.
- * \param[in] app a pointer to the android app.
- * \param[in] perm_name the name of the permission, e.g.,
- *   "READ_EXTERNAL_STORAGE", "WRITE_EXTERNAL_STORAGE".
- * \retval true if the permission is granted.
- * \retval false otherwise.
- * \note Requires Android API level 23 (Marshmallow, May 2015)
- */
-bool android_has_permission(struct android_app* app, const char* perm_name) {
-    JavaVM* lJavaVM = app->activity->vm;
-    JNIEnv* lJNIEnv = nullptr;
-    bool lThreadAttached = false;
+pub fn request_permission(permission: &str) -> Result<bool, Box<dyn std::error::Error>>
+// where <F>, on_request_done: F
+//     F: FnOnce(&str, bool) -> (),
+{
+   if has_permission(permission)? {
+       return Ok(true);
+   }
 
-    // Get JNIEnv from lJavaVM using GetEnv to test whether
-    // thread is attached or not to the VM. If not, attach it
-    // (and note that it will need to be detached at the end
-    //  of the function).
-    switch (lJavaVM->GetEnv((void**)&lJNIEnv, JNI_VERSION_1_6)) {
-      case JNI_OK:
-        break;
-      case JNI_EDETACHED: {
-        jint lResult = lJavaVM->AttachCurrentThread(&lJNIEnv, nullptr);
-        if(lResult == JNI_ERR) {
-          throw std::runtime_error("Could not attach current thread");
-        }
-        lThreadAttached = true;
-      } break;
-      case JNI_EVERSION:
-        throw std::runtime_error("Invalid java version");
-    }
+   // Create a VM for executing Java calls
+   let ctx = ndk_context::android_context();
+   let vm = unsafe { jni::JavaVM::from_raw(ctx.vm().cast()) }?;
+   let java_env = vm.attach_current_thread()?;
+   let native_activity = ndk_glue::native_activity();
 
-    bool result = false;
+   let array_permissions = java_env.new_object_array(
+       1,
+       java_env.find_class("java/lang/String")?,
+       java_env.new_string("")?,
+   )?;
+   let class_manifest_permission = java_env.find_class("android/Manifest$permission")?;
+   let field_permission = java_env.get_static_field_id(
+       class_manifest_permission,
+       permission,
+       "Ljava/lang/String;",
+   )?;
+   let string_permission = java_env.get_static_field_unchecked(
+       class_manifest_permission,
+       field_permission,
+       jni::signature::JavaType::Object("java/lang/String".to_owned()),
+   )?;
 
-    jstring ls_PERM = android_permission_name(lJNIEnv, perm_name);
+   java_env.set_object_array_element(array_permissions, 0, string_permission.l()?)?;
+   let class_activity = java_env.find_class("android/app/Activity")?;
+   let method_request_permissions = java_env.get_method_id(
+       class_activity,
+       "requestPermissions",
+       "([Ljava/lang/String;I)V",
+   )?;
 
-    jint PERMISSION_GRANTED = jint(-1);
-    {
-       jclass ClassPackageManager = lJNIEnv->FindClass(
-          "android/content/pm/PackageManager"
-       );
-       jfieldID lid_PERMISSION_GRANTED = lJNIEnv->GetStaticFieldID(
-          ClassPackageManager, "PERMISSION_GRANTED", "I"
-       );
-       PERMISSION_GRANTED = lJNIEnv->GetStaticIntField(
-          ClassPackageManager, lid_PERMISSION_GRANTED
-       );
-    }
-    {
-       jobject activity = app->activity->clazz;
-       jclass ClassContext = lJNIEnv->FindClass(
-          "android/content/Context"
-       );
-       jmethodID MethodcheckSelfPermission = lJNIEnv->GetMethodID(
-          ClassContext, "checkSelfPermission", "(Ljava/lang/String;)I"
-       );
-       jint int_result = lJNIEnv->CallIntMethod(
-           activity, MethodcheckSelfPermission, ls_PERM
-       );
-       result = (int_result == PERMISSION_GRANTED);
-    }
+   java_env.call_method_unchecked(
+       native_activity.activity(),
+       method_request_permissions,
+       jni::signature::JavaType::Primitive(jni::signature::Primitive::Void),
+       &[array_permissions.into(), jni::objects::JValue::Int(0)],
+   )?;
+   // /* TODO: How to create a native callback for a Java class for last argument (0) */
+   // env->CallVoidMethod(mApp->activity->clazz, MethodrequestPermissions, ArrayPermissions, 0);
 
-    if(lThreadAttached) {
-      lJavaVM->DetachCurrentThread();
-    }
-
-    return result;
+   Ok(true)
 }
 
-/**
- * \brief Query file permissions.
- * \details This opens the system dialog that lets the user
- *  grant (or deny) the permission.
- * \param[in] app a pointer to the android app.
- * \note Requires Android API level 23 (Marshmallow, May 2015)
- */
-void android_request_file_permissions(struct android_app* app) {
-    JavaVM* lJavaVM = app->activity->vm;
-    JNIEnv* lJNIEnv = nullptr;
-    bool lThreadAttached = false;
+// #[cfg(target_os = "android")]
+pub fn ask_for_permission() -> Result<(), Box<dyn std::error::Error>> {
+   println!("Has INTERNET permission: {}", has_permission("INTERNET")?,);
+   println!(
+       "Has READ_EXTERNAL_STORAGE permission: {}",
+       has_permission("READ_EXTERNAL_STORAGE")?,
+   );
+   request_permission("CAMERA")?;
 
-    // Get JNIEnv from lJavaVM using GetEnv to test whether
-    // thread is attached or not to the VM. If not, attach it
-    // (and note that it will need to be detached at the end
-    //  of the function).
-    switch (lJavaVM->GetEnv((void**)&lJNIEnv, JNI_VERSION_1_6)) {
-      case JNI_OK:
-        break;
-      case JNI_EDETACHED: {
-        jint lResult = lJavaVM->AttachCurrentThread(&lJNIEnv, nullptr);
-        if(lResult == JNI_ERR) {
-          throw std::runtime_error("Could not attach current thread");
-        }
-        lThreadAttached = true;
-      } break;
-      case JNI_EVERSION:
-        throw std::runtime_error("Invalid java version");
-      }
+   // const GET_DEVICES_OUTPUTS: jni::sys::jint = 2;
 
-    jobjectArray perm_array = lJNIEnv->NewObjectArray(
-      2,
-      lJNIEnv->FindClass("java/lang/String"),
-      lJNIEnv->NewStringUTF("")
-    );
+   // // Query the global Audio Service
+   // let class_ctxt = env.find_class("android/content/Context")?;
+   // let audio_service = env.get_static_field(class_ctxt, "AUDIO_SERVICE", "Ljava/lang/String;")?;
 
-    lJNIEnv->SetObjectArrayElement(
-      perm_array, 0,
-      android_permission_name(lJNIEnv, "READ_EXTERNAL_STORAGE")
-    );
+   // let audio_manager = env
+   //     .call_method(
+   //         ctx.context().cast(),
+   //         "getSystemService",
+   //         // JNI type signature needs to be derived from the Java API
+   //         // (ArgTys)ResultTy
+   //         "(Ljava/lang/String;)Ljava/lang/Object;",
+   //         &[audio_service],
+   //     )?
+   //     .l()?;
 
-    lJNIEnv->SetObjectArrayElement(
-      perm_array, 1,
-      android_permission_name(lJNIEnv, "WRITE_EXTERNAL_STORAGE")
-    );
+   // // Enumerate output devices
+   // let devices = env.call_method(
+   //     audio_manager,
+   //     "getDevices",
+   //     "(I)[Landroid/media/AudioDeviceInfo;",
+   //     &[GET_DEVICES_OUTPUTS.into()],
+   // )?;
 
-    jobject activity = app->activity->clazz;
+   // let device_array = devices.l()?.into_inner();
+   // let len = env.get_array_length(device_array)?;
+   // for i in 0..len {
+   //     let device = env.get_object_array_element(device_array, i)?;
 
-    jclass ClassActivity = lJNIEnv->FindClass(
-       "android/app/Activity"
-    );
+   //     // Collect device information
+   //     // See https://developer.android.com/reference/android/media/AudioDeviceInfo
+   //     let product_name: String = {
+   //         let name =
+   //             env.call_method(device, "getProductName", "()Ljava/lang/CharSequence;", &[])?;
+   //         let name = env.call_method(name.l()?, "toString", "()Ljava/lang/String;", &[])?;
+   //         env.get_string(name.l()?.into())?.into()
+   //     };
+   //     let id = env.call_method(device, "getId", "()I", &[])?.i()?;
+   //     let ty = env.call_method(device, "getType", "()I", &[])?.i()?;
 
-    jmethodID MethodrequestPermissions = lJNIEnv->GetMethodID(
-       ClassActivity, "requestPermissions", "([Ljava/lang/String;I)V"
-    );
+   //     let sample_rates = {
+   //         let sample_array = env
+   //             .call_method(device, "getSampleRates", "()[I", &[])?
+   //             .l()?
+   //             .into_inner();
+   //         let len = env.get_array_length(sample_array)?;
 
-    // Last arg (0) is just for the callback (that I do not use)
-    lJNIEnv->CallVoidMethod(
-       activity, MethodrequestPermissions, perm_array, 0
-    );
+   //         let mut sample_rates = vec![0; len as usize];
+   //         env.get_int_array_region(sample_array, 0, &mut sample_rates)?;
+   //         sample_rates
+   //     };
 
-    if(lThreadAttached) {
-       lJavaVM->DetachCurrentThread();
-    }
+   //     println!("Device {}: Id {}, Type {}", product_name, id, ty);
+   //     println!("sample rates: {:#?}", sample_rates);
+   // }
+
+   Ok(())
 }
-
-void check_android_permissions(struct android_app* app) {
-    bool OK = android_has_permission(
-       app, "READ_EXTERNAL_STORAGE"
-    ) && android_has_permission(
-       app, "WRITE_EXTERNAL_STORAGE"
-    );
-    if(!OK) {
-       android_request_file_permissions(app);
-    }
-}
-*/
