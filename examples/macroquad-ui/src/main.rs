@@ -51,7 +51,7 @@ async fn main() -> anyhow::Result<()> {
             if ui.button(vec2(-25.0, 100.0), "Ask permission") {
                 draw_text_ex("Permission asked!", 100.0, 200.0, TextParams::default());
 
-                // #[cfg(target_os = "android")]
+                #[cfg(target_os = "android")]
                 ask_for_permission();
             }
         });
