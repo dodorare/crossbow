@@ -35,7 +35,7 @@ pub fn has_permission(permission: &str) -> Result<bool, Box<dyn std::error::Erro
         "(Ljava/lang/String;)I",
     )?;
     let ret = java_env.call_method_unchecked(
-        ctx.context() as jni::sys::jobject,
+        ctx.context().cast(),
         method_check_self_permission,
         jni::signature::JavaType::Primitive(jni::signature::Primitive::Int),
         &[string_permission],
@@ -83,13 +83,34 @@ pub fn request_permission(permission: &str) -> Result<bool, Box<dyn std::error::
     )?;
 
     java_env.call_method_unchecked(
-        ctx.context() as jni::sys::jobject,
+        ctx.context().cast(),
         method_request_permissions,
         jni::signature::JavaType::Primitive(jni::signature::Primitive::Void),
         &[array_permissions.into(), jni::objects::JValue::Int(0)],
     )?;
     // /* TODO: How to create a native callback for a Java class for last argument (0) */
     // env->CallVoidMethod(mApp->activity->clazz, MethodrequestPermissions, ArrayPermissions, 0);
+    //
+    //  public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    //    super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+    //    if (requestCode == CAMERA_PERMISSION_CODE) {
+    //        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED ) {
+    //            btnCamera.setText("Permission Granted");
+    //            Toast.makeText(MainActivity.this, "Camera permission granted", Toast.LENGTH_SHORT).show();
+    //        } else {
+    //            Toast.makeText(MainActivity.this, "Camera permission denied", Toast.LENGTH_SHORT).show();
+    //        }
+    //    } else if (requestCode == STORAGE_PERMISSION_CODE) {
+    //        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED ) {
+    //            btnStorage.setText("Permission Granted");
+    //            Toast.makeText(MainActivity.this, "Storage permission granted", Toast.LENGTH_SHORT).show();
+    //        } else {
+    //            Toast.makeText(MainActivity.this, "Storage permission denied", Toast.LENGTH_SHORT).show();
+    //        }
+
+    //    }
+    //   }
 
     Ok(true)
 }
