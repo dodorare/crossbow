@@ -1,6 +1,6 @@
-pub mod android_permission;
-pub mod android_permission_group;
-pub mod error;
+mod android_permission;
+mod android_permission_group;
+mod error;
 pub mod request_permission;
 
 pub use android_permission::*;

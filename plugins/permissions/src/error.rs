@@ -44,4 +44,13 @@ pub enum Error {
     /// Failed to choose shell string color.
     /// Argument for --color must be auto, always, or never, but found `{}`
     FailedToChooseShellStringColor(String),
+    /// Crossbundle Tools error
+    Jni(jni::errors::Error),
+}
+
+// #[cfg(target_os = "android")]
+impl From<jni::errors::Error> for Error {
+    fn from(error: jni::errors::Error) -> Self {
+        Error::Jni(error.into()).into()
+    }
 }

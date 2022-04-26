@@ -1,4 +1,3 @@
-#[cfg(target_os = "android")]
 use crossbow_permissions::request_permission::ask_for_permission;
 use macroquad::prelude::*;
 use macroquad::ui::{hash, root_ui, Skin};
