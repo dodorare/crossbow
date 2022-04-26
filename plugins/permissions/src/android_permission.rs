@@ -43,6 +43,10 @@ pub enum AndroidPermission {
     ///
     /// Protection level: normal
     AccessNotificationPolicy,
+    /// Allows an application to access SupplementalApis
+    ///
+    /// Protection level: normal
+    AccessSupplementalApis,
     /// Allows applications to access information about Wi-Fi networks.
     ///
     /// Protection level: normal
@@ -235,6 +239,10 @@ pub enum AndroidPermission {
     ///
     /// [TvInputService]: https://developer.android.com/reference/android/media/tv/TvInputService
     BindTvInput,
+    /// Must be required by a TvInteractiveAppService to ensure that only the system can bind to it.
+    ///
+    /// Protection level: signature|privileged
+    BindTvInteractiveApp,
     /// Must be required by a link [VisualVoicemailService] to ensure that only the
     /// system can bind to it.
     ///
@@ -298,6 +306,10 @@ pub enum AndroidPermission {
     ///
     /// Protection level: dangerous
     BodySensors,
+    /// Allows an application to access data from sensors that the user uses to measure what is happening inside their body, such as heart rate. If you're requesting this permission, you must also request BODY_SENSORS. Requesting this permission by itself doesn't give you Body sensors access.
+    ///
+    /// Protection level: dangerous
+    BodySensorsBackground,
     /// Allows an application to broadcast a notification that an application package
     /// has been removed.
     ///
@@ -385,6 +397,8 @@ pub enum AndroidPermission {
     ///
     /// Not for use by third-party applications.
     DeletePackages,
+    /// Allows an application to deliver companion messages to system.
+    DeliverCompanionMessages,
     /// Allows applications to RW to diagnostic resources.
     ///
     /// Not for use by third-party applications.
@@ -545,6 +559,12 @@ pub enum AndroidPermission {
     ///
     /// [ConnectionService]: https://developer.android.com/reference/android/telecom/ConnectionService
     ManageOwnCalls,
+    /// Allows applications to enable/disable wifi auto join. This permission is used to let OEMs grant their trusted app access to a subset of privileged wifi APIs to improve wifi performance.
+    /// Not for use by third-party applications.
+    ManageWifiAutoJoin,
+    /// Allows applications to get notified when a Wi-Fi interface request cannot be satisfied without tearing down one or more other interfaces, and provide a decision whether to approve the request or reject it.
+    /// Not for use by third-party applications.
+    ManageWifiInterfaces,
     /// Not for use by third-party applications.
     MasterClear,
     /// Allows an application to know what content is playing and control its
@@ -569,18 +589,25 @@ pub enum AndroidPermission {
     ///
     /// Not for use by third-party applications.
     MountUnmountFilesystems,
+    /// Required to be able to advertise and connect to nearby devices via Wi-Fi.
+    ///
+    /// Protection level: dangerous
+    NearbyWifiDevices,
     /// Allows applications to perform I/O operations over NFC.
     ///
     /// Protection level: normal
-    NFC,
+    Nfc,
     /// Allows applications to receive NFC preferred payment service information.
     ///
     /// Protection level: normal
-    NFCPreferredPatmentInfo,
+    NfcPreferredPatmentInfo,
     /// Allows applications to receive NFC transaction events.
     ///
     /// Protection level: normal
-    NFCTransactionEvent,
+    NfcTransactionEvent,
+    /// Allows an application to modify any wifi configuration, even if created by another application. Once reconfigured the original creator cannot make any further modifications.
+    /// Not for use by third-party applications.
+    OverrideWifiConfig,
     /// Allows an application to collect component usage statistics.
     ///
     /// Declaring the permission implies intention to use the API and the user of
@@ -592,6 +619,10 @@ pub enum AndroidPermission {
     /// removed in the future; please do not use. Allow an application to make
     /// its activities persistent.
     PersistentActivity,
+    /// Allows an app to post notifications.
+    ///
+    /// Allows an app to post notifications
+    PostNotifications,
     /// This constant was deprecated in API level 29. Applications should use
     /// [CallRedirectionService] instead of the [Intent.ACTION_NEW_OUTGOING_CALL]
     /// broadcast.
@@ -606,6 +637,10 @@ pub enum AndroidPermission {
     ///
     /// Protection level: normal
     QueryAllPackages,
+    /// Allows an application to query over global data in AppSearch that's visible to the ASSISTANT role.
+    ReadAssistantAppSearchData,
+    /// Allows read only access to phone state with a non dangerous permission, including the information like cellular network type, software version.
+    ReadBasicPhoneState,
     /// Allows an application to read the user's calendar data.
     ///
     /// Protection level: dangerous
@@ -659,7 +694,7 @@ pub enum AndroidPermission {
     /// If both your minSdkVersion and targetSdkVersion values are set to 3 or
     /// lower, the system implicitly grants your app this permission. If you don't
     /// need this permission, be sure your targetSdkVersion is 4 or higher.
-    ReadExternalStorag,
+    ReadExternalStorage,
     /// This constant was deprecated in API level 16. The API that used this
     /// permission has been removed.
     ///
@@ -670,6 +705,26 @@ pub enum AndroidPermission {
     /// Not for use by third-party applications, because Log entries can contain
     /// the user's private information.
     ReadLogs,
+    /// Allows an application to read audio files from external storage.
+    ///
+    /// This permission is enforced starting in API level Build.VERSION_CODES.TIRAMISU. For apps with a targetSdkVersion of Build.VERSION_CODES.S or lower, this permission must not be used and the READ_EXTERNAL_STORAGE permission must be used instead.
+    ///
+    /// Protection level: dangerous
+    ReadMediaAudio,
+    /// Allows an application to read image files from external storage.
+    ///
+    /// This permission is enforced starting in API level Build.VERSION_CODES.TIRAMISU. For apps with a targetSdkVersion of Build.VERSION_CODES.S or lower, this permission must not be used and the READ_EXTERNAL_STORAGE permission must be used instead.
+    ///
+    /// Protection level: dangerous
+    ReadMediaImage,
+    /// Allows an application to read audio files from external storage.
+    ///
+    /// This permission is enforced starting in API level Build.VERSION_CODES.TIRAMISU. For apps with a targetSdkVersion of Build.VERSION_CODES.S or lower, this permission must not be used and the READ_EXTERNAL_STORAGE permission must be used instead.
+    ///
+    /// Protection level: dangerous
+    ReadMediaVideo,
+    /// Allows an application to read nearby streaming policy. The policy controls whether to allow the device to stream its notifications and apps to nearby devices. Applications that are not the device owner will need this permission to call DevicePolicyManager.getNearbyNotificationStreamingPolicy() or DevicePolicyManager.getNearbyAppStreamingPolicy().
+    ReadNearbyStreamingPolicy,
     /// Allows read access to the device's phone number(s). This is a subset of
     /// the capabilities granted by READ_PHONE_STATE but is exposed to instant
     /// applications.
@@ -761,6 +816,18 @@ pub enum AndroidPermission {
     ///
     /// Protection level: normal
     ReorderTasks,
+    /// Allows an application to read nearby streaming policy. The policy controls whether to allow the device to stream its notifications and apps to nearby devices. Applications that are not the device owner will need this permission to call DevicePolicyManager.getNearbyNotificationStreamingPolicy() or DevicePolicyManager.getNearbyAppStreamingPolicy().
+    ///
+    /// Not for use by third-party applications.
+    RequestCompanionProfileAppStreaming,
+    /// Allows application to request to be associated with a vehicle head unit capable of automotive projection (AssociationRequest.DEVICE_PROFILE_AUTOMOTIVE_PROJECTION) by CompanionDeviceManager.
+    ///
+    /// Not for use by third-party applications.
+    RequestCompanionProfileAutomotiveProjection,
+    /// Allows application to request to be associated with a computer to share functionality and/or data with other devices, such as notifications, photos and media (AssociationRequest.DEVICE_PROFILE_COMPUTER) by CompanionDeviceManager.
+    ///
+    /// Not for use by third-party applications.
+    RequestCompanionProfileComputer,
     /// Allows app to request to be associated with a device via
     /// CompanionDeviceManager as a "watch".
     ///
@@ -770,6 +837,8 @@ pub enum AndroidPermission {
     ///
     /// Protection level: normal
     RequestCompanionRunInBackground,
+    /// Allows an application to create a "self-managed" association.
+    RequestCompanionSelfManaged,
     /// Allows a companion app to start a foreground service from the background.
     ///
     /// Protection level: normal
@@ -883,6 +952,10 @@ pub enum AndroidPermission {
     /// privileged apps, app verifier app, and apps with any of the EMERGENCY or SYSTEM
     /// GALLERY roles.
     StartForegroundServicesFromBackground,
+    /// Allows the holder to start the screen with a list of app features.
+    ///
+    /// Protection level: signature|installer
+    StartViewAppFeatures,
     /// Allows the holder to start the permission usage screen for an app.
     ///
     /// Protection level: signature|installer
@@ -911,7 +984,7 @@ pub enum AndroidPermission {
     /// Protection level: normal
     TransmitIr,
     /// Don't use this permission in your app.
-    UninstallShotycut,
+    UninstallShortcut,
     /// Allows an application to update device statistics.
     ///
     /// Not for use by third-party applications.
@@ -928,6 +1001,10 @@ pub enum AndroidPermission {
     ///
     /// Protection level: normal
     UseBiometric,
+    /// Allows apps to use exact alarms just like with SCHEDULE_EXACT_ALARM but without needing to request this permission from the user.
+    ///
+    /// This is only for apps that rely on exact alarms for their core functionality. App stores may enforce policies to audit and review the use of this permission. Any app that requests this but is found to not require exact alarms for its primary function may be removed from the app store.
+    UseExactAlarm,
     /// This constant was deprecated in API level 28. Applications should request
     /// [USE_BIOMETRIC] instead.
     ///
@@ -1027,7 +1104,7 @@ pub enum AndroidPermission {
 }
 
 impl AndroidPermission {
-    pub fn full_string(&self) -> String {
+    pub fn android_permission_name(&self) -> String {
         "android.permission.".to_string() + self.to_string().as_str()
     }
 }
@@ -1037,86 +1114,56 @@ impl std::fmt::Display for AndroidPermission {
         match *self {
             Self::AcceptHandover => write!(f, "ACCEPT_HANDOVER"),
             Self::AccessBackgroundLocation => write!(f, "ACCESS_BACKGROUND_LOCATION"),
-            Self::AccessBlobsAcrossUsers => {
-                write!(f, "ACCESS_BLOBS_ACROSS_USERS")
-            }
-            Self::AccessCheckinProperties => {
-                write!(f, "ACCESS_CHECKIN_PROPERTIES")
-            }
+            Self::AccessBlobsAcrossUsers => write!(f, "ACCESS_BLOBS_ACROSS_USERS"),
+            Self::AccessCheckinProperties => write!(f, "ACCESS_CHECKIN_PROPERTIES"),
             Self::AccessCoarseLocation => write!(f, "ACCESS_COARSE_LOCATION"),
             Self::AccessFineLocation => write!(f, "ACCESS_FINE_LOCATION"),
-            Self::AccessLocationExtraCommands => {
-                write!(f, "ACCESS_LOCATION_EXTRA_COMMANDS")
-            }
+            Self::AccessLocationExtraCommands => write!(f, "ACCESS_LOCATION_EXTRA_COMMANDS"),
             Self::AccessMediaLocation => write!(f, "ACCESS_MEDIA_LOCATION"),
             Self::AccessNetworkState => write!(f, "ACCESS_NETWORK_STATE"),
-            Self::AccessNotificationPolicy => {
-                write!(f, "ACCESS_NOTIFICATION_POLICY")
-            }
+            Self::AccessNotificationPolicy => write!(f, "ACCESS_NOTIFICATION_POLICY"),
+            Self::AccessSupplementalApis => write!(f, "ACCESS_SUPPLEMENTAL_APIS"),
             Self::AccessWifiState => write!(f, "ACCESS_WIFI_STATE"),
             Self::AccountManager => write!(f, "ACCOUNT_MANAGER"),
             Self::ActivityRecognition => write!(f, "ACTIVITY_RECOGNITION"),
             Self::AddVoicemail => write!(f, "ADD_VOICEMAIL"),
             Self::AnswerPhoneCalls => write!(f, "ANSWER_PHONE_CALLS"),
             Self::BattertStats => write!(f, "BATTERY_STATS"),
-            Self::BindAccessibilityService => {
-                write!(f, "BIND_ACCESSIBILITY_SERVICE")
-            }
+            Self::BindAccessibilityService => write!(f, "BIND_ACCESSIBILITY_SERVICE"),
             Self::BindAppwidget => write!(f, "BIND_APPWIDGET"),
             Self::BindAutofillService => write!(f, "BIND_AUTOFILL_SERVICE"),
-            Self::BindCallRedirectionService => {
-                write!(f, "BIND_CALL_REDIRECTION_SERVICE")
-            }
+            Self::BindCallRedirectionService => write!(f, "BIND_CALL_REDIRECTION_SERVICE"),
             Self::BindCarrierMessagingClientService => {
                 write!(f, "BIND_CARRIER_MESSAGING_CLIENT_SERVICE")
             }
-            Self::BindCarrierMessagingService => {
-                write!(f, "BIND_CARRIER_MESSAGING_SERVICE")
-            }
+            Self::BindCarrierMessagingService => write!(f, "BIND_CARRIER_MESSAGING_SERVICE"),
             Self::BindCarrierServices => write!(f, "BIND_CARRIER_SERVICES"),
-            Self::BindChooserTargetService => {
-                write!(f, "BIND_CHOOSER_TARGET_SERVICE")
-            }
-            Self::BindCompanionDeviceService => {
-                write!(f, "BIND_COMPANION_DEVICE_SERVICE")
-            }
-            Self::BindConditionProviderService => {
-                write!(f, "BIND_CONDITION_PROVIDER_SERVICE")
-            }
+            Self::BindChooserTargetService => write!(f, "BIND_CHOOSER_TARGET_SERVICE"),
+            Self::BindCompanionDeviceService => write!(f, "BIND_COMPANION_DEVICE_SERVICE"),
+            Self::BindConditionProviderService => write!(f, "BIND_CONDITION_PROVIDER_SERVICE"),
             Self::BindControls => write!(f, "BIND_CONTROLS"),
             Self::BindDeviceAdmin => write!(f, "BIND_DEVICE_ADMIN"),
             Self::BindDreamService => write!(f, "BIND_DREAM_SERVICE"),
             Self::BindIncallService => write!(f, "BIND_INCALL_SERVICE"),
             Self::BindInputMethod => write!(f, "BIND_INPUT_METHOD"),
-            Self::BindMidiDeviceService => {
-                write!(f, "BIND_MIDI_DEVICE_SERVICE")
-            }
+            Self::BindMidiDeviceService => write!(f, "BIND_MIDI_DEVICE_SERVICE"),
             Self::BindNfcService => write!(f, "BIND_NFC_SERVICE"),
             Self::BindNotificationListenerService => {
                 write!(f, "BIND_NOTIFICATION_LISTENER_SERVICE")
             }
             Self::BindPrintService => write!(f, "BIND_PRINT_SERVICE"),
-            Self::BindQuickAccessWalletService => {
-                write!(f, "BIND_QUICK_ACCESS_WALLET_SERVICE")
-            }
-            Self::BindQuickSettingsTile => {
-                write!(f, "BIND_QUICK_SETTINGS_TILE")
-            }
+            Self::BindQuickAccessWalletService => write!(f, "BIND_QUICK_ACCESS_WALLET_SERVICE"),
+            Self::BindQuickSettingsTile => write!(f, "BIND_QUICK_SETTINGS_TILE"),
             Self::BindRrmoteviews => write!(f, "BIND_REMOTEVIEWS"),
             Self::BindScreeningService => write!(f, "BIND_SCREENING_SERVICE"),
-            Self::BindTelecomConnectionService => {
-                write!(f, "BIND_TELECOM_CONNECTION_SERVICE")
-            }
+            Self::BindTelecomConnectionService => write!(f, "BIND_TELECOM_CONNECTION_SERVICE"),
             Self::BindTextService => write!(f, "BIND_TEXT_SERVICE"),
             Self::BindTvInput => write!(f, "BIND_TV_INPUT"),
-            Self::BindVisualVoicemailService => {
-                write!(f, "BIND_VISUAL_VOICEMAIL_SERVICE")
-            }
+            Self::BindTvInteractiveApp => write!(f, "BIND_TV_INTERACTIVE_APP"),
+            Self::BindVisualVoicemailService => write!(f, "BIND_VISUAL_VOICEMAIL_SERVICE"),
             Self::BindVoiceInteraction => write!(f, "BIND_VOICE_INTERACTION"),
             Self::BindVpnService => write!(f, "BIND_VPN_SERVICE"),
-            Self::BindVrListenerService => {
-                write!(f, "BIND_VR_LISTENER_SERVICE")
-            }
+            Self::BindVrListenerService => write!(f, "BIND_VR_LISTENER_SERVICE"),
             Self::BindWallpaper => write!(f, "BIND_WALLPAPER"),
             Self::Bluetooth => write!(f, "BLUETOOTH"),
             Self::BluetoothAdmin => write!(f, "BLUETOOTH_ADMIN"),
@@ -1125,9 +1172,8 @@ impl std::fmt::Display for AndroidPermission {
             Self::BluetoothPrivileged => write!(f, "BLUETOOTH_PRIVILEGED"),
             Self::BluetoothScan => write!(f, "BLUETOOTH_SCAN"),
             Self::BodySensors => write!(f, "BODY_SENSORS"),
-            Self::BroadcastPackageRemoved => {
-                write!(f, "BROADCAST_PACKAGE_REMOVED")
-            }
+            Self::BodySensorsBackground => write!(f, "BODY_SENSORS_BACKGROUND"),
+            Self::BroadcastPackageRemoved => write!(f, "BROADCAST_PACKAGE_REMOVED"),
             Self::BroadcastSMS => write!(f, "BROADCAST_SMS"),
             Self::BroadcastSticky => write!(f, "BROADCAST_STICKY"),
             Self::BroadcastWapPush => write!(f, "BROADCAST_WAP_PUSH"),
@@ -1136,21 +1182,16 @@ impl std::fmt::Display for AndroidPermission {
             Self::CallPrivileged => write!(f, "CALL_PRIVILEGED"),
             Self::Camera => write!(f, "CAMERA"),
             Self::CaptureAudioOutput => write!(f, "CAPTURE_AUDIO_OUTPUT"),
-            Self::ChangeComponentEnabledState => {
-                write!(f, "CHANGE_COMPONENT_ENABLED_STATE")
-            }
+            Self::ChangeComponentEnabledState => write!(f, "CHANGE_COMPONENT_ENABLED_STATE"),
             Self::ChangeConfiguration => write!(f, "CHANGE_CONFIGURATION"),
             Self::ChangeNetworkState => write!(f, "CHANGE_NETWORK_STATE"),
-            Self::ChangeWifiMulticastState => {
-                write!(f, "CHANGE_WIFI_MULTICAST_STATE")
-            }
+            Self::ChangeWifiMulticastState => write!(f, "CHANGE_WIFI_MULTICAST_STATE"),
             Self::ChangeWifiState => write!(f, "CHANGE_WIFI_STATE"),
             Self::ClearAppCache => write!(f, "CLEAR_APP_CACHE"),
-            Self::ControlLocationUpdates => {
-                write!(f, "CONTROL_LOCATION_UPDATES")
-            }
+            Self::ControlLocationUpdates => write!(f, "CONTROL_LOCATION_UPDATES"),
             Self::DeleteCacheFiles => write!(f, "DELETE_CACHE_FILES"),
             Self::DeletePackages => write!(f, "DELETE_PACKAGES"),
+            Self::DeliverCompanionMessages => write!(f, "DELIVER_COMPANION_MESSAGES"),
             Self::Diagnostic => write!(f, "DIAGNOSTIC"),
             Self::DisableKeyguard => write!(f, "DISABLE_KEYGUARD"),
             Self::Dump => write!(f, "DUMP"),
@@ -1158,73 +1199,62 @@ impl std::fmt::Display for AndroidPermission {
             Self::FactoryTest => write!(f, "FACTORY_TEST"),
             Self::ForegroundService => write!(f, "FOREGROUND_SERVICE"),
             Self::GetAccounts => write!(f, "GET_ACCOUNTS"),
-            Self::GetAccountsPrivileged => {
-                write!(f, "GET_ACCOUNTS_PRIVILEGED")
-            }
+            Self::GetAccountsPrivileged => write!(f, "GET_ACCOUNTS_PRIVILEGED"),
             Self::GetPackageSize => write!(f, "GET_PACKAGE_SIZE"),
             Self::GetTasks => write!(f, "GET_TASKS"),
             Self::GlobalSearch => write!(f, "GLOBAL_SEARCH"),
             Self::HighOverlayWindows => write!(f, "HIDE_OVERLAY_WINDOWS"),
-            Self::HighSamplingRateSensors => {
-                write!(f, "HIGH_SAMPLING_RATE_SENSORS")
-            }
-            Self::InstallLocationProvider => {
-                write!(f, "INSTALL_LOCATION_PROVIDER")
-            }
+            Self::HighSamplingRateSensors => write!(f, "HIGH_SAMPLING_RATE_SENSORS"),
+            Self::InstallLocationProvider => write!(f, "INSTALL_LOCATION_PROVIDER"),
             Self::InstallPackages => write!(f, "INSTALL_PACKAGES"),
             Self::InstallShortcut => write!(f, "INSTALL_SHORTCUT"),
-            Self::InstantAppForegroundService => {
-                write!(f, "INSTANT_APP_FOREGROUND_SERVICE")
-            }
-            Self::InteractAcrossProfiles => {
-                write!(f, "INTERACT_ACROSS_PROFILES")
-            }
+            Self::InstantAppForegroundService => write!(f, "INSTANT_APP_FOREGROUND_SERVICE"),
+            Self::InteractAcrossProfiles => write!(f, "INTERACT_ACROSS_PROFILES"),
             Self::Internet => write!(f, "INTERNET"),
-            Self::KillBackgroundProcesses => {
-                write!(f, "KILL_BACKGROUND_PROCESSES")
-            }
+            Self::KillBackgroundProcesses => write!(f, "KILL_BACKGROUND_PROCESSES"),
             Self::LaunchMultiPaneSettingsDeepLink => {
                 write!(f, "LAUNCH_MULTI_PANE_SETTINGS_DEEP_LINK")
             }
             Self::LoaderUsageStats => write!(f, "LOADER_USAGE_STATS"),
             Self::LocationHardware => write!(f, "LOCATION_HARDWARE"),
             Self::ManageDocuments => write!(f, "MANAGE_DOCUMENTS"),
-            Self::ManageExternalStorage => {
-                write!(f, "MANAGE_EXTERNAL_STORAGE")
-            }
+            Self::ManageExternalStorage => write!(f, "MANAGE_EXTERNAL_STORAGE"),
             Self::ManageMedia => write!(f, "MANAGE_MEDIA"),
             Self::ManageOngoingCalls => write!(f, "MANAGE_ONGOING_CALLS"),
             Self::ManageOwnCalls => write!(f, "MANAGE_OWN_CALLS"),
+            Self::ManageWifiAutoJoin => write!(f, "MANAGE_WIFI_AUTO_JOIN"),
+            Self::ManageWifiInterfaces => write!(f, "MANAGE_WIFI_INTERFACES"),
             Self::MasterClear => write!(f, "MASTER_CLEAR"),
             Self::MediaContentControl => write!(f, "MEDIA_CONTENT_CONTROL"),
             Self::ModifyAudioSettings => write!(f, "MODIFY_AUDIO_SETTINGS"),
             Self::ModifyPhoneState => write!(f, "MODIFY_PHONE_STATE"),
-            Self::MountFormatFilesystems => {
-                write!(f, "MOUNT_FORMAT_FILESYSTEMS")
-            }
-            Self::MountUnmountFilesystems => {
-                write!(f, "MOUNT_UNMOUNT_FILESYSTEMS")
-            }
-            Self::NFC => write!(f, "NFC"),
-            Self::NFCPreferredPatmentInfo => {
-                write!(f, "NFC_PREFERRED_PAYMENT_INFO")
-            }
-            Self::NFCTransactionEvent => write!(f, "NFC_TRANSACTION_EVENT"),
+            Self::MountFormatFilesystems => write!(f, "MOUNT_FORMAT_FILESYSTEMS"),
+            Self::MountUnmountFilesystems => write!(f, "MOUNT_UNMOUNT_FILESYSTEMS"),
+            Self::NearbyWifiDevices => write!(f, "NEARBY_WIFI_DEVICES"),
+            Self::Nfc => write!(f, "NFC"),
+            Self::NfcPreferredPatmentInfo => write!(f, "NFC_PREFERRED_PAYMENT_INFO"),
+            Self::NfcTransactionEvent => write!(f, "NFC_TRANSACTION_EVENT"),
+            Self::OverrideWifiConfig => write!(f, "OVERRIDE_WIFI_CONFIG"),
             Self::PackageUsageStats => write!(f, "PACKAGE_USAGE_STATS"),
             Self::PersistentActivity => write!(f, "PERSISTENT_ACTIVITY"),
+            Self::PostNotifications => write!(f, "POST_NOTIFICATIONS"),
             Self::ProcessOutgoingCalls => write!(f, "PROCESS_OUTGOING_CALLS"),
             Self::QueryAllPackages => write!(f, "QUERY_ALL_PACKAGES"),
+            Self::ReadAssistantAppSearchData => write!(f, "READ_ASSISTANT_APP_SEARCH_DATA"),
+            Self::ReadBasicPhoneState => write!(f, "READ_BASIC_PHONE_STATE"),
             Self::ReadCalendar => write!(f, "READ_CALENDAR"),
             Self::ReadCallLog => write!(f, "READ_CALL_LOG"),
             Self::ReadContacts => write!(f, "READ_CONTACTS"),
-            Self::ReadExternalStorag => write!(f, "READ_EXTERNAL_STORAG"),
+            Self::ReadExternalStorage => write!(f, "READ_EXTERNAL_STORAGE"),
             Self::ReadInputState => write!(f, "READ_INPUT_STATE"),
             Self::ReadLogs => write!(f, "READ_LOGS"),
+            Self::ReadMediaAudio => write!(f, "READ_MEDIA_AUDIO"),
+            Self::ReadMediaImage => write!(f, "READ_MEDIA_IMAGE"),
+            Self::ReadMediaVideo => write!(f, "READ_MEDIA_VIDEO"),
+            Self::ReadNearbyStreamingPolicy => write!(f, "READ_NEARBY_STREAMING_POLICY"),
             Self::ReadPhoneNumbers => write!(f, "READ_PHONE_NUMBERS"),
             Self::ReadPhoneState => write!(f, "READ_PHONE_STATE"),
-            Self::ReadPrecisePhoneState => {
-                write!(f, "READ_PRECISE_PHONE_STATE")
-            }
+            Self::ReadPrecisePhoneState => write!(f, "READ_PRECISE_PHONE_STATE"),
             Self::ReadSMS => write!(f, "READ_SMS"),
             Self::ReadSyncSettings => write!(f, "READ_SYNC_SETTINGS"),
             Self::ReadSyncStats => write!(f, "READ_SYNC_STATS"),
@@ -1236,10 +1266,20 @@ impl std::fmt::Display for AndroidPermission {
             Self::ReceiveWapPush => write!(f, "RECEIVE_WAP_PUSH"),
             Self::RecordAudio => write!(f, "RECORD_AUDIO"),
             Self::ReorderTasks => write!(f, "REORDER_TASKS"),
+            Self::RequestCompanionProfileAppStreaming => {
+                write!(f, "REQUEST_COMPANION_PROFILE_APP_STREAMING")
+            }
+            Self::RequestCompanionProfileAutomotiveProjection => {
+                write!(f, "REQUEST_COMPANION_PROFILE_AUTOMOTIVE_PROJECTION")
+            }
+            Self::RequestCompanionProfileComputer => {
+                write!(f, "REQUEST_COMPANION_PROFILE_COMPUTER")
+            }
             Self::RequestCompanionProfileWatch => write!(f, "REQUEST_COMPANION_PROFILE_WATCH"),
             Self::RequestCompanionRunInBackground => {
                 write!(f, "REQUEST_COMPANION_RUN_IN_BACKGROUND")
             }
+            Self::RequestCompanionSelfManaged => write!(f, "REQUEST_COMPANION_SELF_MANAGED"),
             Self::RequestCompanionStartForegroundServicesFromBackground => write!(
                 f,
                 "REQUEST_COMPANION_START_FOREGROUND_SERVICES_FROM_BACKGROUND"
@@ -1247,60 +1287,46 @@ impl std::fmt::Display for AndroidPermission {
             Self::RequestCompanionUseDataInBackground => {
                 write!(f, "REQUEST_COMPANION_USE_DATA_IN_BACKGROUND")
             }
-            Self::RequestDeletePackages => {
-                write!(f, "REQUEST_DELETE_PACKAGES")
-            }
+            Self::RequestDeletePackages => write!(f, "REQUEST_DELETE_PACKAGES"),
             Self::RequestIgnoreBatteryOptimizations => {
                 write!(f, "REQUEST_IGNORE_BATTERY_OPTIMIZATIONS")
             }
-            Self::RequestInstallPackages => {
-                write!(f, "REQUEST_INSTALL_PACKAGES")
-            }
+            Self::RequestInstallPackages => write!(f, "REQUEST_INSTALL_PACKAGES"),
             Self::RequestObserveCompanionDevicePresence => {
                 write!(f, "REQUEST_OBSERVE_COMPANION_DEVICE_PRESENCE")
             }
-            Self::RequestPasswordComplexity => {
-                write!(f, "REQUEST_PASSWORD_COMPLEXITY")
-            }
+            Self::RequestPasswordComplexity => write!(f, "REQUEST_PASSWORD_COMPLEXITY"),
             Self::RestartPackages => write!(f, "RESTART_PACKAGES"),
             Self::ScheduleExactAlarm => write!(f, "SCHEDULE_EXACT_ALARM"),
-            Self::SendRespondViaMessage => {
-                write!(f, "SEND_RESPOND_VIA_MESSAGE")
-            }
+            Self::SendRespondViaMessage => write!(f, "SEND_RESPOND_VIA_MESSAGE"),
             Self::SendSMS => write!(f, "SEND_SMS"),
             Self::SetAlarm => write!(f, "SET_ALARM"),
             Self::SetAlwaysFinish => write!(f, "SET_ALWAYS_FINISH"),
             Self::SetAnimationScale => write!(f, "SET_ANIMATION_SCALE"),
             Self::SetDebugApp => write!(f, "SET_DEBUG_APP"),
-            Self::SetPreferredApplications => {
-                write!(f, "SET_PREFERRED_APPLICATIONS")
-            }
+            Self::SetPreferredApplications => write!(f, "SET_PREFERRED_APPLICATIONS"),
             Self::SetProcessLimit => write!(f, "SET_PROCESS_LIMIT"),
             Self::SetTime => write!(f, "SET_TIME"),
             Self::SetTimeZone => write!(f, "SET_TIME_ZONE"),
             Self::SetWallpaper => write!(f, "SET_WALLPAPER"),
             Self::SetWallpaperHints => write!(f, "SET_WALLPAPER_HINTS"),
-            Self::SignalPersisteneProcesses => {
-                write!(f, "SIGNAL_PERSISTENT_PROCESSES")
-            }
-            Self::SMSFinancialTransactions => {
-                write!(f, "SMS_FINANCIAL_TRANSACTIONS")
-            }
+            Self::SignalPersisteneProcesses => write!(f, "SIGNAL_PERSISTENT_PROCESSES"),
+            Self::SMSFinancialTransactions => write!(f, "SMS_FINANCIAL_TRANSACTIONS"),
             Self::StartForegroundServicesFromBackground => {
                 write!(f, "START_FOREGROUND_SERVICES_FROM_BACKGROUND")
             }
-            Self::StartViewPermissionUsage => {
-                write!(f, "START_VIEW_PERMISSION_USAGE")
-            }
+            Self::StartViewAppFeatures => write!(f, "START_VIEW_APP_FEATURES"),
+            Self::StartViewPermissionUsage => write!(f, "START_VIEW_PERMISSION_USAGE"),
             Self::StatusBar => write!(f, "STATUS_BAR"),
             Self::SystemAlertWindow => write!(f, "SYSTEM_ALERT_WINDOW"),
             Self::TransmitIr => write!(f, "TRANSMIT_IR"),
-            Self::UninstallShotycut => write!(f, "UNINSTALL_SHORTCUT"),
+            Self::UninstallShortcut => write!(f, "UNINSTALL_SHORTCUT"),
             Self::UpdateDeviceStats => write!(f, "UPDATE_DEVICE_STATS"),
             Self::UpdatePackagesWithoutUserAction => {
                 write!(f, "UPDATE_PACKAGES_WITHOUT_USER_ACTION")
             }
             Self::UseBiometric => write!(f, "USE_BIOMETRIC"),
+            Self::UseExactAlarm => write!(f, "USE_EXACT_ALARM"),
             Self::UseFingerprint => write!(f, "USE_FINGERPRINT"),
             Self::UseFullScreenIntent => write!(f, "USE_FULL_SCREEN_INTENT"),
             Self::UseIccAuthWithDeviceIdentifier => {
@@ -1332,7 +1358,7 @@ mod tests {
     fn test_full_string() {
         let permission = AndroidPermission::AccessCheckinProperties;
         assert_eq!(
-            permission.full_string(),
+            permission.android_permission_name(),
             "android.permission.ACCESS_CHECKIN_PROPERTIES"
         );
     }

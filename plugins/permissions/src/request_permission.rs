@@ -1,3 +1,4 @@
+#[cfg(target_os = "android")]
 pub fn has_permission(permission: &str) -> Result<bool, Box<dyn std::error::Error>> {
     // Create a VM for executing Java calls
     let ctx = ndk_context::android_context();
@@ -40,6 +41,7 @@ pub fn has_permission(permission: &str) -> Result<bool, Box<dyn std::error::Erro
     Ok(ret.i()? == int_permission_granted.i()?)
 }
 
+#[cfg(target_os = "android")]
 pub fn request_permission(permission: &str) -> Result<bool, Box<dyn std::error::Error>>
 // where <F>, on_request_done: F
 //     F: FnOnce(&str, bool) -> (),
@@ -111,7 +113,7 @@ pub fn request_permission(permission: &str) -> Result<bool, Box<dyn std::error::
     Ok(true)
 }
 
-// #[cfg(target_os = "android")]
+#[cfg(target_os = "android")]
 pub fn ask_for_permission() -> Result<(), Box<dyn std::error::Error>> {
     println!("Has INTERNET permission: {}", has_permission("INTERNET")?,);
     println!(

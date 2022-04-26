@@ -9,10 +9,8 @@ license = "Apache-2.0"
 keywords = ["permissions", "android", "ios"]
 readme = "README.md"
 
+# [dependencies]
 [target.'cfg(target_os = "android")'.dependencies]
 ndk-glue = "0.6.0"
-
-[dependencies]
 jni = "0.19"
-ndk-context = "0.1"
 ndk = "0.6"
