@@ -1,13 +1,14 @@
-use anyhow::Error;
 use displaydoc::Display;
 use thiserror::Error;
 
 /// `Result` type that used in `crossbow-permissions`.
-pub type Result<T> = std::result::Result<T, Error>;
+pub type Result<T> = std::result::Result<T, PermissionError>;
 
 /// `Crossbow-permissions` error type.
 #[derive(Display, Debug, Error)]
-pub enum CrossbowPermissionsError {
+pub enum PermissionError {
+    /// Requesting permission on the wrong platform
+    PermissionWrongPlatform,
     /// Rust Jni library error
     #[cfg(target_os = "android")]
     Jni(jni::errors::Error),
@@ -16,14 +17,14 @@ pub enum CrossbowPermissionsError {
 }
 
 #[cfg(target_os = "android")]
-impl From<jni::errors::Error> for CrossbowPermissionsError {
+impl From<jni::errors::Error> for PermissionError {
     fn from(error: jni::errors::Error) -> Self {
-        CrossbowPermissionsError::Jni(error.into()).into()
+        PermissionError::Jni(error.into()).into()
     }
 }
 
-impl From<anyhow::Error> for CrossbowPermissionsError {
+impl From<anyhow::Error> for PermissionError {
     fn from(error: anyhow::Error) -> Self {
-        CrossbowPermissionsError::Anyhow(error.into()).into()
+        PermissionError::Anyhow(error.into()).into()
     }
 }
