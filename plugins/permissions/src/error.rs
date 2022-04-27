@@ -19,12 +19,12 @@ pub enum PermissionError {
 #[cfg(target_os = "android")]
 impl From<jni::errors::Error> for PermissionError {
     fn from(error: jni::errors::Error) -> Self {
-        PermissionError::Jni(error.into()).into()
+        PermissionError::Jni(error.into())
     }
 }
 
 impl From<anyhow::Error> for PermissionError {
     fn from(error: anyhow::Error) -> Self {
-        PermissionError::Anyhow(error.into()).into()
+        PermissionError::Anyhow(error)
     }
 }
