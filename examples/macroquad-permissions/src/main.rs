@@ -51,11 +51,11 @@ async fn main() -> anyhow::Result<()> {
         root_ui().window(hash!(), vec2(200.0, 250.0), vec2(500.0, 500.0), |ui| {
             if ui.button(vec2(-15.0, 150.0), "Ask camera permission") {
                 #[cfg(target_os = "android")]
-                request_permission(AndroidPermission::Camera);
+                request_permission(AndroidPermission::Camera)?;
             }
             if ui.button(vec2(-15.0, 300.0), "Ask storage permission") {
                 #[cfg(target_os = "android")]
-                request_permission(AndroidPermission::ReadExternalStorage);
+                request_permission(AndroidPermission::ReadExternalStorage)?;
             }
         });
         root_ui().pop_skin();
