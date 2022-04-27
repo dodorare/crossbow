@@ -13,8 +13,9 @@ pub struct AppleBuildCommand {
     #[clap(long, conflicts_with = "example")]
     pub bin: Option<String>,
     /// Build for the given apple architecture.
-    /// Supported targets are: 'aarch64-apple-ios`, `armv7-apple-ios`, `armv7s-apple-ios`, `i386-apple-ios`, `x86_64-apple-ios`
-    #[clap(long, default_value = "aarch64-apple-ios")]
+    /// Supported targets are: `aarch64-apple-ios`, `aarch64-apple-ios-sim`,
+    /// `armv7-apple-ios`, `armv7s-apple-ios`, `i386-apple-ios`, `x86_64-apple-ios`
+    #[clap(long, default_value = "aarch64-apple-ios-sim")]
     pub target: Vec<AppleTarget>,
     /// Provisioning profile name to find in this directory: `~/Library/MobileDevice/Provisioning\ Profiles/`
     #[clap(long, conflicts_with = "profile-path")]
