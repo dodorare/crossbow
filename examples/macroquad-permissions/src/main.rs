@@ -47,7 +47,7 @@ async fn main() -> anyhow::Result<()> {
         clear_background(MAROON);
 
         root_ui().push_skin(&window_skin);
-        root_ui().window(hash!(), vec2(200.0, 250.0), vec2(500.0, 500.0), |ui| {
+        root_ui().window(hash!(), vec2(0.0, 250.0), vec2(500.0, 500.0), |ui| {
             if ui.button(vec2(-15.0, 150.0), "Ask camera permission") {
                 request_permission(Permission::AndroidPermission(AndroidPermission::Camera))
                     .unwrap();
