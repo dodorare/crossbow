@@ -1,4 +1,4 @@
-use crossbow_permissions::request_permission::ask_for_permission;
+use crossbow_permissions::request_permission::request_permission;
 use macroquad::prelude::*;
 use macroquad::ui::{hash, root_ui, Skin};
 
@@ -52,7 +52,7 @@ async fn main() -> anyhow::Result<()> {
                 draw_text_ex("Permission asked!", 100.0, 200.0, TextParams::default());
 
                 #[cfg(target_os = "android")]
-                ask_for_permission();
+                request_permission("CAMERA");
             }
         });
         root_ui().pop_skin();
