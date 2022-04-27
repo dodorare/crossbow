@@ -1,3 +1,5 @@
+use jni::strings::JNIString;
+
 /// Android Permissions
 ///
 /// See for more details: https://developer.android.com/reference/android/Manifest.permission

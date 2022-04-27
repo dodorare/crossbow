@@ -1,6 +1,6 @@
 /// Check whether permission was granted or not
-#[cfg(target_os = "android")]
-pub fn check_permission(permission: &str) -> crate::error::Result<bool> {
+// #[cfg(target_os = "android")]
+pub fn check_permission(permission: crate::AndroidPermission) -> crate::error::Result<bool> {
     let (ctx, vm) = create_java_vm()?;
     let java_env = vm.attach_current_thread()?;
 
@@ -32,8 +32,8 @@ pub fn check_permission(permission: &str) -> crate::error::Result<bool> {
 }
 
 /// Request permission
-#[cfg(target_os = "android")]
-pub fn request_permission(permission: &str) -> crate::error::Result<bool> {
+// #[cfg(target_os = "android")]
+pub fn request_permission(permission: crate::AndroidPermission) -> crate::error::Result<bool> {
     if check_permission(permission)? {
         return Ok(true);
     }
@@ -70,7 +70,7 @@ pub fn request_permission(permission: &str) -> crate::error::Result<bool> {
 }
 
 /// Create a java VM for executing Java calls
-#[cfg(target_os = "android")]
+// #[cfg(target_os = "android")]
 pub fn create_java_vm() -> crate::error::Result<(ndk_context::AndroidContext, jni::JavaVM)> {
     let ctx = ndk_context::android_context();
     let vm = unsafe { jni::JavaVM::from_raw(ctx.vm().cast()) }?;
@@ -78,15 +78,15 @@ pub fn create_java_vm() -> crate::error::Result<(ndk_context::AndroidContext, jn
 }
 
 /// Find declared permissions in AndroidManifest.xml and return it as JValue type
-#[cfg(target_os = "android")]
+// #[cfg(target_os = "android")]
 pub fn get_permission_from_manifest<'a>(
-    permission: &'a str,
+    permission: crate::AndroidPermission,
     java_env: &jni::AttachGuard<'a>,
 ) -> crate::error::Result<jni::objects::JValue<'a>> {
     let class_manifest_permission = java_env.find_class("android/Manifest$permission")?;
     let field_permission = java_env.get_static_field_id(
         class_manifest_permission,
-        permission,
+        permission.to_string(),
         "Ljava/lang/String;",
     )?;
     let string_permission = java_env
