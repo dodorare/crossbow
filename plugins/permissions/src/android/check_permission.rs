@@ -10,8 +10,11 @@ pub fn check_permission(permission: AndroidPermission) -> Result<bool> {
     let string_permission = get_permission_from_manifest(permission, &java_env)?;
 
     let class_package_manager = java_env.find_class(ANDROID_PACKAGE_MANAGER)?;
-    let field_permission_granted =
-        java_env.get_static_field_id(class_package_manager, PERMISSIONS_GRANTED, PRIMITIVE_INT)?;
+    let field_permission_granted = java_env.get_static_field_id(
+        class_package_manager,
+        PERMISSIONS_GRANTED,
+        PRIMITIVE_INT_SIGNATURE,
+    )?;
     let int_permission_granted = java_env.get_static_field_unchecked(
         class_package_manager,
         field_permission_granted,

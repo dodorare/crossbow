@@ -6,6 +6,7 @@ use jni::signature as Signature;
 pub fn request_permission(permission: AndroidPermission) -> Result<bool> {
     if check_permission(permission)? {
         return Ok(true);
+        // TODO: Show UI text to notify a user about permission status
     }
 
     let (ctx, vm) = create_java_vm()?;
@@ -13,7 +14,7 @@ pub fn request_permission(permission: AndroidPermission) -> Result<bool> {
 
     let array_permissions = java_env.new_object_array(
         ARRAY_LENGTH,
-        java_env.find_class(JAVA_STRING)?,
+        java_env.find_class(JAVA_STRING_SIGNATURE)?,
         java_env.new_string(String::new())?,
     )?;
 

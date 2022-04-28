@@ -20,7 +20,7 @@ fn get_permission_from_manifest<'a>(
     java_env: &jni::AttachGuard<'a>,
 ) -> crate::error::Result<jni::objects::JValue<'a>> {
     // Find the android manifest class and get the permission
-    let class_manifest_permission = java_env.find_class(MANIFEST_PERMISSION)?;
+    let class_manifest_permission = java_env.find_class(ANDROID_MANIFEST_PERMISSION)?;
     let field_permission = java_env.get_static_field_id(
         class_manifest_permission,
         permission.to_string(),
@@ -32,7 +32,7 @@ fn get_permission_from_manifest<'a>(
         .get_static_field_unchecked(
             class_manifest_permission,
             field_permission,
-            Signature::JavaType::Object(JAVA_STRING.to_owned()),
+            Signature::JavaType::Object(JAVA_STRING_SIGNATURE.to_owned()),
         )?
         .to_owned();
     Ok(string_permission)
