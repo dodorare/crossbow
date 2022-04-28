@@ -18,7 +18,7 @@ Take these steps to add Android-related environment variables:
 - Add `ANDROID_SDK_ROOT`|| `ANDROID_SDK_PATH` || `ANDROID_HOME` variable with value `<path_to_sdk>\sdk\ndk\<version>`.<br/>(ex. `C:\Users\username\AppData\Local\Android\Sdk\ndk\23.1.7779620`)
 - Add `ANDROID_SDK_ROOT` variable with value `<path_to_sdk>\sdk`.<br/>(ex. `C:\Users\username\AppData\Local\android\sdk`)
 
-If u will build application with emulator u should add this environment variables:
+If you will build application with emulator you should add this to environment variables:
 
 - Add `<path_to_sdk>\sdk\tools\bin` to `PATH` variable.
 - Add `<path_to_sdk>\sdk\emulator` to `PATH` variable.

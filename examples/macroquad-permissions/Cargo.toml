@@ -1,23 +1,20 @@
 [package]
-name = "macroquad-3d"
+name = "macroquad-permissions"
 version = "0.1.3"
 authors = ["DodoRare Team <support@dodorare.com>"]
 edition = "2021"
 
 [dependencies]
-crossbow = { version = "0.1.3", path = "../../" }
+crossbow = { version = "0.1.3", path = "../../", features = ["crossbow-permissions"] }
 log = "0.4"
 anyhow = "1.0"
 macroquad = "0.3"
 
 [package.metadata]
-app_name = "Macroquad_3D"
+app_name = "Macroquad_Permissions"
 target_sdk_version = 30
 version_code = 1
 icon = "ic_launcher"
-
-use_android_manifest = true
-android_manifest_path = "res/AndroidManifest.xml"
 
 android_build_targets = ["aarch64-linux-android"]
 android_assets = "assets"
@@ -26,3 +23,9 @@ android_res = "res/android"
 apple_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
 apple_assets = "assets"
 apple_res = "res/apple"
+
+[[package.metadata.android_permissions]]
+name = "android.permission.READ_EXTERNAL_STORAGE"
+
+[[package.metadata.android_permissions]]
+name = "android.permission.CAMERA"
