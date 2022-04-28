@@ -1,0 +1,12 @@
+pub const ANDROID_PACKAGE_MANAGER: &'static str = "android/content/pm/PackageManager";
+pub const ANDROID_ACTIVITY: &'static str = "android/app/Activity";
+pub const JAVA_STRING: &'static str = "java/lang/String";
+pub const REQUEST_PERMISSIONS_METHOD: &'static str = "requestPermissions";
+pub const CHECK_SELF_PERMISSION_METHOD: &'static str = "checkSelfPermission";
+pub const REQUEST_PERMISSIONS_SIGNATURE: &'static str = "([Ljava/lang/String;I)V";
+pub const CHECK_SELF_PERMISSION_SIGNATURE: &'static str = "(Ljava/lang/String;)I";
+pub const ARRAY_LENGTH: i32 = 1;
+pub const OBJECT_INDEX: i32 = 0;
+pub const PRIMITIVE_INT: &'static str = "I";
+pub const PERMISSIONS_GRANTED: &'static str = "PERMISSION_GRANTED";
+pub const ANDROID_CONTEXT: &'static str = "android/content/Context";

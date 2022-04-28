@@ -4,19 +4,6 @@ mod request_permission;
 pub use check_permission::*;
 pub use request_permission::*;
 
-const ANDROID_PACKAGE_MANAGER: &'static str = "android/content/pm/PackageManager";
-const ANDROID_ACTIVITY: &'static str = "android/app/Activity";
-const JAVA_STRING: &'static str = "java/lang/String";
-const REQUEST_PERMISSIONS_METHOD: &'static str = "requestPermissions";
-const CHECK_SELF_PERMISSION_METHOD: &'static str = "checkSelfPermission";
-const REQUEST_PERMISSIONS_SIGNATURE: &'static str = "([Ljava/lang/String;I)V";
-const CHECK_SELF_PERMISSION_SIGNATURE: &'static str = "(Ljava/lang/String;)I";
-const ARRAY_LENGTH: i32 = 1;
-const OBJECT_INDEX: i32 = 0;
-const PRIMITIVE_INT: &'static str = "I";
-const PERMISSIONS_GRANTED: &'static str = "PERMISSION_GRANTED";
-const ANDROID_CONTEXT: &'static str = "android/content/Context";
-
 /// Create a java VM for executing Java calls
 fn create_java_vm() -> crate::error::Result<(ndk_context::AndroidContext, jni::JavaVM)> {
     let ctx = ndk_context::android_context();
