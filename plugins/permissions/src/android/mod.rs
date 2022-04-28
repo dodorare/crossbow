@@ -4,6 +4,9 @@ mod request_permission;
 pub use check_permission::*;
 pub use request_permission::*;
 
+use crate::types::android::*;
+use jni::signature as Signature;
+
 /// Create a java VM for executing Java calls
 fn create_java_vm() -> crate::error::Result<(ndk_context::AndroidContext, jni::JavaVM)> {
     let ctx = ndk_context::android_context();
@@ -13,20 +16,23 @@ fn create_java_vm() -> crate::error::Result<(ndk_context::AndroidContext, jni::J
 
 /// Find declared permissions in AndroidManifest.xml and return it as JValue type
 fn get_permission_from_manifest<'a>(
-    permission: crate::types::android::AndroidPermission,
+    permission: AndroidPermission,
     java_env: &jni::AttachGuard<'a>,
 ) -> crate::error::Result<jni::objects::JValue<'a>> {
-    let class_manifest_permission = java_env.find_class("android/Manifest$permission")?;
+    // Find the android manifest class and get the permission
+    let class_manifest_permission = java_env.find_class(MANIFEST_PERMISSION)?;
     let field_permission = java_env.get_static_field_id(
         class_manifest_permission,
         permission.to_string(),
-        "Ljava/lang/String;",
+        MANIFEST_PERMISSION_SIGNATURE,
     )?;
+
+    // Convert the permission to the JValue type
     let string_permission = java_env
         .get_static_field_unchecked(
             class_manifest_permission,
             field_permission,
-            jni::signature::JavaType::Object("java/lang/String".to_owned()),
+            Signature::JavaType::Object(JAVA_STRING.to_owned()),
         )?
         .to_owned();
     Ok(string_permission)
