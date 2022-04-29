@@ -18,7 +18,10 @@ brew install --cask adoptopenjdk8
 
 ## Add environment variables
 
-We need to make sure that Android-related environment variables are set in `PATH`, `ANDROID_SDK_ROOT`|| `ANDROID_SDK_PATH` || `ANDROID_HOME`, and `ANDROID_NDK_ROOT`.
+Take these steps to add Android-related environment variables:
+
+- From the Start search bar, enter ‘env’ and select **Edit environment variables for your account**.
+- Add `ANDROID_SDK_ROOT`||`ANDROID_SDK_PATH`||`ANDROID_HOME` and `ANDROID_NDK_ROOT`||`ANDROID_NDK_PATH`||`NDK_HOME`to environment variables.
 
 For that edit **~/.bash_profile**/**~/.bashrc** or **~/.zshrc** files so they contain those lines:
 

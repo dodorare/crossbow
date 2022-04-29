@@ -2,7 +2,7 @@
 
 ## Install necessary packages
 
-1. Use crossbundle install command or download and install [Android Studio](https://developer.android.com/studio).
+1. Use [crossbundle install command](https://github.com/dodorare/crossbow/blob/main/docs/crossbundle-install-command.md) or download and install [Android Studio](https://developer.android.com/studio).
 2. Start Android Studio, and go through the `Android Studio Setup Wizard` with the `Custom` option and install the following (or install them in `SDK Manager`):
    - Android SDK
    - NDK (Side by side)
@@ -15,18 +15,20 @@
 Take these steps to add Android-related environment variables:
 
 - From the Start search bar, enter ‘env’ and select **Edit environment variables for your account**.
-- Add `ANDROID_SDK_ROOT`|| `ANDROID_SDK_PATH` || `ANDROID_HOME` variable with value `<path_to_sdk>\sdk\ndk\<version>`.<br/>(ex. `C:\Users\username\AppData\Local\Android\Sdk\ndk\23.1.7779620`)
+- Add `ANDROID_SDK_ROOT`||`ANDROID_SDK_PATH`||`ANDROID_HOME` and `ANDROID_NDK_ROOT`||`ANDROID_NDK_PATH`||`NDK_HOME`to environment variables.
 - Add `ANDROID_SDK_ROOT` variable with value `<path_to_sdk>\sdk`.<br/>(ex. `C:\Users\username\AppData\Local\android\sdk`)
+- Add `ANDROID_NDK_ROOT` variable with value `<path_to_sdk>\sdk\ndk\<version>`.<br/>(ex. `C:\Users\username\AppData\Local\Android\Sdk\ndk\23.1.7779620`)
 
 If you will build application with emulator you should add this to environment variables:
 
 - Add `<path_to_sdk>\sdk\tools\bin` to `PATH` variable.
 - Add `<path_to_sdk>\sdk\emulator` to `PATH` variable.
 
-Also, we need to make sure we have a [java runtime environment](https://www.oracle.com/java/technologies/downloads/) (JRE) installed. We need a key tool utility from there. <br/>
+Also, we need to make sure we have a [java runtime environment](https://www.oracle.com/java/technologies/downloads/) (JRE) or [Java developer kit](https://www.oracle.com/java/technologies/downloads/) (JDK) installed. We need a key tool utility from there. <br/>
 To make sure it's present type this command: `keytool -h`
 
-- If command above fails, add `<path_to_jre>\bin` to `PATH` environment variable.<br/>(ex. `C:\Program Files\Android\Android Studio\jre\bin`)
+- If command above fails, add `<path_to_jre>\bin` to `PATH` environment variable.<br/>(ex. `C:\Program Files\Android\Android Studio\jre\bin`) <br/>(ex. `C:\Program Files\java\jdk\bin`)
+
 
 You have to close and reopen any existing console windows for these changes to take effect.
 

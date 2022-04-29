@@ -2,7 +2,7 @@
 
 ## Install necessary packages
 
-1. Use crossbundle install command or download and install [Android Studio](https://developer.android.com/studio).
+1. Use [crossbundle install command](https://github.com/dodorare/crossbow/blob/main/docs/crossbundle-install-command.md) or download and install [Android Studio](https://developer.android.com/studio).
 2. Start Android Studio, and go through the `Android Studio Setup Wizard` with the `Custom` option and install the following (or install them in `SDK Manager`):
    - Android SDK
    - NDK (Side by side)
@@ -12,13 +12,22 @@
 
 ## Add environment variables
 
-We need to make sure that Android-related environment variables are set in `PATH`, `ANDROID_SDK_ROOT`|| `ANDROID_SDK_PATH` || `ANDROID_HOME`, and `ANDROID_NDK_ROOT`.
+Take these steps to add Android-related environment variables:
+
+- From the Start search bar, enter ‘env’ and select **Edit environment variables for your account**.
+- Add `ANDROID_SDK_ROOT`||`ANDROID_SDK_PATH`||`ANDROID_HOME` and `ANDROID_NDK_ROOT`||`ANDROID_NDK_PATH`||`NDK_HOME`to environment variables.
 
 For that edit **~/.bash_profile** or **~/.bashrc** files so they contain those lines:
 
 ```sh
 export ANDROID_SDK_ROOT=$HOME/Android/Sdk
-export ANDROID_NDK_ROOT=$HOME/Android/Sdk/ndk/22.0.7026061
+export ANDROID_NDK_ROOT=$HOME/Android/Sdk/ndk/23.1.7779620
+```
+If u will build application with emulator u should add this environment variables:
+
+```sh
+export PATH=<path_to_sdk>\sdk\emulator:$PATH
+export PATH=<path_to_sdk>\sdk\tools\bin:$PATH
 ```
 
 Also, we need to make sure we have a java runtime environment (JRE) installed. We need a key tool utility from there. <br/>
