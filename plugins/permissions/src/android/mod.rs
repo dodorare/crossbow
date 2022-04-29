@@ -38,6 +38,7 @@ fn get_permission_from_manifest<'a>(
     Ok(string_permission)
 }
 
+/// Get `PERMISSION_GRANTED` and `PERMISSION_DENIED` status
 pub fn permission_status<'a>(
     java_env: &jni::AttachGuard<'a>,
 ) -> crate::error::Result<(jni::objects::JValue<'a>, jni::objects::JValue<'a>)> {

@@ -9,30 +9,7 @@ pub fn check_permission(permission: AndroidPermission) -> Result<bool> {
 
     let string_permission = get_permission_from_manifest(permission, &java_env)?;
 
-    let class_package_manager = java_env.find_class(ANDROID_PACKAGE_MANAGER)?;
-    let field_permission_granted = java_env.get_static_field_id(
-        class_package_manager,
-        PERMISSIONS_GRANTED,
-        PRIMITIVE_INT_SIGNATURE,
-    )?;
-
-    let field_permission_denied = java_env.get_static_field_id(
-        class_package_manager,
-        "PERMISSION_DENIED",
-        PRIMITIVE_INT_SIGNATURE,
-    )?;
-
-    let int_permission_denied = java_env.get_static_field_unchecked(
-        class_package_manager,
-        field_permission_denied,
-        Signature::JavaType::Primitive(Signature::Primitive::Int),
-    )?;
-
-    let int_permission_granted = java_env.get_static_field_unchecked(
-        class_package_manager,
-        field_permission_granted,
-        Signature::JavaType::Primitive(Signature::Primitive::Int),
-    )?;
+    let (permission_granted, _permission_denied) = permission_status(&java_env)?;
 
     // Determine whether you have been granted a particular permission.
     let class_context = java_env.find_class(ANDROID_CONTEXT)?;
@@ -49,7 +26,7 @@ pub fn check_permission(permission: AndroidPermission) -> Result<bool> {
         &[string_permission],
     )?;
 
-    if ret.i()? == int_permission_granted.i()? {
+    if ret.i()? == permission_granted.i()? {
         return Ok(true);
     }
 
