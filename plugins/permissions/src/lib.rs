@@ -1,4 +1,4 @@
-#[cfg(target_os = "android")]
+// #[cfg(target_os = "android")]
 pub mod android;
 pub mod error;
 pub mod types;
@@ -11,7 +11,7 @@ pub enum Permission {
 pub fn request_permission(permission: Permission) -> error::Result<bool> {
     match permission {
         Permission::AndroidPermission(_p) => {
-            #[cfg(target_os = "android")]
+            // #[cfg(target_os = "android")]
             return android::request_permission(_p);
 
             #[cfg(not(target_os = "android"))]
@@ -24,7 +24,7 @@ pub fn request_permission(permission: Permission) -> error::Result<bool> {
 pub fn check_permission(permission: Permission) -> error::Result<bool> {
     match permission {
         Permission::AndroidPermission(_p) => {
-            #[cfg(target_os = "android")]
+            // #[cfg(target_os = "android")]
             return android::check_permission(_p);
 
             #[cfg(not(target_os = "android"))]
@@ -35,7 +35,7 @@ pub fn check_permission(permission: Permission) -> error::Result<bool> {
 }
 
 pub mod prelude {
-    #[cfg(target_os = "android")]
+    // #[cfg(target_os = "android")]
     pub use super::android::*;
     pub use super::types::android::*;
 

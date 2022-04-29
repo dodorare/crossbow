@@ -4,13 +4,14 @@ use jni::signature as Signature;
 
 /// Request permission
 pub fn request_permission(permission: AndroidPermission) -> Result<bool> {
+    let (ctx, vm) = create_java_vm()?;
+    let java_env = vm.attach_current_thread()?;
+
+    let toast_class = java_env.find_class("android/widget/Toast")?;
     if check_permission(permission)? {
         return Ok(true);
         // TODO: Show UI text to notify a user about permission status
     }
-
-    let (ctx, vm) = create_java_vm()?;
-    let java_env = vm.attach_current_thread()?;
 
     let array_permissions = java_env.new_object_array(
         ARRAY_LENGTH,

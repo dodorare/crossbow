@@ -15,6 +15,19 @@ pub fn check_permission(permission: AndroidPermission) -> Result<bool> {
         PERMISSIONS_GRANTED,
         PRIMITIVE_INT_SIGNATURE,
     )?;
+
+    let field_permission_denied = java_env.get_static_field_id(
+        class_package_manager,
+        "PERMISSION_DENIED",
+        PRIMITIVE_INT_SIGNATURE,
+    )?;
+
+    let int_permission_denied = java_env.get_static_field_unchecked(
+        class_package_manager,
+        field_permission_denied,
+        Signature::JavaType::Primitive(Signature::Primitive::Int),
+    )?;
+
     let int_permission_granted = java_env.get_static_field_unchecked(
         class_package_manager,
         field_permission_granted,
@@ -28,11 +41,17 @@ pub fn check_permission(permission: AndroidPermission) -> Result<bool> {
         CHECK_SELF_PERMISSION_METHOD,
         CHECK_SELF_PERMISSION_SIGNATURE,
     )?;
+
     let ret = java_env.call_method_unchecked(
         ctx.context().cast(),
         method_check_self_permission,
         Signature::JavaType::Primitive(Signature::Primitive::Int),
         &[string_permission],
     )?;
-    Ok(ret.i()? == int_permission_granted.i()?)
+
+    if ret.i()? == int_permission_granted.i()? {
+        return Ok(true);
+    }
+
+    Ok(true)
 }

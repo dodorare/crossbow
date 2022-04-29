@@ -37,3 +37,34 @@ fn get_permission_from_manifest<'a>(
         .to_owned();
     Ok(string_permission)
 }
+
+pub fn permission_status<'a>(
+    java_env: &jni::AttachGuard<'a>,
+) -> crate::error::Result<(jni::objects::JValue<'a>, jni::objects::JValue<'a>)> {
+    let class_package_manager = java_env.find_class(ANDROID_PACKAGE_MANAGER)?;
+    let field_permission_granted = java_env.get_static_field_id(
+        class_package_manager,
+        PERMISSIONS_GRANTED,
+        PRIMITIVE_INT_SIGNATURE,
+    )?;
+
+    let field_permission_denied = java_env.get_static_field_id(
+        class_package_manager,
+        "PERMISSION_DENIED",
+        PRIMITIVE_INT_SIGNATURE,
+    )?;
+
+    let permission_denied = java_env.get_static_field_unchecked(
+        class_package_manager,
+        field_permission_denied,
+        Signature::JavaType::Primitive(Signature::Primitive::Int),
+    )?;
+
+    let permission_granted = java_env.get_static_field_unchecked(
+        class_package_manager,
+        field_permission_granted,
+        Signature::JavaType::Primitive(Signature::Primitive::Int),
+    )?;
+
+    Ok((permission_granted, permission_denied))
+}
