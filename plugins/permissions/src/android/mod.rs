@@ -1,8 +1,10 @@
 mod check_permission;
 mod request_permission;
+mod ui_text;
 
 pub use check_permission::*;
 pub use request_permission::*;
+pub use ui_text::*;
 
 use crate::types::android::*;
 use jni::signature as Signature;
