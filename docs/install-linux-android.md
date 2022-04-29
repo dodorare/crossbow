@@ -41,6 +41,12 @@ Examples:
 - Ubuntu: `sudo apt install default-jdk`
 - Manjaro (Arch): `sudo pacman -S jre11-openjdk-headless jre11-openjdk jdk11-openjdk openjdk11-doc openjdk11-src`
 
+### If you want to generate AAB (Android App Bundle) u will need to install Bundletool.
+
+If you haven't already done so, download bundletool from the [`GitHub repository`](https://github.com/google/bundletool/releases).
+
+- Add `BUNDLETOOL_PATH` variable with value `<path_to_bundletool>`.
+
 ## Set up your Android device
 
 To prepare to run your `Crossbow` app on an Android device, you need an Android device running Android 4.1 (API level 16) or higher.
