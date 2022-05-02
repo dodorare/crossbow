@@ -2,7 +2,7 @@
 
 ## Install necessary packages
 
-1. Use crossbundle install command or download and install [Android Studio](https://developer.android.com/studio).
+1. Use [crossbundle install command](https://github.com/dodorare/crossbow/blob/main/docs/crossbundle-install-command.md) or download and install [Android Studio](https://developer.android.com/studio).
 2. Start Android Studio, and go through the `Android Studio Setup Wizard` with the `Custom` option and install the following (or install them in `SDK Manager`):
    - Android SDK
    - NDK (Side by side)
