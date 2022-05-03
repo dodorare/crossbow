@@ -26,9 +26,5 @@ pub fn check_permission(permission: AndroidPermission) -> Result<bool> {
         &[string_permission],
     )?;
 
-    if ret.i()? == permission_granted.i()? {
-        return Ok(true);
-    }
-
-    Ok(true)
+    Ok(ret.i()? == permission_granted.i()?)
 }

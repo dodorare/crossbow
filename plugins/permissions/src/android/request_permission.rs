@@ -8,6 +8,7 @@ pub fn request_permission(permission: AndroidPermission) -> Result<bool> {
     let java_env = vm.attach_current_thread()?;
 
     if check_permission(permission)? {
+        show_text("Permission granted")?;
         return Ok(true);
         // TODO: Show UI text to notify a user about permission status
     }
