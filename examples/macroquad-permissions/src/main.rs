@@ -51,6 +51,8 @@ async fn main() -> anyhow::Result<()> {
             if ui.button(vec2(-15.0, 150.0), "Ask camera permission") {
                 request_permission(Permission::AndroidPermission(AndroidPermission::Camera))
                     .unwrap();
+                show_text(Permission::AndroidPermission(AndroidPermission::Camera))
+                    .unwrap();
             }
             if ui.button(vec2(-15.0, 300.0), "Ask storage permission") {
                 request_permission(Permission::AndroidPermission(

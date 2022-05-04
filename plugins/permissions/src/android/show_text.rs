@@ -1,6 +1,7 @@
-use jni::sys::_jobject;
-
 use super::*;
+use crate::{error::*, types::android::*};
+use jni::signature as Signature;
+use jni::sys::_jobject;
 
 pub fn show_text(permission: AndroidPermission) -> crate::error::Result<()> {
     let (ctx, vm) = create_java_vm()?;
@@ -16,62 +17,81 @@ pub fn show_text(permission: AndroidPermission) -> crate::error::Result<()> {
     let array = java_env.new_object_array(
         ARRAY_LENGTH,
         java_env.find_class(JAVA_STRING_SIGNATURE)?,
-        java_env.new_string(String::from(permission))?,
+        java_env.new_string(String::new())?,
     )?;
-    let class = java_env.find_class("com.crossbow.permission.MainActivity")?;
-    java_env.call_method(
+    let request_permission = invoke_request_permission_method(permission, &java_env)?;
+    let class = java_env.find_class(ANDROID_ACTIVITY)?;
+    let get_on_request_permissions_result = java_env.get_method_id(
         class,
         "onRequestPermissionsResult",
         "(I[Ljava/lang/String;[I)V",
-        &[
-            jni::objects::JValue::Int(0),
-            array.into(),
-            jni::objects::JValue::Int(1),
-        ],
+    )?;
+    let object_on_request_permissions_result = java_env
+        .call_method_unchecked(
+            ctx.context().cast(),
+            get_on_request_permissions_result,
+            Signature::JavaType::Primitive(Signature::Primitive::Void),
+            &[
+                request_permission.into(),
+                array.into(),
+                jni::objects::JValue::Int(1),
+            ],
+        )?
+        .l()?;
+
+    let context_class = java_env.find_class(ANDROID_CONTEXT)?;
+
+    // Get activity as argument for Toast.makeText() method
+    let get_application_activity =
+        java_env.get_method_id(context_class, "getApplicationContext", "()V")?;
+    let application_activity = java_env.call_method_unchecked(
+        ctx.context().cast(),
+        get_application_activity,
+        Signature::JavaType::Primitive(Signature::Primitive::Void),
+        &[],
     )?;
 
-    // let get_application_activity =
-    //     java_env.get_method_id(context_class, "getApplicationContext", "()V")?;
+    let toast_class = java_env.find_class("android/widget/Toast")?;
+    let field_length_short =
+        java_env.get_static_field_id(toast_class, "LENGTH_SHORT", PRIMITIVE_INT_SIGNATURE)?;
 
-    // let application_activity = java_env.call_method_unchecked(
-    //     ctx.context().cast(),
-    //     get_application_activity,
-    //     Signature::JavaType::Primitive(Signature::Primitive::Void),
-    //     &[],
-    // )?;
-    // println!("application_activity {:?}", application_activity);
+    let length_short = java_env.get_static_field_unchecked(
+        toast_class,
+        field_length_short,
+        Signature::JavaType::Primitive(Signature::Primitive::Int),
+    )?;
 
-    // let toast_class = java_env.find_class("android/widget/Toast")?;
-    // let field_length_short =
-    //     java_env.get_static_field_id(toast_class, "LENGTH_SHORT", PRIMITIVE_INT_SIGNATURE)?;
+    // let arg_text = java_env.new_string(String::from("Permission granted"))?;
+    let method_make_text = java_env.get_method_id(
+        toast_class,
+        "makeText",
+        "(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;",
+    )?;
+    let method_show = java_env.get_method_id(toast_class, "show", "()V")?;
 
-    // let length_short = java_env.get_static_field_unchecked(
-    //     toast_class,
-    //     field_length_short,
-    //     Signature::JavaType::Primitive(Signature::Primitive::Int),
-    // )?;
-    // // let text = java_env.new_string(String::from("Permission granted"))?;
-    // let make_text = java_env.get_method_id(
-    //     toast_class,
-    //     "makeText",
-    //     "(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;",
-    // )?;
-    // let show = java_env.get_method_id(toast_class, "show", "()V")?;
+    let text = java_env.new_object_array(
+        ARRAY_LENGTH,
+        java_env.find_class(JAVA_STRING_SIGNATURE)?,
+        java_env.new_string(String::from("Permission granted"))?,
+    )?;
 
-    // let text = java_env.new_object_array(
-    //     ARRAY_LENGTH,
-    //     java_env.find_class(JAVA_STRING_SIGNATURE)?,
-    //     java_env.new_string(String::from(status))?,
-    // )?;
+    let object_make_text = java_env
+        .call_method_unchecked(
+            object_on_request_permissions_result,
+            method_make_text,
+            Signature::JavaType::Primitive(Signature::Primitive::Void),
+            &[application_activity.into(), text.into(), length_short],
+        )?
+        .l()?;
 
-    // let make_text_method = java_env
-    //     .call_method_unchecked(
-    //         ctx.context().cast(),
-    //         make_text,
-    //         Signature::JavaType::Primitive(Signature::Primitive::Void),
-    //         &[application_activity.into(), text.into(), length_short],
-    //     )?
-    //     .l()?;
+    let object_show = java_env
+        .call_method_unchecked(
+            object_make_text,
+            method_make_text,
+            Signature::JavaType::Primitive(Signature::Primitive::Void),
+            &[application_activity.into(), text.into(), length_short],
+        )?
+        .l()?;
 
     // let show_method = java_env.call_method(toast_class, "show", "()V", &[])?;
     Ok(())

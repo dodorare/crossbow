@@ -34,10 +34,23 @@ pub fn check_permission(permission: Permission) -> error::Result<bool> {
     }
 }
 
+pub fn show_text(permission: Permission) -> error::Result<()> {
+    match permission {
+        Permission::AndroidPermission(_p) => {
+            // #[cfg(target_os = "android")]
+            return android::show_text(_p);
+
+            #[cfg(not(target_os = "android"))]
+            Err(error::PermissionError::PermissionWrongPlatform)
+        }
+        Permission::ApplePermission => Ok(()),
+    }
+}
+
 pub mod prelude {
     // #[cfg(target_os = "android")]
     pub use super::android::*;
     pub use super::types::android::*;
 
-    pub use super::{check_permission, request_permission, Permission};
+    pub use super::{check_permission, request_permission, show_text, Permission};
 }

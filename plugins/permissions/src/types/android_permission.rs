@@ -1107,8 +1107,10 @@ impl AndroidPermission {
     pub fn android_permission_name(&self) -> String {
         "android.permission.".to_string() + self.to_string().as_str()
     }
+}
 
-    pub fn android_permission(&self) -> &'static str {
+impl std::fmt::Display for AndroidPermission {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::AcceptHandover => write!(f, "ACCEPT_HANDOVER"),
             Self::AccessBackgroundLocation => write!(f, "ACCESS_BACKGROUND_LOCATION"),
@@ -1359,11 +1361,5 @@ mod tests {
             permission.android_permission_name(),
             "android.permission.ACCESS_CHECKIN_PROPERTIES"
         );
-    }
-
-    #[test]
-    fn test_android_permission() {
-        let permission = AndroidPermission::AcceptHandover;
-        assert_eq!(permission.android_permission(), "ACCEPT_HANDOVER");
     }
 }
