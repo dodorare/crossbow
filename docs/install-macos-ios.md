@@ -1,6 +1,6 @@
-# iOS setup on MacOS
+# 📱 iOS setup on MacOS 💻
 
-## Setup on macOS
+## ⚙️ Setup on macOS
 
 Install `brew`:
 
@@ -64,7 +64,7 @@ Install `crossbundle`:
 cargo install --git=https://github.com/dodorare/crossbow crossbundle
 ```
 
-## Build Apple app
+## 🔨 Build Apple app
 
 Now everything is ready to build your application.
 
@@ -87,7 +87,7 @@ And if you want to run on the simulator:
 crossbundle run apple --target=x86_64-apple-ios
 ```
 
-## Run your app on a real device
+## 🏃‍♀️ Run your app on a real device 📱
 
 To run your application on a real device you will need to open `Xcode` and create a new project
 with the same `bundle_identifier` as your app. Then you will find a `mobileprovision` file

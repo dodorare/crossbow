@@ -1,6 +1,6 @@
-# Android setup on Windows
+# 📱 Android setup on Windows 🖥️
 
-## Install necessary packages
+## 🌀 Install necessary packages
 
 1. Use [crossbundle install command](https://github.com/dodorare/crossbow/blob/main/docs/crossbundle-install-command.md) or download and install [Android Studio](https://developer.android.com/studio).
 2. Start Android Studio, and go through the `Android Studio Setup Wizard` with the `Custom` option and install the following (or install them in `SDK Manager`):
@@ -10,7 +10,7 @@
    - Android SDK Build-Tools
    - Android SDK Platform-tools
 
-## Add environment variables
+## 🗃️ Add environment variables
 
 Take these steps to add Android-related environment variables:
 
@@ -32,13 +32,13 @@ To make sure it's present type this command: `keytool -h`
 
 You have to close and reopen any existing console windows for these changes to take effect.
 
-### If you want to generate AAB (Android App Bundle) u will need to install Bundletool.
+### ❗❗ If you want to generate AAB (Android App Bundle) u will need to install Bundletool.
 
 If you haven't already done so, download bundletool from the [`GitHub repository`](https://github.com/google/bundletool/releases).
 
 - Add `BUNDLETOOL_PATH` variable with value `<path_to_bundletool>`.
 
-## Set up your Android device
+## 📱 Set up your Android device
 
 To prepare to run your `Crossbow` app on an Android device, you need an Android device running Android 4.1 (API level 16) or higher.
 
@@ -46,7 +46,7 @@ To prepare to run your `Crossbow` app on an Android device, you need an Android 
 2. Windows-only: Install the [Google USB Driver](https://developer.android.com/studio/run/win-usb).
 3. Using a USB cable, plug your phone into your computer. If prompted on your device, authorize your computer to access your device.
 
-## Set up the Android emulator
+## 💻 Set up the Android emulator
 
 To prepare to run and test your Flutter app on the Android emulator, follow these steps:
 
@@ -58,7 +58,7 @@ To prepare to run and test your Flutter app on the Android emulator, follow thes
 6. Verify the AVD configuration is correct, and select **Finish**. (For details on the above steps, see [`Managing AVDs`](https://developer.android.com/studio/run/managing-avds))
 7. In Android Virtual Device Manager, click Run in the toolbar. The emulator starts up and displays the default canvas for your selected OS version and device.
 
-## Install necessary rustup targets
+## 🌀 Install necessary rustup targets
 
 Run the following command:
 

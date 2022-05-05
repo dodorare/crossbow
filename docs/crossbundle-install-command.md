@@ -1,4 +1,4 @@
-# Setup packages with crossbundle install
+# ❗❗ Setup packages with crossbundle install
 
 Use `crossbundle` install command to install necessary packages. To find out available commands specify the -h flag.
 
@@ -6,9 +6,9 @@ Use `crossbundle` install command to install necessary packages. To find out ava
 crossbundle install -h
 ```
 
-## Install tools to APK correct building
+## 🌀 Install tools to APK correct building
 
-### Install command-line tools
+### ❗ Install command-line tools
 
 If you do not need Android Studio, you can download the basic Android [command line tools](https://developer.android.com/studio/command-line) below. You can use the included [sdkmanager](https://developer.android.com/studio/command-line/sdkmanager) to download other SDK packages.
 
@@ -22,7 +22,7 @@ crossbundle install command-line-tools
 
 The command will download a zip archive and unzip command line tools into `$HOME\AppData\Local\Android\Sdk\cmdline-tools\bin` for windows and `$HOME/Local/Android/Sdk/cmdline-tools/bin` for other operating systems.
 
-### Install packages
+### 🌀 Install packages 📂
 
 The [sdkmanager](https://developer.android.com/studio/command-line/sdkmanager) is a command-line tool that allows you to view, install, update, and uninstall packages for the Android SDK.
 
@@ -40,11 +40,11 @@ crossbundle install sdk-manager --install "build-tools;30.0.0" "ndk;23.1.7779620
 
 The command will install packages into `$HOME\AppData\Local\Android\Sdk\` for Windows, `$HOME/Library/Android/sdk/` for macOS, and `$HOME/Android/sdk/` for Linux.
 
-## Install tools to AAB correct building
+## 🌀 Install tools to AAB correct building 🛠️
 
 For correct AAB building install [bundletool](https://developer.android.com/studio/command-line/bundletool) and tools above.
 
-### Install bundletool
+### 🌀 Install bundletool
 
 To install [bundletool](https://developer.android.com/studio/command-line/bundletool) use command below. To see all available options use the -h flag.
 
