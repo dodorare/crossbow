@@ -1,4 +1,4 @@
-# 📱Android setup on MacOS 💻
+# 📱 Android setup on MacOS 💻
 
 ## 🌀 Install necessary packages
 

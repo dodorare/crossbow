@@ -46,7 +46,7 @@ cargo install --git=https://github.com/dodorare/crossbow crossbundle
 
 See [installation documentation](https://github.com/dodorare/crossbow/blob/improve-documentation/docs/README.md) for more details on how to setup environment on your platform.
 
-## 📚Documentation
+## 📚 Documentation
 
 To learn how to run an example project on your own, build, test, and start using `crossbow` - read our full documentation [here](./docs/README.md).
 
@@ -244,6 +244,7 @@ Crate structure:
 | Name | Description | Status |
 | ---- | ----------- | ------ |
 | [crossbundle](./crossbundle/cli/README.md) | Command-line tool for building applications | ✅ |
+| [crossbundle-install](https://github.com/dodorare/crossbow/blob/improve-documentation/docs/crossbundle-install-command.md) | Crossbundle install command to install necessary packages  | ✅ |
 | [crossbundle-tools](./crossbundle/tools/README.md) | Toolkit used in `crossbundle` to build/pack/sign bundles | ✅ |
 | [crossbundle-derive](./crossbundle/derive/README.md) | Derive macros for projects built with `crossbow` | ✅ |
 | [crossbow-ads](./crossbow/ads/README.md) | Plugin for advertisements | 🛠 |

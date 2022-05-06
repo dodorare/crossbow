@@ -1,6 +1,6 @@
-# Project configuration
+# 📂 Project configuration
 
-## Сonfiguration through metadata
+## ⚙️ Сonfiguration through metadata
 
 The easiest way to configure a project is with metadata. Here's an example:
 
@@ -30,7 +30,7 @@ apple_assets = "assets"
 apple_res = "res/apple"
 ```
 
-### Сonfiguration through separate files
+### ⚙️ Сonfiguration through separate files
 
 But sometimes you need to configure something more complex. For such cases, a more suitable way is to use separate `AndroidManifest.xml` or/and `Info.plist` files.
 
