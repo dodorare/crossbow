@@ -7,12 +7,15 @@ pub fn request_permission<'a>(permission: AndroidPermission) -> Result<bool> {
     let (ctx, vm) = create_java_vm()?;
     let java_env = vm.attach_current_thread()?;
 
-    if check_permission(permission)? {
-        return Ok(true);
-        // TODO: Show UI text to notify a user about permission status
-    }
+    // if check_permission(permission)? == false {
+    //     let request_permission = invoke_request_permission_method(permission, &java_env)?;
 
-    let request_permission = invoke_request_permission_method(permission, &java_env)?;
+    //     // TODO: Show UI text to notify a user about permission status
+    // } else {
+    //     show_text()?;
+    // }
+
+    // let request_permission = invoke_request_permission_method(permission, &java_env)?;
     // let array = java_env.new_object_array(
     //     2,
     //     java_env.find_class(JAVA_STRING_SIGNATURE)?,
@@ -33,7 +36,7 @@ pub fn request_permission<'a>(permission: AndroidPermission) -> Result<bool> {
 pub fn invoke_request_permission_method<'a>(
     permission: AndroidPermission,
     java_env: &jni::AttachGuard<'a>,
-) -> Result<jni::objects::JObject<'a>> {
+) -> Result<jni::objects::JValue<'a>> {
     let (ctx, vm) = create_java_vm()?;
     let array_permissions = java_env.new_object_array(
         ARRAY_LENGTH.into(),
@@ -55,13 +58,11 @@ pub fn invoke_request_permission_method<'a>(
         REQUEST_PERMISSIONS_SIGNATURE,
     )?;
 
-    let request_permission = java_env
-        .call_method_unchecked(
-            ctx.context().cast(),
-            method_request_permissions,
-            Signature::JavaType::Primitive(Signature::Primitive::Void),
-            &[array_permissions.into(), jni::objects::JValue::Int(0)],
-        )?
-        .l()?;
+    let request_permission = java_env.call_method_unchecked(
+        ctx.context().cast(),
+        method_request_permissions,
+        Signature::JavaType::Primitive(Signature::Primitive::Void),
+        &[array_permissions.into(), jni::objects::JValue::Int(0)],
+    )?;
     Ok(request_permission)
 }

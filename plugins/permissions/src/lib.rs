@@ -34,7 +34,7 @@ pub fn check_permission(permission: Permission) -> error::Result<bool> {
     }
 }
 
-pub fn show_text(permission: Permission) -> error::Result<()> {
+pub fn show_text(permission: Permission) -> error::Result<bool> {
     match permission {
         Permission::AndroidPermission(_p) => {
             // #[cfg(target_os = "android")]
@@ -43,7 +43,7 @@ pub fn show_text(permission: Permission) -> error::Result<()> {
             #[cfg(not(target_os = "android"))]
             Err(error::PermissionError::PermissionWrongPlatform)
         }
-        Permission::ApplePermission => Ok(()),
+        Permission::ApplePermission => Ok(false),
     }
 }
 
