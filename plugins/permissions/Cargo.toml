@@ -19,9 +19,6 @@ ndk-context = "0.1"
 ndk-glue = "0.6.0"
 jni = "0.19.0"
 ndk = "0.6"
-jni-android-sys = { version = "0.0.10", features = ["api-level-28", "all"] }
-jni-glue = "0.0.10"
-jni-sys = "0.3.0"
 
 [features]
 default = ["full-permissions"]

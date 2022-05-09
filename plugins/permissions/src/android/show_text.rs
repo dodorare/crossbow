@@ -149,31 +149,6 @@
 //     Ok(())
 // }
 
-// // javap -s MainActivity.class
-// // Compiled from "MainActivity.java"
-// // public class com.crossbow.permission.MainActivity extends androidx.appcompat.app.AppCompatActivity {
-// //   android.widget.Button btnCamera;
-// //     descriptor: Landroid/widget/Button;
-// //   android.widget.Button btnStorage;
-// //     descriptor: Landroid/widget/Button;
-// //   public com.crossbow.permission.MainActivity();
-// //     descriptor: ()V
-
-// //   protected void onCreate(android.os.Bundle);
-// //     descriptor: (Landroid/os/Bundle;)V
-
-// //   public void checkPermission(java.lang.String, int);
-// //     descriptor: (Ljava/lang/String;I)V
-
-// //   public void onRequestPermissionsResult(int, java.lang.String[], int[]);
-// //     descriptor: (I[Ljava/lang/String;[I)V
-
-// //   public static android.widget.Toast makeText(android.content.Context, java.lang.CharSequence, int);
-// //     descriptor: (Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;
-
-// //   public void show();
-// //     descriptor: ()V
-// // }
 // pub fn show_text_from_main_activity_class(permission: AndroidPermission) -> Result<()> {
 //     let (ctx, vm) = create_java_vm()?;
 //     let java_env = vm.attach_current_thread()?;
