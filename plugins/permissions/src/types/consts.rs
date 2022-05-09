@@ -17,6 +17,7 @@ pub const PRIMITIVE_INT_SIGNATURE: &'static str = "I";
 
 // JNI static fields
 pub const PERMISSIONS_GRANTED: &'static str = "PERMISSION_GRANTED";
+pub const PERMISSION_DENIED: &'static str = "PERMISSION_DENIED";
 
 // JNI types
 pub const ARRAY_LENGTH: i32 = 1;

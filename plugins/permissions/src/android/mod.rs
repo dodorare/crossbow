@@ -53,7 +53,7 @@ pub fn permission_status<'a>(
 
     let field_permission_denied = java_env.get_static_field_id(
         class_package_manager,
-        "PERMISSION_DENIED",
+        PERMISSION_DENIED,
         PRIMITIVE_INT_SIGNATURE,
     )?;
 

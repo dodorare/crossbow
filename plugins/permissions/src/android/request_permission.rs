@@ -2,42 +2,12 @@ use super::*;
 use crate::{error::*, types::android::*};
 use jni::signature as Signature;
 
-/// Request permission
-pub fn request_permission<'a>(permission: AndroidPermission) -> Result<bool> {
-    let (ctx, vm) = create_java_vm()?;
-    let java_env = vm.attach_current_thread()?;
-
-    // if check_permission(permission)? == false {
-    //     let request_permission = invoke_request_permission_method(permission, &java_env)?;
-
-    //     // TODO: Show UI text to notify a user about permission status
-    // } else {
-    //     show_text()?;
-    // }
-
-    // let request_permission = invoke_request_permission_method(permission, &java_env)?;
-    // let array = java_env.new_object_array(
-    //     2,
-    //     java_env.find_class(JAVA_STRING_SIGNATURE)?,
-    //     java_env.new_string(String::new())?,
-    // )?;
-
-    // if check_permission(permission)? {
-    //     show_text(permission)?;
-    //     return Ok(true);
-    //     // TODO: Show UI text to notify a user about permission status
-    // }
-    // /* TODO: How to create a native callback for a Java class for last argument (0) */
-    // env->CallVoidMethod(mApp->activity->clazz, MethodrequestPermissions, ArrayPermissions, 0);
-
-    Ok(true)
-}
-
+/// Invoke request permission method from android/app/Activity
 pub fn invoke_request_permission_method<'a>(
     permission: AndroidPermission,
     java_env: &jni::AttachGuard<'a>,
 ) -> Result<jni::objects::JValue<'a>> {
-    let (ctx, vm) = create_java_vm()?;
+    let (ctx, _vm) = create_java_vm()?;
     let array_permissions = java_env.new_object_array(
         ARRAY_LENGTH.into(),
         java_env.find_class(JAVA_STRING_SIGNATURE)?,
