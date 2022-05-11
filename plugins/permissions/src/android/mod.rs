@@ -1,8 +1,6 @@
 mod request_permission;
-mod show_text;
 
 pub use request_permission::*;
-pub use show_text::*;
 
 use crate::types::android::*;
 use jni::signature as Signature;
