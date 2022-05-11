@@ -1,10 +1,10 @@
-# CrossBundle CLI
+# 🏹 CrossBundle CLI
 
 ![splash](https://github.com/dodorare/crossbow/blob/main/.github/assets/splash.png?raw=true)
 
 The **crossbundle** is a command-line tool that encapsulates boring stuff of **Android** and **iOS** build/packaging processes and helps mobile developers to create and maintain applications written in **rust** programming language.
 
-## Support status
+## 👁️‍🗨️ Support status
 
 Packaging status:
 
@@ -26,7 +26,7 @@ P.S: If you don't find your engine here, open an issue! We are happy to add supp
 
 ✅ = Works and tested — 🆗 = Works but may contain bugs — 🛠 = Under development
 
-## Installation
+## 🌀 Installation
 
 ```sh
 cargo install --git=https://github.com/dodorare/crossbow crossbundle
@@ -43,7 +43,7 @@ More information about how to set up the environment in the **Android setup** an
 
 ---
 
-## Cargo.toml Metadata syntax
+## ⚙️ Cargo.toml Metadata syntax
 
 ```toml
 # The user-friendly application name for your app. Displayed in the applications menu
@@ -95,7 +95,7 @@ name = "android.permission.INTERNET"
 max_sdk_version = 21
 ```
 
-## CLI options and flags
+## 🎏 CLI options and flags
 
 To see the complete documentation for each command/subcommand you can write `-h` or `--help`:
 
@@ -131,12 +131,12 @@ SUBCOMMANDS:
                device/emulator
 ```
 
-## Troubleshooting
+## ❌ Troubleshooting
 
 ### Shared library "<lib_name>" not found
 
 If you ran into problem of missing shared library in the `apk/aab` - you can fix this by placing your `.so` file into `target/<rust-triple>/<profile>/tools/libname.so`. The builder will pick the library up and put it in the final package.
 
-## License
+## 📑 License
 
 Licensed under [Apache-2.0 License](../../LICENSE).
