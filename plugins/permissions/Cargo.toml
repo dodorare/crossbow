@@ -17,7 +17,7 @@ anyhow = "1.0"
 [target.'cfg(target_os = "android")'.dependencies]
 ndk-context = "0.1"
 ndk-glue = "0.6.0"
-jni = "0.19"
+jni = "0.19.0"
 ndk = "0.6"
 
 [features]

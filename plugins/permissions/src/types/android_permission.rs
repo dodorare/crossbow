@@ -1111,7 +1111,7 @@ impl AndroidPermission {
 
 impl std::fmt::Display for AndroidPermission {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match *self {
+        match self {
             Self::AcceptHandover => write!(f, "ACCEPT_HANDOVER"),
             Self::AccessBackgroundLocation => write!(f, "ACCESS_BACKGROUND_LOCATION"),
             Self::AccessBlobsAcrossUsers => write!(f, "ACCESS_BLOBS_ACROSS_USERS"),
