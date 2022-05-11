@@ -1,6 +1,6 @@
-# Android setup on Docker
+# 📱 Android setup on Docker
 
-## Build Android with Docker
+## 🔨 Build Android with Docker
 
 Pre-requirements:
 
