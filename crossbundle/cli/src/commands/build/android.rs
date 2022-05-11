@@ -24,9 +24,6 @@ pub struct AndroidBuildCommand {
     /// Generating aab. By default crossbow generating apk
     #[clap(long)]
     pub aab: bool,
-    // Install bundletool in home directory
-    #[clap(long)]
-    pub bundletool_install: bool,
     /// Path to the signing key
     #[clap(long, requires_all = &["sign-key-pass", "sign-key-alias"])]
     pub sign_key_path: Option<PathBuf>,
