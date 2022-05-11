@@ -21,7 +21,7 @@ edition = "2021"
 [dependencies]
 crossbow = { git = "https://github.com/dodorare/crossbow" }
 anyhow = "1.0"
-macroquad = "0.3"
+macroquad = "0.3.7"
 "#;
 
 pub const MQ_MAIN_RS_VALUE: &str = r#"
