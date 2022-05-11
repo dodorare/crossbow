@@ -8,7 +8,7 @@ edition = "2021"
 crossbow = { version = "0.1.3", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
-macroquad = "0.3"
+macroquad = "0.3.7"
 
 [package.metadata]
 app_name = "Macroquad_3D"
