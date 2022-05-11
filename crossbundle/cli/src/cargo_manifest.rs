@@ -1,4 +1,7 @@
-use crossbundle_tools::types::{android_manifest::{UsesPermissionSdk23, UsesFeature, UsesPermission}, *};
+use crossbundle_tools::types::{
+    android_manifest::{UsesFeature, UsesPermission, UsesPermissionSdk23},
+    *,
+};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
