@@ -10,9 +10,3 @@ keywords = ["permissions", "android", "ios"]
 readme = "README.md"
 
 [dependencies]
-jni = "0.19"
-thiserror = "1.0"
-displaydoc = "0.1"
-
-# [target.'cfg(target_os = "android")'.dependencies]
-# jni = "0.19"

@@ -1,10 +1,6 @@
 // TODO: Add enum with all android permissions
 // TODO: Add JNI calls to request permissions
 
-mod call_java_from_rust;
-mod error;
-mod java_calls;
-
 #[cfg(target_os = "android")]
 pub fn request_permission() {}
 
