@@ -42,6 +42,13 @@ mod cargo_apk_glue_code {
         saved_state: *mut std::ffi::c_void,
         saved_state_size: usize,
     ) {
+        crossbow::ndk_glue::init(
+            activity as _,
+            saved_state as _,
+            saved_state_size as _,
+            super::main,
+        );
+        // TODO: Fix initialization of the ndk_glue crate in sapp
         sapp_ANativeActivity_onCreate(activity, saved_state, saved_state_size as _);
     }
     #[no_mangle]

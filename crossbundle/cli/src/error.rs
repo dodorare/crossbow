@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-
 use crossbundle_tools::types::android_manifest;
 use displaydoc::Display;
 use thiserror::Error;
@@ -29,19 +27,19 @@ pub enum Error {
     /// AndroidManifest error
     AndroidManifest(#[from] android_manifest::error::Error),
     /// Path {0:?} doesn't exist
-    PathNotFound(PathBuf),
+    PathNotFound(std::path::PathBuf),
     /// Home dir not found
     HomeDirNotFound,
     /// Failed to download jar file
     DownloadFailed(ureq::Error),
     /// Failed to create jar file in specified path `{path}` cause of `{cause}`
     JarFileCreationFailed {
-        path: PathBuf,
+        path: std::path::PathBuf,
         cause: std::io::Error,
     },
     /// Failed to copy file in specified path `{path}` cause of `{cause}`
     CopyToFileFailed {
-        path: PathBuf,
+        path: std::path::PathBuf,
         cause: std::io::Error,
     },
 }

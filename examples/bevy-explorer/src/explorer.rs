@@ -1,6 +1,14 @@
 use bevy::{prelude::*, tasks::AsyncComputeTaskPool};
-use substrate_subxt::{ClientBuilder, KusamaRuntime};
+use subxt::{ClientBuilder, DefaultConfig, SubstrateExtrinsicParams};
 use tokio::sync::mpsc;
+
+use jsonrpsee::{
+    client_transport::ws::{Uri, WsTransportClientBuilder},
+    core::client::{CertificateStore, ClientBuilder as RpcClientBuilder},
+};
+
+#[subxt::subxt(runtime_metadata_path = "res/metadata.scale")]
+pub mod bevy_explorer {}
 
 #[cfg(not(target_os = "android"))]
 pub const TEXT_FONT_SIZE: f32 = 30.0;
@@ -23,31 +31,54 @@ pub fn explorer_startup(task_pool: Res<AsyncComputeTaskPool>, channel: Res<Explo
     let tx = channel.tx.clone();
     task_pool
         .spawn(async move {
-            println!("Connecting to Substrate Node");
-            let client = ClientBuilder::<KusamaRuntime>::new()
-                // .set_url("wss://rpc.polkadot.io")
-                .set_url("ws://207.154.228.105:9944")
-                .build()
-                .await
-                .unwrap();
-            loop {
-                let (best, finalized) =
-                    tokio::try_join!(client.block_hash(None), client.finalized_head()).unwrap();
-                let (best, finalized) =
-                    tokio::try_join!(client.header(best), client.header(Some(finalized))).unwrap();
-                let best = best.unwrap();
-                let finalized = finalized.unwrap();
-                tx.send(ExplorerState {
-                    best_block_number: best.number,
-                    best_block_hash: best.hash().to_string(),
-                    best_block_parent_hash: best.parent_hash.to_string(),
-                    finalized_block_number: finalized.number,
-                    finalized_block_hash: finalized.hash().to_string(),
-                    finalized_block_parent_hash: finalized.parent_hash.to_string(),
-                })
-                .await
-                .unwrap();
-            }
+            let rt = tokio::runtime::Runtime::new().unwrap();
+            rt.block_on(async {
+                println!("Connecting to Substrate Node");
+
+                let url: Uri = "wss://rpc.polkadot.io:443".parse().unwrap();
+                let (sender, receiver) = WsTransportClientBuilder::default()
+                    // This thing needed to make it work on android
+                    .certificate_store(CertificateStore::WebPki)
+                    .build(url)
+                    .await
+                    .unwrap();
+                let rpc_client = RpcClientBuilder::default()
+                    .max_notifs_per_subscription(4096)
+                    .build(sender, receiver);
+
+                let api = ClientBuilder::new()
+                    // .set_url("wss://rpc.polkadot.io:443")
+                    .set_client(rpc_client)
+                    .build()
+                    .await
+                    .unwrap()
+                    .to_runtime_api::<bevy_explorer::RuntimeApi<
+                        DefaultConfig,
+                        SubstrateExtrinsicParams<DefaultConfig>,
+                    >>();
+                let client = api.client.rpc();
+                loop {
+                    let (block_hash, finalized_head) =
+                        tokio::try_join!(client.block_hash(None), client.finalized_head()).unwrap();
+                    let (best, finalized) = tokio::try_join!(
+                        client.header(block_hash),
+                        client.header(Some(finalized_head))
+                    )
+                    .unwrap();
+                    let best = best.unwrap();
+                    let finalized = finalized.unwrap();
+                    tx.send(ExplorerState {
+                        best_block_number: best.number,
+                        best_block_hash: best.hash().to_string(),
+                        best_block_parent_hash: best.parent_hash.to_string(),
+                        finalized_block_number: finalized.number,
+                        finalized_block_hash: finalized.hash().to_string(),
+                        finalized_block_parent_hash: finalized.parent_hash.to_string(),
+                    })
+                    .await
+                    .unwrap();
+                }
+            });
         })
         .detach();
 }
