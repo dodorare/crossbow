@@ -39,9 +39,11 @@ impl BuildContext {
             .custom_metadata()
             .ok_or(Error::InvalidManifestMetadata)?
             .to_owned();
+        println!("custom_metadataa is {:?}", custom_metadata);
         let metadata = custom_metadata
             .try_into::<Metadata>()
             .map_err(|_| Error::InvalidManifestMetadata)?;
+        println!("metadata is {:?}", metadata);
         Ok(Self {
             workspace_manifest_path,
             package_manifest_path,
@@ -121,6 +123,7 @@ impl BuildContext {
                     .unwrap_or_else(|| sdk.default_platform()),
                 self.metadata.max_sdk_version,
                 self.metadata.icon.clone(),
+                // self.metadata.android_service.clone(),
                 debuggable,
                 self.metadata.android_permissions_sdk_23.clone(),
                 self.metadata.android_permissions.clone(),
@@ -137,6 +140,7 @@ impl BuildContext {
                 None,
                 None,
                 target_sdk_version,
+                None,
                 None,
                 None,
                 debuggable,
