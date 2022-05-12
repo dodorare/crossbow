@@ -39,4 +39,8 @@ pub struct Metadata {
     /// TODO: Add android android_uses_features.
     #[serde(default)]
     pub android_permissions: Vec<UsesPermission>,
+
+    /// Android service
+    #[serde(default)]
+    pub android_service: Vec<String>,
 }

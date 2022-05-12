@@ -30,3 +30,6 @@ apple_res = "res/apple"
 
 [[package.metadata.android_permissions]]
 name = "android.permission.INTERNET"
+
+[[package.metadata.android_service]]
+name = "UpdateService"

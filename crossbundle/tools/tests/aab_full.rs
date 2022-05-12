@@ -55,6 +55,7 @@ fn test_aab_full() {
         target_sdk_version,
         None,
         None,
+        None,
         false,
     );
     let manifest_path = android::save_android_manifest(&android_build_dir, &manifest).unwrap();

@@ -67,6 +67,7 @@ fn test_android_full() {
         target_sdk_version,
         None,
         None,
+        None,
         true,
     );
     let apk_build_dir = target_dir.join(&profile).join("apk");
