@@ -164,14 +164,14 @@ pub fn explorer_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
             style: Style {
                 size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
                 #[cfg(not(target_os = "ios"))]
-                padding: Rect {
+                padding: UiRect {
                     left: Val::Percent(6.0),
                     right: Val::Percent(6.0),
                     top: Val::Percent(6.0),
                     bottom: Val::Percent(18.0),
                 },
                 #[cfg(target_os = "ios")]
-                padding: Rect {
+                padding: UiRect {
                     top: Val::Percent(6.0),
                     ..Default::default()
                 },
@@ -200,7 +200,7 @@ pub fn explorer_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
                         .spawn_bundle(NodeBundle {
                             style: Style {
                                 size: Size::new(Val::Percent(100.0), Val::Auto),
-                                padding: Rect::all(Val::Percent(3.0)),
+                                padding: UiRect::all(Val::Percent(3.0)),
                                 flex_direction: FlexDirection::ColumnReverse,
                                 align_items: AlignItems::FlexStart,
                                 ..Default::default()
@@ -270,11 +270,11 @@ pub fn explorer_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
                         .spawn_bundle(NodeBundle {
                             style: Style {
                                 size: Size::new(Val::Percent(100.0), Val::Auto),
-                                margin: Rect {
+                                margin: UiRect {
                                     top: Val::Percent(4.0),
                                     ..Default::default()
                                 },
-                                padding: Rect::all(Val::Percent(3.0)),
+                                padding: UiRect::all(Val::Percent(3.0)),
                                 flex_direction: FlexDirection::ColumnReverse,
                                 align_items: AlignItems::FlexStart,
                                 ..Default::default()
