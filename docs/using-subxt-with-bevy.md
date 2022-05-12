@@ -1,4 +1,4 @@
-# Using subxt with bevy engine
+# ❗ Using subxt with bevy engine
 
 1. You need to install crossbundle if you haven't already. See [documention](https://github.com/dodorare/crossbow/tree/main/docs) to install it and configure your project.
 
@@ -7,10 +7,10 @@
 ```sh
 [dependencies]
 substrate-subxt = "0.15"
-bevy = "0.6.0"
+bevy = "0.7.0"
 ```
 
-## Bevy explorer example
+## ❗ Bevy explorer example
 
 To learn how to use subxt with bevy engine, you can go to the examples/bevy-explorer or install bevy explorer template. Follow next steps:
 
@@ -28,7 +28,7 @@ crossbundle new example --template=bevy-explorer
 
 3. After previous steps, now you can install the application on the device.
 
-## Installing application on the device
+## 🌀 Installing application on the device
 
 You can deploy the application on your device with commands below. At first, you should go to example directory. Use it:
 
