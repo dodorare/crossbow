@@ -30,3 +30,4 @@ apple_res = "res/apple"
 
 [[package.metadata.android_permissions]]
 name = "android.permission.INTERNET"
+max_sdk_version = 31

@@ -38,7 +38,9 @@ fn build_arg(start: &str, end: impl AsRef<std::ffi::OsStr>) -> std::ffi::OsStrin
     new_arg
 }
 
-/// Replace cmd with new arguments
+/// Replace cmd with new arguments. For more information see the [`Target Selection`]
+///
+/// [Target Selection]: https://android.googlesource.com/platform/ndk/+/master/docs/BuildSystemMaintainers.md#target-selection
 pub fn new_ndk_quad_args(
     tool_root: std::path::PathBuf,
     build_target: &AndroidTarget,
