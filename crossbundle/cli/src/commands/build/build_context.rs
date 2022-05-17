@@ -128,6 +128,7 @@ impl BuildContext {
                 self.metadata.android_permissions_sdk_23.clone(),
                 self.metadata.android_permissions.clone(),
                 self.metadata.android_features.clone(),
+                self.metadata.android_service.clone(),
             );
             Ok(manifest)
         } else {
@@ -142,8 +143,8 @@ impl BuildContext {
                 target_sdk_version,
                 None,
                 None,
-                None,
                 debuggable,
+                None,
                 None,
                 None,
                 None,
