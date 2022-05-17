@@ -72,7 +72,6 @@ fn test_aapt2_link() {
         30,
         None,
         None,
-        None,
         false,
         None,
         None,

@@ -143,7 +143,6 @@ impl BuildContext {
                 target_sdk_version,
                 None,
                 None,
-                None,
                 debuggable,
                 None,
                 None,

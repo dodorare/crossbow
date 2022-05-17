@@ -55,7 +55,6 @@ fn test_aab_full() {
         target_sdk_version,
         None,
         None,
-        None,
         false,
         None,
         None,
