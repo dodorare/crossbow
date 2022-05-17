@@ -19,6 +19,7 @@ pub fn gen_minimal_unsigned_aab(
         target_sdk_version,
         None,
         None,
+        None,
         false,
         None,
         None,

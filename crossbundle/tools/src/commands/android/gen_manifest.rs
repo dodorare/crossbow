@@ -12,6 +12,7 @@ pub fn gen_minimal_android_manifest(
     target_sdk_version: u32,
     max_sdk_version: Option<u32>,
     icon: Option<String>,
+    service: Option<String>,
     debuggable: bool,
     permissions_sdk_23: Option<Vec<UsesPermissionSdk23>>,
     permissions: Option<Vec<UsesPermission>>,
