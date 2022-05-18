@@ -1,5 +1,5 @@
 use crossbundle_tools::{
-    commands::android::{gen_minimal_android_manifest, save_android_manifest},
+    commands::android::{save_android_manifest, GenAndroidManifest},
     tools::AndroidSdk,
 };
 
@@ -43,6 +43,7 @@ fn test_aapt2_link() {
 
     // Specifies path to needed resources
     let sdk = AndroidSdk::from_env().unwrap();
+    let version_code = 1 as u32;
     let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let dir = user_dirs.parent().unwrap().parent().unwrap().to_path_buf();
     let res_path = dir
@@ -62,25 +63,15 @@ fn test_aapt2_link() {
     assert!(compiled_res.exists());
 
     // Generates minimal android manifest
-    let manifest = gen_minimal_android_manifest(
-        None,
-        "example",
-        None,
-        "0.0.1".to_string(),
-        Some(1),
-        Some(9),
-        30,
-        None,
-        None,
-        false,
-        None,
-        None,
-        None,
-        None,
-    );
+    let manifest = GenAndroidManifest {
+        package_name: String::from("example"),
+        version_code,
+        ..Default::default()
+    };
+    let android_manifest = GenAndroidManifest::gen_min_android_manifest(&manifest);
 
     // Saves android manifest into temporary directory
-    let manifest_path = save_android_manifest(&tempdir, &manifest).unwrap();
+    let manifest_path = save_android_manifest(&tempdir, &android_manifest).unwrap();
     assert!(manifest_path.exists());
 
     // Link files and generates apk file
