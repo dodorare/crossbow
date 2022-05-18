@@ -23,6 +23,7 @@ pub struct BuildContext {
 }
 
 impl BuildContext {
+    /// Create new instance of build context
     pub fn new(config: &Config, target_dir: Option<PathBuf>) -> Result<Self> {
         let workspace_manifest_path = find_workspace_cargo_manifest_path(config.current_dir())?;
         let package_manifest_path = find_package_cargo_manifest_path(config.current_dir())?;
@@ -50,6 +51,7 @@ impl BuildContext {
         })
     }
 
+    /// Get package name from cargo manifest
     pub fn package_name(&self) -> String {
         if let Some(package_name) = self.metadata.android_package_name.clone() {
             return package_name;
@@ -57,10 +59,12 @@ impl BuildContext {
         self.manifest.summary().name().to_string()
     }
 
+    /// Get package version from cargo manifest
     pub fn package_version(&self) -> String {
         self.manifest.summary().version().to_string()
     }
 
+    /// Get target sdk version from cargo manifest
     pub fn target_sdk_version(&self, sdk: &AndroidSdk) -> u32 {
         if let Some(target_sdk_version) = self.metadata.target_sdk_version {
             return target_sdk_version;
@@ -68,6 +72,7 @@ impl BuildContext {
         sdk.default_platform()
     }
 
+    /// Get android build targets from cargo manifest
     pub fn android_build_targets(&self, build_targets: &Vec<AndroidTarget>) -> Vec<AndroidTarget> {
         if !build_targets.is_empty() {
             return build_targets.clone();
@@ -82,14 +87,17 @@ impl BuildContext {
         vec![AndroidTarget::Aarch64LinuxAndroid]
     }
 
+    /// Get android resources from cargo manifest
     pub fn android_res(&self) -> Option<PathBuf> {
         self.metadata.android_res.clone()
     }
 
+    /// Get android assets from cargo manifest
     pub fn android_assets(&self) -> Option<PathBuf> {
         self.metadata.android_assets.clone()
     }
 
+    /// Get android manifest from the path in cargo manifest or generate it  with the given configuration
     pub fn gen_android_manifest(
         &self,
         sdk: &AndroidSdk,
@@ -143,6 +151,7 @@ impl BuildContext {
         }
     }
 
+    /// Get info plist from the path in cargo manifest or generate it with the given configuration
     pub fn gen_info_plist(&self, package_name: &String) -> Result<InfoPlist> {
         if self.metadata.use_info_plist {
             let path = self
@@ -169,6 +178,7 @@ impl BuildContext {
         }
     }
 
+    /// Get apple build targets from cargo manifest
     pub fn apple_build_targets(&self, build_targets: &Vec<AppleTarget>) -> Vec<AppleTarget> {
         if !build_targets.is_empty() {
             return build_targets.clone();
@@ -183,10 +193,12 @@ impl BuildContext {
         vec![AppleTarget::X86_64AppleIos]
     }
 
+    /// Get apple resources from cargo manifest
     pub fn apple_res(&self) -> Option<PathBuf> {
         self.metadata.apple_res.clone()
     }
 
+    /// Get apple assets from cargo manifest
     pub fn apple_assets(&self) -> Option<PathBuf> {
         self.metadata.apple_assets.clone()
     }

@@ -19,8 +19,8 @@ pub struct GenAndroidManifest {
 }
 
 impl GenAndroidManifest {
-    /// Generates minimal [`AndroidManifest`](android_manifest::AndroidManifest) with given
-    /// changes
+    /// Generates [`AndroidManifest`](android_manifest::AndroidManifest) with
+    /// given changes
     pub fn gen_android_manifest(&self) -> AndroidManifest {
         AndroidManifest {
             package: self
@@ -90,7 +90,7 @@ impl GenAndroidManifest {
         }
     }
 
-    /// Function for integration tests. Was created to avoid multiple arguments in gen_android_manifest fucntion
+    /// Generate android manifest with minimal required tags.
     pub fn gen_min_android_manifest(&self) -> AndroidManifest {
         AndroidManifest {
             package: self
