@@ -1,8 +1,6 @@
-use crate::{error::*, tools::AndroidSdk};
-use android_manifest::AndroidManifest;
-use std::path::{Path, PathBuf};
-
 use super::GenAndroidManifest;
+use crate::{error::*, tools::AndroidSdk};
+use std::path::{Path, PathBuf};
 
 /// Generates minimal unsigned aab
 pub fn gen_minimal_unsigned_aab(
@@ -12,27 +10,6 @@ pub fn gen_minimal_unsigned_aab(
     aab_build_dir: &Path,
 ) -> Result<PathBuf> {
     let version_code = 1 as u32;
-    // let android_manifest = AndroidManifest {
-    //     package: String::from(package_name),
-    //     version_code: Some(version_code),
-    //     ..Default::default()
-    // };
-    // let android_manifest = super::gen_minimal_android_manifest(
-    //     None,
-    //     package_name,
-    //     None,
-    //     "0.0.1".to_string(),
-    //     None,
-    //     None,
-    //     target_sdk_version,
-    //     None,
-    //     None,
-    //     false,
-    //     None,
-    //     None,
-    //     None,
-    //     None,
-    // );
     let manifest = GenAndroidManifest {
         package_name: String::from(package_name),
         version_code,

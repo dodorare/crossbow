@@ -3,7 +3,7 @@ use crate::{
     error::{Error, Result},
 };
 use crossbundle_tools::{
-    commands::*,
+    commands::{android::GenAndroidManifest, *},
     tools::*,
     types::{
         android_manifest::AndroidManifest, apple_bundle::prelude::InfoPlist, AndroidTarget,
@@ -96,6 +96,29 @@ impl BuildContext {
         package_name: &str,
         debuggable: bool,
     ) -> Result<AndroidManifest> {
+        let android_manifest = GenAndroidManifest {
+            app_id: Some(package_name.to_string()),
+            package_name: package_name.to_string(),
+            app_name: self.metadata.app_name.clone(),
+            version_name: self
+                .metadata
+                .version_name
+                .clone()
+                .unwrap_or(self.package_version()),
+            version_code: self.metadata.version_code.clone().unwrap_or(1),
+            min_sdk_version: self.metadata.min_sdk_version,
+            target_sdk_version: self
+                .metadata
+                .target_sdk_version
+                .unwrap_or_else(|| sdk.default_platform()),
+            max_sdk_version: self.metadata.max_sdk_version,
+            icon: self.metadata.icon.clone(),
+            debuggable,
+            permissions_sdk_23: self.metadata.android_permissions_sdk_23.clone(),
+            permissions: self.metadata.android_permissions.clone(),
+            features: self.metadata.android_features.clone(),
+            service: self.metadata.android_service.clone(),
+        };
         if self.metadata.use_android_manifest {
             let path = self
                 .metadata
@@ -104,45 +127,18 @@ impl BuildContext {
                 .unwrap_or_else(|| self.project_path.join("AndroidManifest.xml"));
             Ok(android::read_android_manifest(&path)?)
         } else if !self.metadata.use_android_manifest {
-            let manifest = android::gen_minimal_android_manifest(
-                self.metadata.android_package_name.clone(),
-                package_name,
-                self.metadata.app_name.clone(),
-                self.metadata
-                    .version_name
-                    .clone()
-                    .unwrap_or(self.package_version()),
-                self.metadata.version_code.clone(),
-                self.metadata.min_sdk_version,
-                self.metadata
-                    .target_sdk_version
-                    .unwrap_or_else(|| sdk.default_platform()),
-                self.metadata.max_sdk_version,
-                self.metadata.icon.clone(),
-                debuggable,
-                self.metadata.android_permissions_sdk_23.clone(),
-                self.metadata.android_permissions.clone(),
-                self.metadata.android_features.clone(),
-                self.metadata.android_service.clone(),
-            );
+            let manifest = GenAndroidManifest::gen_android_manifest(&android_manifest);
             Ok(manifest)
         } else {
             let target_sdk_version = sdk.default_platform();
-            Ok(android::gen_minimal_android_manifest(
-                None,
-                package_name,
-                None,
-                self.package_version(),
-                None,
-                None,
+            let minimal_android_manifest = GenAndroidManifest {
                 target_sdk_version,
-                None,
-                None,
-                debuggable,
-                None,
-                None,
-                None,
-                None,
+                version_name: self.package_version(),
+                package_name: package_name.to_string(),
+                ..Default::default()
+            };
+            Ok(GenAndroidManifest::gen_min_android_manifest(
+                &minimal_android_manifest,
             ))
         }
     }
