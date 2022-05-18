@@ -2,18 +2,14 @@ use crate::{
     cargo_manifest::Metadata,
     error::{Error, Result},
 };
-use cargo::core::Manifest;
 use crossbundle_tools::{
-    commands::{
-        android, apple, find_package_cargo_manifest_path, find_workspace_cargo_manifest_path,
-        parse_manifest,
-    },
-    tools::AndroidSdk,
+    commands::*,
+    tools::*,
     types::{
         android_manifest::AndroidManifest, apple_bundle::prelude::InfoPlist, AndroidTarget,
         AppleTarget,
     },
-    utils::Config,
+    utils::*,
 };
 use std::path::PathBuf;
 
@@ -21,7 +17,7 @@ pub struct BuildContext {
     pub workspace_manifest_path: PathBuf,
     pub package_manifest_path: PathBuf,
     pub project_path: PathBuf,
-    pub manifest: Manifest,
+    pub manifest: cargo::core::Manifest,
     pub metadata: Metadata,
     pub target_dir: PathBuf,
 }
@@ -123,7 +119,6 @@ impl BuildContext {
                     .unwrap_or_else(|| sdk.default_platform()),
                 self.metadata.max_sdk_version,
                 self.metadata.icon.clone(),
-                // self.metadata.android_service.clone(),
                 debuggable,
                 self.metadata.android_permissions_sdk_23.clone(),
                 self.metadata.android_permissions.clone(),

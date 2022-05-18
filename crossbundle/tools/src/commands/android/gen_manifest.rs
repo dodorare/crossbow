@@ -41,6 +41,7 @@ pub fn gen_minimal_android_manifest(
                 "Theme.DeviceDefault.NoActionBar.Fullscreen",
                 Some("android".to_string()),
             )),
+            service: service.unwrap_or_default(),
             activity: vec![Activity {
                 name: "android.app.NativeActivity".to_string(),
                 resizeable_activity: Some(true),
@@ -69,7 +70,6 @@ pub fn gen_minimal_android_manifest(
                 }],
                 ..Default::default()
             }],
-            service: service.unwrap_or_default(),
             ..Default::default()
         },
         ..Default::default()

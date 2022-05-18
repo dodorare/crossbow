@@ -11,7 +11,7 @@ anyhow = "1.0"
 bevy = { version = "0.7.0", features = ["mp3"] }
 
 [package.metadata]
-app_name = "Bevy 2D"
+app_name = "Bevy2D"
 version_code = 1
 target_sdk_version = 30
 icon = "ic_launcher"
@@ -24,3 +24,13 @@ android_res = "res/android"
 apple_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
 apple_assets = "assets"
 apple_res = "res/apple"
+# android_service = [{ name = "UpdateService", intent_filter = [], meta_data = []}]
+# android_permissions = [{name = "android.permission.INTERNET" }]
+
+[[package.metadata.android_permissions]]
+name = "android.permission.INTERNET"
+
+[[package.metadata.android_service]]
+name = "UpdateService"
+intent_filter = []
+meta_data = []
