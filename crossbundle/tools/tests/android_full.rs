@@ -21,7 +21,7 @@ fn test_android_full() {
     let sdk = AndroidSdk::from_env().unwrap();
     let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
     let target_sdk_version = 30;
-    let version_code = 1 as u32;
+    let version_code = 1_u32;
     let profile = Profile::Release;
     let build_target = AndroidTarget::Aarch64LinuxAndroid;
     let quad_lib_name = format!("lib{}.so", quad_package_name.replace("-", "_"));

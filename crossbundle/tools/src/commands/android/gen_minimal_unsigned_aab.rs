@@ -9,7 +9,7 @@ pub fn gen_minimal_unsigned_aab(
     target_sdk_version: u32,
     aab_build_dir: &Path,
 ) -> Result<PathBuf> {
-    let version_code = 1 as u32;
+    let version_code = 1_u32;
     let manifest = GenAndroidManifest {
         package_name: String::from(package_name),
         version_code,

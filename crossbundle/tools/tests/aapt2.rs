@@ -43,7 +43,7 @@ fn test_aapt2_link() {
 
     // Specifies path to needed resources
     let sdk = AndroidSdk::from_env().unwrap();
-    let version_code = 1 as u32;
+    let version_code = 1_u32;
     let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let dir = user_dirs.parent().unwrap().parent().unwrap().to_path_buf();
     let res_path = dir
