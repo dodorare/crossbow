@@ -28,6 +28,14 @@ android_res = "res/android"
 apple_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
 apple_assets = "assets"
 apple_res = "res/apple"
+
+[[package.metadata.android_permissions]]
+name = "android.permission.INTERNET"
+
+[[package.metadata.android_service]]
+name = "UpdateService"
+intent_filter = []
+meta_data = []
 ```
 
 ### ⚙️ Сonfiguration through separate files
