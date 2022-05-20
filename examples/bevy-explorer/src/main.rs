@@ -6,7 +6,7 @@ use bevy::{core::FixedTimestep, prelude::*};
 use explorer::*;
 
 fn main() {
-    println!("Initialization.");
+    info!("Initialization.");
     std::thread::sleep(std::time::Duration::from_secs(2));
     App::new()
         .insert_resource(ClearColor(Color::rgb(0.9, 0.9, 0.9)))

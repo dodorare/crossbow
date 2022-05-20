@@ -1,12 +1,10 @@
 use bevy::{prelude::*, tasks::AsyncComputeTaskPool};
 use jsonrpsee::core::client::CertificateStore;
-use subxt::{ClientBuilder, DefaultConfig, SubstrateExtrinsicParams, rpc::{Uri, WsTransportClientBuilder, RpcClientBuilder}};
+use subxt::{
+    rpc::{RpcClientBuilder, Uri, WsTransportClientBuilder},
+    ClientBuilder, DefaultConfig, SubstrateExtrinsicParams,
+};
 use tokio::sync::mpsc;
-
-// use jsonrpsee::{
-//     client_transport::ws::{Uri, WsTransportClientBuilder},
-//     core::client::{CertificateStore, ClientBuilder as RpcClientBuilder},
-// };
 
 #[subxt::subxt(runtime_metadata_path = "res/metadata.scale")]
 pub mod bevy_explorer {}
@@ -15,6 +13,8 @@ pub mod bevy_explorer {}
 pub const TEXT_FONT_SIZE: f32 = 30.0;
 #[cfg(target_os = "android")]
 pub const TEXT_FONT_SIZE: f32 = 30.0;
+pub const URL: &str = "wss://rpc.polkadot.io:443";
+pub const BUFFER: usize = 1;
 
 pub struct ExplorerStateChannel {
     pub tx: mpsc::Sender<ExplorerState>,
@@ -23,32 +23,32 @@ pub struct ExplorerStateChannel {
 
 impl ExplorerStateChannel {
     pub fn new() -> Self {
-        let (tx, rx) = mpsc::channel(1);
+        let (tx, rx) = mpsc::channel(BUFFER);
         Self { tx, rx }
     }
 }
 
 pub fn explorer_startup(task_pool: Res<AsyncComputeTaskPool>, channel: Res<ExplorerStateChannel>) {
     let tx = channel.tx.clone();
+    #[cfg(target_os = "android")]
+    let certificate = CertificateStore::WebPki;
+    #[cfg(not(target_os = "android"))]
+    let certificate = CertificateStore::Native;
+
     task_pool
         .spawn(async move {
             let rt = tokio::runtime::Runtime::new().unwrap();
             rt.block_on(async {
-                println!("Connecting to Substrate Node");
-
-                let url: Uri = "wss://rpc.polkadot.io:443".parse().unwrap();
+                info!("Connecting to Substrate Node");
+                let url: Uri = URL.parse().unwrap();
                 let (sender, receiver) = WsTransportClientBuilder::default()
-                    // This thing needed to make it work on android
-                    .certificate_store(CertificateStore::WebPki)
+                    .certificate_store(certificate)
                     .build(url)
                     .await
                     .unwrap();
-                let rpc_client = RpcClientBuilder::default()
-                    .max_notifs_per_subscription(4096)
-                    .build(sender, receiver);
+                let rpc_client = RpcClientBuilder::default().build(sender, receiver);
 
                 let api = ClientBuilder::new()
-                    // .set_url("wss://rpc.polkadot.io:443")
                     .set_client(rpc_client)
                     .build()
                     .await
