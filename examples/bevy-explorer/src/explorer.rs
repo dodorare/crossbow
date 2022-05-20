@@ -1,11 +1,12 @@
 use bevy::{prelude::*, tasks::AsyncComputeTaskPool};
-use subxt::{ClientBuilder, DefaultConfig, SubstrateExtrinsicParams};
+use jsonrpsee::core::client::CertificateStore;
+use subxt::{ClientBuilder, DefaultConfig, SubstrateExtrinsicParams, rpc::{Uri, WsTransportClientBuilder, RpcClientBuilder}};
 use tokio::sync::mpsc;
 
-use jsonrpsee::{
-    client_transport::ws::{Uri, WsTransportClientBuilder},
-    core::client::{CertificateStore, ClientBuilder as RpcClientBuilder},
-};
+// use jsonrpsee::{
+//     client_transport::ws::{Uri, WsTransportClientBuilder},
+//     core::client::{CertificateStore, ClientBuilder as RpcClientBuilder},
+// };
 
 #[subxt::subxt(runtime_metadata_path = "res/metadata.scale")]
 pub mod bevy_explorer {}
