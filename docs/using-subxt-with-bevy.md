@@ -6,13 +6,13 @@
 
 ```sh
 [dependencies]
-substrate-subxt = "0.15"
+substrate-subxt = "0.21"
 bevy = "0.7.0"
 ```
 
 ## ❗ Bevy explorer example
 
-To learn how to use subxt with bevy engine, you can go to the examples/bevy-explorer or install bevy explorer template. Follow next steps:
+To learn how to use subxt with bevy engine, you can go to the [examples/bevy-explorer](https://github.com/dodorare/crossbow/tree/main/examples/bevy-explorer) or install bevy explorer template. Follow next steps:
 
 1. Install cargo-generate:
 
