@@ -32,7 +32,7 @@ impl TtyWidth {
 }
 
 /// The requested verbosity of output.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Verbosity {
     Verbose,
     Normal,
@@ -82,7 +82,7 @@ enum ShellOut {
 }
 
 /// Whether messages should use color output
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum ColorChoice {
     /// Force color output
     Always,

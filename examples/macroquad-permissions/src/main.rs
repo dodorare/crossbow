@@ -4,7 +4,6 @@ use crossbow::crossbow_permissions::prelude::*;
 use macroquad::prelude::*;
 use macroquad::ui::{hash, root_ui, Skin};
 
-
 #[macroquad::main("Macroquad UI")]
 async fn main() -> anyhow::Result<()> {
     let skin = {
