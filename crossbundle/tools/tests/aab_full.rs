@@ -1,7 +1,7 @@
 use android_tools::java_tools::{android_dir, AabKey, JarSigner, KeyAlgorithm, Keytool};
 use crossbundle_tools::{
     commands::{
-        android::{self, remove, rust_compile},
+        android::{self, remove, rust_compile, GenAndroidManifest},
         gen_minimal_project,
     },
     tools::*,
@@ -21,6 +21,7 @@ fn test_aab_full() {
     let sdk = AndroidSdk::from_env().unwrap();
     let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
     let target_sdk_version = 30;
+    let version_code = 1_u32;
     let profile = Profile::Debug;
     let build_target = AndroidTarget::Aarch64LinuxAndroid;
     let bevy_lib_name = format!("lib{}.so", package_name.replace("-", "_"));
@@ -45,22 +46,14 @@ fn test_aab_full() {
     println!("rust was compiled for bevy example");
 
     // Generates manifest
-    let manifest = android::gen_minimal_android_manifest(
-        None,
-        &package_name,
-        None,
-        "0.0.1".to_string(),
-        None,
-        None,
-        target_sdk_version,
-        None,
-        None,
-        false,
-        None,
-        None,
-        None,
-    );
-    let manifest_path = android::save_android_manifest(&android_build_dir, &manifest).unwrap();
+    let manifest = GenAndroidManifest {
+        package_name: package_name.clone(),
+        version_code,
+        ..Default::default()
+    };
+    let android_manifest = manifest.gen_min_android_manifest();
+    let manifest_path =
+        android::save_android_manifest(&android_build_dir, &android_manifest).unwrap();
     assert!(manifest_path.exists());
 
     // Compiles resources

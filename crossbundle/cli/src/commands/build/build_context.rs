@@ -2,18 +2,14 @@ use crate::{
     cargo_manifest::Metadata,
     error::{Error, Result},
 };
-use cargo::core::Manifest;
 use crossbundle_tools::{
-    commands::{
-        android, apple, find_package_cargo_manifest_path, find_workspace_cargo_manifest_path,
-        parse_manifest,
-    },
-    tools::AndroidSdk,
+    commands::{android::GenAndroidManifest, *},
+    tools::*,
     types::{
         android_manifest::AndroidManifest, apple_bundle::prelude::InfoPlist, AndroidTarget,
         AppleTarget,
     },
-    utils::Config,
+    utils::*,
 };
 use std::path::PathBuf;
 
@@ -21,12 +17,13 @@ pub struct BuildContext {
     pub workspace_manifest_path: PathBuf,
     pub package_manifest_path: PathBuf,
     pub project_path: PathBuf,
-    pub manifest: Manifest,
+    pub manifest: cargo::core::Manifest,
     pub metadata: Metadata,
     pub target_dir: PathBuf,
 }
 
 impl BuildContext {
+    /// Create new instance of build context
     pub fn new(config: &Config, target_dir: Option<PathBuf>) -> Result<Self> {
         let workspace_manifest_path = find_workspace_cargo_manifest_path(config.current_dir())?;
         let package_manifest_path = find_package_cargo_manifest_path(config.current_dir())?;
@@ -52,6 +49,7 @@ impl BuildContext {
         })
     }
 
+    /// Get package name from cargo manifest
     pub fn package_name(&self) -> String {
         if let Some(package_name) = self.metadata.android_package_name.clone() {
             return package_name;
@@ -59,10 +57,12 @@ impl BuildContext {
         self.manifest.summary().name().to_string()
     }
 
+    /// Get package version from cargo manifest
     pub fn package_version(&self) -> String {
         self.manifest.summary().version().to_string()
     }
 
+    /// Get target sdk version from cargo manifest
     pub fn target_sdk_version(&self, sdk: &AndroidSdk) -> u32 {
         if let Some(target_sdk_version) = self.metadata.target_sdk_version {
             return target_sdk_version;
@@ -70,6 +70,7 @@ impl BuildContext {
         sdk.default_platform()
     }
 
+    /// Get android build targets from cargo manifest
     pub fn android_build_targets(&self, build_targets: &Vec<AndroidTarget>) -> Vec<AndroidTarget> {
         if !build_targets.is_empty() {
             return build_targets.clone();
@@ -84,20 +85,46 @@ impl BuildContext {
         vec![AndroidTarget::Aarch64LinuxAndroid]
     }
 
+    /// Get android resources from cargo manifest
     pub fn android_res(&self) -> Option<PathBuf> {
         self.metadata.android_res.clone()
     }
 
+    /// Get android assets from cargo manifest
     pub fn android_assets(&self) -> Option<PathBuf> {
         self.metadata.android_assets.clone()
     }
 
+    /// Get android manifest from the path in cargo manifest or generate it  with the given configuration
     pub fn gen_android_manifest(
         &self,
         sdk: &AndroidSdk,
         package_name: &str,
         debuggable: bool,
     ) -> Result<AndroidManifest> {
+        let android_manifest = GenAndroidManifest {
+            app_id: Some(package_name.to_string()),
+            package_name: package_name.to_string(),
+            app_name: self.metadata.app_name.clone(),
+            version_name: self
+                .metadata
+                .version_name
+                .clone()
+                .unwrap_or(self.package_version()),
+            version_code: self.metadata.version_code.clone().unwrap_or(1),
+            min_sdk_version: self.metadata.min_sdk_version,
+            target_sdk_version: self
+                .metadata
+                .target_sdk_version
+                .unwrap_or_else(|| sdk.default_platform()),
+            max_sdk_version: self.metadata.max_sdk_version,
+            icon: self.metadata.icon.clone(),
+            debuggable,
+            permissions_sdk_23: self.metadata.android_permissions_sdk_23.clone(),
+            permissions: self.metadata.android_permissions.clone(),
+            features: self.metadata.android_features.clone(),
+            service: self.metadata.android_service.clone(),
+        };
         if self.metadata.use_android_manifest {
             let path = self
                 .metadata
@@ -106,47 +133,21 @@ impl BuildContext {
                 .unwrap_or_else(|| self.project_path.join("AndroidManifest.xml"));
             Ok(android::read_android_manifest(&path)?)
         } else if !self.metadata.use_android_manifest {
-            let manifest = android::gen_minimal_android_manifest(
-                self.metadata.android_package_name.clone(),
-                package_name,
-                self.metadata.app_name.clone(),
-                self.metadata
-                    .version_name
-                    .clone()
-                    .unwrap_or(self.package_version()),
-                self.metadata.version_code.clone(),
-                self.metadata.min_sdk_version,
-                self.metadata
-                    .target_sdk_version
-                    .unwrap_or_else(|| sdk.default_platform()),
-                self.metadata.max_sdk_version,
-                self.metadata.icon.clone(),
-                debuggable,
-                self.metadata.android_permissions_sdk_23.clone(),
-                self.metadata.android_permissions.clone(),
-                self.metadata.android_features.clone(),
-            );
+            let manifest = GenAndroidManifest::gen_android_manifest(&android_manifest);
             Ok(manifest)
         } else {
             let target_sdk_version = sdk.default_platform();
-            Ok(android::gen_minimal_android_manifest(
-                None,
-                package_name,
-                None,
-                self.package_version(),
-                None,
-                None,
+            let minimal_android_manifest = GenAndroidManifest {
                 target_sdk_version,
-                None,
-                None,
-                debuggable,
-                None,
-                None,
-                None,
-            ))
+                version_name: self.package_version(),
+                package_name: package_name.to_string(),
+                ..Default::default()
+            };
+            Ok(minimal_android_manifest.gen_min_android_manifest())
         }
     }
 
+    /// Get info plist from the path in cargo manifest or generate it with the given configuration
     pub fn gen_info_plist(&self, package_name: &String) -> Result<InfoPlist> {
         if self.metadata.use_info_plist {
             let path = self
@@ -173,6 +174,7 @@ impl BuildContext {
         }
     }
 
+    /// Get apple build targets from cargo manifest
     pub fn apple_build_targets(&self, build_targets: &Vec<AppleTarget>) -> Vec<AppleTarget> {
         if !build_targets.is_empty() {
             return build_targets.clone();
@@ -187,10 +189,12 @@ impl BuildContext {
         vec![AppleTarget::X86_64AppleIos]
     }
 
+    /// Get apple resources from cargo manifest
     pub fn apple_res(&self) -> Option<PathBuf> {
         self.metadata.apple_res.clone()
     }
 
+    /// Get apple assets from cargo manifest
     pub fn apple_assets(&self) -> Option<PathBuf> {
         self.metadata.apple_assets.clone()
     }

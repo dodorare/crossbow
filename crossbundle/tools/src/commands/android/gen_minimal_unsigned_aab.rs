@@ -1,4 +1,4 @@
-use super::gen_minimal_android_manifest;
+use super::GenAndroidManifest;
 use crate::{error::*, tools::AndroidSdk};
 use std::path::{Path, PathBuf};
 
@@ -9,21 +9,14 @@ pub fn gen_minimal_unsigned_aab(
     target_sdk_version: u32,
     aab_build_dir: &Path,
 ) -> Result<PathBuf> {
-    let android_manifest = gen_minimal_android_manifest(
-        None,
-        package_name,
-        None,
-        "0.0.1".to_string(),
-        None,
-        None,
-        target_sdk_version,
-        None,
-        None,
-        false,
-        None,
-        None,
-        None,
-    );
+    let version_code = 1_u32;
+    let manifest = GenAndroidManifest {
+        package_name: String::from(package_name),
+        version_code,
+        ..Default::default()
+    };
+    let android_manifest = manifest.gen_min_android_manifest();
+
     let manifest_path = super::save_android_manifest(aab_build_dir, &android_manifest)?;
     let apk_path = aab_build_dir.join(format!("{}_module.apk", package_name));
     if !aab_build_dir.exists() {

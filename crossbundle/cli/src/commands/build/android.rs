@@ -147,6 +147,7 @@ impl AndroidBuildCommand {
         config.status("Build finished successfully")?;
         Ok((android_manifest, sdk, aligned_apk_path))
     }
+
     /// Builds AAB with aapt2 tool and signs it with jarsigner
     pub fn execute_aab(
         &self,

@@ -1,5 +1,5 @@
 use crossbundle_tools::types::{
-    android_manifest::{UsesFeature, UsesPermission, UsesPermissionSdk23},
+    android_manifest::{Service, UsesFeature, UsesPermission, UsesPermissionSdk23},
     *,
 };
 use serde::{Deserialize, Serialize};
@@ -40,6 +40,9 @@ pub struct Metadata {
     pub android_permissions_sdk_23: Option<Vec<UsesPermissionSdk23>>,
     /// Declares a single hardware or software android feature that is used by the application
     pub android_features: Option<Vec<UsesFeature>>,
+
+    /// Android service to place in AndroidManifest.xml.
+    pub android_service: Option<Vec<Service>>,
 
     /// Apple build targets.
     pub apple_build_targets: Option<Vec<AppleTarget>>,

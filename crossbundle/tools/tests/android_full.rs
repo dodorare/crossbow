@@ -1,7 +1,7 @@
 use android_tools::java_tools::{android_dir, AabKey, KeyAlgorithm, Keytool};
 use crossbundle_tools::{
     commands::{
-        android::{self, remove, rust_compile},
+        android::{self, remove, rust_compile, GenAndroidManifest},
         gen_minimal_project,
     },
     tools::{AndroidNdk, AndroidSdk},
@@ -21,6 +21,7 @@ fn test_android_full() {
     let sdk = AndroidSdk::from_env().unwrap();
     let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
     let target_sdk_version = 30;
+    let version_code = 1_u32;
     let profile = Profile::Release;
     let build_target = AndroidTarget::Aarch64LinuxAndroid;
     let quad_lib_name = format!("lib{}.so", quad_package_name.replace("-", "_"));
@@ -57,23 +58,14 @@ fn test_android_full() {
 
     // Gen android manifest
     let target_dir = project_path.join("target");
-    let manifest = android::gen_minimal_android_manifest(
-        None,
-        &quad_package_name,
-        None,
-        "0.0.1".to_string(),
-        None,
-        None,
-        target_sdk_version,
-        None,
-        None,
-        true,
-        None,
-        None,
-        None,
-    );
+    let manifest = GenAndroidManifest {
+        package_name: quad_package_name.clone(),
+        version_code,
+        ..Default::default()
+    };
+    let android_manifest = manifest.gen_min_android_manifest();
     let apk_build_dir = target_dir.join(&profile).join("apk");
-    let manifest_path = android::save_android_manifest(&apk_build_dir, &manifest).unwrap();
+    let manifest_path = android::save_android_manifest(&apk_build_dir, &android_manifest).unwrap();
     assert!(manifest_path.exists());
 
     // Gen unaligned apk
@@ -84,8 +76,8 @@ fn test_android_full() {
         &manifest_path,
         None,
         None,
-        &manifest.application.label.unwrap().to_string(),
-        manifest.uses_sdk.unwrap().target_sdk_version.unwrap(),
+        &quad_package_name,
+        target_sdk_version,
     )
     .unwrap();
     assert!(unaligned_apk_path.exists());
@@ -105,8 +97,13 @@ fn test_android_full() {
     .unwrap();
 
     // Align apk
-    let aligned_apk_path =
-        android::align_apk(&sdk, &unaligned_apk_path, &manifest.package, &apk_build_dir).unwrap();
+    let aligned_apk_path = android::align_apk(
+        &sdk,
+        &unaligned_apk_path,
+        &manifest.package_name,
+        &apk_build_dir,
+    )
+    .unwrap();
     assert!(aligned_apk_path.exists());
 
     // Removes old keystore if it exists
