@@ -51,7 +51,7 @@ fn test_aab_full() {
         version_code,
         ..Default::default()
     };
-    let android_manifest = GenAndroidManifest::gen_min_android_manifest(&manifest);
+    let android_manifest = manifest.gen_min_android_manifest();
     let manifest_path =
         android::save_android_manifest(&android_build_dir, &android_manifest).unwrap();
     assert!(manifest_path.exists());

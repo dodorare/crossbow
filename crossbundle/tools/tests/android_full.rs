@@ -63,7 +63,7 @@ fn test_android_full() {
         version_code,
         ..Default::default()
     };
-    let android_manifest = GenAndroidManifest::gen_min_android_manifest(&manifest);
+    let android_manifest = manifest.gen_min_android_manifest();
     let apk_build_dir = target_dir.join(&profile).join("apk");
     let manifest_path = android::save_android_manifest(&apk_build_dir, &android_manifest).unwrap();
     assert!(manifest_path.exists());

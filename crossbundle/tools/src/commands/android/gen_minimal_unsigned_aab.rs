@@ -15,7 +15,7 @@ pub fn gen_minimal_unsigned_aab(
         version_code,
         ..Default::default()
     };
-    let android_manifest = super::GenAndroidManifest::gen_min_android_manifest(&manifest);
+    let android_manifest = manifest.gen_min_android_manifest();
 
     let manifest_path = super::save_android_manifest(aab_build_dir, &android_manifest)?;
     let apk_path = aab_build_dir.join(format!("{}_module.apk", package_name));

@@ -143,9 +143,7 @@ impl BuildContext {
                 package_name: package_name.to_string(),
                 ..Default::default()
             };
-            Ok(GenAndroidManifest::gen_min_android_manifest(
-                &minimal_android_manifest,
-            ))
+            Ok(minimal_android_manifest.gen_min_android_manifest())
         }
     }
 

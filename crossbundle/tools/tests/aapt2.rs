@@ -68,7 +68,7 @@ fn test_aapt2_link() {
         version_code,
         ..Default::default()
     };
-    let android_manifest = GenAndroidManifest::gen_min_android_manifest(&manifest);
+    let android_manifest = manifest.gen_min_android_manifest();
 
     // Saves android manifest into temporary directory
     let manifest_path = save_android_manifest(&tempdir, &android_manifest).unwrap();
