@@ -26,3 +26,18 @@ adb shell pm reset-permissions
 adb shell pm list permission-groups
 adb shell pm list permissions
 ```
+
+## Crossbow services
+
+Use android services as follows:
+
+```rust
+[[package.metadata.android_service]]
+name = "UpdateService"
+intent_filter = []
+meta_data = []
+```
+
+To see how to use services check out: [services](https://developer.android.com/guide/components/services)
+
+Available direct and indirect service subclasses [here](https://developer.android.com/reference/android/app/Service)
