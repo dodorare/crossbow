@@ -38,6 +38,8 @@ intent_filter = []
 meta_data = []
 ```
 
-To see how to use services check out: [services](https://developer.android.com/guide/components/services)
+The code above will parse android service name and other fields into AndroidManifest.xml. Check all available service [fields](https://github.com/dodorare/android-manifest-rs/blob/main/src/service.rs).
 
-Available direct and indirect service subclasses [here](https://developer.android.com/reference/android/app/Service)
+To see how to use services check out: [services](https://developer.android.com/guide/components/services).
+
+Known direct and indirect service subclasses [here](https://developer.android.com/reference/android/app/Service).
