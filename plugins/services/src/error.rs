@@ -1,10 +1,10 @@
 use displaydoc::Display;
 use thiserror::Error;
 
-/// `Result` type that used in `crossbow-permissions`.
+/// `Result` type that used in `crossbow-services`.
 pub type Result<T> = std::result::Result<T, ServiceError>;
 
-/// `Crossbow-permissions` error type.
+/// `Crossbow-services` error type.
 #[derive(Display, Debug, Error)]
 pub enum ServiceError {
     /// Google admob rust library errors

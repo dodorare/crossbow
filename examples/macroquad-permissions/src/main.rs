@@ -1,11 +1,16 @@
 #[cfg(target_os = "android")]
 use crossbow::crossbow_permissions::prelude::*;
+#[cfg(target_os = "android")]
+use crossbow::crossbow_services::prelude::*;
 
 use macroquad::prelude::*;
 use macroquad::ui::{hash, root_ui, Skin};
 
 #[macroquad::main("Macroquad UI")]
 async fn main() -> anyhow::Result<()> {
+    // #[cfg(target_os = "android")]
+    // google_admob("accounts/pub-9876543210987654").await?;
+
     let skin = {
         let label_style = root_ui()
             .style_builder()
