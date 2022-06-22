@@ -47,7 +47,7 @@ pub fn add_libs_into_apk(
     )?;
     // Add all needed libs into apk archive
     let abi = build_target.android_abi();
-    let out_dir = build_dir.join("lib").join(abi);
+    let out_dir = build_dir.join("libs").join(abi);
     for (_lib_name, lib_path) in needed_libs {
         aapt_add_lib(sdk, apk_path, &lib_path, &out_dir, abi)?;
     }
@@ -70,10 +70,15 @@ fn aapt_add_lib(
     std::fs::copy(lib_path, &out_dir.join(&file_name))?;
     // `aapt a[dd] [-v] file.{zip,jar,apk} file1 [file2 ...]`
     // Add specified files to Zip-compatible archive
-    let mut aapt = sdk.build_tool(bin!("aapt"), Some(apk_path.parent().unwrap()))?;
-    aapt.arg("add")
-        .arg(apk_path)
-        .arg(format!("lib/{}/{}", abi, file_name.to_str().unwrap()));
+    let apk_dir = apk_path.parent().unwrap();
+    let add_lib = apk_dir
+        .parent()
+        .unwrap()
+        .join("libs")
+        .join(abi)
+        .join(file_name.to_str().unwrap());
+    let mut aapt = sdk.build_tool(bin!("aapt"), Some(apk_dir))?;
+    aapt.arg("add").arg(apk_path).arg(add_lib);
     aapt.output_err(true)?;
     Ok(())
 }

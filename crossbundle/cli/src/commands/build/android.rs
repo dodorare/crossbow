@@ -64,15 +64,21 @@ impl AndroidBuildCommand {
         config.status_message("Starting build process", &package_name)?;
         let (sdk, ndk, target_sdk_version) = Self::android_toolchain(context)?;
 
+        let android_build_dir = target_dir.join("android").join(&package_name);
+        let native_build_dir = android_build_dir.join("native");
+        let outputs_build_dir = android_build_dir.join("outputs");
+        if !outputs_build_dir.exists() {
+            std::fs::create_dir_all(&outputs_build_dir)?;
+        }
+
         // Get AndroidManifest.xml from file or generate from Cargo.toml
-        let android_build_dir = target_dir.join("android").join(&profile);
         let (android_manifest, manifest_path) = Self::android_manifest(
             config,
             context,
             &sdk,
             package_name.to_string(),
             profile,
-            &android_build_dir.clone(),
+            &native_build_dir.clone(),
         )?;
 
         config.status_message("Compiling", "lib")?;
@@ -99,7 +105,7 @@ impl AndroidBuildCommand {
         let unaligned_apk_path = android::gen_unaligned_apk(
             &sdk,
             &project_path,
-            &android_build_dir,
+            &native_build_dir,
             &manifest_path,
             context.android_assets(),
             context.android_res(),
@@ -132,7 +138,7 @@ impl AndroidBuildCommand {
             &sdk,
             &unaligned_apk_path,
             &package_label,
-            &android_build_dir,
+            &outputs_build_dir,
         )?;
 
         config.status_message("Generating", "debug signing key")?;
