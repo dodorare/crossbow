@@ -24,7 +24,7 @@ pub struct Metadata {
     pub info_plist_path: Option<PathBuf>,
 
     /// Android package name to place in AndroidManifest.xml.
-    pub android_package_name: Option<String>,
+    pub android_package: Option<String>,
     /// Android resources directory path relatively to project path.
     pub android_res: Option<PathBuf>,
     /// Android assets directory path relatively to project path.

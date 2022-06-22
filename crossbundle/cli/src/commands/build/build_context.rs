@@ -51,9 +51,6 @@ impl BuildContext {
 
     /// Get package name from cargo manifest
     pub fn package_name(&self) -> String {
-        if let Some(package_name) = self.metadata.android_package_name.clone() {
-            return package_name;
-        };
         self.manifest.summary().name().to_string()
     }
 
@@ -95,7 +92,7 @@ impl BuildContext {
         self.metadata.android_assets.clone()
     }
 
-    /// Get android manifest from the path in cargo manifest or generate it  with the given configuration
+    /// Get android manifest from the path in cargo manifest or generate it with the given configuration
     pub fn gen_android_manifest(
         &self,
         sdk: &AndroidSdk,
@@ -103,7 +100,13 @@ impl BuildContext {
         debuggable: bool,
     ) -> Result<AndroidManifest> {
         let android_manifest = GenAndroidManifest {
-            app_id: Some(package_name.to_string()),
+            app_id: Some(
+                self.metadata
+                    .android_package
+                    .clone()
+                    .unwrap_or(format!("com.rust.{}", package_name))
+                    .replace('-', "_"),
+            ),
             package_name: package_name.to_string(),
             app_name: self.metadata.app_name.clone(),
             version_name: self
@@ -133,7 +136,7 @@ impl BuildContext {
                 .unwrap_or_else(|| self.project_path.join("AndroidManifest.xml"));
             Ok(android::read_android_manifest(&path)?)
         } else if !self.metadata.use_android_manifest {
-            let manifest = GenAndroidManifest::gen_android_manifest(&android_manifest);
+            let manifest = android_manifest.gen_android_manifest();
             Ok(manifest)
         } else {
             let target_sdk_version = sdk.default_platform();

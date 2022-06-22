@@ -16,7 +16,6 @@ version_code = 1
 target_sdk_version = 30
 icon = "ic_launcher"
 
-android_package_name = "com.example.bevy_2d"
 android_build_targets = ["aarch64-linux-android"]
 android_assets = "assets"
 android_res = "res/android"

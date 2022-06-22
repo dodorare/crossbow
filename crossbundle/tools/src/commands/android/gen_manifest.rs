@@ -26,7 +26,8 @@ impl GenAndroidManifest {
             package: self
                 .app_id
                 .clone()
-                .unwrap_or(format!("com.rust.{}", self.package_name.replace('-', "_"))),
+                .unwrap_or(format!("com.rust.{}", self.package_name))
+                .replace('-', "_"),
             version_name: Some(self.version_name.clone()),
             version_code: Some(self.version_code),
             uses_sdk: Some(UsesSdk {
@@ -96,7 +97,8 @@ impl GenAndroidManifest {
             package: self
                 .app_id
                 .clone()
-                .unwrap_or(format!("com.rust.{}", self.package_name.replace('-', "_"))),
+                .unwrap_or(format!("com.rust.{}", self.package_name))
+                .replace('-', "_"),
             version_name: Some(self.version_name.clone()),
             version_code: Some(self.version_code),
             application: Application {

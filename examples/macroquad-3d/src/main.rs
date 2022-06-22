@@ -1,5 +1,11 @@
 use macroquad::prelude::*;
 
+#[no_mangle]
+extern "C" fn android_main() {
+    let app = game_activity::android_app();
+    main();
+}
+
 #[macroquad::main("Macroquad 3D")]
 async fn main() -> anyhow::Result<()> {
     let rust_logo = load_texture("bob/rust.png").await?;

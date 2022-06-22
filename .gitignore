@@ -406,11 +406,10 @@ $RECYCLE.BIN/
 # Log Files
 
 # Android Studio
-/*/build/
-/*/local.properties
-/*/out
-/*/*/build
-/*/*/production
+build/
+local.properties
+out
+production
 *.ipr
 *.swp
 

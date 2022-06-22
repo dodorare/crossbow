@@ -1,0 +1,55 @@
+plugins {
+    id "com.android.library"
+    id "org.jetbrains.kotlin.android"
+}
+
+dependencies {
+    implementation libraries.kotlinStdLib
+    implementation libraries.androidxFragment
+}
+
+android {
+    compileSdkVersion versions.compileSdk
+    buildToolsVersion versions.buildTools
+    ndkVersion versions.ndkVersion
+
+    defaultConfig {
+        minSdkVersion versions.minSdk
+        targetSdkVersion versions.targetSdk
+        manifestPlaceholders = [crossbowLibraryVersion: versions.crossbowLibrary, minSdkVersion: versions.minSdk, targetSdkVersion: versions.targetSdk]
+    }
+
+    namespace = "com.dodorare.crossbow"
+
+    compileOptions {
+        sourceCompatibility versions.javaVersion
+        targetCompatibility versions.javaVersion
+    }
+
+    kotlinOptions {
+        jvmTarget = versions.javaVersion
+    }
+
+    buildTypes {
+        dev {
+            initWith debug
+        }
+    }
+
+    lintOptions {
+        abortOnError false
+        disable "MissingTranslation", "UnusedResources"
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile "AndroidManifest.xml"
+            java.srcDirs = ["src"]
+            assets.srcDirs = ["assets"]
+            // res.srcDirs = ["res"]
+        }
+        debug.jniLibs.srcDirs = ["libs/debug"]
+        dev.jniLibs.srcDirs = ["libs/dev"]
+        release.jniLibs.srcDirs = ["libs/release"]
+    }
+}

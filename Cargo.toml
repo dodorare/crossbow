@@ -33,5 +33,6 @@ default = []
 members = [
     "plugins/*",
     "crossbundle/*",
+    "platform/*",
     "examples/*",
 ]

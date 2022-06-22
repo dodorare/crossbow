@@ -1,0 +1,4 @@
+// Configure the root project.
+rootProject.name = "Crossbow"
+
+include ':lib'
