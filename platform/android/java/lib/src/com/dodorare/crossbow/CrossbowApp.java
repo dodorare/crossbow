@@ -9,7 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import com.dodorare.crossbow.R;
 
 /**
  * Base activity for Android apps intending to use Crossbow as the primary and only screen.
