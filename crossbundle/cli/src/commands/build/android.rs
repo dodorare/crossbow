@@ -24,6 +24,9 @@ pub struct AndroidBuildCommand {
     /// Generating aab. By default crossbow generating apk
     #[clap(long)]
     pub aab: bool,
+    /// Compile rust code as a dynamic library
+    #[clap(long)]
+    pub lib: bool,
     /// Path to the signing key
     #[clap(long, requires_all = &["sign-key-pass", "sign-key-alias"])]
     pub sign_key_path: Option<PathBuf>,
@@ -46,11 +49,52 @@ impl AndroidBuildCommand {
         let context = BuildContext::new(config, self.shared.target_dir.clone())?;
         if self.aab {
             self.execute_aab(config, &context)?;
+        } else if self.lib{
+            self.build_rust_lib(config, &context)?;
         } else {
             self.execute_apk(config, &context)?;
         }
         Ok(())
     }
+
+ /// Compile rust code as a dynamic library
+ pub fn build_rust_lib(
+    &self,
+    config: &Config,
+    context: &BuildContext,
+) -> crate::error::Result<()> {
+    let profile = self.shared.profile();
+    let example = self.shared.example.as_ref();
+    let (project_path, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
+    config.status_message("Starting build process", &package_name)?;
+    let (_sdk, ndk, target_sdk_version) = Self::android_toolchain(context)?;
+
+    let android_build_dir = target_dir.join("android").join(&package_name);
+
+    config.status_message("Compiling", "lib")?;
+    let build_targets = context.android_build_targets(&self.target);
+    let compiled_libs = self.build_target(
+        build_targets,
+        &package_name,
+        &ndk,
+        &project_path,
+        profile,
+        target_sdk_version,
+        &target_dir,
+        config,
+    )?;
+
+    for (compiled_lib, build_target) in compiled_libs {
+        let abi = build_target.android_abi();
+        let out_dir = android_build_dir.join("libs").join(abi);
+        if !out_dir.exists() {
+            std::fs::create_dir_all(&out_dir)?;
+        }
+        let file_name = compiled_lib.file_name().unwrap().to_owned();
+        std::fs::copy(compiled_lib, &out_dir.join(&file_name))?;
+}
+Ok(())
+}
 
     /// Builds APK with aapt tool and signs it with apksigner
     pub fn execute_apk(
@@ -374,7 +418,7 @@ impl AndroidBuildCommand {
     ) -> crate::error::Result<Vec<(PathBuf, AndroidTarget)>> {
         let mut libs = Vec::new();
         for build_target in build_targets {
-            let lib_name = format!("lib{}.so", package_name.replace("-", "_"));
+            let lib_name = format!("{}.so", package_name.replace("-", "_"));
             let rust_triple = build_target.rust_triple();
 
             config.status_message("Compiling for architecture", rust_triple)?;
