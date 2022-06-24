@@ -6,6 +6,8 @@
     <!-- Values for mindSdk and targetSdk -->
     <uses-sdk android:minSdkVersion="${minSdkVersion}" android:targetSdkVersion="${targetSdkVersion}" />
     <application>
+        <meta-data android:name="android.app.lib_name"
+            android:value="agdktunnel" />
         <!-- Version of the Crossbow Android Library -->
         <meta-data
             android:name="com.dodorare.crossbow.version"

@@ -4,35 +4,31 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.google.androidgamesdk.GameActivity;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
+import androidx.core.view.WindowCompat;
 
 /**
- * Base activity for Android apps intending to use Crossbow as the primary and only screen.
+ * Base activity for Android Games intending to use GameActivity as the primary and only screen.
  */
-public class CrossbowApp extends FragmentActivity {
+public class CrossbowGame extends CrossbowLib {
 	private static final String TAG = CrossbowApp.class.getSimpleName();
-
-	@Nullable
-	private Crossbow crossbowFragment;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.crossbow_app_layout);
+        // When true, the app will fit inside any system UI windows.
+        // When false, we render behind any system UI windows.
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        hideSystemUI();
+        // You can set IME fields here or in native code using GameActivity_setImeEditorInfoFields.
+        // We set the fields in native_engine.cpp.
+        // super.setImeEditorInfoFields(InputType.TYPE_CLASS_TEXT,
+        //     IME_ACTION_NONE, IME_FLAG_NO_FULLSCREEN );
+        super.onCreate(savedInstanceState);
 
-		Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.crossbow_fragment_container);
-		if (currentFragment instanceof Crossbow) {
-			Log.v(TAG, "Reusing existing Crossbow fragment instance.");
-			crossbowFragment = (Crossbow)currentFragment;
-		} else {
-			Log.v(TAG, "Creating new Crossbow fragment instance.");
-			crossbowFragment = initCrossbowInstance();
-			getSupportFragmentManager().beginTransaction().replace(R.id.crossbow_fragment_container, crossbowFragment).setPrimaryNavigationFragment(crossbowFragment).commitNowAllowingStateLoss();
-		}
+		Log.v(TAG, "Called onCreated method.");
 	}
 
 	@Override
