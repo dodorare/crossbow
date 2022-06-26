@@ -6,41 +6,31 @@ plugins {
 dependencies {
     implementation libraries.kotlinStdLib
     implementation libraries.androidxFragment
+    implementation "androidx.appcompat:appcompat:1.4.1"
+    implementation "androidx.games:games-activity:1.1.0"
 }
 
 android {
+    namespace = "com.dodorare.crossbow"
     compileSdkVersion versions.compileSdk
     buildToolsVersion versions.buildTools
     ndkVersion versions.ndkVersion
-
     defaultConfig {
         minSdkVersion versions.minSdk
         targetSdkVersion versions.targetSdk
         manifestPlaceholders = [crossbowLibraryVersion: versions.crossbowLibrary, minSdkVersion: versions.minSdk, targetSdkVersion: versions.targetSdk]
     }
-
-    namespace = "com.dodorare.crossbow"
-
     compileOptions {
         sourceCompatibility versions.javaVersion
         targetCompatibility versions.javaVersion
     }
-
     kotlinOptions {
         jvmTarget = versions.javaVersion
     }
-
-    buildTypes {
-        dev {
-            initWith debug
-        }
-    }
-
     lintOptions {
         abortOnError false
         disable "MissingTranslation", "UnusedResources"
     }
-
     sourceSets {
         main {
             manifest.srcFile "AndroidManifest.xml"
@@ -49,7 +39,6 @@ android {
             res.srcDirs = ["res"]
         }
         debug.jniLibs.srcDirs = ["libs/debug"]
-        dev.jniLibs.srcDirs = ["libs/dev"]
         release.jniLibs.srcDirs = ["libs/release"]
     }
 }

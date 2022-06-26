@@ -11,3 +11,8 @@ readme = "README.md"
 
 [dependencies]
 jni = "0.19"
+
+[package.metadata]
+app_name = "crossbow_android"
+target_sdk_version = 30
+android_build_targets = ["aarch64-linux-android"]

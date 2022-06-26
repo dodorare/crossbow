@@ -1,15 +1,11 @@
 use macroquad::prelude::*;
 
-#[no_mangle]
-extern "C" fn android_main() {
-    let app = game_activity::android_app();
-    main();
-}
-
 #[macroquad::main("Macroquad 3D")]
 async fn main() -> anyhow::Result<()> {
-    let rust_logo = load_texture("bob/rust.png").await?;
-    let ferris = load_texture("bob/ferris.png").await?;
+    crossbow_android::init();
+
+    // let rust_logo = load_texture("bob/rust.png").await?;
+    // let ferris = load_texture("bob/ferris.png").await?;
 
     loop {
         clear_background(LIGHTGRAY);
@@ -27,10 +23,10 @@ async fn main() -> anyhow::Result<()> {
         draw_cube_wires(vec3(0., 1., 6.), vec3(2., 2., 2.), DARKBLUE);
         draw_cube_wires(vec3(2., 1., 2.), vec3(2., 2., 2.), YELLOW);
 
-        draw_plane(vec3(-8., 0., -8.), vec2(5., 5.), ferris, WHITE);
+        // draw_plane(vec3(-8., 0., -8.), vec2(5., 5.), ferris, WHITE);
 
-        draw_cube(vec3(-5., 1., -2.), vec3(2., 2., 2.), rust_logo, WHITE);
-        draw_cube(vec3(-5., 1., 2.), vec3(2., 2., 2.), ferris, WHITE);
+        // draw_cube(vec3(-5., 1., -2.), vec3(2., 2., 2.), rust_logo, WHITE);
+        // draw_cube(vec3(-5., 1., 2.), vec3(2., 2., 2.), ferris, WHITE);
         draw_cube(vec3(2., 0., -2.), vec3(0.4, 0.4, 0.4), None, BLACK);
 
         draw_sphere(vec3(-8., 0., 0.), 1., None, BLUE);

@@ -1,8 +1,12 @@
 package com.dodorare.crossbow;
 
 import android.app.Activity;
+import com.google.androidgamesdk.GameActivity;
 
-public class CrossbowLib {
+/**
+ * Wrapper for GameActivity and native library.
+ */
+public class CrossbowGameActivity extends GameActivity {
 	static {
         // Optional: reload the native library.
         // However this is necessary when any of the following happens:
@@ -12,12 +16,4 @@ public class CrossbowLib {
         //       the super.onCreate() function.
 		System.loadLibrary("crossbow_android");
 	}
-
-	/**
-	 * Forward the results from a permission request.
-	 * @see Activity#onRequestPermissionsResult(int, String[], int[])
-	 * @param p_permission Request permission
-	 * @param p_result True if the permission was granted, false otherwise
-	 */
-	public static native void requestPermissionResult(String p_permission, boolean p_result);
 }

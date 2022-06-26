@@ -4,17 +4,12 @@ plugins {
 }
 
 dependencies {
-    implementation libraries.androidGradlePlugin
-    implementation libraries.kotlinGradlePlugin
-    // implementation project(":lib")
+    implementation libraries.kotlinStdLib
+    implementation project(":lib")
+    implementation "androidx.appcompat:appcompat:1.4.1"
+    implementation "androidx.games:games-activity:1.1.0"
+    implementation "androidx.startup:startup-runtime:1.1.1"
 }
-
-configurations {
-    // Initializes a placeholder for the devImplementation dependency configuration.
-    devImplementation {}
-}
-
-apply from: "../config.gradle"
 
 android {
     compileSdkVersion versions.compileSdk
@@ -38,7 +33,6 @@ android {
             res.srcDirs = ["res"]
         }
         debug.jniLibs.srcDirs = ["libs/debug"]
-        // dev.jniLibs.srcDirs = ["libs/dev"]
         release.jniLibs.srcDirs = ["libs/release"]
     }
 }
