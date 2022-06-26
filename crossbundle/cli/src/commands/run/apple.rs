@@ -54,14 +54,10 @@ impl AppleRunCommand {
     }
 
     fn get_app_path(&self, app_paths: &[PathBuf]) -> Result<PathBuf> {
-        if self.device {
+        if self.device || cfg!(target_arch = "aarch64") {
             Self::get_app_path_by_target(app_paths, AppleTarget::Aarch64AppleIos)
         } else {
-            if cfg!(target_arch = "aarch64") {
-                Self::get_app_path_by_target(app_paths, AppleTarget::Aarch64AppleIos)
-            } else {
-                Self::get_app_path_by_target(app_paths, AppleTarget::X86_64AppleIos)
-            }
+            Self::get_app_path_by_target(app_paths, AppleTarget::X86_64AppleIos)
         }
     }
 

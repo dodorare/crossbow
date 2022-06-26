@@ -23,9 +23,9 @@ pub fn add_libs_into_apk(
     target_dir: &Path,
 ) -> Result<PathBuf> {
     // Get list of android system libs (https://developer.android.com/ndk/guides/stable_apis)
-    // let needed_libs = get_system_libs(ndk, lib_path, build_target, profile, min_sdk_version, target_dir)?;
-    // println!("system_libs in real func {:?}", needed_libs);
-    // Add all needed libs into apk archive
+    // let needed_libs = get_system_libs(ndk, lib_path, build_target, profile,
+    // min_sdk_version, target_dir)?; println!("system_libs in real func {:?}",
+    // needed_libs); Add all needed libs into apk archive
     let mut system_libs = Vec::new();
     let sysroot_platform_lib_dir = ndk.sysroot_platform_lib_dir(build_target, min_sdk_version)?;
     for lib in get_libs_in_dir(&sysroot_platform_lib_dir)? {
@@ -65,8 +65,8 @@ pub fn add_libs_into_apk(
 //     target_dir: &Path,
 // )-> Result<Vec<(String, std::path::PathBuf)>> {
 //     let mut system_libs = Vec::new();
-//     let sysroot_platform_lib_dir = ndk.sysroot_platform_lib_dir(build_target, min_sdk_version)?;
-//     for lib in get_libs_in_dir(&sysroot_platform_lib_dir)? {
+//     let sysroot_platform_lib_dir = ndk.sysroot_platform_lib_dir(build_target,
+// min_sdk_version)?;     for lib in get_libs_in_dir(&sysroot_platform_lib_dir)? {
 //         system_libs.push(lib);
 //     }
 //     // Get list of dylibs_paths

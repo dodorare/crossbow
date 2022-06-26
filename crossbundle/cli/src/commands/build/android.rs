@@ -49,7 +49,7 @@ impl AndroidBuildCommand {
         let context = BuildContext::new(config, self.shared.target_dir.clone())?;
         if self.aab {
             self.execute_aab(config, &context)?;
-        } else if self.lib{
+        } else if self.lib {
             self.build_rust_lib(config, &context)?;
         } else {
             self.execute_apk(config, &context)?;
@@ -57,44 +57,44 @@ impl AndroidBuildCommand {
         Ok(())
     }
 
- /// Compile rust code as a dynamic library
- pub fn build_rust_lib(
-    &self,
-    config: &Config,
-    context: &BuildContext,
-) -> crate::error::Result<()> {
-    let profile = self.shared.profile();
-    let example = self.shared.example.as_ref();
-    let (project_path, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
-    config.status_message("Starting build process", &package_name)?;
-    let (_sdk, ndk, target_sdk_version) = Self::android_toolchain(context)?;
+    /// Compile rust code as a dynamic library
+    pub fn build_rust_lib(
+        &self,
+        config: &Config,
+        context: &BuildContext,
+    ) -> crate::error::Result<()> {
+        let profile = self.shared.profile();
+        let example = self.shared.example.as_ref();
+        let (project_path, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
+        config.status_message("Starting build process", &package_name)?;
+        let (_sdk, ndk, target_sdk_version) = Self::android_toolchain(context)?;
 
-    let android_build_dir = target_dir.join("android").join(&package_name);
+        let android_build_dir = target_dir.join("android").join(&package_name);
 
-    config.status_message("Compiling", "lib")?;
-    let build_targets = context.android_build_targets(&self.target);
-    let compiled_libs = self.build_target(
-        build_targets,
-        &package_name,
-        &ndk,
-        &project_path,
-        profile,
-        target_sdk_version,
-        &target_dir,
-        config,
-    )?;
+        config.status_message("Compiling", "lib")?;
+        let build_targets = context.android_build_targets(&self.target);
+        let compiled_libs = self.build_target(
+            build_targets,
+            &package_name,
+            &ndk,
+            &project_path,
+            profile,
+            target_sdk_version,
+            &target_dir,
+            config,
+        )?;
 
-    for (compiled_lib, build_target) in compiled_libs {
-        let abi = build_target.android_abi();
-        let out_dir = android_build_dir.join("libs").join(abi);
-        if !out_dir.exists() {
-            std::fs::create_dir_all(&out_dir)?;
+        for (compiled_lib, build_target) in compiled_libs {
+            let abi = build_target.android_abi();
+            let out_dir = android_build_dir.join("libs").join(abi);
+            if !out_dir.exists() {
+                std::fs::create_dir_all(&out_dir)?;
+            }
+            let file_name = compiled_lib.file_name().unwrap().to_owned();
+            std::fs::copy(compiled_lib, &out_dir.join(&file_name))?;
         }
-        let file_name = compiled_lib.file_name().unwrap().to_owned();
-        std::fs::copy(compiled_lib, &out_dir.join(&file_name))?;
-}
-Ok(())
-}
+        Ok(())
+    }
 
     /// Builds APK with aapt tool and signs it with apksigner
     pub fn execute_apk(
@@ -122,7 +122,7 @@ Ok(())
             &sdk,
             package_name.to_string(),
             profile,
-            &native_build_dir.clone(),
+            &native_build_dir,
         )?;
 
         config.status_message("Compiling", "lib")?;
@@ -218,7 +218,7 @@ Ok(())
             &sdk,
             package_name.to_string(),
             profile,
-            &android_build_dir.clone(),
+            &android_build_dir,
         )?;
 
         config.status_message("Compiling", "lib")?;
@@ -243,7 +243,7 @@ Ok(())
         let compiled_res = if let Some(res) = context.android_res() {
             let aapt2_compile = sdk.aapt2()?.compile_incremental(
                 dunce::simplified(&res),
-                &dunce::simplified(&compiled_res_path).to_owned(),
+                dunce::simplified(&compiled_res_path),
             );
             let compiled_res = aapt2_compile.run()?;
             Some(compiled_res)
@@ -298,11 +298,8 @@ Ok(())
         }
 
         config.status("Generating aab from modules")?;
-        let aab_path = android::gen_aab_from_modules(
-            &package_name,
-            &[gen_zip_modules.clone()],
-            &android_build_dir,
-        )?;
+        let aab_path =
+            android::gen_aab_from_modules(&package_name, &[gen_zip_modules], &android_build_dir)?;
 
         config.status_message("Generating", "debug signing key")?;
         let key = Self::find_keystore(
@@ -359,12 +356,12 @@ Ok(())
         sdk: &AndroidSdk,
         package_name: String,
         profile: Profile,
-        android_build_dir: &PathBuf,
+        android_build_dir: &Path,
     ) -> crate::error::Result<(AndroidManifest, PathBuf)> {
         config.status_message("Generating", "AndroidManifest.xml")?;
         let android_manifest =
-            context.gen_android_manifest(&sdk, &package_name, profile.is_debug())?;
-        let manifest_path = android::save_android_manifest(&android_build_dir, &android_manifest)?;
+            context.gen_android_manifest(sdk, &package_name, profile.is_debug())?;
+        let manifest_path = android::save_android_manifest(android_build_dir, &android_manifest)?;
         Ok((android_manifest, manifest_path))
     }
 
@@ -374,11 +371,11 @@ Ok(())
         sign_key_pass: Option<String>,
         sign_key_alias: Option<String>,
     ) -> crate::error::Result<AabKey> {
-        let key = if let Some(key_path) = sign_key_path.clone() {
+        let key = if let Some(key_path) = sign_key_path {
             let aab_key = AabKey {
                 key_path,
-                key_pass: sign_key_pass.clone().unwrap().to_string(),
-                key_alias: sign_key_alias.clone().unwrap().to_string(),
+                key_pass: sign_key_pass.unwrap(),
+                key_alias: sign_key_alias.unwrap(),
             };
             if aab_key.key_path.exists() {
                 aab_key
@@ -418,7 +415,7 @@ Ok(())
     ) -> crate::error::Result<Vec<(PathBuf, AndroidTarget)>> {
         let mut libs = Vec::new();
         for build_target in build_targets {
-            let lib_name = format!("{}.so", package_name.replace("-", "_"));
+            let lib_name = format!("lib{}.so", package_name.replace('-', "_"));
             let rust_triple = build_target.rust_triple();
 
             config.status_message("Compiling for architecture", rust_triple)?;
@@ -429,9 +426,9 @@ Ok(())
 
             // Compile rust code for android depending on application wrapper
             rust_compile(
-                &ndk,
+                ndk,
                 build_target,
-                &project_path,
+                project_path,
                 profile,
                 self.shared.features.clone(),
                 self.shared.all_features,

@@ -113,8 +113,8 @@ impl BuildContext {
                 .metadata
                 .version_name
                 .clone()
-                .unwrap_or(self.package_version()),
-            version_code: self.metadata.version_code.clone().unwrap_or(1),
+                .unwrap_or_else(|| self.package_version()),
+            version_code: self.metadata.version_code.unwrap_or(1),
             min_sdk_version: self.metadata.min_sdk_version,
             target_sdk_version: self
                 .metadata
@@ -151,7 +151,7 @@ impl BuildContext {
     }
 
     /// Get info plist from the path in cargo manifest or generate it with the given configuration
-    pub fn gen_info_plist(&self, package_name: &String) -> Result<InfoPlist> {
+    pub fn gen_info_plist(&self, package_name: &str) -> Result<InfoPlist> {
         if self.metadata.use_info_plist {
             let path = self
                 .metadata
@@ -166,7 +166,7 @@ impl BuildContext {
                 self.metadata
                     .version_name
                     .clone()
-                    .unwrap_or(self.package_version()),
+                    .unwrap_or_else(|| self.package_version()),
             ))
         } else {
             Ok(apple::gen_minimal_info_plist(

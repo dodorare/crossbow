@@ -47,6 +47,6 @@ pub enum Error {
 // TODO: Fix this. Is there a better casting for it?
 impl From<crossbundle_tools::tools::AndroidToolsError> for Error {
     fn from(error: crossbundle_tools::tools::AndroidToolsError) -> Self {
-        Error::CrossbundleTools(error.into()).into()
+        Error::CrossbundleTools(error.into())
     }
 }

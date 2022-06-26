@@ -21,12 +21,12 @@ impl BundletoolInstallCommand {
     /// Download and install bundletool to provided or default path
     pub fn install(&self, config: &Config) -> crate::error::Result<()> {
         config.status("Installing bundletool")?;
-        if self.force == false {
+        if !self.force {
             for bundletool in
                 std::fs::read_dir(default_file_path(self.file_name())?.parent().unwrap())?
             {
                 let installed_bundletool = bundletool?.path();
-                if installed_bundletool.ends_with(Self::file_name(&self)) {
+                if installed_bundletool.ends_with(self.file_name()) {
                     config.status("You have installed budletool on your system already")?;
                     return Ok(());
                 }
