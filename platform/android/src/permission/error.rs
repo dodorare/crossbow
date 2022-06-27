@@ -4,7 +4,7 @@ use thiserror::Error;
 /// `Result` type that used in `crossbow-permissions`.
 pub type Result<T> = std::result::Result<T, PermissionError>;
 
-/// `Crossbow-permissions` error type.
+/// Permissions error type.
 #[derive(Display, Debug, Error)]
 pub enum PermissionError {
     /// Rust Jni library error
@@ -13,7 +13,6 @@ pub enum PermissionError {
     Anyhow(anyhow::Error),
 }
 
-#[cfg(target_os = "android")]
 impl From<jni::errors::Error> for PermissionError {
     fn from(error: jni::errors::Error) -> Self {
         PermissionError::Jni(error.into())

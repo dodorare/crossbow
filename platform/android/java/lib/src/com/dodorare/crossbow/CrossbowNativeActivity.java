@@ -34,14 +34,12 @@ public class CrossbowNativeActivity extends NativeActivity implements ActivityCo
 
 		Log.v(TAG, "Creating new CrossbowLib Instance");
 		crossbowInstance = new CrossbowLib();
-
-		crossbowInstance.requestPermissionResult("android.permission.INTERNET", true);
 	}
 
 	@Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-		// for (GodotPlugin plugin : pluginRegistry.getAllPlugins()) {
+		// for (CrossbowPlugin plugin : pluginRegistry.getAllPlugins()) {
 		// 	plugin.onMainRequestPermissionsResult(requestCode, permissions, grantResults);
 		// }
 

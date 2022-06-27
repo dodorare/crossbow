@@ -12,9 +12,11 @@ dependencies {
 
 android {
     namespace = "com.dodorare.crossbow"
+
     compileSdkVersion versions.compileSdk
     buildToolsVersion versions.buildTools
     ndkVersion versions.ndkVersion
+
     defaultConfig {
         minSdkVersion versions.minSdk
         targetSdkVersion versions.targetSdk
