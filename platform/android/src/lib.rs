@@ -1,3 +1,7 @@
+#![cfg(target_os = "android")]
+
+pub mod permission;
+
 use jni::{
     objects::{JClass, JString},
     sys::jboolean,

@@ -26,7 +26,6 @@ Crate structure:
 | [crossbundle-tools](./crossbundle/tools/README.md) | Toolkit used in `crossbundle` to build/pack/sign bundles | ✅ |
 | [crossbundle-derive](./crossbundle/derive/README.md) | Derive macros for projects built with `crossbow` | ✅ |
 | [crossbow-ads](./crossbow/ads/README.md) | Plugin for advertisements | 🛠 |
-| [crossbow-permissions](./crossbow/permissions/README.md) | Plugin for runtime permissions | 🛠 |
 | [android-tools-rs](https://github.com/dodorare/android-tools-rs) | Android-related tools for building and developing application | ✅ |
 | [android-manifest-rs](https://github.com/dodorare/android-manifest-rs) | [AndroidManifest](https://developer.android.com/guide/topics/manifest/manifest-intro) serializer and deserializer for Rust | ✅ |
 | [apple-bundle-rs](https://github.com/dodorare/apple-bundle-rs) | [AppleBundleResources](https://developer.apple.com/documentation/bundleresources) serializer and deserializer for Rust | ✅ |
