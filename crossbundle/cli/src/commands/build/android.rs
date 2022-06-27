@@ -27,6 +27,9 @@ pub struct AndroidBuildCommand {
     /// Compile rust code as a dynamic library
     #[clap(long)]
     pub lib: bool,
+    /// Compile rust code as a dynamic library, generate Gradle project and build generate apk/aab
+    #[clap(long)]
+    pub gradle: bool,
     /// Path to the signing key
     #[clap(long, requires_all = &["sign-key-pass", "sign-key-alias"])]
     pub sign_key_path: Option<PathBuf>,
@@ -86,7 +89,7 @@ impl AndroidBuildCommand {
 
         for (compiled_lib, build_target) in compiled_libs {
             let abi = build_target.android_abi();
-            let out_dir = android_build_dir.join("libs").join(abi);
+            let out_dir = android_build_dir.join("libs").join(profile).join(abi);
             if !out_dir.exists() {
                 std::fs::create_dir_all(&out_dir)?;
             }

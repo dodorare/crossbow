@@ -6,6 +6,8 @@ use macroquad::ui::{hash, root_ui, Skin};
 
 #[macroquad::main("Macroquad UI")]
 async fn main() -> anyhow::Result<()> {
+    crossbow_android::init();
+
     let skin = {
         let label_style = root_ui()
             .style_builder()

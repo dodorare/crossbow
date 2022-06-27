@@ -4,12 +4,15 @@ import android.app.Activity;
 import android.app.NativeActivity;
 import android.util.Log;
 import android.os.Bundle;
+import android.content.pm.PackageManager;
+import androidx.core.app.ActivityCompat;
 import androidx.annotation.Nullable;
+import androidx.annotation.CallSuper;
 
 /**
  * Wrapper for NativeActivity and native library.
  */
-public class CrossbowNativeActivity extends NativeActivity {
+public class CrossbowNativeActivity extends NativeActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
 	static {
         // Optional: reload the native library.
         // However this is necessary when any of the following happens:
@@ -33,5 +36,18 @@ public class CrossbowNativeActivity extends NativeActivity {
 		crossbowInstance = new CrossbowLib();
 
 		crossbowInstance.requestPermissionResult("android.permission.INTERNET", true);
+	}
+
+	@Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		// for (GodotPlugin plugin : pluginRegistry.getAllPlugins()) {
+		// 	plugin.onMainRequestPermissionsResult(requestCode, permissions, grantResults);
+		// }
+
+		for (int i = 0; i < permissions.length; i++) {
+			// Log.v(TAG, "Permission granted");
+			crossbowInstance.requestPermissionResult(permissions[i], grantResults[i] == PackageManager.PERMISSION_GRANTED);
+		}
 	}
 }
