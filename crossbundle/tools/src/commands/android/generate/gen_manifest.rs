@@ -21,7 +21,7 @@ pub struct GenAndroidManifest {
 impl GenAndroidManifest {
     /// Generates [`AndroidManifest`](android_manifest::AndroidManifest) with
     /// given changes
-    pub fn gen_android_manifest(&self) -> AndroidManifest {
+    pub fn gen_android_manifest(&self, gradle: bool) -> AndroidManifest {
         AndroidManifest {
             package: self
                 .app_id
@@ -39,7 +39,7 @@ impl GenAndroidManifest {
             uses_permission: self.permissions.clone().unwrap_or_default(),
             uses_feature: self.features.clone().unwrap_or_default(),
             application: Application {
-                has_code: Some(false),
+                has_code: Some(gradle),
                 label: Some(StringResourceOrString::string(
                     self.app_name
                         .as_ref()
@@ -56,7 +56,10 @@ impl GenAndroidManifest {
                 )),
                 service: self.service.clone().unwrap_or_default(),
                 activity: vec![Activity {
-                    name: "android.app.NativeActivity".to_string(),
+                    name: match gradle {
+                        true => "android.app.NativeActivity".to_string(),
+                        false => ".CrossbowApp".to_string(),
+                    },
                     resizeable_activity: Some(true),
                     label: Some(StringResourceOrString::string(
                         self.app_name
@@ -71,7 +74,10 @@ impl GenAndroidManifest {
                     .into(),
                     meta_data: vec![MetaData {
                         name: Some("android.app.lib_name".to_string()),
-                        value: Some(self.package_name.replace('-', "_")),
+                        value: Some(match gradle {
+                            true => "crossbow_android".to_string(),
+                            false => self.package_name.replace('-', "_"),
+                        }),
                         ..Default::default()
                     }],
                     intent_filter: vec![IntentFilter {

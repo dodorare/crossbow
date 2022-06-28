@@ -48,7 +48,7 @@ async fn main() -> anyhow::Result<()> {
 
     let window_skin = skin.clone();
     loop {
-        clear_background(MAROON);
+        clear_background(WHITE);
 
         root_ui().push_skin(&window_skin);
         root_ui().window(hash!(), vec2(0.0, 250.0), vec2(500.0, 500.0), |ui| {
