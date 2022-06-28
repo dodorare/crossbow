@@ -26,6 +26,8 @@ pub enum Error {
     CrossbundleTools(#[from] crossbundle_tools::error::Error),
     /// AndroidManifest error
     AndroidManifest(#[from] android_manifest::error::Error),
+    /// FsExtra error
+    FsExtra(#[from] fs_extra::error::Error),
     /// Path {0:?} doesn't exist
     PathNotFound(std::path::PathBuf),
     /// Home dir not found

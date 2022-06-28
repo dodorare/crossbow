@@ -264,18 +264,24 @@ impl AndroidBuildCommand {
         let profile = self.shared.profile();
         let example = self.shared.example.as_ref();
         let (project_path, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
-        config.status_message("Starting aab build process", &package_name)?;
+        config.status_message("Starting build process", &package_name)?;
         let (sdk, ndk, target_sdk_version) = Self::android_toolchain(context)?;
 
+        let android_build_dir = target_dir.join("android").join(&package_name);
+        let native_build_dir = android_build_dir.join("native");
+        let outputs_build_dir = android_build_dir.join("outputs");
+        if !outputs_build_dir.exists() {
+            std::fs::create_dir_all(&outputs_build_dir)?;
+        }
+
         // Get AndroidManifest.xml from file or generate from Cargo.toml
-        let android_build_dir = target_dir.join("android").join(&profile);
         let (android_manifest, manifest_path) = Self::android_manifest(
             config,
             context,
             &sdk,
-            &package_name.to_string(),
+            &package_name,
             profile,
-            &android_build_dir,
+            &native_build_dir.clone(),
             false,
         )?;
 
@@ -293,7 +299,7 @@ impl AndroidBuildCommand {
         )?;
 
         config.status_message("Generating", "proto format APK file")?;
-        let compiled_res_path = android_build_dir.join("compiled_res");
+        let compiled_res_path = native_build_dir.join("compiled_res");
         if !compiled_res_path.exists() {
             std::fs::create_dir_all(&compiled_res_path)?;
         }
@@ -301,7 +307,7 @@ impl AndroidBuildCommand {
         let compiled_res = if let Some(res) = context.android_res() {
             let aapt2_compile = sdk.aapt2()?.compile_incremental(
                 dunce::simplified(&res),
-                dunce::simplified(&compiled_res_path),
+                &dunce::simplified(&compiled_res_path).to_owned(),
             );
             let compiled_res = aapt2_compile.run()?;
             Some(compiled_res)
@@ -309,7 +315,7 @@ impl AndroidBuildCommand {
             None
         };
 
-        let apk_path = android_build_dir.join(format!("{}_module.apk", package_name));
+        let apk_path = native_build_dir.join(format!("{}_module.apk", package_name));
         let mut aapt2_link =
             sdk.aapt2()?
                 .link_compiled_res(compiled_res, &apk_path, &manifest_path);
@@ -321,7 +327,7 @@ impl AndroidBuildCommand {
         aapt2_link.run()?;
 
         config.status("Extracting apk files")?;
-        let output_dir = android_build_dir.join("extracted_apk_files");
+        let output_dir = native_build_dir.join("extracted_apk_files");
         let extracted_apk_path = android::extract_archive(&apk_path, &output_dir)?;
 
         config.status("Adding libs")?;
@@ -340,14 +346,15 @@ impl AndroidBuildCommand {
                     .unwrap_or(MIN_SDK_VERSION),
                 &extracted_apk_path,
                 &target_dir,
+                &package_name,
             )?;
         }
 
         config.status("Generating ZIP module from extracted files")?;
         let gen_zip_modules =
-            android::gen_zip_modules(&android_build_dir, &package_name, &extracted_apk_path)?;
+            android::gen_zip_modules(&native_build_dir, &package_name, &extracted_apk_path)?;
 
-        for entry in std::fs::read_dir(&android_build_dir)? {
+        for entry in std::fs::read_dir(&native_build_dir)? {
             let entry = entry?;
             let path = entry.path();
             if path.ends_with(format!("{}_unsigned.aab", package_name)) {
@@ -356,8 +363,11 @@ impl AndroidBuildCommand {
         }
 
         config.status("Generating aab from modules")?;
-        let aab_path =
-            android::gen_aab_from_modules(&package_name, &[gen_zip_modules], &android_build_dir)?;
+        let aab_path = android::gen_aab_from_modules(
+            &package_name,
+            &[gen_zip_modules.clone()],
+            &outputs_build_dir,
+        )?;
 
         config.status_message("Generating", "debug signing key")?;
         let key = Self::find_keystore(
@@ -377,9 +387,15 @@ impl AndroidBuildCommand {
 
         let signed_aab = android_build_dir.join(format!("{}_signed.aab", package_name));
         std::fs::rename(&aab_path, &signed_aab)?;
+        let output_aab = signed_aab.file_name().unwrap().to_str().unwrap();
+        println!("output_aab {:?}", output_aab);
+        println!("outputs_build_dir {:?}", outputs_build_dir);
+        let aab_output_path = outputs_build_dir.join(output_aab);
+        let mut options = fs_extra::file::CopyOptions::new();
+        options.overwrite = true;
+        fs_extra::file::move_file(&signed_aab, &outputs_build_dir.join(output_aab), &options)?;
         config.status("Build finished successfully")?;
-
-        Ok((android_manifest, sdk, signed_aab, package_name, key))
+        Ok((android_manifest, sdk, aab_output_path, package_name, key))
     }
 
     /// Specifies project path and target directory needed to build application

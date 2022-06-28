@@ -110,6 +110,7 @@ fn test_aab_full() {
             target_sdk_version,
             &extracted_apk_path,
             &target_dir,
+            &package_name,
         )
         .unwrap();
         assert!(lib.exists());
