@@ -90,7 +90,7 @@ pub fn request_permission(permission: AndroidPermission) -> Result<bool> {
 
     if ret.i()? == permission_denied.i()? {
         let array_permissions = java_env.new_object_array(
-            ARRAY_LENGTH.into(),
+            ARRAY_LENGTH,
             java_env.find_class(JAVA_STRING_SIGNATURE)?,
             java_env.new_string(String::new())?,
         )?;
@@ -99,7 +99,7 @@ pub fn request_permission(permission: AndroidPermission) -> Result<bool> {
 
         java_env.set_object_array_element(
             array_permissions,
-            OBJECT_INDEX.into(),
+            OBJECT_INDEX,
             string_permission.l()?,
         )?;
         let class_activity = java_env.find_class(ANDROID_ACTIVITY)?;

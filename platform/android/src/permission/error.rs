@@ -15,7 +15,7 @@ pub enum PermissionError {
 
 impl From<jni::errors::Error> for PermissionError {
     fn from(error: jni::errors::Error) -> Self {
-        PermissionError::Jni(error.into())
+        PermissionError::Jni(error)
     }
 }
 

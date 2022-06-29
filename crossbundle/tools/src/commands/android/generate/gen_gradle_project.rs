@@ -34,17 +34,24 @@ pub fn gen_gradle_project(
     write!(settings_gradle, "{}", crossbow_app_settings_gradle())?;
 
     // Copy resources to gradle folder if provided
-    std::fs::remove_dir_all(&gradle_project_path.join("res")).unwrap();
+    let res_path = gradle_project_path.join("res");
+    if res_path.exists() {
+        std::fs::remove_dir_all(&gradle_project_path.join("res"))?;
+    }
     let mut options = fs_extra::dir::CopyOptions::new();
     options.skip_exist = true;
     options.content_only = true;
     if let Some(resources_dir) = resources_dir {
-        fs_extra::dir::copy(resources_dir, &gradle_project_path.join("res"), &options)?;
+        fs_extra::dir::copy(resources_dir, &res_path, &options)?;
     }
+
     // Copy assets to gradle folder if provided
-    std::fs::remove_dir_all(&gradle_project_path.join("assets")).unwrap();
+    let assets_path = gradle_project_path.join("assets");
+    if assets_path.exists() {
+        std::fs::remove_dir_all(&assets_path)?;
+    }
     if let Some(assets_dir) = assets_dir {
-        fs_extra::dir::copy(assets_dir, &gradle_project_path.join("assets"), &options)?;
+        fs_extra::dir::copy(assets_dir, &assets_path, &options)?;
     }
 
     Ok(gradle_project_path)

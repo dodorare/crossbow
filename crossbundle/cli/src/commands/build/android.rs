@@ -68,10 +68,10 @@ impl AndroidBuildCommand {
         config: &Config,
         context: &BuildContext,
     ) -> crate::error::Result<()> {
-        let lib_name = "crossbow_android";
         let profile = self.shared.profile();
         let example = self.shared.example.as_ref();
         let (_, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
+        let lib_name = format!("lib_crossbow_android_{}.so", package_name.replace('-', "_"));
 
         config.status_message("Starting gradle build process", &package_name)?;
         let android_build_dir = target_dir.join("android").join(&package_name);
@@ -90,7 +90,7 @@ impl AndroidBuildCommand {
             config,
             context,
             &sdk,
-            lib_name,
+            &lib_name,
             profile,
             &gradle_project_path,
             true,
@@ -98,7 +98,7 @@ impl AndroidBuildCommand {
 
         config.status("Copying res and assets directories to gradle directory")?;
 
-        self.build_rust_lib(config, context, lib_name)?;
+        self.build_rust_lib(config, context, &lib_name)?;
 
         config.status_message(
             "Gradle project generated",
