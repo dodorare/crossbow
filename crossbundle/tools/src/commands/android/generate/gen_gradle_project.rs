@@ -132,7 +132,7 @@ dependencies {{
 }
 
 fn crossbow_app_gradle_properties() -> String {
-        r#"
+    r#"
 # Project-wide Gradle settings.
 
 # IDE (e.g. Android Studio) users:
@@ -159,13 +159,15 @@ android.enableJetifier=true
 # resources declared in the library itself and none from the library's dependencies,
 # thereby reducing the size of the R class for that library
 android.nonTransitiveRClass=true
-"#.to_string()  
+"#
+    .to_string()
 }
 
 fn crossbow_app_settings_gradle() -> String {
-        r#"
+    r#"
 include ":crossbow"
 project(":crossbow").projectDir = new File("../../../../platform/android/java/")
 include ":crossbow:lib"
-"#.to_string()
+"#
+    .to_string()
 }
