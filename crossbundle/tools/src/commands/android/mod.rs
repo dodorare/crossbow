@@ -16,6 +16,7 @@ mod save_manifest;
 mod sign_apk;
 mod start_apk;
 mod write_zip;
+mod gradle_command;
 
 pub use add_libs_into_aapt2::*;
 pub use add_libs_into_apk::*;
@@ -32,3 +33,4 @@ pub use save_manifest::*;
 pub use sign_apk::*;
 pub use start_apk::*;
 pub use write_zip::*;
+pub use gradle_command::*;

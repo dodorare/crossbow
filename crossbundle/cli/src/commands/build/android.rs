@@ -67,7 +67,7 @@ impl AndroidBuildCommand {
         &self,
         config: &Config,
         context: &BuildContext,
-    ) -> crate::error::Result<()> {
+    ) -> crate::error::Result<PathBuf> {
         let profile = self.shared.profile();
         let example = self.shared.example.as_ref();
         let (_, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
@@ -100,9 +100,9 @@ impl AndroidBuildCommand {
 
         config.status_message(
             "Gradle project generated",
-            gradle_project_path.into_os_string().to_str().unwrap(),
+            gradle_project_path.to_str().unwrap(),
         )?;
-        Ok(())
+        Ok(gradle_project_path)
     }
 
     /// Compile rust code as a dynamic library

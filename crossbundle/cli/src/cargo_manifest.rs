@@ -43,9 +43,9 @@ pub struct Metadata {
 
     /// Android service to place in AndroidManifest.xml.
     pub android_service: Option<Vec<Service>>,
-    /// Android service to place in AndroidManifest.xml.
+    /// Android application meta_data to place in AndroidManifest.xml.
     pub android_meta_data: Option<Vec<MetaData>>,
-    /// Android service to place in AndroidManifest.xml.
+    /// Android queries to place in AndroidManifest.xml.
     pub android_queries: Option<Queries>,
 
     /// Apple build targets.

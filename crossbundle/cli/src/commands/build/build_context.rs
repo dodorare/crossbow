@@ -36,7 +36,6 @@ impl BuildContext {
             .custom_metadata()
             .ok_or(Error::InvalidManifestMetadata)?
             .to_owned();
-        println!("{:?}", custom_metadata);
         let metadata = custom_metadata
             .try_into::<Metadata>()
             .map_err(|_| Error::InvalidManifestMetadata)?;
