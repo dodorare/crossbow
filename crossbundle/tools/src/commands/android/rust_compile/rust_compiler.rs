@@ -96,7 +96,7 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
             && (target.kind() == &cargo::core::manifest::TargetKind::Bin
                 || target.kind() == &cargo::core::manifest::TargetKind::ExampleBin)
         {
-            let mut new_args = cmd.get_args().to_owned();
+            let mut new_args = cmd.get_args().map(|x| x.clone()).collect::<Vec<_>>();
 
             let extra_code = match self.app_wrapper {
                 ApplicationWrapper::Sokol => consts::SOKOL_EXTRA_CODE,
@@ -222,7 +222,7 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
                 target.name()
             )));
         } else if mode == cargo::core::compiler::CompileMode::Build {
-            let mut new_args = cmd.get_args().to_owned();
+            let mut new_args = cmd.get_args().map(|x| x.clone()).collect::<Vec<_>>();
 
             // Change crate-type from cdylib to rlib
             let mut iter = new_args.iter_mut().rev().peekable();

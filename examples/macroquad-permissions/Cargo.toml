@@ -30,12 +30,3 @@ name = "android.permission.READ_EXTERNAL_STORAGE"
 
 [[package.metadata.android_permissions]]
 name = "android.permission.CAMERA"
-
-[[package.metadata.android_meta_data]]
-name = "com.samsung.android.vr.application.mode"
-value = "vr_only"
-
-[[package.metadata.android_queries.provider]]
-authorities = "org.khronos.openxr.runtime_broker;org.khronos.openxr.system_runtime_broker"
-
-

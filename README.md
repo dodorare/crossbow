@@ -22,7 +22,7 @@ Crate structure:
 | Name | Description | Status |
 | ---- | ----------- | ------ |
 | [crossbundle](./crossbundle/cli/README.md) | Command-line tool for building applications | ✅ |
-| [crossbundle-install](https://github.com/dodorare/crossbow/blob/improve-documentation/docs/crossbundle-install-command.md) | Crossbundle install command to install necessary packages  | ✅ |
+| [crossbundle-install](./docs/crossbundle-install-command.md) | Crossbundle install command to install necessary packages  | ✅ |
 | [crossbundle-tools](./crossbundle/tools/README.md) | Toolkit used in `crossbundle` to build/pack/sign bundles | ✅ |
 | [crossbundle-derive](./crossbundle/derive/README.md) | Derive macros for projects built with `crossbow` | ✅ |
 | [crossbow-ads](./crossbow/ads/README.md) | Plugin for advertisements | 🛠 |
