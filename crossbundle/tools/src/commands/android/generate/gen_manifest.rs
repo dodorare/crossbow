@@ -57,8 +57,8 @@ impl GenAndroidManifest {
                 service: self.service.clone().unwrap_or_default(),
                 activity: vec![Activity {
                     name: match gradle {
-                        true => "android.app.NativeActivity".to_string(),
-                        false => ".CrossbowApp".to_string(),
+                        true => ".CrossbowApp".to_string(),
+                        false => "android.app.NativeActivity".to_string(),
                     },
                     resizeable_activity: Some(true),
                     label: Some(StringResourceOrString::string(

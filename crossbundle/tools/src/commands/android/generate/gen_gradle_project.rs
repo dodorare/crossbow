@@ -131,7 +131,6 @@ dependencies {{
     implementation "org.jetbrains.kotlin:kotlin-stdlib:1.6.21"
     implementation "androidx.appcompat:appcompat:1.4.1"
     implementation "androidx.games:games-activity:1.1.0"
-    implementation "androidx.startup:startup-runtime:1.1.1"
     implementation project(":crossbow:lib")
 }}
 "#
