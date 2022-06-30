@@ -16,6 +16,8 @@ pub struct GenAndroidManifest {
     pub permissions: Option<Vec<UsesPermission>>,
     pub features: Option<Vec<UsesFeature>>,
     pub service: Option<Vec<Service>>,
+    pub meta_data: Option<Vec<MetaData>>,
+    pub queries: Option<Queries>,
 }
 
 impl GenAndroidManifest {
@@ -38,6 +40,7 @@ impl GenAndroidManifest {
             uses_permission_sdk_23: self.permissions_sdk_23.clone().unwrap_or_default(),
             uses_permission: self.permissions.clone().unwrap_or_default(),
             uses_feature: self.features.clone().unwrap_or_default(),
+            queries: self.queries.clone(),
             application: Application {
                 has_code: Some(gradle),
                 label: Some(StringResourceOrString::string(
@@ -55,6 +58,7 @@ impl GenAndroidManifest {
                     Some("android".to_string()),
                 )),
                 service: self.service.clone().unwrap_or_default(),
+                meta_data: self.meta_data.clone().unwrap_or_default(),
                 activity: vec![Activity {
                     name: match gradle {
                         true => ".CrossbowApp".to_string(),

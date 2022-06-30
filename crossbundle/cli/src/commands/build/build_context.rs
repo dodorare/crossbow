@@ -36,6 +36,7 @@ impl BuildContext {
             .custom_metadata()
             .ok_or(Error::InvalidManifestMetadata)?
             .to_owned();
+        println!("{:?}", custom_metadata);
         let metadata = custom_metadata
             .try_into::<Metadata>()
             .map_err(|_| Error::InvalidManifestMetadata)?;
@@ -131,6 +132,8 @@ impl BuildContext {
             permissions: self.metadata.android_permissions.clone(),
             features: self.metadata.android_features.clone(),
             service: self.metadata.android_service.clone(),
+            meta_data: self.metadata.android_meta_data.clone(),
+            queries: self.metadata.android_queries.clone(),
         };
         if self.metadata.use_android_manifest {
             let path = self

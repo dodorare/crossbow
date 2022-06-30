@@ -1,5 +1,5 @@
 use crossbundle_tools::types::{
-    android_manifest::{Service, UsesFeature, UsesPermission, UsesPermissionSdk23},
+    android_manifest::{Service, UsesFeature, UsesPermission, UsesPermissionSdk23, Queries, MetaData},
     *,
 };
 use serde::{Deserialize, Serialize};
@@ -43,6 +43,10 @@ pub struct Metadata {
 
     /// Android service to place in AndroidManifest.xml.
     pub android_service: Option<Vec<Service>>,
+    /// Android service to place in AndroidManifest.xml.
+    pub android_meta_data: Option<Vec<MetaData>>,
+    /// Android service to place in AndroidManifest.xml.
+    pub android_queries: Option<Queries>,
 
     /// Apple build targets.
     pub apple_build_targets: Option<Vec<AppleTarget>>,
