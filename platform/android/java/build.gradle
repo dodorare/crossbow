@@ -1,5 +1,5 @@
 buildscript {
-    apply from: "config.gradle"
+    apply from: "app/config.gradle"
     repositories {
         google()
         mavenCentral()
@@ -11,7 +11,7 @@ buildscript {
     }
 }
 
-apply from: "config.gradle"
+apply from: "app/config.gradle"
 
 allprojects {
     repositories {

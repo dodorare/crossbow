@@ -33,8 +33,7 @@ pub fn test_gen_gradle_project() {
     std::fs::create_dir_all(&android_build_dir).unwrap();
 
     // Generate gradle project
-    let gradle_project_path =
-        android::gen_gradle_project(&android_build_dir, &package_name, None, None).unwrap();
+    let gradle_project_path = android::gen_gradle_project(&android_build_dir, None, None).unwrap();
 
     // Generate manifest
     let manifest = GenAndroidManifest {

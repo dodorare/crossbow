@@ -1,31 +1,39 @@
+use rust_embed::RustEmbed;
 use std::{
     fs::File,
     io::Write,
     path::{Path, PathBuf},
 };
 
+#[derive(RustEmbed)]
+#[folder = "../../platform/android/java/app"]
+#[include = "src/*"]
+#[include = "*.xml"]
+#[include = "*.gradle"]
+#[exclude = "build/"]
+#[exclude = "libs/"]
+struct CrossbowAppTemplate;
+
 pub fn gen_gradle_project(
     android_build_dir: &Path,
-    package_id: &str,
     resources_dir: Option<PathBuf>,
     assets_dir: Option<PathBuf>,
 ) -> crate::error::Result<PathBuf> {
     let gradle_project_path = android_build_dir.join("gradle");
 
-    let java_file_path = package_id
-        .split('.')
-        .fold(gradle_project_path.join("src"), |path, name| {
-            path.join(name)
-        });
-    if !java_file_path.exists() {
-        std::fs::create_dir_all(&java_file_path)?;
+    for file_name in CrossbowAppTemplate::iter() {
+        let file_path = gradle_project_path.join(file_name.as_ref());
+        if let Some(path) = file_path.parent() {
+            std::fs::create_dir_all(path)?;
+        }
+        let mut build_gradle = File::create(file_path)?;
+        let file = CrossbowAppTemplate::get(file_name.as_ref()).unwrap();
+        write!(
+            build_gradle,
+            "{}",
+            std::str::from_utf8(file.data.as_ref()).unwrap()
+        )?;
     }
-
-    let mut java_file = File::create(java_file_path.join("CrossbowApp.java"))?;
-    write!(java_file, "{}", crossbow_app_java_code(package_id))?;
-
-    let mut build_gradle = File::create(gradle_project_path.join("build.gradle"))?;
-    write!(build_gradle, "{}", crossbow_app_build_gradle(package_id))?;
 
     let mut gradle_properties = File::create(gradle_project_path.join("gradle.properties"))?;
     write!(gradle_properties, "{}", crossbow_app_gradle_properties())?;
@@ -33,108 +41,19 @@ pub fn gen_gradle_project(
     let mut settings_gradle = File::create(gradle_project_path.join("settings.gradle"))?;
     write!(settings_gradle, "{}", crossbow_app_settings_gradle())?;
 
-    // Copy resources to gradle folder if provided
-    let res_path = gradle_project_path.join("res");
-    if res_path.exists() {
-        std::fs::remove_dir_all(&gradle_project_path.join("res"))?;
-    }
     let mut options = fs_extra::dir::CopyOptions::new();
-    options.skip_exist = true;
+    options.overwrite = true;
     options.content_only = true;
+    // Copy resources to gradle folder if provided
     if let Some(resources_dir) = resources_dir {
-        fs_extra::dir::copy(resources_dir, &res_path, &options)?;
+        fs_extra::dir::copy(resources_dir, &gradle_project_path.join("res"), &options)?;
     }
-
     // Copy assets to gradle folder if provided
-    let assets_path = gradle_project_path.join("assets");
-    if assets_path.exists() {
-        std::fs::remove_dir_all(&assets_path)?;
-    }
     if let Some(assets_dir) = assets_dir {
-        fs_extra::dir::copy(assets_dir, &assets_path, &options)?;
+        fs_extra::dir::copy(assets_dir, &gradle_project_path.join("assets"), &options)?;
     }
 
     Ok(gradle_project_path)
-}
-
-fn crossbow_app_java_code(package_id: &str) -> String {
-    format!(
-        r#"
-package {package_id};
-
-import android.os.Bundle;
-import com.dodorare.crossbow.CrossbowNativeActivity;
-
-/**
- * Template activity for Crossbow Android custom builds.
- * Feel free to extend and modify this class for your custom logic.
- */
-public class CrossbowApp extends CrossbowNativeActivity {{
-    @Override
-	public void onCreate(Bundle savedInstanceState) {{
-		super.onCreate(savedInstanceState);
-	}}
-}}
-"#
-    )
-}
-
-fn crossbow_app_build_gradle(package_id: &str) -> String {
-    format!(
-        r#"
-buildscript {{
-    repositories {{
-        google()
-        mavenCentral()
-        maven {{ url "https://plugins.gradle.org/m2/" }}
-    }}
-    dependencies {{
-        classpath "com.android.tools.build:gradle:7.0.0"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.21"
-    }}
-}}
-
-repositories {{
-    google()
-    mavenCentral()
-    maven {{ url "https://plugins.gradle.org/m2/" }}
-}}
-
-apply plugin: "com.android.application"
-
-android {{
-    compileSdkVersion 31
-    buildToolsVersion "30.0.3"
-    ndkVersion "23.1.7779620"
-
-    defaultConfig {{
-        applicationId "{package_id}"
-        versionCode 1
-        versionName "1.0"
-
-        minSdkVersion 19
-        targetSdkVersion 30
-    }}
-    sourceSets {{
-        main {{
-            manifest.srcFile "AndroidManifest.xml"
-            java.srcDirs = ["src"]
-            assets.srcDirs = ["assets"]
-            res.srcDirs = ["res"]
-        }}
-        debug.jniLibs.srcDirs = ["../libs/debug/"]
-        release.jniLibs.srcDirs = ["../libs/release/"]
-    }}
-}}
-
-dependencies {{
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.6.21"
-    implementation "androidx.appcompat:appcompat:1.4.1"
-    implementation "androidx.games:games-activity:1.1.0"
-    implementation project(":crossbow:lib")
-}}
-"#
-    )
 }
 
 fn crossbow_app_gradle_properties() -> String {
@@ -176,4 +95,24 @@ project(":crossbow").projectDir = new File("../../../../platform/android/java/")
 include ":crossbow:lib"
 "#
     .to_string()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_crossbow_app_template() {
+        for file in CrossbowAppTemplate::iter() {
+            println!("{}", file.as_ref());
+        }
+        assert!(
+            CrossbowAppTemplate::get("src/com/crossbow/game/CrossbowApp.kt").is_some(),
+            "CrossbowApp.kt should exist"
+        );
+        assert!(
+            CrossbowAppTemplate::get("libs/debug/arm64-v8a/libcrossbow_android.so").is_none(),
+            "libcrossbow_android.so shouldn't exist"
+        );
+    }
 }

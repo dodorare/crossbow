@@ -1,5 +1,7 @@
 use crossbundle_tools::types::{
-    android_manifest::{Service, UsesFeature, UsesPermission, UsesPermissionSdk23, Queries, MetaData},
+    android_manifest::{
+        MetaData, Queries, Service, UsesFeature, UsesPermission, UsesPermissionSdk23,
+    },
     *,
 };
 use serde::{Deserialize, Serialize};

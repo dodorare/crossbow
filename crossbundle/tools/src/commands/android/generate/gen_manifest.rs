@@ -61,7 +61,7 @@ impl GenAndroidManifest {
                 meta_data: self.meta_data.clone().unwrap_or_default(),
                 activity: vec![Activity {
                     name: match gradle {
-                        true => ".CrossbowApp".to_string(),
+                        true => "com.crossbow.game.CrossbowApp".to_string(),
                         false => "android.app.NativeActivity".to_string(),
                     },
                     resizeable_activity: Some(true),

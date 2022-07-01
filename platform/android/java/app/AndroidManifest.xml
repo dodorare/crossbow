@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.dodorare.crossbow_app"
+    package="com.crossbow.game"
     android:versionCode="1"
     android:versionName="0.1.0">
     <uses-sdk android:targetSdkVersion="30" android:minSdkVersion="18" />
@@ -22,9 +21,5 @@
             </intent-filter>
             <meta-data android:name="android.app.lib_name" android:value="crossbow_android" />
         </activity>
-        <provider
-            android:name="androidx.startup.InitializationProvider"
-            android:authorities="${applicationId}.androidx-startup"
-            tools:node="remove" />
     </application>
 </manifest>

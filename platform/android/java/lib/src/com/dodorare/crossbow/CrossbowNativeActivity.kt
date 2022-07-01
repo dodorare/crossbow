@@ -32,6 +32,8 @@ open class CrossbowNativeActivity : NativeActivity(), ActivityCompat.OnRequestPe
 		permissions: Array<out String>,
 		grantResults: IntArray
 	) {
+		// TODO: Replace with https://tedblob.com/onrequestpermissionsresult-deprecated-android-java/
+
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 		// for (CrossbowPlugin plugin : pluginRegistry.getAllPlugins()) {
 		// 	plugin.onMainRequestPermissionsResult(requestCode, permissions, grantResults)

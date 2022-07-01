@@ -78,7 +78,6 @@ impl AndroidBuildCommand {
         config.status("Generating gradle project")?;
         let gradle_project_path = android::gen_gradle_project(
             &android_build_dir,
-            &context.android_package(&package_name),
             context.android_res(),
             context.android_assets(),
         )?;

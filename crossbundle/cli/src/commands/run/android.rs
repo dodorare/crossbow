@@ -20,10 +20,11 @@ impl AndroidRunCommand {
             let gradle_project_path = self.build_command.build_gradle(config, &context)?;
             let mut gradle = gradle_init()?;
             gradle.arg("installDebug");
-            gradle.arg("-p").arg(dunce::simplified(&gradle_project_path));
+            gradle
+                .arg("-p")
+                .arg(dunce::simplified(&gradle_project_path));
             gradle.output_err(true)?;
-        }
-        else if self.build_command.aab {
+        } else if self.build_command.aab {
             let (android_manifest, sdk, aab_path, package_name, key) =
                 self.build_command.execute_aab(config, &context)?;
             config.status("Generating apks")?;
