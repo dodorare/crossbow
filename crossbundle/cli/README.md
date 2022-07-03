@@ -72,8 +72,8 @@ use_info_plist = true
 # Path to Info.plist file
 info_plist_path = "path/to/Info.plist"
 
-# Android package name to place in AndroidManifest.xml.
-android_package_name = "com.example.Example"
+# Android package to place in AndroidManifest.xml.
+android_package = "com.example.ExampleProject"
 # Android resources directory path relatively to project path.
 android_res = "res/android"
 # Android assets directory path relatively to project path.

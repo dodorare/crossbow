@@ -9,13 +9,15 @@ use thiserror::Error;
 /// `Result` type that used in `crossbundle-tools`.
 pub type Result<T> = std::result::Result<T, Error>;
 
-/// Android specific error type
+/// Android specific error type.
 #[derive(Display, Debug, Error)]
 pub enum AndroidError {
     /// Android SDK is not found
     AndroidSdkNotFound,
     /// Android NDK is not found
     AndroidNdkNotFound,
+    /// Gradle is not found
+    GradleNotFound,
     /// Android SDK has no build tools
     BuildToolsNotFound,
     /// Android SDK has no platforms installed

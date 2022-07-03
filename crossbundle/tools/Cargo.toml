@@ -17,9 +17,9 @@ dunce = "1.0"
 fs_extra = "1.2"
 dirs = "4.0.0"
 simctl = { version = "0.1.1", package = "creator-simctl" }
-android-manifest = "0.1.5"
+android-manifest = "0.1.8"
 apple-bundle = "0.1.1"
-android-tools = "0.2.7"
+android-tools = "0.2.8"
 thiserror = "1.0"
 anyhow = "1.0"
 displaydoc = "0.2"
@@ -31,8 +31,9 @@ log = "0.4"
 zip = "0.5.13"
 zip-extensions = "0.6"
 tempfile = "3.2"
-cargo = "0.61.1"
-cargo-util = "0.1.1"
+cargo = "0.63.1"
+cargo-util = "0.2.0"
+rust-embed = { version = "6.4.0", features = ["include-exclude"] }
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"

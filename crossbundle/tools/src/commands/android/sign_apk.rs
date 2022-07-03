@@ -5,7 +5,7 @@ use std::path::Path;
 
 /// Signs APK with given key.
 /// Uses `apksigner` build tool
-pub fn sign_apk(sdk: &AndroidSdk, apk_path: &Path, key: AabKey) -> Result<()> {
+pub fn sign_apk(sdk: &AndroidSdk, apk_path: &Path, key: AabKey) -> Result<std::path::PathBuf> {
     let mut apksigner = sdk.build_tool(bat!("apksigner"), None)?;
     apksigner
         .arg("sign")
@@ -15,5 +15,6 @@ pub fn sign_apk(sdk: &AndroidSdk, apk_path: &Path, key: AabKey) -> Result<()> {
         .arg(format!("pass:{}", &key.key_pass))
         .arg(apk_path);
     apksigner.output_err(true)?;
-    Ok(())
+    let apk_path = apk_path.to_path_buf();
+    Ok(apk_path)
 }

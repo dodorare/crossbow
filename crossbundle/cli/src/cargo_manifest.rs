@@ -1,5 +1,7 @@
 use crossbundle_tools::types::{
-    android_manifest::{Service, UsesFeature, UsesPermission, UsesPermissionSdk23},
+    android_manifest::{
+        MetaData, Queries, Service, UsesFeature, UsesPermission, UsesPermissionSdk23,
+    },
     *,
 };
 use serde::{Deserialize, Serialize};
@@ -24,7 +26,7 @@ pub struct Metadata {
     pub info_plist_path: Option<PathBuf>,
 
     /// Android package name to place in AndroidManifest.xml.
-    pub android_package_name: Option<String>,
+    pub android_package: Option<String>,
     /// Android resources directory path relatively to project path.
     pub android_res: Option<PathBuf>,
     /// Android assets directory path relatively to project path.
@@ -43,6 +45,10 @@ pub struct Metadata {
 
     /// Android service to place in AndroidManifest.xml.
     pub android_service: Option<Vec<Service>>,
+    /// Android application meta_data to place in AndroidManifest.xml.
+    pub android_meta_data: Option<Vec<MetaData>>,
+    /// Android queries to place in AndroidManifest.xml.
+    pub android_queries: Option<Queries>,
 
     /// Apple build targets.
     pub apple_build_targets: Option<Vec<AppleTarget>>,

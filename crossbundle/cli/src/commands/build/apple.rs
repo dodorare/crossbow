@@ -89,7 +89,7 @@ impl AppleBuildCommand {
         apple::compile_rust_for_ios(
             target,
             build_target,
-            &project_path,
+            project_path,
             profile,
             self.shared.features.clone(),
             self.shared.all_features,
@@ -104,8 +104,8 @@ impl AppleBuildCommand {
             .join(rust_triple)
             .join(&profile);
         let app_path = apple::gen_apple_app_folder(
-            &apple_target_dir,
-            &name,
+            apple_target_dir,
+            name,
             context.apple_res().as_ref().map(|r| project_path.join(r)),
             context
                 .apple_assets()
@@ -126,7 +126,7 @@ impl AppleBuildCommand {
             config.status_message("Generating", "xcent file")?;
             let xcent_path = apple::gen_xcent(
                 &app_path,
-                &name,
+                name,
                 self.team_identifier
                     .as_ref()
                     .ok_or(Error::TeamIdentifierNotProvided)?,
@@ -140,7 +140,7 @@ impl AppleBuildCommand {
             config.status("Code signing process finished")?;
         }
         config.status("Generating ipa file")?;
-        apple::gen_apple_ipa(&apple_target_dir, &app_path, &name)?;
+        apple::gen_apple_ipa(apple_target_dir, &app_path, name)?;
         config.status("Build finished successfully")?;
         Ok(app_path)
     }

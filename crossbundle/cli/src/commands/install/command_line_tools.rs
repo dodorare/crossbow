@@ -28,7 +28,7 @@ impl CommandLineToolsInstallCommand {
             .parse::<PathBuf>()
             .ok()
             .unwrap()
-            .join(format!("{}", self.file_name()));
+            .join(self.file_name());
 
         let file_path = default_file_path(self.file_name())?;
 
@@ -36,7 +36,7 @@ impl CommandLineToolsInstallCommand {
             "Downloading command line tools zip archive into",
             &file_path.parent().unwrap().to_str().unwrap(),
         )?;
-        Self::download_and_save_file(&self, command_line_tools_download_url, &file_path)?;
+        self.download_and_save_file(command_line_tools_download_url, &file_path)?;
 
         let sdk_path = AndroidSdk::sdk_install_path()?;
         println!("sdk_path {:?}", sdk_path);
@@ -73,7 +73,7 @@ impl CommandLineToolsInstallCommand {
     ) -> crate::error::Result<()> {
         for sdkmanager in std::fs::read_dir(file_path.parent().unwrap())? {
             let zip_path = sdkmanager?.path();
-            if zip_path.ends_with(Self::file_name(&self)) {
+            if zip_path.ends_with(self.file_name()) {
                 return Ok(());
             }
         }

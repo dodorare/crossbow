@@ -51,9 +51,6 @@ impl BuildContext {
 
     /// Get package name from cargo manifest
     pub fn package_name(&self) -> String {
-        if let Some(package_name) = self.metadata.android_package_name.clone() {
-            return package_name;
-        };
         self.manifest.summary().name().to_string()
     }
 
@@ -95,23 +92,33 @@ impl BuildContext {
         self.metadata.android_assets.clone()
     }
 
-    /// Get android manifest from the path in cargo manifest or generate it  with the given configuration
+    /// Get android package id from cargo manifest
+    pub fn android_package(&self, package_name: &str) -> String {
+        self.metadata
+            .android_package
+            .clone()
+            .unwrap_or(format!("com.rust.{}", package_name))
+            .replace('-', "_")
+    }
+
+    /// Get android manifest from the path in cargo manifest or generate it with the given configuration
     pub fn gen_android_manifest(
         &self,
         sdk: &AndroidSdk,
         package_name: &str,
         debuggable: bool,
+        gradle: bool,
     ) -> Result<AndroidManifest> {
         let android_manifest = GenAndroidManifest {
-            app_id: Some(package_name.to_string()),
+            app_id: Some(self.android_package(package_name)),
             package_name: package_name.to_string(),
             app_name: self.metadata.app_name.clone(),
             version_name: self
                 .metadata
                 .version_name
                 .clone()
-                .unwrap_or(self.package_version()),
-            version_code: self.metadata.version_code.clone().unwrap_or(1),
+                .unwrap_or_else(|| self.package_version()),
+            version_code: self.metadata.version_code.unwrap_or(1),
             min_sdk_version: self.metadata.min_sdk_version,
             target_sdk_version: self
                 .metadata
@@ -124,6 +131,8 @@ impl BuildContext {
             permissions: self.metadata.android_permissions.clone(),
             features: self.metadata.android_features.clone(),
             service: self.metadata.android_service.clone(),
+            meta_data: self.metadata.android_meta_data.clone(),
+            queries: self.metadata.android_queries.clone(),
         };
         if self.metadata.use_android_manifest {
             let path = self
@@ -133,7 +142,7 @@ impl BuildContext {
                 .unwrap_or_else(|| self.project_path.join("AndroidManifest.xml"));
             Ok(android::read_android_manifest(&path)?)
         } else if !self.metadata.use_android_manifest {
-            let manifest = GenAndroidManifest::gen_android_manifest(&android_manifest);
+            let manifest = android_manifest.gen_android_manifest(gradle);
             Ok(manifest)
         } else {
             let target_sdk_version = sdk.default_platform();
@@ -148,7 +157,7 @@ impl BuildContext {
     }
 
     /// Get info plist from the path in cargo manifest or generate it with the given configuration
-    pub fn gen_info_plist(&self, package_name: &String) -> Result<InfoPlist> {
+    pub fn gen_info_plist(&self, package_name: &str) -> Result<InfoPlist> {
         if self.metadata.use_info_plist {
             let path = self
                 .metadata
@@ -163,7 +172,7 @@ impl BuildContext {
                 self.metadata
                     .version_name
                     .clone()
-                    .unwrap_or(self.package_version()),
+                    .unwrap_or_else(|| self.package_version()),
             ))
         } else {
             Ok(apple::gen_minimal_info_plist(

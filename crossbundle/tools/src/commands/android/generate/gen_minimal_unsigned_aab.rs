@@ -17,7 +17,7 @@ pub fn gen_minimal_unsigned_aab(
     };
     let android_manifest = manifest.gen_min_android_manifest();
 
-    let manifest_path = super::save_android_manifest(aab_build_dir, &android_manifest)?;
+    let manifest_path = super::super::save_android_manifest(aab_build_dir, &android_manifest)?;
     let apk_path = aab_build_dir.join(format!("{}_module.apk", package_name));
     if !aab_build_dir.exists() {
         std::fs::create_dir_all(&aab_build_dir)?;
@@ -34,14 +34,14 @@ pub fn gen_minimal_unsigned_aab(
     aapt2_link.run()?;
 
     let output_dir = aab_build_dir.join("extracted_apk_files");
-    let extracted_apk_path = super::extract_archive(&apk_path, &output_dir)?;
+    let extracted_apk_path = super::super::extract_archive(&apk_path, &output_dir)?;
 
     let gen_zip_modules = super::gen_zip_modules(aab_build_dir, package_name, &extracted_apk_path)?;
 
     let aab_path =
         super::gen_aab_from_modules(package_name, &[gen_zip_modules.clone()], aab_build_dir)?;
 
-    super::remove(vec![gen_zip_modules, extracted_apk_path])?;
+    super::super::remove(vec![gen_zip_modules, extracted_apk_path])?;
     Ok(aab_path)
 }
 

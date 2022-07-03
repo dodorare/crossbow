@@ -45,9 +45,8 @@ pub fn add_libs_into_apk(
         &dylibs_paths,
         &mut needed_libs,
     )?;
-    // Add all needed libs into apk archive
     let abi = build_target.android_abi();
-    let out_dir = build_dir.join("lib").join(abi);
+    let out_dir = build_dir.join("libs").join(abi);
     for (_lib_name, lib_path) in needed_libs {
         aapt_add_lib(sdk, apk_path, &lib_path, &out_dir, abi)?;
     }
@@ -70,11 +69,20 @@ fn aapt_add_lib(
     std::fs::copy(lib_path, &out_dir.join(&file_name))?;
     // `aapt a[dd] [-v] file.{zip,jar,apk} file1 [file2 ...]`
     // Add specified files to Zip-compatible archive
-    let mut aapt = sdk.build_tool(bin!("aapt"), Some(apk_path.parent().unwrap()))?;
-    aapt.arg("add")
-        .arg(apk_path)
-        .arg(format!("lib/{}/{}", abi, file_name.to_str().unwrap()));
-    aapt.output_err(true)?;
+    let apk_dir = apk_path.parent().unwrap();
+    let add_lib = apk_dir
+        .parent()
+        .unwrap()
+        .join("libs")
+        .join(abi)
+        .join(file_name.to_str().unwrap());
+    // FIXME: Is this should just let it do nothing if apk file is not found?
+    // Perhaps throw an error if apk file is not found.
+    if apk_path.exists() {
+        let mut aapt = sdk.build_tool(bin!("aapt"), Some(apk_dir))?;
+        aapt.arg("add").arg(apk_path).arg(add_lib);
+        aapt.output_err(true)?;
+    }
     Ok(())
 }
 
@@ -193,21 +201,3 @@ pub fn get_libs_in_dir(dir: &Path) -> std::io::Result<Vec<String>> {
     };
     Ok(libs)
 }
-
-// fs::read_dir(version_specific_libraries_path)?
-//         .filter_map(|entry| {
-//             entry
-//                 .map(|entry| {
-//                     if entry.path().is_file() {
-//                         if let Some(file_name) = entry.file_name().to_str() {
-//                             if file_name.ends_with(".so") {
-//                                 return Some(file_name.into());
-//                             }
-//                         }
-//                     }
-//                     None
-//                 })
-//                 .transpose()
-//         })
-//         .collect::<std::result::Result<_, _>>()
-// .map_err(|err| err.into())
