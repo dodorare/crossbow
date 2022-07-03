@@ -88,7 +88,6 @@ pub fn test_gen_gradle_project() {
         assert!(lib.exists());
         println!("library saved in {:?}", lib);
 
-        std::thread::sleep(std::time::Duration::from_secs(11111));
         // Check the size of the library to ensure it is not corrupted
         for entry in std::fs::read_dir(&lib).unwrap() {
             let library = entry.unwrap().path();
