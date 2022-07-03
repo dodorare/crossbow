@@ -31,8 +31,8 @@ log = "0.4"
 zip = "0.5.13"
 zip-extensions = "0.6"
 tempfile = "3.2"
-cargo = "0.63.0"
-cargo-util = "0.1.3"
+cargo = "0.63.1"
+cargo-util = "0.2.0"
 rust-embed = { version = "6.4.0", features = ["include-exclude"] }
 
 [target.'cfg(unix)'.dependencies]

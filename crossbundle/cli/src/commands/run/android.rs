@@ -16,11 +16,13 @@ impl AndroidRunCommand {
     /// Deployes and runs application in AAB or APK format on your device or emulator
     pub fn run(&self, config: &Config) -> Result<()> {
         let context = BuildContext::new(config, self.build_command.shared.target_dir.clone())?;
-        if self.build_command.gradle {
-            let gradle_project_path = self.build_command.build_gradle(config, &context)?;
+        if let Some(export_path) = &self.build_command.gradle {
+            let gradle_project_path =
+                self.build_command
+                    .build_gradle(config, &context, export_path)?;
             let mut gradle = gradle_init()?;
-            gradle.arg("installDebug");
             gradle
+                .arg("installDebug")
                 .arg("-p")
                 .arg(dunce::simplified(&gradle_project_path));
             gradle.output_err(true)?;
@@ -44,6 +46,8 @@ impl AndroidRunCommand {
             config.status("Starting APK file")?;
             android::start_apk(&sdk, &android_manifest.package)?;
             config.status("Run finished successfully")?;
+        } else if self.build_command.lib.is_some() {
+            config.status("Can not run dynamic library")?;
         } else {
             let (android_manifest, sdk, apk_path) =
                 self.build_command.execute_apk(config, &context)?;

@@ -18,7 +18,8 @@ pub struct AndroidBuildCommand {
     #[clap(flatten)]
     pub shared: SharedBuildCommand,
     /// Build for the given android architecture.
-    /// Supported targets are: `armv7-linux-androideabi`, `aarch64-linux-android`, `i686-linux-android`, `x86_64-linux-android`
+    /// Supported targets are: `armv7-linux-androideabi`, `aarch64-linux-android`,
+    /// `i686-linux-android`, `x86_64-linux-android`
     #[clap(long, default_value = "aarch64-linux-android")]
     pub target: Vec<AndroidTarget>,
     /// Generating aab. By default crossbow generating apk
@@ -27,9 +28,11 @@ pub struct AndroidBuildCommand {
     /// Compile rust code as a dynamic library [default: crossbow-android]
     #[clap(long, default_missing_value = "crossbow_android")]
     pub lib: Option<String>,
-    /// Compile rust code as a dynamic library, generate Gradle project and build generate apk/aab
-    #[clap(long)]
-    pub gradle: bool,
+    /// Compile rust code as a dynamic library, generate Gradle project and build
+    /// generate apk/aab. If value provided - should be in Path format and it will
+    /// be used as a path to export Gradle project [default: :target]
+    #[clap(long, default_missing_value = ":target")]
+    pub gradle: Option<String>,
     /// Path to the signing key
     #[clap(long, requires_all = &["sign-key-pass", "sign-key-alias"])]
     pub sign_key_path: Option<PathBuf>,
@@ -53,9 +56,9 @@ impl AndroidBuildCommand {
         if self.aab {
             self.execute_aab(config, &context)?;
         } else if let Some(lib_name) = &self.lib {
-            self.build_rust_lib(config, &context, lib_name)?;
-        } else if self.gradle {
-            self.build_gradle(config, &context)?;
+            self.build_rust_lib(config, &context, lib_name, None)?;
+        } else if let Some(export_path) = &self.gradle {
+            self.build_gradle(config, &context, export_path)?;
         } else {
             self.execute_apk(config, &context)?;
         }
@@ -67,13 +70,19 @@ impl AndroidBuildCommand {
         &self,
         config: &Config,
         context: &BuildContext,
+        export_path: &str,
     ) -> crate::error::Result<PathBuf> {
         let profile = self.shared.profile();
         let example = self.shared.example.as_ref();
         let (_, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
 
         config.status_message("Starting gradle build process", &package_name)?;
-        let android_build_dir = target_dir.join("android").join(&package_name);
+        let android_build_dir = if export_path == ":target" {
+            target_dir.join("android").join(&package_name)
+        } else {
+            std::fs::create_dir_all(export_path)?;
+            dunce::canonicalize(export_path)?
+        };
 
         config.status("Generating gradle project")?;
         let gradle_project_path = android::gen_gradle_project(
@@ -95,7 +104,7 @@ impl AndroidBuildCommand {
         )?;
 
         let lib_name = "crossbow_android";
-        self.build_rust_lib(config, context, &lib_name)?;
+        self.build_rust_lib(config, context, lib_name, Some(android_build_dir))?;
 
         config.status_message(
             "Gradle project generated",
@@ -110,6 +119,7 @@ impl AndroidBuildCommand {
         config: &Config,
         context: &BuildContext,
         lib_name: &str,
+        export_path: Option<PathBuf>,
     ) -> crate::error::Result<()> {
         let profile = self.shared.profile();
         let example = self.shared.example.as_ref();
@@ -117,7 +127,11 @@ impl AndroidBuildCommand {
         config.status_message("Starting lib build process", &package_name)?;
         let (_sdk, ndk, target_sdk_version) = Self::android_toolchain(context)?;
 
-        let android_build_dir = target_dir.join("android").join(&package_name);
+        let android_build_dir = if let Some(export_path) = export_path {
+            export_path
+        } else {
+            target_dir.join("android").join(&package_name)
+        };
 
         config.status_message("Compiling", "lib")?;
         let build_targets = context.android_build_targets(&self.target);
@@ -172,7 +186,7 @@ impl AndroidBuildCommand {
             config,
             context,
             &sdk,
-            &package_name.to_string(),
+            &package_name,
             profile,
             &native_build_dir,
             false,
@@ -277,7 +291,7 @@ impl AndroidBuildCommand {
             &sdk,
             &package_name,
             profile,
-            &native_build_dir.clone(),
+            &native_build_dir,
             false,
         )?;
 
@@ -303,7 +317,7 @@ impl AndroidBuildCommand {
         let compiled_res = if let Some(res) = context.android_res() {
             let aapt2_compile = sdk.aapt2()?.compile_incremental(
                 dunce::simplified(&res),
-                &dunce::simplified(&compiled_res_path).to_owned(),
+                dunce::simplified(&compiled_res_path),
             );
             let compiled_res = aapt2_compile.run()?;
             Some(compiled_res)
@@ -359,11 +373,8 @@ impl AndroidBuildCommand {
         }
 
         config.status("Generating aab from modules")?;
-        let aab_path = android::gen_aab_from_modules(
-            &package_name,
-            &[gen_zip_modules.clone()],
-            &outputs_build_dir,
-        )?;
+        let aab_path =
+            android::gen_aab_from_modules(&package_name, &[gen_zip_modules], &outputs_build_dir)?;
 
         config.status_message("Generating", "debug signing key")?;
         let key = Self::find_keystore(
