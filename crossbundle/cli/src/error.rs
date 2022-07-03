@@ -26,6 +26,8 @@ pub enum Error {
     CrossbundleTools(#[from] crossbundle_tools::error::Error),
     /// AndroidManifest error
     AndroidManifest(#[from] android_manifest::error::Error),
+    /// FsExtra error
+    FsExtra(#[from] fs_extra::error::Error),
     /// Path {0:?} doesn't exist
     PathNotFound(std::path::PathBuf),
     /// Home dir not found
@@ -47,6 +49,6 @@ pub enum Error {
 // TODO: Fix this. Is there a better casting for it?
 impl From<crossbundle_tools::tools::AndroidToolsError> for Error {
     fn from(error: crossbundle_tools::tools::AndroidToolsError) -> Self {
-        Error::CrossbundleTools(error.into()).into()
+        Error::CrossbundleTools(error.into())
     }
 }

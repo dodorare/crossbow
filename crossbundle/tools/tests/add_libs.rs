@@ -61,6 +61,7 @@ fn add_bevy_libs() {
             target_sdk_version,
             &out_dir,
             &project_path.join("target"),
+            &bevy_package_name,
         )
         .unwrap();
         assert!(lib.exists());
@@ -129,10 +130,10 @@ fn add_quad_libs() {
             target_sdk_version,
             &out_dir,
             &project_path.join("target"),
+            &quad_package_name,
         )
         .unwrap();
         assert!(lib.exists());
-        // std::thread::sleep(std::time::Duration::from_secs(11111));
         println!("library saved in {:?}", lib);
 
         // Check the size of the library to ensure it is not corrupted

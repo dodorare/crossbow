@@ -15,6 +15,7 @@ pub fn add_libs_into_aapt2(
     min_sdk_version: u32,
     build_dir: &Path,
     target_dir: &Path,
+    package_name: &str,
 ) -> Result<PathBuf> {
     // Get list of android system libs (https://developer.android.com/ndk/guides/stable_apis)
     let mut system_libs = Vec::new();
@@ -45,21 +46,30 @@ pub fn add_libs_into_aapt2(
     // Add all needed libs into apk archive
     let abi = build_target.android_abi();
     let out_dir = build_dir.join("lib").join(abi);
+    let project_dir = target_dir
+        .join("android")
+        .join(&package_name)
+        .join("libs")
+        .join(abi);
     for (_lib_name, lib_path) in needed_libs {
-        add_lib_aapt2(&lib_path, &out_dir)?;
+        add_lib_aapt2(&lib_path, &out_dir, &project_dir)?;
     }
     Ok(out_dir)
 }
 
 /// Copy lib into `out_dir` then add this lib into apk file
-pub fn add_lib_aapt2(lib_path: &Path, out_dir: &Path) -> Result<()> {
+pub fn add_lib_aapt2(lib_path: &Path, out_dir: &Path, project_dir: &Path) -> Result<()> {
     if !lib_path.exists() {
         return Err(Error::PathNotFound(lib_path.to_owned()));
     }
     std::fs::create_dir_all(&out_dir)?;
+    if !project_dir.exists() {
+        std::fs::create_dir_all(&project_dir)?;
+    }
     let filename = lib_path.file_name().unwrap();
     let mut options = fs_extra::file::CopyOptions::new();
     options.overwrite = true;
     fs_extra::file::copy(&lib_path, out_dir.join(&filename), &options)?;
+    fs_extra::file::copy(&lib_path, project_dir.join(&filename), &options)?;
     Ok(())
 }

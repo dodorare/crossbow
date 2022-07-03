@@ -1,0 +1,110 @@
+buildscript {
+    apply from: "config.gradle"
+    repositories {
+        google()
+        mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+    dependencies {
+        classpath libraries.androidGradlePlugin
+        classpath libraries.kotlinGradlePlugin
+    }
+}
+
+apply plugin: "com.android.application"
+apply plugin: "org.jetbrains.kotlin.android"
+apply from: "config.gradle"
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
+
+        // // Godot user plugins custom maven repos
+        // String[] mavenRepos = getGodotPluginsMavenRepos()
+        // if (mavenRepos != null && mavenRepos.size() > 0) {
+        //     for (String repoUrl : mavenRepos) {
+        //         maven {
+        //             url repoUrl
+        //         }
+        //     }
+        // }
+    }
+}
+
+dependencies {
+    implementation libraries.kotlinStdLib
+    implementation libraries.androidxAppcompat
+
+    if (rootProject.findProject(":lib")) {
+        implementation project(":lib")
+    } else if (rootProject.findProject(":crossbow:lib")) {
+        implementation project(":crossbow:lib")
+    } else {
+        // Custom build mode. In this scenario this project is the only one around and the Crossbow
+        // library is available through the pre-generated crossbow-lib.*.aar android archive files.
+        debugImplementation fileTree(dir: "libs/debug", include: ["*.jar", "*.aar"])
+        releaseImplementation fileTree(dir: "libs/release", include: ["*.jar", "*.aar"])
+    }
+
+    // // Godot user plugins remote dependencies
+    // String[] remoteDeps = getGodotPluginsRemoteBinaries()
+    // if (remoteDeps != null && remoteDeps.size() > 0) {
+    //     for (String dep : remoteDeps) {
+    //         implementation dep
+    //     }
+    // }
+    // // Godot user plugins local dependencies
+    // String[] pluginsBinaries = getGodotPluginsLocalBinaries()
+    // if (pluginsBinaries != null && pluginsBinaries.size() > 0) {
+    //     implementation files(pluginsBinaries)
+    // }
+}
+
+android {
+    compileSdkVersion versions.compileSdk
+    buildToolsVersion versions.buildTools
+    ndkVersion versions.ndkVersion
+
+    compileOptions {
+        sourceCompatibility versions.javaVersion
+        targetCompatibility versions.javaVersion
+    }
+
+    kotlinOptions {
+        jvmTarget = versions.javaVersion
+    }
+
+    defaultConfig {
+        // The default ignore pattern for the "assets" directory includes hidden files and directories which are used by Crossbow projects.
+        aaptOptions {
+            ignoreAssetsPattern "!.svn:!.git:!.gitignore:!.ds_store:!*.scc:<dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"
+        }
+
+        // Feel free to modify the application id to your own.
+        applicationId getExportPackageName()
+        versionCode getExportVersionCode()
+        versionName getExportVersionName()
+        minSdkVersion getExportMinSdkVersion()
+        targetSdkVersion getExportTargetSdkVersion()
+
+        missingDimensionStrategy "products", "template"
+    }
+
+    lintOptions {
+        abortOnError false
+        disable "MissingTranslation", "UnusedResources"
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile "AndroidManifest.xml"
+            java.srcDirs = ["src"]
+            assets.srcDirs = ["assets"]
+            res.srcDirs = ["res"]
+        }
+        debug.jniLibs.srcDirs = ["../libs/debug"]
+        release.jniLibs.srcDirs = ["../libs/release"]
+    }
+}

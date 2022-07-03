@@ -49,12 +49,14 @@ fn test_android_full() {
         .join(build_target.rust_triple())
         .join(profile.as_ref());
     let compiled_lib = out_dir.join(format!("lib{}.so", quad_package_name));
-    // Check the size of the library to ensure it is not corrupted
-    if compiled_lib.exists() {
-        let size = std::fs::metadata(&compiled_lib).unwrap().len();
-        println!("library size is {:?}", size);
+    if !out_dir.exists() {
+        std::fs::create_dir_all(&out_dir).unwrap();
     }
-    assert!(compiled_lib.exists());
+    let android_build_dir = project_path
+        .join("target")
+        .join("android")
+        .join(&quad_package_name);
+    let native_build_dir = android_build_dir.join("native");
 
     // Gen android manifest
     let target_dir = project_path.join("target");
@@ -72,7 +74,7 @@ fn test_android_full() {
     let unaligned_apk_path = android::gen_unaligned_apk(
         &sdk,
         &project_path,
-        &apk_build_dir,
+        &native_build_dir,
         &manifest_path,
         None,
         None,
@@ -91,7 +93,7 @@ fn test_android_full() {
         build_target,
         profile,
         29,
-        &apk_build_dir,
+        &android_build_dir,
         &target_dir,
     )
     .unwrap();

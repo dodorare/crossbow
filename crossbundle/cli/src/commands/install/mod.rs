@@ -20,8 +20,8 @@ const OS_TAG: &str = "mac";
 #[cfg(target_os = "linux")]
 const OS_TAG: &str = "linux";
 
-const COMMAND_LINE_TOOLS_DOWNLOAD_URL: &'static str = "https://dl.google.com/android/repository/";
-const BUNDLETOOL_JAR_FILE_DOWNLOAD_URL: &'static str =
+const COMMAND_LINE_TOOLS_DOWNLOAD_URL: &str = "https://dl.google.com/android/repository/";
+const BUNDLETOOL_JAR_FILE_DOWNLOAD_URL: &str =
     "https://github.com/google/bundletool/releases/download";
 
 #[derive(Parser, Clone, Debug)]
@@ -71,7 +71,7 @@ pub fn download_to_file(
 /// Using default file path related on $HOME path for all installed commands
 pub fn default_file_path(file_name: String) -> crate::error::Result<std::path::PathBuf> {
     let default_file_path = dirs::home_dir()
-        .ok_or_else(|| crate::error::Error::HomeDirNotFound)?
+        .ok_or(crate::error::Error::HomeDirNotFound)?
         .join(file_name);
     Ok(default_file_path)
 }

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.dodorare.crossbow"
+    android:versionCode="1"
+    android:versionName="1.0">
+    <!-- Values for mindSdk and targetSdk -->
+    <uses-sdk android:minSdkVersion="${minSdkVersion}" android:targetSdkVersion="${targetSdkVersion}" />
+    <application>
+        <!-- Version of the Crossbow Android Library -->
+        <meta-data
+            android:name="com.dodorare.crossbow.version"
+            android:value="${crossbowLibraryVersion}" />
+    </application>
+</manifest>

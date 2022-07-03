@@ -1,0 +1,50 @@
+plugins {
+    id "com.android.library"
+    id "org.jetbrains.kotlin.android"
+}
+
+dependencies {
+    implementation libraries.kotlinStdLib
+    implementation libraries.androidxFragment
+    implementation libraries.androidxAppcompat
+    // implementation "androidx.games:games-activity:1.1.0"
+}
+
+android {
+    namespace = "com.dodorare.crossbow"
+
+    compileSdkVersion versions.compileSdk
+    buildToolsVersion versions.buildTools
+    ndkVersion versions.ndkVersion
+
+    compileOptions {
+        sourceCompatibility versions.javaVersion
+        targetCompatibility versions.javaVersion
+    }
+
+    kotlinOptions {
+        jvmTarget = versions.javaVersion
+    }
+
+    defaultConfig {
+        minSdkVersion versions.minSdk
+        targetSdkVersion versions.targetSdk
+        manifestPlaceholders = [crossbowLibraryVersion: versions.crossbowLibrary, minSdkVersion: versions.minSdk, targetSdkVersion: versions.targetSdk]
+    }
+
+    lintOptions {
+        abortOnError false
+        disable "MissingTranslation", "UnusedResources"
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile "AndroidManifest.xml"
+            java.srcDirs = ["src"]
+            assets.srcDirs = ["assets"]
+            res.srcDirs = ["res"]
+        }
+        debug.jniLibs.srcDirs = ["libs/debug"]
+        release.jniLibs.srcDirs = ["libs/release"]
+    }
+}

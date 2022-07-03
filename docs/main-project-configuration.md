@@ -67,7 +67,6 @@ and then place `AndroidManifest.xml` or/and `Info.plist` near `Cargo.toml`
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <application android:allowBackup="true"
         android:debuggable="true"
         android:hasCode="false"

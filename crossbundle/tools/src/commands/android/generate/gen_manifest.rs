@@ -16,17 +16,20 @@ pub struct GenAndroidManifest {
     pub permissions: Option<Vec<UsesPermission>>,
     pub features: Option<Vec<UsesFeature>>,
     pub service: Option<Vec<Service>>,
+    pub meta_data: Option<Vec<MetaData>>,
+    pub queries: Option<Queries>,
 }
 
 impl GenAndroidManifest {
     /// Generates [`AndroidManifest`](android_manifest::AndroidManifest) with
     /// given changes
-    pub fn gen_android_manifest(&self) -> AndroidManifest {
+    pub fn gen_android_manifest(&self, gradle: bool) -> AndroidManifest {
         AndroidManifest {
             package: self
                 .app_id
                 .clone()
-                .unwrap_or(format!("com.rust.{}", self.package_name.replace('-', "_"))),
+                .unwrap_or(format!("com.rust.{}", self.package_name))
+                .replace('-', "_"),
             version_name: Some(self.version_name.clone()),
             version_code: Some(self.version_code),
             uses_sdk: Some(UsesSdk {
@@ -37,8 +40,9 @@ impl GenAndroidManifest {
             uses_permission_sdk_23: self.permissions_sdk_23.clone().unwrap_or_default(),
             uses_permission: self.permissions.clone().unwrap_or_default(),
             uses_feature: self.features.clone().unwrap_or_default(),
+            queries: self.queries.clone(),
             application: Application {
-                has_code: Some(false),
+                has_code: Some(gradle),
                 label: Some(StringResourceOrString::string(
                     self.app_name
                         .as_ref()
@@ -54,14 +58,13 @@ impl GenAndroidManifest {
                     Some("android".to_string()),
                 )),
                 service: self.service.clone().unwrap_or_default(),
+                meta_data: self.meta_data.clone().unwrap_or_default(),
                 activity: vec![Activity {
-                    name: "android.app.NativeActivity".to_string(),
+                    name: match gradle {
+                        true => "com.crossbow.game.CrossbowApp".to_string(),
+                        false => "android.app.NativeActivity".to_string(),
+                    },
                     resizeable_activity: Some(true),
-                    label: Some(StringResourceOrString::string(
-                        self.app_name
-                            .as_ref()
-                            .unwrap_or(&self.package_name.to_owned()),
-                    )),
                     config_changes: vec![
                         ConfigChanges::Orientation,
                         ConfigChanges::KeyboardHidden,
@@ -70,7 +73,10 @@ impl GenAndroidManifest {
                     .into(),
                     meta_data: vec![MetaData {
                         name: Some("android.app.lib_name".to_string()),
-                        value: Some(self.package_name.replace('-', "_")),
+                        value: Some(match gradle {
+                            true => "crossbow_android".to_string(),
+                            false => self.package_name.replace('-', "_"),
+                        }),
                         ..Default::default()
                     }],
                     intent_filter: vec![IntentFilter {
@@ -96,7 +102,8 @@ impl GenAndroidManifest {
             package: self
                 .app_id
                 .clone()
-                .unwrap_or(format!("com.rust.{}", self.package_name.replace('-', "_"))),
+                .unwrap_or(format!("com.rust.{}", self.package_name))
+                .replace('-', "_"),
             version_name: Some(self.version_name.clone()),
             version_code: Some(self.version_code),
             application: Application {
