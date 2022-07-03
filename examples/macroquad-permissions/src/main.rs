@@ -1,12 +1,11 @@
-#[cfg(target_os = "android")]
-use crossbow_android::permission::prelude::*;
+use crossbow::crossbow_android::permission::prelude::*;
 
 use macroquad::prelude::*;
 use macroquad::ui::{hash, root_ui, Skin};
 
 #[macroquad::main("Macroquad UI")]
 async fn main() -> anyhow::Result<()> {
-    crossbow_android::init();
+    crossbow::crossbow_android::init();
 
     let skin = {
         let label_style = root_ui()
@@ -53,11 +52,9 @@ async fn main() -> anyhow::Result<()> {
         root_ui().push_skin(&window_skin);
         root_ui().window(hash!(), vec2(0.0, 250.0), vec2(500.0, 500.0), |ui| {
             if ui.button(vec2(-15.0, 150.0), "Ask camera permission") {
-                #[cfg(target_os = "android")]
                 request_permission(AndroidPermission::Camera).unwrap();
             }
             if ui.button(vec2(-15.0, 300.0), "Ask storage permission") {
-                #[cfg(target_os = "android")]
                 request_permission(AndroidPermission::ReadExternalStorage).unwrap();
             }
         });

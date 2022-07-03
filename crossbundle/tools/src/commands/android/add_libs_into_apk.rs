@@ -23,9 +23,6 @@ pub fn add_libs_into_apk(
     target_dir: &Path,
 ) -> Result<PathBuf> {
     // Get list of android system libs (https://developer.android.com/ndk/guides/stable_apis)
-    // let needed_libs = get_system_libs(ndk, lib_path, build_target, profile,
-    // min_sdk_version, target_dir)?; println!("system_libs in real func {:?}",
-    // needed_libs); Add all needed libs into apk archive
     let mut system_libs = Vec::new();
     let sysroot_platform_lib_dir = ndk.sysroot_platform_lib_dir(build_target, min_sdk_version)?;
     for lib in get_libs_in_dir(&sysroot_platform_lib_dir)? {
@@ -79,6 +76,8 @@ fn aapt_add_lib(
         .join("libs")
         .join(abi)
         .join(file_name.to_str().unwrap());
+    // FIXME: Is this should just let it do nothing if apk file is not found?
+    // Perhaps throw an error if apk file is not found.
     if apk_path.exists() {
         let mut aapt = sdk.build_tool(bin!("aapt"), Some(apk_dir))?;
         aapt.arg("add").arg(apk_path).arg(add_lib);
@@ -202,21 +201,3 @@ pub fn get_libs_in_dir(dir: &Path) -> std::io::Result<Vec<String>> {
     };
     Ok(libs)
 }
-
-// fs::read_dir(version_specific_libraries_path)?
-//         .filter_map(|entry| {
-//             entry
-//                 .map(|entry| {
-//                     if entry.path().is_file() {
-//                         if let Some(file_name) = entry.file_name().to_str() {
-//                             if file_name.ends_with(".so") {
-//                                 return Some(file_name.into());
-//                             }
-//                         }
-//                     }
-//                     None
-//                 })
-//                 .transpose()
-//         })
-//         .collect::<std::result::Result<_, _>>()
-// .map_err(|err| err.into())

@@ -65,11 +65,6 @@ impl GenAndroidManifest {
                         false => "android.app.NativeActivity".to_string(),
                     },
                     resizeable_activity: Some(true),
-                    label: Some(StringResourceOrString::string(
-                        self.app_name
-                            .as_ref()
-                            .unwrap_or(&self.package_name.to_owned()),
-                    )),
                     config_changes: vec![
                         ConfigChanges::Orientation,
                         ConfigChanges::KeyboardHidden,

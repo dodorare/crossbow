@@ -17,7 +17,7 @@ dunce = "1.0"
 fs_extra = "1.2"
 dirs = "4.0.0"
 simctl = { version = "0.1.1", package = "creator-simctl" }
-android-manifest = {git = "https://github.com/dodorare/android-manifest-rs", branch = "add-name-attribute"}
+android-manifest = "0.1.8"
 apple-bundle = "0.1.1"
 android-tools = "0.2.8"
 thiserror = "1.0"
