@@ -21,6 +21,8 @@ ext.libraries = [
     androidxAppcompat  : "androidx.appcompat:appcompat:$versions.appcompatVersion",
 ]
 
+// Project export values
+
 ext.getExportPackageName = { ->
     // Retrieve the app id from the project property set by the Crossbow build command.
     String appId = project.hasProperty("export_package_name") ? project.property("export_package_name") : ""
@@ -73,4 +75,67 @@ ext.getExportTargetSdkVersion = { ->
     } catch (NumberFormatException ignored) {
         return versions.targetSdk
     }
+}
+
+// Crossbow plugins
+
+final String VALUE_SEPARATOR_REGEX = "\\|"
+
+/**
+ * Parse the project properties for the 'plugins_maven_repos' property and return the list
+ * of maven repos.
+ */
+ext.getCrossbowPluginsMavenRepos = { ->
+    Set<String> mavenRepos = []
+
+    // Retrieve the list of maven repos.
+    if (project.hasProperty("plugins_maven_repos")) {
+        String mavenReposProperty = project.property("plugins_maven_repos")
+        if (mavenReposProperty != null && !mavenReposProperty.trim().isEmpty()) {
+            for (String mavenRepoUrl : mavenReposProperty.split(VALUE_SEPARATOR_REGEX)) {
+                mavenRepos += mavenRepoUrl.trim()
+            }
+        }
+    }
+
+    return mavenRepos
+}
+
+/**
+ * Parse the project properties for the 'plugins_remote_binaries' property and return
+ * it for inclusion in the build dependencies.
+ */
+ext.getCrossbowPluginsRemoteBinaries = { ->
+    Set<String> remoteDeps = []
+
+    // Retrieve the list of remote plugins binaries.
+    if (project.hasProperty("plugins_remote_binaries")) {
+        String remoteDepsList = project.property("plugins_remote_binaries")
+        if (remoteDepsList != null && !remoteDepsList.trim().isEmpty()) {
+            for (String dep: remoteDepsList.split(VALUE_SEPARATOR_REGEX)) {
+                remoteDeps += dep.trim()
+            }
+        }
+    }
+    return remoteDeps
+}
+
+/**
+ * Parse the project properties for the 'plugins_local_binaries' property and return
+ * their binaries for inclusion in the build dependencies.
+ */
+ext.getCrossbowPluginsLocalBinaries = { ->
+    Set<String> binDeps = []
+
+    // Retrieve the list of local plugins binaries.
+    if (project.hasProperty("plugins_local_binaries")) {
+        String pluginsList = project.property("plugins_local_binaries")
+        if (pluginsList != null && !pluginsList.trim().isEmpty()) {
+            for (String plugin : pluginsList.split(VALUE_SEPARATOR_REGEX)) {
+                binDeps += plugin.trim()
+            }
+        }
+    }
+
+    return binDeps
 }

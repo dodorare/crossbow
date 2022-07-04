@@ -1,13 +1,14 @@
 package com.dodorare.crossbow
 
 import android.app.Activity
+import android.content.Intent
 import android.app.NativeActivity
 import android.util.Log
 import android.os.Bundle
 import android.content.pm.PackageManager
-import androidx.core.app.ActivityCompat
+import androidx.annotation.CallSuper
 
-open class CrossbowNativeActivity : NativeActivity(), ActivityCompat.OnRequestPermissionsResultCallback {
+open class CrossbowNativeActivity : NativeActivity(), CrossbowHost {
     companion object {
         init {
             // This is necessary when any of the following happens:
@@ -18,29 +19,53 @@ open class CrossbowNativeActivity : NativeActivity(), ActivityCompat.OnRequestPe
             System.loadLibrary("crossbow_android")
         }
     }
-	private var crossbowInstance: CrossbowLib? = null
+	private var crossbowFragment: Crossbow? = null
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 
 		Log.v(TAG, "Creating new CrossbowLib instance")
-		crossbowInstance = CrossbowLib()
+		crossbowFragment = Crossbow()
 	}
 
-	override fun onRequestPermissionsResult(
-		requestCode: Int,
-		permissions: Array<out String>,
-		grantResults: IntArray
-	) {
-		// TODO: Replace with https://tedblob.com/onrequestpermissionsresult-deprecated-android-java/
 
-		super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-		// for (CrossbowPlugin plugin : pluginRegistry.getAllPlugins()) {
-		// 	plugin.onMainRequestPermissionsResult(requestCode, permissions, grantResults)
-		// }
+    override fun onDestroy() {
+        Log.v(TAG, "Destroying Crossbow app...")
+        super.onDestroy()
+    }
 
-		for (i in permissions.indices) {
-			crossbowInstance?.requestPermissionResult(permissions[i], grantResults[i] == PackageManager.PERMISSION_GRANTED)
-		}
-	}
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        if (crossbowFragment != null) {
+            crossbowFragment?.onNewIntent(intent)
+        }
+    }
+
+    @CallSuper
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (crossbowFragment != null) {
+            crossbowFragment?.onActivityResult(requestCode, resultCode, data)
+        }
+    }
+
+    @CallSuper
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (crossbowFragment != null) {
+            crossbowFragment?.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        }
+    }
+
+    override fun onBackPressed() {
+        if (crossbowFragment != null) {
+            crossbowFragment?.onBackPressed()
+        } else {
+            super.onBackPressed()
+        }
+    }
 }
