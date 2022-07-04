@@ -4,16 +4,24 @@ import com.dodorare.crossbow.plugin.CrossbowPluginRegistry
 
 import android.content.Intent
 import android.content.Context
+import android.util.Log
 import android.os.Bundle
 import android.content.pm.PackageManager
-import androidx.fragment.app.Fragment
+import android.app.Activity
+import android.app.Fragment
+import android.view.View
+import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams
+import android.widget.FrameLayout
 import androidx.annotation.CallSuper
 import androidx.core.app.ActivityCompat
+import androidx.annotation.Keep
 
-class Crossbow : Fragment(), ActivityCompat.OnRequestPermissionsResultCallback {
+class Crossbow : Fragment() {
     private var crossbowHost: CrossbowHost? = null
     private var pluginRegistry: CrossbowPluginRegistry? = null
 
+	private var containerLayout: ViewGroup? = null
 	private var mCurrentIntent: Intent? = null
 
 	fun onNewIntent(intent: Intent) {
@@ -24,7 +32,10 @@ class Crossbow : Fragment(), ActivityCompat.OnRequestPermissionsResultCallback {
         super.onCreate(icicle)
         pluginRegistry = CrossbowPluginRegistry.initializePluginRegistry(this)
 
+		Log.v(TAG, "Creating new Crossbow instance")
+
         // CrossbowLib.initialize(activity, this, activity!!.assets)
+        onVideoInit()
     }
 
     override fun onAttach(context: Context) {
@@ -56,9 +67,9 @@ class Crossbow : Fragment(), ActivityCompat.OnRequestPermissionsResultCallback {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        // for (plugin in pluginRegistry!!.getAllPlugins()) {
-        //     plugin.onMainRequestPermissionsResult(requestCode, permissions, grantResults)
-        // }
+        for (plugin in pluginRegistry!!.getAllPlugins()) {
+            plugin.onMainRequestPermissionsResult(requestCode, permissions, grantResults)
+        }
         for (i in permissions.indices) {
             CrossbowLib.requestPermissionResult(
                 permissions[i],
@@ -90,6 +101,38 @@ class Crossbow : Fragment(), ActivityCompat.OnRequestPermissionsResultCallback {
         }
         if (crossbowHost != null) {
             crossbowHost?.onCrossbowMainLoopStarted()
+        }
+    }
+
+    /**
+     * Used by the native code to complete initialization of the GLSurfaceView view and renderer.
+     */
+    @Keep
+    private fun onVideoInit() {
+		Log.v(TAG, "Calling Crossbow onVideoInit")
+
+        containerLayout = FrameLayout(activity)
+        containerLayout?.setLayoutParams(
+            ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+        )
+
+        for (plugin in pluginRegistry!!.getAllPlugins()) {
+            plugin.onRegisterPluginWithCrossbowNative()
+        }
+
+        // Include the returned non-null views in the Crossbow view hierarchy.
+        for (plugin in pluginRegistry!!.getAllPlugins()) {
+            val pluginView: View? = plugin.onMainCreate(activity)
+            if (pluginView !== null) {
+                if (plugin.shouldBeOnTop()) {
+                    containerLayout?.addView(pluginView)
+                } else {
+                    containerLayout?.addView(pluginView, 0)
+                }
+            }
         }
     }
 

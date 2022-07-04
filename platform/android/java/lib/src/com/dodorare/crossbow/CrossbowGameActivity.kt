@@ -14,4 +14,22 @@ package com.dodorare.crossbow
 //             System.loadLibrary("crossbow_android")
 //         }
 //     }
+
+// 	override fun onCreate(savedInstanceState: Bundle?) {
+// 		super.onCreate(savedInstanceState)
+// 		setContentView(R.layout.crossbow_app_layout)
+
+// 		val currentFragment: Fragment =
+//             fragmentManager.findFragmentById(R.id.crossbow_fragment_container)
+// 		if (currentFragment is Crossbow) {
+// 			Log.v(TAG, "Reusing existing Crossbow fragment instance.")
+// 			crossbowFragment = currentFragment as Crossbow
+// 		} else {
+// 		    Log.v(TAG, "Creating new Crossbow fragment instance")
+// 			crossbowFragment = Crossbow()
+//             getFragmentManager().beginTransaction()
+//                 .replace(R.id.crossbow_fragment_container, crossbowFragment as Fragment)
+//                 .setPrimaryNavigationFragment(crossbowFragment as Fragment).commitNowAllowingStateLoss()
+// 		}
+// 	}
 // }
