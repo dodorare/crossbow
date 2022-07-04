@@ -65,7 +65,7 @@ impl AndroidBuildCommand {
         Ok(())
     }
 
-    /// Compile rust code as a dynamic library, generate Gradle project and build generate apk/aab
+    /// Compile rust code as a dynamic library, generate Gradle project
     pub fn build_gradle(
         &self,
         config: &Config,
