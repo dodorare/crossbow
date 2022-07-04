@@ -1,12 +1,19 @@
 pub const BEVY_CARGO_TOML_VALUE: &str = r#"
 [package]
-name = "example"
+name = "bevy-2d"
+version = "0.1.3"
 authors = ["DodoRare Team <support@dodorare.com>"]
 edition = "2021"
-version = "0.1.0"
 
 [dependencies]
 crossbow = { git = "https://github.com/dodorare/crossbow" }
+anyhow = "1.0"
+bevy = { version = "0.7.0", features = ["mp3"] }
+
+[package.metadata]
+app_name = "Bevy 2D"
+version_code = 1
+target_sdk_version = 30
 "#;
 
 pub const BEVY_MAIN_RS_VALUE: &str = r#"fn main(){println!("hello");}"#;

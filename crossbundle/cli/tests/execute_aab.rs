@@ -6,14 +6,14 @@ use crossbundle_tools::{
 };
 
 #[test]
-/// Use macroquad minimal project in a temporary directory to test APK generation. It is working likewise the command below.
+/// Use bevy minimal project in a temporary directory to test AAB generation. It is working likewise the command below.
 /// ```sh
-/// crossbundle build android --quad
+/// crossbundle build android --quad --aab
 /// ```
-fn test_execute_apk() {
+fn test_execute_aab() {
     let tempdir = tempfile::tempdir().unwrap();
     let project_path = tempdir.path();
-    let macroquad_project = true;
+    let macroquad_project = false;
     gen_minimal_project(&project_path, macroquad_project).unwrap();
 
     let target_dir = std::path::PathBuf::from(project_path).join("target");
@@ -44,5 +44,5 @@ fn test_execute_apk() {
         sign_key_alias: None,
     };
 
-    AndroidBuildCommand::execute_apk(&android_build_command, &config, &context).unwrap();
+    AndroidBuildCommand::execute_aab(&android_build_command, &config, &context).unwrap();
 }
