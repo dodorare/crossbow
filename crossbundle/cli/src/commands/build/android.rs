@@ -224,6 +224,13 @@ impl AndroidBuildCommand {
             target_sdk_version,
         )?;
 
+        let min_sdk_version = android_manifest
+            .uses_sdk
+            .as_ref()
+            .unwrap()
+            .min_sdk_version
+            .unwrap_or(MIN_SDK_VERSION);
+
         config.status("Adding libs into APK file")?;
         for (compiled_lib, build_target) in compiled_libs {
             android::add_libs_into_apk(
@@ -233,12 +240,7 @@ impl AndroidBuildCommand {
                 &compiled_lib,
                 build_target,
                 profile,
-                android_manifest
-                    .uses_sdk
-                    .as_ref()
-                    .unwrap()
-                    .min_sdk_version
-                    .unwrap_or(MIN_SDK_VERSION),
+                min_sdk_version,
                 &android_build_dir,
                 &target_dir,
             )?;

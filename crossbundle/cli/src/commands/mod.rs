@@ -5,6 +5,7 @@ pub mod new;
 pub mod run;
 
 use crate::error::Result;
+pub use build::*;
 use clap::Parser;
 use crossbundle_tools::utils::Config;
 

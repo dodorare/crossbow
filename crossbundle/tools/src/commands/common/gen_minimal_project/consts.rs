@@ -13,15 +13,20 @@ pub const BEVY_MAIN_RS_VALUE: &str = r#"fn main(){println!("hello");}"#;
 
 pub const MQ_CARGO_TOML_VALUE: &str = r#"
 [package]
-name = "example"
+name = "macroquad-permissions"
+version = "0.1.3"
 authors = ["DodoRare Team <support@dodorare.com>"]
-version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-crossbow = { git = "https://github.com/dodorare/crossbow" }
+crossbow = { git = "https://github.com/dodorare/crossbow"}
 anyhow = "1.0"
 macroquad = "0.3.7"
+
+[package.metadata]
+app_name = "Macroquad_Permissions"
+target_sdk_version = 30
+version_code = 1
 "#;
 
 pub const MQ_MAIN_RS_VALUE: &str = r#"

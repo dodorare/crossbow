@@ -39,6 +39,7 @@ dunce = "1.0"
 ureq = "2.4.0"
 cargo = "0.63.1"
 cargo-util = "0.2.0"
+tempfile = "3.2"
 
 [features]
 default = ["android", "ios"]
