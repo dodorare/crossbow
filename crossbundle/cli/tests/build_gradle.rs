@@ -44,13 +44,11 @@ fn test_build_gradle() {
         sign_key_alias: None,
     };
 
-    let gradle_project_path = AndroidBuildCommand::build_gradle(
+    AndroidBuildCommand::build_gradle(
         &android_build_command,
         &config,
         &context,
         project_path.to_str().unwrap(),
     )
     .unwrap();
-    let expected_path = project_path.join("gradle");
-    assert_eq!(gradle_project_path, expected_path);
 }
