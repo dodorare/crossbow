@@ -39,14 +39,6 @@ import javax.microedition.khronos.opengles.GL10;
  * - 'PluginName' is the name of the plugin.
  * - 'plugin.init.ClassFullName' is the full name (package + class name) of the plugin class
  * extending {@link CrossbowPlugin}.
- *
- * A plugin can also define and provide c/c++ gdnative libraries and nativescripts for the target
- * app/game to leverage.
- * The shared library for the gdnative library will be automatically bundled by the aar build
- * system.
- * Crossbow '*.gdnlib' and '*.gdns' resource files must however be manually defined in the project
- * 'assets' directory. The recommended path for these resources in the 'assets' directory should be:
- * 'crossbow/plugin/v1/[PluginName]/'
  */
 public abstract class CrossbowPlugin {
 	private static final String TAG = CrossbowPlugin.class.getSimpleName();
@@ -80,8 +72,7 @@ public abstract class CrossbowPlugin {
 	 */
 	public final void onRegisterPluginWithCrossbowNative() {
 		registeredSignals.putAll(
-				registerPluginWithCrossbowNative(this, getPluginName(), getPluginSignals(),
-						getPluginGDNativeLibrariesPaths()));
+				registerPluginWithCrossbowNative(this, getPluginName(), getPluginSignals()));
 	}
 
 	/**
@@ -92,16 +83,14 @@ public abstract class CrossbowPlugin {
 	public static void registerPluginWithCrossbowNative(Object pluginObject,
 			CrossbowPluginInfoProvider pluginInfoProvider) {
 		registerPluginWithCrossbowNative(pluginObject, pluginInfoProvider.getPluginName(),
-				pluginInfoProvider.getPluginSignals(),
-				pluginInfoProvider.getPluginGDNativeLibrariesPaths());
+				pluginInfoProvider.getPluginSignals());
 
 		// Notify that registration is complete.
 		pluginInfoProvider.onPluginRegistered();
 	}
 
 	private static Map<String, SignalInfo> registerPluginWithCrossbowNative(Object pluginObject,
-			String pluginName, Set<SignalInfo> pluginSignals,
-			Set<String> pluginGDNativeLibrariesPaths) {
+			String pluginName, Set<SignalInfo> pluginSignals) {
 		nativeRegisterSingleton(pluginName, pluginObject);
 
 		Set<Method> filteredMethods = new HashSet<>();
@@ -135,11 +124,6 @@ public abstract class CrossbowPlugin {
 			String signalName = signalInfo.getName();
 			nativeRegisterSignal(pluginName, signalName, signalInfo.getParamTypesNames());
 			registeredSignals.put(signalName, signalInfo);
-		}
-
-		// Get the list of gdnative libraries to register.
-		if (!pluginGDNativeLibrariesPaths.isEmpty()) {
-			nativeRegisterGDNativeLibraries(pluginGDNativeLibrariesPaths.toArray(new String[0]));
 		}
 
 		return registeredSignals;
@@ -254,16 +238,6 @@ public abstract class CrossbowPlugin {
 	}
 
 	/**
-	 * Returns the paths for the plugin's gdnative libraries.
-	 *
-	 * The paths must be relative to the 'assets' directory and point to a '*.gdnlib' file.
-	 */
-	@NonNull
-	protected Set<String> getPluginGDNativeLibrariesPaths() {
-		return Collections.emptySet();
-	}
-
-	/**
 	 * Returns whether the plugin's {@link View} returned in onMainCreate() should be placed on
 	 * top of the main Crossbow view.
 	 *
@@ -369,12 +343,6 @@ public abstract class CrossbowPlugin {
 	 * @param p_params Method parameters types
 	 */
 	private static native void nativeRegisterMethod(String p_sname, String p_name, String p_ret, String[] p_params);
-
-	/**
-	 * Used to register gdnative libraries bundled by the plugin.
-	 * @param gdnlibPaths Paths to the libraries relative to the 'assets' directory.
-	 */
-	private static native void nativeRegisterGDNativeLibraries(String[] gdnlibPaths);
 
 	/**
 	 * Used to complete registration of the {@link CrossbowPlugin} instance's methods.

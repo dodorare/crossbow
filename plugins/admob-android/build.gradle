@@ -1,0 +1,78 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:7.0.0"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.21"
+    }
+}
+
+apply plugin: "com.android.library"
+apply plugin: "org.jetbrains.kotlin.android"
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.6.21"
+    implementation "androidx.appcompat:appcompat:1.4.0"
+    implementation "com.google.android.gms:play-services-ads:20.4.0"
+    implementation "com.google.android.ump:user-messaging-platform:2.0.0"
+
+    if (rootProject.findProject(":lib")) {
+        implementation project(":lib")
+    } else if (rootProject.findProject(":crossbow:lib")) {
+        implementation project(":crossbow:lib")
+    } else {
+        // Custom build mode. In this scenario this project is the only one around and the Crossbow
+        // library is available through the pre-generated crossbow-lib.*.aar android archive files.
+        debugImplementation fileTree(dir: "libs/debug", include: ["*.jar", "*.aar"])
+        releaseImplementation fileTree(dir: "libs/release", include: ["*.jar", "*.aar"])
+    }
+}
+
+android {
+    compileSdkVersion 31
+    buildToolsVersion "30.0.3"
+    ndkVersion "23.1.7779620"
+
+    compileOptions {
+        sourceCompatibility 11
+        targetCompatibility 11
+    }
+
+    kotlinOptions {
+        jvmTarget = 11
+    }
+
+    defaultConfig {
+        versionCode 1
+        versionName "1.0"
+        minSdkVersion 19
+        targetSdkVersion 30
+
+        missingDimensionStrategy "products", "template"
+    }
+
+    lintOptions {
+        abortOnError false
+        disable "MissingTranslation", "UnusedResources"
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile "AndroidManifest.xml"
+            java.srcDirs = ["java"]
+            assets.srcDirs = ["assets"]
+            res.srcDirs = ["res"]
+        }
+    }
+}

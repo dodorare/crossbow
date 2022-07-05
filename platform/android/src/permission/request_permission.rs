@@ -1,6 +1,31 @@
 use crate::permission::{error::*, types::android::*};
 use jni::signature as Signature;
 
+// JNI classes
+const ANDROID_MANIFEST_PERMISSION: &str = "android/Manifest$permission";
+const ANDROID_CONTEXT: &str = "android/content/Context";
+const ANDROID_PACKAGE_MANAGER: &str = "android/content/pm/PackageManager";
+const ANDROID_ACTIVITY: &str = "android/app/Activity";
+
+// JNI methods
+const REQUEST_PERMISSIONS_METHOD: &str = "requestPermissions";
+const CHECK_SELF_PERMISSION_METHOD: &str = "checkSelfPermission";
+
+// JNI signatures
+const JAVA_STRING_SIGNATURE: &str = "java/lang/String";
+const MANIFEST_PERMISSION_SIGNATURE: &str = "Ljava/lang/String;";
+const REQUEST_PERMISSIONS_SIGNATURE: &str = "([Ljava/lang/String;I)V";
+const CHECK_SELF_PERMISSION_SIGNATURE: &str = "(Ljava/lang/String;)I";
+const PRIMITIVE_INT_SIGNATURE: &str = "I";
+
+// JNI static fields
+const PERMISSIONS_GRANTED: &str = "PERMISSION_GRANTED";
+const PERMISSION_DENIED: &str = "PERMISSION_DENIED";
+
+// JNI types
+const ARRAY_LENGTH: i32 = 1;
+const OBJECT_INDEX: i32 = 0;
+
 /// Create a java VM for executing Java calls
 fn create_java_vm() -> Result<(ndk_context::AndroidContext, jni::JavaVM)> {
     let ctx = ndk_context::android_context();

@@ -12,14 +12,14 @@ object CrossbowLib {
         System.loadLibrary("crossbow_android")
     }
 
-    // /**
-    //  * Invoked on the main thread to initialize Godot native layer.
-    //  */
-    // external fun initialize(
-    //     activity: Activity?,
-    //     p_instance: Crossbow?,
-    //     p_asset_manager: Any?
-    // )
+    /**
+     * Invoked on the main thread to initialize Godot native layer.
+     */
+    external fun initialize(
+        activity: Activity?,
+        instance: Crossbow?,
+        asset_manager: Any?
+    )
 
     // /**
     //  * Invoked on the main thread to clean up Godot native layer.
@@ -35,8 +35,8 @@ object CrossbowLib {
     /**
      * Forward the results from a permission request.
      * @see Activity.onRequestPermissionsResult
-     * @param p_permission Request permission
-     * @param p_result True if the permission was granted, false otherwise
+     * @param permission Request permission
+     * @param result True if the permission was granted, false otherwise
      */
-    external fun requestPermissionResult(p_permission: String?, p_result: Boolean)
+    external fun requestPermissionResult(permission: String?, result: Boolean)
 }

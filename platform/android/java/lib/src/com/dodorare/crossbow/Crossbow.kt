@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.dodorare.crossbow
 
 import com.dodorare.crossbow.plugin.CrossbowPluginRegistry
@@ -19,7 +21,7 @@ import androidx.annotation.Keep
 
 class Crossbow : Fragment() {
     private var crossbowHost: CrossbowHost? = null
-    private var pluginRegistry: CrossbowPluginRegistry? = null
+    public var pluginRegistry: CrossbowPluginRegistry? = null
 
 	private var containerLayout: ViewGroup? = null
 	private var mCurrentIntent: Intent? = null
@@ -28,14 +30,13 @@ class Crossbow : Fragment() {
 		mCurrentIntent = intent;
 	}
 
-    override fun onCreate(icicle: Bundle?) {
-        super.onCreate(icicle)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         pluginRegistry = CrossbowPluginRegistry.initializePluginRegistry(this)
 
 		Log.v(TAG, "Creating new Crossbow instance")
 
-        // CrossbowLib.initialize(activity, this, activity!!.assets)
-        onVideoInit()
+        CrossbowLib.initialize(activity, this, activity!!.assets)
     }
 
     override fun onAttach(context: Context) {
@@ -108,8 +109,8 @@ class Crossbow : Fragment() {
      * Used by the native code to complete initialization of the GLSurfaceView view and renderer.
      */
     @Keep
-    private fun onVideoInit() {
-		Log.v(TAG, "Calling Crossbow onVideoInit")
+    private fun onRenderInit() {
+		Log.v(TAG, "Calling Crossbow onRenderInit")
 
         containerLayout = FrameLayout(activity)
         containerLayout?.setLayoutParams(

@@ -1,0 +1,6 @@
+// Configure the root project.
+rootProject.name = "Admob"
+
+include ":crossbow"
+project(":crossbow").projectDir = new File("../../platform/android/java/")
+include ":crossbow:lib"

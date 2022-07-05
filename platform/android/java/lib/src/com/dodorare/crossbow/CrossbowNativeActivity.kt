@@ -24,7 +24,7 @@ open class CrossbowNativeActivity : NativeActivity(), CrossbowHost {
             System.loadLibrary("crossbow_android")
         }
     }
-	private var crossbowFragment: Crossbow? = null
+	protected var crossbowFragment: Crossbow? = null
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
