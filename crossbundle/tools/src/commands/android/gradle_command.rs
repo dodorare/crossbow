@@ -7,7 +7,7 @@ pub fn gradle_init() -> Result<Command> {
         return Ok(Command::new(gradle));
     }
     let gradle = std::env::var("GRADLE_HOME").ok();
-    let gradle_path = std::path::PathBuf::from(gradle.ok_or(AndroidError::AndroidSdkNotFound)?);
+    let gradle_path = std::path::PathBuf::from(gradle.ok_or(AndroidError::GradleNotFound)?);
     let gradle_executable = gradle_path.join("bin").join(bat!("gradle"));
     Ok(Command::new(gradle_executable))
 }

@@ -6,11 +6,11 @@ use crossbundle_tools::{
 };
 
 #[test]
-/// Use macroquad minimal project in a temporary directory to test APK generation. It is working likewise the command below.
+/// Use macroquad minimal project in a temporary directory to test gradle project generation. It is working likewise the command below.
 /// ```sh
-/// crossbundle build android --quad
+/// crossbundle build android --quad --gradle
 /// ```
-fn test_execute_apk() {
+fn test_build_gradle() {
     let tempdir = tempfile::tempdir().unwrap();
     let project_path = tempdir.path();
     let macroquad_project = true;
@@ -44,12 +44,13 @@ fn test_execute_apk() {
         sign_key_alias: None,
     };
 
-    let (_, _, generated_apk_path) =
-        AndroidBuildCommand::execute_apk(&android_build_command, &config, &context).unwrap();
-    let expected_path = target_dir
-        .join("android")
-        .join("macroquad-example")
-        .join("outputs")
-        .join("Macroquad Example.apk");
-    assert_eq!(generated_apk_path, expected_path);
+    let gradle_path = AndroidBuildCommand::build_gradle(
+        &android_build_command,
+        &config,
+        &context,
+        project_path.to_str().unwrap(),
+    )
+    .unwrap();
+    let expected_path = project_path.join("gradle");
+    assert_eq!(gradle_path, expected_path);
 }

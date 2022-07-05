@@ -29,7 +29,7 @@ adb shell pm list permissions
 
 ## Crossbow gradle
 
-Crossbow gradle project requires installed Gradle on your PC. Check or download it [here](https://gradle.org/).
+Crossbow gradle project requires installed Gradle on your PC. Check or download it [here](https://gradle.org/). Don't forget to install `GRADLE_HOME` environment variable.
 
 To create a project go to the example you want to build and use the command below. The command belongs to macroquad engine examples: 
 

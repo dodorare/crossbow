@@ -21,7 +21,7 @@ fn test_execute_aab() {
 
     let shell = Shell::new();
     let config = Config::new(shell, target_dir.clone());
-    let context = BuildContext::new(&config, Some(target_dir)).unwrap();
+    let context = BuildContext::new(&config, Some(target_dir.clone())).unwrap();
 
     let shared_build_command = SharedBuildCommand {
         example: None,
@@ -44,5 +44,12 @@ fn test_execute_aab() {
         sign_key_alias: None,
     };
 
-    AndroidBuildCommand::execute_aab(&android_build_command, &config, &context).unwrap();
+    let (_, _, generated_aab_path, _, _) =
+        AndroidBuildCommand::execute_aab(&android_build_command, &config, &context).unwrap();
+    let expected_path = target_dir
+        .join("android")
+        .join("bevy-example")
+        .join("outputs")
+        .join("bevy-example_signed.aab");
+    assert_eq!(generated_aab_path, expected_path);
 }
