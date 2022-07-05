@@ -48,7 +48,7 @@ fn test_execute_apk() {
         AndroidBuildCommand::execute_apk(&android_build_command, &config, &context).unwrap();
     let expected_path = target_dir
         .join("android")
-        .join("macroquad-example")
+        .join("example")
         .join("outputs")
         .join("Macroquad Example.apk");
     assert_eq!(generated_apk_path, expected_path);

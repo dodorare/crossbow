@@ -48,8 +48,8 @@ fn test_execute_aab() {
         AndroidBuildCommand::execute_aab(&android_build_command, &config, &context).unwrap();
     let expected_path = target_dir
         .join("android")
-        .join("bevy-example")
+        .join("example")
         .join("outputs")
-        .join("bevy-example_signed.aab");
+        .join("example_signed.aab");
     assert_eq!(generated_aab_path, expected_path);
 }
