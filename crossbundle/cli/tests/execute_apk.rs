@@ -6,7 +6,7 @@ use crossbundle_tools::{
 };
 
 #[test]
-/// Use macroquad minimal project in a temporary directory to test APK generation. 
+/// Use macroquad minimal project in a temporary directory to test APK generation.
 /// It is working likewise the command below.
 /// ```sh
 /// crossbundle build android --quad

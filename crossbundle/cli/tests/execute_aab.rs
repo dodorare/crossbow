@@ -6,7 +6,7 @@ use crossbundle_tools::{
 };
 
 #[test]
-/// Use bevy minimal project in a temporary directory to test AAB generation. 
+/// Use bevy minimal project in a temporary directory to test AAB generation.
 /// It is working likewise the command below.
 /// ```sh
 /// crossbundle build android --quad --aab
