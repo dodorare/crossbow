@@ -1,41 +1,33 @@
-#![allow(unused_variables)]
-
-use crate::utils::*;
+use crate::{types::JniSingleton, utils::*};
 use jni::{
     objects::{JClass, JObject, JString},
-    sys::{jobject, jobjectArray},
+    signature::TypeSignature,
+    sys::jobjectArray,
     JNIEnv,
 };
 use once_cell::sync::Lazy;
-use std::{collections::HashMap, sync::Mutex};
-
-// val pluginRegistry = crossbowFragment!!.pluginRegistry
-// if (pluginRegistry === null) {
-//     Log.e("CrossbowApp", "CrossbowFragment.pluginRegistry is null")
-// }
-// val admob: AdMob = pluginRegistry!!.getPlugin("AdMob") as AdMob
-// admob.initialize(true, "G", false, true)
-// admob.load_interstitial("ca-app-pub-3940256099942544/1033173712")
-// admob.show_interstitial()
-
-pub struct JniSingleton {
-    instance: jobject,
-}
+use std::{
+    collections::HashMap,
+    sync::{Mutex, MutexGuard},
+};
 
 static mut JNI_SINGLETONS: Lazy<Mutex<HashMap<String, JniSingleton>>> = Lazy::new(Default::default);
+
+pub fn get_jni_singletons<'a>() -> MutexGuard<'a, HashMap<String, JniSingleton>> {
+    unsafe { JNI_SINGLETONS.lock().unwrap() }
+}
 
 #[no_mangle]
 #[allow(non_snake_case)]
 pub extern "C" fn Java_com_dodorare_crossbow_plugin_CrossbowPlugin_nativeRegisterSingleton(
     env: JNIEnv,
-    class: JClass,
+    _class: JClass,
     name: JString,
     obj: JObject,
 ) {
+    println!("CrossbowPlugin_nativeRegisterSingleton: {:?}", obj);
     let singname = jstring_to_string(&env, name).unwrap();
-    let singleton = JniSingleton {
-        instance: obj.into_inner(),
-    };
+    let singleton = JniSingleton::new(env.new_global_ref(obj).unwrap());
     let mut jni_singletons_guard = unsafe { JNI_SINGLETONS.lock().unwrap() };
     jni_singletons_guard.insert(singname, singleton);
 }
@@ -44,47 +36,36 @@ pub extern "C" fn Java_com_dodorare_crossbow_plugin_CrossbowPlugin_nativeRegiste
 #[allow(non_snake_case)]
 pub extern "C" fn Java_com_dodorare_crossbow_plugin_CrossbowPlugin_nativeRegisterMethod(
     env: JNIEnv,
-    class: JClass,
+    _class: JClass,
     sname: JString,
     name: JString,
-    ret: JString,
-    args: jobjectArray,
+    sig: JString,
 ) {
     let singname = jstring_to_string(&env, sname).unwrap();
     let mut jni_singletons_guard = unsafe { JNI_SINGLETONS.lock().unwrap() };
-    let mut singleton = jni_singletons_guard.get_mut(&singname);
-
-    if singleton.is_none() {
+    let singleton = if let Some(singleton) = jni_singletons_guard.get_mut(&singname) {
+        singleton
+    } else {
         println!("Plugin singleton {} is not registered", singname);
         return;
-    }
+    };
 
     let mname = jstring_to_string(&env, name).unwrap();
-    let retval = jstring_to_string(&env, ret).unwrap();
+    let sig = jstring_to_string(&env, sig).unwrap();
+    let signature = TypeSignature::from_str(sig).unwrap();
 
-    let mut types: Vec<&'static str> = vec![];
-    let mut cs = "(";
-
-    let string_count = env.get_array_length(args).unwrap();
-
-    // TODO: Fix this. Probably will not work well.
-    for i in 0..string_count {
-        let jstring = env.get_object_array_element(args, i).unwrap();
-        let raw_string = jstring_to_string(&env, jstring.into()).unwrap();
-        // let arg_type = get_jni_type(raw_string);
-        // types.push(arg_type);
-        // cs += &arg_type;
-    }
-
-    cs = &[")", get_jni_sig(&retval)].concat();
-
-    // jclass cls = env->GetObjectClass(s->get_instance());
-    // jmethodID mid = env->GetMethodID(cls, mname.ascii().get_data(), cs.ascii().get_data());
-    // if (!mid) {
-    // 	print_line("Failed getting method ID " + mname);
-    // }
-
-    // s->add_method(mname, mid, types, get_jni_type(retval));
+    let cls = env.get_object_class(singleton.get_instance()).unwrap();
+    let method_id = match env.get_method_id(cls, &mname, signature.to_string()) {
+        Ok(mid) => mid.into_inner(),
+        Err(e) => {
+            println!(
+                "Failed getting method_id '{}' with sig '{}': {:?}",
+                mname, signature, e
+            );
+            return;
+        }
+    };
+    singleton.add_method(&mname, method_id, signature);
 }
 
 #[no_mangle]

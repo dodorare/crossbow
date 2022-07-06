@@ -1,5 +1,5 @@
 // Configure the root project.
-rootProject.name = "Admob"
+rootProject.name = "admob"
 
 include ":crossbow"
 project(":crossbow").projectDir = new File("../../platform/android/java/")

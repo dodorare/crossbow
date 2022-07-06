@@ -1,5 +1,5 @@
-use crossbow::crossbow_android::permission::prelude::*;
-
+use crossbow::crossbow_android::*;
+use crossbow::crossbow_android::{permission::*, types::*};
 use macroquad::prelude::*;
 use macroquad::ui::{hash, root_ui, Skin};
 
@@ -56,6 +56,36 @@ async fn main() -> anyhow::Result<()> {
             }
             if ui.button(vec2(-15.0, 300.0), "Ask storage permission") {
                 request_permission(AndroidPermission::ReadExternalStorage).unwrap();
+            }
+            if ui.button(vec2(-15.0, 450.0), "Show ad") {
+                let jni_singleton_guard = crossbow_plugin::get_jni_singletons();
+                let admob = jni_singleton_guard
+                    .get("AdMob")
+                    .expect("Crossbow Error: AdMob is not registered");
+                // println!("Crossbow AdMob Methods: {:?}", admob.get_methods());
+
+                let (_, vm) = create_java_vm().unwrap();
+                let jnienv = vm.attach_current_thread().unwrap();
+
+                let g_str = jnienv.new_string("G".to_string()).unwrap();
+                admob
+                    .call_method(
+                        &jnienv,
+                        "initialize",
+                        &[true.into(), g_str.into(), false.into(), true.into()],
+                    )
+                    .unwrap();
+
+                let ad_id = jnienv
+                    .new_string("ca-app-pub-3940256099942544/1033173712".to_string())
+                    .unwrap();
+                admob
+                    .call_method(&jnienv, "load_interstitial", &[ad_id.into()])
+                    .unwrap();
+
+                admob
+                    .call_method(&jnienv, "show_interstitial", &[])
+                    .unwrap();
             }
         });
         root_ui().pop_skin();

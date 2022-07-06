@@ -118,7 +118,7 @@ public final class CrossbowPluginRegistry {
 										"Meta-data plugin name does not match the value returned by the plugin handle: " + pluginName + " =/= " + pluginHandle.getPluginName());
 							}
 							registry.put(pluginName, pluginHandle);
-							Log.i(TAG, "Completed initialization for Crossbow plugin " + pluginHandle.getPluginName());
+							Log.i(TAG, "Initialization of Crossbow plugin completed " + pluginHandle.getPluginName());
 						} catch (ClassNotFoundException e) {
 							Log.w(TAG, "Unable to load Crossbow plugin " + pluginName, e);
 						} catch (IllegalAccessException e) {

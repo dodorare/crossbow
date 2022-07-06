@@ -34,8 +34,7 @@ class Crossbow : Fragment() {
         super.onCreate(savedInstanceState)
         pluginRegistry = CrossbowPluginRegistry.initializePluginRegistry(this)
 
-		Log.v(TAG, "Creating new Crossbow instance")
-
+		Log.v(TAG, "Initializing CrossbowLib Instance")
         CrossbowLib.initialize(activity, this, activity!!.assets)
     }
 
@@ -106,7 +105,7 @@ class Crossbow : Fragment() {
     }
 
     /**
-     * Used by the native code to complete initialization of the GLSurfaceView view and renderer.
+     * Used by the native code to complete initialization of plugins and renderer.
      */
     @Keep
     private fun onRenderInit() {
@@ -124,6 +123,8 @@ class Crossbow : Fragment() {
             plugin.onRegisterPluginWithCrossbowNative()
         }
 
+		Log.v(TAG, "Crossbow onRenderInit middle")
+
         // Include the returned non-null views in the Crossbow view hierarchy.
         for (plugin in pluginRegistry!!.getAllPlugins()) {
             val pluginView: View? = plugin.onMainCreate(activity)
@@ -135,6 +136,8 @@ class Crossbow : Fragment() {
                 }
             }
         }
+
+		Log.v(TAG, "Crossbow onRenderInit finished")
     }
 
     override fun onDestroy() {

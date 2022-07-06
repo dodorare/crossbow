@@ -1,6 +1,7 @@
 package com.dodorare.crossbow.plugin;
 
 import com.dodorare.crossbow.Crossbow;
+import com.dodorare.crossbow.JNIUtil;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -80,42 +81,30 @@ public abstract class CrossbowPlugin {
 	 *
 	 * This method must be invoked on the render thread.
 	 */
-	public static void registerPluginWithCrossbowNative(Object pluginObject,
-			CrossbowPluginInfoProvider pluginInfoProvider) {
-		registerPluginWithCrossbowNative(pluginObject, pluginInfoProvider.getPluginName(),
-				pluginInfoProvider.getPluginSignals());
-
+	public static void registerPluginWithCrossbowNative(Object pluginObject, CrossbowPluginInfoProvider pluginInfoProvider) {
+		try {
+			registerPluginWithCrossbowNative(pluginObject, pluginInfoProvider.getPluginName(), pluginInfoProvider.getPluginSignals());
+		} catch (NoClassDefFoundError e) {
+			Log.e(TAG, "Error getting declared methods", e);
+		}
 		// Notify that registration is complete.
 		pluginInfoProvider.onPluginRegistered();
 	}
 
-	private static Map<String, SignalInfo> registerPluginWithCrossbowNative(Object pluginObject,
-			String pluginName, Set<SignalInfo> pluginSignals) {
+	private static Map<String, SignalInfo> registerPluginWithCrossbowNative(Object pluginObject, String pluginName, Set<SignalInfo> pluginSignals) {
 		nativeRegisterSingleton(pluginName, pluginObject);
 
-		Set<Method> filteredMethods = new HashSet<>();
 		Class<?> clazz = pluginObject.getClass();
-
 		Method[] methods = clazz.getDeclaredMethods();
+		Log.i(TAG, "Registering plugin: " + pluginName + " (" + clazz.getName() + ")");
+
 		for (Method method : methods) {
 			// Check if the method is annotated with {@link ExposedToCrossbow}.
 			if (method.getAnnotation(ExposedToCrossbow.class) != null) {
-				filteredMethods.add(method);
+				String sig = JNIUtil.getJNIMethodSignature(method);
+				nativeRegisterMethod(pluginName, method.getName(), sig);
+				Log.i(TAG, "Registered " + pluginName + " plugin method: " + method.getName());
 			}
-		}
-
-		for (Method method : filteredMethods) {
-			List<String> ptr = new ArrayList<>();
-
-			Class<?>[] paramTypes = method.getParameterTypes();
-			for (Class<?> c : paramTypes) {
-				ptr.add(c.getName());
-			}
-
-			String[] pt = new String[ptr.size()];
-			ptr.toArray(pt);
-
-			nativeRegisterMethod(pluginName, method.getName(), method.getReturnType().getName(), pt);
 		}
 
 		// Register the signals for this plugin.
@@ -339,10 +328,9 @@ public abstract class CrossbowPlugin {
 	 * Used to complete registration of the {@link CrossbowPlugin} instance's methods.
 	 * @param p_sname Name of the instance
 	 * @param p_name Name of the method to register
-	 * @param p_ret Return type of the registered method
-	 * @param p_params Method parameters types
+	 * @param p_sig Signature of the registered method
 	 */
-	private static native void nativeRegisterMethod(String p_sname, String p_name, String p_ret, String[] p_params);
+	private static native void nativeRegisterMethod(String p_sname, String p_name, String p_sig);
 
 	/**
 	 * Used to complete registration of the {@link CrossbowPlugin} instance's methods.

@@ -180,7 +180,6 @@ public class AdMob extends CrossbowPlugin {
         }
     }
 
-    @ExposedToCrossbow
     private void loadConsentForm() {
         UserMessagingPlatform.loadConsentForm(
                 aActivity,
@@ -303,7 +302,7 @@ public class AdMob extends CrossbowPlugin {
         return safeInsetRect;
     }
 
-    //BANNER only one is allowed, please do not try to place more than one, as your ads on the app may have the chance to be banned!
+    // BANNER only one is allowed, please do not try to place more than one, as your ads on the app may have the chance to be banned!
     @ExposedToCrossbow
     public void load_banner(final String pAdUnitId, final int pPosition, final String pSize, final boolean pShowInstantly, final boolean pRespectSafeArea) {
         aActivity.runOnUiThread(() -> {
@@ -495,8 +494,8 @@ public class AdMob extends CrossbowPlugin {
     }
 
 
-    //BANNER
-    //INTERSTITIAL
+    // BANNER
+    // INTERSTITIAL
     @ExposedToCrossbow
     public void load_interstitial(final String pAdUnitId)
     {
