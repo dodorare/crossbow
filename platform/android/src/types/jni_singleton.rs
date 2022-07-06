@@ -1,8 +1,7 @@
 use jni::{
     errors::*,
-    objects::{GlobalRef, JMethodID, JObject, JValue},
-    signature::TypeSignature,
-    sys::jmethodID,
+    objects::{GlobalRef, JClass, JObject, JValue},
+    signature::{JavaType, TypeSignature},
     JNIEnv,
 };
 use std::collections::HashMap;
@@ -11,6 +10,13 @@ use std::collections::HashMap;
 pub struct JniSingleton {
     instance: GlobalRef,
     methods: HashMap<String, JniSingletonMethod>,
+    signals: HashMap<String, Vec<JavaType>>,
+}
+
+#[derive(Clone)]
+pub struct JniSingletonMethod {
+    class: GlobalRef,
+    signature: TypeSignature,
 }
 
 impl JniSingleton {
@@ -18,6 +24,7 @@ impl JniSingleton {
         Self {
             instance,
             methods: HashMap::new(),
+            signals: HashMap::new(),
         }
     }
 
@@ -33,14 +40,9 @@ impl JniSingleton {
         &self.methods
     }
 
-    pub fn add_method(&mut self, name: &str, method_id: jmethodID, signature: TypeSignature) {
-        self.methods.insert(
-            name.to_owned(),
-            JniSingletonMethod {
-                method_id,
-                signature,
-            },
-        );
+    pub fn add_method(&mut self, name: &str, class: GlobalRef, signature: TypeSignature) {
+        self.methods
+            .insert(name.to_owned(), JniSingletonMethod { class, signature });
     }
 
     pub fn call_method<'a>(
@@ -56,19 +58,24 @@ impl JniSingleton {
                 sig: "".to_owned(),
             })?,
         };
-        let mid: JMethodID = method.method_id.into();
+        let class: JClass = method.class.as_obj().into();
+        let method_id = env.get_method_id(class, name, method.signature.to_string())?;
+
         let result = env.call_method_unchecked(
             self.get_instance(),
-            mid,
+            method_id,
             method.signature.ret.clone(),
             args,
         )?;
         Ok(result)
     }
-}
 
-#[derive(Clone, Debug)]
-pub struct JniSingletonMethod {
-    method_id: jmethodID,
-    signature: TypeSignature,
+    pub fn add_signal(&mut self, name: &str, args: Vec<JavaType>) {
+        self.signals.insert(name.to_owned(), args);
+    }
+
+    pub fn emit_signal(&mut self, name: &str, args: Vec<JValue>) {
+        // self.signals.insert(name.to_owned(), args);
+        println!("emit_signal: {}; args: {:?}", name, args);
+    }
 }

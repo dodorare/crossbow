@@ -1,10 +1,9 @@
 package com.dodorare.crossbow.plugin;
 
 import android.text.TextUtils;
-
-import androidx.annotation.NonNull;
-
 import java.util.Arrays;
+import androidx.annotation.NonNull;
+import com.dodorare.crossbow.JNIUtil;
 
 /**
  * Store information about a {@link CrossbowPlugin}'s signal.
@@ -23,7 +22,7 @@ public final class SignalInfo {
 		this.paramTypes = paramTypes == null ? new Class<?>[ 0 ] : paramTypes;
 		this.paramTypesNames = new String[this.paramTypes.length];
 		for (int i = 0; i < this.paramTypes.length; i++) {
-			this.paramTypesNames[i] = this.paramTypes[i].getName();
+			this.paramTypesNames[i] = JNIUtil.getJNIClassSignature(this.paramTypes[i]);
 		}
 	}
 

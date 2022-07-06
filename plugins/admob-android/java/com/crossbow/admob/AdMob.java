@@ -118,7 +118,7 @@ public class AdMob extends CrossbowPlugin {
     public Set<SignalInfo> getPluginSignals() {
         Set<SignalInfo> signals = new ArraySet<>();
 
-        signals.add(new SignalInfo("initialization_complete", Integer.class, String.class));
+        signals.add(new SignalInfo("initialization_complete", Integer.class, String.class, Double.class));
 
         signals.add(new SignalInfo("consent_form_dismissed"));
         signals.add(new SignalInfo("consent_status_changed", String.class));
@@ -175,40 +175,40 @@ public class AdMob extends CrossbowPlugin {
                     aIsInitialized = true;
                 }
 
-                emitSignal("initialization_complete", statusGADMobileAds, "GADMobileAds");
+                emitSignal("initialization_complete", statusGADMobileAds, "CROSSGADMobileAds", 1123.1231);
             });
         }
     }
 
     private void loadConsentForm() {
         UserMessagingPlatform.loadConsentForm(
-                aActivity,
-                consentForm -> {
-                    String consentStatusMsg = "";
-                    if (aConsentInformation.getConsentStatus() == ConsentInformation.ConsentStatus.REQUIRED) {
-                        consentForm.show(
-                                aActivity,
-                                formError -> {
-                                    loadConsentForm();
-                                    emitSignal("consent_form_dismissed");
-                                }
-                        );
-                        consentStatusMsg = "User consent required but not yet obtained.";
-                    }
-                    switch (aConsentInformation.getConsentStatus()) {
-                        case ConsentInformation.ConsentStatus.UNKNOWN:
-                            consentStatusMsg = "Unknown consent status.";
-                            break;
-                        case ConsentInformation.ConsentStatus.NOT_REQUIRED:
-                            consentStatusMsg = "User consent not required. For example, the user is not in the EEA or the UK.";
-                            break;
-                        case ConsentInformation.ConsentStatus.OBTAINED:
-                            consentStatusMsg = "User consent obtained. Personalization not defined.";
-                            break;
-                    }
-                    emitSignal("consent_status_changed", consentStatusMsg);
-                },
-                formError -> emitSignal("consent_form_load_failure", formError.getErrorCode(), formError.getMessage())
+            aActivity,
+            consentForm -> {
+                String consentStatusMsg = "";
+                if (aConsentInformation.getConsentStatus() == ConsentInformation.ConsentStatus.REQUIRED) {
+                    consentForm.show(
+                            aActivity,
+                            formError -> {
+                                loadConsentForm();
+                                emitSignal("consent_form_dismissed");
+                            }
+                    );
+                    consentStatusMsg = "User consent required but not yet obtained.";
+                }
+                switch (aConsentInformation.getConsentStatus()) {
+                    case ConsentInformation.ConsentStatus.UNKNOWN:
+                        consentStatusMsg = "Unknown consent status.";
+                        break;
+                    case ConsentInformation.ConsentStatus.NOT_REQUIRED:
+                        consentStatusMsg = "User consent not required. For example, the user is not in the EEA or the UK.";
+                        break;
+                    case ConsentInformation.ConsentStatus.OBTAINED:
+                        consentStatusMsg = "User consent obtained. Personalization not defined.";
+                        break;
+                }
+                emitSignal("consent_status_changed", consentStatusMsg);
+            },
+            formError -> emitSignal("consent_form_load_failure", formError.getErrorCode(), formError.getMessage())
         );
     }
 

@@ -15,7 +15,7 @@ displaydoc = "0.2"
 anyhow = "1.0"
 jni = "0.19"
 ndk-context = "0.1"
-once_cell = "1"
+lazy_static = "1.4"
 
 [package.metadata]
 app_name = "crossbow_android"

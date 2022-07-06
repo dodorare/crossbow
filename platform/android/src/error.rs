@@ -7,6 +7,10 @@ pub type Result<T> = std::result::Result<T, AndroidError>;
 /// Permissions error type.
 #[derive(Display, Debug, Error)]
 pub enum AndroidError {
+    /// Unsupported JNI Rust Type
+    UnsupportedJniRustType(String),
+    /// Wrong JNI Rust Type
+    WrongJniRustType,
     /// Rust Jni library error
     Jni(jni::errors::Error),
     /// Anyhow library errors

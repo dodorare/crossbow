@@ -72,8 +72,7 @@ public abstract class CrossbowPlugin {
 	 * This method is invoked on the render thread.
 	 */
 	public final void onRegisterPluginWithCrossbowNative() {
-		registeredSignals.putAll(
-				registerPluginWithCrossbowNative(this, getPluginName(), getPluginSignals()));
+		registeredSignals.putAll(registerPluginWithCrossbowNative(this, getPluginName(), getPluginSignals()));
 	}
 
 	/**
