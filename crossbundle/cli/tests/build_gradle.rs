@@ -1,4 +1,5 @@
-use cli::{android::AndroidBuildCommand, BuildContext, SharedBuildCommand};
+use cli::build::{BuildContext, SharedBuildCommand, android::AndroidBuildCommand};
+// use cli::{android::AndroidBuildCommand, BuildContext, SharedBuildCommand};
 use crossbundle_tools::{
     commands::gen_minimal_project,
     types::AndroidTarget,
@@ -6,7 +7,8 @@ use crossbundle_tools::{
 };
 
 #[test]
-/// Use macroquad minimal project in a temporary directory to test gradle project generation. It is working likewise the command below.
+/// Use macroquad minimal project in a temporary directory to test gradle project generation. 
+/// It is working likewise the command below.
 /// ```sh
 /// crossbundle build android --quad --gradle
 /// ```

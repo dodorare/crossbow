@@ -1,4 +1,4 @@
-use cli::{android::AndroidBuildCommand, BuildContext, SharedBuildCommand};
+use cli::build::{android::AndroidBuildCommand, BuildContext, SharedBuildCommand};
 use crossbundle_tools::{
     commands::gen_minimal_project,
     types::AndroidTarget,
@@ -6,7 +6,8 @@ use crossbundle_tools::{
 };
 
 #[test]
-/// Use bevy minimal project in a temporary directory to test AAB generation. It is working likewise the command below.
+/// Use bevy minimal project in a temporary directory to test AAB generation. 
+/// It is working likewise the command below.
 /// ```sh
 /// crossbundle build android --quad --aab
 /// ```

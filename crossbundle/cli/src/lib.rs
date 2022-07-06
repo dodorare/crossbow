@@ -7,7 +7,7 @@ pub mod error;
 
 use clap::Parser;
 use colored::Colorize;
-pub use commands::{android, BuildContext, Commands, SharedBuildCommand};
+pub use commands::*;
 use crossbundle_tools::utils::{Config, Shell, Verbosity};
 use std::path::PathBuf;
 

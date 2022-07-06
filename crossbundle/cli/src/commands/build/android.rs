@@ -333,9 +333,9 @@ impl AndroidBuildCommand {
                 .link_compiled_res(compiled_res, &apk_path, &manifest_path);
         aapt2_link.android_jar(sdk.android_jar(target_sdk_version)?);
         if let Some(assets) = context.android_assets() {
-            Some(aapt2_link.assets(assets))
+            aapt2_link.assets(assets)
         } else {
-            None
+            &mut aapt2_link
         };
         aapt2_link.proto_format(true).auto_add_overlay(true);
         aapt2_link.run()?;
