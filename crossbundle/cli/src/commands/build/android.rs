@@ -65,7 +65,7 @@ impl AndroidBuildCommand {
         Ok(())
     }
 
-    /// Compile rust code as a dynamic library, generate Gradle project and build generate apk/aab
+    /// Compile rust code as a dynamic library, generate Gradle project
     pub fn build_gradle(
         &self,
         config: &Config,
@@ -224,6 +224,13 @@ impl AndroidBuildCommand {
             target_sdk_version,
         )?;
 
+        let min_sdk_version = android_manifest
+            .uses_sdk
+            .as_ref()
+            .unwrap()
+            .min_sdk_version
+            .unwrap_or(MIN_SDK_VERSION);
+
         config.status("Adding libs into APK file")?;
         for (compiled_lib, build_target) in compiled_libs {
             android::add_libs_into_apk(
@@ -233,12 +240,7 @@ impl AndroidBuildCommand {
                 &compiled_lib,
                 build_target,
                 profile,
-                android_manifest
-                    .uses_sdk
-                    .as_ref()
-                    .unwrap()
-                    .min_sdk_version
-                    .unwrap_or(MIN_SDK_VERSION),
+                min_sdk_version,
                 &android_build_dir,
                 &target_dir,
             )?;
@@ -309,12 +311,12 @@ impl AndroidBuildCommand {
         )?;
 
         config.status_message("Generating", "proto format APK file")?;
-        let compiled_res_path = native_build_dir.join("compiled_res");
-        if !compiled_res_path.exists() {
-            std::fs::create_dir_all(&compiled_res_path)?;
-        }
 
         let compiled_res = if let Some(res) = context.android_res() {
+            let compiled_res_path = native_build_dir.join("compiled_res");
+            if !compiled_res_path.exists() {
+                std::fs::create_dir_all(&compiled_res_path)?;
+            }
             let aapt2_compile = sdk.aapt2()?.compile_incremental(
                 dunce::simplified(&res),
                 dunce::simplified(&compiled_res_path),
@@ -329,11 +331,13 @@ impl AndroidBuildCommand {
         let mut aapt2_link =
             sdk.aapt2()?
                 .link_compiled_res(compiled_res, &apk_path, &manifest_path);
-        aapt2_link
-            .android_jar(sdk.android_jar(target_sdk_version)?)
-            .assets(context.android_assets().unwrap())
-            .proto_format(true)
-            .auto_add_overlay(true);
+        aapt2_link.android_jar(sdk.android_jar(target_sdk_version)?);
+        if let Some(assets) = context.android_assets() {
+            aapt2_link.assets(assets)
+        } else {
+            &mut aapt2_link
+        };
+        aapt2_link.proto_format(true).auto_add_overlay(true);
         aapt2_link.run()?;
 
         config.status("Extracting apk files")?;
@@ -395,8 +399,6 @@ impl AndroidBuildCommand {
         let signed_aab = android_build_dir.join(format!("{}_signed.aab", package_name));
         std::fs::rename(&aab_path, &signed_aab)?;
         let output_aab = signed_aab.file_name().unwrap().to_str().unwrap();
-        println!("output_aab {:?}", output_aab);
-        println!("outputs_build_dir {:?}", outputs_build_dir);
         let aab_output_path = outputs_build_dir.join(output_aab);
         let mut options = fs_extra::file::CopyOptions::new();
         options.overwrite = true;

@@ -7,7 +7,7 @@ pub mod error;
 
 use clap::Parser;
 use colored::Colorize;
-use commands::*;
+pub use commands::*;
 use crossbundle_tools::utils::{Config, Shell, Verbosity};
 use std::path::PathBuf;
 

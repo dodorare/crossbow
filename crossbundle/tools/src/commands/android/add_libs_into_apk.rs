@@ -76,13 +76,9 @@ fn aapt_add_lib(
         .join("libs")
         .join(abi)
         .join(file_name.to_str().unwrap());
-    // FIXME: Is this should just let it do nothing if apk file is not found?
-    // Perhaps throw an error if apk file is not found.
-    if apk_path.exists() {
-        let mut aapt = sdk.build_tool(bin!("aapt"), Some(apk_dir))?;
-        aapt.arg("add").arg(apk_path).arg(add_lib);
-        aapt.output_err(true)?;
-    }
+    let mut aapt = sdk.build_tool(bin!("aapt"), Some(apk_dir))?;
+    aapt.arg("add").arg(apk_path).arg(add_lib);
+    aapt.output_err(true)?;
     Ok(())
 }
 
