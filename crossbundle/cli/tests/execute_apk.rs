@@ -51,6 +51,6 @@ fn test_execute_apk() {
         .join("android")
         .join("example")
         .join("outputs")
-        .join("Example.apk");
+        .join("example.apk");
     assert_eq!(generated_apk_path, expected_path);
 }

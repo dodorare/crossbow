@@ -16,8 +16,12 @@ pub enum Error {
     TeamIdentifierNotProvided,
     /// Invalid manifest
     InvalidManifest,
-    /// Invalid metadata in manifest
-    InvalidManifestMetadata,
+    /// Invalid cargo metadata values
+    InvalidCargoMetadata,
+    /// Invalid metadata in manifest parsed from AppleConfig
+    InvalidAppleConfigMetadata,
+    /// Invalid metadata in manifest parsed from AndroidConfig
+    InvalidAndroidConfigMetadata,
     /// IO error
     Io(#[from] std::io::Error),
     /// Clap error

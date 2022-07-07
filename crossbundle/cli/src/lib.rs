@@ -1,9 +1,9 @@
 #[macro_use]
 extern crate log;
 
-pub mod cargo_manifest;
 pub mod commands;
 pub mod error;
+pub mod types;
 
 use clap::Parser;
 use colored::Colorize;
