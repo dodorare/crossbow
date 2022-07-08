@@ -7,19 +7,19 @@ import com.dodorare.crossbow.plugin.ExposedToCrossbow;
 
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.FullScreenContentCallback;
-import com.google.android.gms.ads.MobileAds; //used for initialize
+import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.LoadAdError;
-import com.google.android.gms.ads.AdRequest; //used for make requests of ads
+import com.google.android.gms.ads.AdRequest;
 
-import com.google.android.gms.ads.AdView; //used to banner ads
-import com.google.android.gms.ads.AdSize; //used to set/get size banner ads
-import com.google.android.gms.ads.AdListener; //used to get events of ads (banner, interstitial)
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdListener;
 
-import com.google.android.gms.ads.interstitial.InterstitialAd; //interstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 
 import com.google.android.gms.ads.RequestConfiguration;
-import com.google.android.gms.ads.rewarded.RewardedAd; //rewardedAd
+import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd;
@@ -178,38 +178,6 @@ public class AdMob extends CrossbowPlugin {
                 emitSignal("initialization_complete", statusGADMobileAds, "GADMobileAds");
             });
         }
-    }
-
-    private void loadConsentForm() {
-        UserMessagingPlatform.loadConsentForm(
-            aActivity,
-            consentForm -> {
-                String consentStatusMsg = "";
-                if (aConsentInformation.getConsentStatus() == ConsentInformation.ConsentStatus.REQUIRED) {
-                    consentForm.show(
-                            aActivity,
-                            formError -> {
-                                loadConsentForm();
-                                emitSignal("consent_form_dismissed");
-                            }
-                    );
-                    consentStatusMsg = "User consent required but not yet obtained.";
-                }
-                switch (aConsentInformation.getConsentStatus()) {
-                    case ConsentInformation.ConsentStatus.UNKNOWN:
-                        consentStatusMsg = "Unknown consent status.";
-                        break;
-                    case ConsentInformation.ConsentStatus.NOT_REQUIRED:
-                        consentStatusMsg = "User consent not required. For example, the user is not in the EEA or the UK.";
-                        break;
-                    case ConsentInformation.ConsentStatus.OBTAINED:
-                        consentStatusMsg = "User consent obtained. Personalization not defined.";
-                        break;
-                }
-                emitSignal("consent_status_changed", consentStatusMsg);
-            },
-            formError -> emitSignal("consent_form_load_failure", formError.getErrorCode(), formError.getMessage())
-        );
     }
 
     @ExposedToCrossbow
@@ -615,6 +583,38 @@ public class AdMob extends CrossbowPlugin {
                 }
             }
         });
+    }
+
+    private void loadConsentForm() {
+        UserMessagingPlatform.loadConsentForm(
+            aActivity,
+            consentForm -> {
+                String consentStatusMsg = "";
+                if (aConsentInformation.getConsentStatus() == ConsentInformation.ConsentStatus.REQUIRED) {
+                    consentForm.show(
+                            aActivity,
+                            formError -> {
+                                loadConsentForm();
+                                emitSignal("consent_form_dismissed");
+                            }
+                    );
+                    consentStatusMsg = "User consent required but not yet obtained.";
+                }
+                switch (aConsentInformation.getConsentStatus()) {
+                    case ConsentInformation.ConsentStatus.UNKNOWN:
+                        consentStatusMsg = "Unknown consent status.";
+                        break;
+                    case ConsentInformation.ConsentStatus.NOT_REQUIRED:
+                        consentStatusMsg = "User consent not required. For example, the user is not in the EEA or the UK.";
+                        break;
+                    case ConsentInformation.ConsentStatus.OBTAINED:
+                        consentStatusMsg = "User consent obtained. Personalization not defined.";
+                        break;
+                }
+                emitSignal("consent_status_changed", consentStatusMsg);
+            },
+            formError -> emitSignal("consent_form_load_failure", formError.getErrorCode(), formError.getMessage())
+        );
     }
 
     private void setMobileAdsRequestConfiguration(boolean pIsForChildDirectedTreatment, String pMaxAdContentRating, boolean pIsReal) {

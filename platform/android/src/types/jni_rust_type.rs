@@ -277,3 +277,59 @@ impl JniRustType {
         Ok(result)
     }
 }
+
+impl ToString for JniRustType {
+    fn to_string(&self) -> String {
+        match self {
+            Self::Void => "".to_owned(),
+            Self::String(s) => s.to_owned(),
+            Self::StringArray(arr) => {
+                let mut result = "".to_owned();
+                for s in arr {
+                    result += &format!("{},", s);
+                }
+                result
+            }
+            Self::Boolean(b) => b.to_string(),
+            Self::Int(i) => i.to_string(),
+            Self::IntArray(arr) => {
+                let mut result = "".to_owned();
+                for i in arr {
+                    result += &format!("{},", i);
+                }
+                result
+            }
+            Self::ByteArray(arr) => std::str::from_utf8(arr).unwrap().to_owned(),
+            Self::Float(f) => f.to_string(),
+            Self::Double(d) => d.to_string(),
+            Self::DoubleArray(arr) => {
+                let mut result = "".to_owned();
+                for i in arr {
+                    result += &format!("{},", i);
+                }
+                result
+            }
+            Self::FloatArray(arr) => {
+                let mut result = "".to_owned();
+                for i in arr {
+                    result += &format!("{},", i);
+                }
+                result
+            }
+            Self::ObjectArray(arr) => {
+                let mut result = "".to_owned();
+                for i in arr {
+                    result += &format!("{},", i.to_string());
+                }
+                result
+            }
+            Self::Map(map) => {
+                let mut result = "".to_owned();
+                for (k, v) in map {
+                    result += &format!("{}:{},", k, v.to_string());
+                }
+                result
+            }
+        }
+    }
+}
