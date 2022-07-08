@@ -10,15 +10,11 @@ keywords = ["tool", "android", "ios"]
 readme = "README.md"
 
 [lib]
-name = "cli"
+name = "crossbundle_lib"
 path = "src/lib.rs"
 
 [[bin]]
 name = "crossbundle"
-path = "src/crossbundle.rs"
-
-[[bin]]
-name = "cargo-crossbundle"
 path = "src/main.rs"
 
 [dependencies]

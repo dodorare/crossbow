@@ -7,6 +7,10 @@ pub type Result<T> = std::result::Result<T, AndroidError>;
 /// Permissions error type.
 #[derive(Display, Debug, Error)]
 pub enum AndroidError {
+    /// Signal Sender with provided singleton name not available
+    SignalSenderNotAvailable(String),
+    /// Singleton with provided name not found or haven't registered
+    SingletonNotRegistered(String),
     /// Unsupported JNI Rust Type
     UnsupportedJniRustType(String),
     /// Wrong JNI Rust Type

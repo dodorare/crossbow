@@ -1,15 +1,13 @@
 [package]
-name = "crossbow-ads"
+name = "crossbow-admob-android"
 version = "0.1.3"
 edition = "2021"
 authors = ["DodoRare Team <support@dodorare.com>"]
 description = "Cross-Platform Rust Toolkit for Games 🏹"
 repository = "https://github.com/dodorare/crossbow"
 license = "Apache-2.0"
-keywords = ["ads", "android", "ios"]
+keywords = ["crossbow", "google", "admob", "android", "ads"]
 readme = "README.md"
 
 [dependencies]
-
-[target.'cfg(target_os = "android")'.dependencies]
-jni = "0.19"
+crossbow-android = { path = "../../platform/android", version = "0.1.3" }

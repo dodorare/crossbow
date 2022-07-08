@@ -16,6 +16,7 @@ anyhow = "1.0"
 jni = "0.19"
 ndk-context = "0.1"
 lazy_static = "1.4"
+async-channel = "1.6"
 
 [package.metadata]
 app_name = "crossbow_android"

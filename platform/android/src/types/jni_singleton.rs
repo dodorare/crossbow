@@ -1,3 +1,5 @@
+use super::JniRustType;
+use async_channel::Receiver;
 use jni::{
     errors::*,
     objects::{GlobalRef, JClass, JObject, JValue},
@@ -8,9 +10,17 @@ use std::collections::HashMap;
 
 #[derive(Clone)]
 pub struct JniSingleton {
+    name: String,
     instance: GlobalRef,
     methods: HashMap<String, JniSingletonMethod>,
     signals: HashMap<String, Vec<JavaType>>,
+    receiver: Receiver<Signal>,
+}
+
+#[derive(Clone, Debug)]
+pub struct Signal {
+    pub signal_name: String,
+    pub args: Vec<JniRustType>,
 }
 
 #[derive(Clone)]
@@ -20,16 +30,26 @@ pub struct JniSingletonMethod {
 }
 
 impl JniSingleton {
-    pub fn new(instance: GlobalRef) -> Self {
+    pub fn new(name: &str, instance: GlobalRef, receiver: Receiver<Signal>) -> Self {
         Self {
+            name: name.to_string(),
             instance,
             methods: HashMap::new(),
             signals: HashMap::new(),
+            receiver,
         }
     }
 
     pub fn get_instance(&self) -> JObject {
         self.instance.as_obj()
+    }
+
+    pub fn get_name(&self) -> &str {
+        &self.name
+    }
+
+    pub fn get_receiver(&self) -> &Receiver<Signal> {
+        &self.receiver
     }
 
     pub fn get_method(&self, name: &str) -> Option<&JniSingletonMethod> {
@@ -40,9 +60,13 @@ impl JniSingleton {
         &self.methods
     }
 
-    pub fn add_method(&mut self, name: &str, class: GlobalRef, signature: TypeSignature) {
+    pub(crate) fn add_method(&mut self, name: &str, class: GlobalRef, signature: TypeSignature) {
         self.methods
             .insert(name.to_owned(), JniSingletonMethod { class, signature });
+    }
+
+    pub(crate) fn add_signal_info(&mut self, name: &str, args: Vec<JavaType>) {
+        self.signals.insert(name.to_owned(), args);
     }
 
     pub fn call_method<'a>(
@@ -68,14 +92,5 @@ impl JniSingleton {
             args,
         )?;
         Ok(result)
-    }
-
-    pub fn add_signal(&mut self, name: &str, args: Vec<JavaType>) {
-        self.signals.insert(name.to_owned(), args);
-    }
-
-    pub fn emit_signal(&mut self, name: &str, args: Vec<JValue>) {
-        // self.signals.insert(name.to_owned(), args);
-        println!("emit_signal: {}; args: {:?}", name, args);
     }
 }

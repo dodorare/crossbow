@@ -45,6 +45,15 @@ async fn main() -> anyhow::Result<()> {
         }
     };
 
+    let (_, vm) = create_java_vm().unwrap();
+    let jnienv = vm.attach_current_thread_as_daemon().unwrap();
+
+    let admob_singleton =
+        plugin::get_jni_singleton("AdMob").expect("Crossbow Error: AdMob is not registered");
+    let admob =
+        crossbow_admob_android::AdMobPlugin::from_singleton_and_jnienv(admob_singleton, jnienv)
+            .unwrap();
+
     let window_skin = skin.clone();
     loop {
         clear_background(WHITE);
@@ -58,34 +67,24 @@ async fn main() -> anyhow::Result<()> {
                 request_permission(AndroidPermission::ReadExternalStorage).unwrap();
             }
             if ui.button(vec2(-15.0, 450.0), "Show ad") {
-                let jni_singleton_guard = crossbow_plugin::get_jni_singletons();
-                let admob = jni_singleton_guard
-                    .get("AdMob")
-                    .expect("Crossbow Error: AdMob is not registered");
-                // println!("Crossbow AdMob Methods: {:?}", admob.get_methods());
+                if !admob.get_is_initialized().unwrap() {
+                    println!("calling initialize()");
+                    admob.initialize(true, "G", false, true).unwrap();
+                }
 
-                let (_, vm) = create_java_vm().unwrap();
-                let jnienv = vm.attach_current_thread().unwrap();
+                if admob.get_is_initialized().unwrap()
+                    && !admob.get_is_interstitial_loaded().unwrap()
+                {
+                    println!("calling load_interstitial()");
+                    admob
+                        .load_interstitial("ca-app-pub-3940256099942544/1033173712")
+                        .unwrap();
+                }
 
-                let g_str = jnienv.new_string("G".to_string()).unwrap();
-                admob
-                    .call_method(
-                        &jnienv,
-                        "initialize",
-                        &[true.into(), g_str.into(), false.into(), true.into()],
-                    )
-                    .unwrap();
-
-                let ad_id = jnienv
-                    .new_string("ca-app-pub-3940256099942544/1033173712".to_string())
-                    .unwrap();
-                admob
-                    .call_method(&jnienv, "load_interstitial", &[ad_id.into()])
-                    .unwrap();
-
-                admob
-                    .call_method(&jnienv, "show_interstitial", &[])
-                    .unwrap();
+                if admob.get_is_interstitial_loaded().unwrap() {
+                    println!("calling show_interstitial()");
+                    admob.show_interstitial().unwrap();
+                }
             }
         });
         root_ui().pop_skin();

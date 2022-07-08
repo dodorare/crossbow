@@ -79,27 +79,6 @@ public class AdMob extends CrossbowPlugin {
         super(crossbow);
     }
 
-    @ExposedToCrossbow
-    public boolean get_is_initialized() {
-        return aIsInitialized;
-    }
-    @ExposedToCrossbow
-    public boolean get_is_banner_loaded() {
-        return aIsBannerLoaded;
-    }
-    @ExposedToCrossbow
-    public boolean get_is_interstitial_loaded() {
-        return aIsInterstitialLoaded;
-    }
-    @ExposedToCrossbow
-    public boolean get_is_rewarded_loaded() {
-        return aIsRewardedLoaded;
-    }
-    @ExposedToCrossbow
-    public boolean get_is_rewarded_interstitial_loaded() {
-        return aIsRewardedInterstitialLoaded;
-    }
-
     @Override
     public View onMainCreate(Activity pActivity) {
         aActivity = pActivity;
@@ -118,7 +97,7 @@ public class AdMob extends CrossbowPlugin {
     public Set<SignalInfo> getPluginSignals() {
         Set<SignalInfo> signals = new ArraySet<>();
 
-        signals.add(new SignalInfo("initialization_complete", Integer.class, String.class, Double.class));
+        signals.add(new SignalInfo("initialization_complete", Integer.class, String.class));
 
         signals.add(new SignalInfo("consent_form_dismissed"));
         signals.add(new SignalInfo("consent_status_changed", String.class));
@@ -158,6 +137,27 @@ public class AdMob extends CrossbowPlugin {
     }
 
     @ExposedToCrossbow
+    public boolean get_is_initialized() {
+        return aIsInitialized;
+    }
+    @ExposedToCrossbow
+    public boolean get_is_banner_loaded() {
+        return aIsBannerLoaded;
+    }
+    @ExposedToCrossbow
+    public boolean get_is_interstitial_loaded() {
+        return aIsInterstitialLoaded;
+    }
+    @ExposedToCrossbow
+    public boolean get_is_rewarded_loaded() {
+        return aIsRewardedLoaded;
+    }
+    @ExposedToCrossbow
+    public boolean get_is_rewarded_interstitial_loaded() {
+        return aIsRewardedInterstitialLoaded;
+    }
+
+    @ExposedToCrossbow
     public void initialize(boolean pIsForChildDirectedTreatment, String pMaxAdContentRating, boolean pIsReal, boolean pIsTestEuropeUserConsent) {
         if (!aIsInitialized){
             aIsForChildDirectedTreatment = pIsForChildDirectedTreatment;
@@ -175,7 +175,7 @@ public class AdMob extends CrossbowPlugin {
                     aIsInitialized = true;
                 }
 
-                emitSignal("initialization_complete", statusGADMobileAds, "CROSSGADMobileAds", 1123.1231);
+                emitSignal("initialization_complete", statusGADMobileAds, "GADMobileAds");
             });
         }
     }
@@ -246,60 +246,6 @@ public class AdMob extends CrossbowPlugin {
     @ExposedToCrossbow
     public void reset_consent_state() {
         aConsentInformation.reset(); //https://developers.google.com/admob/ump/android/quick-start#reset_consent_state
-    }
-
-    private void setMobileAdsRequestConfiguration(boolean pIsForChildDirectedTreatment, String pMaxAdContentRating, boolean pIsReal) {
-        RequestConfiguration requestConfiguration;
-        RequestConfiguration.Builder requestConfigurationBuilder = new RequestConfiguration.Builder();
-
-        if (!pIsReal) {
-            requestConfigurationBuilder.setTestDeviceIds(Collections.singletonList(getDeviceId()));
-        }
-
-        requestConfigurationBuilder.setTagForChildDirectedTreatment(pIsForChildDirectedTreatment ? 1 : 0);
-
-        if (pIsForChildDirectedTreatment) {
-            requestConfigurationBuilder.setMaxAdContentRating(RequestConfiguration.MAX_AD_CONTENT_RATING_G);
-        } else {
-            switch (pMaxAdContentRating) {
-                case RequestConfiguration.MAX_AD_CONTENT_RATING_G:
-                case RequestConfiguration.MAX_AD_CONTENT_RATING_MA:
-                case RequestConfiguration.MAX_AD_CONTENT_RATING_PG:
-                case RequestConfiguration.MAX_AD_CONTENT_RATING_T:
-                case RequestConfiguration.MAX_AD_CONTENT_RATING_UNSPECIFIED:
-                    requestConfigurationBuilder.setMaxAdContentRating(pMaxAdContentRating);
-                    break;
-            }
-        }
-
-        requestConfiguration = requestConfigurationBuilder.build();
-
-        MobileAds.setRequestConfiguration(requestConfiguration);
-    }
-
-    private AdRequest getAdRequest() {
-        AdRequest.Builder adRequestBuilder = new AdRequest.Builder();
-
-        return adRequestBuilder.build();
-    }
-
-    private Rect getSafeArea() {
-        final Rect safeInsetRect = new Rect();
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-            return safeInsetRect;
-        }
-
-        final WindowInsets windowInsets = aActivity.getWindow().getDecorView().getRootWindowInsets();
-        if (windowInsets == null) {
-            return safeInsetRect;
-        }
-
-        final DisplayCutout displayCutout = windowInsets.getDisplayCutout();
-        if (displayCutout != null) {
-            safeInsetRect.set(displayCutout.getSafeInsetLeft(), displayCutout.getSafeInsetTop(), displayCutout.getSafeInsetRight(), displayCutout.getSafeInsetBottom());
-        }
-
-        return safeInsetRect;
     }
 
     // BANNER only one is allowed, please do not try to place more than one, as your ads on the app may have the chance to be banned!
@@ -403,24 +349,6 @@ public class AdMob extends CrossbowPlugin {
             }
         });
     }
-    private AdSize getAdSizeAdaptive() {
-        // Determine the screen width (less decorations) to use for the ad width.
-        Display display = aActivity.getWindowManager().getDefaultDisplay();
-        DisplayMetrics outMetrics = new DisplayMetrics();
-        display.getMetrics(outMetrics);
-
-        float density = outMetrics.density;
-
-        float adWidthPixels = aCrossbowLayout.getWidth();
-
-        // If the ad hasn't been laid out, default to the full screen width.
-        if (adWidthPixels == 0) {
-            adWidthPixels = outMetrics.widthPixels;
-        }
-
-        int adWidth = (int) (adWidthPixels / density);
-        return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(aActivity, adWidth);
-    }
 
     @ExposedToCrossbow
     public void destroy_banner()//IF THIS METHOD IS CALLED ON CROSSBOW, THE BANNER WILL ONLY APPEAR AGAIN IF THE BANNER IS LOADED AGAIN
@@ -436,6 +364,7 @@ public class AdMob extends CrossbowPlugin {
             }
         });
     }
+
     @ExposedToCrossbow
     public void show_banner()
     {
@@ -448,6 +377,7 @@ public class AdMob extends CrossbowPlugin {
             }
         });
     }
+
     @ExposedToCrossbow
     public void hide_banner()
     {
@@ -492,7 +422,6 @@ public class AdMob extends CrossbowPlugin {
         }
         return 0;
     }
-
 
     // BANNER
     // INTERSTITIAL
@@ -545,6 +474,7 @@ public class AdMob extends CrossbowPlugin {
             }
         });
     }
+
     @ExposedToCrossbow
     public void show_interstitial()
     {
@@ -556,6 +486,7 @@ public class AdMob extends CrossbowPlugin {
             }
         });
     }
+
     //INTERSTITIAL
     //REWARDED
     @ExposedToCrossbow
@@ -684,6 +615,79 @@ public class AdMob extends CrossbowPlugin {
                 }
             }
         });
+    }
+
+    private void setMobileAdsRequestConfiguration(boolean pIsForChildDirectedTreatment, String pMaxAdContentRating, boolean pIsReal) {
+        RequestConfiguration requestConfiguration;
+        RequestConfiguration.Builder requestConfigurationBuilder = new RequestConfiguration.Builder();
+
+        if (!pIsReal) {
+            requestConfigurationBuilder.setTestDeviceIds(Collections.singletonList(getDeviceId()));
+        }
+
+        requestConfigurationBuilder.setTagForChildDirectedTreatment(pIsForChildDirectedTreatment ? 1 : 0);
+
+        if (pIsForChildDirectedTreatment) {
+            requestConfigurationBuilder.setMaxAdContentRating(RequestConfiguration.MAX_AD_CONTENT_RATING_G);
+        } else {
+            switch (pMaxAdContentRating) {
+                case RequestConfiguration.MAX_AD_CONTENT_RATING_G:
+                case RequestConfiguration.MAX_AD_CONTENT_RATING_MA:
+                case RequestConfiguration.MAX_AD_CONTENT_RATING_PG:
+                case RequestConfiguration.MAX_AD_CONTENT_RATING_T:
+                case RequestConfiguration.MAX_AD_CONTENT_RATING_UNSPECIFIED:
+                    requestConfigurationBuilder.setMaxAdContentRating(pMaxAdContentRating);
+                    break;
+            }
+        }
+
+        requestConfiguration = requestConfigurationBuilder.build();
+
+        MobileAds.setRequestConfiguration(requestConfiguration);
+    }
+
+    private AdRequest getAdRequest() {
+        AdRequest.Builder adRequestBuilder = new AdRequest.Builder();
+
+        return adRequestBuilder.build();
+    }
+
+    private Rect getSafeArea() {
+        final Rect safeInsetRect = new Rect();
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            return safeInsetRect;
+        }
+
+        final WindowInsets windowInsets = aActivity.getWindow().getDecorView().getRootWindowInsets();
+        if (windowInsets == null) {
+            return safeInsetRect;
+        }
+
+        final DisplayCutout displayCutout = windowInsets.getDisplayCutout();
+        if (displayCutout != null) {
+            safeInsetRect.set(displayCutout.getSafeInsetLeft(), displayCutout.getSafeInsetTop(), displayCutout.getSafeInsetRight(), displayCutout.getSafeInsetBottom());
+        }
+
+        return safeInsetRect;
+    }
+
+    private AdSize getAdSizeAdaptive() {
+        // Determine the screen width (less decorations) to use for the ad width.
+        Display display = aActivity.getWindowManager().getDefaultDisplay();
+        DisplayMetrics outMetrics = new DisplayMetrics();
+        display.getMetrics(outMetrics);
+
+        float density = outMetrics.density;
+
+        float adWidthPixels = aCrossbowLayout.getWidth();
+
+        // If the ad hasn't been laid out, default to the full screen width.
+        if (adWidthPixels == 0) {
+            adWidthPixels = outMetrics.widthPixels;
+        }
+
+        int adWidth = (int) (adWidthPixels / density);
+        return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(aActivity, adWidth);
     }
 
     /**

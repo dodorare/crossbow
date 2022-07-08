@@ -1,9 +1,9 @@
-pub(crate) mod crossbow_lib;
+pub(crate) mod externs;
 pub(crate) mod utils;
 
-pub mod crossbow_plugin;
 pub mod error;
 pub mod permission;
+pub mod plugin;
 pub mod types;
 
 pub use jni;
