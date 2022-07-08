@@ -155,9 +155,7 @@ impl BuildContext {
                 android_manifest
                     .version_name
                     .unwrap_or_else(|| self.package_version()),
-                android_manifest
-                    .version_code
-                    .unwrap_or(MIN_SDK_VERSION),
+                android_manifest.version_code.unwrap_or(MIN_SDK_VERSION),
                 android_manifest.min_sdk_version,
                 android_manifest
                     .target_sdk_version
