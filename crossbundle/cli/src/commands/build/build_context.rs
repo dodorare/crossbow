@@ -67,7 +67,7 @@ impl BuildContext {
 
     /// Get target sdk version from cargo manifest
     pub fn target_sdk_version(&self, sdk: &AndroidSdk) -> u32 {
-        if let Some(target_sdk_version) = self.android_config.android_target_sdk_version {
+        if let Some(target_sdk_version) = self.android_config.target_sdk_version {
             return target_sdk_version;
         };
         sdk.default_platform()
@@ -116,26 +116,22 @@ impl BuildContext {
         gradle: bool,
     ) -> Result<AndroidManifest> {
         let android_manifest = AndroidConfig {
-            android_app_name: self.android_config.android_app_name.clone(),
-            android_version_name: Some(
+            app_name: self.android_config.app_name.clone(),
+            version_name: Some(
                 self.android_config
-                    .android_version_name
+                    .version_name
                     .clone()
                     .unwrap_or_else(|| self.package_version()),
             ),
-            android_version_code: Some(
+            version_code: Some(self.android_config.version_code.unwrap_or(MIN_SDK_VERSION)),
+            min_sdk_version: self.android_config.min_sdk_version,
+            target_sdk_version: Some(
                 self.android_config
-                    .android_version_code
-                    .unwrap_or(MIN_SDK_VERSION),
-            ),
-            android_min_sdk_version: self.android_config.android_min_sdk_version,
-            android_target_sdk_version: Some(
-                self.android_config
-                    .android_target_sdk_version
+                    .target_sdk_version
                     .unwrap_or_else(|| sdk.default_platform()),
             ),
-            android_max_sdk_version: self.android_config.android_max_sdk_version,
-            android_icon: self.android_config.android_icon.clone(),
+            max_sdk_version: self.android_config.max_sdk_version,
+            icon: self.android_config.icon.clone(),
             android_permissions_sdk_23: self.android_config.android_permissions_sdk_23.clone(),
             android_permissions: self.android_config.android_permissions.clone(),
             android_features: self.android_config.android_features.clone(),
@@ -155,19 +151,19 @@ impl BuildContext {
             let manifest = gen_manifest::gen_android_manifest(
                 Some(format!("com.rust.{}", package_name).replace('-', "_")),
                 package_name.to_string(),
-                android_manifest.android_app_name,
+                android_manifest.app_name,
                 android_manifest
-                    .android_version_name
+                    .version_name
                     .unwrap_or_else(|| self.package_version()),
                 android_manifest
-                    .android_version_code
+                    .version_code
                     .unwrap_or(MIN_SDK_VERSION),
-                android_manifest.android_min_sdk_version,
+                android_manifest.min_sdk_version,
                 android_manifest
-                    .android_target_sdk_version
+                    .target_sdk_version
                     .unwrap_or_else(|| sdk.default_platform()),
-                android_manifest.android_max_sdk_version,
-                android_manifest.android_icon,
+                android_manifest.max_sdk_version,
+                android_manifest.icon,
                 debuggable,
                 android_manifest.android_permissions_sdk_23,
                 android_manifest.android_permissions,
@@ -193,9 +189,9 @@ impl BuildContext {
         } else {
             Ok(apple::gen_minimal_info_plist(
                 package_name,
-                self.apple_config.apple_app_name.clone(),
+                self.apple_config.app_name.clone(),
                 self.apple_config
-                    .apple_version_name
+                    .version_name
                     .clone()
                     .unwrap_or_else(|| self.package_version()),
             ))

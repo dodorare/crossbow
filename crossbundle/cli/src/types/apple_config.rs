@@ -4,13 +4,13 @@ use std::path::PathBuf;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct AppleConfig {
-    pub apple_app_name: Option<String>,
-    pub apple_version_name: Option<String>,
-    pub apple_version_code: Option<u32>,
-    pub apple_min_sdk_version: Option<u32>,
-    pub apple_target_sdk_version: Option<u32>,
-    pub apple_max_sdk_version: Option<u32>,
-    pub apple_icon: Option<String>,
+    pub app_name: Option<String>,
+    pub version_name: Option<String>,
+    pub version_code: Option<u32>,
+    pub min_sdk_version: Option<u32>,
+    pub target_sdk_version: Option<u32>,
+    pub max_sdk_version: Option<u32>,
+    pub icon: Option<String>,
 
     #[serde(default)]
     pub use_info_plist: bool,

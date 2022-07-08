@@ -9,7 +9,7 @@ edition = "2021"
 crossbow = { git = "https://github.com/dodorare/crossbow" }
 
 [package.metadata]
-app_name = "Example"
+app_name = "example"
 version_code = 1
 target_sdk_version = 30
 "#;
@@ -29,7 +29,7 @@ anyhow = "1.0"
 macroquad = "0.3.7"
 
 [package.metadata]
-app_name = "Example"
+app_name = "example"
 target_sdk_version = 30
 version_code = 1
 "#;

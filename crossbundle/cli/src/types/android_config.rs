@@ -4,13 +4,13 @@ use std::path::PathBuf;
 
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct AndroidConfig {
-    pub android_app_name: Option<String>,
-    pub android_version_name: Option<String>,
-    pub android_version_code: Option<u32>,
-    pub android_min_sdk_version: Option<u32>,
-    pub android_target_sdk_version: Option<u32>,
-    pub android_max_sdk_version: Option<u32>,
-    pub android_icon: Option<String>,
+    pub app_name: Option<String>,
+    pub version_name: Option<String>,
+    pub version_code: Option<u32>,
+    pub min_sdk_version: Option<u32>,
+    pub target_sdk_version: Option<u32>,
+    pub max_sdk_version: Option<u32>,
+    pub icon: Option<String>,
 
     #[serde(default)]
     pub use_android_manifest: bool,
