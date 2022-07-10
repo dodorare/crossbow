@@ -131,7 +131,7 @@ impl JniRustType {
     pub fn len(&self) -> usize {
         match self {
             Self::Void => 0,
-            Self::String(_) => 1,
+            Self::String(s) => s.len(),
             Self::StringArray(s) => s.len(),
             Self::Boolean(_) => 1,
             Self::Int(_) => 1,
@@ -146,7 +146,14 @@ impl JniRustType {
         }
     }
 
-    // TODO: Test this function. It's not tested yet. And possibly can fall with errors.
+    pub fn is_empty(&self) -> bool {
+        match self {
+            Self::Void => true,
+            _ => self.len() > 0,
+        }
+    }
+
+    // TODO: Test this function. It's not tested yet and possibly can fall with errors.
     pub fn from_jobject(env: &JNIEnv, obj: JObject) -> Result<Self> {
         let class = env.get_object_class(obj)?;
         let name = get_class_name(env, class)?;
@@ -286,7 +293,7 @@ impl ToString for JniRustType {
             Self::StringArray(arr) => {
                 let mut result = "".to_owned();
                 for s in arr {
-                    result += &format!("{},", s);
+                    result = format!("{}{},", result, s);
                 }
                 result
             }
@@ -295,7 +302,7 @@ impl ToString for JniRustType {
             Self::IntArray(arr) => {
                 let mut result = "".to_owned();
                 for i in arr {
-                    result += &format!("{},", i);
+                    result = format!("{}{},", result, i);
                 }
                 result
             }
@@ -305,28 +312,28 @@ impl ToString for JniRustType {
             Self::DoubleArray(arr) => {
                 let mut result = "".to_owned();
                 for i in arr {
-                    result += &format!("{},", i);
+                    result = format!("{}{},", result, i);
                 }
                 result
             }
             Self::FloatArray(arr) => {
                 let mut result = "".to_owned();
                 for i in arr {
-                    result += &format!("{},", i);
+                    result = format!("{}{},", result, i);
                 }
                 result
             }
             Self::ObjectArray(arr) => {
                 let mut result = "".to_owned();
                 for i in arr {
-                    result += &format!("{},", i.to_string());
+                    result = format!("{}{},", result, i.to_string());
                 }
                 result
             }
             Self::Map(map) => {
                 let mut result = "".to_owned();
                 for (k, v) in map {
-                    result += &format!("{}:{},", k, v.to_string());
+                    result = format!("{}{}:{},", result, k, v.to_string());
                 }
                 result
             }

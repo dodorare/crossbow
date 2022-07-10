@@ -39,10 +39,10 @@ pub fn get_jni_singleton(singleton_name: &str) -> Option<Arc<JniSingleton>> {
 
 pub fn get_jni_singleton_with_error(singleton_name: &str) -> Result<Arc<JniSingleton>> {
     if let Some(jni_signleton) = get_jni_singleton(singleton_name) {
-        Ok(jni_signleton.clone())
+        Ok(jni_signleton)
     } else {
         Err(AndroidError::SingletonNotRegistered(
-            singleton_name.to_owned().into(),
+            singleton_name.to_owned(),
         ))
     }
 }

@@ -89,6 +89,7 @@ impl AndroidBuildCommand {
             &android_build_dir,
             context.android_res(),
             context.android_assets(),
+            &[],
         )?;
 
         // Get AndroidManifest.xml from file or generate from Cargo.toml
