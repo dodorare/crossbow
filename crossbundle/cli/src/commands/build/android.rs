@@ -1,3 +1,5 @@
+use crate::types::MIN_SDK_VERSION;
+
 use super::{BuildContext, SharedBuildCommand};
 use android_manifest::AndroidManifest;
 use android_tools::java_tools::{AabKey, JarSigner};
@@ -9,8 +11,6 @@ use crossbundle_tools::{
     utils::Config,
 };
 use std::path::{Path, PathBuf};
-
-const MIN_SDK_VERSION: u32 = 9;
 
 /// Specifies flags and options needed to build application
 #[derive(Parser, Clone, Debug)]

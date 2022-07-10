@@ -7,7 +7,7 @@ mod align_apk;
 mod attach_logger;
 mod detect_abi;
 mod extract_apk;
-mod generate;
+pub mod generate;
 mod gradle_command;
 mod helper_functions;
 mod install_apk;

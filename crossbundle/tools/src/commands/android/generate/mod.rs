@@ -1,7 +1,7 @@
 mod gen_aab_from_modules;
 mod gen_gradle_project;
 mod gen_key;
-mod gen_manifest;
+pub mod gen_manifest;
 mod gen_minimal_unsigned_aab;
 mod gen_unaligned_apk;
 mod gen_zip_modules;
