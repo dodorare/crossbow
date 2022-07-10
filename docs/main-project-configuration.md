@@ -45,12 +45,11 @@ But sometimes you need to configure something more complex. For such cases, a mo
 To enable this feature, you just need to add this to your `Cargo.toml`:
 
 ```toml
-[package.metadata]
-use_android_manfiest = true
-# android_manifest_path = "/path/to/file"
+[package.metadata.android]
+manifest_path = "/path/to/file"
 
-use_info_plist = true
-# info_plist_path = "/path/to/file"
+[package.metadata.apple]
+info_plist_path = "/path/to/file"
 ```
 
 and then place `AndroidManifest.xml` or/and `Info.plist` near `Cargo.toml`
@@ -68,7 +67,6 @@ and then place `AndroidManifest.xml` or/and `Info.plist` near `Cargo.toml`
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <application android:allowBackup="true"
-        android:debuggable="true"
         android:hasCode="false"
         android:icon="@mipmap/ic_launcher"
         android:label="Game"

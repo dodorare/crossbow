@@ -326,14 +326,14 @@ impl Display for JniRustType {
             Self::ObjectArray(arr) => {
                 let mut result = "".to_owned();
                 for i in arr {
-                    result = format!("{}{},", result, i.to_string());
+                    result = format!("{}{},", result, i);
                 }
                 result
             }
             Self::Map(map) => {
                 let mut result = "".to_owned();
                 for (k, v) in map {
-                    result = format!("{}{}:{},", result, k, v.to_string());
+                    result = format!("{}{}:{},", result, k, v);
                 }
                 result
             }

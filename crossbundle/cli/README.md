@@ -46,6 +46,7 @@ More information about how to set up the environment in the **Android setup** an
 ## ⚙️ Cargo.toml Metadata syntax
 
 ```toml
+[[package.metadata.android]]
 # The user-friendly application name for your app. Displayed in the applications menu
 app_name = "Example"
 # The version number shown to users
@@ -62,37 +63,33 @@ max_sdk_version = 31
 # Virtual path your application's icon as mipmap resource.
 icon = "ic_launcher"
 
-# Use Android.manifest file or generate from Cargo.toml
-use_android_manifest = true
-# Path to Android.manifest file
-android_manifest_path = "path/to/AndroidManifest.xml"
-
-# Use Info.plist file or generate from Cargo.toml
-use_info_plist = true
-# Path to Info.plist file
-info_plist_path = "path/to/Info.plist"
+# Path to AndroidManifest.xml file
+manifest_path = "path/to/AndroidManifest.xml"
 
 # Android package to place in AndroidManifest.xml.
-android_package = "com.example.ExampleProject"
+package = "com.example.ExampleProject"
 # Android resources directory path relatively to project path.
-android_res = "res/android"
+res = "res/android"
 # Android assets directory path relatively to project path.
-android_assets = "assets"
+assets = "assets"
 # Android build targets.
-android_build_targets = ["aarch64-linux-android"]
-
-# Apple build targets.
-apple_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
-# Apple resources directory path relatively to project path.
-apple_res = "res/apple"
-# Apple assets directory path relatively to project path.
-apple_assets = "assets"
+build_targets = ["aarch64-linux-android"]
 
 # Adds a uses-permission element to the AndroidManifest.xml.
 # Note that android_version 23 and higher, Android requires the application to request permissions at runtime.
-[[package.metadata.android_permissions]]
+[[package.metadata.android.permissions]]
 name = "android.permission.INTERNET"
 max_sdk_version = 21
+
+[package.metadata.apple]
+# The user-friendly application name for your app. Displayed in the applications menu
+app_name = "Example"
+# Apple build targets.
+build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
+# Apple resources directory path relatively to project path.
+res = "res/apple"
+# Apple assets directory path relatively to project path.
+assets = "assets"
 ```
 
 ## 🎏 CLI options and flags
