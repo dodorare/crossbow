@@ -13,19 +13,25 @@ macroquad = "0.3.7"
 async-executor = "1.4.1"
 futures-lite = "1.12.0"
 
-[package.metadata]
+[package.metadata.android]
 app_name = "Macroquad_Permissions"
 target_sdk_version = 30
 version_code = 1
 icon = "ic_launcher"
 
-android_build_targets = ["aarch64-linux-android"]
-android_assets = "assets"
-android_res = "res/android"
+build_targets = ["aarch64-linux-android"]
+assets = "assets"
+res = "res/android"
 
-apple_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
-apple_assets = "assets"
-apple_res = "res/apple"
+[package.metadata.apple]
+app_name = "Macroquad_Permissions"
+target_sdk_version = 30
+version_code = 1
+icon = "ic_launcher"
+
+build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
+assets = "assets"
+res = "res/apple"
 
 [[package.metadata.android_permissions]]
 name = "android.permission.READ_EXTERNAL_STORAGE"

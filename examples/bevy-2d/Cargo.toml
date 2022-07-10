@@ -10,24 +10,22 @@ log = "0.4"
 anyhow = "1.0"
 bevy = { version = "0.7.0", features = ["mp3"] }
 
-[package.metadata]
+[package.metadata.android]
 app_name = "Bevy 2D"
 version_code = 1
 target_sdk_version = 30
 icon = "ic_launcher"
 
-android_build_targets = ["aarch64-linux-android"]
-android_assets = "assets"
-android_res = "res/android"
+build_targets = ["aarch64-linux-android"]
+assets = "assets"
+res = "res/android"
 
-apple_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
-apple_assets = "assets"
-apple_res = "res/apple"
+[package.metadata.apple]
+app_name = "Bevy 2D"
+version_code = 1
+target_sdk_version = 30
+icon = "ic_launcher"
 
-[[package.metadata.android_permissions]]
-name = "android.permission.INTERNET"
-
-[[package.metadata.android_service]]
-name = "UpdateService"
-intent_filter = []
-meta_data = []
+build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
+assets = "assets"
+res = "res/apple"

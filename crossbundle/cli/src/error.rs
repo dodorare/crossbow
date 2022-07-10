@@ -18,10 +18,8 @@ pub enum Error {
     InvalidManifest,
     /// Invalid cargo metadata values
     InvalidCargoMetadata,
-    /// Invalid metadata in manifest parsed from AppleConfig
-    InvalidAppleConfigMetadata,
-    /// Invalid metadata in manifest parsed from AndroidConfig
-    InvalidAndroidConfigMetadata,
+    /// Invalid metadata in manifest
+    InvalidMetadata,
     /// IO error
     Io(#[from] std::io::Error),
     /// Clap error

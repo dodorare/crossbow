@@ -37,7 +37,7 @@ impl BuildContext {
         let metadata = cargo_metadata
             .clone()
             .try_into::<Metadata>()
-            .map_err(|_| Error::InvalidAndroidConfigMetadata)?;
+            .map_err(|_| Error::InvalidMetadata)?;
         Ok(Self {
             workspace_manifest_path,
             package_manifest_path,
