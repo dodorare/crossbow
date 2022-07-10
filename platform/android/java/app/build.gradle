@@ -39,13 +39,13 @@ dependencies {
 
     if (rootProject.findProject(":lib")) {
         implementation project(":lib")
-    } else if (rootProject.findProject(":crossbow:lib")) {
-        implementation project(":crossbow:lib")
-    } else {
-        // Custom build mode. In this scenario this project is the only one around and the Crossbow
-        // library is available through the pre-generated crossbow-lib.*.aar android archive files.
-        debugImplementation fileTree(dir: "../libs/debug", include: ["*.jar", "*.aar"])
-        releaseImplementation fileTree(dir: "../libs/release", include: ["*.jar", "*.aar"])
+    // } else if (rootProject.findProject(":crossbow:lib")) {
+    //     implementation project(":crossbow:lib")
+    // } else {
+    //     // Custom build mode. In this scenario this project is the only one around and the Crossbow
+    //     // library is available through the pre-generated crossbow-lib.*.aar android archive files.
+    //     debugImplementation fileTree(dir: "../libs/debug", include: ["*.jar", "*.aar"])
+    //     releaseImplementation fileTree(dir: "../libs/release", include: ["*.jar", "*.aar"])
     }
 
     // Crossbow plugins remote dependencies

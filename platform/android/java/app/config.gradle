@@ -119,7 +119,7 @@ ext.getCrossbowPluginsRemoteBinaries = { ->
 
 /**
  * Parse the project properties for the 'plugins_local_binaries' property and return
- * their binaries for inclusion in the build dependencies.
+ * their paths to binaries for inclusion in the build dependencies.
  */
 ext.getCrossbowPluginsLocalBinaries = { ->
     Set<String> binDeps = []
@@ -137,7 +137,7 @@ ext.getCrossbowPluginsLocalBinaries = { ->
 
 /**
  * Parse the project properties for the 'plugins_local_projects' property and return
- * their binaries for inclusion in the build dependencies.
+ * their paths to projects for inclusion in the build dependencies.
  */
 ext.getCrossbowPluginsLocalProjects = { ->
     Set<String> projectDeps = []

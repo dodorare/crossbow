@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 crossbow = { git = "https://github.com/dodorare/crossbow" }
 
-[package.metadata]
+[package.metadata.android]
 app_name = "example"
 version_code = 1
 target_sdk_version = 30
@@ -28,7 +28,7 @@ crossbow = { git = "https://github.com/dodorare/crossbow" }
 anyhow = "1.0"
 macroquad = "0.3.7"
 
-[package.metadata]
+[package.metadata.android]
 app_name = "example"
 target_sdk_version = 30
 version_code = 1

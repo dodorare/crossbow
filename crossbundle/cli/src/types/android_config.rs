@@ -1,4 +1,7 @@
-use crossbundle_tools::types::{android_manifest::*, AndroidTarget};
+use crossbundle_tools::{
+    commands::android::AndroidGradlePlugins,
+    types::{android_manifest::*, AndroidTarget},
+};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
@@ -39,4 +42,6 @@ pub struct AndroidConfig {
     pub assets: Option<PathBuf>,
     /// Android build targets.
     pub build_targets: Option<Vec<AndroidTarget>>,
+    #[serde(flatten)]
+    pub plugins: AndroidGradlePlugins,
 }

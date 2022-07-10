@@ -23,6 +23,24 @@ build_targets = ["aarch64-linux-android"]
 assets = "assets"
 res = "res/android"
 
+[[package.metadata.android.plugins_local_projects]]
+include = ":crossbow"
+dont_implement = true
+project_dir = "../../platform/android/java"
+
+[[package.metadata.android.plugins_local_projects]]
+include = ":crossbow:lib"
+
+[[package.metadata.android.plugins_local_projects]]
+include = ":admob"
+project_dir = "../../plugins/admob-android"
+
+[[package.metadata.android.permissions]]
+name = "android.permission.READ_EXTERNAL_STORAGE"
+
+[[package.metadata.android.permissions]]
+name = "android.permission.CAMERA"
+
 [package.metadata.apple]
 app_name = "Macroquad_Permissions"
 target_sdk_version = 30
@@ -32,9 +50,3 @@ icon = "ic_launcher"
 build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
 assets = "assets"
 res = "res/apple"
-
-[[package.metadata.android_permissions]]
-name = "android.permission.READ_EXTERNAL_STORAGE"
-
-[[package.metadata.android_permissions]]
-name = "android.permission.CAMERA"

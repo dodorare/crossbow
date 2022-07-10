@@ -82,16 +82,6 @@ impl BuildContext {
         vec![AndroidTarget::Aarch64LinuxAndroid]
     }
 
-    /// Get android resources from cargo manifest
-    pub fn android_res(&self) -> Option<PathBuf> {
-        self.android_config.res.clone()
-    }
-
-    /// Get android assets from cargo manifest
-    pub fn android_assets(&self) -> Option<PathBuf> {
-        self.android_config.assets.clone()
-    }
-
     /// Get android package id from cargo manifest
     pub fn android_package(&self, package_name: &str) -> String {
         self.android_config
@@ -197,15 +187,5 @@ impl BuildContext {
             return targets.unwrap();
         };
         vec![AppleTarget::X86_64AppleIos]
-    }
-
-    /// Get apple resources from cargo manifest
-    pub fn apple_res(&self) -> Option<PathBuf> {
-        self.apple_config.res.clone()
-    }
-
-    /// Get apple assets from cargo manifest
-    pub fn apple_assets(&self) -> Option<PathBuf> {
-        self.apple_config.assets.clone()
     }
 }

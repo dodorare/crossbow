@@ -10,8 +10,8 @@ pub fn gen_unaligned_apk(
     project_path: &Path,
     build_dir: &Path,
     manifest_path: &Path,
-    assets: Option<PathBuf>,
-    res: Option<PathBuf>,
+    assets: &Option<PathBuf>,
+    res: &Option<PathBuf>,
     package_label: &str,
     target_sdk_version: u32,
 ) -> Result<PathBuf> {
@@ -28,10 +28,10 @@ pub fn gen_unaligned_apk(
         .arg(manifest_path)
         .arg("-I")
         .arg(sdk.android_jar(target_sdk_version)?);
-    if let Some(res) = &res {
+    if let Some(res) = res {
         aapt.arg("-S").arg(dunce::simplified(res));
     }
-    if let Some(assets) = &assets {
+    if let Some(assets) = assets {
         aapt.arg("-A").arg(dunce::simplified(assets));
     }
     aapt.output_err(true)?;

@@ -87,9 +87,9 @@ impl AndroidBuildCommand {
         config.status("Generating gradle project")?;
         let gradle_project_path = android::gen_gradle_project(
             &android_build_dir,
-            context.android_res(),
-            context.android_assets(),
-            &[],
+            &context.android_config.assets,
+            &context.android_config.res,
+            &context.android_config.plugins,
         )?;
 
         // Get AndroidManifest.xml from file or generate from Cargo.toml
@@ -219,8 +219,8 @@ impl AndroidBuildCommand {
             &project_path,
             &native_build_dir,
             &manifest_path,
-            context.android_assets(),
-            context.android_res(),
+            &context.android_config.assets,
+            &context.android_config.res,
             &package_label,
             target_sdk_version,
         )?;
@@ -313,7 +313,7 @@ impl AndroidBuildCommand {
 
         config.status_message("Generating", "proto format APK file")?;
 
-        let compiled_res = if let Some(res) = context.android_res() {
+        let compiled_res = if let Some(res) = &context.android_config.res {
             let compiled_res_path = native_build_dir.join("compiled_res");
             if !compiled_res_path.exists() {
                 std::fs::create_dir_all(&compiled_res_path)?;
@@ -332,14 +332,15 @@ impl AndroidBuildCommand {
         let mut aapt2_link =
             sdk.aapt2()?
                 .link_compiled_res(compiled_res, &apk_path, &manifest_path);
-        aapt2_link.android_jar(sdk.android_jar(target_sdk_version)?);
-        if let Some(assets) = context.android_assets() {
-            aapt2_link.assets(assets)
+        if let Some(assets) = &context.android_config.assets {
+            aapt2_link.assets(assets.clone())
         } else {
             &mut aapt2_link
-        };
-        aapt2_link.proto_format(true).auto_add_overlay(true);
-        aapt2_link.run()?;
+        }
+        .android_jar(sdk.android_jar(target_sdk_version)?)
+        .proto_format(true)
+        .auto_add_overlay(true)
+        .run()?;
 
         config.status("Extracting apk files")?;
         let output_dir = native_build_dir.join("extracted_apk_files");
