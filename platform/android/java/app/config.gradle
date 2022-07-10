@@ -23,6 +23,15 @@ ext.libraries = [
 
 // Project export values
 
+/**
+ * Parse the project properties for the 'custom_build_mode' property and return
+ * it for turning on custom build mode.
+ */
+ext.getCustomBuildMode = { ->
+    // Retrieve the custom_build_mode from the project property set by the Crossbow build command.
+    return project.hasProperty("custom_build_mode") ? project.property("custom_build_mode") : false
+}
+
 ext.getExportPackageName = { ->
     // Retrieve the app id from the project property set by the Crossbow build command.
     String appId = project.hasProperty("export_package_name") ? project.property("export_package_name") : ""

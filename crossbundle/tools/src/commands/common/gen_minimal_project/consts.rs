@@ -27,11 +27,6 @@ edition = "2021"
 crossbow = { git = "https://github.com/dodorare/crossbow" }
 anyhow = "1.0"
 macroquad = "0.3.7"
-
-[package.metadata.android]
-app_name = "example"
-target_sdk_version = 30
-version_code = 1
 "#;
 
 pub const MQ_MAIN_RS_VALUE: &str = r#"

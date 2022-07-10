@@ -30,14 +30,14 @@ impl BuildContext {
             target_dir.unwrap_or_else(|| workspace_manifest_path.parent().unwrap().join("target"));
         info!("Parsing Cargo.toml");
         let manifest = parse_manifest(&package_manifest_path)?;
-        let cargo_metadata = manifest
-            .custom_metadata()
-            .ok_or(Error::InvalidCargoMetadata)?
-            .to_owned();
-        let metadata = cargo_metadata
-            .clone()
-            .try_into::<Metadata>()
-            .map_err(|_| Error::InvalidMetadata)?;
+        let metadata = if let Some(cargo_metadata) = manifest.custom_metadata() {
+            cargo_metadata
+                .clone()
+                .try_into::<Metadata>()
+                .map_err(|e| Error::InvalidMetadata(e.into()))?
+        } else {
+            Metadata::default()
+        };
         Ok(Self {
             workspace_manifest_path,
             package_manifest_path,

@@ -17,7 +17,7 @@ pub fn gen_minimal_project(out_dir: &std::path::Path, macroquad_project: bool) -
     }
     // Create src folder
     let src_path = out_dir.join("src");
-    create_dir(src_path.clone())?;
+    create_dir(&src_path)?;
     // Create main.rs
     let main_rs_path = src_path.join("main.rs");
     let mut main_rs = File::create(main_rs_path)?;

@@ -6,7 +6,7 @@ pub use apple_config::*;
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct Metadata {
     pub android: AndroidConfig,
     pub apple: AppleConfig,

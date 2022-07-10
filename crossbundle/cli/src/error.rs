@@ -10,20 +10,18 @@ pub enum Error {
     BuildTargetsNotProvided,
     /// Can't find target to run
     CantFindTargetToRun,
-    /// Unsupported feature
-    UnsupportedFeature,
     /// Team identifier not provided
     TeamIdentifierNotProvided,
-    /// Invalid manifest
-    InvalidManifest,
     /// Invalid cargo metadata values
     InvalidCargoMetadata,
     /// Invalid metadata in manifest
-    InvalidMetadata,
+    InvalidMetadata(anyhow::Error),
     /// IO error
     Io(#[from] std::io::Error),
     /// Clap error
     Clap(#[from] clap::Error),
+    /// Anyhow error
+    AnyhowError(#[from] anyhow::Error),
     /// Crossbundle Tools error
     CrossbundleTools(#[from] crossbundle_tools::error::Error),
     /// AndroidManifest error

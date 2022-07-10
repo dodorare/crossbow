@@ -2,7 +2,7 @@ use crossbundle_tools::types::*;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct AppleConfig {
     pub app_name: Option<String>,
     pub version_name: Option<String>,

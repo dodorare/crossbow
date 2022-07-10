@@ -63,7 +63,7 @@ pub fn gen_gradle_project(
     }
 
     let mut gradle_properties = File::create(gradle_project_path.join("gradle.properties"))?;
-    write!(gradle_properties, "{}", get_gradle_properties(&plugins)?)?;
+    write!(gradle_properties, "{}", get_gradle_properties(plugins)?)?;
 
     let mut settings_gradle = File::create(gradle_project_path.join("settings.gradle"))?;
     write!(
