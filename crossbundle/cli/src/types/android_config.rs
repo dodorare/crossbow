@@ -2,6 +2,8 @@ use crossbundle_tools::types::{android_manifest::*, AndroidTarget};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
+pub const MIN_SDK_VERSION: u32 = 21;
+
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct AndroidConfig {
     pub app_name: Option<String>,

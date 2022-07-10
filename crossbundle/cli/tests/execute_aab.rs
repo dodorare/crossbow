@@ -1,4 +1,4 @@
-use cli::build::{android::AndroidBuildCommand, BuildContext, SharedBuildCommand};
+use crossbundle_lib::build::{android::AndroidBuildCommand, BuildContext, SharedBuildCommand};
 use crossbundle_tools::{
     commands::gen_minimal_project,
     types::AndroidTarget,
@@ -53,4 +53,8 @@ fn test_execute_aab() {
         .join("outputs")
         .join("example_signed.aab");
     assert_eq!(generated_aab_path, expected_path);
+    assert!(
+        generated_aab_path.exists(),
+        "Final generated .aab file should exist"
+    );
 }

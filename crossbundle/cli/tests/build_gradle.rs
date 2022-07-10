@@ -1,5 +1,4 @@
-use cli::build::{android::AndroidBuildCommand, BuildContext, SharedBuildCommand};
-// use cli::{android::AndroidBuildCommand, BuildContext, SharedBuildCommand};
+use crossbundle_lib::build::{android::AndroidBuildCommand, BuildContext, SharedBuildCommand};
 use crossbundle_tools::{
     commands::gen_minimal_project,
     types::AndroidTarget,
@@ -46,11 +45,15 @@ fn test_build_gradle() {
         sign_key_alias: None,
     };
 
-    AndroidBuildCommand::build_gradle(
+    let gradle_project_path = AndroidBuildCommand::build_gradle(
         &android_build_command,
         &config,
         &context,
         project_path.to_str().unwrap(),
     )
     .unwrap();
+    assert!(
+        gradle_project_path.join("build.gradle").exists(),
+        "Gradle Project's build.gradle file should exist"
+    );
 }

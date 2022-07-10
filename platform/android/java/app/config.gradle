@@ -87,7 +87,6 @@ final String VALUE_SEPARATOR_REGEX = "\\|"
  */
 ext.getCrossbowPluginsMavenRepos = { ->
     Set<String> mavenRepos = []
-
     // Retrieve the list of maven repos.
     if (project.hasProperty("plugins_maven_repos")) {
         String mavenReposProperty = project.property("plugins_maven_repos")
@@ -97,7 +96,6 @@ ext.getCrossbowPluginsMavenRepos = { ->
             }
         }
     }
-
     return mavenRepos
 }
 
@@ -107,7 +105,6 @@ ext.getCrossbowPluginsMavenRepos = { ->
  */
 ext.getCrossbowPluginsRemoteBinaries = { ->
     Set<String> remoteDeps = []
-
     // Retrieve the list of remote plugins binaries.
     if (project.hasProperty("plugins_remote_binaries")) {
         String remoteDepsList = project.property("plugins_remote_binaries")
@@ -126,7 +123,6 @@ ext.getCrossbowPluginsRemoteBinaries = { ->
  */
 ext.getCrossbowPluginsLocalBinaries = { ->
     Set<String> binDeps = []
-
     // Retrieve the list of local plugins binaries.
     if (project.hasProperty("plugins_local_binaries")) {
         String pluginsList = project.property("plugins_local_binaries")
@@ -136,6 +132,23 @@ ext.getCrossbowPluginsLocalBinaries = { ->
             }
         }
     }
-
     return binDeps
+}
+
+/**
+ * Parse the project properties for the 'plugins_local_projects' property and return
+ * their binaries for inclusion in the build dependencies.
+ */
+ext.getCrossbowPluginsLocalProjects = { ->
+    Set<String> projectDeps = []
+    // Retrieve the list of local plugins binaries.
+    if (project.hasProperty("plugins_local_projects")) {
+        String pluginsList = project.property("plugins_local_projects")
+        if (pluginsList != null && !pluginsList.trim().isEmpty()) {
+            for (String plugin : pluginsList.split(VALUE_SEPARATOR_REGEX)) {
+                projectDeps += plugin.trim()
+            }
+        }
+    }
+    return projectDeps
 }

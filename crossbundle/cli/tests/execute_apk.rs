@@ -1,4 +1,4 @@
-use cli::build::{android::AndroidBuildCommand, BuildContext, SharedBuildCommand};
+use crossbundle_lib::build::{android::AndroidBuildCommand, BuildContext, SharedBuildCommand};
 use crossbundle_tools::{
     commands::gen_minimal_project,
     types::AndroidTarget,
@@ -53,4 +53,8 @@ fn test_execute_apk() {
         .join("outputs")
         .join("example.apk");
     assert_eq!(generated_apk_path, expected_path);
+    assert!(
+        generated_apk_path.exists(),
+        "Final generated .apk file should exist"
+    );
 }

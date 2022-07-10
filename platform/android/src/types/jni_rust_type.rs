@@ -4,7 +4,7 @@ use jni::{
     signature::{JavaType, Primitive},
     JNIEnv,
 };
-use std::collections::HashMap;
+use std::{collections::HashMap, fmt::Display};
 
 #[derive(Debug, Clone)]
 pub enum JniRustType {
@@ -285,9 +285,9 @@ impl JniRustType {
     }
 }
 
-impl ToString for JniRustType {
-    fn to_string(&self) -> String {
-        match self {
+impl Display for JniRustType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let val = match self {
             Self::Void => "".to_owned(),
             Self::String(s) => s.to_owned(),
             Self::StringArray(arr) => {
@@ -337,6 +337,7 @@ impl ToString for JniRustType {
                 }
                 result
             }
-        }
+        };
+        write!(f, "{}", val)
     }
 }

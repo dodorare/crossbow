@@ -123,8 +123,12 @@ impl BuildContext {
                     .clone()
                     .unwrap_or_else(|| self.package_version()),
             ),
-            version_code: Some(self.android_config.version_code.unwrap_or(MIN_SDK_VERSION)),
-            min_sdk_version: self.android_config.min_sdk_version,
+            version_code: self.android_config.version_code,
+            min_sdk_version: Some(
+                self.android_config
+                    .min_sdk_version
+                    .unwrap_or(MIN_SDK_VERSION),
+            ),
             target_sdk_version: Some(
                 self.android_config
                     .target_sdk_version
@@ -155,8 +159,8 @@ impl BuildContext {
                 android_manifest
                     .version_name
                     .unwrap_or_else(|| self.package_version()),
-                android_manifest.version_code.unwrap_or(MIN_SDK_VERSION),
-                android_manifest.min_sdk_version,
+                android_manifest.version_code.unwrap_or(1),
+                Some(android_manifest.min_sdk_version.unwrap_or(MIN_SDK_VERSION)),
                 android_manifest
                     .target_sdk_version
                     .unwrap_or_else(|| sdk.default_platform()),

@@ -60,9 +60,13 @@ dependencies {
     if (pluginsBinaries != null && pluginsBinaries.size() > 0) {
         implementation files(pluginsBinaries)
     }
-    // Any other dependencies placed in libs directory
-    // TODO: Replace with plugins local project dependencies
-    implementation fileTree(dir: "../libs", include: ["*.jar", "*.aar"])
+    // Crossbow plugins local project dependencies
+    String[] pluginsProjects = getCrossbowPluginsLocalProjects()
+    if (pluginsProjects != null && pluginsProjects.size() > 0) {
+        for (String dep : pluginsProjects) {
+            implementation project(dep)
+        }
+    }
 }
 
 android {
