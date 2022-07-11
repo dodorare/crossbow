@@ -35,9 +35,6 @@ RUN rustup target add aarch64-linux-android x86_64-linux-android
 RUN mkdir -p /src
 WORKDIR /src
 COPY . .
-RUN cd crossbundle/cli && cargo install --path=. && rm -rf /src
+RUN cd crossbundle/cli && cargo install --path=. && rm -rf /src/*
 
-# Make directory for user code
-RUN mkdir -p /src
-WORKDIR /src
 ENTRYPOINT ["crossbundle"]
