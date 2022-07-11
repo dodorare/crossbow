@@ -143,12 +143,7 @@ impl AndroidSdk {
         // self.platforms().iter().max().cloned().unwrap()
         //
         // cause of <build_target>33-clang<.cmd> linker missing for android 33 SDK version
-        self.platforms()
-            .iter()
-            .rev()
-            .nth(1)
-            .unwrap()
-            .to_owned()
+        self.platforms().iter().rev().nth(1).unwrap().to_owned()
     }
 
     /// Platforms directory path
