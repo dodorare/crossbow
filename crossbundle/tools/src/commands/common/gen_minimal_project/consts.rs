@@ -7,11 +7,6 @@ edition = "2021"
 
 [dependencies]
 crossbow = { git = "https://github.com/dodorare/crossbow" }
-
-[package.metadata.android]
-app_name = "example"
-version_code = 1
-target_sdk_version = 30
 "#;
 
 pub const BEVY_MAIN_RS_VALUE: &str = r#"fn main(){println!("hello");}"#;

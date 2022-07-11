@@ -138,7 +138,18 @@ impl AndroidSdk {
 
     /// Default platforms
     pub fn default_platform(&self) -> u32 {
-        self.platforms().iter().max().cloned().unwrap()
+        // TODO: Temporary solution instead of:
+        //
+        // self.platforms().iter().max().cloned().unwrap()
+        //
+        // cause of <build_target>33-clang<.cmd> linker missing for android 33 SDK version
+        self.platforms()
+            .iter()
+            .rev()
+            .skip(1)
+            .next()
+            .unwrap()
+            .to_owned()
     }
 
     /// Platforms directory path
