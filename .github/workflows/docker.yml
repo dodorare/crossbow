@@ -1,7 +1,7 @@
 name: Docker images
 on:
   push:
-    branches: [main]
+    branches: [main, add-plugin-support]
     paths:
     - '.github/docker/*.Dockerfile'
     - '.github/workflows/docker.yml'
@@ -12,7 +12,8 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Build Crossbundle image
-      run: docker build --platform linux/x86_64 -t ghcr.io/dodorare/crossbundle -f .github/docker/crossbundle.Dockerfile .
+      # --platform linux/x86_64
+      run: docker build -t ghcr.io/dodorare/crossbundle -f .github/docker/crossbundle.Dockerfile .
     - name: Publish Crossbundle Docker Image
       env:
         DOCKER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
