@@ -146,8 +146,7 @@ impl AndroidSdk {
         self.platforms()
             .iter()
             .rev()
-            .skip(1)
-            .next()
+            .nth(1)
             .unwrap()
             .to_owned()
     }
