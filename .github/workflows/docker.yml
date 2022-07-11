@@ -8,11 +8,10 @@ on:
 jobs:
   build-crossbundle-dockerfile:
     name: Build Crossbundle Dockerfile
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
     - uses: actions/checkout@master
     - name: Build Crossbundle image
-      # --platform linux/x86_64
       run: docker build -t ghcr.io/dodorare/crossbundle -f .github/docker/crossbundle.Dockerfile .
     - name: Publish Crossbundle Docker Image
       env:

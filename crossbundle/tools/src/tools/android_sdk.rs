@@ -138,15 +138,15 @@ impl AndroidSdk {
 
     /// Default platforms
     pub fn default_platform(&self) -> u32 {
-        self.platforms().iter().max().cloned().unwrap()
-        // cause of <build_target>33-clang<.cmd> linker missing for android 33 SDK version.
-        // Try to use android 30 SDK version
-        // self.platforms()
-        //     .iter()
-        //     .rev()
-        //     .max()
-        //     .unwrap_or(&30)
-        //     .to_owned()
+        // Currently, Android SDK 33 and 32 not supported as they
+        // miss <build_target>-32-clang<.cmd> linker. Try to use
+        // older versions of android SDK.
+        self.platforms()
+            .into_iter()
+            .cloned()
+            .filter(|x| x.eq(&33u32) || x.eq(&32u32))
+            .max()
+            .unwrap()
     }
 
     /// Platforms directory path

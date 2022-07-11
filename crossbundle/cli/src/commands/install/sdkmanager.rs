@@ -157,7 +157,7 @@ impl SdkManagerInstallCommand {
     /// Run sdkmanager command with specified flags and options
     pub fn run(&self, _config: &Config) -> crate::error::Result<()> {
         let sdk_root = AndroidSdk::sdk_install_path()?;
-        let sdkmanager_path = sdk_root.join("cmdline-tools").join("bin");
+        let sdkmanager_path = sdk_root.join("cmdline-tools").join("latest").join("bin");
         let sdkmanager_bat = sdkmanager_path.join(format!("sdkmanager{}", EXECUTABLE_SUFFIX_BAT));
 
         let mut sdkmanager = std::process::Command::new(sdkmanager_bat);
@@ -181,7 +181,7 @@ impl SdkManagerInstallCommand {
         }
         if self.preferred_tools {
             sdkmanager
-                .arg("build-tools;29.0.0")
+                .arg("build-tools;31.0.0")
                 .arg("ndk;23.1.7779620")
                 .arg("platforms;android-30");
         }
