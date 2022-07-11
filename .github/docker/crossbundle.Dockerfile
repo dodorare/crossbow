@@ -34,11 +34,7 @@ RUN rustup target add aarch64-linux-android x86_64-linux-android
 # Install crossbundle cli
 RUN mkdir -p /src
 WORKDIR /src
-COPY crossbundle crossbundle
-COPY platform platform
-COPY Cargo.toml Cargo.toml
-COPY src src
-COPY plugins plugins
+COPY . .
 RUN cd crossbundle/cli && cargo install --path=.
 RUN rm -rf /src
 
