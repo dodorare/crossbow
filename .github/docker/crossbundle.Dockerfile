@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 openjdk:11-jdk-slim-bullseye
+FROM eclipse-temurin:11.0.13_8-jdk
 LABEL org.opencontainers.image.source https://github.com/dodorare/crossbow
 
 RUN apt update -yq && apt upgrade -yq \
@@ -13,12 +13,12 @@ RUN mkdir -p ${ANDROID_SDK_ROOT}/cmdline-tools \
     && rm commandlinetools-linux-8512546_latest.zip \
     && mv cmdline-tools/ latest/ \
     && chown -R root:root /opt
-RUN ulimit -c unlimited \
-    && yes | ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager "platform-tools" \
-    && yes | ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager "platforms;android-30" \
-    && yes | ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager "build-tools;29.0.0" \
-    && yes | ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager "ndk;23.1.7779620" \
-    && ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager --update
+RUN ulimit -c unlimited
+RUN yes | ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager "platform-tools"
+RUN yes | ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager "platforms;android-30"
+RUN yes | ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager "build-tools;31.0.0"
+RUN yes | ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager "ndk;23.1.7779620"
+RUN yes | ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager --update
 ENV ANDROID_NDK_ROOT ${ANDROID_SDK_ROOT}/ndk/23.1.7779620
 
 # Install bundletool
@@ -26,8 +26,16 @@ RUN wget -q https://github.com/google/bundletool/releases/download/1.8.2/bundlet
     && mv bundletool-all-1.8.2.jar ${ANDROID_SDK_ROOT}/bundletool-all-1.8.2.jar
 ENV BUNDLETOOL_PATH=${ANDROID_SDK_ROOT}/bundletool-all-1.8.2.jar
 
+RUN wget https://services.gradle.org/distributions/gradle-7.4-all.zip \
+    && unzip -q gradle-7.4-all.zip \
+    && rm gradle-7.4-all.zip \
+    && mv gradle-7.4 ${ANDROID_SDK_ROOT}/gradle \
+    && chown -R root:root ${ANDROID_SDK_ROOT}/gradle
+ENV GRADLE_HOME=/opt/gradle/gradle-7.4/bin
+ENV PATH=$GRADLE_HOME:${PATH}
+
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
-ENV PATH="/root/.cargo/bin:${PATH}"
+ENV PATH=/root/.cargo/bin:${PATH}
 
 # # Install rustup targets for android
 RUN rustup target add aarch64-linux-android x86_64-linux-android
