@@ -19,6 +19,7 @@ ext.libraries = [
     kotlinStdLib       : "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlinVersion",
     androidxFragment   : "androidx.fragment:fragment:$versions.fragmentVersion",
     androidxAppcompat  : "androidx.appcompat:appcompat:$versions.appcompatVersion",
+    crossbowLibrary    : "com.crossbow.library:lib:$versions.crossbowLibrary"
 ]
 
 // Project export values
@@ -160,4 +161,28 @@ ext.getCrossbowPluginsLocalProjects = { ->
         }
     }
     return projectDeps
+}
+
+// Publishing
+
+repositories.ext.mavenCrossbowGithub = {
+    repositories.maven {
+        url = uri("https://maven.pkg.github.com/dodorare/crossbow")
+        credentials {
+            // Use this open machine user token because repo requires authentication
+            username = "token"
+            password = "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"
+        }
+    }
+}
+
+project.buildscript.repositories.ext.mavenCrossbowGithub = {
+    project.buildscript.repositories.maven {
+        url = uri("https://maven.pkg.github.com/dodorare/crossbow")
+        credentials {
+            // Use this open machine user token because repo requires authentication
+            username = "token"
+            password = "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"
+        }
+    }
 }

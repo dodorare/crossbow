@@ -6,7 +6,7 @@ use jni::{
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "C" fn Java_com_dodorare_crossbow_CrossbowLib_initialize(
+pub extern "C" fn Java_com_crossbow_library_CrossbowLib_initialize(
     env: JNIEnv,
     _class: JClass,
     activity: JObject,
@@ -23,7 +23,7 @@ pub extern "C" fn Java_com_dodorare_crossbow_CrossbowLib_initialize(
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "C" fn Java_com_dodorare_crossbow_CrossbowLib_requestPermissionResult(
+pub extern "C" fn Java_com_crossbow_library_CrossbowLib_requestPermissionResult(
     _env: JNIEnv,
     _class: JClass,
     _permission: JString,

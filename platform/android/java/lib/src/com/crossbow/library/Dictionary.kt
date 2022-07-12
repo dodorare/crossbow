@@ -1,4 +1,4 @@
-package com.dodorare.crossbow
+package com.crossbow.library
 
 import java.util.HashMap
 

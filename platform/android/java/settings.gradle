@@ -1,5 +1,5 @@
 // Configure the root project.
-rootProject.name = "Crossbow"
+rootProject.name = "crossbow"
 
 include ":lib"
 include ":app"

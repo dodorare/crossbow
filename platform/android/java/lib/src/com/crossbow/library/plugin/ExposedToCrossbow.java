@@ -1,4 +1,4 @@
-package com.dodorare.crossbow.plugin;
+package com.crossbow.library.plugin;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

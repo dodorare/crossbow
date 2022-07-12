@@ -1,6 +1,6 @@
-package com.dodorare.crossbow
+package com.crossbow.library
 
-import com.dodorare.crossbow.Crossbow
+import com.crossbow.library.Crossbow
 
 /**
  * Denotate a component (e.g: Activity, Fragment) that hosts the [Crossbow] fragment.

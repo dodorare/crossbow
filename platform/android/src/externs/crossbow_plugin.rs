@@ -7,7 +7,7 @@ use jni::{
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "C" fn Java_com_dodorare_crossbow_plugin_CrossbowPlugin_nativeRegisterSingleton(
+pub extern "C" fn Java_com_crossbow_library_plugin_CrossbowPlugin_nativeRegisterSingleton(
     env: JNIEnv,
     _class: JClass,
     name: JString,
@@ -18,7 +18,7 @@ pub extern "C" fn Java_com_dodorare_crossbow_plugin_CrossbowPlugin_nativeRegiste
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "C" fn Java_com_dodorare_crossbow_plugin_CrossbowPlugin_nativeRegisterMethod(
+pub extern "C" fn Java_com_crossbow_library_plugin_CrossbowPlugin_nativeRegisterMethod(
     env: JNIEnv,
     _class: JClass,
     sname: JString,
@@ -30,7 +30,7 @@ pub extern "C" fn Java_com_dodorare_crossbow_plugin_CrossbowPlugin_nativeRegiste
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "C" fn Java_com_dodorare_crossbow_plugin_CrossbowPlugin_nativeRegisterSignal(
+pub extern "C" fn Java_com_crossbow_library_plugin_CrossbowPlugin_nativeRegisterSignal(
     env: JNIEnv,
     _class: JClass,
     plugin_name: JString,
@@ -42,7 +42,7 @@ pub extern "C" fn Java_com_dodorare_crossbow_plugin_CrossbowPlugin_nativeRegiste
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "C" fn Java_com_dodorare_crossbow_plugin_CrossbowPlugin_nativeEmitSignal(
+pub extern "C" fn Java_com_crossbow_library_plugin_CrossbowPlugin_nativeEmitSignal(
     env: JNIEnv,
     _class: JClass,
     plugin_name: JString,

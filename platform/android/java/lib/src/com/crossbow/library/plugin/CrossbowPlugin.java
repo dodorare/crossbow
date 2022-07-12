@@ -1,7 +1,7 @@
-package com.dodorare.crossbow.plugin;
+package com.crossbow.library.plugin;
 
-import com.dodorare.crossbow.Crossbow;
-import com.dodorare.crossbow.JNIUtil;
+import com.crossbow.library.Crossbow;
+import com.crossbow.library.JNIUtil;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -119,7 +119,7 @@ public abstract class CrossbowPlugin {
 
 	/**
 	 * Invoked once during the Crossbow Android initialization process after creation of the
-	 * {@link com.dodorare.crossbow.CrossbowRenderView} view.
+	 * {@link com.crossbow.library.CrossbowRenderView} view.
 	 * <p>
 	 * The plugin can return a non-null {@link View} layout in order to add it to the Crossbow view
 	 * hierarchy.

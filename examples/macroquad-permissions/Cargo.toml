@@ -23,6 +23,8 @@ build_targets = ["aarch64-linux-android"]
 assets = "assets"
 res = "res/android"
 
+# plugins_remote = ["com.crossbow.admob:admob:0.1.3"]
+
 [[package.metadata.android.plugins_local_projects]]
 include = ":crossbow"
 dont_implement = true

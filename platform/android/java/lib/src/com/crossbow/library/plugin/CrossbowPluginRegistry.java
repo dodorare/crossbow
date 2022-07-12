@@ -1,6 +1,6 @@
-package com.dodorare.crossbow.plugin;
+package com.crossbow.library.plugin;
 
-import com.dodorare.crossbow.Crossbow;
+import com.crossbow.library.Crossbow;
 
 import android.app.Activity;
 import android.content.pm.ApplicationInfo;

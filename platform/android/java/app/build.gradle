@@ -3,7 +3,17 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-        maven { url "https://plugins.gradle.org/m2/" }
+        mavenCrossbowGithub()
+
+        // Crossbow custom plugins maven repositories
+        String[] mavenRepos = getCrossbowPluginsMavenRepos()
+        if (mavenRepos != null && mavenRepos.size() > 0) {
+            for (String repoUrl : mavenRepos) {
+                maven {
+                    url repoUrl
+                }
+            }
+        }
     }
     dependencies {
         classpath libraries.androidGradlePlugin
@@ -19,7 +29,7 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        maven { url "https://plugins.gradle.org/m2/" }
+        mavenCrossbowGithub()
 
         // Crossbow custom plugins maven repositories
         String[] mavenRepos = getCrossbowPluginsMavenRepos()
@@ -44,6 +54,8 @@ dependencies {
         // library is available through the pre-generated crossbow-lib.*.aar android archive files.
         debugImplementation fileTree(dir: "../libs/debug", include: ["*.jar", "*.aar"])
         releaseImplementation fileTree(dir: "../libs/release", include: ["*.jar", "*.aar"])
+    } else {
+        implementation libraries.crossbowLibrary
     }
 
     // Crossbow plugins remote dependencies

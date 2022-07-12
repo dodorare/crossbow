@@ -1,4 +1,6 @@
-package com.dodorare.crossbow
+@file:Suppress("DEPRECATION")
+
+package com.crossbow.library
 
 import android.util.Log
 import android.os.Bundle

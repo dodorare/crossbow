@@ -1,8 +1,8 @@
 @file:Suppress("DEPRECATION")
 
-package com.dodorare.crossbow
+package com.crossbow.library
 
-import com.dodorare.crossbow.plugin.CrossbowPluginRegistry
+import com.crossbow.library.plugin.CrossbowPluginRegistry
 
 import android.content.Intent
 import android.content.Context
@@ -35,7 +35,8 @@ class Crossbow : Fragment() {
         pluginRegistry = CrossbowPluginRegistry.initializePluginRegistry(this)
 
 		Log.v(TAG, "Initializing CrossbowLib Instance")
-        CrossbowLib.initialize(activity, this, activity!!.assets)
+        // CrossbowLib.initialize(activity, this, activity!!.assets)
+        onRenderInit()
     }
 
     override fun onAttach(context: Context) {

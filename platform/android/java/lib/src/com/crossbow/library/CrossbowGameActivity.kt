@@ -1,4 +1,4 @@
-package com.dodorare.crossbow
+package com.crossbow.library
 
 // import android.app.Activity
 // import com.google.androidgamesdk.GameActivity

@@ -1,4 +1,4 @@
-package com.dodorare.crossbow.plugin;
+package com.crossbow.library.plugin;
 
 import androidx.annotation.NonNull;
 

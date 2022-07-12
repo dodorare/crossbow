@@ -257,7 +257,7 @@ impl JniRustType {
                 }
                 Self::ObjectArray(arr)
             }
-            "java.util.HashMap" | "com.dodorare.crossbow.Dictionary" => {
+            "java.util.HashMap" | "com.crossbow.library.Dictionary" => {
                 let get_keys = env.get_method_id(class, "get_keys", "()[Ljava/lang/String;")?;
                 let arr =
                     env.call_method_unchecked(obj, get_keys, JavaType::Object("".to_owned()), &[])?;

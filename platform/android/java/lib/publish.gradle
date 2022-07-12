@@ -1,0 +1,23 @@
+apply plugin: "maven-publish"
+apply from: "../app/config.gradle"
+
+publishing {
+    repositories {
+        maven {
+            name = "com.crossbow.library"
+            version = versions.crossbowLibrary
+            description = "Crossbow Android Library"
+            url = uri("https://maven.pkg.github.com/dodorare/crossbow")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+            }
+        }
+    }
+    publications {
+        gpr(MavenPublication) {
+            groupId = "com.crossbow.library"
+            artifact("$buildDir/outputs/aar/$artifactId-release.aar")
+        }
+    }
+}

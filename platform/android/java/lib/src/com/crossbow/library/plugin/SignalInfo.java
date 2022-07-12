@@ -1,9 +1,9 @@
-package com.dodorare.crossbow.plugin;
+package com.crossbow.library.plugin;
 
 import android.text.TextUtils;
 import java.util.Arrays;
 import androidx.annotation.NonNull;
-import com.dodorare.crossbow.JNIUtil;
+import com.crossbow.library.JNIUtil;
 
 /**
  * Store information about a {@link CrossbowPlugin}'s signal.

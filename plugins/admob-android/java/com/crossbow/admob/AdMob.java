@@ -1,9 +1,9 @@
 package com.crossbow.admob;
 
-import com.dodorare.crossbow.Crossbow;
-import com.dodorare.crossbow.plugin.CrossbowPlugin;
-import com.dodorare.crossbow.plugin.SignalInfo;
-import com.dodorare.crossbow.plugin.ExposedToCrossbow;
+import com.crossbow.library.Crossbow;
+import com.crossbow.library.plugin.CrossbowPlugin;
+import com.crossbow.library.plugin.SignalInfo;
+import com.crossbow.library.plugin.ExposedToCrossbow;
 
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.FullScreenContentCallback;

@@ -3,6 +3,8 @@ plugins {
     id "org.jetbrains.kotlin.android"
 }
 
+apply from: "publish.gradle"
+
 dependencies {
     implementation libraries.kotlinStdLib
     implementation libraries.androidxFragment
@@ -11,7 +13,7 @@ dependencies {
 }
 
 android {
-    namespace = "com.dodorare.crossbow"
+    namespace = "com.crossbow.library"
 
     compileSdkVersion versions.compileSdk
     buildToolsVersion versions.buildTools
