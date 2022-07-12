@@ -6,14 +6,21 @@ use std::{
 };
 
 /// Generates a new minimal project in given path.
-pub fn gen_minimal_project(out_dir: &std::path::Path, macroquad_project: bool) -> Result<String> {
+pub fn gen_minimal_project(
+    out_dir: &std::path::Path,
+    macroquad_project: bool,
+    minimal_cargo_toml: bool,
+) -> Result<String> {
     // Create Cargo.toml file
     let file_path = out_dir.join("Cargo.toml");
     let mut file = File::create(file_path)?;
     if macroquad_project {
-        file.write_all(MQ_CARGO_TOML_VALUE.as_bytes())?;
+        file.write_all(MINIMAL_MQ_CARGO_TOML_VALUE.as_bytes())?;
     } else {
-        file.write_all(BEVY_CARGO_TOML_VALUE.as_bytes())?;
+        file.write_all(MINIMAL_BEVY_CARGO_TOML_VALUE.as_bytes())?;
+    }
+    if !minimal_cargo_toml {
+        file.write_all(CARGO_TOML_VALUE.as_bytes())?;
     }
     // Create src folder
     let src_path = out_dir.join("src");
@@ -37,6 +44,6 @@ mod tests {
     #[test]
     fn test_command_run() {
         let dir = tempfile::tempdir().unwrap();
-        gen_minimal_project(dir.path(), true).unwrap();
+        gen_minimal_project(dir.path(), true, true).unwrap();
     }
 }

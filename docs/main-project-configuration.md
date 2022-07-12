@@ -16,26 +16,47 @@ edition = "2021"
 [dependencies]
 crossbow = "0.1.0"
 
-[package.metadata]
+[package.metadata.android]
 app_name = "Creator 3D"
 target_sdk_version = 30
 icon = "ic_launcher"
 
-android_build_targets = ["aarch64-linux-android"]
-android_assets = "assets"
-android_res = "res/android"
+build_targets = ["aarch64-linux-android"]
+assets = "assets"
+res = "res/android"
 
-apple_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
-apple_assets = "assets"
-apple_res = "res/apple"
-
-[[package.metadata.android_permissions]]
+[[package.metadata.android.permissions]]
 name = "android.permission.INTERNET"
 
-[[package.metadata.android_service]]
+[[package.metadata.android.permissions_sdk_23]]
+name = "android.permission.WRITE_EXTERNAL_STORAGE"
+max_sdk_version = 30
+
+[[package.metadata.android.service]]
 name = "UpdateService"
 intent_filter = []
 meta_data = []
+
+[[package.metadata.android.queries.provider]]
+authorities = "org.khronos.openxr.runtime_broker;org.khronos.openxr.system_runtime_broker"
+name = "org.khronos.openxr"
+
+[[package.metadata.android.features]]
+name = "android.hardware.vulkan.level"
+required = true
+version = 1
+
+[[package.metadata.android.meta_data]]
+name = "com.oculus.vr.focusaware"
+value = "true"
+
+[package.metadata.apple]
+app_name = "Creator 3D"
+icon = "ic_launcher"
+
+build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
+assets = "assets"
+res = "res/apple"
 ```
 
 ### ⚙️ Сonfiguration through separate files

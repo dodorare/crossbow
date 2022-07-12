@@ -410,7 +410,7 @@ impl AndroidBuildCommand {
     }
 
     /// Specifies project path and target directory needed to build application
-    fn needed_project_dirs(
+    pub fn needed_project_dirs(
         example: Option<&String>,
         context: &BuildContext,
     ) -> crate::error::Result<(PathBuf, PathBuf, String)> {
@@ -425,7 +425,7 @@ impl AndroidBuildCommand {
     }
 
     /// Specifies path to Android SDK and Android NDK
-    fn android_toolchain(
+    pub fn android_toolchain(
         context: &BuildContext,
     ) -> crate::error::Result<(AndroidSdk, AndroidNdk, u32)> {
         let sdk = AndroidSdk::from_env()?;
@@ -435,7 +435,7 @@ impl AndroidBuildCommand {
     }
 
     /// Generates or copies AndroidManifest.xml from specified path, then saves it to android folder
-    fn android_manifest(
+    pub fn android_manifest(
         config: &Config,
         context: &BuildContext,
         sdk: &AndroidSdk,
@@ -452,7 +452,7 @@ impl AndroidBuildCommand {
     }
 
     /// Find keystore for signing application or create it
-    fn find_keystore(
+    pub fn find_keystore(
         sign_key_path: Option<PathBuf>,
         sign_key_pass: Option<String>,
         sign_key_alias: Option<String>,
@@ -488,7 +488,7 @@ impl AndroidBuildCommand {
     }
 
     /// Compiling libs for architecture and write out it in vector
-    fn build_target(
+    pub fn build_target(
         &self,
         build_targets: Vec<AndroidTarget>,
         package_name: &str,
