@@ -142,9 +142,9 @@ impl AndroidSdk {
         // miss <build_target>-32-clang<.cmd> linker. Try to use
         // older versions of android SDK.
         self.platforms()
-            .into_iter()
+            .iter()
             .cloned()
-            .filter(|x| x.eq(&33u32) || x.eq(&32u32))
+            .filter(|x| x.ne(&33u32) && x.ne(&32u32))
             .max()
             .unwrap()
     }

@@ -8,7 +8,7 @@ on:
 jobs:
   build-crossbundle-dockerfile:
     name: Build Crossbundle Dockerfile
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
     - name: Build Crossbundle image
