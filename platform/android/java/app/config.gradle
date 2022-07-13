@@ -165,19 +165,8 @@ ext.getCrossbowPluginsLocalProjects = { ->
 
 // Publishing
 
-repositories.ext.mavenCrossbowGithub = {
+ext.mavenCrossbowGithub = {
     repositories.maven {
-        url = uri("https://maven.pkg.github.com/dodorare/crossbow")
-        credentials {
-            // Use this open machine user token because repo requires authentication
-            username = "token"
-            password = "\u0067hp_YQdtzsNYrpQM3lmZPOXYHpC5GXiord4Qodew"
-        }
-    }
-}
-
-project.buildscript.repositories.ext.mavenCrossbowGithub = {
-    project.buildscript.repositories.maven {
         url = uri("https://maven.pkg.github.com/dodorare/crossbow")
         credentials {
             // Use this open machine user token because repo requires authentication
