@@ -1,5 +1,3 @@
-pub use crossbundle_derive::*;
-
 #[cfg(feature = "crossbow-ads")]
 pub use crossbow_ads;
 

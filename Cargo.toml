@@ -11,9 +11,6 @@ readme = "README.md"
 exclude = [".github/**/*"]
 
 [dependencies]
-crossbundle-derive = { path = "crossbundle/derive", version = "0.1.4" }
-crossbundle-tools = { path = "crossbundle/tools", version = "0.1.4", optional = true }
-
 # Platform-specific dependencies
 crossbow-android = { path = "platform/android", version = "0.1.4", optional = true }
 
