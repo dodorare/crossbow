@@ -80,7 +80,7 @@ fn test_cargo_metadata() {
     <service android:name="UpdateService" />
     <meta-data android:name="com.oculus.vr.focusaware" android:value="true" />
   </application>
-  <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="30" />
+  <uses-sdk android:minSdkVersion="19" android:targetSdkVersion="30" />
   <uses-feature android:name="android.hardware.vulkan.level" android:required="true" />
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="30" />
   <uses-permission-sdk-23 android:name="android.permission.INTERNET" android:maxSdkVersion="30" />

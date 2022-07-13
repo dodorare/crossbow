@@ -5,7 +5,7 @@ use crossbundle_tools::{
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
-pub const MIN_SDK_VERSION: u32 = 21;
+pub const MIN_SDK_VERSION: u32 = 19;
 
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct AndroidConfig {
