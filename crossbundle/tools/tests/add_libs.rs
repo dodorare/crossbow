@@ -14,7 +14,7 @@ fn add_bevy_libs() {
     let project_path = tempdir.path();
 
     // Assigns configuration for project
-    let bevy_package_name = gen_minimal_project(&project_path, false).unwrap();
+    let bevy_package_name = gen_minimal_project(&project_path, false, true).unwrap();
 
     // Assign needed configuration to compile rust for android with bevy
     let sdk = AndroidSdk::from_env().unwrap();
@@ -83,7 +83,7 @@ fn add_quad_libs() {
     let project_path = tempdir.path();
 
     // Assigns configuration for project
-    let quad_package_name = gen_minimal_project(&project_path, true).unwrap();
+    let quad_package_name = gen_minimal_project(&project_path, true, true).unwrap();
 
     // Assign needed configuration to compile rust for android with bevy
     let sdk = AndroidSdk::from_env().unwrap();

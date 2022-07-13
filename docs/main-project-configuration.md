@@ -16,26 +16,22 @@ edition = "2021"
 [dependencies]
 crossbow = "0.1.0"
 
-[package.metadata]
+[package.metadata.android]
 app_name = "Creator 3D"
 target_sdk_version = 30
 icon = "ic_launcher"
 
-android_build_targets = ["aarch64-linux-android"]
-android_assets = "assets"
-android_res = "res/android"
+build_targets = ["aarch64-linux-android"]
+assets = "assets"
+res = "res/android"
 
-apple_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
-apple_assets = "assets"
-apple_res = "res/apple"
+[package.metadata.apple]
+app_name = "Creator 3D"
+icon = "ic_launcher"
 
-[[package.metadata.android_permissions]]
-name = "android.permission.INTERNET"
-
-[[package.metadata.android_service]]
-name = "UpdateService"
-intent_filter = []
-meta_data = []
+build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
+assets = "assets"
+res = "res/apple"
 ```
 
 ### ⚙️ Сonfiguration through separate files
@@ -45,12 +41,11 @@ But sometimes you need to configure something more complex. For such cases, a mo
 To enable this feature, you just need to add this to your `Cargo.toml`:
 
 ```toml
-[package.metadata]
-use_android_manfiest = true
-# android_manifest_path = "/path/to/file"
+[package.metadata.android]
+manifest_path = "/path/to/file"
 
-use_info_plist = true
-# info_plist_path = "/path/to/file"
+[package.metadata.apple]
+info_plist_path = "/path/to/file"
 ```
 
 and then place `AndroidManifest.xml` or/and `Info.plist` near `Cargo.toml`
@@ -68,7 +63,6 @@ and then place `AndroidManifest.xml` or/and `Info.plist` near `Cargo.toml`
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <application android:allowBackup="true"
-        android:debuggable="true"
         android:hasCode="false"
         android:icon="@mipmap/ic_launcher"
         android:label="Game"

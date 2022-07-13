@@ -1,4 +1,4 @@
-use cli::build::{android::AndroidBuildCommand, BuildContext, SharedBuildCommand};
+use crossbundle_lib::build::{android::AndroidBuildCommand, BuildContext, SharedBuildCommand};
 use crossbundle_tools::{
     commands::gen_minimal_project,
     types::AndroidTarget,
@@ -15,7 +15,7 @@ fn test_execute_apk() {
     let tempdir = tempfile::tempdir().unwrap();
     let project_path = tempdir.path();
     let macroquad_project = true;
-    gen_minimal_project(&project_path, macroquad_project).unwrap();
+    gen_minimal_project(&project_path, macroquad_project, true).unwrap();
 
     let target_dir = std::path::PathBuf::from(project_path).join("target");
     std::fs::create_dir_all(&target_dir).unwrap();
@@ -53,4 +53,8 @@ fn test_execute_apk() {
         .join("outputs")
         .join("example.apk");
     assert_eq!(generated_apk_path, expected_path);
+    assert!(
+        generated_apk_path.exists(),
+        "Final generated .apk file should exist"
+    );
 }

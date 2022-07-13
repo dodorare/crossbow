@@ -1,28 +1,28 @@
 [package]
 name = "macroquad-3d"
-version = "0.1.3"
+version = "0.1.4"
 authors = ["DodoRare Team <support@dodorare.com>"]
 edition = "2021"
 
 [dependencies]
-crossbow = { version = "0.1.3", path = "../../", features = ["android"] }
+crossbow = { version = "0.1.4", path = "../../", features = ["android"] }
 log = "0.4"
 anyhow = "1.0"
 macroquad = "0.3.7"
 
-[package.metadata]
+[package.metadata.android]
 app_name = "Macroquad_3D"
 target_sdk_version = 30
 version_code = 1
 icon = "ic_launcher"
+manifest_path = "res/AndroidManifest.xml"
 
-use_android_manifest = true
-android_manifest_path = "res/AndroidManifest.xml"
+build_targets = ["aarch64-linux-android"]
+assets = "assets"
+res = "res/android"
 
-android_build_targets = ["aarch64-linux-android"]
-android_assets = "assets"
-android_res = "res/android"
-
-apple_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
-apple_assets = "assets"
-apple_res = "res/apple"
+[package.metadata.apple]
+app_name = "Macroquad_3D"
+build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
+assets = "assets"
+res = "res/apple"

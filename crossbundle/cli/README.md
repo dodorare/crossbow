@@ -46,15 +46,17 @@ More information about how to set up the environment in the **Android setup** an
 ## ⚙️ Cargo.toml Metadata syntax
 
 ```toml
+[[package.metadata.android]]
 # The user-friendly application name for your app. Displayed in the applications menu
 app_name = "Example"
 # The version number shown to users
 version_name = "0.1.0"
 # Internal version number used to determine whether one version is more recent than another
+# 
 # See https://developer.android.com/guide/topics/manifest/manifest-element
 version_code = 1
 # Min SDK version
-min_sdk_version = 21
+min_sdk_version = 19
 # Target SDK version
 target_sdk_version = 30
 # Max SDK version
@@ -62,37 +64,67 @@ max_sdk_version = 31
 # Virtual path your application's icon as mipmap resource.
 icon = "ic_launcher"
 
-# Use Android.manifest file or generate from Cargo.toml
-use_android_manifest = true
-# Path to Android.manifest file
-android_manifest_path = "path/to/AndroidManifest.xml"
-
-# Use Info.plist file or generate from Cargo.toml
-use_info_plist = true
-# Path to Info.plist file
-info_plist_path = "path/to/Info.plist"
+# Path to AndroidManifest.xml file
+manifest_path = "path/to/AndroidManifest.xml"
 
 # Android package to place in AndroidManifest.xml.
-android_package = "com.example.ExampleProject"
+package = "com.example.ExampleProject"
 # Android resources directory path relatively to project path.
-android_res = "res/android"
+res = "res/android"
 # Android assets directory path relatively to project path.
-android_assets = "assets"
+assets = "assets"
 # Android build targets.
-android_build_targets = ["aarch64-linux-android"]
-
-# Apple build targets.
-apple_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
-# Apple resources directory path relatively to project path.
-apple_res = "res/apple"
-# Apple assets directory path relatively to project path.
-apple_assets = "assets"
+build_targets = ["aarch64-linux-android"]
 
 # Adds a uses-permission element to the AndroidManifest.xml.
 # Note that android_version 23 and higher, Android requires the application to request permissions at runtime.
-[[package.metadata.android_permissions]]
+[[package.metadata.android.permissions]]
 name = "android.permission.INTERNET"
-max_sdk_version = 21
+
+# Specifies that an app wants a particular permission, but only if the app is installed on a device running 
+# Android 6.0 (API level 23) or higher. If the device is running API level 22 or lower, the app does not have the specified permission.
+# 
+# See https://developer.android.com/guide/topics/manifest/uses-permission-sdk-23-element
+[[package.metadata.android.permissions_sdk_23]]
+name = "android.permission.WRITE_EXTERNAL_STORAGE"
+max_sdk_version = 30
+
+# See https://developer.android.com/guide/topics/manifest/service-element
+[[package.metadata.android.service]]
+name = "UpdateService"
+intent_filter = []
+meta_data = []
+
+# See https://developer.android.com/guide/topics/manifest/queries-element#provider
+[[package.metadata.android.queries.provider]]
+authorities = "org.khronos.openxr.runtime_broker;org.khronos.openxr.system_runtime_broker"
+# Note: The `name` attribute is normally not required for a queries provider, but is non-optional
+# as a workaround for aapt throwing errors about missing `android:name` attribute.
+# This will be made optional if/when cargo-apk migrates to aapt2.
+name = "org.khronos.openxr"
+
+# See https://developer.android.com/guide/topics/manifest/uses-feature-element
+#
+# Note: there can be multiple .uses_feature entries.
+[[package.metadata.android.features]]
+name = "android.hardware.vulkan.level"
+required = true
+version = 1
+
+# See https://developer.android.com/guide/topics/manifest/meta-data-element
+[[package.metadata.android.meta_data]]
+name = "com.oculus.vr.focusaware"
+value = "true"
+
+[package.metadata.apple]
+# The user-friendly application name for your app. Displayed in the applications menu
+app_name = "Example"
+# Apple build targets.
+build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
+# Apple resources directory path relatively to project path.
+res = "res/apple"
+# Apple assets directory path relatively to project path.
+assets = "assets"
 ```
 
 ## 🎏 CLI options and flags

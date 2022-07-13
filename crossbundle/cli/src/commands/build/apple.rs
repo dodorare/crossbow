@@ -106,9 +106,14 @@ impl AppleBuildCommand {
         let app_path = apple::gen_apple_app_folder(
             apple_target_dir,
             name,
-            context.apple_res().as_ref().map(|r| project_path.join(r)),
             context
-                .apple_assets()
+                .apple_config
+                .res
+                .as_ref()
+                .map(|r| project_path.join(r)),
+            context
+                .apple_config
+                .assets
                 .as_ref()
                 .map(|r| project_path.join(r)),
         )?;

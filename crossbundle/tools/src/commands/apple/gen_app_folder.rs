@@ -7,8 +7,8 @@ use std::path::{Path, PathBuf};
 pub fn gen_apple_app_folder(
     target_dir: &Path,
     project_name: &str,
-    resources_dir: Option<PathBuf>,
     assets_dir: Option<PathBuf>,
+    resources_dir: Option<PathBuf>,
 ) -> Result<PathBuf> {
     if !target_dir.exists() {
         create_dir_all(target_dir)?;

@@ -1,31 +1,54 @@
 [package]
 name = "macroquad-permissions"
-version = "0.1.3"
+version = "0.1.4"
 authors = ["DodoRare Team <support@dodorare.com>"]
 edition = "2021"
 
 [dependencies]
-crossbow = { version = "0.1.3", path = "../../", features = ["android"] }
+crossbow = { version = "0.1.4", path = "../../", features = ["android"] }
+crossbow-admob-android = { version = "0.1.4", path = "../../plugins/admob-android" }
 log = "0.4"
 anyhow = "1.0"
 macroquad = "0.3.7"
+async-executor = "1.4.1"
+futures-lite = "1.12.0"
 
-[package.metadata]
+[package.metadata.android]
 app_name = "Macroquad_Permissions"
 target_sdk_version = 30
 version_code = 1
 icon = "ic_launcher"
 
-android_build_targets = ["aarch64-linux-android"]
-android_assets = "assets"
-android_res = "res/android"
+build_targets = ["aarch64-linux-android"]
+assets = "assets"
+res = "res/android"
 
-apple_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
-apple_assets = "assets"
-apple_res = "res/apple"
+# plugins_remote = ["com.crossbow.admob:admob:0.1.4"]
 
-[[package.metadata.android_permissions]]
+[[package.metadata.android.plugins_local_projects]]
+include = ":crossbow"
+dont_implement = true
+project_dir = "../../platform/android/java"
+
+[[package.metadata.android.plugins_local_projects]]
+include = ":crossbow:lib"
+
+[[package.metadata.android.plugins_local_projects]]
+include = ":admob"
+project_dir = "../../plugins/admob-android"
+
+[[package.metadata.android.permissions]]
 name = "android.permission.READ_EXTERNAL_STORAGE"
 
-[[package.metadata.android_permissions]]
+[[package.metadata.android.permissions]]
 name = "android.permission.CAMERA"
+
+[package.metadata.apple]
+app_name = "Macroquad_Permissions"
+target_sdk_version = 30
+version_code = 1
+icon = "ic_launcher"
+
+build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
+assets = "assets"
+res = "res/apple"

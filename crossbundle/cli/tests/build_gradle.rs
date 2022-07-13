@@ -1,5 +1,4 @@
-use cli::build::{android::AndroidBuildCommand, BuildContext, SharedBuildCommand};
-// use cli::{android::AndroidBuildCommand, BuildContext, SharedBuildCommand};
+use crossbundle_lib::build::{android::AndroidBuildCommand, BuildContext, SharedBuildCommand};
 use crossbundle_tools::{
     commands::gen_minimal_project,
     types::AndroidTarget,
@@ -16,7 +15,7 @@ fn test_build_gradle() {
     let tempdir = tempfile::tempdir().unwrap();
     let project_path = tempdir.path();
     let macroquad_project = true;
-    gen_minimal_project(&project_path, macroquad_project).unwrap();
+    gen_minimal_project(&project_path, macroquad_project, true).unwrap();
 
     let target_dir = std::path::PathBuf::from(project_path).join("target");
     std::fs::create_dir_all(&target_dir).unwrap();
@@ -46,11 +45,15 @@ fn test_build_gradle() {
         sign_key_alias: None,
     };
 
-    AndroidBuildCommand::build_gradle(
+    let gradle_project_path = AndroidBuildCommand::build_gradle(
         &android_build_command,
         &config,
         &context,
         project_path.to_str().unwrap(),
     )
     .unwrap();
+    assert!(
+        gradle_project_path.join("build.gradle").exists(),
+        "Gradle Project's build.gradle file should exist"
+    );
 }

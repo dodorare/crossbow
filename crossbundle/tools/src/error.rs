@@ -16,6 +16,10 @@ pub enum AndroidError {
     AndroidSdkNotFound,
     /// Android NDK is not found
     AndroidNdkNotFound,
+    /// Gradle Dependency project dir not found: {0}
+    GradleDependencyProjectNotFound(PathBuf),
+    /// Gradle Dependency project doesn't contain build.gradle: {0}
+    GradleDependencyProjectNoBuildFile(PathBuf),
     /// Gradle is not found
     GradleNotFound,
     /// Android SDK has no build tools

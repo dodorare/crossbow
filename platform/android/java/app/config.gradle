@@ -1,5 +1,5 @@
 ext.versions = [
-    crossbowLibrary    : "0.1.3",
+    crossbowLibrary    : "0.1.4",
     androidGradlePlugin: "7.0.0",
     compileSdk         : 31,
     minSdk             : 19,
@@ -19,7 +19,19 @@ ext.libraries = [
     kotlinStdLib       : "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlinVersion",
     androidxFragment   : "androidx.fragment:fragment:$versions.fragmentVersion",
     androidxAppcompat  : "androidx.appcompat:appcompat:$versions.appcompatVersion",
+    crossbowLibrary    : "com.crossbow.library:lib:$versions.crossbowLibrary"
 ]
+
+// Project export values
+
+/**
+ * Parse the project properties for the 'custom_build_mode' property and return
+ * it for turning on custom build mode.
+ */
+ext.getCustomBuildMode = { ->
+    // Retrieve the custom_build_mode from the project property set by the Crossbow build command.
+    return project.hasProperty("custom_build_mode") ? project.property("custom_build_mode") : false
+}
 
 ext.getExportPackageName = { ->
     // Retrieve the app id from the project property set by the Crossbow build command.
@@ -72,5 +84,94 @@ ext.getExportTargetSdkVersion = { ->
         return Integer.parseInt(targetSdkVersion)
     } catch (NumberFormatException ignored) {
         return versions.targetSdk
+    }
+}
+
+// Crossbow plugins
+
+final String VALUE_SEPARATOR_REGEX = "\\|"
+
+/**
+ * Parse the project properties for the 'plugins_maven_repos' property and return the list
+ * of maven repos.
+ */
+ext.getCrossbowPluginsMavenRepos = { ->
+    Set<String> mavenRepos = []
+    // Retrieve the list of maven repos.
+    if (project.hasProperty("plugins_maven_repos")) {
+        String mavenReposProperty = project.property("plugins_maven_repos")
+        if (mavenReposProperty != null && !mavenReposProperty.trim().isEmpty()) {
+            for (String mavenRepoUrl : mavenReposProperty.split(VALUE_SEPARATOR_REGEX)) {
+                mavenRepos += mavenRepoUrl.trim()
+            }
+        }
+    }
+    return mavenRepos
+}
+
+/**
+ * Parse the project properties for the 'plugins_remote_binaries' property and return
+ * it for inclusion in the build dependencies.
+ */
+ext.getCrossbowPluginsRemoteBinaries = { ->
+    Set<String> remoteDeps = []
+    // Retrieve the list of remote plugins binaries.
+    if (project.hasProperty("plugins_remote_binaries")) {
+        String remoteDepsList = project.property("plugins_remote_binaries")
+        if (remoteDepsList != null && !remoteDepsList.trim().isEmpty()) {
+            for (String dep: remoteDepsList.split(VALUE_SEPARATOR_REGEX)) {
+                remoteDeps += dep.trim()
+            }
+        }
+    }
+    return remoteDeps
+}
+
+/**
+ * Parse the project properties for the 'plugins_local_binaries' property and return
+ * their paths to binaries for inclusion in the build dependencies.
+ */
+ext.getCrossbowPluginsLocalBinaries = { ->
+    Set<String> binDeps = []
+    // Retrieve the list of local plugins binaries.
+    if (project.hasProperty("plugins_local_binaries")) {
+        String pluginsList = project.property("plugins_local_binaries")
+        if (pluginsList != null && !pluginsList.trim().isEmpty()) {
+            for (String plugin : pluginsList.split(VALUE_SEPARATOR_REGEX)) {
+                binDeps += plugin.trim()
+            }
+        }
+    }
+    return binDeps
+}
+
+/**
+ * Parse the project properties for the 'plugins_local_projects' property and return
+ * their paths to projects for inclusion in the build dependencies.
+ */
+ext.getCrossbowPluginsLocalProjects = { ->
+    Set<String> projectDeps = []
+    // Retrieve the list of local plugins binaries.
+    if (project.hasProperty("plugins_local_projects")) {
+        String pluginsList = project.property("plugins_local_projects")
+        if (pluginsList != null && !pluginsList.trim().isEmpty()) {
+            for (String plugin : pluginsList.split(VALUE_SEPARATOR_REGEX)) {
+                projectDeps += plugin.trim()
+            }
+        }
+    }
+    return projectDeps
+}
+
+// Publishing
+
+ext.mavenCrossbowGithub = {
+    repositories.maven {
+        url = uri("https://maven.pkg.github.com/dodorare/crossbow")
+        credentials {
+            // Use this open machine user token because repo requires authentication
+            username = "token"
+            password = "\u0067hp_YQdtzsNYrpQM3lmZPOXYHpC5GXiord4Qodew"
+        }
     }
 }

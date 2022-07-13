@@ -1,3 +1,3 @@
 fn main() {
-    cli::handle_errors(cli::run);
+    crossbundle_lib::handle_errors(crossbundle_lib::run);
 }

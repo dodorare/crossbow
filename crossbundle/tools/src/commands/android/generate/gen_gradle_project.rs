@@ -1,4 +1,6 @@
+use crate::error::*;
 use rust_embed::RustEmbed;
+use serde::{Deserialize, Serialize};
 use std::{
     fs::File,
     io::Write,
@@ -12,13 +14,38 @@ use std::{
 #[include = "*.gradle"]
 #[exclude = "build/"]
 #[exclude = "libs/"]
-struct CrossbowAppTemplate;
+pub struct CrossbowAppTemplate;
+
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+pub struct AndroidGradlePlugins {
+    /// Android Gradle local plugins.
+    #[serde(default, rename = "plugins_local")]
+    pub local: Vec<PathBuf>,
+    /// Android Gradle remote plugins.
+    #[serde(default, rename = "plugins_remote")]
+    pub remote: Vec<String>,
+    /// Android Gradle custom maven repositories.
+    #[serde(default, rename = "plugins_maven_repos")]
+    pub maven_repos: Vec<String>,
+    /// Android Gradle local plugins projects.
+    #[serde(default, rename = "plugins_local_projects")]
+    pub local_projects: Vec<GradleDependencyProject>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct GradleDependencyProject {
+    include: String,
+    #[serde(default)]
+    dont_implement: bool,
+    project_dir: Option<PathBuf>,
+}
 
 pub fn gen_gradle_project(
     android_build_dir: &Path,
-    resources_dir: Option<PathBuf>,
-    assets_dir: Option<PathBuf>,
-) -> crate::error::Result<PathBuf> {
+    assets_dir: &Option<PathBuf>,
+    resources_dir: &Option<PathBuf>,
+    plugins: &AndroidGradlePlugins,
+) -> Result<PathBuf> {
     let gradle_project_path = android_build_dir.join("gradle");
 
     for file_name in CrossbowAppTemplate::iter() {
@@ -36,10 +63,14 @@ pub fn gen_gradle_project(
     }
 
     let mut gradle_properties = File::create(gradle_project_path.join("gradle.properties"))?;
-    write!(gradle_properties, "{}", crossbow_app_gradle_properties())?;
+    write!(gradle_properties, "{}", get_gradle_properties(plugins)?)?;
 
     let mut settings_gradle = File::create(gradle_project_path.join("settings.gradle"))?;
-    write!(settings_gradle, "{}", crossbow_app_settings_gradle())?;
+    write!(
+        settings_gradle,
+        "{}",
+        get_settings_gradle(&plugins.local_projects)?
+    )?;
 
     let mut options = fs_extra::dir::CopyOptions::new();
     options.overwrite = true;
@@ -56,45 +87,71 @@ pub fn gen_gradle_project(
     Ok(gradle_project_path)
 }
 
-fn crossbow_app_gradle_properties() -> String {
-    r#"
-# Project-wide Gradle settings.
-
-# IDE (e.g. Android Studio) users:
-# Gradle settings configured through the IDE *will override*
-# any settings specified in this file.
-# For more details on how to configure your build environment visit
-# http://www.gradle.org/docs/current/userguide/build_environment.html
-
-# Specifies the JVM arguments used for the daemon process.
-# The setting is particularly useful for tweaking memory settings.
-org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
-
-# When configured, Gradle will run in incubating parallel mode.
-# This option should only be used with decoupled projects. More details, visit
-# http://www.gradle.org/docs/current/userguide/multi_project_builds.html#sec:decoupled_projects
-# org.gradle.parallel=true
-# AndroidX package structure to make it clearer which packages are bundled with the
-# Android operating system, and which are packaged with your app"s APK
-# https://developer.android.com/topic/libraries/support-library/androidx-rn
+const DEFAULT_GRADLE_PROPERTIES: &str = r#"org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
 android.useAndroidX=true
 android.enableJetifier=true
-
-# Enables namespacing of each library's R class so that its R class includes only the
-# resources declared in the library itself and none from the library's dependencies,
-# thereby reducing the size of the R class for that library
 android.nonTransitiveRClass=true
-"#
-    .to_string()
+"#;
+
+fn get_gradle_properties(plugins: &AndroidGradlePlugins) -> Result<String> {
+    let mut result = DEFAULT_GRADLE_PROPERTIES.to_string();
+    if !plugins.maven_repos.is_empty() {
+        result = format!(
+            "{}plugins_maven_repos={}\n",
+            result,
+            plugins.maven_repos.join("\\|")
+        );
+    }
+    if !plugins.remote.is_empty() {
+        result = format!(
+            "{}plugins_remote_binaries={}\n",
+            result,
+            plugins.remote.join("\\|")
+        );
+    }
+    if !plugins.local.is_empty() {
+        let local = plugins
+            .local
+            .iter()
+            .map(|p| dunce::simplified(p).to_string_lossy())
+            .collect::<Vec<_>>()
+            .join("\\|");
+        result = format!("{}plugins_local_binaries={}\n", result, local);
+    }
+    if !plugins.local_projects.is_empty() {
+        let projects = plugins
+            .local_projects
+            .iter()
+            .filter(|p| !p.dont_implement)
+            .map(|p| p.include.clone())
+            .collect::<Vec<_>>()
+            .join("\\|");
+        result = format!("{}plugins_local_projects={}\n", result, projects);
+    }
+    Ok(result)
 }
 
-fn crossbow_app_settings_gradle() -> String {
-    r#"
-include ":crossbow"
-project(":crossbow").projectDir = new File("../../../../platform/android/java/")
-include ":crossbow:lib"
-"#
-    .to_string()
+fn get_settings_gradle(dependencies: &[GradleDependencyProject]) -> Result<String> {
+    let mut result = "".to_owned();
+    for dependency in dependencies {
+        result = format!("{}include \"{}\"\n", result, dependency.include);
+        if let Some(dir) = &dependency.project_dir {
+            let dir_path = dunce::canonicalize(dir)
+                .map_err(|_| AndroidError::GradleDependencyProjectNotFound(dir.to_path_buf()))?;
+            if !dir_path.join("build.gradle").exists() {
+                return Err(
+                    AndroidError::GradleDependencyProjectNoBuildFile(dir.to_path_buf()).into(),
+                );
+            }
+            result = format!(
+                "{}project(\"{}\").projectDir = new File(\"{}\")\n",
+                result,
+                dependency.include,
+                dir_path.to_string_lossy()
+            );
+        }
+    }
+    Ok(result)
 }
 
 #[cfg(test)]
@@ -113,6 +170,48 @@ mod tests {
         assert!(
             CrossbowAppTemplate::get("libs/debug/arm64-v8a/libcrossbow_android.so").is_none(),
             "libcrossbow_android.so shouldn't exist"
+        );
+    }
+
+    #[test]
+    fn test_crossbow_settings_gradle() {
+        let dep = GradleDependencyProject {
+            include: ":crossbow".to_string(),
+            dont_implement: false,
+            // Path converted to absolute from crossbundle/tools directory
+            project_dir: Some(PathBuf::from("../../platform/android/java")),
+        };
+        assert_eq!(
+            get_settings_gradle(&[dep.clone()]).unwrap(),
+            format!(
+                "include \":crossbow\"\nproject(\":crossbow\").projectDir = new File(\"{}\")\n",
+                dunce::canonicalize(dep.project_dir.unwrap())
+                    .unwrap()
+                    .to_string_lossy()
+            )
+        );
+    }
+
+    #[test]
+    fn test_crossbow_gradle_properties() {
+        let mut plugins = AndroidGradlePlugins {
+            local: vec![],
+            remote: vec![],
+            maven_repos: vec![],
+            local_projects: vec![],
+        };
+        assert_eq!(
+            get_gradle_properties(&plugins).unwrap(),
+            DEFAULT_GRADLE_PROPERTIES
+        );
+
+        plugins.local.push(PathBuf::from("../../MyPlugin.aar"));
+        assert_eq!(
+            get_gradle_properties(&plugins).unwrap(),
+            format!(
+                "{}{}",
+                DEFAULT_GRADLE_PROPERTIES, "plugins_local_binaries=../../MyPlugin.aar\n"
+            )
         );
     }
 }
