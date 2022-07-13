@@ -1,7 +1,7 @@
 name: Docker images
 on:
   push:
-    branches: [main, add-plugin-support]
+    branches: [main]
     paths:
     - '.github/docker/*.Dockerfile'
     - '.github/workflows/docker.yml'
