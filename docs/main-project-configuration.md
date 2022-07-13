@@ -25,31 +25,6 @@ build_targets = ["aarch64-linux-android"]
 assets = "assets"
 res = "res/android"
 
-[[package.metadata.android.permissions]]
-name = "android.permission.INTERNET"
-
-[[package.metadata.android.permissions_sdk_23]]
-name = "android.permission.WRITE_EXTERNAL_STORAGE"
-max_sdk_version = 30
-
-[[package.metadata.android.service]]
-name = "UpdateService"
-intent_filter = []
-meta_data = []
-
-[[package.metadata.android.queries.provider]]
-authorities = "org.khronos.openxr.runtime_broker;org.khronos.openxr.system_runtime_broker"
-name = "org.khronos.openxr"
-
-[[package.metadata.android.features]]
-name = "android.hardware.vulkan.level"
-required = true
-version = 1
-
-[[package.metadata.android.meta_data]]
-name = "com.oculus.vr.focusaware"
-value = "true"
-
 [package.metadata.apple]
 app_name = "Creator 3D"
 icon = "ic_launcher"

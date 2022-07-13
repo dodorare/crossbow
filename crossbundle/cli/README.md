@@ -52,6 +52,7 @@ app_name = "Example"
 # The version number shown to users
 version_name = "0.1.0"
 # Internal version number used to determine whether one version is more recent than another
+# 
 # See https://developer.android.com/guide/topics/manifest/manifest-element
 version_code = 1
 # Min SDK version
@@ -79,7 +80,41 @@ build_targets = ["aarch64-linux-android"]
 # Note that android_version 23 and higher, Android requires the application to request permissions at runtime.
 [[package.metadata.android.permissions]]
 name = "android.permission.INTERNET"
-max_sdk_version = 21
+
+# Specifies that an app wants a particular permission, but only if the app is installed on a device running 
+# Android 6.0 (API level 23) or higher. If the device is running API level 22 or lower, the app does not have the specified permission.
+# 
+# See https://developer.android.com/guide/topics/manifest/uses-permission-sdk-23-element
+[[package.metadata.android.permissions_sdk_23]]
+name = "android.permission.WRITE_EXTERNAL_STORAGE"
+max_sdk_version = 30
+
+# See https://developer.android.com/guide/topics/manifest/service-element
+[[package.metadata.android.service]]
+name = "UpdateService"
+intent_filter = []
+meta_data = []
+
+# See https://developer.android.com/guide/topics/manifest/queries-element#provider
+[[package.metadata.android.queries.provider]]
+authorities = "org.khronos.openxr.runtime_broker;org.khronos.openxr.system_runtime_broker"
+# Note: The `name` attribute is normally not required for a queries provider, but is non-optional
+# as a workaround for aapt throwing errors about missing `android:name` attribute.
+# This will be made optional if/when cargo-apk migrates to aapt2.
+name = "org.khronos.openxr"
+
+# See https://developer.android.com/guide/topics/manifest/uses-feature-element
+#
+# Note: there can be multiple .uses_feature entries.
+[[package.metadata.android.features]]
+name = "android.hardware.vulkan.level"
+required = true
+version = 1
+
+# See https://developer.android.com/guide/topics/manifest/meta-data-element
+[[package.metadata.android.meta_data]]
+name = "com.oculus.vr.focusaware"
+value = "true"
 
 [package.metadata.apple]
 # The user-friendly application name for your app. Displayed in the applications menu
