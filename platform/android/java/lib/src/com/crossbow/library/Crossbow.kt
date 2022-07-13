@@ -56,7 +56,7 @@ class Crossbow : Fragment() {
     @CallSuper
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        for (plugin in pluginRegistry!!.getAllPlugins()) {
+        for (plugin in pluginRegistry!!.allPlugins) {
             plugin.onMainActivityResult(requestCode, resultCode, data)
         }
     }
@@ -68,7 +68,7 @@ class Crossbow : Fragment() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        for (plugin in pluginRegistry!!.getAllPlugins()) {
+        for (plugin in pluginRegistry!!.allPlugins) {
             plugin.onMainRequestPermissionsResult(requestCode, permissions, grantResults)
         }
         for (i in permissions.indices) {
@@ -84,7 +84,7 @@ class Crossbow : Fragment() {
      */
     @CallSuper
     protected fun onCrossbowSetupCompleted() {
-        for (plugin in pluginRegistry!!.getAllPlugins()) {
+        for (plugin in pluginRegistry!!.allPlugins) {
             plugin.onCrossbowSetupCompleted()
         }
         if (crossbowHost != null) {
@@ -97,7 +97,7 @@ class Crossbow : Fragment() {
      */
     @CallSuper
     protected fun onCrossbowMainLoopStarted() {
-        for (plugin in pluginRegistry!!.getAllPlugins()) {
+        for (plugin in pluginRegistry!!.allPlugins) {
             plugin.onCrossbowMainLoopStarted()
         }
         if (crossbowHost != null) {
@@ -120,14 +120,14 @@ class Crossbow : Fragment() {
             )
         )
 
-        for (plugin in pluginRegistry!!.getAllPlugins()) {
+        for (plugin in pluginRegistry!!.allPlugins) {
             plugin.onRegisterPluginWithCrossbowNative()
         }
 
 		Log.v(TAG, "Crossbow onRenderInit middle")
 
         // Include the returned non-null views in the Crossbow view hierarchy.
-        for (plugin in pluginRegistry!!.getAllPlugins()) {
+        for (plugin in pluginRegistry!!.allPlugins) {
             val pluginView: View? = plugin.onMainCreate(activity)
             if (pluginView !== null) {
                 if (plugin.shouldBeOnTop()) {
@@ -142,7 +142,7 @@ class Crossbow : Fragment() {
     }
 
     override fun onDestroy() {
-        for (plugin in pluginRegistry!!.getAllPlugins()) {
+        for (plugin in pluginRegistry!!.allPlugins) {
             plugin.onMainDestroy()
         }
         // CrossbowLib.ondestroy()
@@ -151,21 +151,21 @@ class Crossbow : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        for (plugin in pluginRegistry!!.getAllPlugins()) {
+        for (plugin in pluginRegistry!!.allPlugins) {
             plugin.onMainPause()
         }
     }
 
     override fun onResume() {
         super.onResume()
-        for (plugin in pluginRegistry!!.getAllPlugins()) {
+        for (plugin in pluginRegistry!!.allPlugins) {
             plugin.onMainResume()
         }
     }
 
     fun onBackPressed() {
         var shouldQuit = true
-        for (plugin in pluginRegistry!!.getAllPlugins()) {
+        for (plugin in pluginRegistry!!.allPlugins) {
             if (plugin.onMainBackPressed()) {
                 shouldQuit = false
             }
