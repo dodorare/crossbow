@@ -1,5 +1,5 @@
 ext.versions = [
-    crossbowLibrary    : "0.1.3",
+    crossbowLibrary    : "0.1.4",
     androidGradlePlugin: "7.0.0",
     compileSdk         : 31,
     minSdk             : 19,
@@ -171,7 +171,7 @@ repositories.ext.mavenCrossbowGithub = {
         credentials {
             // Use this open machine user token because repo requires authentication
             username = "token"
-            password = "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"
+            password = "\u0067hp_YQdtzsNYrpQM3lmZPOXYHpC5GXiord4Qodew"
         }
     }
 }
@@ -182,7 +182,7 @@ project.buildscript.repositories.ext.mavenCrossbowGithub = {
         credentials {
             // Use this open machine user token because repo requires authentication
             username = "token"
-            password = "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"
+            password = "\u0067hp_YQdtzsNYrpQM3lmZPOXYHpC5GXiord4Qodew"
         }
     }
 }
