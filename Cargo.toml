@@ -1,6 +1,6 @@
 [package]
 name = "crossbow"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2021"
 authors = ["DodoRare Team <support@dodorare.com>"]
 description = "Cross-Platform Rust Toolkit for Games 🏹"
@@ -12,7 +12,7 @@ exclude = [".github/**/*"]
 
 [dependencies]
 # Platform-specific dependencies
-crossbow-android = { path = "platform/android", version = "0.1.4", optional = true }
+crossbow-android = { path = "platform/android", version = "0.1.5", optional = true }
 
 [target.'cfg(target_os = "android")'.dependencies]
 ndk-glue = "0.6.2"
