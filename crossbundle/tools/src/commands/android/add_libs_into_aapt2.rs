@@ -50,6 +50,7 @@ pub fn add_libs_into_aapt2(
         .join("android")
         .join(&package_name)
         .join("libs")
+        .join(profile)
         .join(abi);
     for (_lib_name, lib_path) in needed_libs {
         add_lib_aapt2(&lib_path, &out_dir, &project_dir)?;
