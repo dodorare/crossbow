@@ -22,17 +22,18 @@ pub struct AndroidBuildCommand {
     /// `i686-linux-android`, `x86_64-linux-android`
     #[clap(long, default_value = "aarch64-linux-android")]
     pub target: Vec<AndroidTarget>,
-    /// Generating aab. By default crossbow generating apk
+    /// Generating native aab without Java. By default crossbow generating gradle project
     #[clap(long)]
     pub aab: bool,
+    /// Generating native apk without Java. By default crossbow generating gradle project
+    #[clap(long)]
+    pub apk: bool,
     /// Compile rust code as a dynamic library [default: crossbow-android]
     #[clap(long, default_missing_value = "crossbow_android")]
     pub lib: Option<String>,
-    /// Compile rust code as a dynamic library, generate Gradle project and build
-    /// generate apk/aab. If value provided - should be in Path format and it will
-    /// be used as a path to export Gradle project [default: :target]
+    /// Path to export Gradle project [default: :target]
     #[clap(long, default_missing_value = ":target")]
-    pub gradle: Option<String>,
+    pub export_path: Option<String>,
     /// Path to the signing key
     #[clap(long, requires_all = &["sign-key-pass", "sign-key-alias"])]
     pub sign_key_path: Option<PathBuf>,
@@ -55,12 +56,16 @@ impl AndroidBuildCommand {
         let context = BuildContext::new(config, self.shared.target_dir.clone())?;
         if self.aab {
             self.execute_aab(config, &context)?;
+        } else if self.apk {
+            self.execute_apk(config, &context)?;
         } else if let Some(lib_name) = &self.lib {
             self.build_rust_lib(config, &context, lib_name, None)?;
-        } else if let Some(export_path) = &self.gradle {
-            self.build_gradle(config, &context, export_path)?;
         } else {
-            self.execute_apk(config, &context)?;
+            self.build_gradle(
+                config,
+                &context,
+                &self.export_path.as_ref().unwrap_or(&String::from(":target")),
+            )?;
         }
         Ok(())
     }

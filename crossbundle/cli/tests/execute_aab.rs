@@ -39,10 +39,11 @@ fn test_execute_aab() {
         target: vec![AndroidTarget::Aarch64LinuxAndroid],
         aab: false,
         lib: None,
-        gradle: None,
+        export_path: None,
         sign_key_path: None,
         sign_key_pass: None,
         sign_key_alias: None,
+        apk: false,
     };
 
     let (_, _, generated_aab_path, _, _) =
