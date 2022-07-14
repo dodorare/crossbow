@@ -27,7 +27,7 @@ jobs:
     - name: Build APK
       run: |
         cd examples/macroquad-3d
-        crossbundle build android --release --quad
+        crossbundle build android --apk --quad --release
 
   apple-build-macos:
     name: Build Apple example on macOS latest
@@ -43,7 +43,7 @@ jobs:
     - name: Build Apple app
       run: |
         cd examples/macroquad-3d
-        crossbundle build apple --release --target=aarch64-apple-ios --quad
+        crossbundle build apple --apk --release --target=aarch64-apple-ios --quad
 
   test-crossbundle-new:
     name: Generate and Build from template on macOS latest
@@ -65,7 +65,7 @@ jobs:
     - name: Build Apple app
       run: |
         cd ~/example/
-        crossbundle build android --release --quad
+        crossbundle build android --apk --release --quad
 
   clean:
     name: Check code format
