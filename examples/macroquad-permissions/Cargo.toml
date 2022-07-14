@@ -1,12 +1,12 @@
 [package]
 name = "macroquad-permissions"
-version = "0.1.4"
+version = "0.1.5"
 authors = ["DodoRare Team <support@dodorare.com>"]
 edition = "2021"
 
 [dependencies]
-crossbow = { version = "0.1.4", path = "../../", features = ["android"] }
-crossbow-admob-android = { version = "0.1.4", path = "../../plugins/admob-android" }
+crossbow = { version = "0.1.5", path = "../../" }
+crossbow-admob = { version = "0.1.5", path = "../../plugins/admob" }
 log = "0.4"
 anyhow = "1.0"
 macroquad = "0.3.7"
@@ -23,7 +23,7 @@ build_targets = ["aarch64-linux-android"]
 assets = "assets"
 res = "res/android"
 
-# plugins_remote = ["com.crossbow.admob:admob:0.1.4"]
+# plugins_remote = ["com.crossbow.admob:admob:0.1.5"]
 
 [[package.metadata.android.plugins_local_projects]]
 include = ":crossbow"
@@ -35,7 +35,7 @@ include = ":crossbow:lib"
 
 [[package.metadata.android.plugins_local_projects]]
 include = ":admob"
-project_dir = "../../plugins/admob-android"
+project_dir = "../../plugins/admob/android"
 
 [[package.metadata.android.permissions]]
 name = "android.permission.READ_EXTERNAL_STORAGE"

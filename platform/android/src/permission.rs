@@ -28,7 +28,7 @@ const OBJECT_INDEX: i32 = 0;
 
 /// Find declared permissions in AndroidManifest.xml and return it as JValue type
 fn get_permission_from_manifest<'a>(
-    permission: AndroidPermission,
+    permission: &AndroidPermission,
     jnienv: &jni::JNIEnv<'a>,
 ) -> Result<jni::objects::JValue<'a>> {
     // Find the android manifest class and get the permission
@@ -83,7 +83,7 @@ pub fn permission_status<'a>(
 }
 
 /// Provides checking permission status in the application and will request permission if it is denied.
-pub fn request_permission(permission: AndroidPermission) -> Result<bool> {
+pub fn request_permission(permission: &AndroidPermission) -> Result<bool> {
     let (_, vm) = super::create_java_vm()?;
     let jnienv = vm.attach_current_thread()?;
 

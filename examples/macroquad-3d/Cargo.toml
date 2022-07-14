@@ -1,11 +1,11 @@
 [package]
 name = "macroquad-3d"
-version = "0.1.4"
+version = "0.1.5"
 authors = ["DodoRare Team <support@dodorare.com>"]
 edition = "2021"
 
 [dependencies]
-crossbow = { version = "0.1.4", path = "../../", features = ["android"] }
+crossbow = { version = "0.1.5", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
 macroquad = "0.3.7"

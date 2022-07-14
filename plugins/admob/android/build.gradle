@@ -1,5 +1,5 @@
 buildscript {
-    apply from: "../../platform/android/java/app/config.gradle"
+    apply from: "config.gradle"
     repositories {
         google()
         mavenCentral()
@@ -13,7 +13,7 @@ buildscript {
 
 apply plugin: "com.android.library"
 apply plugin: "org.jetbrains.kotlin.android"
-apply from: "../../platform/android/java/app/config.gradle"
+apply from: "config.gradle"
 apply from: "publish.gradle"
 
 repositories {
@@ -70,7 +70,7 @@ android {
     sourceSets {
         main {
             manifest.srcFile "AndroidManifest.xml"
-            java.srcDirs = ["java"]
+            java.srcDirs = ["src"]
             assets.srcDirs = ["assets"]
             res.srcDirs = ["res"]
         }

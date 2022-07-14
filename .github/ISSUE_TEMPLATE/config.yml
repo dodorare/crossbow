@@ -1,0 +1,5 @@
+contact_links:
+  - name: Question
+    url: https://github.com/dodorare/crossbow/discussions
+    about: Questions about how to use or contribute to Crossbow belong in Github Discussions.
+      You can use the search to check if someone has already answered your question!

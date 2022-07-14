@@ -1,6 +1,6 @@
 [package]
 name = "crossbundle"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2021"
 authors = ["DodoRare Team <support@dodorare.com>"]
 description = "Build and publish apps for Android/iOS"
@@ -18,7 +18,7 @@ name = "crossbundle"
 path = "src/main.rs"
 
 [dependencies]
-crossbundle-tools = { path = "../tools", version = "0.1.4" }
+crossbundle-tools = { path = "../tools", version = "0.1.5" }
 android-tools = "0.2.8"
 clap = { version = "3.2.8", features = ["derive"] }
 serde = { version = "1.0", features = ["derive"] }

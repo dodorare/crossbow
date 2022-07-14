@@ -1,7 +1,5 @@
 apply plugin: "maven-publish"
 
-group = "crossbow"
-
 publishing {
     repositories {
         maven {
@@ -21,24 +19,24 @@ publishing {
             artifact("$buildDir/outputs/aar/$artifactId-release.aar")
 
             pom.withXml {
-                final dependenciesNode = asNode().appendNode('dependencies')
+                final dependenciesNode = asNode().appendNode("dependencies")
                 ext.addDependency = { Dependency dep, String scope ->
                     if (dep.group == null || dep.version == null || dep.name == null || dep.name == "unspecified")
                         return
-                    final dependencyNode = dependenciesNode.appendNode('dependency')
-                    dependencyNode.appendNode('groupId', dep.group)
-                    dependencyNode.appendNode('artifactId', dep.name)
-                    dependencyNode.appendNode('version', dep.version)
-                    dependencyNode.appendNode('scope', scope)
+                    final dependencyNode = dependenciesNode.appendNode("dependency")
+                    dependencyNode.appendNode("groupId", dep.group)
+                    dependencyNode.appendNode("artifactId", dep.name)
+                    dependencyNode.appendNode("version", dep.version)
+                    dependencyNode.appendNode("scope", scope)
                     if (!dep.transitive) {
-                        final exclusionNode = dependencyNode.appendNode('exclusions').appendNode('exclusion')
-                        exclusionNode.appendNode('groupId', '*')
-                        exclusionNode.appendNode('artifactId', '*')
+                        final exclusionNode = dependencyNode.appendNode("exclusions").appendNode("exclusion")
+                        exclusionNode.appendNode("groupId", "*")
+                        exclusionNode.appendNode("artifactId", "*")
                     } else if (!dep.properties.excludeRules.empty) {
-                        final exclusionNode = dependencyNode.appendNode('exclusions').appendNode('exclusion')
+                        final exclusionNode = dependencyNode.appendNode("exclusions").appendNode("exclusion")
                         dep.properties.excludeRules.each { ExcludeRule rule ->
-                            exclusionNode.appendNode('groupId', rule.group ?: '*')
-                            exclusionNode.appendNode('artifactId', rule.module ?: '*')
+                            exclusionNode.appendNode("groupId", rule.group ?: "*")
+                            exclusionNode.appendNode("artifactId", rule.module ?: "*")
                         }
                     }
                 }

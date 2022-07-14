@@ -1,5 +1,5 @@
 ext.versions = [
-    crossbowLibrary    : "0.1.4",
+    crossbowLibrary    : "0.1.5",
     androidGradlePlugin: "7.0.0",
     compileSdk         : 31,
     minSdk             : 19,
@@ -165,6 +165,9 @@ ext.getCrossbowPluginsLocalProjects = { ->
 
 // Publishing
 
+/**
+ * Add Crossbow Gihub Maven repository with credentials to the project.
+ */
 ext.mavenCrossbowGithub = {
     repositories.maven {
         url = uri("https://maven.pkg.github.com/dodorare/crossbow")
