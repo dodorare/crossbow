@@ -1,4 +1,4 @@
-# Crossbow Android Platform port
+# Crossbow Android Platform
 
 ## About
 

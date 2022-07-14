@@ -33,7 +33,7 @@ To install crossbundle, run:
 cargo install --git=https://github.com/dodorare/crossbow crossbundle
 ```
 
-See [installation documentation](https://github.com/dodorare/crossbow/blob/improve-documentation/docs/README.md) for more details on how to setup environment on your platform.
+See [installation documentation](./docs/README.md) for more details on how to setup environment on your platform.
 
 ## 🗂️ Project structure
 
