@@ -1,0 +1,42 @@
+ext.versions = [
+    crossbowLibrary    : "0.1.4",
+    androidGradlePlugin: "7.0.0",
+    compileSdk         : 31,
+    minSdk             : 19,
+    targetSdk          : 30,
+    buildTools         : "30.0.3",
+    kotlinVersion      : "1.6.21",
+    appcompatVersion   : "1.4.0",
+    javaVersion        : 11,
+]
+
+ext.libraries = [
+    androidGradlePlugin: "com.android.tools.build:gradle:$versions.androidGradlePlugin",
+    kotlinGradlePlugin : "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlinVersion",
+    kotlinStdLib       : "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlinVersion",
+    androidxAppcompat  : "androidx.appcompat:appcompat:$versions.appcompatVersion",
+    crossbowLibrary    : "com.crossbow.library:lib:$versions.crossbowLibrary"
+]
+
+/**
+ * Parse the project properties for the 'custom_build_mode' property and return
+ * it for turning on custom build mode.
+ */
+ext.getCustomBuildMode = { ->
+    // Retrieve the custom_build_mode from the project property set by the Crossbow build command.
+    return project.hasProperty("custom_build_mode") ? project.property("custom_build_mode") : false
+}
+
+/**
+ * Add Crossbow Gihub Maven repository with credentials to the project.
+ */
+ext.mavenCrossbowGithub = {
+    repositories.maven {
+        url = uri("https://maven.pkg.github.com/dodorare/crossbow")
+        credentials {
+            // Use this open machine user token because repo requires authentication
+            username = "token"
+            password = "\u0067hp_YQdtzsNYrpQM3lmZPOXYHpC5GXiord4Qodew"
+        }
+    }
+}

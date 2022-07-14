@@ -3,6 +3,6 @@ rootProject.name = "admob"
 
 if (System.getenv("TOKEN") == null) {
     include ":crossbow"
-    project(":crossbow").projectDir = new File("../../platform/android/java/")
+    project(":crossbow").projectDir = new File("../../../platform/android/java/")
     include ":crossbow:lib"
 }

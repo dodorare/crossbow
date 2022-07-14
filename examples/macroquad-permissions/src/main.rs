@@ -1,12 +1,10 @@
-use crossbow::crossbow_android::*;
-use crossbow::crossbow_android::{permission::*, types::*};
+use crossbow::android::{plugin, types::*};
+use crossbow::request_permission;
 use macroquad::prelude::*;
 use macroquad::ui::{hash, root_ui, Skin};
 
 #[macroquad::main("Macroquad UI")]
 async fn main() -> anyhow::Result<()> {
-    crossbow::crossbow_android::init();
-
     let skin = {
         let label_style = root_ui()
             .style_builder()
@@ -41,13 +39,12 @@ async fn main() -> anyhow::Result<()> {
         }
     };
 
-    let (_, vm) = create_java_vm().unwrap();
+    let (_, vm) = crossbow::android::create_java_vm().unwrap();
     let jnienv = vm.attach_current_thread_as_daemon().unwrap();
 
     let admob_singleton =
         plugin::get_jni_singleton("AdMob").expect("Crossbow Error: AdMob is not registered");
-    let admob =
-        crossbow_admob_android::AdMobPlugin::from_jnienv(admob_singleton.clone(), jnienv).unwrap();
+    let admob = crossbow_admob::AdMobPlugin::from_jnienv(admob_singleton.clone(), jnienv).unwrap();
 
     let mut label = "Signal: ".to_owned();
     let window_skin = skin.clone();

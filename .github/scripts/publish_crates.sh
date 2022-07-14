@@ -3,7 +3,7 @@
 # Legends say that the order of the crates should be kept.
 crates=(
     platform/android
-    plugins/admob-android
+    plugins/admob
     crossbundle/tools
     crossbundle/cli
 )

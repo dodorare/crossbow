@@ -23,7 +23,7 @@ bevy = { git = "https://github.com/dodorare/bevy", rev = "d51104020004d34db1aa3a
 miniquad = { git = "https://github.com/not-fl3/miniquad", rev = "d67ffe6950cf73df307e2d23aaa4726f14399985" }
 
 [features]
-default = []
+default = ["android"]
 android = ["crossbow-android"]
 
 [workspace]

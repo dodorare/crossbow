@@ -165,6 +165,9 @@ ext.getCrossbowPluginsLocalProjects = { ->
 
 // Publishing
 
+/**
+ * Add Crossbow Gihub Maven repository with credentials to the project.
+ */
 ext.mavenCrossbowGithub = {
     repositories.maven {
         url = uri("https://maven.pkg.github.com/dodorare/crossbow")

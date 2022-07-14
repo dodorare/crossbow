@@ -2,8 +2,6 @@ use macroquad::prelude::*;
 
 #[macroquad::main("Macroquad 3D")]
 async fn main() -> anyhow::Result<()> {
-    crossbow::crossbow_android::init();
-
     let rust_logo = load_texture("bob/rust.png").await?;
     let ferris = load_texture("bob/ferris.png").await?;
 
