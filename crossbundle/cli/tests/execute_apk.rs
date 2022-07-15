@@ -15,7 +15,7 @@ fn test_execute_apk() {
     let tempdir = tempfile::tempdir().unwrap();
     let project_path = tempdir.path();
     let macroquad_project = true;
-    gen_minimal_project(&project_path, macroquad_project, true).unwrap();
+    gen_minimal_project(project_path, macroquad_project, true).unwrap();
 
     let target_dir = std::path::PathBuf::from(project_path).join("target");
     std::fs::create_dir_all(&target_dir).unwrap();
@@ -39,10 +39,11 @@ fn test_execute_apk() {
         target: vec![AndroidTarget::Aarch64LinuxAndroid],
         aab: false,
         lib: None,
-        gradle: None,
+        export_path: None,
         sign_key_path: None,
         sign_key_pass: None,
         sign_key_alias: None,
+        apk: false,
     };
 
     let (_, _, generated_apk_path) =

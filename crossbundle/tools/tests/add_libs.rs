@@ -14,7 +14,7 @@ fn add_bevy_libs() {
     let project_path = tempdir.path();
 
     // Assigns configuration for project
-    let bevy_package_name = gen_minimal_project(&project_path, false, true).unwrap();
+    let bevy_package_name = gen_minimal_project(project_path, false, true).unwrap();
 
     // Assign needed configuration to compile rust for android with bevy
     let sdk = AndroidSdk::from_env().unwrap();
@@ -22,14 +22,14 @@ fn add_bevy_libs() {
     let build_target = AndroidTarget::Aarch64LinuxAndroid;
     let profile = Profile::Release;
     let target_sdk_version = 30;
-    let bevy_lib_name = format!("lib{}.so", bevy_package_name.replace("-", "_"));
+    let bevy_lib_name = format!("lib{}.so", bevy_package_name.replace('-', "_"));
     let app_wrapper_for_bevy = ApplicationWrapper::NdkGlue;
 
     // Compile rust code for android with bevy engine
     rust_compile(
         &ndk,
         build_target,
-        &project_path,
+        project_path,
         profile,
         vec![],
         false,
@@ -83,7 +83,7 @@ fn add_quad_libs() {
     let project_path = tempdir.path();
 
     // Assigns configuration for project
-    let quad_package_name = gen_minimal_project(&project_path, true, true).unwrap();
+    let quad_package_name = gen_minimal_project(project_path, true, true).unwrap();
 
     // Assign needed configuration to compile rust for android with bevy
     let sdk = AndroidSdk::from_env().unwrap();
@@ -91,7 +91,7 @@ fn add_quad_libs() {
     let build_target = AndroidTarget::Aarch64LinuxAndroid;
     let profile = Profile::Release;
     let target_sdk_version = 30;
-    let quad_lib_name = format!("lib{}.so", quad_package_name.replace("-", "_"));
+    let quad_lib_name = format!("lib{}.so", quad_package_name.replace('-', "_"));
     let app_wrapper_for_quad = ApplicationWrapper::Sokol;
 
     // Compile rust code for android with bevy engine

@@ -53,7 +53,7 @@ fn main() {
 
 ## 🔨 Build an application
 
-Let's build and run our first CrossBundle application.
+Let's build and run our first CrossBundle application. Android commands below will generate gradle project and install apk on your device. 
 
 ```sh
 # cd project-name
@@ -64,7 +64,7 @@ crossbundle run android --quad
 crossbundle run apple
 ```
 
-If you want to build the application for android as AAB - add `--aab` flag.
+If you want to build the application for android as native AAB - add `--aab` flag or add `--apk` to build native APK.
 
 When the application deploys on your device, you can attach a logger.
 
