@@ -64,7 +64,10 @@ impl AndroidBuildCommand {
             self.build_gradle(
                 config,
                 &context,
-                &self.export_path.as_ref().unwrap_or(&String::from(":target")),
+                &self
+                    .export_path
+                    .as_ref()
+                    .unwrap_or(&String::from(":target")),
             )?;
         }
         Ok(())

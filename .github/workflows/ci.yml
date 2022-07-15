@@ -43,7 +43,7 @@ jobs:
     - name: Build Apple app
       run: |
         cd examples/macroquad-3d
-        crossbundle build apple --apk --release --target=aarch64-apple-ios --quad
+        crossbundle build apple --release --target=aarch64-apple-ios --quad
 
   test-crossbundle-new:
     name: Generate and Build from template on macOS latest

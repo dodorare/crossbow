@@ -32,15 +32,15 @@ fn test_cargo_metadata() {
     };
 
     let android_build_command = AndroidBuildCommand {
-      shared: shared_build_command,
-      target: vec![AndroidTarget::Aarch64LinuxAndroid],
-      aab: false,
-      lib: None,
-      export_path: None,
-      sign_key_path: None,
-      sign_key_pass: None,
-      sign_key_alias: None,
-      apk: false,
+        shared: shared_build_command,
+        target: vec![AndroidTarget::Aarch64LinuxAndroid],
+        aab: false,
+        lib: None,
+        export_path: None,
+        sign_key_path: None,
+        sign_key_pass: None,
+        sign_key_alias: None,
+        apk: false,
     };
 
     let profile = android_build_command.shared.profile();
