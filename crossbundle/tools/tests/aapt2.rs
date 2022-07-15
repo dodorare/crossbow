@@ -57,10 +57,10 @@ fn test_aapt2_link() {
     assert!(res_path.exists());
 
     // Compiles resources for aapt2 link
-    let aapt2_compile = sdk.aapt2().unwrap().compile_incremental(
-        dunce::simplified(&res_path),
-        dunce::simplified(&tempdir),
-    );
+    let aapt2_compile = sdk
+        .aapt2()
+        .unwrap()
+        .compile_incremental(dunce::simplified(&res_path), dunce::simplified(&tempdir));
     let compiled_res = aapt2_compile.run().unwrap();
     assert!(compiled_res.exists());
 
