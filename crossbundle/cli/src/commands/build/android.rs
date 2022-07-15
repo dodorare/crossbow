@@ -31,9 +31,9 @@ pub struct AndroidBuildCommand {
     /// Compile rust code as a dynamic library [default: crossbow-android]
     #[clap(long, default_missing_value = "crossbow_android")]
     pub lib: Option<String>,
-    /// Path to export Gradle project [default: :target]
-    #[clap(long, default_missing_value = ":target")]
-    pub export_path: Option<String>,
+    /// Path to export Gradle project. By default exports to `target/android/` folder
+    #[clap(long)]
+    pub export_path: Option<PathBuf>,
     /// Path to the signing key
     #[clap(long, requires_all = &["sign-key-pass", "sign-key-alias"])]
     pub sign_key_path: Option<PathBuf>,
@@ -64,10 +64,7 @@ impl AndroidBuildCommand {
             self.build_gradle(
                 config,
                 &context,
-                &self
-                    .export_path
-                    .as_ref()
-                    .unwrap_or(&String::from(":target")),
+                &self.export_path,
             )?;
         }
         Ok(())
@@ -78,18 +75,18 @@ impl AndroidBuildCommand {
         &self,
         config: &Config,
         context: &BuildContext,
-        export_path: &str,
-    ) -> crate::error::Result<PathBuf> {
+        export_path: &Option<PathBuf>,
+    ) -> crate::error::Result<(AndroidManifest, AndroidSdk, PathBuf)> {
         let profile = self.shared.profile();
         let example = self.shared.example.as_ref();
         let (_, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
 
         config.status_message("Starting gradle build process", &package_name)?;
-        let android_build_dir = if export_path == ":target" {
-            target_dir.join("android").join(&package_name)
-        } else {
+        let android_build_dir = if let Some(export_path) = export_path {
             std::fs::create_dir_all(export_path)?;
             dunce::canonicalize(export_path)?
+        } else {
+            target_dir.join("android").join(&package_name)
         };
 
         config.status("Generating gradle project")?;
@@ -102,7 +99,7 @@ impl AndroidBuildCommand {
 
         // Get AndroidManifest.xml from file or generate from Cargo.toml
         let (sdk, _, _) = Self::android_toolchain(context)?;
-        let (_android_manifest, _manifest_path) = Self::android_manifest(
+        let (android_manifest, _manifest_path) = Self::android_manifest(
             config,
             context,
             &sdk,
@@ -119,7 +116,7 @@ impl AndroidBuildCommand {
             "Gradle project generated",
             gradle_project_path.to_str().unwrap(),
         )?;
-        Ok(gradle_project_path)
+        Ok((android_manifest, sdk, gradle_project_path))
     }
 
     /// Compile rust code as a dynamic library
@@ -184,8 +181,8 @@ impl AndroidBuildCommand {
         let (sdk, ndk, target_sdk_version) = Self::android_toolchain(context)?;
 
         let android_build_dir = target_dir.join("android").join(&package_name);
-        let native_build_dir = android_build_dir.join("native").join("apk");
-        let outputs_build_dir = android_build_dir.join("outputs").join("apk");
+        let native_build_dir = android_build_dir.join("native");
+        let outputs_build_dir = android_build_dir.join("outputs");
         if !outputs_build_dir.exists() {
             std::fs::create_dir_all(&outputs_build_dir)?;
         }
@@ -289,8 +286,8 @@ impl AndroidBuildCommand {
         let (sdk, ndk, target_sdk_version) = Self::android_toolchain(context)?;
 
         let android_build_dir = target_dir.join("android").join(&package_name);
-        let native_build_dir = android_build_dir.join("native").join("aab");
-        let outputs_build_dir = android_build_dir.join("outputs").join("aab");
+        let native_build_dir = android_build_dir.join("native");
+        let outputs_build_dir = android_build_dir.join("outputs");
         if !outputs_build_dir.exists() {
             std::fs::create_dir_all(&outputs_build_dir)?;
         }

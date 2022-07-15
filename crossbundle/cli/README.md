@@ -82,7 +82,7 @@ name = "android.permission.INTERNET"
 
 # Specifies that an app wants a particular permission, but only if the app is installed on a device running 
 # Android 6.0 (API level 23) or higher. If the device is running API level 22 or lower, the app does not have the specified permission.
-# 
+#
 # See https://developer.android.com/guide/topics/manifest/uses-permission-sdk-23-element
 [[package.metadata.android.permissions_sdk_23]]
 name = "android.permission.WRITE_EXTERNAL_STORAGE"
@@ -160,6 +160,128 @@ SUBCOMMANDS:
                build with `crossbundle`
     run        Executes `build` command and then deploy and launches the application on the
                device/emulator
+```
+
+Result of `crossbundle build android -h`:
+
+```text
+Starts the process of building/packaging/signing of the rust crate for Android
+
+USAGE:
+    crossbundle build android [OPTIONS]
+
+OPTIONS:
+    --aab
+        Generating native aab without Java. By default crossbow generating gradle project
+
+    --all-features
+        Activate all available features of selected package
+
+    --apk
+        Generating native apk without Java. By default crossbow generating gradle project
+
+    --example <EXAMPLE>
+        Build the specified example
+
+    --export-path <EXPORT_PATH>
+        Path to export Gradle project. By default exports to `target/android/` folder
+
+    --features <FEATURES>
+        Space or comma separated list of features to activate. These features only apply to the
+        current directory's package. Features of direct dependencies may be enabled with
+        `<dep-name>/<feature-name>` syntax. This flag may be specified multiple times, which
+        enables all specified features
+
+    -h, --help
+        Print help information
+
+    --lib <LIB>
+        Compile rust code as a dynamic library [default: crossbow-android]
+
+    --no-default-features
+        Do not activate the `default` feature of the current directory's package
+
+    --quad
+        Specifies to build macroquad-based game with Sokol application wrapper
+
+    --release
+        Build optimized artifact with the `release` profile
+
+    --sign-key-alias <SIGN_KEY_ALIAS>
+        Signing key alias
+
+    --sign-key-pass <SIGN_KEY_PASS>
+        Signing key password
+
+    --sign-key-path <SIGN_KEY_PATH>
+        Path to the signing key
+
+    --target <TARGET>
+        Build for the given android architecture. Supported targets are:
+        `armv7-linux-androideabi`, `aarch64-linux-android`, `i686-linux-android`,
+        `x86_64-linux-android` [default: aarch64-linux-android]
+
+    --target-dir <TARGET_DIR>
+        Directory for generated artifact and intermediate files
+```
+
+Result of `crossbundle build apple -h`:
+
+```text
+Starts the process of building/packaging/signing of the rust crate for iOS
+
+USAGE:
+    crossbundle build apple [OPTIONS]
+
+OPTIONS:
+    --all-features
+        Activate all available features of selected package
+
+    --bin <BIN>
+        Specify custom cargo binary
+
+    --example <EXAMPLE>
+        Build the specified example
+
+    --features <FEATURES>
+        Space or comma separated list of features to activate. These features only apply to the
+        current directory's package. Features of direct dependencies may be enabled with
+        `<dep-name>/<feature-name>` syntax. This flag may be specified multiple times, which
+        enables all specified features
+
+    -h, --help
+        Print help information
+
+    --identity <IDENTITY>
+        The id of the identity used for signing. It won't start the signing process until you
+        provide this flag
+
+    --no-default-features
+        Do not activate the `default` feature of the current directory's package
+
+    --profile-name <PROFILE_NAME>
+        Provisioning profile name to find in this directory:
+        `~/Library/MobileDevice/Provisioning\ Profiles/`
+
+    --profile-path <PROFILE_PATH>
+        Absolute path to provisioning profile
+
+    --quad
+        Specifies to build macroquad-based game with Sokol application wrapper
+
+    --release
+        Build optimized artifact with the `release` profile
+
+    --target <TARGET>
+        Build for the given apple architecture. Supported targets are: `aarch64-apple-ios`,
+        `aarch64-apple-ios-sim`, `armv7-apple-ios`, `armv7s-apple-ios`, `i386-apple-ios`,
+        `x86_64-apple-ios` [default: aarch64-apple-ios-sim]
+
+    --target-dir <TARGET_DIR>
+        Directory for generated artifact and intermediate files
+
+    --team-identifier <TEAM_IDENTIFIER>
+        The team identifier of your signing identity
 ```
 
 ## ❌ Troubleshooting

@@ -46,11 +46,11 @@ fn test_build_gradle() {
         apk: false,
     };
 
-    let gradle_project_path = AndroidBuildCommand::build_gradle(
+    let (_, _, gradle_project_path) = AndroidBuildCommand::build_gradle(
         &android_build_command,
         &config,
         &context,
-        project_path.to_str().unwrap(),
+        &Some(project_path.to_owned()),
     )
     .unwrap();
     assert!(

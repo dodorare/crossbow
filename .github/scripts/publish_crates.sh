@@ -1,3 +1,4 @@
+#!/bin/bash
 # This file is intended to be run from Github Actions publish.yml.
 
 # Legends say that the order of the crates should be kept.

@@ -8,10 +8,10 @@ To create a project go to the example you want to build and use the command belo
 crossbundle build android --quad
 
 # To specify custom export gradle directory
-# crossbundle build android --quad --export_path=./gen/
+# crossbundle build android --quad --export-path=./gen/
 ```
 
-By default build directory is `target/android/<project_name>/gradle`. But you can specify your own build directory via `--export_path=<OUT_PATH>` flag. Go to the directory where Gradle project was built and use command below to manually install APK on the device.
+By default build directory is `target/android/<project_name>/gradle`. But you can specify your own build directory via `--export-path=<OUT_PATH>` flag. Go to the directory where Gradle project was built and use command below to manually install APK on the device.
 
 ```sh
 gradle installDebug

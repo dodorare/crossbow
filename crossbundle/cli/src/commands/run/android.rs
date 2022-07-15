@@ -48,17 +48,21 @@ impl AndroidRunCommand {
             android::start_apk(&sdk, &android_manifest.package)?;
             config.status("Run finished successfully")?;
         } else {
-            let gradle_project_path = self.build_command.build_gradle(
+            let (android_manifest, sdk, gradle_project_path) = self.build_command.build_gradle(
                 config,
                 &context,
-                &self.build_command.export_path.as_ref().unwrap(),
+                &self.build_command.export_path,
             )?;
+            config.status("Installing APK file on device")?;
             let mut gradle = gradle_init()?;
             gradle
                 .arg("installDebug")
                 .arg("-p")
                 .arg(dunce::simplified(&gradle_project_path));
             gradle.output_err(true)?;
+            config.status("Starting APK file")?;
+            android::start_apk(&sdk, &android_manifest.package)?;
+            config.status("Run finished successfully")?;
         }
         Ok(())
     }

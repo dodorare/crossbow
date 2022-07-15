@@ -52,7 +52,6 @@ fn test_execute_aab() {
         .join("android")
         .join("example")
         .join("outputs")
-        .join("aab")
         .join("example_signed.aab");
     assert_eq!(generated_aab_path, expected_path);
     assert!(
