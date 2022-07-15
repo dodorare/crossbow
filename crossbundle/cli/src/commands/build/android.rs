@@ -177,7 +177,7 @@ impl AndroidBuildCommand {
         let (sdk, ndk, target_sdk_version) = Self::android_toolchain(context)?;
 
         let android_build_dir = target_dir.join("android").join(&package_name);
-        let native_build_dir = android_build_dir.join("native");
+        let native_build_dir = android_build_dir.join("native").join("apk");
         let outputs_build_dir = android_build_dir.join("outputs");
         if !outputs_build_dir.exists() {
             std::fs::create_dir_all(&outputs_build_dir)?;
@@ -282,7 +282,7 @@ impl AndroidBuildCommand {
         let (sdk, ndk, target_sdk_version) = Self::android_toolchain(context)?;
 
         let android_build_dir = target_dir.join("android").join(&package_name);
-        let native_build_dir = android_build_dir.join("native");
+        let native_build_dir = android_build_dir.join("native").join("aab");
         let outputs_build_dir = android_build_dir.join("outputs");
         if !outputs_build_dir.exists() {
             std::fs::create_dir_all(&outputs_build_dir)?;
