@@ -12,14 +12,14 @@ fn test_cargo_metadata() {
     let project_path = tempdir.path();
     let macroquad_project = true;
     let minimal_cargo_toml = false;
-    gen_minimal_project(&project_path, macroquad_project, minimal_cargo_toml).unwrap();
+    gen_minimal_project(project_path, macroquad_project, minimal_cargo_toml).unwrap();
 
     let target_dir = std::path::PathBuf::from(project_path).join("target");
     std::fs::create_dir_all(&target_dir).unwrap();
 
     let shell = Shell::new();
     let config = Config::new(shell, target_dir.clone());
-    let context = BuildContext::new(&config, Some(target_dir.clone())).unwrap();
+    let context = BuildContext::new(&config, Some(target_dir)).unwrap();
 
     let shared_build_command = SharedBuildCommand {
         example: None,

@@ -82,6 +82,14 @@ jobs:
         run: cargo +nightly fmt --all -- --check
       - name: Run clippy
         run: cargo clippy --all-targets --all-features -- -D warnings -A clippy::unnecessary-unwrap -A clippy::too-many-arguments
+      - name: Run clippy on crossbundle
+        run: |
+          cd crossbundle/cli
+          cargo clippy --all-targets --all-features -- -D warnings -A clippy::unnecessary-unwrap -A clippy::too-many-arguments
+      - name: Run clippy on crossbundle-tools
+        run: |
+          cd crossbundle/tools
+          cargo clippy --all-targets --all-features -- -D warnings -A clippy::unnecessary-unwrap -A clippy::too-many-arguments
       - name: Check for deadlinks
         run: |
           cargo install cargo-deadlinks

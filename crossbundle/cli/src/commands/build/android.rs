@@ -61,11 +61,7 @@ impl AndroidBuildCommand {
         } else if let Some(lib_name) = &self.lib {
             self.build_rust_lib(config, &context, lib_name, None)?;
         } else {
-            self.build_gradle(
-                config,
-                &context,
-                &self.export_path,
-            )?;
+            self.build_gradle(config, &context, &self.export_path)?;
         }
         Ok(())
     }
@@ -324,7 +320,7 @@ impl AndroidBuildCommand {
                 std::fs::create_dir_all(&compiled_res_path)?;
             }
             let aapt2_compile = sdk.aapt2()?.compile_incremental(
-                dunce::simplified(&res),
+                dunce::simplified(res),
                 dunce::simplified(&compiled_res_path),
             );
             let compiled_res = aapt2_compile.run()?;

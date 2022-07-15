@@ -38,7 +38,7 @@ pub fn add_libs_into_apk(
     let lib_name = lib_path.file_name().unwrap().to_str().unwrap().to_owned();
     let mut needed_libs = vec![];
     recursively_define_needed_libs(
-        (lib_name.clone(), lib_path.to_owned()),
+        (lib_name, lib_path.to_owned()),
         &ndk.toolchain_bin("readelf", build_target)?,
         &ndk.sysroot_lib_dir(&build_target)?.join("libc++_shared.so"),
         &system_libs,
