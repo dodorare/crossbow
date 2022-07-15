@@ -40,19 +40,17 @@ cd example
 # If bevy-explorer example will be used
 cd example/bevy-explorer
 ```
-
-To build APK and run it on the device using the command. If you want to build an application replaces `run` with `build`.
+By default `crossbundle build android` command will generate gradle project and install apk on your device. To build native `.apk` and `.aab` see commands below.
+To build native APK and run it on the device using the command. If you want to build an application replaces `run` with `build`.
 
 ```sh
-crossbundle run android
+crossbundle run android --apk
 # or
 crossbundle run apple
 ```
 
-To build AAB and run it on the device using the command. If you want to build an application replaces `run` with `build`.
+To build native AAB and run it on the device using the command. If you want to build an application replaces `run` with `build`.
 
 ```sh
 crossbundle run android --aab
-# or
-crossbundle run apple --aab
 ```

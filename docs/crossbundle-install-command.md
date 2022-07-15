@@ -21,6 +21,7 @@ crossbundle install command-line-tools
 ```
 
 The command will download a zip archive and unzip command line tools into `$HOME\AppData\Local\Android\Sdk\cmdline-tools\bin` for windows and `$HOME/Local/Android/Sdk/cmdline-tools/bin` for other operating systems.
+Note: Android studio install cmdline tools into `$SDK_ROOT/cmdline-tools/<version>/bin`.
 
 ### 📂 Install packages
 
