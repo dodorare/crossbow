@@ -16,11 +16,10 @@ pub fn gen_minimal_project(
     let mut file = File::create(file_path)?;
     if macroquad_project {
         file.write_all(MINIMAL_MQ_GRADLE_CARGO_TOML_VALUE.as_bytes())?;
+    } else if !minimal_cargo_toml {
+        file.write_all(CARGO_TOML_VALUE.as_bytes())?;
     } else {
         file.write_all(MINIMAL_BEVY_CARGO_TOML_VALUE.as_bytes())?;
-    }
-    if !minimal_cargo_toml {
-        file.write_all(CARGO_TOML_VALUE.as_bytes())?;
     }
     // Create src folder
     let src_path = out_dir.join("src");

@@ -78,16 +78,8 @@ fn test_cargo_metadata() {
       </intent-filter>
       <meta-data android:name="android.app.lib_name" android:value="example" />
     </activity>
-    <service android:name="UpdateService" />
-    <meta-data android:name="com.oculus.vr.focusaware" android:value="true" />
   </application>
   <uses-sdk android:minSdkVersion="19" android:targetSdkVersion="30" />
-  <uses-feature android:name="android.hardware.vulkan.level" android:required="true" />
-  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="30" />
-  <uses-permission-sdk-23 android:name="android.permission.INTERNET" android:maxSdkVersion="30" />
-  <queries>
-    <provider android:authorities="org.khronos.openxr.runtime_broker;org.khronos.openxr.system_runtime_broker" android:name="org.khronos.openxr" />
-  </queries>
 </manifest>
 "#;
     let expected_manifest = from_str(expected_manifest).unwrap();
