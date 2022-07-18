@@ -1,6 +1,6 @@
 [package]
 name = "crossbow-admob"
-version = "0.1.5"
+version = "0.1.6"
 edition = "2021"
 authors = ["DodoRare Team <support@dodorare.com>"]
 description = "AdMob Plugin for Crossbow"
@@ -10,4 +10,4 @@ keywords = ["crossbow", "google", "admob", "android", "ads"]
 readme = "README.md"
 
 [dependencies]
-crossbow-android = { path = "../../platform/android", version = "0.1.5" }
+crossbow-android = { path = "../../platform/android", version = "0.1.6" }
