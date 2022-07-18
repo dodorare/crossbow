@@ -17,14 +17,15 @@ class SignalInfo(signalName: String, vararg argParamTypes: Class<*>) {
     init {
         require(!TextUtils.isEmpty(signalName)) { "Invalid signal name: $signalName" }
         name = signalName
-        paramTypes = arrayOf(*argParamTypes) // ?: arrayOfNulls(0)
-        paramTypesNames = arrayOfNulls<String?>(paramTypes.size).filterNotNull().toTypedArray()
+        paramTypes = arrayOf(*argParamTypes)
+        val tmpArray = arrayOfNulls<String>(paramTypes.size)
         for (i in paramTypes.indices) {
             val tmp = JNIUtil.getJNIClassSignature(paramTypes[i])
             if (tmp !== null) {
-                paramTypesNames[i] = tmp
+                tmpArray[i] = tmp
             }
         }
+        paramTypesNames = tmpArray.filterNotNull().toTypedArray()
     }
 
     override fun toString(): String {

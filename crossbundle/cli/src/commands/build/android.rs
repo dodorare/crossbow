@@ -6,6 +6,7 @@ use android_tools::java_tools::{AabKey, JarSigner};
 use clap::Parser;
 use crossbundle_tools::{
     commands::android::{self, rust_compile},
+    error::CommandExt,
     tools::*,
     types::*,
     utils::Config,
@@ -112,6 +113,14 @@ impl AndroidBuildCommand {
             "Gradle project generated",
             gradle_project_path.to_str().unwrap(),
         )?;
+
+        config.status("Building Gradle project")?;
+        let mut gradle = android::gradle_init()?;
+        gradle
+            .arg("build")
+            .arg("-p")
+            .arg(dunce::simplified(&gradle_project_path));
+        gradle.output_err(true)?;
         Ok((android_manifest, sdk, gradle_project_path))
     }
 

@@ -1,12 +1,12 @@
 [package]
 name = "macroquad-permissions"
-version = "0.1.5"
+version = "0.1.6"
 authors = ["DodoRare Team <support@dodorare.com>"]
 edition = "2021"
 
 [dependencies]
-crossbow = { version = "0.1.5", path = "../../" }
-crossbow-admob = { version = "0.1.5", path = "../../plugins/admob" }
+crossbow = { version = "0.1.6", path = "../../" }
+crossbow-admob = { version = "0.1.6", path = "../../plugins/admob" }
 log = "0.4"
 anyhow = "1.0"
 macroquad = "0.3.7"
@@ -23,7 +23,7 @@ build_targets = ["aarch64-linux-android"]
 assets = "assets"
 res = "res/android"
 
-# plugins_remote = ["com.crossbow.admob:admob:0.1.5"]
+# plugins_remote = ["com.crossbow.admob:admob:0.1.6"]
 
 [[package.metadata.android.plugins_local_projects]]
 include = ":crossbow"

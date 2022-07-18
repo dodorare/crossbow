@@ -8,6 +8,8 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct Metadata {
+    #[serde(default)]
     pub android: AndroidConfig,
+    #[serde(default)]
     pub apple: AppleConfig,
 }

@@ -144,7 +144,7 @@ fn get_settings_gradle(dependencies: &[GradleDependencyProject]) -> Result<Strin
                 );
             }
             result = format!(
-                "{}project(\"{}\").projectDir = new File(\"{}\")\n",
+                "{}project(\"{}\").projectDir = new File({:?})\n",
                 result,
                 dependency.include,
                 dir_path.to_string_lossy()

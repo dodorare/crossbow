@@ -22,15 +22,15 @@ Just add Rust dependencies like this:
 
 ```toml
 [dependencies]
-crossbow = "0.1.5"
-crossbow-admob = "0.1.5"
+crossbow = "0.1.6"
+crossbow-admob = "0.1.6"
 ```
 
 And finally, add this to your Crossbow Android configuration:
 
 ```toml
 [package.metadata.android]
-plugins_remote = ["com.crossbow.admob:admob:0.1.5"]
+plugins_remote = ["com.crossbow.admob:admob:0.1.6"]
 ```
 
 > That's it, now you can start using AdMob ads!
