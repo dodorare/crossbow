@@ -319,7 +319,7 @@ abstract class CrossbowPlugin(
          * Used to setup a [CrossbowPlugin] instance.
          * @param p_name Name of the instance.
          */
-        private external fun nativeRegisterSingleton(p_name: String, `object`: Any)
+        private external fun nativeRegisterSingleton(p_name: String, p_obj: Any)
 
         /**
          * Used to complete registration of the [CrossbowPlugin] instance's methods.
