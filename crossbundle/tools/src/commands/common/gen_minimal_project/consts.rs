@@ -24,6 +24,30 @@ anyhow = "1.0"
 macroquad = "0.3.7"
 "#;
 
+pub const MINIMAL_MQ_GRADLE_CARGO_TOML_VALUE: &str = r#"
+[package]
+name = "example"
+version = "0.1.0"
+authors = ["DodoRare Team <support@dodorare.com>"]
+edition = "2021"
+
+[dependencies]
+crossbow = { git = "https://github.com/dodorare/crossbow" }
+anyhow = "1.0"
+macroquad = "0.3.7"
+
+[package.metadata.android]
+target_sdk_version = 30
+
+[[package.metadata.android.plugins_local_projects]]
+include = ":crossbow"
+dont_implement = true
+project_dir = "../../platform/android/java"
+
+[[package.metadata.android.plugins_local_projects]]
+include = ":crossbow:lib"
+"#;
+
 pub const CARGO_TOML_VALUE: &str = r#"
 [package.metadata.android]
 app_name = "example"

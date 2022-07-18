@@ -15,7 +15,7 @@ pub fn gen_minimal_project(
     let file_path = out_dir.join("Cargo.toml");
     let mut file = File::create(file_path)?;
     if macroquad_project {
-        file.write_all(MINIMAL_MQ_CARGO_TOML_VALUE.as_bytes())?;
+        file.write_all(MINIMAL_MQ_GRADLE_CARGO_TOML_VALUE.as_bytes())?;
     } else {
         file.write_all(MINIMAL_BEVY_CARGO_TOML_VALUE.as_bytes())?;
     }
