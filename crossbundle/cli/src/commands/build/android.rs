@@ -6,10 +6,10 @@ use android_tools::java_tools::{AabKey, JarSigner};
 use clap::Parser;
 use crossbundle_tools::{
     commands::android::{self, rust_compile},
+    error::CommandExt,
     tools::*,
     types::*,
     utils::Config,
-    error::CommandExt,
 };
 use std::path::{Path, PathBuf};
 

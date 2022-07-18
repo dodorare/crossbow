@@ -34,7 +34,11 @@ impl AndroidRunCommand {
             config.status("Installing APKs file")?;
             InstallApks::new(&apks_path).run()?;
             config.status("Starting APK file")?;
-            android::start_apk(&sdk, &android_manifest.package)?;
+            android::start_apk(
+                &sdk,
+                &android_manifest.package,
+                "android.app.NativeActivity",
+            )?;
             config.status("Run finished successfully")?;
         } else if self.build_command.lib.is_some() {
             config.status("Can not run dynamic library")?;
@@ -45,7 +49,11 @@ impl AndroidRunCommand {
             config.status("Installing APK file")?;
             android::install_apk(&sdk, &apk_path)?;
             config.status("Starting APK file")?;
-            android::start_apk(&sdk, &android_manifest.package)?;
+            android::start_apk(
+                &sdk,
+                &android_manifest.package,
+                "android.app.NativeActivity",
+            )?;
             config.status("Run finished successfully")?;
         } else {
             let (android_manifest, sdk, gradle_project_path) = self.build_command.build_gradle(
@@ -61,7 +69,11 @@ impl AndroidRunCommand {
                 .arg(dunce::simplified(&gradle_project_path));
             gradle.output_err(true)?;
             config.status("Starting APK file")?;
-            android::start_apk(&sdk, &android_manifest.package)?;
+            android::start_apk(
+                &sdk,
+                &android_manifest.package,
+                "com.crossbow.game.CrossbowApp",
+            )?;
             config.status("Run finished successfully")?;
         }
         Ok(())

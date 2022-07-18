@@ -319,6 +319,7 @@ abstract class CrossbowPlugin(
          * Used to setup a [CrossbowPlugin] instance.
          * @param p_name Name of the instance.
          */
+        @JvmStatic
         private external fun nativeRegisterSingleton(p_name: String, p_obj: Any)
 
         /**
@@ -327,6 +328,7 @@ abstract class CrossbowPlugin(
          * @param p_name Name of the method to register
          * @param p_sig Signature of the registered method
          */
+        @JvmStatic
         private external fun nativeRegisterMethod(p_sname: String, p_name: String, p_sig: String)
 
         /**
@@ -335,6 +337,7 @@ abstract class CrossbowPlugin(
          * @param signalName Name of the signal to register
          * @param signalParamTypes Signal parameters types
          */
+        @JvmStatic
         private external fun nativeRegisterSignal(
             pluginName: String,
             signalName: String,
@@ -347,6 +350,7 @@ abstract class CrossbowPlugin(
          * @param signalName Name of the signal to emit
          * @param signalParams Signal parameters
          */
+        @JvmStatic
         private external fun nativeEmitSignal(
             pluginName: String,
             signalName: String,

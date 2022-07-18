@@ -15,6 +15,7 @@ object CrossbowLib {
     /**
      * Invoked on the main thread to initialize Godot native layer.
      */
+    @JvmStatic
     external fun initialize(
         activity: Activity?,
         instance: Crossbow?,
@@ -25,11 +26,13 @@ object CrossbowLib {
     //  * Invoked on the main thread to clean up Godot native layer.
     //  * @see androidx.fragment.app.Fragment.onDestroy
     //  */
+    // @JvmStatic
     // external fun ondestroy()
 
     // /**
     //  * Forward [Activity.onBackPressed] event from the main thread to the GL thread.
     //  */
+    // @JvmStatic
     // external fun back()
 
     /**
@@ -38,5 +41,6 @@ object CrossbowLib {
      * @param permission Request permission
      * @param result True if the permission was granted, false otherwise
      */
+    @JvmStatic
     external fun requestPermissionResult(permission: String?, result: Boolean)
 }
