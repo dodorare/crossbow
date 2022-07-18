@@ -11,7 +11,7 @@ pub fn start_apk(sdk: &AndroidSdk, package: &str, activity: &str) -> Result<()> 
         .arg("-a")
         .arg("android.intent.action.MAIN")
         .arg("-n")
-        .arg(format!("{}/activity", package, activity));
+        .arg(format!("{}/{}", package, activity));
     adb.output_err(true)?;
     Ok(())
 }
