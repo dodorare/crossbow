@@ -18,7 +18,7 @@ class SignalInfo(signalName: String, vararg argParamTypes: Class<*>) {
         require(!TextUtils.isEmpty(signalName)) { "Invalid signal name: $signalName" }
         name = signalName
         paramTypes = arrayOf(*argParamTypes) // ?: arrayOfNulls(0)
-        paramTypesNames = arrayOfNulls<String?>(paramTypes.size).filterNotNull().toTypedArray()
+        paramTypesNames = arrayOfNulls<String?>(paramTypes.size).toTypedArray()
         for (i in paramTypes.indices) {
             val tmp = JNIUtil.getJNIClassSignature(paramTypes[i])
             if (tmp !== null) {

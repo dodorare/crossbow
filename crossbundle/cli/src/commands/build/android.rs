@@ -9,6 +9,7 @@ use crossbundle_tools::{
     tools::*,
     types::*,
     utils::Config,
+    error::CommandExt,
 };
 use std::path::{Path, PathBuf};
 
@@ -112,6 +113,14 @@ impl AndroidBuildCommand {
             "Gradle project generated",
             gradle_project_path.to_str().unwrap(),
         )?;
+
+        config.status("Building Gradle project")?;
+        let mut gradle = android::gradle_init()?;
+        gradle
+            .arg("build")
+            .arg("-p")
+            .arg(dunce::simplified(&gradle_project_path));
+        gradle.output_err(true)?;
         Ok((android_manifest, sdk, gradle_project_path))
     }
 
