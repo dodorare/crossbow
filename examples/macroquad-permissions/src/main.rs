@@ -1,4 +1,8 @@
+#[cfg(target_os = "android")]
 use crossbow::android::{plugin, types::*};
+#[cfg(target_os = "ios")]
+use crossbow::ios::types::*;
+#[cfg(target_os = "android")]
 use crossbow::request_permission;
 use macroquad::prelude::*;
 use macroquad::ui::{hash, root_ui, Skin};
@@ -39,13 +43,18 @@ async fn main() -> anyhow::Result<()> {
         }
     };
 
+    #[cfg(target_os = "android")]
     let (_, vm) = crossbow::android::create_java_vm().unwrap();
+    #[cfg(target_os = "android")]
     let jnienv = vm.attach_current_thread_as_daemon().unwrap();
 
+    #[cfg(target_os = "android")]
     let admob_singleton =
         plugin::get_jni_singleton("AdMob").expect("Crossbow Error: AdMob is not registered");
+    #[cfg(target_os = "android")]
     let admob = crossbow_admob::AdMobPlugin::from_jnienv(admob_singleton.clone(), jnienv).unwrap();
 
+    #[cfg(target_os = "android")]
     let mut label = "Signal: ".to_owned();
     let window_skin = skin.clone();
     loop {
@@ -54,13 +63,42 @@ async fn main() -> anyhow::Result<()> {
         root_ui().push_skin(&window_skin);
         root_ui().window(hash!(), vec2(0.0, 250.0), vec2(500.0, 500.0), |ui| {
             ui.label(vec2(15.0, 0.0), "AdMob");
+            #[cfg(target_os = "android")]
             ui.label(vec2(15.0, 50.0), &label);
-            if ui.button(vec2(-15.0, 150.0), "Ask camera permission") {
-                request_permission(AndroidPermission::Camera).unwrap();
+
+            #[cfg(any(target_os = "android", target_os = "ios"))]
+            if ui.button(vec2(-15.0, 150.0), "Camera permission") {
+                #[cfg(target_os = "android")]
+                let permission = AndroidPermission::Camera;
+                #[cfg(target_os = "android")]
+                request_permission(permission).unwrap();
+
+                #[cfg(target_os = "ios")]
+                let media = MediaType::Video;
+                #[cfg(target_os = "ios")]
+                crossbow::ios::permission::request_capture_device_permission(&media, |res| {
+                    println!("Permission result: {:?}", res);
+                });
             }
-            if ui.button(vec2(-15.0, 300.0), "Ask storage permission") {
-                request_permission(AndroidPermission::ReadExternalStorage).unwrap();
+            #[cfg(any(target_os = "android", target_os = "ios"))]
+            if ui.button(vec2(-15.0, 300.0), "Storage permission") {
+                #[cfg(target_os = "android")]
+                let permission = AndroidPermission::ReadExternalStorage;
+                #[cfg(target_os = "android")]
+                request_permission(permission).unwrap();
+
+                #[cfg(target_os = "ios")]
+                let access = AccessLevel::AddOnly;
+                #[cfg(target_os = "ios")]
+                crossbow::ios::permission::request_photo_library_permission(&access, |res| {
+                    println!("Permission result: {:?}", res);
+                });
+
+                // let result = std::cell::Cell::new(AuthorizationStatus::NotDetermined);
+                // result.into_inner()
+                // println!("AuthorizationStatus: {:?}", result);
             }
+            #[cfg(target_os = "android")]
             if ui.button(vec2(-15.0, 450.0), "Show ad") {
                 if !admob.get_is_initialized().unwrap() {
                     println!("calling initialize()");
@@ -102,6 +140,7 @@ async fn main() -> anyhow::Result<()> {
         });
         root_ui().pop_skin();
 
+        #[cfg(target_os = "android")]
         if let Ok(signal) = admob_singleton.get_receiver().try_recv() {
             println!("signal: {:?}", signal);
             label = format!(

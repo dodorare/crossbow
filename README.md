@@ -10,20 +10,20 @@
 
 ## What is Crossbow?
 
-The `crossbow` project aims to provide a complete toolkit for cross-platform game development in Rust - from project creation to publishing. In addition, the project simplifies the creation, packaging, and signing of Android and iOS applications. We want to make most of our tools - engine agnostic to help rust game developers integrate them into their engines or games.
+The `crossbow` project aims to provide a complete toolkit for cross-platform game development in *Rust* - from project creation to publishing. In addition, the project simplifies the creation, packaging, and signing of **Android** and **iOS** applications. We want to make most of our tools - engine agnostic to help rust game developers integrate them into their engines or games.
 
 ## Why Crossbow?
 
 > There are already [cargo-apk](https://github.com/rust-windowing/android-ndk-rs/tree/master/cargo-apk), [cargo-mobile](https://github.com/BrainiumLLC/cargo-mobile), [cargo-xcode](https://gitlab.com/kornelski/cargo-xcode), etc. - why do I need another packaging tool?
 
-Project `crossbow` is not only a packaging tool for Android and iOS - it's a toolkit. With `crossbundle-tools` you can customize and create new commands; with `crossbundle` you can create native **.apk/.aab** without any *Java* or setup *Gradle* project with fancy **Crossbow Android plugins** (iOS in near future); with `crossbow-android` you can write your own Android plugins in *Java/Kotlin*.
+Project `crossbow` is not only a packaging tool for **Android** and iOS - it's a toolkit. With `crossbundle-tools` you can customize and create new commands; with `crossbundle` you can create native **.apk/.aab** without any *Java* or setup *Gradle* project with fancy **Crossbow Android plugins** (**iOS** in near future); with `crossbow-android` you can write your own Android plugins in *Java/Kotlin*.
 
 ## Design Goals
 
 * **Customizable**: Create new commands with available tools.
 * **Simple**: Easy to start but flexible for strong devs.
 * **Capable**: It's possible to build plain **.apk/.aab** or **.app/.ipa**; or with help of *Gradle/XCode*.
-* **Rust**: Don't leave your *Rust* code - almost everything can be configured from **Cargo.toml**.
+* **Rust**: Don't leave your *Rust* code - almost everything can be configured from `Cargo.toml`.
 
 ## 🛠 Installation
 
@@ -41,14 +41,16 @@ Crossbundle crates:
 
 | Name | Description | Status |
 | ---- | ----------- | ------ |
-| [crossbundle](./crossbundle/cli) | Command-line tool for building applications. | ✅ |
+| [crossbundle](./crossbundle/cli) | Command-line tool for building and running applications. | ✅ |
 | [crossbundle-tools](./crossbundle/tools) | Toolkit used in `crossbundle` to build/pack/sign bundles. | ✅ |
 
 Crossbow Plugins:
 
 | Name | Description | Status |
 | ---- | ----------- | ------ |
-| [crossbow-admob](./crossbow/admob) | Google AdMob Plugin for Android. | 🆗 |
+| [crossbow-android](./platform/android) | Crossbow Android Platform implementation. | 🆗 |
+| [crossbow-ios](./platform/ios) | Crossbow iOS Platform implementation. | 🛠 |
+| [crossbow-admob](./crossbow/admob) | Google AdMob Plugin for Android (iOS in future). | 🆗 |
 | [crossbow-play-billing](./crossbow/play-billing) | Google Play Billing for Android. | 📝 |
 | [crossbow-play-games-sdk](./crossbow/play-games-sdk) | Google Play Games Sdk for Android. | 📝 |
 

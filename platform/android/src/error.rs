@@ -1,34 +1,22 @@
 use displaydoc::Display;
 use thiserror::Error;
 
-/// `Result` type that used in `crossbow-permissions`.
+/// Result type wrapper with AndroidError.
 pub type Result<T> = std::result::Result<T, AndroidError>;
 
 /// Permissions error type.
 #[derive(Display, Debug, Error)]
 pub enum AndroidError {
-    /// Signal Sender with provided singleton name not available
+    /// Signal Sender with `{0}` singleton name not available
     SignalSenderNotAvailable(String),
-    /// Singleton with provided name not found or haven't registered
+    /// Singleton with `{0}` name not found or haven't registered
     SingletonNotRegistered(String),
-    /// Unsupported JNI Rust Type
+    /// Unsupported JNI Rust Type: {0}
     UnsupportedJniRustType(String),
     /// Wrong JNI Rust Type
     WrongJniRustType,
-    /// Rust Jni library error
-    Jni(jni::errors::Error),
-    /// Anyhow library errors
-    Anyhow(anyhow::Error),
-}
-
-impl From<jni::errors::Error> for AndroidError {
-    fn from(error: jni::errors::Error) -> Self {
-        Self::Jni(error)
-    }
-}
-
-impl From<anyhow::Error> for AndroidError {
-    fn from(error: anyhow::Error) -> Self {
-        Self::Anyhow(error)
-    }
+    /// Rust Jni library error: {0:?}
+    Jni(#[from] jni::errors::Error),
+    /// Anyhow library errors: {0:?}
+    Anyhow(#[from] anyhow::Error),
 }

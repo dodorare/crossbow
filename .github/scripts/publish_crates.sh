@@ -4,6 +4,7 @@
 # Legends say that the order of the crates should be kept.
 crates=(
     platform/android
+    platform/ios
     plugins/admob
     crossbundle/tools
     crossbundle/cli

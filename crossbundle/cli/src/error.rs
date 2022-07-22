@@ -14,25 +14,25 @@ pub enum Error {
     TeamIdentifierNotProvided,
     /// Invalid cargo metadata values
     InvalidCargoMetadata,
-    /// Invalid metadata in manifest
+    /// Invalid metadata in manifest: {0:?}
     InvalidMetadata(anyhow::Error),
-    /// IO error
+    /// IO error: {0:?}
     Io(#[from] std::io::Error),
-    /// Clap error
+    /// Clap error: {0:?}
     Clap(#[from] clap::Error),
-    /// Anyhow error
+    /// Anyhow error: {0:?}
     AnyhowError(#[from] anyhow::Error),
-    /// Crossbundle Tools error
+    /// Crossbundle Tools error: {0:?}
     CrossbundleTools(#[from] crossbundle_tools::error::Error),
-    /// AndroidManifest error
+    /// AndroidManifest error: {0:?}
     AndroidManifest(#[from] android_manifest::error::Error),
-    /// FsExtra error
+    /// FsExtra error: {0:?}
     FsExtra(#[from] fs_extra::error::Error),
     /// Path {0:?} doesn't exist
     PathNotFound(std::path::PathBuf),
     /// Home dir not found
     HomeDirNotFound,
-    /// Failed to download jar file
+    /// Failed to download jar file: {0:?}
     DownloadFailed(ureq::Error),
     /// Failed to create jar file in specified path `{path}` cause of `{cause}`
     JarFileCreationFailed {

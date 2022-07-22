@@ -16,6 +16,7 @@ jobs:
   build-and-publish-release:
     name: Build and publish Github release
     runs-on: ${{ matrix.os }}
+    if: false
     strategy:
       fail-fast: false
       matrix:
