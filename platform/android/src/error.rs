@@ -1,7 +1,7 @@
 use displaydoc::Display;
 use thiserror::Error;
 
-/// `Result` type that used in `crossbow-permissions`.
+/// Result type wrapper with AndroidError.
 pub type Result<T> = std::result::Result<T, AndroidError>;
 
 /// Permissions error type.
@@ -16,19 +16,7 @@ pub enum AndroidError {
     /// Wrong JNI Rust Type
     WrongJniRustType,
     /// Rust Jni library error
-    Jni(jni::errors::Error),
+    Jni(#[from] jni::errors::Error),
     /// Anyhow library errors
-    Anyhow(anyhow::Error),
-}
-
-impl From<jni::errors::Error> for AndroidError {
-    fn from(error: jni::errors::Error) -> Self {
-        Self::Jni(error)
-    }
-}
-
-impl From<anyhow::Error> for AndroidError {
-    fn from(error: anyhow::Error) -> Self {
-        Self::Anyhow(error)
-    }
+    Anyhow(#[from] anyhow::Error),
 }

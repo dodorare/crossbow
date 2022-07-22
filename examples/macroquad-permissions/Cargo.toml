@@ -6,12 +6,14 @@ edition = "2021"
 
 [dependencies]
 crossbow = { version = "0.1.6", path = "../../" }
-crossbow-admob = { version = "0.1.6", path = "../../plugins/admob" }
 log = "0.4"
 anyhow = "1.0"
 macroquad = "0.3.7"
 async-executor = "1.4.1"
 futures-lite = "1.12.0"
+
+[target.'cfg(target_os = "android")'.dependencies]
+crossbow-admob = { version = "0.1.6", path = "../../plugins/admob" }
 
 [package.metadata.android]
 app_name = "Macroquad_Permissions"

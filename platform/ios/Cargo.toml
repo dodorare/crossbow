@@ -1,0 +1,15 @@
+[package]
+name = "crossbow-ios"
+version = "0.1.6"
+edition = "2021"
+authors = ["DodoRare Team <support@dodorare.com>"]
+description = "Cross-Platform Rust Toolkit for Games 🏹"
+repository = "https://github.com/dodorare/crossbow"
+license = "Apache-2.0"
+keywords = ["crossbow", "ios", "port"]
+readme = "README.md"
+
+[dependencies]
+thiserror = "1.0"
+displaydoc = "0.2"
+anyhow = "1.0"
