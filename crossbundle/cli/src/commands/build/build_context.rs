@@ -162,6 +162,8 @@ impl BuildContext {
     pub fn gen_info_plist(&self, package_name: &str) -> Result<InfoPlist> {
         if let Some(info_plist_path) = &self.apple_config.info_plist_path {
             Ok(apple::read_info_plist(info_plist_path)?)
+        } else if let Some(info_plist) = &self.apple_config.info_plist {
+            Ok(info_plist.clone())
         } else {
             Ok(apple::gen_minimal_info_plist(
                 package_name,

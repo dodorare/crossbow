@@ -2,7 +2,7 @@
 use crossbow::android::{plugin, types::*};
 #[cfg(target_os = "ios")]
 use crossbow::ios::types::*;
-#[cfg(any(target_os = "android", target_os = "ios"))]
+#[cfg(target_os = "android")]
 use crossbow::request_permission;
 use macroquad::prelude::*;
 use macroquad::ui::{hash, root_ui, Skin};
@@ -70,17 +70,33 @@ async fn main() -> anyhow::Result<()> {
             if ui.button(vec2(-15.0, 150.0), "Camera permission") {
                 #[cfg(target_os = "android")]
                 let permission = AndroidPermission::Camera;
-                #[cfg(target_os = "ios")]
-                let permission = IosPermission::Camera;
+                #[cfg(target_os = "android")]
                 request_permission(permission).unwrap();
+
+                #[cfg(target_os = "ios")]
+                let media = MediaType::Video;
+                #[cfg(target_os = "ios")]
+                crossbow::ios::permission::request_capture_device_permission(&media, |res| {
+                    println!("Permission result: {:?}", res);
+                });
             }
             #[cfg(any(target_os = "android", target_os = "ios"))]
             if ui.button(vec2(-15.0, 300.0), "Storage permission") {
                 #[cfg(target_os = "android")]
                 let permission = AndroidPermission::ReadExternalStorage;
-                #[cfg(target_os = "ios")]
-                let permission = IosPermission::Camera;
+                #[cfg(target_os = "android")]
                 request_permission(permission).unwrap();
+
+                #[cfg(target_os = "ios")]
+                let access = AccessLevel::AddOnly;
+                #[cfg(target_os = "ios")]
+                crossbow::ios::permission::request_photo_library_permission(&access, |res| {
+                    println!("Permission result: {:?}", res);
+                });
+
+                // let result = std::cell::Cell::new(AuthorizationStatus::NotDetermined);
+                // result.into_inner()
+                // println!("AuthorizationStatus: {:?}", result);
             }
             #[cfg(target_os = "android")]
             if ui.button(vec2(-15.0, 450.0), "Show ad") {

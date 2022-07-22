@@ -120,7 +120,7 @@ impl AppleBuildCommand {
         config.status("Copying binary to app folder")?;
         std::fs::copy(&bin_path, &app_path.join(&name)).unwrap();
         config.status_message("Generating", "Info.plist")?;
-        apple::save_apple_plist(&app_path, properties, false).unwrap();
+        apple::save_info_plist(&app_path, properties, false).unwrap();
         if self.identity.is_some() {
             config.status("Starting code signing process")?;
             apple::copy_profile(

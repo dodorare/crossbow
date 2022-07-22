@@ -93,7 +93,7 @@ fn test_apple_full() {
 
     // Generate Info.plist
     let properties = get_minimal_info_plist(&name);
-    save_apple_plist(&app_dir, &properties, false).unwrap();
+    save_info_plist(&app_dir, &properties, false).unwrap();
 
     // Sign bundle
     codesign(&app_dir, true, None, None).unwrap();

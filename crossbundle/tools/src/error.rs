@@ -42,9 +42,9 @@ pub enum AndroidError {
     FailedToFindAndroidManifest(String),
     /// Unable to find NDK file
     UnableToFindNDKFile,
-    /// AndroidTools error
+    /// AndroidTools error: {0:?}
     AndroidTools(#[from] android_tools::error::Error),
-    /// AndroidManifest error
+    /// AndroidManifest error: {0:?}
     AndroidManifest(#[from] android_manifest::error::Error),
 }
 
@@ -61,7 +61,7 @@ pub enum AppleError {
     ZipCommandFailed,
     /// Codesign allocate not found
     CodesignAllocateNotFound,
-    /// Simctl error
+    /// Simctl error: {0:?}
     Simctl(simctl::Error),
     /// Target dir does not exists
     TargetNotFound,
@@ -71,7 +71,7 @@ pub enum AppleError {
     AssetsNotFound,
     /// Failed to find Info.plist in path: {0}
     FailedToFindInfoPlist(String),
-    /// Plist data error
+    /// Plist data error: {0:?}
     Plist(#[from] plist::Error),
 }
 
@@ -115,19 +115,19 @@ pub enum Error {
     /// Failed to choose shell string color.
     /// Argument for --color must be auto, always, or never, but found `{}`
     FailedToChooseShellStringColor(String),
-    /// IO error
+    /// IO error: {0:?}
     Io(#[from] std::io::Error),
-    /// FS Extra error
+    /// FS Extra error: {0:?}
     FsExtra(#[from] fs_extra::error::Error),
-    /// Zip error
+    /// Zip error: {0:?}
     Zip(#[from] zip::result::ZipError),
-    /// Android error
+    /// Android error: {0:?}
     Android(#[from] AndroidError),
-    /// Apple error
+    /// Apple error: {0:?}
     Apple(#[from] AppleError),
-    /// Anyhow error
+    /// Anyhow error: {0:?}
     AnyhowError(#[from] anyhow::Error),
-    /// Other error
+    /// Other error: {0:?}
     OtherError(#[from] Box<dyn std::error::Error>),
 }
 

@@ -7,6 +7,6 @@ pub type Result<T> = std::result::Result<T, IosError>;
 /// Permissions error type.
 #[derive(Display, Debug, Error)]
 pub enum IosError {
-    /// Anyhow library errors
+    /// Anyhow library errors: {0:?}
     Anyhow(#[from] anyhow::Error),
 }
