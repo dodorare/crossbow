@@ -245,7 +245,7 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
                     "FULL_BANNER" -> aAdView!!.setAdSize(AdSize.FULL_BANNER)
                     "LEADERBOARD" -> aAdView!!.setAdSize(AdSize.LEADERBOARD)
                     "ADAPTIVE" -> aAdView!!.setAdSize(adSizeAdaptive)
-                    else -> aAdView!!.setAdSize(AdSize.SMART_BANNER)
+                    else -> aAdView!!.setAdSize(AdSize.SMART_BANNER) // Replaced by getCurrentOrientationAnchoredAdaptiveBannerAdSize(Context, int)
                 }
                 aAdSize =
                     aAdView!!.getAdSize() //store AdSize of banner due a bug (throws error when do aAdView!!.getAdSize() called by Crossbow)
@@ -296,11 +296,11 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
                 if (pPosition == 0) //BOTTOM
                 {
                     aCrossbowLayoutParams!!.gravity = Gravity.BOTTOM
-                    if (pRespectSafeArea) aAdView!!.setY(-safeArea.bottom as Float) //Need to validate if this value will be positive or negative
+                    if (pRespectSafeArea) aAdView!!.setY(-safeArea.bottom.toFloat() as Float) //Need to validate if this value will be positive or negative
                 } else if (pPosition == 1) //TOP
                 {
                     aCrossbowLayoutParams!!.gravity = Gravity.TOP
-                    if (pRespectSafeArea) aAdView!!.setY(safeArea.top as Float)
+                    if (pRespectSafeArea) aAdView!!.setY(safeArea.top.toFloat() as Float)
                 }
                 aCrossbowLayout!!.addView(aAdView, aCrossbowLayoutParams)
                 aAdView!!.loadAd(adRequest)
@@ -326,7 +326,7 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
     fun show_banner() {
         aActivity!!.runOnUiThread(Runnable {
             if (aIsInitialized && aAdView != null) {
-                if (aAdView!!.getVisibility() !== View.VISIBLE) {
+                if (aAdView!!.getVisibility() == View.VISIBLE) {
                     aAdView!!.setVisibility(View.VISIBLE)
                     aAdView!!.resume()
                 }
@@ -338,7 +338,7 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
     fun hide_banner() {
         aActivity!!.runOnUiThread(Runnable {
             if (aIsInitialized && aAdView != null) {
-                if (aAdView!!.getVisibility() !== View.GONE) {
+                if (aAdView!!.getVisibility() == View.GONE) {
                     aAdView!!.setVisibility(View.GONE)
                     aAdView!!.pause()
                 }
@@ -566,7 +566,7 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
             aActivity,
             { consentForm ->
                 var consentStatusMsg = ""
-                if (aConsentInformation!!.getConsentStatus() === ConsentInformation.ConsentStatus.REQUIRED) {
+                if (aConsentInformation!!.getConsentStatus() == ConsentInformation.ConsentStatus.REQUIRED) {
                     consentForm.show(
                         aActivity
                     ) { formError ->
