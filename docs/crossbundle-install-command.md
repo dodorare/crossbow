@@ -27,13 +27,13 @@ Note: Android studio install cmdline tools into `$SDK_ROOT/cmdline-tools/<versio
 
 The [sdkmanager](https://developer.android.com/studio/command-line/sdkmanager) is a command-line tool that allows you to view, install, update, and uninstall packages for the Android SDK.
 
-To install packages use the command below. We prefer to use --preferred-tools flag to install minimal required tools needed for crossbundle correct working. This command will setup build-tools, android-ndk and android platfrom: 
+To install packages use the command below. We prefer to use --preferred-tools flag to install minimal required tools needed for crossbundle correct working. This command will setup build-tools, android-ndk and android platforms: 
 
 ```sh
 crossbundle install sdk-manager --preferred-tools
 ```
 
-Also you can install packages manually. To see all available tools to install use the -h flag. List installed and available packages:
+Also you can install packages manually. To see all available tools use the -h flag. List installed and available packages:
 
 ```sh
 crossbundle install sdk-manager --list
@@ -44,7 +44,6 @@ And then enter the command. The command will install android-ndk-23 on your PC.
 ```sh
 crossbundle install sdk-manager --install "ndk;23.1.7779620"
 ```
-
 
 The command will install packages into `$HOME\AppData\Local\Android\Sdk\` for Windows, `$HOME/Library/Android/sdk/` for macOS, and `$HOME/Android/sdk/` for Linux.
 
