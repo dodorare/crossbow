@@ -39,10 +39,10 @@ Also you can install packages manually. To see all available tools use the -h fl
 crossbundle install sdk-manager --list
 ```
 
-And then enter the command. The command will install android-ndk-23 on your PC.
+And then enter the command.
 
 ```sh
-crossbundle install sdk-manager --install "ndk;23.1.7779620"
+crossbundle install sdk-manager --install "build-tools;31.0.0" "ndk;23.1.7779620" "platforms;android-30"
 ```
 
 The command will install packages into `$HOME\AppData\Local\Android\Sdk\` for Windows, `$HOME/Library/Android/sdk/` for macOS, and `$HOME/Android/sdk/` for Linux.

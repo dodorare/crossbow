@@ -7,7 +7,7 @@ use crossbundle_tools::{
 
 #[derive(Parser, Clone, Debug, Default)]
 pub struct SdkManagerInstallCommand {
-    /// Install all preferred tools for correct crossbundle work
+    /// Install all preferred tools for correct crossbundle work. It will install build-tools;31.0.0, ndk;23.1.7779620 and platforms;android-30
     #[clap(long, short)]
     preferred_tools: bool,
     /// List installed and available packages. Use the channel option to include a package from a channel up to and including channel_id.
@@ -16,8 +16,8 @@ pub struct SdkManagerInstallCommand {
     list: bool,
     /// Install package. To see all available packages use --list.
     /// Example: crossbundle install sdk-manager "ndk;23.1.7779620"
-    #[clap(long, short)]
-    install: Option<String>,
+    #[clap(long, short, multiple_values = true)]
+    install: Option<Vec<String>>,
     /// Android package that needs to be uninstalled
     #[clap(long)]
     uninstall: Option<String>,
@@ -69,7 +69,7 @@ impl SdkManagerInstallCommand {
 
     /// Install package. To see all available packages use --list.
     /// Example: crossbundle install sdk-manager "ndk;23.1.7779620"
-    pub fn install(&mut self, install: String) -> &mut Self {
+    pub fn install(&mut self, install: Vec<String>) -> &mut Self {
         self.install = Some(install);
         self
     }
@@ -187,9 +187,8 @@ impl SdkManagerInstallCommand {
         } else {
             sdkmanager.arg(format!("--sdk_root={}", sdk_root.to_str().unwrap()));
         }
-        // TODO: Resolve the problem about installation several packages
         if let Some(install) = &self.install {
-            sdkmanager.arg(install);
+            sdkmanager.args(install);
         }
         if let Some(uninstall) = &self.uninstall {
             sdkmanager.arg("--uninstall").arg(uninstall);
