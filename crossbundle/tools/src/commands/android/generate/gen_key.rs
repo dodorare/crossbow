@@ -1,4 +1,4 @@
-use android_tools::java_tools::{AabKey, KeyAlgorithm, Keytool};
+use android_tools::java_tools::{Key, KeyAlgorithm, Keytool};
 use std::path::PathBuf;
 
 /// Generates keystore with default configuration. You can manage configuration with
@@ -7,9 +7,9 @@ pub fn gen_key(
     sign_key_path: Option<PathBuf>,
     sign_key_pass: Option<String>,
     sign_key_alias: Option<String>,
-) -> crate::error::Result<AabKey> {
+) -> crate::error::Result<Key> {
     let key = if let Some(key_path) = sign_key_path {
-        let aab_key = AabKey {
+        let aab_key = Key {
             key_path,
             key_pass: sign_key_pass.unwrap(),
             key_alias: sign_key_alias.unwrap(),
@@ -33,7 +33,7 @@ pub fn gen_key(
                 .unwrap()
         }
     } else {
-        let aab_key = AabKey::new_default()?;
+        let aab_key = Key::new_default()?;
         if aab_key.key_path.exists() {
             aab_key
         } else {

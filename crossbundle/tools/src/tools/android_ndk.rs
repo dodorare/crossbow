@@ -27,7 +27,7 @@ impl AndroidNdk {
             {
                 sdk_path.unwrap().join("ndk-bundle")
             } else {
-                PathBuf::from(ndk_path.ok_or(AndroidError::AndroidNdkNotFound)?)
+                PathBuf::from(ndk_path.unwrap_or(ndk_install_path()?))
             }
         };
         let build_tag = std::fs::read_to_string(ndk_path.join("source.properties"))
@@ -319,4 +319,18 @@ impl AndroidNdk {
         }
         Ok(version_specific_libraries_path)
     }
+}
+
+pub fn ndk_install_path() -> crate::error::Result<String> {
+    let ndk_path = PathBuf::from(android_tools::sdk_install_path()?).join("ndk");
+    let ndk_ver = std::fs::read_dir(&ndk_path)
+        .map_err(|_| Error::PathNotFound(ndk_path.clone()))?
+        .filter_map(|path| path.ok())
+        .filter(|path| path.path().is_dir())
+        .filter_map(|path| path.file_name().into_string().ok())
+        .filter(|name| name.chars().next().unwrap().is_ascii_digit())
+        .max()
+        .ok_or(AndroidError::AndroidNdkNotFound)?;
+    let ndk_install_path = ndk_path.join(ndk_ver).to_str().unwrap().to_string();
+    Ok(ndk_install_path)
 }
