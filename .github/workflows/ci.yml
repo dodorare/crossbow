@@ -17,23 +17,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - name: Setup NDK path
-      shell: bash
-      # Temporary workaround: https://github.com/actions/virtual-environments/issues/5879#issuecomment-1195156618
-      run: echo "ANDROID_NDK_ROOT=$ANDROID_NDK_LATEST_HOME" >> $GITHUB_ENV
     - name: Install Android targets and upgrade rust
       run: |
         rustup upgrade
         rustup target add aarch64-linux-android x86_64-linux-android
-    - name: Setup NDK path
-      shell: bash
-      run: echo "ANDROID_NDK_ROOT=$ANDROID_NDK_LATEST_HOME" >> $GITHUB_ENV
     - name: Install Crossbundle
-      run: |
-        cargo install --path=./crossbundle/cli
+      run: cargo install --path=./crossbundle/cli
     - name: Build APK
+      # Temporary workaround: https://github.com/actions/virtual-environments/issues/5879#issuecomment-1195156618
       run: |
         cd examples/macroquad-3d
+        export ANDROID_NDK_ROOT=$ANDROID_NDK_LATEST_HOME
         crossbundle build android --apk --quad --release
 
   apple-build-macos:
@@ -57,10 +51,6 @@ jobs:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@master
-    - name: Setup NDK path
-      shell: bash
-      # Temporary workaround: https://github.com/actions/virtual-environments/issues/5879#issuecomment-1195156618
-      run: echo "ANDROID_NDK_ROOT=$ANDROID_NDK_LATEST_HOME" >> $GITHUB_ENV
     - name: Install Android targets
       run: rustup target add aarch64-linux-android x86_64-linux-android
     - name: Install Crossbundle
@@ -89,10 +79,6 @@ jobs:
           toolchain: nightly
           components: rustfmt, clippy
           override: true
-      - name: Setup NDK path
-        shell: bash
-        # Temporary workaround: https://github.com/actions/virtual-environments/issues/5879#issuecomment-1195156618
-        run: echo "ANDROID_NDK_ROOT=$ANDROID_NDK_LATEST_HOME" >> $GITHUB_ENV
       - name: Check the format
         run: cargo +nightly fmt --all -- --check
       - name: Run clippy
@@ -117,10 +103,6 @@ jobs:
           profile: minimal
           toolchain: stable
           override: true
-      - name: Setup NDK path
-        shell: bash
-        # Temporary workaround: https://github.com/actions/virtual-environments/issues/5879#issuecomment-1195156618
-        run: echo "ANDROID_NDK_ROOT=$ANDROID_NDK_LATEST_HOME" >> $GITHUB_ENV
       - name: Set up JDK 11
         uses: actions/setup-java@v3
         with:
