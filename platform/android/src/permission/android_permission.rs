@@ -318,7 +318,7 @@ pub enum AndroidPermission {
     /// Allows an application to broadcast an SMS receipt notification.
     ///
     /// Not for use by third-party applications.
-    BroadcastSMS,
+    BroadcastSms,
     /// Allows an application to broadcast sticky intents.
     ///
     /// Protection level: normal
@@ -755,7 +755,7 @@ pub enum AndroidPermission {
     /// This is a hard restricted permission which cannot be held by an app until
     /// the installer on record whitelists the permission. For more details see
     /// PackageInstaller.SessionParams.setWhitelistedRestrictedPermissions(Set)
-    ReadSMS,
+    ReadSms,
     /// Allows applications to read the sync settings.
     ///
     /// Protection level: normal
@@ -794,7 +794,7 @@ pub enum AndroidPermission {
     /// until the installer on record whitelists the permission. For more
     /// details see
     /// PackageInstaller.SessionParams.setWhitelistedRestrictedPermissions(Set).
-    ReceiveMMS,
+    ReceiveMms,
     /// Allows an application to receive SMS messages.
     ///
     /// Protection level: dangerous
@@ -803,7 +803,7 @@ pub enum AndroidPermission {
     /// until the installer on record whitelists the permission. For more
     /// details see
     /// PackageInstaller.SessionParams.setWhitelistedRestrictedPermissions(Set).
-    ReceiveSMS,
+    ReceiveSms,
     /// Allows an application to receive WAP push messages.
     ///
     /// Protection level: dangerous
@@ -893,7 +893,7 @@ pub enum AndroidPermission {
     /// Allows an application to send SMS messages.
     ///
     /// Protection level: dangerous
-    SendSMS,
+    SendSms,
     /// Allows an application to broadcast an Intent to set an alarm for the user.
     ///
     /// Protection level: normal
@@ -1101,6 +1101,10 @@ pub enum AndroidPermission {
     ///
     /// Protection level: signature|privileged|role
     WriteVoicemail,
+    /// Allows an application to control Flashlight.
+    ///
+    /// Protection level: normal
+    Flashlight,
 }
 
 impl AndroidPermission {
@@ -1174,7 +1178,7 @@ impl std::fmt::Display for AndroidPermission {
             Self::BodySensors => write!(f, "BODY_SENSORS"),
             Self::BodySensorsBackground => write!(f, "BODY_SENSORS_BACKGROUND"),
             Self::BroadcastPackageRemoved => write!(f, "BROADCAST_PACKAGE_REMOVED"),
-            Self::BroadcastSMS => write!(f, "BROADCAST_SMS"),
+            Self::BroadcastSms => write!(f, "BROADCAST_SMS"),
             Self::BroadcastSticky => write!(f, "BROADCAST_STICKY"),
             Self::BroadcastWapPush => write!(f, "BROADCAST_WAP_PUSH"),
             Self::CallCompanionApp => write!(f, "CALL_COMPANION_APP"),
@@ -1255,14 +1259,14 @@ impl std::fmt::Display for AndroidPermission {
             Self::ReadPhoneNumbers => write!(f, "READ_PHONE_NUMBERS"),
             Self::ReadPhoneState => write!(f, "READ_PHONE_STATE"),
             Self::ReadPrecisePhoneState => write!(f, "READ_PRECISE_PHONE_STATE"),
-            Self::ReadSMS => write!(f, "READ_SMS"),
+            Self::ReadSms => write!(f, "READ_SMS"),
             Self::ReadSyncSettings => write!(f, "READ_SYNC_SETTINGS"),
             Self::ReadSyncStats => write!(f, "READ_SYNC_STATS"),
             Self::ReadVoicemail => write!(f, "READ_VOICEMAIL"),
             Self::Reboot => write!(f, "REBOOT"),
             Self::ReceiveBootCompleted => write!(f, "RECEIVE_BOOT_COMPLETED"),
-            Self::ReceiveMMS => write!(f, "RECEIVE_MMS"),
-            Self::ReceiveSMS => write!(f, "RECEIVE_SMS"),
+            Self::ReceiveMms => write!(f, "RECEIVE_MMS"),
+            Self::ReceiveSms => write!(f, "RECEIVE_SMS"),
             Self::ReceiveWapPush => write!(f, "RECEIVE_WAP_PUSH"),
             Self::RecordAudio => write!(f, "RECORD_AUDIO"),
             Self::ReorderTasks => write!(f, "REORDER_TASKS"),
@@ -1299,7 +1303,7 @@ impl std::fmt::Display for AndroidPermission {
             Self::RestartPackages => write!(f, "RESTART_PACKAGES"),
             Self::ScheduleExactAlarm => write!(f, "SCHEDULE_EXACT_ALARM"),
             Self::SendRespondViaMessage => write!(f, "SEND_RESPOND_VIA_MESSAGE"),
-            Self::SendSMS => write!(f, "SEND_SMS"),
+            Self::SendSms => write!(f, "SEND_SMS"),
             Self::SetAlarm => write!(f, "SET_ALARM"),
             Self::SetAlwaysFinish => write!(f, "SET_ALWAYS_FINISH"),
             Self::SetAnimationScale => write!(f, "SET_ANIMATION_SCALE"),
@@ -1346,6 +1350,7 @@ impl std::fmt::Display for AndroidPermission {
             Self::WriteSettings => write!(f, "WRITE_SETTINGS"),
             Self::WriteSyncSettings => write!(f, "WRITE_SYNC_SETTINGS"),
             Self::WriteVoicemail => write!(f, "WRITE_VOICEMAIL"),
+            Self::Flashlight => write!(f, "FLASHLIGHT"),
         }
     }
 }
