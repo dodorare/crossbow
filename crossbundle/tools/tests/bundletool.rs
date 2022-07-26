@@ -1,4 +1,4 @@
-use android_tools::java_tools::{android_dir, AabKey, JarSigner, KeyAlgorithm, Keytool};
+use android_tools::java_tools::{android_dir, JarSigner, Key, KeyAlgorithm, Keytool};
 use crossbundle_tools::{
     commands::android::{extract_archive, gen_minimal_unsigned_aab, gen_zip_modules, remove},
     tools::{AndroidSdk, BuildApks, BuildBundle, GetSizeTotal},
@@ -26,7 +26,7 @@ fn test_build_apks() {
     remove(target).unwrap();
 
     // Creates new keystore to sign aab
-    let aab_key = AabKey::new_default().unwrap();
+    let aab_key = Key::new_default().unwrap();
     Keytool::new()
         .genkeypair(true)
         .v(true)
@@ -84,7 +84,7 @@ fn build_bundle_test() {
     remove(target).unwrap();
 
     // Creates new keystore to sign aab
-    let aab_key = AabKey::new_default().unwrap();
+    let aab_key = Key::new_default().unwrap();
     Keytool::new()
         .genkeypair(true)
         .v(true)

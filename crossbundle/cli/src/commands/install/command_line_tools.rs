@@ -1,8 +1,8 @@
 use super::*;
+use android_tools::sdk_install_path;
 use clap::Parser;
 use crossbundle_tools::{
     commands::android::{self, remove},
-    tools::AndroidSdk,
     utils::Config,
 };
 use std::path::{Path, PathBuf};
@@ -38,8 +38,7 @@ impl CommandLineToolsInstallCommand {
         )?;
         self.download_and_save_file(command_line_tools_download_url, &file_path)?;
 
-        let sdk_path = AndroidSdk::sdk_install_path()?;
-        println!("sdk_path {:?}", sdk_path);
+        let sdk_path = sdk_install_path()?;
 
         if let Some(path) = &self.install_path {
             config.status_message(
@@ -52,7 +51,7 @@ impl CommandLineToolsInstallCommand {
                 "Extracting zip archive contents into",
                 &sdk_path.to_str().unwrap(),
             )?;
-            android::extract_archive(&file_path, &sdk_path)?;
+            android::extract_archive(&file_path, Path::new(&sdk_path))?;
         }
 
         config.status("Deleting zip archive was left after installation")?;

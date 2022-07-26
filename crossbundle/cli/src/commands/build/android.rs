@@ -2,7 +2,10 @@ use crate::types::MIN_SDK_VERSION;
 
 use super::{BuildContext, SharedBuildCommand};
 use android_manifest::AndroidManifest;
-use android_tools::java_tools::{AabKey, JarSigner};
+use android_tools::{
+    java_tools::{JarSigner, Key},
+    sdk_install_path,
+};
 use clap::Parser;
 use crossbundle_tools::{
     commands::android::{self, rust_compile},
@@ -87,6 +90,10 @@ impl AndroidBuildCommand {
         };
 
         config.status("Generating gradle project")?;
+        std::env::set_var(
+            "ANDROID_SDK_ROOT",
+            sdk_install_path()?.to_str().unwrap().to_string(),
+        );
         let gradle_project_path = android::gen_gradle_project(
             &android_build_dir,
             &context.android_config.assets,
@@ -283,7 +290,7 @@ impl AndroidBuildCommand {
         &self,
         config: &Config,
         context: &BuildContext,
-    ) -> crate::error::Result<(AndroidManifest, AndroidSdk, PathBuf, String, AabKey)> {
+    ) -> crate::error::Result<(AndroidManifest, AndroidSdk, PathBuf, String, Key)> {
         let profile = self.shared.profile();
         let example = self.shared.example.as_ref();
         let (project_path, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
@@ -466,9 +473,9 @@ impl AndroidBuildCommand {
         sign_key_path: Option<PathBuf>,
         sign_key_pass: Option<String>,
         sign_key_alias: Option<String>,
-    ) -> crate::error::Result<AabKey> {
+    ) -> crate::error::Result<Key> {
         let key = if let Some(key_path) = sign_key_path {
-            let aab_key = AabKey {
+            let aab_key = Key {
                 key_path,
                 key_pass: sign_key_pass.unwrap(),
                 key_alias: sign_key_alias.unwrap(),
@@ -483,7 +490,7 @@ impl AndroidBuildCommand {
                 )?
             }
         } else {
-            let aab_key = AabKey::new_default()?;
+            let aab_key = Key::new_default()?;
             if aab_key.key_path.exists() {
                 aab_key
             } else {

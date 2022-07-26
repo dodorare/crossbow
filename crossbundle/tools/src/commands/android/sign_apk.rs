@@ -1,11 +1,11 @@
 use crate::error::*;
 use crate::tools::*;
-use android_tools::java_tools::AabKey;
+use android_tools::java_tools::Key;
 use std::path::Path;
 
 /// Signs APK with given key.
 /// Uses `apksigner` build tool
-pub fn sign_apk(sdk: &AndroidSdk, apk_path: &Path, key: AabKey) -> Result<std::path::PathBuf> {
+pub fn sign_apk(sdk: &AndroidSdk, apk_path: &Path, key: Key) -> Result<std::path::PathBuf> {
     let mut apksigner = sdk.build_tool(bat!("apksigner"), None)?;
     apksigner
         .arg("sign")
