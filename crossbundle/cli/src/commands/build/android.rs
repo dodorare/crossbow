@@ -90,7 +90,6 @@ impl AndroidBuildCommand {
         };
 
         config.status("Generating gradle project")?;
-        println!("{}", sdk_install_path()?.to_str().unwrap().to_string());
         std::env::set_var(
             "ANDROID_SDK_ROOT",
             sdk_install_path()?.to_str().unwrap().to_string(),

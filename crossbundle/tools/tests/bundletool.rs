@@ -1,4 +1,4 @@
-use android_tools::java_tools::{android_dir, Key, JarSigner, KeyAlgorithm, Keytool};
+use android_tools::java_tools::{android_dir, JarSigner, Key, KeyAlgorithm, Keytool};
 use crossbundle_tools::{
     commands::android::{extract_archive, gen_minimal_unsigned_aab, gen_zip_modules, remove},
     tools::{AndroidSdk, BuildApks, BuildBundle, GetSizeTotal},

@@ -39,7 +39,6 @@ impl CommandLineToolsInstallCommand {
         self.download_and_save_file(command_line_tools_download_url, &file_path)?;
 
         let sdk_path = sdk_install_path()?;
-        println!("sdk_path {:?}", sdk_path);
 
         if let Some(path) = &self.install_path {
             config.status_message(
