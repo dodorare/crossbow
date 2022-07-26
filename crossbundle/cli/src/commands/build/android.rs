@@ -90,10 +90,8 @@ impl AndroidBuildCommand {
         };
 
         config.status("Generating gradle project")?;
-        std::env::set_var(
-            "ANDROID_SDK_ROOT",
-            sdk_install_path()?.to_str().unwrap().to_string(),
-        );
+        std::env::set_var("ANDROID_SDK_ROOT", sdk_install_path()?.to_str().unwrap());
+
         let gradle_project_path = android::gen_gradle_project(
             &android_build_dir,
             &context.android_config.assets,
