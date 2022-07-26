@@ -323,8 +323,6 @@ impl AndroidNdk {
 
 pub fn ndk_install_path() -> crate::error::Result<String> {
     let ndk_path = PathBuf::from(android_tools::sdk_install_path()?).join("ndk");
-    #[cfg(target_os = "linux")]
-    let ndk_path = PathBuf::from(android_tools::sdk_install_path()?).join("ndk-bundle");
     let ndk_ver = std::fs::read_dir(&ndk_path)
         .map_err(|_| Error::PathNotFound(ndk_path.clone()))?
         .filter_map(|path| path.ok())

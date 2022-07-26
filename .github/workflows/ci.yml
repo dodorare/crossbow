@@ -21,6 +21,9 @@ jobs:
       run: |
         rustup upgrade
         rustup target add aarch64-linux-android x86_64-linux-android
+    - name: Setup NDK path
+      shell: bash
+      run: echo "ANDROID_NDK_ROOT=$ANDROID_NDK_LATEST_HOME" >> $GITHUB_ENV
     - name: Install Crossbundle
       run: |
         cargo install --path=./crossbundle/cli
