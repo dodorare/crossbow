@@ -1,7 +1,7 @@
 use super::*;
 use crate::error::*;
 #[cfg(all(target_os = "android", feature = "android"))]
-use crossbow_android::{permission::*, types::AndroidPermission};
+use crossbow_android::permission::*;
 #[cfg(all(target_os = "ios", feature = "ios"))]
 use crossbow_ios::permission::*;
 
@@ -86,14 +86,14 @@ impl Permission {
     pub async fn request_async(&self) -> Result<PermissionStatus> {
         match self {
             Permission::Camera => {
-                let res = PermissionStatus::Denied;
+                let _res = PermissionStatus::Denied;
                 #[cfg(all(target_os = "android", feature = "android"))]
-                let res = request_permission(&AndroidPermission::Camera)?;
+                let _res = request_permission(&AndroidPermission::Camera).await?.into();
                 #[cfg(all(target_os = "ios", feature = "ios"))]
-                let res = request_permission(&IosPermission::CaptureDevice(MediaType::Video))
+                let _res = request_permission(&IosPermission::CaptureDevice(MediaType::Video))
                     .await
                     .into();
-                Ok(res)
+                Ok(_res)
             }
             _ => unimplemented!(),
         }

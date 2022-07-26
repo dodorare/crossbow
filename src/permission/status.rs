@@ -12,6 +12,15 @@ pub enum PermissionStatus {
     Restricted = 4,
 }
 
+impl From<bool> for PermissionStatus {
+    fn from(status: bool) -> Self {
+        match status {
+            true => Self::Granted,
+            false => Self::Denied,
+        }
+    }
+}
+
 #[cfg(all(target_os = "ios", feature = "ios"))]
 use crossbow_ios::permission::AuthorizationStatus;
 

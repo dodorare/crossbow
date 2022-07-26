@@ -44,8 +44,8 @@ async fn main() -> anyhow::Result<()> {
     let jnienv = vm.attach_current_thread_as_daemon().unwrap();
 
     #[cfg(target_os = "android")]
-    let admob_singleton =
-        plugin::get_jni_singleton("AdMob").expect("Crossbow Error: AdMob is not registered");
+    let admob_singleton = crossbow::android::plugin::get_jni_singleton("AdMob")
+        .expect("Crossbow Error: AdMob is not registered");
     #[cfg(target_os = "android")]
     let admob = crossbow_admob::AdMobPlugin::from_jnienv(admob_singleton.clone(), jnienv).unwrap();
 
@@ -60,6 +60,7 @@ async fn main() -> anyhow::Result<()> {
 
         root_ui().push_skin(&window_skin);
         root_ui().window(hash!(), vec2(0.0, 250.0), vec2(500.0, 500.0), |ui| {
+            #[cfg(target_os = "android")]
             ui.label(vec2(15.0, 0.0), "AdMob");
             ui.label(vec2(15.0, 50.0), &label);
 

@@ -1,4 +1,4 @@
-use crossbow_android::{error::*, jni::JNIEnv, types::*};
+use crossbow_android::{error::*, jni::JNIEnv, plugin::*};
 use std::sync::Arc;
 
 pub struct AdMobPlugin<'a> {

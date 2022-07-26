@@ -13,7 +13,7 @@ pub extern "C" fn Java_com_crossbow_library_plugin_CrossbowPlugin_nativeRegister
     name: JString,
     obj: JObject,
 ) {
-    native_register_singleton(env, name, obj).unwrap();
+    on_native_register_singleton(env, name, obj).unwrap();
 }
 
 #[no_mangle]
@@ -25,7 +25,7 @@ pub extern "C" fn Java_com_crossbow_library_plugin_CrossbowPlugin_nativeRegister
     name: JString,
     sig: JString,
 ) {
-    native_register_method(env, sname, name, sig).unwrap();
+    on_native_register_method(env, sname, name, sig).unwrap();
 }
 
 #[no_mangle]
@@ -37,7 +37,7 @@ pub extern "C" fn Java_com_crossbow_library_plugin_CrossbowPlugin_nativeRegister
     signal_name: JString,
     signal_param_types: jobjectArray,
 ) {
-    native_register_signal(env, plugin_name, signal_name, signal_param_types).unwrap();
+    on_native_register_signal(env, plugin_name, signal_name, signal_param_types).unwrap();
 }
 
 #[no_mangle]
@@ -49,5 +49,5 @@ pub extern "C" fn Java_com_crossbow_library_plugin_CrossbowPlugin_nativeEmitSign
     signal_name: JString,
     signal_params: jobjectArray,
 ) {
-    native_emit_signal(env, plugin_name, signal_name, signal_params).unwrap();
+    on_native_emit_signal(env, plugin_name, signal_name, signal_params).unwrap();
 }
