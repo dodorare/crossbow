@@ -24,6 +24,12 @@ pub extern "C" fn Java_com_crossbow_library_CrossbowLib_initialize(
 
 #[no_mangle]
 #[allow(non_snake_case)]
+pub extern "C" fn Java_com_crossbow_library_CrossbowLib_onDestroy(_env: JNIEnv, _class: JClass) {
+    println!("CrossbowLib_onDestroy");
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
 pub extern "C" fn Java_com_crossbow_library_CrossbowLib_requestPermissionResult(
     env: JNIEnv,
     _class: JClass,

@@ -4,15 +4,13 @@ mod types;
 pub use request_permission::*;
 pub use types::*;
 
-pub fn request_permission(
-    permission: &IosPermission,
-) -> impl std::future::Future<Output = AuthorizationStatus> {
+pub async fn request_permission(permission: &IosPermission) -> AuthorizationStatus {
     let (sender, receiver) = std::sync::mpsc::sync_channel(1);
     let handler = move |status| {
         sender.send(status).unwrap();
     };
     request_permission_with_handler(permission, handler);
-    async move { receiver.recv().unwrap() }
+    receiver.recv().unwrap()
 }
 
 pub fn request_permission_with_handler<F>(permission: &IosPermission, handler: F)

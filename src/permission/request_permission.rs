@@ -86,7 +86,7 @@ impl Permission {
     pub async fn request_async(&self) -> Result<PermissionStatus> {
         match self {
             Permission::Camera => {
-                let _res = PermissionStatus::Denied;
+                let _res = PermissionStatus::Disabled;
                 #[cfg(all(target_os = "android", feature = "android"))]
                 let _res = request_permission(&AndroidPermission::Camera).await?.into();
                 #[cfg(all(target_os = "ios", feature = "ios"))]

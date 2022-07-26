@@ -106,8 +106,6 @@ class Crossbow : Fragment() {
             plugin.onRegisterPluginWithCrossbowNative()
         }
 
-		Log.v(TAG, "Crossbow onRenderInit middle")
-
         // Include the returned non-null views in the Crossbow view hierarchy.
         for (plugin in pluginRegistry!!.allPlugins) {
             val pluginView: View? = plugin.onMainCreate(activity)
