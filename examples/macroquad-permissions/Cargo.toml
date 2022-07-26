@@ -16,7 +16,7 @@ futures-lite = "1.12.0"
 crossbow-admob = { version = "0.1.6", path = "../../plugins/admob" }
 
 [package.metadata.android]
-app_name = "Macroquad_Permissions"
+app_name = "Permissions"
 target_sdk_version = 30
 version_code = 1
 icon = "ic_launcher"
@@ -45,8 +45,11 @@ name = "android.permission.READ_EXTERNAL_STORAGE"
 [[package.metadata.android.permissions]]
 name = "android.permission.CAMERA"
 
+[[package.metadata.android.permissions]]
+name = "android.permission.FLASHLIGHT"
+
 [package.metadata.apple]
-app_name = "Macroquad_Permissions"
+app_name = "Permissions"
 version_code = 1
 icon = "icon"
 
@@ -60,7 +63,7 @@ CFBundleVersion = "1.0"
 CFBundleShortVersionString = "1.0"
 CFBundleExecutable = "macroquad-permissions"
 UILaunchStoryboardName = "LaunchScreen"
-CFBundleName = "Macroquad_Permissions"
+CFBundleName = "Permissions"
 # Permissions
-NSCameraUsageDescription = "Macroquad_Permissions requires access to your phone's camera."
-NSPhotoLibraryUsageDescription = "Macroquad_Permissions requires access to your phone's photo library."
+NSCameraUsageDescription = "Permissions App requires access to your phone's camera."
+NSPhotoLibraryUsageDescription = "Permissions App requires access to your phone's photo library."

@@ -1,8 +1,14 @@
 use cocoa_foundation::{base::id, foundation::NSUInteger};
 
-/// iOS Permissions
+/// Type for iOS Permission.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum IosPermission {
+    /// EKEventStore.
+    ///
+    /// An object that accesses the user’s calendar events and reminders and supports the scheduling of new events.
+    ///
+    /// More details: https://developer.apple.com/documentation/eventkit/ekeventstore
+    EventStore(EntityType),
     /// AVCaptureDevice.
     ///
     /// Hardware or virtual capture device like a camera or microphone.
@@ -24,12 +30,8 @@ pub enum IosPermission {
 /// More details: https://developer.apple.com/documentation/avfoundation/avmediatypeaudio
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum MediaType {
-    /// AVMediaTypeAudio.
-    ///
     /// The media contains audio media.
     Audio,
-    /// AVMediaTypeVideo.
-    ///
     /// The media contains video.
     Video,
 }
@@ -40,18 +42,9 @@ extern "C" {
     pub static AVMediaTypeAudio: id;
 }
 
-impl From<MediaType> for id {
-    fn from(val: MediaType) -> Self {
-        match val {
-            MediaType::Audio => unsafe { AVMediaTypeAudio },
-            MediaType::Video => unsafe { AVMediaTypeVideo },
-        }
-    }
-}
-
-impl From<&MediaType> for id {
-    fn from(val: &MediaType) -> Self {
-        match val {
+impl Into<id> for &MediaType {
+    fn into(self) -> id {
+        match self {
             MediaType::Audio => unsafe { AVMediaTypeAudio },
             MediaType::Video => unsafe { AVMediaTypeVideo },
         }
@@ -65,22 +58,15 @@ impl From<&MediaType> for id {
 /// More details: https://developer.apple.com/documentation/photokit/phaccesslevel
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum AccessLevel {
+    /// A value that indicates the app may only add to the user’s photo library.
     AddOnly,
+    /// A value that indicates the app can read from and write to the user’s photo library.
     ReadWrite,
 }
 
-impl From<AccessLevel> for NSUInteger {
-    fn from(level: AccessLevel) -> Self {
-        match level {
-            AccessLevel::AddOnly => 1 << 0,
-            AccessLevel::ReadWrite => 1 << 1,
-        }
-    }
-}
-
-impl From<&AccessLevel> for NSUInteger {
-    fn from(level: &AccessLevel) -> Self {
-        match level {
+impl Into<NSUInteger> for &AccessLevel {
+    fn into(self) -> NSUInteger {
+        match self {
             AccessLevel::AddOnly => 1 << 0,
             AccessLevel::ReadWrite => 1 << 1,
         }
@@ -94,10 +80,15 @@ impl From<&AccessLevel> for NSUInteger {
 /// More details: https://developer.apple.com/documentation/photokit/phauthorizationstatus
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum AuthorizationStatus {
+    /// The user hasn’t set the app’s authorization status.
     NotDetermined,
+    /// The app isn’t authorized to access the photo library, and the user can’t grant such permission.
     Restricted,
+    /// The user explicitly denied this app access to the photo library.
     Denied,
+    /// The user explicitly granted this app access to the photo library.
     Authorized,
+    /// The user authorized this app for limited photo library access.
     Limited,
 }
 
@@ -109,6 +100,28 @@ impl From<NSUInteger> for AuthorizationStatus {
             2 => Self::Denied,
             3 => Self::Authorized,
             _ => Self::Limited,
+        }
+    }
+}
+
+/// EKEntityType.
+///
+/// The type of entities allowed for a source.
+///
+/// More details: https://developer.apple.com/documentation/eventkit/ekentitytype
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum EntityType {
+    /// Represents an event.
+    Event,
+    /// Represents a reminder.
+    Reminder,
+}
+
+impl Into<NSUInteger> for &EntityType {
+    fn into(self) -> NSUInteger {
+        match self {
+            EntityType::Event => 0,
+            EntityType::Reminder => 1,
         }
     }
 }

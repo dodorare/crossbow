@@ -83,7 +83,7 @@ pub fn permission_status<'a>(
 }
 
 /// Provides checking permission status in the application and will request permission if it is denied.
-pub fn request_permission(permission: &AndroidPermission) -> Result<bool> {
+pub fn request_permission(permission: &AndroidPermission) -> Result<()> {
     let (_, vm) = super::create_java_vm()?;
     let jnienv = vm.attach_current_thread()?;
 
@@ -131,5 +131,5 @@ pub fn request_permission(permission: &AndroidPermission) -> Result<bool> {
         )?;
     }
 
-    Ok(true)
+    Ok(())
 }
