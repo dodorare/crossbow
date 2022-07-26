@@ -44,7 +44,7 @@ name = "android.permission.READ_EXTERNAL_STORAGE"
 name = "android.permission.CAMERA"
 
 [[package.metadata.android.permissions]]
-name = "android.permission.FLASHLIGHT"
+name = "android.permission.RECORD_AUDIO"
 
 [package.metadata.apple]
 app_name = "Permissions"
@@ -64,4 +64,5 @@ UILaunchStoryboardName = "LaunchScreen"
 CFBundleName = "Permissions"
 # Permissions
 NSCameraUsageDescription = "Permissions App requires access to your phone's camera."
+NSMicrophoneUsageDescription = "Permissions App requires access to your phone's microphone."
 NSPhotoLibraryUsageDescription = "Permissions App requires access to your phone's photo library."

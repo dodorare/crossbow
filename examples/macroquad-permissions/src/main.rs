@@ -68,6 +68,10 @@ async fn main() -> anyhow::Result<()> {
             if ui.button(vec2(-15.0, 150.0), btn_camera) {
                 btn_clicked = btn_camera;
             }
+            let btn_camera = "Mic permission";
+            if ui.button(vec2(-15.0, 300.0), btn_camera) {
+                btn_clicked = btn_camera;
+            }
             #[cfg(target_os = "android")]
             if ui.button(vec2(-15.0, 450.0), "Show ad") {
                 if !admob.get_is_initialized().unwrap() {
@@ -95,8 +99,11 @@ async fn main() -> anyhow::Result<()> {
         match btn_clicked {
             "Camera permission" => {
                 let res = Permission::Camera.request_async().await?;
-                // Permission::CalendarRead.request_async().unwrap();
-                label = format!("Permission {:?}", res);
+                label = format!("Camera {:?}", res);
+            }
+            "Mic permission" => {
+                let res = Permission::Microphone.request_async().await?;
+                label = format!("Microphone {:?}", res);
             }
             _ => {}
         }
