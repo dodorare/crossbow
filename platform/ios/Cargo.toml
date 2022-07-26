@@ -20,3 +20,23 @@ block = "0.1"
 cocoa-foundation = "0.1"
 core-foundation = "0.9"
 libc = "0.2"
+
+[features]
+default = [
+    "eventkit",
+    "avfoundation",
+    "photos",
+    "addressbook",
+    "mediaplayer",
+    "coremotion",
+    "speech",
+    "corelocation"
+]
+eventkit = []
+avfoundation = []
+photos = []
+addressbook = []
+mediaplayer = []
+coremotion = []
+speech = []
+corelocation = []

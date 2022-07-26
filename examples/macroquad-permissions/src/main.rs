@@ -1,9 +1,4 @@
-#[cfg(target_os = "android")]
-use crossbow::android::{plugin, types::*};
-#[cfg(target_os = "ios")]
-use crossbow::ios::types::*;
-#[cfg(target_os = "android")]
-use crossbow::request_permission;
+use crossbow::Permission;
 use macroquad::prelude::*;
 use macroquad::ui::{hash, root_ui, Skin};
 
@@ -49,57 +44,40 @@ async fn main() -> anyhow::Result<()> {
     let jnienv = vm.attach_current_thread_as_daemon().unwrap();
 
     #[cfg(target_os = "android")]
-    let admob_singleton =
-        plugin::get_jni_singleton("AdMob").expect("Crossbow Error: AdMob is not registered");
+    let admob_singleton = crossbow::android::plugin::get_jni_singleton("AdMob")
+        .expect("Crossbow Error: AdMob is not registered");
     #[cfg(target_os = "android")]
     let admob = crossbow_admob::AdMobPlugin::from_jnienv(admob_singleton.clone(), jnienv).unwrap();
 
-    #[cfg(target_os = "android")]
-    let mut label = "Signal: ".to_owned();
+    let mut label = "".to_owned();
     let window_skin = skin.clone();
+    #[allow(unused_assignments)]
+    let mut btn_clicked = "";
+
     loop {
+        btn_clicked = "";
         clear_background(WHITE);
 
         root_ui().push_skin(&window_skin);
         root_ui().window(hash!(), vec2(0.0, 250.0), vec2(500.0, 500.0), |ui| {
-            ui.label(vec2(15.0, 0.0), "AdMob");
             #[cfg(target_os = "android")]
+            ui.label(vec2(15.0, 0.0), "AdMob");
             ui.label(vec2(15.0, 50.0), &label);
 
-            #[cfg(any(target_os = "android", target_os = "ios"))]
-            if ui.button(vec2(-15.0, 150.0), "Camera permission") {
-                #[cfg(target_os = "android")]
-                let permission = AndroidPermission::Camera;
-                #[cfg(target_os = "android")]
-                request_permission(permission).unwrap();
-
-                #[cfg(target_os = "ios")]
-                let media = MediaType::Video;
-                #[cfg(target_os = "ios")]
-                crossbow::ios::permission::request_capture_device_permission(&media, |res| {
-                    println!("Permission result: {:?}", res);
-                });
+            let btn_camera = "Camera permission";
+            if ui.button(vec2(-15.0, 150.0), btn_camera) {
+                btn_clicked = btn_camera;
             }
-            #[cfg(any(target_os = "android", target_os = "ios"))]
-            if ui.button(vec2(-15.0, 300.0), "Storage permission") {
-                #[cfg(target_os = "android")]
-                let permission = AndroidPermission::ReadExternalStorage;
-                #[cfg(target_os = "android")]
-                request_permission(permission).unwrap();
-
-                #[cfg(target_os = "ios")]
-                let access = AccessLevel::AddOnly;
-                #[cfg(target_os = "ios")]
-                crossbow::ios::permission::request_photo_library_permission(&access, |res| {
-                    println!("Permission result: {:?}", res);
-                });
-
-                // let result = std::cell::Cell::new(AuthorizationStatus::NotDetermined);
-                // result.into_inner()
-                // println!("AuthorizationStatus: {:?}", result);
+            let btn_camera = "Mic permission";
+            if ui.button(vec2(-15.0, 300.0), btn_camera) {
+                btn_clicked = btn_camera;
+            }
+            let btn_camera = "Photos permission";
+            if ui.button(vec2(-15.0, 450.0), btn_camera) {
+                btn_clicked = btn_camera;
             }
             #[cfg(target_os = "android")]
-            if ui.button(vec2(-15.0, 450.0), "Show ad") {
+            if ui.button(vec2(-15.0, 600.0), "Show ad") {
                 if !admob.get_is_initialized().unwrap() {
                     println!("calling initialize()");
                     admob.initialize(true, "G", false, true).unwrap();
@@ -118,27 +96,25 @@ async fn main() -> anyhow::Result<()> {
                     println!("calling show_interstitial()");
                     admob.show_interstitial().unwrap();
                 }
-
-                // if admob.get_is_initialized().unwrap() && !admob.get_is_banner_loaded().unwrap() {
-                //     println!("calling load_banner()");
-                //     admob
-                //         .load_banner(
-                //             "ca-app-pub-3940256099942544/6300978111",
-                //             0,
-                //             crossbow_admob_android::BannerSize::FullBanner,
-                //             true,
-                //             true,
-                //         )
-                //         .unwrap();
-                // }
-
-                // if admob.get_is_banner_loaded().unwrap() {
-                //     println!("calling show_banner()");
-                //     admob.show_banner().unwrap();
-                // }
             }
         });
         root_ui().pop_skin();
+
+        match btn_clicked {
+            "Camera permission" => {
+                let res = Permission::Camera.request_async().await?;
+                label = format!("Camera {:?}", res);
+            }
+            "Mic permission" => {
+                let res = Permission::Microphone.request_async().await?;
+                label = format!("Microphone {:?}", res);
+            }
+            "Photos permission" => {
+                let res = Permission::Photos.request_async().await?;
+                label = format!("Photos {:?}", res);
+            }
+            _ => {}
+        }
 
         #[cfg(target_os = "android")]
         if let Ok(signal) = admob_singleton.get_receiver().try_recv() {

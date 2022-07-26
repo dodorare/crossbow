@@ -22,12 +22,12 @@ object CrossbowLib {
         asset_manager: Any?
     )
 
-    // /**
-    //  * Invoked on the main thread to clean up Godot native layer.
-    //  * @see androidx.fragment.app.Fragment.onDestroy
-    //  */
-    // @JvmStatic
-    // external fun ondestroy()
+    /**
+     * Invoked on the main thread to clean up Godot native layer.
+     * @see androidx.fragment.app.Fragment.onDestroy
+     */
+    @JvmStatic
+    external fun onDestroy()
 
     // /**
     //  * Forward [Activity.onBackPressed] event from the main thread to the GL thread.

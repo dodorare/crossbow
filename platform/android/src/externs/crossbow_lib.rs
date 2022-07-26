@@ -1,3 +1,4 @@
+use crate::permission::*;
 use jni::{
     objects::{JClass, JObject, JString},
     sys::jboolean,
@@ -23,11 +24,17 @@ pub extern "C" fn Java_com_crossbow_library_CrossbowLib_initialize(
 
 #[no_mangle]
 #[allow(non_snake_case)]
+pub extern "C" fn Java_com_crossbow_library_CrossbowLib_onDestroy(_env: JNIEnv, _class: JClass) {
+    println!("CrossbowLib_onDestroy");
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
 pub extern "C" fn Java_com_crossbow_library_CrossbowLib_requestPermissionResult(
-    _env: JNIEnv,
+    env: JNIEnv,
     _class: JClass,
-    _permission: JString,
+    permission: JString,
     result: jboolean,
 ) {
-    println!("requestPermissionResult: {:?}", result);
+    on_request_permission_result(env, permission, result).unwrap();
 }

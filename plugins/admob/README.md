@@ -10,8 +10,8 @@ This project is a Crossbow Plugin that allows showing AdMob ads from Rust. Witho
 | ---- | ----------- |
 | Banner | ❌ |
 | Interstitial | ✅ |
-| Rewarded | 🆗 |
-| [Rewarded Interstitial](https://support.google.com/admob/answer/9884467) | 🆗 |
+| Rewarded | ✅ |
+| [Rewarded Interstitial](https://support.google.com/admob/answer/9884467) | ✅ |
 | Native | ❗ |
 
 ✅ = Works and tested — 🆗 = Works but may contain bugs — 🛠 = Under development — 📝 = Planned - ❌ = Not working - ❗ = Not planned to be implemented

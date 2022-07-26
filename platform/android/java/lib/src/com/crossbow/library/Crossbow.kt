@@ -61,24 +61,6 @@ class Crossbow : Fragment() {
         }
     }
 
-    @CallSuper
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        for (plugin in pluginRegistry!!.allPlugins) {
-            plugin.onMainRequestPermissionsResult(requestCode, permissions, grantResults)
-        }
-        for (i in permissions.indices) {
-            CrossbowLib.requestPermissionResult(
-                permissions[i],
-                grantResults[i] == PackageManager.PERMISSION_GRANTED
-            )
-        }
-    }
-
     /**
      * Invoked on the render thread when the Crossbow setup is complete.
      */
@@ -123,8 +105,6 @@ class Crossbow : Fragment() {
         for (plugin in pluginRegistry!!.allPlugins) {
             plugin.onRegisterPluginWithCrossbowNative()
         }
-
-		Log.v(TAG, "Crossbow onRenderInit middle")
 
         // Include the returned non-null views in the Crossbow view hierarchy.
         for (plugin in pluginRegistry!!.allPlugins) {
@@ -181,14 +161,34 @@ class Crossbow : Fragment() {
 		}
 	}
 
-    // fun requestPermission(p_name: String?): Boolean {
-    //     return PermissionsUtil.requestPermission(p_name, activity)
-    // }
+    @CallSuper
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        for (plugin in pluginRegistry!!.allPlugins) {
+            plugin.onMainRequestPermissionsResult(requestCode, permissions, grantResults)
+        }
+        for (i in permissions.indices) {
+            CrossbowLib.requestPermissionResult(
+                permissions[i],
+                grantResults[i] == PackageManager.PERMISSION_GRANTED
+            )
+        }
+    }
 
-    // fun requestPermissions(): Boolean {
-    //     return PermissionsUtil.requestManifestPermissions(activity)
-    // }
+    val grantedPermissions: Array<String>
+        get() = PermissionsUtil.getGrantedPermissions(activity)
 
-    // val grantedPermissions: Array<String>
-    //     get() = PermissionsUtil.getGrantedPermissions(activity)
+    @Keep
+    fun requestPermission(permission: String): Boolean {
+        return PermissionsUtil.requestPermission(permission, activity)
+    }
+
+    @Keep
+    fun requestPermissions(): Boolean {
+        return PermissionsUtil.requestManifestPermissions(activity)
+    }
 }

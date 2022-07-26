@@ -1,13 +1,12 @@
 use std::path::Path;
 
+use android_tools::sdk_install_path;
 use clap::Parser;
-use crossbundle_tools::{
-    error::CommandExt, tools::AndroidSdk, utils::Config, EXECUTABLE_SUFFIX_BAT,
-};
+use crossbundle_tools::{error::CommandExt, utils::Config, EXECUTABLE_SUFFIX_BAT};
 
 #[derive(Parser, Clone, Debug, Default)]
 pub struct SdkManagerInstallCommand {
-    /// Install all preferred tools for correct crossbundle work
+    /// Install all preferred tools for correct crossbundle work. It will install build-tools;31.0.0, ndk;23.1.7779620 and platforms;android-30
     #[clap(long, short)]
     preferred_tools: bool,
     /// List installed and available packages. Use the channel option to include a package from a channel up to and including channel_id.
@@ -16,8 +15,8 @@ pub struct SdkManagerInstallCommand {
     list: bool,
     /// Install package. To see all available packages use --list.
     /// Example: crossbundle install sdk-manager "ndk;23.1.7779620"
-    #[clap(long, short)]
-    install: Option<String>,
+    #[clap(long, short, multiple_values = true)]
+    install: Option<Vec<String>>,
     /// Android package that needs to be uninstalled
     #[clap(long)]
     uninstall: Option<String>,
@@ -69,7 +68,7 @@ impl SdkManagerInstallCommand {
 
     /// Install package. To see all available packages use --list.
     /// Example: crossbundle install sdk-manager "ndk;23.1.7779620"
-    pub fn install(&mut self, install: String) -> &mut Self {
+    pub fn install(&mut self, install: Vec<String>) -> &mut Self {
         self.install = Some(install);
         self
     }
@@ -158,20 +157,23 @@ impl SdkManagerInstallCommand {
 
     /// Run sdkmanager command with specified flags and options
     pub fn run(&self, _config: &Config) -> crate::error::Result<()> {
-        let sdk_root = AndroidSdk::sdk_install_path()?;
+        let sdk_root = sdk_install_path()?;
         // Android studio install cmdline tools into SDK_ROOT/cmdline-tools/<version>/bin.
         // Crossbundle install command ignores <version> directory so we need convert cmd-line-tools path to Option<T> to avoid confusion
-        let cmdline_tools_path = sdk_root.join("cmdline-tools").join("latest").join("bin");
+        let cmdline_tools_path = std::path::PathBuf::from(&sdk_root)
+            .join("cmdline-tools")
+            .join("latest")
+            .join("bin");
         if cmdline_tools_path.exists() {
             let sdkmanager_path =
                 cmdline_tools_path.join(format!("sdkmanager{}", EXECUTABLE_SUFFIX_BAT));
-            self.sdkmanager_command(&sdkmanager_path, &sdk_root)?;
+            self.sdkmanager_command(&sdkmanager_path, Path::new(&sdk_root))?;
         } else {
-            let sdkmanager_path = sdk_root
+            let sdkmanager_path = std::path::PathBuf::from(&sdk_root)
                 .join("cmdline-tools")
                 .join("bin")
                 .join(format!("sdkmanager{}", EXECUTABLE_SUFFIX_BAT));
-            self.sdkmanager_command(&sdkmanager_path, &sdk_root)?;
+            self.sdkmanager_command(&sdkmanager_path, Path::new(&sdk_root))?;
         };
         Ok(())
     }
@@ -187,9 +189,8 @@ impl SdkManagerInstallCommand {
         } else {
             sdkmanager.arg(format!("--sdk_root={}", sdk_root.to_str().unwrap()));
         }
-        // TODO: Resolve the problem about installation several packages
         if let Some(install) = &self.install {
-            sdkmanager.arg(install);
+            sdkmanager.args(install);
         }
         if let Some(uninstall) = &self.uninstall {
             sdkmanager.arg("--uninstall").arg(uninstall);

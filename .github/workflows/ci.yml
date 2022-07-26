@@ -22,11 +22,12 @@ jobs:
         rustup upgrade
         rustup target add aarch64-linux-android x86_64-linux-android
     - name: Install Crossbundle
-      run: |
-        cargo install --path=./crossbundle/cli
+      run: cargo install --path=./crossbundle/cli
     - name: Build APK
+      # Temporary workaround: https://github.com/actions/virtual-environments/issues/5879#issuecomment-1195156618
       run: |
         cd examples/macroquad-3d
+        export ANDROID_NDK_ROOT=$ANDROID_NDK_LATEST_HOME
         crossbundle build android --apk --quad --release
 
   apple-build-macos:

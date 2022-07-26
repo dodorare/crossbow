@@ -4,7 +4,6 @@ pub(crate) mod utils;
 pub mod error;
 pub mod permission;
 pub mod plugin;
-pub mod types;
 
 pub use jni;
 
