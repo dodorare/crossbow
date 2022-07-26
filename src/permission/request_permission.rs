@@ -10,75 +10,176 @@ use crossbow_ios::permission::*;
 pub enum Permission {
     /// Read Access to the Calendar.
     ///
-    /// Platforms: __Android / iOS__.
+    /// Platforms: **Android / iOS**.
+    ///
+    /// Required Permissions for **Android**:
+    /// * **android.permission.READ_CALENDAR**
+    ///
+    /// Required Permissions for **iOS**:
+    /// * **NSCalendarsUsageDescription**
     CalendarRead,
     /// Read and Write Access to the Calendar.
     ///
-    /// Platforms: __Android / iOS__.
+    /// Platforms: **Android / iOS**.
+    ///
+    /// Required Permissions for **Android**:
+    /// * **android.permission.WRITE_CALENDAR**
+    ///
+    /// Required Permissions for **iOS**:
+    /// * **NSCalendarsUsageDescription**
     CalendarWrite,
     /// Access to the Camera.
     ///
-    /// Platforms: __Android / iOS__.
+    /// Platforms: **Android / iOS**.
+    ///
+    /// Required Permissions for **Android**:
+    /// * **android.permission.CAMERA**
+    ///
+    /// Required Permissions for **iOS**:
+    /// * **NSCameraUsageDescription**
     Camera,
     /// Read Access to the Contacts.
     ///
-    /// Platforms: __Android / iOS__.
+    /// Platforms: **Android / iOS**.
+    ///
+    /// Required Permissions for **Android**:
+    /// * **android.permission.READ_CONTACTS**
+    ///
+    /// Required Permissions for **iOS**:
+    /// * **NSContactsUsageDescription**
     ContactsRead,
     /// Read and Write Access to the Contacts.
     ///
-    /// Platforms: __Android / iOS__.
+    /// Platforms: **Android / iOS**.
+    ///
+    /// Required Permissions for **Android**:
+    /// * **android.permission.WRITE_CONTACTS**
+    ///
+    /// Required Permissions for **iOS**:
+    /// * **NSContactsUsageDescription**
     ContactsWrite,
     /// Access to the Flashlight.
     ///
-    /// Platforms: __Android__.
+    /// Platforms: **Android**.
+    ///
+    /// Required Permissions for **Android**:
+    /// * **android.permission.CAMERA**
+    /// * **android.permission.FLASHLIGHT**
     Flashlight,
     /// Access to the Location when in use.
     ///
-    /// Platforms: __Android / iOS__.
+    /// Platforms: **Android / iOS**.
+    ///
+    /// Required Permissions for **Android**:
+    /// * **android.permission.ACCESS_COARSE_LOCATION**
+    /// * **android.permission.ACCESS_FINE_LOCATION**
+    ///
+    /// Required Permissions for **iOS**:
+    /// * **NSLocationWhenInUseUsageDescription**
     LocationWhenInUse,
     /// Permanent Access to the Location.
     ///
-    /// Platforms: __Android / iOS__.
+    /// Platforms: **Android / iOS**.
+    ///
+    /// Required Permissions for **Android**:
+    /// * **android.permission.ACCESS_COARSE_LOCATION**
+    /// * **android.permission.ACCESS_FINE_LOCATION**
+    /// * **android.permission.ACCESS_BACKGROUND_LOCATION**
+    ///
+    /// Required Permissions for **iOS**:
+    /// * **NSLocationAlwaysAndWhenInUseUsageDescription**
+    /// * **NSLocationAlwaysUsageDescription**
     LocationAlways,
     /// Access to the Media.
     ///
-    /// Platforms: __iOS__.
+    /// Platforms: **iOS**.
+    ///
+    /// Required Permissions for **iOS**:
+    /// * **NSAppleMusicUsageDescription**
     Media,
     /// Access to the Microphone.
     ///
-    /// Platforms: __Android / iOS__.
+    /// Platforms: **Android / iOS**.
+    ///
+    /// Required Permissions for **Android**:
+    /// * **android.permission.RECORD_AUDIO**
+    ///
+    /// Required Permissions for **iOS**:
+    /// * **NSMicrophoneUsageDescription**
     Microphone,
     /// Access to the Phone.
     ///
-    /// Platforms: __Android / iOS__.
+    /// Platforms: **Android / iOS**.
+    ///
+    /// Required Permissions for **Android**:
+    /// * **android.permission.READ_PHONE_STATE**
+    /// * **android.permission.CALL_PHONE**
+    /// * **android.permission.READ_CALL_LOG**
+    /// * **android.permission.WRITE_CALL_LOG**
+    /// * **android.permission.ADD_VOICEMAIL**
+    /// * **android.permission.USE_SIP**
+    /// * **android.permission.ANSWER_PHONE_CALLS**
+    /// * **android.permission.PROCESS_OUTGOING_CALLS**
     Phone,
     /// Access to the Photos.
     ///
-    /// Platforms: __iOS__.
+    /// Platforms: **iOS**.
+    ///
+    /// Required Permissions for **iOS**:
+    /// * **NSPhotoLibraryAddUsageDescription**
+    /// * **NSPhotoLibraryUsageDescription**
     Photos,
     /// Access to the Reminders.
     ///
-    /// Platforms: __iOS__.
+    /// Platforms: **iOS**.
+    ///
+    /// Required Permissions for **iOS**:
+    /// * **NSRemindersUsageDescription**
     Reminders,
     /// Access to the Sensors.
     ///
-    /// Platforms: __Android / iOS__.
+    /// Platforms: **Android / iOS**.
+    ///
+    /// Required Permissions for **Android**:
+    /// * **android.permission.BODY_SENSORS**
+    ///
+    /// Required Permissions for **iOS**:
+    /// * **NSMotionUsageDescription**
     Sensors,
     /// Access to the SMS.
     ///
-    /// Platforms: __Android / iOS__.
+    /// Platforms: **Android / iOS**.
+    ///
+    /// Required Permissions for **Android**:
+    /// * **android.permission.RECEIVE_SMS**
+    /// * **android.permission.SEND_SMS**
+    /// * **android.permission.READ_SMS**
+    /// * **android.permission.RECEIVE_WAP_PUSH**
+    /// * **android.permission.RECEIVE_MMS**
     Sms,
     /// Access to the Speech Service.
     ///
-    /// Platforms: __Android / iOS__.
+    /// Platforms: **Android / iOS**.
+    ///
+    /// Required Permissions for **Android**:
+    /// * **android.permission.RECORD_AUDIO**
+    ///
+    /// Required Permissions for **iOS**:
+    /// * **NSSpeechRecognitionUsageDescription**
     Speech,
     /// Read Access to the Storage.
     ///
-    /// Platforms: __Android__.
+    /// Platforms: **Android**.
+    ///
+    /// Required Permissions for **Android**:
+    /// * **android.permission.READ_EXTERNAL_STORAGE**
     StorageRead,
     /// Read and Write Access to the Storage.
     ///
-    /// Platforms: __Android__.
+    /// Platforms: **Android**.
+    ///
+    /// Required Permissions for **Android**:
+    /// * **android.permission.WRITE_EXTERNAL_STORAGE**
     StorageWrite,
 }
 
@@ -125,7 +226,8 @@ impl Permission {
                 let _res = request_permission(&AndroidPermission::ReadContacts)
                     .await?
                     .into();
-                // TODO: iOS
+                #[cfg(all(target_os = "ios", feature = "ios"))]
+                let _res = request_permission(&IosPermission::AddressBook).await.into();
                 Ok(_res)
             }
             Permission::ContactsWrite => {
@@ -134,15 +236,14 @@ impl Permission {
                 let _res = request_permission(&AndroidPermission::WriteContacts)
                     .await?
                     .into();
-                // TODO: iOS
+                #[cfg(all(target_os = "ios", feature = "ios"))]
+                let _res = request_permission(&IosPermission::AddressBook).await.into();
                 Ok(_res)
             }
             Permission::Flashlight => {
                 let _res = PermissionStatus::Disabled;
                 #[cfg(all(target_os = "android", feature = "android"))]
-                let _res = request_permission(&AndroidPermission::Flashlight)
-                    .await?
-                    .into();
+                let _res = request_permission(&AndroidPermission::Camera).await?.into();
                 Ok(_res)
             }
             Permission::LocationWhenInUse => {
@@ -158,7 +259,12 @@ impl Permission {
                         _ => PermissionStatus::Denied,
                     }
                 };
-                // TODO: iOS
+                #[cfg(all(target_os = "ios", feature = "ios"))]
+                let _res = request_permission(&IosPermission::LocationManager(
+                    LocationAuthorizationType::WhenInUse,
+                ))
+                .await
+                .into();
                 Ok(_res)
             }
             Permission::LocationAlways => {
@@ -176,14 +282,18 @@ impl Permission {
                         _ => PermissionStatus::Restricted,
                     }
                 };
-                // TODO: iOS
+                #[cfg(all(target_os = "ios", feature = "ios"))]
+                let _res = request_permission(&IosPermission::LocationManager(
+                    LocationAuthorizationType::Always,
+                ))
+                .await
+                .into();
                 Ok(_res)
             }
             Permission::Media => {
                 let _res = PermissionStatus::Disabled;
-                // TODO: Replace with https://developer.apple.com/documentation/mediaplayer/mpmedialibrary
                 #[cfg(all(target_os = "ios", feature = "ios"))]
-                let _res = request_permission(&IosPermission::PhotoLibrary(AccessLevel::AddOnly))
+                let _res = request_permission(&IosPermission::MediaLibrary)
                     .await
                     .into();
                 Ok(_res)
@@ -228,7 +338,6 @@ impl Permission {
                         _ => PermissionStatus::Restricted,
                     }
                 };
-                // TODO: iOS
                 Ok(_res)
             }
             Permission::Photos => {
@@ -253,7 +362,10 @@ impl Permission {
                 let _res = request_permission(&AndroidPermission::BodySensors)
                     .await?
                     .into();
-                // TODO: iOS
+                #[cfg(all(target_os = "ios", feature = "ios"))]
+                let _res = request_permission(&IosPermission::MotionActivityManager)
+                    .await
+                    .into();
                 Ok(_res)
             }
             Permission::Sms => {
@@ -272,7 +384,6 @@ impl Permission {
                         _ => PermissionStatus::Restricted,
                     }
                 };
-                // TODO: iOS
                 Ok(_res)
             }
             Permission::Speech => {
@@ -281,7 +392,10 @@ impl Permission {
                 let _res = request_permission(&AndroidPermission::RecordAudio)
                     .await?
                     .into();
-                // TODO: iOS
+                #[cfg(all(target_os = "ios", feature = "ios"))]
+                let _res = request_permission(&IosPermission::SpeechRecognizer)
+                    .await
+                    .into();
                 Ok(_res)
             }
             Permission::StorageRead => {

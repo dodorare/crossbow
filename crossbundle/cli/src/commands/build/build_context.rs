@@ -38,7 +38,6 @@ impl BuildContext {
         } else {
             Metadata::default()
         };
-        println!("Manifest: {:?}", metadata.android.android_manifest);
         Ok(Self {
             workspace_manifest_path,
             package_manifest_path,

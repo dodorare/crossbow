@@ -72,8 +72,12 @@ async fn main() -> anyhow::Result<()> {
             if ui.button(vec2(-15.0, 300.0), btn_camera) {
                 btn_clicked = btn_camera;
             }
+            let btn_camera = "Photos permission";
+            if ui.button(vec2(-15.0, 450.0), btn_camera) {
+                btn_clicked = btn_camera;
+            }
             #[cfg(target_os = "android")]
-            if ui.button(vec2(-15.0, 450.0), "Show ad") {
+            if ui.button(vec2(-15.0, 600.0), "Show ad") {
                 if !admob.get_is_initialized().unwrap() {
                     println!("calling initialize()");
                     admob.initialize(true, "G", false, true).unwrap();
@@ -104,6 +108,10 @@ async fn main() -> anyhow::Result<()> {
             "Mic permission" => {
                 let res = Permission::Microphone.request_async().await?;
                 label = format!("Microphone {:?}", res);
+            }
+            "Photos permission" => {
+                let res = Permission::Photos.request_async().await?;
+                label = format!("Photos {:?}", res);
             }
             _ => {}
         }

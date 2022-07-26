@@ -25,7 +25,7 @@ A lot of functionality was inspired by [Godot](https://github.com/godotengine/go
 * **Customizable**: Create new commands with available tools.
 * **Simple**: Easy to start but flexible for strong devs.
 * **Capable**: It's possible to build plain **.apk/.aab** or **.app/.ipa**; or with help of *Gradle/XCode*.
-* **Rust**: Don't leave your *Rust* code - almost everything can be configured from `Cargo.toml`.
+* **Rust**: Don't leave your *Rust* code - **everything** can be configured from `Cargo.toml`.
 
 ## 🛠 Installation
 

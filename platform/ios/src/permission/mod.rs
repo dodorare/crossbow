@@ -39,5 +39,36 @@ where
         IosPermission::PhotoLibrary(opt) => {
             request_photo_library_permission(opt, handler);
         }
+        IosPermission::AddressBook => {
+            request_address_book_permission(move |granted, _error| {
+                if granted {
+                    handler(AuthorizationStatus::Authorized);
+                } else {
+                    handler(AuthorizationStatus::Denied);
+                };
+            });
+        }
+        IosPermission::MediaLibrary => {
+            request_media_permission(move |status| handler(AuthorizationStatus::from(status)));
+        }
+        IosPermission::SpeechRecognizer => {
+            request_speech_recognition_permission(move |status| {
+                handler(AuthorizationStatus::from(status));
+            });
+        }
+        IosPermission::MotionActivityManager => {
+            request_motion_activity_permission(move |activities, _error| {
+                if activities != cocoa_foundation::base::nil {
+                    handler(AuthorizationStatus::Authorized);
+                } else {
+                    handler(AuthorizationStatus::Denied);
+                };
+            });
+        }
+        IosPermission::LocationManager(opt) => {
+            request_location_permission(opt);
+            // TODO: Check permission.
+            handler(AuthorizationStatus::Authorized);
+        }
     }
 }

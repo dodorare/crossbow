@@ -21,6 +21,46 @@ pub enum IosPermission {
     ///
     /// More details: https://developer.apple.com/documentation/photokit/phphotolibrary
     PhotoLibrary(AccessLevel),
+    /// ABAddressBook.
+    ///
+    /// The main object you use to access the Address Book database.
+    ///
+    /// More details: https://developer.apple.com/documentation/addressbook/abaddressbook
+    AddressBook,
+    /// MPMediaLibrary.
+    ///
+    /// An object that represents the state of synced media items on a device.
+    ///
+    /// More details: https://developer.apple.com/documentation/mediaplayer/mpmedialibrary
+    MediaLibrary,
+    /// SFSpeechRecognizer.
+    ///
+    /// An object you use to check for the availability of the speech recognition service,
+    /// and to initiate the speech recognition process.
+    ///
+    /// More details: https://developer.apple.com/documentation/speech/sfspeechrecognizer
+    SpeechRecognizer,
+    /// CMMotionActivityManager.
+    ///
+    /// An object that manages access to the motion data stored by the device.
+    ///
+    /// More details: https://developer.apple.com/documentation/coremotion/cmmotionactivitymanager
+    MotionActivityManager,
+    /// CLLocationManager.
+    ///
+    /// The object that you use to start and stop the delivery of location-related events to your app.
+    ///
+    /// More details: https://developer.apple.com/documentation/corelocation/cllocationmanager
+    LocationManager(LocationAuthorizationType),
+}
+
+/// LocationAuthorizationType.
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum LocationAuthorizationType {
+    /// Requests the user’s permission to use location services while the app is in use.
+    WhenInUse,
+    /// Requests the user’s permission to use location services regardless of whether the app is in use.
+    Always,
 }
 
 /// AVMediaType.
@@ -125,3 +165,49 @@ impl Into<NSUInteger> for &EntityType {
         }
     }
 }
+
+/// MPMediaLibraryAuthorizationStatus.
+///
+/// The list of possible states for authorization to access to the user's media library.
+///
+/// More details: https://developer.apple.com/documentation/mediaplayer/mpmedialibraryauthorizationstatus
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum MediaLibraryAuthorizationStatus {
+    /// The user hasn't determined whether to authorize the use of their media library.
+    NotDetermined,
+    /// The app may not access the items in the user's media library.
+    Denied,
+    /// The app may access some of the content in the user's media library.
+    Restricted,
+    /// Your app may access items in the user's media library.
+    Authorized,
+}
+
+impl From<NSUInteger> for MediaLibraryAuthorizationStatus {
+    fn from(integer: NSUInteger) -> Self {
+        match integer {
+            0 => Self::NotDetermined,
+            1 => Self::Denied,
+            2 => Self::Restricted,
+            _ => Self::Authorized,
+        }
+    }
+}
+
+impl From<MediaLibraryAuthorizationStatus> for AuthorizationStatus {
+    fn from(val: MediaLibraryAuthorizationStatus) -> Self {
+        match val {
+            MediaLibraryAuthorizationStatus::NotDetermined => Self::NotDetermined,
+            MediaLibraryAuthorizationStatus::Denied => Self::Denied,
+            MediaLibraryAuthorizationStatus::Restricted => Self::Restricted,
+            MediaLibraryAuthorizationStatus::Authorized => Self::Authorized,
+        }
+    }
+}
+
+/// SFSpeechRecognizerAuthorizationStatus.
+///
+/// The app's authorization to perform speech recognition.
+///
+/// More details: https://developer.apple.com/documentation/mediaplayer/mpmedialibraryauthorizationstatus
+pub type SpeechRecognizerAuthorizationStatus = MediaLibraryAuthorizationStatus;
