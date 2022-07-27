@@ -21,14 +21,11 @@ impl AndroidSdk {
                 .ok()
                 .or_else(|| std::env::var("ANDROID_SDK_PATH").ok())
                 .or_else(|| std::env::var("ANDROID_HOME").ok());
-            PathBuf::from(
-                sdk_path.unwrap_or(
-                    android_tools::sdk_install_path()?
-                        .to_str()
-                        .unwrap()
-                        .to_string(),
-                ),
-            )
+            if let Some(sdk_path) = sdk_path {
+                PathBuf::from(sdk_path)
+            } else {
+                android_tools::sdk_install_path()?
+            }
         };
         let build_deps_path = sdk_path.join("build-tools");
         let build_deps_version = std::fs::read_dir(&build_deps_path)
