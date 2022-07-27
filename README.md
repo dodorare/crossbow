@@ -27,15 +27,9 @@ A lot of functionality was inspired by [Godot](https://github.com/godotengine/go
 * **Capable**: It's possible to build plain **.apk/.aab** or **.app/.ipa**; or with help of *Gradle/XCode*.
 * **Rust**: Don't leave your *Rust* code - **everything** can be configured from `Cargo.toml`.
 
-## 🛠 Installation
+## 📚 Documentation
 
-To install crossbundle, run:
-
-```sh
-cargo install --git=https://github.com/dodorare/crossbow crossbundle
-```
-
-See [installation documentation](./docs/README.md) for more details on how to setup environment on your platform.
+Now we would recommend you to read [crossbow's documentation](https://crossbow.dodorare.com/). Over there you will find how to set up development environment, install needed crates and how to use the tools.
 
 ## 🗂️ Project structure
 
@@ -46,7 +40,7 @@ Crossbundle crates:
 | [crossbundle](./crossbundle/cli) | Command-line tool for building and running applications. | ✅ |
 | [crossbundle-tools](./crossbundle/tools) | Toolkit used in `crossbundle` to build/pack/sign bundles. | ✅ |
 
-Crossbow Plugins:
+Crossbow crates:
 
 | Name | Description | Status |
 | ---- | ----------- | ------ |
@@ -66,21 +60,9 @@ Helper crates:
 
 ✅ = Works and tested — 🆗 = Works but may contain bugs — 🛠 = Under development — 📝 = Planned
 
-## 📚 Documentation
+## Special Thanks
 
-To learn how to run an example project on your own, build, test, and start using `crossbow` - read our full documentation [here](./docs/README.md).
-
-If you want to start development right away - see our Hello World example [here](./docs/main-hello-world.md).
-
-If you want learn more about `crossbundle` we recommend that you read it's README [here](./crossbundle/cli/).
-
-## 📅 Roadmap
-
-Check out our [ROADMAP](./ROADMAP.md) for a better understanding of what we are doing right now and what planned.
-
-## ✌️ Special Thanks
-
-Also, this project initially funded by [Web3 Foundation Grants Program](https://github.com/w3f/Grants-Program/blob/master/applications/crossbow.md). Big cheers to them!
+Also, this project initially funded by [Web3 Foundation Grants Program](https://github.com/w3f/Grants-Program/blob/master/applications/crossbow.md). Big shout-out to them!
 
 <img src=".github/assets/w3f_grants_badge.svg" alt="W3F Grants Badge" width="400px" />
 

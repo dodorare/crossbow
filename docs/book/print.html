@@ -82,7 +82,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="introduction.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">Getting Started</li><li class="chapter-item expanded "><a href="installation.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li class="chapter-item expanded affix "><li class="part-title">Sam</li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="introduction.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">Getting Started</li><li class="chapter-item expanded "><a href="install/index.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="install/android-windows.html"><strong aria-hidden="true">1.1.</strong> Android on Windows</a></li><li class="chapter-item expanded "><a href="install/android-linux.html"><strong aria-hidden="true">1.2.</strong> Android on Linux</a></li><li class="chapter-item expanded "><a href="install/android-macos.html"><strong aria-hidden="true">1.3.</strong> Android on macOS</a></li><li class="chapter-item expanded "><a href="install/docker.html"><strong aria-hidden="true">1.4.</strong> Android with Docker</a></li><li class="chapter-item expanded "><a href="install/ios-macos.html"><strong aria-hidden="true">1.5.</strong> iOS on macOS</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Components</li><li class="chapter-item expanded "><a href="crossbundle/index.html"><strong aria-hidden="true">2.</strong> Crossbundle</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="crossbundle/command-install.html"><strong aria-hidden="true">2.1.</strong> Install Command</a></li><li class="chapter-item expanded "><a href="crossbundle/command-build.html"><strong aria-hidden="true">2.2.</strong> Build Command</a></li><li class="chapter-item expanded "><a href="crossbundle/command-run.html"><strong aria-hidden="true">2.3.</strong> Run Command</a></li></ol></li><li class="chapter-item expanded "><a href="crossbow/index.html"><strong aria-hidden="true">3.</strong> Crossbow</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="crossbow/configuration.html"><strong aria-hidden="true">3.1.</strong> Configuration</a></li><li class="chapter-item expanded "><a href="crossbow/permissions.html"><strong aria-hidden="true">3.2.</strong> Permissions</a></li><li class="chapter-item expanded "><a href="crossbow/android-plugins.html"><strong aria-hidden="true">3.3.</strong> Android Plugins</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Tutorials</li><li class="chapter-item expanded "><a href="tutorials/index.html"><strong aria-hidden="true">4.</strong> Examples</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="tutorials/hello-world.html"><strong aria-hidden="true">4.1.</strong> Hello World</a></li><li class="chapter-item expanded "><a href="tutorials/fastlane.html"><strong aria-hidden="true">4.2.</strong> Fastlane</a></li><li class="chapter-item expanded "><a href="tutorials/subxt-with-bevy.html"><strong aria-hidden="true">4.3.</strong> Subxt with Bevy</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Other</li><li class="chapter-item expanded "><a href="contributing/index.html"><strong aria-hidden="true">5.</strong> Contributing</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="contributing/contribute-code.html"><strong aria-hidden="true">5.1.</strong> Contribute Code</a></li><li class="chapter-item expanded "><a href="contributing/contribute-docs.html"><strong aria-hidden="true">5.2.</strong> Contribute Docs</a></li><li class="chapter-item expanded "><a href="contributing/testing-guide.html"><strong aria-hidden="true">5.3.</strong> Testing Guide</a></li><li class="chapter-item expanded "><a href="contributing/contributors.html"><strong aria-hidden="true">5.4.</strong> Contributors</a></li></ol></li><li class="chapter-item expanded "><a href="roadmap.html"><strong aria-hidden="true">6.</strong> Roadmap</a></li><li class="chapter-item expanded "><a href="special-thanks.html"><strong aria-hidden="true">7.</strong> Special Thanks</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -144,7 +144,755 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
+<p><img src="https://github.com/dodorare/crossbow/blob/main/.github/assets/splash.png?raw=true" alt="splash" /></p>
+<h2 id="what-is-crossbow"><a class="header" href="#what-is-crossbow">What is Crossbow?</a></h2>
+<p>The <code>crossbow</code> project aims to provide a complete toolkit for cross-platform game development in <em>Rust</em> - from project creation to publishing. In addition, the project simplifies the creation, packaging, and signing of <strong>Android</strong> and <strong>iOS</strong> applications. We want to make most of our tools - engine agnostic to help rust game developers integrate them into their engines or games.</p>
+<h2 id="why-crossbow"><a class="header" href="#why-crossbow">Why Crossbow?</a></h2>
+<blockquote>
+<p>There are already <a href="https://github.com/rust-windowing/android-ndk-rs/tree/master/cargo-apk">cargo-apk</a>, <a href="https://github.com/BrainiumLLC/cargo-mobile">cargo-mobile</a>, <a href="https://gitlab.com/kornelski/cargo-xcode">cargo-xcode</a>, etc. - why do I need another packaging tool?</p>
+</blockquote>
+<p>Project <code>crossbow</code> is not only a packaging tool for <strong>Android</strong> and iOS - it's a toolkit. With <code>crossbundle-tools</code> you can customize and create new commands; with <code>crossbundle</code> you can create native <strong>.apk/.aab</strong> without any <em>Java</em> or setup <em>Gradle</em> project with fancy <strong>Crossbow Android plugins</strong> (<strong>iOS</strong> in near future); with <code>crossbow-android</code> you can write your own Android plugins in <em>Java/Kotlin</em>.</p>
+<p>A lot of functionality was inspired by <a href="https://github.com/godotengine/godot">Godot</a>, <a href="https://dotnet.microsoft.com/en-us/apps/xamarin">Xamarin</a>, and <a href="https://github.com/rust-windowing/android-ndk-rs/tree/master/cargo-apk">cargo-apk</a>.</p>
+<h2 id="design-goals"><a class="header" href="#design-goals">Design Goals</a></h2>
+<ul>
+<li><strong>Customizable</strong>: Create new commands with available tools.</li>
+<li><strong>Simple</strong>: Easy to start but flexible for strong devs.</li>
+<li><strong>Capable</strong>: It's possible to build plain <strong>.apk/.aab</strong> or <strong>.app/.ipa</strong>; or with help of <em>Gradle/XCode</em>.</li>
+<li><strong>Rust</strong>: Don't leave your <em>Rust</em> code - <strong>everything</strong> can be configured from <code>Cargo.toml</code>.</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="installation"><a class="header" href="#installation">Installation</a></h1>
+<h2 id="rust-setup"><a class="header" href="#rust-setup">Rust Setup</a></h2>
+<p>All <code>crossbow</code> crates are written in Rust. This means that before we begin, we need to set up our Rust development environment.</p>
+<h3 id="installing-rust"><a class="header" href="#installing-rust">Installing Rust</a></h3>
+<p>Install Rust by following the <a href="https://www.rust-lang.org/learn/get-started">Rust Getting Started Guide</a>.</p>
+<p>Once this is done, you should have the <code>rustc</code> compiler and the <code>cargo</code> build system installed in your path.</p>
+<h3 id="rust-learning-resources"><a class="header" href="#rust-learning-resources">Rust Learning Resources</a></h3>
+<p>The goal of this book is to learn <code>crossbow</code>, so it won't serve as a full Rust education. If you would like to learn more about the Rust language, check out the following resources:</p>
+<ul>
+<li><a href="https://doc.rust-lang.org/book/">The Rust Book</a>: the best place to learn Rust from scratch.</li>
+<li><a href="https://doc.rust-lang.org/rust-by-example/">Rust by Example</a>: learn Rust by working through live coding examples.</li>
+</ul>
+<h2 id="crossbundle-setup"><a class="header" href="#crossbundle-setup">Crossbundle Setup</a></h2>
+<p>To begin with <code>crossbow</code> - you will need to install <code>crossbundle</code> first. You can do it simply by running the following command:</p>
+<pre><code class="language-sh">cargo install --git=https://github.com/dodorare/crossbow crossbundle
+</code></pre>
+<h2 id="next-steps"><a class="header" href="#next-steps">Next steps</a></h2>
+<p>To complete the installation of all requirements, read the documentation corresponding to your platform:</p>
+<ul>
+<li><a href="install/android-windows.html">Android on Windows</a></li>
+<li><a href="install/android-linux.html">Android on Linux</a></li>
+<li><a href="install/android-macos.html">Android on macOS</a></li>
+<li><a href="install/docker.html">Android with Docker</a></li>
+<li><a href="install/ios-macos.html">iOS on macOS</a></li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="android-setup-on-windows"><a class="header" href="#android-setup-on-windows">Android setup on Windows</a></h1>
+<h2 id="install-necessary-packages"><a class="header" href="#install-necessary-packages">Install necessary packages</a></h2>
+<ol>
+<li>Use <a href="https://github.com/dodorare/crossbow/blob/main/docs/crossbundle-install-command.md">crossbundle install command</a> or download and install <a href="https://developer.android.com/studio">Android Studio</a>.</li>
+<li>Start Android Studio, and go through the <code>Android Studio Setup Wizard</code> with the <code>Custom</code> option and install the following (or install them in <code>SDK Manager</code>):
+<ul>
+<li>Android SDK</li>
+<li>NDK (Side by side)</li>
+<li>Android SDK Command-line Tools</li>
+<li>Android SDK Build-Tools</li>
+<li>Android SDK Platform-tools</li>
+</ul>
+</li>
+</ol>
+<h2 id="add-environment-variables"><a class="header" href="#add-environment-variables">Add environment variables</a></h2>
+<p>Take these steps to add Android-related environment variables:</p>
+<ul>
+<li>From the Start search bar, enter ‘env’ and select <strong>Edit environment variables for your account</strong>.</li>
+<li>Add <code>ANDROID_SDK_ROOT</code>||<code>ANDROID_SDK_PATH</code>||<code>ANDROID_HOME</code> and <code>ANDROID_NDK_ROOT</code>||<code>ANDROID_NDK_PATH</code>||<code>NDK_HOME</code>to environment variables.</li>
+<li>Add <code>ANDROID_SDK_ROOT</code> variable with value <code>&lt;path_to_sdk&gt;\sdk</code>.<br/>(ex. <code>C:\Users\username\AppData\Local\android\sdk</code>)</li>
+<li>Add <code>ANDROID_NDK_ROOT</code> variable with value <code>&lt;path_to_sdk&gt;\sdk\ndk\&lt;version&gt;</code>.<br/>(ex. <code>C:\Users\username\AppData\Local\Android\Sdk\ndk\23.1.7779620</code>)</li>
+</ul>
+<p>If you will build application with emulator you should add this to environment variables:</p>
+<ul>
+<li>Add <code>&lt;path_to_sdk&gt;\sdk\tools\bin</code> to <code>PATH</code> variable.</li>
+<li>Add <code>&lt;path_to_sdk&gt;\sdk\emulator</code> to <code>PATH</code> variable.</li>
+</ul>
+<p>Also, we need to make sure we have a <a href="https://www.oracle.com/java/technologies/downloads/">java runtime environment</a> (JRE) or <a href="https://www.oracle.com/java/technologies/downloads/">Java developer kit</a> (JDK) installed. We need a key tool utility from there. <br/>
+To make sure it's present type this command: <code>keytool -h</code></p>
+<ul>
+<li>If command above fails, add <code>&lt;path_to_jre&gt;\bin</code> to <code>PATH</code> environment variable.<br/>(ex. <code>C:\Program Files\Android\Android Studio\jre\bin</code>) <br/>(ex. <code>C:\Program Files\java\jdk\bin</code>)</li>
+</ul>
+<p>You have to close and reopen any existing console windows for these changes to take effect.</p>
+<h3 id="if-you-want-to-generate-aab-android-app-bundle-u-will-need-to-install-bundletool"><a class="header" href="#if-you-want-to-generate-aab-android-app-bundle-u-will-need-to-install-bundletool">If you want to generate AAB (Android App Bundle) u will need to install Bundletool</a></h3>
+<p>If you haven't already done so, download bundletool from the <a href="https://github.com/google/bundletool/releases"><code>GitHub repository</code></a>.</p>
+<ul>
+<li>Add <code>BUNDLETOOL_PATH</code> variable with value <code>&lt;path_to_bundletool&gt;</code>.</li>
+</ul>
+<h2 id="set-up-your-android-device"><a class="header" href="#set-up-your-android-device">Set up your Android device</a></h2>
+<p>To prepare to run your <code>Crossbow</code> app on an Android device, you need an Android device running Android 4.1 (API level 16) or higher.</p>
+<ol>
+<li>Enable <strong>Developer options</strong> and <strong>USB debugging</strong> on your device. Detailed instructions are available in the <a href="https://developer.android.com/studio/debug/dev-options">Android documentation</a>.</li>
+<li>Windows-only: Install the <a href="https://developer.android.com/studio/run/win-usb">Google USB Driver</a>.</li>
+<li>Using a USB cable, plug your phone into your computer. If prompted on your device, authorize your computer to access your device.</li>
+</ol>
+<h2 id="set-up-the-android-emulator"><a class="header" href="#set-up-the-android-emulator">Set up the Android emulator</a></h2>
+<p>To prepare to run and test your Crossbow app on the Android emulator, follow these steps:</p>
+<ol>
+<li>Enable <a href="https://developer.android.com/studio/run/emulator-acceleration"><code>VM acceleration</code></a> on your machine.</li>
+<li>Launch <strong>Android Studio</strong>, click the <strong>AVD Manager</strong> icon, and select <strong>Create Virtual Device</strong>.</li>
+<li>Choose a device definition and select <strong>Next</strong>.</li>
+<li>Select one or more system images for the Android versions you want to emulate, and select <strong>Next</strong>. An x86 or x86_64 image is recommended.</li>
+<li>Under Emulated Performance, select <strong>Hardware - GLES 2.0</strong> to enable <a href="https://developer.android.com/studio/run/emulator-acceleration"><code>hardware acceleration</code></a>.</li>
+<li>Verify the AVD configuration is correct, and select <strong>Finish</strong>. (For details on the above steps, see <a href="https://developer.android.com/studio/run/managing-avds"><code>Managing AVDs</code></a>)</li>
+<li>In Android Virtual Device Manager, click Run in the toolbar. The emulator starts up and displays the default canvas for your selected OS version and device.</li>
+</ol>
+<h2 id="install-necessary-rustup-targets"><a class="header" href="#install-necessary-rustup-targets">Install necessary rustup targets</a></h2>
+<p>Run the following command:</p>
+<pre><code class="language-sh">rustup target add armv7-linux-androideabi aarch64-linux-android i686-linux-android x86_64-linux-android
+</code></pre>
+<h2 id="next-step"><a class="header" href="#next-step">Next step</a></h2>
+<p><a href="https://github.com/dodorare/crossbow/wiki/Hello-World!"><code>Hello World! application</code></a> with Crossbow</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="setup-android-environment-on-linux"><a class="header" href="#setup-android-environment-on-linux">Setup Android Environment on Linux</a></h1>
+<h2 id="install-necessary-packages-1"><a class="header" href="#install-necessary-packages-1">Install necessary packages</a></h2>
+<ol>
+<li>Use <a href="https://github.com/dodorare/crossbow/blob/main/docs/crossbundle-install-command.md">crossbundle install command</a> or download and install <a href="https://developer.android.com/studio">Android Studio</a>.</li>
+<li>Start Android Studio, and go through the <code>Android Studio Setup Wizard</code> with the <code>Custom</code> option and install the following (or install them in <code>SDK Manager</code>):
+<ul>
+<li>Android SDK</li>
+<li>NDK (Side by side)</li>
+<li>Android SDK Command-line Tools</li>
+<li>Android SDK Build-Tools</li>
+<li>Android SDK Platform-tools</li>
+</ul>
+</li>
+</ol>
+<h2 id="add-environment-variables-1"><a class="header" href="#add-environment-variables-1">Add environment variables</a></h2>
+<p>Take these steps to add Android-related environment variables:</p>
+<ul>
+<li>From the Start search bar, enter ‘env’ and select <strong>Edit environment variables for your account</strong>.</li>
+<li>Add <code>ANDROID_SDK_ROOT</code>||<code>ANDROID_SDK_PATH</code>||<code>ANDROID_HOME</code> and <code>ANDROID_NDK_ROOT</code>||<code>ANDROID_NDK_PATH</code>||<code>NDK_HOME</code>to environment variables.</li>
+</ul>
+<p>For that edit <strong>~/.bash_profile</strong> or <strong>~/.bashrc</strong> files so they contain those lines:</p>
+<pre><code class="language-sh">export ANDROID_SDK_ROOT=$HOME/Android/Sdk
+export ANDROID_NDK_ROOT=$HOME/Android/Sdk/ndk/23.1.7779620
+</code></pre>
+<p>If u will build application with emulator u should add this environment variables:</p>
+<pre><code class="language-sh">export PATH=&lt;path_to_sdk&gt;\sdk\emulator:$PATH
+export PATH=&lt;path_to_sdk&gt;\sdk\tools\bin:$PATH
+</code></pre>
+<p>Also, we need to make sure we have a java runtime environment (JRE) installed. We need a key tool utility from there. <br/>
+To make sure it's present type this command: <code>ls /usr/lib/jvm/default/bin/ | grep keytool</code></p>
+<p><em>But please be aware that your path may vary.</em> The above path is for arch-based Linux.</p>
+<p>If not, install JRE accordingly to your operating system:
+Examples:</p>
+<ul>
+<li>Ubuntu: <code>sudo apt install default-jdk</code></li>
+<li>Manjaro (Arch): <code>sudo pacman -S jre11-openjdk-headless jre11-openjdk jdk11-openjdk openjdk11-doc openjdk11-src</code></li>
+</ul>
+<h3 id="if-you-want-to-generate-aab-android-app-bundle-u-will-need-to-install-bundletool-1"><a class="header" href="#if-you-want-to-generate-aab-android-app-bundle-u-will-need-to-install-bundletool-1">If you want to generate AAB (Android App Bundle) u will need to install Bundletool</a></h3>
+<p>If you haven't already done so, download bundletool from the <a href="https://github.com/google/bundletool/releases"><code>GitHub repository</code></a>.</p>
+<ul>
+<li>Add <code>BUNDLETOOL_PATH</code> variable with value <code>&lt;path_to_bundletool&gt;</code>.</li>
+</ul>
+<h2 id="set-up-your-android-device-1"><a class="header" href="#set-up-your-android-device-1">Set up your Android device</a></h2>
+<p>To prepare to run your <code>Crossbow</code> app on an Android device, you need an Android device running Android 4.1 (API level 16) or higher.</p>
+<ol>
+<li>Enable <strong>Developer options</strong> and <strong>USB debugging</strong> on your device. Detailed instructions are available in the <a href="https://developer.android.com/studio/debug/dev-options">Android documentation</a>.</li>
+<li>Using a USB cable, plug your phone into your computer. If prompted on your device, authorize your computer to access your device.</li>
+</ol>
+<h2 id="set-up-the-android-emulator-1"><a class="header" href="#set-up-the-android-emulator-1">Set up the Android emulator</a></h2>
+<p>To prepare to run and test your Flutter app on the Android emulator, follow these steps:</p>
+<ol>
+<li>Enable <a href="https://developer.android.com/studio/run/emulator-acceleration"><code>VM acceleration</code></a> on your machine.</li>
+<li>Launch <strong>Android Studio</strong>, click the <strong>AVD Manager</strong> icon, and select <strong>Create Virtual Device</strong>.</li>
+<li>Choose a device definition and select <strong>Next</strong>.</li>
+<li>Select one or more system images for the Android versions you want to emulate, and select <strong>Next</strong>. An x86 or x86_64 image is recommended.</li>
+<li>Under Emulated Performance, select <strong>Hardware - GLES 2.0</strong> to enable <a href="https://developer.android.com/studio/run/emulator-acceleration"><code>hardware acceleration</code></a>.</li>
+<li>Verify the AVD configuration is correct, and select <strong>Finish</strong>. (For details on the above steps, see <a href="https://developer.android.com/studio/run/managing-avds"><code>Managing AVDs</code></a>)</li>
+<li>In Android Virtual Device Manager, click Run in the toolbar. The emulator starts up and displays the default canvas for your selected OS version and device.</li>
+</ol>
+<h2 id="install-necessary-rustup-targets-1"><a class="header" href="#install-necessary-rustup-targets-1">Install necessary rustup targets</a></h2>
+<p>Run the following command:</p>
+<pre><code class="language-sh">rustup target add armv7-linux-androideabi aarch64-linux-android i686-linux-android x86_64-linux-android
+</code></pre>
+<h2 id="next-step-1"><a class="header" href="#next-step-1">Next step</a></h2>
+<p><a href="https://github.com/dodorare/crossbow/wiki/Hello-World!"><code>Hello World! application</code></a> with Crossbow</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="android-setup-on-macos"><a class="header" href="#android-setup-on-macos">Android setup on MacOS</a></h1>
+<h2 id="install-necessary-packages-2"><a class="header" href="#install-necessary-packages-2">Install necessary packages</a></h2>
+<ol>
+<li>Use <a href="https://github.com/dodorare/crossbow/blob/main/docs/crossbundle-install-command.md">crossbundle install command</a> or download and install <a href="https://developer.android.com/studio">Android Studio</a>.</li>
+<li>Start Android Studio, and go through the <code>Android Studio Setup Wizard</code> with the <code>Custom</code> option and install the following (or install them in <code>SDK Manager</code>):
+<ul>
+<li>Android SDK</li>
+<li>NDK (Side by side)</li>
+<li>Android SDK Command-line Tools</li>
+<li>Android SDK Build-Tools</li>
+<li>Android SDK Platform-tools</li>
+</ul>
+</li>
+<li>Download and install java. Can be installed with <code>brew</code> through:</li>
+</ol>
+<pre><code class="language-sh">brew tap adoptopenjdk/openjdk
+brew install --cask adoptopenjdk8
+</code></pre>
+<h2 id="add-environment-variables-2"><a class="header" href="#add-environment-variables-2">Add environment variables</a></h2>
+<p>Take these steps to add Android-related environment variables:</p>
+<ul>
+<li>From the Start search bar, enter ‘env’ and select <strong>Edit environment variables for your account</strong>.</li>
+<li>Add <code>ANDROID_SDK_ROOT</code>||<code>ANDROID_SDK_PATH</code>||<code>ANDROID_HOME</code> and <code>ANDROID_NDK_ROOT</code>||<code>ANDROID_NDK_PATH</code>||<code>NDK_HOME</code>to environment variables.</li>
+</ul>
+<p>For that edit <strong>~/.bash_profile</strong>/<strong>~/.bashrc</strong> or <strong>~/.zshrc</strong> files so they contain those lines:</p>
+<pre><code class="language-sh">export ANDROID_SDK_ROOT=$HOME/android/sdk
+export ANDROID_NDK_ROOT=$ANDROID_SDK_ROOT/ndk/23.1.7779620
+</code></pre>
+<p>If u will build application with emulator u should add this environment variables:</p>
+<pre><code class="language-sh">export PATH=&lt;path_to_sdk&gt;\sdk\emulator:$PATH
+export PATH=&lt;path_to_sdk&gt;\sdk\tools\bin:$PATH
+</code></pre>
+<p>Also, we need to make sure we have a java runtime environment (JRE) installed. We will need a key tool utility from there. <br/>
+To make sure it's present type this command: <code>ls /usr/lib/jvm/default/bin/ | grep keytool</code> or add to your <code>PATH</code> env var.</p>
+<h3 id="if-you-want-to-generate-aab-android-app-bundle-u-will-need-to-install-bundletool-2"><a class="header" href="#if-you-want-to-generate-aab-android-app-bundle-u-will-need-to-install-bundletool-2">If you want to generate AAB (Android App Bundle) u will need to install Bundletool</a></h3>
+<p>If you haven't already done so, download bundletool from the <a href="https://github.com/google/bundletool/releases"><code>GitHub repository</code></a>.</p>
+<pre><code class="language-sh">export BUNDLETOOL_PATH=&lt;path_to_bundletool&gt;
+</code></pre>
+<h2 id="set-up-your-android-device-2"><a class="header" href="#set-up-your-android-device-2">Set up your Android device</a></h2>
+<p>To prepare to run your <code>crossbow</code> app on an Android device, you need an Android device running Android 4.1 (API level 16) or higher.</p>
+<ol>
+<li>Enable <strong>Developer options</strong> and <strong>USB debugging</strong> on your device. Detailed instructions are available in the <a href="https://developer.android.com/studio/debug/dev-options">Android documentation</a>.</li>
+<li>Using a USB cable, plug your phone into your computer. If prompted on your device, authorize your computer to access your device.</li>
+</ol>
+<h2 id="set-up-the-android-emulator-2"><a class="header" href="#set-up-the-android-emulator-2">Set up the Android emulator</a></h2>
+<p>To prepare to run and test your Crossbow app on the Android emulator, follow these steps:</p>
+<ol>
+<li>Enable <a href="https://developer.android.com/studio/run/emulator-acceleration"><code>VM acceleration</code></a> on your machine.</li>
+<li>Launch <strong>Android Studio</strong>, click the <strong>AVD Manager</strong> icon, and select <strong>Create Virtual Device</strong>.</li>
+<li>Choose a device definition and select <strong>Next</strong>.</li>
+<li>Select one or more system images for the Android versions you want to emulate, and select <strong>Next</strong>. An x86 or x86_64 image is recommended.</li>
+<li>Under Emulated Performance, select <strong>Hardware - GLES 2.0</strong> to enable <a href="https://developer.android.com/studio/run/emulator-acceleration"><code>hardware acceleration</code></a>.</li>
+<li>Verify the AVD configuration is correct, and select <strong>Finish</strong>. (For details on the above steps, see <a href="https://developer.android.com/studio/run/managing-avds"><code>Managing AVDs</code></a>)</li>
+<li>In Android Virtual Device Manager, click Run in the toolbar. The emulator starts up and displays the default canvas for your selected OS version and device.</li>
+</ol>
+<h2 id="install-necessary-rustup-targets-2"><a class="header" href="#install-necessary-rustup-targets-2">Install necessary rustup targets</a></h2>
+<p>Run the following command:</p>
+<pre><code class="language-sh">rustup target add armv7-linux-androideabi aarch64-linux-android i686-linux-android x86_64-linux-android
+</code></pre>
+<h2 id="next-step-2"><a class="header" href="#next-step-2">Next step</a></h2>
+<p><a href="https://github.com/dodorare/crossbow/wiki/Hello-World!"><code>Hello World! application</code></a> with Crossbow</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="android-setup-on-docker"><a class="header" href="#android-setup-on-docker">Android setup on Docker</a></h1>
+<h2 id="build-android-with-docker"><a class="header" href="#build-android-with-docker">Build Android with Docker</a></h2>
+<p>Pre-requirements:</p>
+<ul>
+<li>Installed <a href="https://docs.docker.com/get-docker/">Docker</a></li>
+<li>Installed <a href="https://developer.android.com/studio/command-line/adb">adb</a> (optional)</li>
+</ul>
+<p>Clone this repository with this command:</p>
+<pre><code class="language-sh">git clone https://github.com/dodorare/crossbow
+cd ./crossbow/
+</code></pre>
+<p>To run an example Android application with <code>docker</code> you will need to following steps:</p>
+<p>Download the Docker image:</p>
+<pre><code class="language-sh">docker pull ghcr.io/dodorare/crossbundle:latest
+</code></pre>
+<p>Run the following command at the root of <code>crossbow</code> project:</p>
+<pre><code class="language-sh"># For unix systems:
+docker run --rm -it -v &quot;$(pwd)/:/src&quot; -w /src/examples/macroquad-permissions ghcr.io/dodorare/crossbundle build android --quad --release
+# For Windows:
+docker run --rm -it -v &quot;${pwd}/:/src&quot; -w /src/examples/macroquad-permissions ghcr.io/dodorare/crossbundle build android --quad --release
+</code></pre>
+<p>Install APK on connected Android phone via USB:</p>
+<pre><code class="language-sh">adb install ./target/android/macroquad-permissions/gradle/build/outputs/apk/release/gradle-release-unsigned.apk
+</code></pre>
+<p>Or transfer APK file to your phone with any application.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="ios-setup-on-macos"><a class="header" href="#ios-setup-on-macos">iOS setup on MacOS</a></h1>
+<h2 id="setup-on-macos"><a class="header" href="#setup-on-macos">Setup on macOS</a></h2>
+<p>Install <code>brew</code>:</p>
+<pre><code class="language-sh">/bin/bash -c &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)&quot;
+</code></pre>
+<p>Install <code>rust</code> with <code>default</code> option:</p>
+<pre><code class="language-sh">curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+# Source binaries
+echo 'source $HOME/.cargo/env' &gt;&gt; ~/.zshrc
+source ~/.zshrc
+# Or for bash
+echo 'source $HOME/.cargo/env' &gt;&gt; ~/.bashrc
+source ~/.bashrc
+</code></pre>
+<p>Install iOS targets:</p>
+<pre><code class="language-sh"># 64-bit targets (real device &amp; simulator):
+rustup target add aarch64-apple-ios x86_64-apple-ios aarch64-apple-ios-sim
+# 32-bit targets (you probably don't need these &amp; nightly only):
+rustup target add armv7-apple-ios armv7s-apple-ios i386-apple-ios
+</code></pre>
+<p>Install <code>ios-deploy</code> for installing your app on iPhone:</p>
+<pre><code class="language-sh">brew install ios-deploy
+</code></pre>
+<p>Install <code>Xcode</code> from <a href="https://apps.apple.com/us/app/xcode/id497799835">App Store</a>.</p>
+<p><img alt="Xcode installation" src="https://i.imgur.com/2RhOz1t.png" width="400px"></img></p>
+<p>Install the necessary <code>Xcode tools</code> using <code>Xcode</code>:</p>
+<ol>
+<li>Start <code>Xcode</code>.</li>
+<li>Choose <code>Preferences</code> from the <code>Xcode</code> menu.</li>
+<li>In the <code>Locations</code> panel, find the <code>Command Line Tools</code> field.</li>
+<li>Click on the <code>Command Line Tools</code> and select <code>Xcode</code> version (you are asked for your Apple Developer login during the install process).</li>
+</ol>
+<p>Login with Free Apple Developer/Apple Developer Program account:</p>
+<ol>
+<li>Start <code>Xcode</code>.</li>
+<li>Choose <code>Preferences</code> from the <code>Xcode</code> menu.</li>
+<li>In the <code>Accounts</code> panel, click the <code>+</code> sign (you are asked for your Apple Developer login during the install process).</li>
+<li>Click on Apple ID added account and find your name with <code>(Personal team)</code> postfix.</li>
+<li>Open <code>Manage Certificates</code> then click <code>+</code> and <code>Apple Development</code>.</li>
+<li>Close by clicking <code>Done</code> and click on <code>Download Manual Profiles</code>.
+iOS setup on MacOS</li>
+</ol>
+<p><img alt="Xcode Sign in" src="https://i.imgur.com/soD5gab.png" width="400px"></img></p>
+<p>Install <code>crossbundle</code>:</p>
+<pre><code class="language-sh">cargo install --git=https://github.com/dodorare/crossbow crossbundle
+</code></pre>
+<h2 id="build-apple-app"><a class="header" href="#build-apple-app">Build Apple app</a></h2>
+<p>Now everything is ready to build your application.</p>
+<p>To simplify this example we will create a new cargo project by this command:</p>
+<pre><code class="language-sh">crossbundle new game --template bevy
+cd game/
+</code></pre>
+<p>Now run the build command:</p>
+<pre><code class="language-sh">crossbundle build apple --target=x86_64-apple-ios
+</code></pre>
+<p>And if you want to run on the simulator:</p>
+<pre><code class="language-sh">crossbundle run apple --target=x86_64-apple-ios
+</code></pre>
+<h2 id="run-your-app-on-a-real-device"><a class="header" href="#run-your-app-on-a-real-device">Run your app on a real device</a></h2>
+<p>To run your application on a real device you will need to open <code>Xcode</code> and create a new project
+with the same <code>bundle_identifier</code> as your app. Then you will find a <code>mobileprovision</code> file
+in the <code>~/Library/MobileDevice/Provisioning\ Profiles</code> folder (e.x: aec73e2f-c2f9-4e3b-9393-be19cc52fea3.mobileprovision).</p>
+<p>With command <code>security find-identity -p codesigning -v</code> - you will get a similar result:</p>
+<pre><code class="language-sh">$ security find-identity -p codesigning -v
+  1) AF96DABFC5DEE81E339ED8755DA8D1E48A87CBFE &quot;Apple Development: &lt;your-email&gt;@gmail.com (TRGW43YM8W)&quot;
+     1 valid identities found
+</code></pre>
+<p>The <code>AF96DABFC5DEE81E339ED8755DA8D1E48A87CBFE</code> value is our sign Identity. Save it for later use.</p>
+<p>Copy your code (in our case <code>TRGW43YM8W</code>) and place it in another command to get Team ID:</p>
+<pre><code class="language-sh">$ security find-certificate -c SRGWJ3YM8W -p | openssl x509 -subject
+subject= /UID=A9C7ZD8H7F/CN=Apple Development: &lt;your-email&gt;@gmail.com (TRGW43YM8W)/OU=AS9UV719T7/O=&lt;your name&gt;/C=US
+-----BEGIN CERTIFICATE-----
+MIIFtTCCBJ2...&lt;rest-of-private-key&gt;
+</code></pre>
+<p>Next to <code>OU</code> - you will find Team ID. (in our case <code>AS9UV719T7</code>).</p>
+<p>Now we are good to install our app on a real device. To run/build app for a real device you will need similar to this command to be run in your cargo project:</p>
+<pre><code class="language-sh">crossbundle run apple --release --device --profile-name=aec73e2f-c2f9-4e3b-9393-be19cc52fea3.mobileprovision --team-identifier=AS9UV719T7 --identity=AF96DABFC5DEE81E339ED8755DA8D1E48A87CBFE
+</code></pre>
+<p>Now replace test data (<code>aec73e2f-c2f9-4e3b-9393-be19cc52fea3.mobileprovision</code>, <code>AS9UV719T7</code>, <code>AF96DABFC5DEE81E339ED8755DA8D1E48A87CBFE</code>) - with your own and run command. If everything worked well - you will see new app on your device.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="overview"><a class="header" href="#overview">Overview</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="setup-packages-with-crossbundle-install"><a class="header" href="#setup-packages-with-crossbundle-install">Setup packages with crossbundle install</a></h1>
+<p>Use <code>crossbundle</code> install command to install necessary packages. To find out available commands specify the -h flag.</p>
+<pre><code class="language-sh">crossbundle install -h
+</code></pre>
+<h2 id="install-tools-to-apk-correct-building"><a class="header" href="#install-tools-to-apk-correct-building">Install tools to APK correct building</a></h2>
+<h3 id="install-command-line-tools"><a class="header" href="#install-command-line-tools">Install command-line tools</a></h3>
+<p>If you do not need Android Studio, you can download the basic Android <a href="https://developer.android.com/studio/command-line">command line tools</a> below. You can use the included <a href="https://developer.android.com/studio/command-line/sdkmanager">sdkmanager</a> to download other SDK packages.</p>
+<p>These tools are included in Android Studio.</p>
+<p>To see all available options use the -h flag. To install command line tools use the command:</p>
+<pre><code class="language-sh">crossbundle install command-line-tools
+</code></pre>
+<p>The command will download a zip archive and unzip command line tools into <code>$HOME\AppData\Local\Android\Sdk\cmdline-tools\bin</code> for windows and <code>$HOME/Local/Android/Sdk/cmdline-tools/bin</code> for other operating systems.
+Note: Android studio install cmdline tools into <code>$SDK_ROOT/cmdline-tools/&lt;version&gt;/bin</code>.</p>
+<h3 id="install-packages"><a class="header" href="#install-packages">Install packages</a></h3>
+<p>The <a href="https://developer.android.com/studio/command-line/sdkmanager">sdkmanager</a> is a command-line tool that allows you to view, install, update, and uninstall packages for the Android SDK.</p>
+<p>To install packages use the command below. We prefer to use --preferred-tools flag to install minimal required tools needed for crossbundle correct working. This command will setup build-tools, android-ndk and android platforms: </p>
+<pre><code class="language-sh">crossbundle install sdk-manager --preferred-tools
+</code></pre>
+<p>Also you can install packages manually. To see all available tools use the -h flag. List installed and available packages:</p>
+<pre><code class="language-sh">crossbundle install sdk-manager --list
+</code></pre>
+<p>And then enter the command.</p>
+<pre><code class="language-sh">crossbundle install sdk-manager --install &quot;build-tools;31.0.0&quot; &quot;ndk;23.1.7779620&quot; &quot;platforms;android-30&quot;
+</code></pre>
+<p>The command will install packages into <code>$HOME\AppData\Local\Android\Sdk\</code> for Windows, <code>$HOME/Library/Android/sdk/</code> for macOS, and <code>$HOME/Android/sdk/</code> for Linux.</p>
+<h2 id="install-tools-to-aab-correct-building"><a class="header" href="#install-tools-to-aab-correct-building">Install tools to AAB correct building</a></h2>
+<p>For correct AAB building install <a href="https://developer.android.com/studio/command-line/bundletool">bundletool</a> and tools above.</p>
+<h3 id="install-bundletool"><a class="header" href="#install-bundletool">Install bundletool</a></h3>
+<p>To install <a href="https://developer.android.com/studio/command-line/bundletool">bundletool</a> use command below. To see all available options use the -h flag.</p>
+<pre><code class="language-sh">crossbundle install bundletool
+</code></pre>
+<p>The command will download bundletool from <a href="https://github.com/google/bundletool/releases"><code>GitHub repository</code></a> and save it into <code>$HOME</code>. Notice, that you should install <a href="https://www.oracle.com/java/technologies/downloads/">Java JDK</a> to open bundletool jar file.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="crossbow-gradle"><a class="header" href="#crossbow-gradle">Crossbow gradle</a></h1>
+<p>Crossbow default build process requires installed Gradle on your PC. You can download it <a href="https://gradle.org/">here</a>. Don't forget to install <code>GRADLE_HOME</code> environment variable.</p>
+<p>To create a project go to the example you want to build and use the command below. The command belongs to macroquad engine examples building:</p>
+<pre><code class="language-sh">crossbundle build android --quad
+
+# To specify custom export gradle directory
+crossbundle build android --quad --export-path=./gen/
+</code></pre>
+<p>By default build directory is <code>target/android/&lt;project_name&gt;/gradle</code>. But you can specify your own build directory via <code>--export-path=&lt;OUT_PATH&gt;</code> flag. Go to the directory where Gradle project was built and use command below to manually install APK on the device.</p>
+<pre><code class="language-sh">gradle installDebug
+</code></pre>
+<p>Also you can replace <code>build</code> with <code>run</code> subcommand to build and run APK on your device (it uses <code>installDebug</code> command under the hood). To see how to set android emulator check install recommendations for <a href="crossbundle/./install-linux-android.html">linux-android</a>, <a href="crossbundle/./install-macos-android.html">macos-android</a>, <a href="crossbundle/./install-windows-android.html">windows-android</a>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="run-command"><a class="header" href="#run-command">Run Command</a></h1>
+<p>TODO: Write documentation.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="overview-1"><a class="header" href="#overview-1">Overview</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="project-configuration"><a class="header" href="#project-configuration">Project configuration</a></h1>
+<h2 id="Сonfiguration-through-metadata"><a class="header" href="#Сonfiguration-through-metadata">Сonfiguration through metadata</a></h2>
+<p>The easiest way to configure a project is with metadata. Here's an example:</p>
+<pre><code class="language-toml"># Cargo.toml
+
+[package]
+name = &quot;game&quot;
+version = &quot;0.1.0&quot;
+authors = [&quot;Example &lt;example@nice.com&gt;&quot;]
+edition = &quot;2021&quot;
+
+[dependencies]
+crossbow = &quot;0.1.0&quot;
+
+[package.metadata.android]
+app_name = &quot;Game&quot;
+target_sdk_version = 30
+icon = &quot;ic_launcher&quot;
+
+build_targets = [&quot;aarch64-linux-android&quot;]
+assets = &quot;assets&quot;
+res = &quot;res/android&quot;
+
+[package.metadata.apple]
+app_name = &quot;Game&quot;
+icon = &quot;ic_launcher&quot;
+
+build_targets = [&quot;aarch64-apple-ios&quot;, &quot;x86_64-apple-ios&quot;]
+assets = &quot;assets&quot;
+res = &quot;res/apple&quot;
+</code></pre>
+<h3 id="Сonfiguration-through-separate-files"><a class="header" href="#Сonfiguration-through-separate-files">Сonfiguration through separate files</a></h3>
+<p>But sometimes you need to configure something more complex. For such cases, a more suitable way is to use separate <code>AndroidManifest.xml</code> or/and <code>Info.plist</code> files.</p>
+<p>To enable this feature, you just need to add this to your <code>Cargo.toml</code>:</p>
+<pre><code class="language-toml">[package.metadata.android]
+manifest_path = &quot;/path/to/file&quot;
+
+[package.metadata.apple]
+info_plist_path = &quot;/path/to/file&quot;
+</code></pre>
+<p>and then place <code>AndroidManifest.xml</code> or/and <code>Info.plist</code> near <code>Cargo.toml</code></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;manifest xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+    package=&quot;com.rust.game&quot;
+    android:versionCode=&quot;1&quot;
+    android:versionName=&quot;1.0&quot;&gt;
+    &lt;uses-sdk android:minSdkVersion=&quot;16&quot;
+        android:targetSdkVersion=&quot;30&quot; /&gt;
+    &lt;uses-permission android:name=&quot;android.permission.ACCESS_WIFI_STATE&quot;/&gt;
+    &lt;uses-permission android:name=&quot;android.permission.ACCESS_FINE_LOCATION&quot;/&gt;
+    &lt;uses-permission android:name=&quot;android.permission.ACCESS_COARSE_LOCATION&quot;/&gt;
+    &lt;uses-permission android:name=&quot;android.permission.ACCESS_NETWORK_STATE&quot; /&gt;
+    &lt;application android:allowBackup=&quot;true&quot;
+        android:hasCode=&quot;false&quot;
+        android:icon=&quot;@mipmap/ic_launcher&quot;
+        android:label=&quot;Game&quot;
+        android:theme=&quot;@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen&quot;&gt;
+        &lt;activity android:name=&quot;com.rust.game.MainActivity&quot;
+            android:label=&quot;Game&quot;
+            android:configChanges=&quot;orientation|keyboardHidden|screenSize&quot;&gt;
+            &lt;intent-filter&gt;
+                &lt;action android:name=&quot;android.intent.action.MAIN&quot; /&gt;
+                &lt;category android:name=&quot;android.intent.category.LAUNCHER&quot; /&gt;
+            &lt;/intent-filter&gt;
+        &lt;/activity&gt;
+    &lt;/application&gt;
+&lt;/manifest&gt;
+</code></pre>
+<p>That's it, this config file will be used for your mobile application.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="crossbow-permissions"><a class="header" href="#crossbow-permissions">Crossbow permissions</a></h1>
+<p>To request permissions with Crossbow you will need to add <code>crossbow</code> dependency to your Cargo.toml file. Then invoke request_permission function. This function checks the permission status in the application and will request permission if it's not granted yet:</p>
+<pre><pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use crossbow::Permission;
+let res = Permission::Camera.request_async().await?;
+match res {
+    Permission::Unknown =&gt; println!(&quot;Permission is in an unknown state&quot;),
+    Permission::Denied =&gt; println!(&quot;Denied by user&quot;),
+    Permission::Disabled =&gt; println!(&quot;Feature is disabled on device.&quot;),
+    Permission::Granted =&gt; println!(&quot;Granted by user.&quot;),
+    Permission::Restricted =&gt; println!(&quot;Restricted (only iOS).&quot;),
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Also, remember to set permissions in through <code>Cargo.toml</code> or <code>Info.plist</code>/<code>AndroidManifest.xml</code> files. List of required permissions for Cross-Platform Permission you can find in <code>Permission</code> enum.</p>
+<p>See usage <a href="https://github.com/dodorare/crossbow/blob/main/examples/macroquad-permissions/src/main.rs">example</a>.</p>
+<p>Also, it's possible to request more permissions with this API:</p>
+<pre><code>#[cfg(target_os = &quot;android&quot;)]
+crossbow::android::permission::*;
+let res = request_permission(&amp;AndroidPermission::ReadCalendar).await?;
+
+// or this for iOS:
+
+#[cfg(target_os = &quot;ios&quot;)]
+crossbow::ios::permission::*;
+let res = request_permission(&amp;IosPermission::CaptureDevice(MediaType::Audio)).await;
+</code></pre>
+<h2 id="maybe-useful"><a class="header" href="#maybe-useful">Maybe useful</a></h2>
+<p>Useful commands to debug permission status in Android application using <a href="https://developer.android.com/studio/command-line/adb">adb</a>:</p>
+<pre><code class="language-sh">adb shell pm reset-permissions
+adb shell pm list permission-groups
+adb shell pm list permissions
+
+adb shell pm grant &lt;app package&gt; &lt;permission name&gt;
+adb shell pm revoke &lt;app package&gt; &lt;permission name&gt;
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="crossbow-android-plugins"><a class="header" href="#crossbow-android-plugins">Crossbow Android Plugins</a></h1>
+<p>To write new Crossbow Android plugin - we recommend to clone this repository and use <code>crossbow-admob</code> as template for your plugin.</p>
+<p>To do so, run these commands:</p>
+<pre><code class="language-sh">git clone https://github.com/dodorare/crossbow
+cp -r crossbow/plugins/admob ./my-awesome-plugin
+cd ./my-awesome-plugin
+</code></pre>
+<p>In Rust project you will need to update <strong>Cargo.toml</strong> and code in <em>src/</em> folder.</p>
+<p>Now in Android gradle project you will able to write your own Android plugin in Java or Kotlin!</p>
+<h2 id="building"><a class="header" href="#building">Building</a></h2>
+<p>To build Android Gradle plugin you need to run the following command:</p>
+<pre><code class="language-sh">gradle build
+</code></pre>
+<h2 id="testing-locally"><a class="header" href="#testing-locally">Testing locally</a></h2>
+<p>To import your plugin into your game with Crossbow you can add following in <strong>Cargo.toml</strong>:</p>
+<pre><code class="language-toml">[[package.metadata.android.plugins_local_projects]]
+include = &quot;:my-awesome-plugin&quot;
+project_dir = &quot;../my-awesome-plugin/android&quot;
+</code></pre>
+<p>It will try to find your plugin by the specified path relative to your <strong>Cargo.toml</strong>.</p>
+<h2 id="publishing-to-github-maven-repository"><a class="header" href="#publishing-to-github-maven-repository">Publishing to Github Maven repository</a></h2>
+<p>To publish your plugin to Github Maven repository you need to get Personal Access Token from your Github account and update information in your <code>my-awesome-plugin/android/publish.gradle</code> file.</p>
+<p>To read more about Github Maven repository visit <a href="https://docs.github.com/en/actions/publishing-packages/publishing-java-packages-with-gradle">Publishing Github Maven packages</a>.</p>
+<p>As you setup everything - you can run the following command to publish your plugin to Maven repository:</p>
+<pre><code class="language-sh">USERNAME=&lt;NAME&gt; TOKEN=&lt;TOKEN&gt; gradle publish
+</code></pre>
+<p>To publish your plugin to <a href="https://crates.io/">crates.io</a> - you can see this <a href="https://doc.rust-lang.org/cargo/reference/publishing.html">official article</a>.</p>
+<h2 id="using-published-plugin"><a class="header" href="#using-published-plugin">Using Published plugin</a></h2>
+<p>After successfully publishing your plugin you can use it in your game. To do so you will want to import it in <strong>Cargo.toml</strong>:</p>
+<pre><code class="language-toml">[dependencies]
+my_awesome_plugin = &quot;0.1.0&quot;
+
+[[package.metadata.android]]
+plugins_remote = [&quot;com.crossbow.awesome:my_awesome_plugin:0.1.0&quot;]
+</code></pre>
+<p>That's it, now you can use your plugin in your game!</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="overview-2"><a class="header" href="#overview-2">Overview</a></h1>
+<p>In this category, you will learn how to use the <code>crossbundle</code> tool and <code>crossbow</code> crate by examples and tutorials.</p>
+<p>To get started - open <a href="tutorials/hello-world.html">Hello World example</a> to see minimal project setup.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="hello-world-example"><a class="header" href="#hello-world-example">Hello world example</a></h1>
+<h2 id="generate-a-project"><a class="header" href="#generate-a-project">Generate a project</a></h2>
+<p><code>crossbundle</code> uses <a href="https://github.com/cargo-generate/cargo-generate"><code>cargo-generate</code></a> to generate a new project. This means that you need to install it before we proceed.</p>
+<pre><code class="language-sh">cargo install cargo-generate
+</code></pre>
+<p>Then you can create a new project:</p>
+<pre><code class="language-sh">crossbundle new project-name
+# crossbundle new project-name --template bevy
+# crossbundle new project-name --template quad
+</code></pre>
+<p>All supported templates you can watch <a href="https://github.com/dodorare/crossbundle-templates"><code>here</code></a> (each branch = template).</p>
+<h2 id="project-overview"><a class="header" href="#project-overview">Project overview</a></h2>
+<p>The project has been created. Now let's see what the project consists of.</p>
+<pre><code class="language-toml"># Cargo.toml
+
+[package]
+name = &quot;project-name&quot;
+version = &quot;0.1.0&quot;
+authors = [&quot;Example &lt;example@example.com&gt;&quot;]
+edition = &quot;2021&quot;
+
+[dependencies]
+crossbundle = &quot;*&quot;
+
+[package.metadata.android]
+icon = &quot;ic_launcher&quot;
+res = &quot;res/android&quot;
+
+[package.metadata.apple]
+icon = &quot;ic_launcher&quot;
+res = &quot;res/apple&quot;
+</code></pre>
+<pre><pre class="playground"><code class="language-rust edition2021">// main.rs
+
+fn main() {
+    println!(&quot;Hello, project-name!&quot;);
+}
+</code></pre></pre>
+<h2 id="build-an-application"><a class="header" href="#build-an-application">Build an application</a></h2>
+<p>Let's build and run our first <code>crossbundle</code> application. Android commands below will generate gradle project and install apk on your device.</p>
+<pre><code class="language-sh"># cd project-name
+crossbundle run android
+# or (if your project uses macroquad)
+crossbundle run android --quad
+# or
+crossbundle run apple
+</code></pre>
+<p>If you want to build the application for android as native AAB - add <code>--aab</code> flag or add <code>--apk</code> to build native APK.</p>
+<p>When the application deploys on your device, you can attach a logger.</p>
+<pre><code class="language-sh">crossbundle log android
+</code></pre>
+<p>and you will see the message: <code>&quot;Hello, project-name!&quot;</code></p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="fastlane-automation-for-android"><a class="header" href="#fastlane-automation-for-android">Fastlane automation for Android</a></h1>
+<p>We want to make you work less on the hard stuff behind the automation of publishing Rust mobile apps so we prepared some best practices on how you can automate the boring stuff with our <a href="https://github.com/creator-rs/fastlane-plugin">creator Fastlane plugin</a>. You can read more about <code>Fastlane</code> <a href="https://fastlane.tools/">here</a>.</p>
+<h2 id="setup"><a class="header" href="#setup">Setup</a></h2>
+<p>First of all, we would suggest you pass through our <code>crossbow</code> basic tutorials for <a href="https://github.com/dodorare/crossbow/wiki/Android-setup-on-Windows">Android</a> or/and <a href="https://github.com/dodorare/crossbow/wiki/iOS-setup-on-MacOS">iOS</a>.</p>
+<p>After you got familiar with <code>crossbow</code> you can get to the following steps to run <code>Fastlane</code> locally:</p>
+<ol>
+<li>Make sure you have <a href="https://github.com/dodorare/crossbow/wiki/Command-line-tool">crossbundle</a> installed.</li>
+<li>Install <a href="https://docs.fastlane.tools/#getting-started">Fastlane</a>.</li>
+<li>Setup <a href="https://github.com/dodorare/crossbow/wiki/iOS-setup-on-MacOS">XCode</a> or <a href="https://github.com/dodorare/crossbow/wiki/Android-setup-on-Windows">Android Studio</a> depending on which platform you want to run your workflow.</li>
+<li>Create a test project (you can use <a href="https://github.com/dodorare/crossbundle-templates/tree/fastlane-example">our template</a>) or add Fastlane to your project.</li>
+<li>Install our <code>fastlane</code> plugin with the next command <code>fastlane add_plugin crossbow</code>.</li>
+</ol>
+<h2 id="setup-for-play-market"><a class="header" href="#setup-for-play-market">Setup for Play Market</a></h2>
+<ol>
+<li>Open <a href="https://play.google.com/console">Google Play Console</a> (you will need a developer account for this).</li>
+<li>Click on the button &quot;Create app&quot; <img src="https://i.imgur.com/2IYrMqV.png" alt="Create app" /> and specify your application data in the form.</li>
+<li>Generate signing key through Android Studio as shown in <a href="https://developer.android.com/studio/publish/app-signing#sign-apk">this official tutorial</a>.</li>
+<li>Generate a &quot;Play Store Json Key&quot; for Fastlane as shown <a href="https://docs.fastlane.tools/actions/upload_to_play_store/#setup">here</a>.</li>
+<li>Configure corresponding variables in <code>fastlane/Fastfile</code> file.</li>
+</ol>
+<!---
+## Setup for Apple TestFlight
+1. [Apple TestFlight](https://docs.fastlane.tools/actions/upload_to_testflight/#usage)/[App Store](https://docs.fastlane.tools/actions/upload_to_app_store/) upload settings and configure remaining variables in `Fastfile`.
+-->
+<h2 id="run-lane"><a class="header" href="#run-lane">Run lane</a></h2>
+<p>To run our Fastlane pipeline just call <code>fastlane android</code> or <code>fastlane ios</code> at the root of the project.</p>
+<p>Please note, Fastlane will ask you to log in on the first run to configure the setup.</p>
+<h2 id="see-results"><a class="header" href="#see-results">See results</a></h2>
+<p>After the successful finish of publishing as an internal testing draft, you should see your release on the <code>Google Play Console</code>. Find section &quot;Testing&quot; and click on the &quot;Internal testing&quot;. You will see something like this:</p>
+<p><img src="https://i.imgur.com/2DTnidE.png" alt="Internal testing" /></p>
+<p>Feel free to add some other lanes to fill your needs, here's the <a href="http://docs.fastlane.tools/actions/">full list</a> of them.</p>
+<p>If you found a bug or issue - you can find or create an issue in <a href="https://github.com/dodorare/crossbow">this</a> repository.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="using-subxt-with-bevy-engine"><a class="header" href="#using-subxt-with-bevy-engine">Using subxt with bevy engine</a></h1>
+<ol>
+<li>
+<p>You need to install crossbundle if you haven't already. See <a href="https://github.com/dodorare/crossbow/tree/main/docs">documention</a> to install it and configure your project.</p>
+</li>
+<li>
+<p>Specify substrate-subxt and bevy in your Cargo.toml. We prefer to use versions below:</p>
+</li>
+</ol>
+<pre><code class="language-sh">[dependencies]
+substrate-subxt = &quot;0.21&quot;
+bevy = &quot;0.7.0&quot;
+</code></pre>
+<h2 id="bevy-explorer-example"><a class="header" href="#bevy-explorer-example">Bevy explorer example</a></h2>
+<p>To learn how to use subxt with bevy engine, you can go to the <a href="https://github.com/dodorare/crossbow/tree/main/examples/bevy-explorer">examples/bevy-explorer</a> or install bevy explorer template. Follow next steps:</p>
+<ol>
+<li>Install cargo-generate:</li>
+</ol>
+<pre><code class="language-sh">cargo install cargo-generate
+</code></pre>
+<ol start="2">
+<li>Install bevy-explorer template:</li>
+</ol>
+<pre><code class="language-sh">crossbundle new example --template=bevy-explorer
+</code></pre>
+<ol start="3">
+<li>After previous steps, now you can install the application on the device.</li>
+</ol>
+<h2 id="installing-application-on-the-device"><a class="header" href="#installing-application-on-the-device">Installing application on the device</a></h2>
+<p>You can deploy the application on your device with commands below. At first, you should go to example directory. Use it:</p>
+<p>Bash:</p>
+<pre><code class="language-sh"># If the template was installed
+cd example
+# If bevy-explorer example will be used
+cd example/bevy-explorer
+</code></pre>
+<p>By default <code>crossbundle build android</code> command will generate gradle project and install apk on your device. To build native <code>.apk</code> and <code>.aab</code> see commands below.
+To build native APK and run it on the device using the command. If you want to build an application replaces <code>run</code> with <code>build</code>.</p>
+<pre><code class="language-sh">crossbundle run android --apk
+# or
+crossbundle run apple
+</code></pre>
+<p>To build native AAB and run it on the device using the command. If you want to build an application replaces <code>run</code> with <code>build</code>.</p>
+<pre><code class="language-sh">crossbundle run android --aab
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="contributing"><a class="header" href="#contributing">Contributing</a></h1>
+<p>If you want to help us build an awesome Cross-Platform future for Rust Games, please reach out! We need all the help we can get:</p>
+<ul>
+<li>If you are a software developer and you want to help out, check out the <a href="contributing/contribute-code.html">Contributing Code</a> section.</li>
+<li>If you are good at writing or teaching, consider <a href="contributing/contribute-docs.html">Contributing to our Docs</a>.</li>
+</ul>
+<p>Also, read <a href="contributing/testing-guide.html">testing guide</a> to run tests in <code>crossbow</code>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="how-to-contribute-code"><a class="header" href="#how-to-contribute-code">How to Contribute Code</a></h1>
+<p>Would you like to contribute code to Crossbow? Here's how!</p>
+<ol>
+<li>Fork the <a href="https://github.com/dodorare/crossbow">dodorare/crossbow</a> repository on GitHub, you'll need to create a GitHub account if you don't have one already.*</li>
+<li>Make your changes in a local clone of your fork.</li>
+<li>For a higher chance of CI passing the first time, consider run these commands from the root of your local clone:
+<ol>
+<li><code>cargo fmt --all -- --check</code> (remove --check to let the command fix found problems)</li>
+<li><code>cargo clippy --all-targets --all-features -- -D warnings -A clippy::unnecessary-unwrap -A clippy::too-many-arguments</code></li>
+<li><code>cargo test --all-targets --workspace</code></li>
+</ol>
+</li>
+<li>Push your changes to your fork and open a Pull Request.</li>
+<li>Respond to any CI failures or review feedback.</li>
+</ol>
+<!-- 6. Remember to follow Crossbow's Code of Conduct, and thanks for contributing! -->
+<blockquote>
+<p>The same steps apply for any other repository in the organization that you would like to contribute to.</p>
+</blockquote>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="how-to-contribute-docs"><a class="header" href="#how-to-contribute-docs">How to Contribute Docs</a></h1>
+<h2 id="crossbow-documentation"><a class="header" href="#crossbow-documentation">Crossbow Documentation</a></h2>
+<p>If you want to contribute to this documentation, please see the <a href="contributing/contributing/docs.html">Contributing</a> section.</p>
+<ol>
+<li>Fork the <a href="https://github.com/dodorare/crossbow">dodorare/crossbow</a> repository on GitHub, you'll need to create a GitHub account if you don't have one already.*</li>
+<li>Install <a href="https://rust-lang.github.io/mdBook/guide/installation.html">mdBook</a>.</li>
+<li>In the &quot;docs/&quot; directory, run <code>mdbook serve --open</code> and make your changes in a local clone of your fork.</li>
+<li>Push your changes to your fork and open a <a href="https://github.com/dodorare/crossbow/compare">Pull Request</a>.</li>
+<li>Respond to any CI failures or review feedback.</li>
+</ol>
+<!-- Remember to follow Crossbow's Code of Conduct, and thanks for contributing! -->
+<p>That's all, big thanks for contributing!</p>
+<blockquote>
+<p>The same steps apply for any other repository in the organization that you would like to contribute to.</p>
+</blockquote>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="testing-guide"><a class="header" href="#testing-guide">Testing guide</a></h1>
+<h2 id="how-to-run-tests-in-crossbow"><a class="header" href="#how-to-run-tests-in-crossbow">How to run tests in crossbow</a></h2>
+<p>In <code>crossbow</code>, we have unit tests, integration tests, and examples. To run tests, you will need to set up an <strong>Android</strong> and <strong>Apple</strong> environment (you can find more information in <a href="contributing/../install/README.html">installation category</a>).</p>
+<p>If you want to run tests for our <code>crossbundle</code> crate, you can make it by the following steps: download this repository, proceed to the <code>crossbundle/tools</code> directory, and run <code>cargo test</code>. It will run all tests for the <code>crossbundle-tools</code> crate that is primarily used by <code>crossbundle</code>.</p>
+<h2 id="in-case-of-issues"><a class="header" href="#in-case-of-issues">In case of issues</a></h2>
+<p>Feel free to open <a href="https://github.com/dodorare/crossbow/issues/new/choose">Github Issues</a> - we will be happy to fix or review them.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="contributors"><a class="header" href="#contributors">Contributors</a></h1>
+<p>Here is a list of the contributors who have helped improving <code>Crossbow</code>. Big shout-out to them!</p>
+<ul>
+<li>David (<a href="https://github.com/enfipy">enfipy</a>) - Project Lead</li>
+<li>Daniil (<a href="https://github.com/Heezay">Heezay</a>)</li>
+<li>Oleksii (<a href="https://github.com/olvyko">olvyko</a>)</li>
+<li>Adil (<a href="https://github.com/Adoka3710">Adoka3710</a>)</li>
+<li>Rodrigo (<a href="https://github.com/rodrigocam">rodrigocam</a>)</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="development-roadmap"><a class="header" href="#development-roadmap">Development Roadmap</a></h1>
+<div class="table-wrapper"><table><thead><tr><th style="text-align: right">Number</th><th>Title</th><th>Specification</th><th>Status</th></tr></thead><tbody>
+<tr><td style="text-align: right">1.</td><td>Support AAB</td><td>Add support of generation AAB file. <a href="https://developer.android.com/guide/app-bundle">Android App Bundle</a> is a publishing format that includes all your app’s compiled code and resources.</td><td>✅</td></tr>
+<tr><td style="text-align: right">2.</td><td>Support Macroquad engine</td><td>Add support of <a href="https://macroquad.rs/">Macroquad</a> engine. We will change our crossbundle command-line tool to support Android and iOS building of Macroquad.</td><td>✅</td></tr>
+<tr><td style="text-align: right">3.</td><td>Support Android Plugins</td><td>Add support of Android plugins to help add additional functionality provided by the Android platform and ecosystem (like Ads, Auth, In-app purchases, etc.). Something similar to <a href="https://docs.godotengine.org/en/stable/tutorials/plugins/android/android_plugin.html">Godot Android plugins</a>.</td><td>✅</td></tr>
+<tr><td style="text-align: right">4.</td><td>Support Cross-platform permissions</td><td>Provide a single cross-platform permission API that works with any <a href="https://developer.apple.com/design/human-interface-guidelines/ios/app-architecture/accessing-user-data/">iOS</a>, <a href="https://developer.android.com/games/develop/permissions">Android</a>, etc application that can be accessed from shared code no matter how the user interface is created.</td><td>✅</td></tr>
+<tr><td style="text-align: right">5.</td><td>Simple installation</td><td>Simple installation with environment variables, libs, etc. Make installation of Android SDK, NDK, tools more robust.</td><td>✅</td></tr>
+<tr><td style="text-align: right">6.</td><td>Support iOS Plugins</td><td>Add support of iOS plugins to help add additional functionality provided by the Apple platforms and ecosystem (like Ads, Auth, In-app purchases, etc.). Something similar to <a href="https://docs.godotengine.org/en/stable/tutorials/platform/ios/ios_plugin.html">Godot iOS plugins</a>.</td><td>🛠</td></tr>
+<tr><td style="text-align: right">7.</td><td>Sign in with Google</td><td>Add support of <a href="https://developers.google.com/games/services/common/concepts/sign-in">Google Sign In</a> inside any application.</td><td>📝</td></tr>
+<tr><td style="text-align: right">8.</td><td>Sign in with Apple</td><td>Add support of <a href="https://github.com/lupidan/apple-signin-unity">Apple Sign In</a> inside any application.</td><td>📝</td></tr>
+<tr><td style="text-align: right">9.</td><td>Better support for Apple xcrun, xcode proj</td><td>Add better support and rust wrappers for Apple xcode tools, xcrun. Make cool xcode project generation library.</td><td>📝</td></tr>
+<tr><td style="text-align: right">10.</td><td>Apple Game Center</td><td>Add <a href="https://developer.apple.com/documentation/gamekit">Apple Game Center</a> support.</td><td>📝</td></tr>
+<tr><td style="text-align: right">11.</td><td>Android In-App purchases &amp; Google Play Billing</td><td>Add support for <a href="https://github.com/godotengine/godot-google-play-billing">Google Play Billing</a>. Make it possible to buy items from your application.</td><td>📝</td></tr>
+<tr><td style="text-align: right">12.</td><td>Support Apple In-App purchases</td><td>Support Apple <a href="https://developer.apple.com/documentation/storekit/in-app_purchase">StoreKit</a>. Make it possible to buy items from your application.</td><td>📝</td></tr>
+<tr><td style="text-align: right">13.</td><td>Support Android In-App updates</td><td>Add support for <a href="https://developer.android.com/guide/playcore/in-app-updates">Android In-App updates</a>.</td><td>📝</td></tr>
+</tbody></table>
+</div>
+<p>✅ = Works and tested — 🆗 = Works but may contain bugs — 🛠 = Under development — 📝 = Planned</p>
+<h2 id="useful-links"><a class="header" href="#useful-links">Useful links</a></h2>
+<ul>
+<li>https://developers.google.com/games/services/common/concepts/sign-in</li>
+<li>https://developers.google.com/games/services/downloads/sdks</li>
+<li>https://developers.google.com/games/services/cpp/GettingStartedNativeClient</li>
+<li>https://developers.google.com/identity/sign-in/web/build-button</li>
+<li>https://github.com/cgisca/PGSGP</li>
+<li>https://docs.godotengine.org/en/stable/tutorials/platform/ios/ios_plugin.html</li>
+<li>https://github.com/polyhorn/simctl</li>
+<li>https://docs.godotengine.org/en/stable/tutorials/plugins/android/android_plugin.html</li>
+<li>https://github.com/godotengine/godot-google-play-billing</li>
+<li>https://github.com/google/play-unity-plugins</li>
+<li>https://android.googlesource.com/platform/frameworks/opt/gamesdk</li>
+<li>https://developer.android.com/games/develop/permissions</li>
+<li>https://docs.microsoft.com/en-gb/xamarin/essentials</li>
+<li>https://docs.microsoft.com/en-us/xamarin/essentials/permissions</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="special-thanks"><a class="header" href="#special-thanks">Special Thanks</a></h1>
+<p>This project initially funded by <a href="https://github.com/w3f/Grants-Program/blob/master/applications/crossbow.md">Web3 Foundation Grants Program</a>. Big shout-out to them!</p>
+<p>If you want to support this project - contact us on our corporate email: <a href="mailto:support@dodorare.com">support@dodorare.com</a>.</p>
 
                     </main>
 
