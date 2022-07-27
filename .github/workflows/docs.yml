@@ -1,0 +1,22 @@
+name: Build and Deploy Documentation
+on:
+  push:
+    branches: [main]
+    paths:
+    - 'docs/**.md'
+permissions:
+  contents: write
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+      - name: Install and Build
+        run: |
+          cargo install mdbook
+          mdbook build -d book
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: docs/book
