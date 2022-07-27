@@ -1,6 +1,6 @@
-# 📂 Project configuration
+# Project configuration
 
-## ⚙️ Сonfiguration through metadata
+## Сonfiguration through metadata
 
 The easiest way to configure a project is with metadata. Here's an example:
 
@@ -17,7 +17,7 @@ edition = "2021"
 crossbow = "0.1.0"
 
 [package.metadata.android]
-app_name = "Creator 3D"
+app_name = "Game"
 target_sdk_version = 30
 icon = "ic_launcher"
 
@@ -26,7 +26,7 @@ assets = "assets"
 res = "res/android"
 
 [package.metadata.apple]
-app_name = "Creator 3D"
+app_name = "Game"
 icon = "ic_launcher"
 
 build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
@@ -34,7 +34,7 @@ assets = "assets"
 res = "res/apple"
 ```
 
-### ⚙️ Сonfiguration through separate files
+### Сonfiguration through separate files
 
 But sometimes you need to configure something more complex. For such cases, a more suitable way is to use separate `AndroidManifest.xml` or/and `Info.plist` files.
 

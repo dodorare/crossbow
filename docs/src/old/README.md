@@ -1,4 +1,5 @@
-# 📖 Main page
+
+# Main page
 
 ![splash](https://github.com/dodorare/crossbow/blob/main/.github/assets/splash.png?raw=true)
 

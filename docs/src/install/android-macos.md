@@ -1,6 +1,6 @@
-# 📱 Android setup on MacOS
+# Android setup on MacOS
 
-## 🌀 Install necessary packages
+## Install necessary packages
 
 1. Use [crossbundle install command](https://github.com/dodorare/crossbow/blob/main/docs/crossbundle-install-command.md) or download and install [Android Studio](https://developer.android.com/studio).
 2. Start Android Studio, and go through the `Android Studio Setup Wizard` with the `Custom` option and install the following (or install them in `SDK Manager`):
@@ -16,7 +16,7 @@ brew tap adoptopenjdk/openjdk
 brew install --cask adoptopenjdk8
 ```
 
-## 🗃️ Add environment variables
+## Add environment variables
 
 Take these steps to add Android-related environment variables:
 
@@ -40,7 +40,7 @@ export PATH=<path_to_sdk>\sdk\tools\bin:$PATH
 Also, we need to make sure we have a java runtime environment (JRE) installed. We will need a key tool utility from there. <br/>
 To make sure it's present type this command: `ls /usr/lib/jvm/default/bin/ | grep keytool` or add to your `PATH` env var.
 
-### ❗ If you want to generate AAB (Android App Bundle) u will need to install Bundletool
+### If you want to generate AAB (Android App Bundle) u will need to install Bundletool
 
 If you haven't already done so, download bundletool from the [`GitHub repository`](https://github.com/google/bundletool/releases).
 
@@ -48,16 +48,16 @@ If you haven't already done so, download bundletool from the [`GitHub repository
 export BUNDLETOOL_PATH=<path_to_bundletool>
 ```
 
-## 📱 Set up your Android device
+## Set up your Android device
 
 To prepare to run your `crossbow` app on an Android device, you need an Android device running Android 4.1 (API level 16) or higher.
 
 1. Enable **Developer options** and **USB debugging** on your device. Detailed instructions are available in the [Android documentation](https://developer.android.com/studio/debug/dev-options).
 2. Using a USB cable, plug your phone into your computer. If prompted on your device, authorize your computer to access your device.
 
-## 💻 Set up the Android emulator
+## Set up the Android emulator
 
-To prepare to run and test your Flutter app on the Android emulator, follow these steps:
+To prepare to run and test your Crossbow app on the Android emulator, follow these steps:
 
 1. Enable [`VM acceleration`](https://developer.android.com/studio/run/emulator-acceleration) on your machine.
 2. Launch **Android Studio**, click the **AVD Manager** icon, and select **Create Virtual Device**.
@@ -67,7 +67,7 @@ To prepare to run and test your Flutter app on the Android emulator, follow thes
 6. Verify the AVD configuration is correct, and select **Finish**. (For details on the above steps, see [`Managing AVDs`](https://developer.android.com/studio/run/managing-avds))
 7. In Android Virtual Device Manager, click Run in the toolbar. The emulator starts up and displays the default canvas for your selected OS version and device.
 
-## 🌀 Install necessary rustup targets
+## Install necessary rustup targets
 
 Run the following command:
 

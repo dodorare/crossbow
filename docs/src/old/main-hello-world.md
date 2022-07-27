@@ -1,8 +1,8 @@
-# 🌎 Hello world example
+# Hello world example
 
-## ✏️ Generate a project
+## Generate a project
 
-CrossBundle uses [`cargo-generate`](https://github.com/cargo-generate/cargo-generate) to generate a new project. This means that you need to install it before we proceed.
+`crossbundle` uses [`cargo-generate`](https://github.com/cargo-generate/cargo-generate) to generate a new project. This means that you need to install it before we proceed.
 
 ```sh
 cargo install cargo-generate
@@ -18,7 +18,7 @@ crossbundle new project-name
 
 All supported templates you can watch [`here`](https://github.com/dodorare/crossbundle-templates) (each branch = template).
 
-## 📃 Project overview
+## Project overview
 
 The project has been created. Now let's see what the project consists of.
 
@@ -51,9 +51,9 @@ fn main() {
 }
 ```
 
-## 🔨 Build an application
+## Build an application
 
-Let's build and run our first CrossBundle application. Android commands below will generate gradle project and install apk on your device. 
+Let's build and run our first `crossbundle` application. Android commands below will generate gradle project and install apk on your device.
 
 ```sh
 # cd project-name

@@ -1,0 +1,8 @@
+[book]
+title = "crossbow"
+description = "Official Crossbow documentation"
+authors = ["DodoRare Team <support@dodorare.com>"]
+language = "en"
+
+[rust]
+edition = "2021"
