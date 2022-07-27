@@ -296,18 +296,11 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
                 if (pPosition == 0) //BOTTOM
                 {
                     aCrossbowLayoutParams!!.gravity = Gravity.BOTTOM
-                    if (pRespectSafeArea) aAdView!!.setY(-safeArea.bottom.toFloat())// Need to validate if this value will be positive or negative
+                    if (pRespectSafeArea) aAdView!!.setY(-safeArea.bottom.toFloat()) // Need to validate if this value will be positive or negative
                 } else if (pPosition == 1) //TOP
                 {
                     aCrossbowLayoutParams!!.gravity = Gravity.TOP
                     if (pRespectSafeArea) aAdView!!.setY(safeArea.top.toFloat())
-=======
-                    if (pRespectSafeArea) aAdView!!.setY(-safeArea.bottom.toFloat() as Float) //Need to validate if this value will be positive or negative
-                } else if (pPosition == 1) //TOP
-                {
-                    aCrossbowLayoutParams!!.gravity = Gravity.TOP
-                    if (pRespectSafeArea) aAdView!!.setY(safeArea.top.toFloat() as Float)
->>>>>>> 3ecaee2a06bac57e13eb0707978a66afccc11867
                 }
                 aCrossbowLayout!!.addView(aAdView, aCrossbowLayoutParams)
                 aAdView!!.loadAd(adRequest)
