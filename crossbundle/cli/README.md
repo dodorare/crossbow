@@ -77,25 +77,25 @@ build_targets = ["aarch64-linux-android"]
 
 # Adds a uses-permission element to the AndroidManifest.xml.
 # Note that android_version 23 and higher, Android requires the application to request permissions at runtime.
-[[package.metadata.android.permissions]]
+[[package.metadata.android.manifest.permission]]
 name = "android.permission.INTERNET"
 
-# Specifies that an app wants a particular permission, but only if the app is installed on a device running 
+# Specifies that an app wants a particular permission, but only if the app is installed on a device running
 # Android 6.0 (API level 23) or higher. If the device is running API level 22 or lower, the app does not have the specified permission.
 #
 # See https://developer.android.com/guide/topics/manifest/uses-permission-sdk-23-element
-[[package.metadata.android.permissions_sdk_23]]
+[[package.metadata.android.manifest.uses_permission_sdk_23]]
 name = "android.permission.WRITE_EXTERNAL_STORAGE"
 max_sdk_version = 30
 
 # See https://developer.android.com/guide/topics/manifest/service-element
-[[package.metadata.android.service]]
+[[package.metadata.android.manifest.service]]
 name = "UpdateService"
 intent_filter = []
 meta_data = []
 
 # See https://developer.android.com/guide/topics/manifest/queries-element#provider
-[[package.metadata.android.queries.provider]]
+[[package.metadata.android.manifest.queries.provider]]
 authorities = "org.khronos.openxr.runtime_broker;org.khronos.openxr.system_runtime_broker"
 # Note: The `name` attribute is normally not required for a queries provider, but is non-optional
 # as a workaround for aapt throwing errors about missing `android:name` attribute.
@@ -105,13 +105,13 @@ name = "org.khronos.openxr"
 # See https://developer.android.com/guide/topics/manifest/uses-feature-element
 #
 # Note: there can be multiple .uses_feature entries.
-[[package.metadata.android.features]]
+[[package.metadata.android.manifest.features]]
 name = "android.hardware.vulkan.level"
 required = true
 version = 1
 
 # See https://developer.android.com/guide/topics/manifest/meta-data-element
-[[package.metadata.android.meta_data]]
+[[package.metadata.android.manifest.application.meta_data]]
 name = "com.oculus.vr.focusaware"
 value = "true"
 

@@ -13,12 +13,6 @@ pub fn gen_android_manifest(
     max_sdk_version: Option<u32>,
     icon: Option<String>,
     debuggable: bool,
-    permissions_sdk_23: Option<Vec<UsesPermissionSdk23>>,
-    permissions: Option<Vec<UsesPermission>>,
-    features: Option<Vec<UsesFeature>>,
-    service: Option<Vec<Service>>,
-    meta_data: Option<Vec<MetaData>>,
-    queries: Option<Queries>,
     gradle: bool,
 ) -> AndroidManifest {
     AndroidManifest {
@@ -32,10 +26,6 @@ pub fn gen_android_manifest(
             target_sdk_version: Some(target_sdk_version),
             max_sdk_version,
         }),
-        uses_permission_sdk_23: permissions_sdk_23.unwrap_or_default(),
-        uses_permission: permissions.unwrap_or_default(),
-        uses_feature: features.unwrap_or_default(),
-        queries,
         application: Application {
             has_code: Some(gradle),
             label: Some(StringResourceOrString::string(
@@ -47,8 +37,6 @@ pub fn gen_android_manifest(
                 "Theme.DeviceDefault.NoActionBar.Fullscreen",
                 Some("android".to_string()),
             )),
-            service: service.unwrap_or_default(),
-            meta_data: meta_data.unwrap_or_default(),
             activity: vec![Activity {
                 name: match gradle {
                     true => "com.crossbow.game.CrossbowApp".to_string(),

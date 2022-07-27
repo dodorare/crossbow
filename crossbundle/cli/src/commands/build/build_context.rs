@@ -99,7 +99,10 @@ impl BuildContext {
         debuggable: bool,
         gradle: bool,
     ) -> Result<AndroidManifest> {
-        let android_manifest = AndroidConfig {
+        if let Some(manifest_path) = &self.android_config.manifest_path {
+            return Ok(android::read_android_manifest(manifest_path)?);
+        }
+        let android_config = AndroidConfig {
             app_name: self.android_config.app_name.clone(),
             version_name: Some(
                 self.android_config
@@ -120,42 +123,27 @@ impl BuildContext {
             ),
             max_sdk_version: self.android_config.max_sdk_version,
             icon: self.android_config.icon.clone(),
-            permissions_sdk_23: self.android_config.permissions_sdk_23.clone(),
-            permissions: self.android_config.permissions.clone(),
-            features: self.android_config.features.clone(),
-            service: self.android_config.service.clone(),
-            meta_data: self.android_config.meta_data.clone(),
-            queries: self.android_config.queries.clone(),
             ..Default::default()
         };
-        if let Some(manifest_path) = &self.android_config.manifest_path {
-            Ok(android::read_android_manifest(manifest_path)?)
-        } else {
-            let manifest = gen_manifest::gen_android_manifest(
-                Some(format!("com.rust.{}", package_name).replace('-', "_")),
-                package_name.to_string(),
-                android_manifest.app_name,
-                android_manifest
-                    .version_name
-                    .unwrap_or_else(|| self.package_version()),
-                android_manifest.version_code.unwrap_or(1),
-                Some(android_manifest.min_sdk_version.unwrap_or(MIN_SDK_VERSION)),
-                android_manifest
-                    .target_sdk_version
-                    .unwrap_or_else(|| sdk.default_platform()),
-                android_manifest.max_sdk_version,
-                android_manifest.icon,
-                debuggable,
-                android_manifest.permissions_sdk_23,
-                android_manifest.permissions,
-                android_manifest.features,
-                android_manifest.service,
-                android_manifest.meta_data,
-                android_manifest.queries,
-                gradle,
-            );
-            Ok(manifest)
-        }
+        let manifest = gen_manifest::gen_android_manifest(
+            Some(format!("com.rust.{}", package_name).replace('-', "_")),
+            package_name.to_string(),
+            android_config.app_name,
+            android_config
+                .version_name
+                .unwrap_or_else(|| self.package_version()),
+            android_config.version_code.unwrap_or(1),
+            Some(android_config.min_sdk_version.unwrap_or(MIN_SDK_VERSION)),
+            android_config
+                .target_sdk_version
+                .unwrap_or_else(|| sdk.default_platform()),
+            android_config.max_sdk_version,
+            android_config.icon,
+            debuggable,
+            gradle,
+        );
+        // TODO: Merge AndroidManifest
+        Ok(manifest)
     }
 
     /// Get info plist from the path in cargo manifest or generate it with the given configuration

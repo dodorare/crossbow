@@ -1,6 +1,6 @@
 use crossbundle_tools::{
     commands::android::AndroidGradlePlugins,
-    types::{android_manifest::*, AndroidTarget},
+    types::{android_manifest::AndroidManifest, AndroidTarget},
 };
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
@@ -11,6 +11,8 @@ pub const MIN_SDK_VERSION: u32 = 19;
 pub struct AndroidConfig {
     /// Application name.
     pub app_name: Option<String>,
+    /// Android package name to place in AndroidManifest.xml.
+    pub package: Option<String>,
     /// Application version name.
     pub version_name: Option<String>,
     /// Application version code.
@@ -27,22 +29,9 @@ pub struct AndroidConfig {
     /// Path to AndroidManifest.xml file.
     pub manifest_path: Option<PathBuf>,
 
-    /// Android permissions for target sdk version = 22 and lower.
-    pub permissions: Option<Vec<UsesPermission>>,
-    /// To declare a permission only on devices that support runtime permissions—that is,
-    /// devices that run Android 6.0 (API level 23) or higher—include the uses-permission-sdk-23
-    /// element instead of the uses-permission element.
-    pub permissions_sdk_23: Option<Vec<UsesPermissionSdk23>>,
-    /// Declares a single hardware or software android feature that is used by the application
-    pub features: Option<Vec<UsesFeature>>,
-    /// Android service to place in AndroidManifest.xml.
-    pub service: Option<Vec<Service>>,
-    /// Android application meta_data to place in AndroidManifest.xml.
-    pub meta_data: Option<Vec<MetaData>>,
-    /// Android queries to place in AndroidManifest.xml.
-    pub queries: Option<Queries>,
-    /// Android package name to place in AndroidManifest.xml.
-    pub package: Option<String>,
+    /// AndroidManifest.xml configuration.
+    pub manifest: Option<AndroidManifest>,
+
     /// Android resources directory path relatively to project path.
     pub res: Option<PathBuf>,
     /// Android assets directory path relatively to project path.

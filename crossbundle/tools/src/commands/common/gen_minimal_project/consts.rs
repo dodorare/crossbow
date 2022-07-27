@@ -56,31 +56,18 @@ version_code = 1
 
 build_targets = ["aarch64-linux-android"]
 
-[[package.metadata.android.features]]
+[[package.metadata.android.manifest.uses_feature]]
 name = "android.hardware.vulkan.level"
 required = true
 version = 1
 
-[[package.metadata.android.permissions]]
+[[package.metadata.android.manifest.permission]]
 name = "android.permission.WRITE_EXTERNAL_STORAGE"
 max_sdk_version = 30
 
-[[package.metadata.android.permissions_sdk_23]]
+[[package.metadata.android.manifest.uses_permission_sdk_23]]
 name = "android.permission.INTERNET"
 max_sdk_version = 30
-
-[[package.metadata.android.queries.provider]]
-authorities = "org.khronos.openxr.runtime_broker;org.khronos.openxr.system_runtime_broker"
-name = "org.khronos.openxr"
-
-[[package.metadata.android.meta_data]]
-name = "com.oculus.vr.focusaware"
-value = "true"
-
-[[package.metadata.android.service]]
-name = "UpdateService"
-intent_filter = []
-meta_data = []
 
 [package.metadata.apple]
 app_name = "Macroquad_3D"

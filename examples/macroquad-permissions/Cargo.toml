@@ -37,13 +37,13 @@ include = ":crossbow:lib"
 include = ":admob"
 project_dir = "../../plugins/admob/android"
 
-[[package.metadata.android.permissions]]
+[[package.metadata.android.manifest.permission]]
 name = "android.permission.READ_EXTERNAL_STORAGE"
 
-[[package.metadata.android.permissions]]
+[[package.metadata.android.manifest.permission]]
 name = "android.permission.CAMERA"
 
-[[package.metadata.android.permissions]]
+[[package.metadata.android.manifest.permission]]
 name = "android.permission.RECORD_AUDIO"
 
 [package.metadata.apple]
