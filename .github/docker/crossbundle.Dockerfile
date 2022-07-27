@@ -11,8 +11,7 @@ RUN yes | ${ANDROID_SDK_ROOT}/cmdline-tools/tools/bin/sdkmanager --update
 ENV ANDROID_NDK_ROOT=${ANDROID_SDK_ROOT}/ndk/23.1.7779620
 
 # Install bundletool
-RUN wget -q https://github.com/google/bundletool/releases/download/1.8.2/bundletool-all-1.8.2.jar \
-    && mv bundletool-all-1.8.2.jar ${ANDROID_SDK_ROOT}/bundletool-all-1.8.2.jar
+RUN wget -q https://github.com/google/bundletool/releases/download/1.8.2/bundletool-all-1.8.2.jar
 ENV BUNDLETOOL_PATH=${ANDROID_SDK_ROOT}/bundletool-all-1.8.2.jar
 
 RUN wget https://services.gradle.org/distributions/gradle-7.4-all.zip \
