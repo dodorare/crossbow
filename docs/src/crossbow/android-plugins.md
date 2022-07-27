@@ -1,4 +1,4 @@
-# Crossbow plugins
+# Crossbow Android Plugins
 
 To write new Crossbow Android plugin - we recommend to clone this repository and use `crossbow-admob` as template for your plugin.
 
