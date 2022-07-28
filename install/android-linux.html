@@ -191,7 +191,15 @@ Examples:</p>
 <li>Using a USB cable, plug your phone into your computer. If prompted on your device, authorize your computer to access your device.</li>
 </ol>
 <h2 id="set-up-the-android-emulator"><a class="header" href="#set-up-the-android-emulator">Set up the Android emulator</a></h2>
-<p>To prepare to run and test your Flutter app on the Android emulator, follow these steps:</p>
+<p>To prepare to run and test your Crossbow app on the Android emulator, follow these steps if you want to install it from the console:</p>
+<pre><code class="language-sh"># Run following command to install System Image for Android SDK 30
+crossbundle install sdk-manager --install &quot;system-images;android-30;google_apis;x86_64&quot;
+# Run this command to create a new emulator
+avdmanager create avd -n Phone -k &quot;system-images;android-30;google_apis;x86_64&quot;
+# And finally run this command to start the emulator
+emulator -avd=Phone
+</code></pre>
+<p>If you want to install it from the GUI, follow these instructions:</p>
 <ol>
 <li>Enable <a href="https://developer.android.com/studio/run/emulator-acceleration"><code>VM acceleration</code></a> on your machine.</li>
 <li>Launch <strong>Android Studio</strong>, click the <strong>AVD Manager</strong> icon, and select <strong>Create Virtual Device</strong>.</li>
