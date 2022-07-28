@@ -168,12 +168,12 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
                 aIsForChildDirectedTreatment,
                 pMaxAdContentRating,
                 pIsReal
-            ) //First call MobileAds.setRequestConfiguration https://groups.google.com/g/google-admob-ads-sdk/c/17oVu0sABjs
+            ) // First call MobileAds.setRequestConfiguration https://groups.google.com/g/google-admob-ads-sdk/c/17oVu0sABjs
             MobileAds.initialize(aActivity!!) { initializationStatus ->
                 val statusGADMobileAds: Int = Objects.requireNonNull(
                     initializationStatus.getAdapterStatusMap()
-                        .get("com.google.android.gms.ads.MobileAds")
-                )!!.getInitializationState().ordinal
+                        .get("com.google.android.gms.ads.MobileAds")!!
+                ).getInitializationState().ordinal
                 if (statusGADMobileAds == 0) {
                     aIsInitialized = false
                 } else if (statusGADMobileAds == 1) {
@@ -650,7 +650,7 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
         // If the ad hasn't been laid out, default to the full screen width.
         get() {
             // Determine the screen width (less decorations) to use for the ad width.
-            val display: Display = aActivity!!.getWindowManager().getDefaultDisplay()
+            val display: Display = aActivity!!.getWindowManager().getDefaultDisplay() // getDefaultDisplay() method was deprecated in API level 30. Use Context#getDisplay() instead.
             val outMetrics = DisplayMetrics()
             display.getMetrics(outMetrics)
             val density: Float = outMetrics.density 
