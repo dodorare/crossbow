@@ -21,15 +21,29 @@ impl AndroidNdk {
                 .or_else(|| std::env::var("ANDROID_NDK_HOME").ok())
                 .or_else(|| std::env::var("NDK_HOME").ok());
             // Default ndk installation path
-            if ndk_path.is_none()
+            if let Some(ndk_path) = ndk_path {
+                PathBuf::from(ndk_path)
+            } else if ndk_path.is_none()
                 && sdk_path.is_some()
                 && sdk_path.as_ref().unwrap().join("ndk-bundle").exists()
             {
                 sdk_path.unwrap().join("ndk-bundle")
-            } else if let Some(ndk_path) = ndk_path {
-                PathBuf::from(ndk_path)
             } else {
-                PathBuf::from(ndk_install_path()?)
+                let ndk_path = if let Some(sdk_path) = sdk_path {
+                    sdk_path.to_owned()
+                } else {
+                    android_tools::sdk_install_path()?
+                }
+                .join("ndk");
+                let ndk_ver = std::fs::read_dir(&ndk_path)
+                    .map_err(|_| Error::PathNotFound(ndk_path.clone()))?
+                    .filter_map(|path| path.ok())
+                    .filter(|path| path.path().is_dir())
+                    .filter_map(|path| path.file_name().into_string().ok())
+                    .filter(|name| name.chars().next().unwrap().is_ascii_digit())
+                    .max()
+                    .ok_or(AndroidError::AndroidNdkNotFound)?;
+                ndk_path.join(ndk_ver)
             }
         };
         let build_tag = std::fs::read_to_string(ndk_path.join("source.properties"))
@@ -321,18 +335,4 @@ impl AndroidNdk {
         }
         Ok(version_specific_libraries_path)
     }
-}
-
-pub fn ndk_install_path() -> crate::error::Result<String> {
-    let ndk_path = android_tools::sdk_install_path()?.join("ndk");
-    let ndk_ver = std::fs::read_dir(&ndk_path)
-        .map_err(|_| Error::PathNotFound(ndk_path.clone()))?
-        .filter_map(|path| path.ok())
-        .filter(|path| path.path().is_dir())
-        .filter_map(|path| path.file_name().into_string().ok())
-        .filter(|name| name.chars().next().unwrap().is_ascii_digit())
-        .max()
-        .ok_or(AndroidError::AndroidNdkNotFound)?;
-    let ndk_install_path = ndk_path.join(ndk_ver).to_str().unwrap().to_string();
-    Ok(ndk_install_path)
 }

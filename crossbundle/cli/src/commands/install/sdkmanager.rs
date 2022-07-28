@@ -1,8 +1,8 @@
-use std::path::Path;
-
-use android_tools::sdk_install_path;
 use clap::Parser;
-use crossbundle_tools::{error::CommandExt, utils::Config, EXECUTABLE_SUFFIX_BAT};
+use crossbundle_tools::{
+    error::CommandExt, tools::AndroidSdk, utils::Config, EXECUTABLE_SUFFIX_BAT,
+};
+use std::path::Path;
 
 #[derive(Parser, Clone, Debug, Default)]
 pub struct SdkManagerInstallCommand {
@@ -157,23 +157,24 @@ impl SdkManagerInstallCommand {
 
     /// Run sdkmanager command with specified flags and options
     pub fn run(&self, _config: &Config) -> crate::error::Result<()> {
-        let sdk_root = sdk_install_path()?;
-        // Android studio install cmdline tools into SDK_ROOT/cmdline-tools/<version>/bin.
+        let sdk = AndroidSdk::from_env()?;
+        let sdk_path = sdk.sdk_path();
+        // Android Studio installs cmdline-tools into $ANDROID_SDK_ROOT/cmdline-tools/<version>/bin.
         // Crossbundle install command ignores <version> directory so we need convert cmd-line-tools path to Option<T> to avoid confusion
-        let cmdline_tools_path = std::path::PathBuf::from(&sdk_root)
+        let cmdline_tools_path = std::path::PathBuf::from(&sdk_path)
             .join("cmdline-tools")
             .join("latest")
             .join("bin");
         if cmdline_tools_path.exists() {
             let sdkmanager_path =
                 cmdline_tools_path.join(format!("sdkmanager{}", EXECUTABLE_SUFFIX_BAT));
-            self.sdkmanager_command(&sdkmanager_path, Path::new(&sdk_root))?;
+            self.sdkmanager_command(&sdkmanager_path, Path::new(&sdk_path))?;
         } else {
-            let sdkmanager_path = std::path::PathBuf::from(&sdk_root)
+            let sdkmanager_path = std::path::PathBuf::from(&sdk_path)
                 .join("cmdline-tools")
                 .join("bin")
                 .join(format!("sdkmanager{}", EXECUTABLE_SUFFIX_BAT));
-            self.sdkmanager_command(&sdkmanager_path, Path::new(&sdk_root))?;
+            self.sdkmanager_command(&sdkmanager_path, Path::new(&sdk_path))?;
         };
         Ok(())
     }
