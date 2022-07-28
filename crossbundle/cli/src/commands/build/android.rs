@@ -2,10 +2,7 @@ use crate::types::MIN_SDK_VERSION;
 
 use super::{BuildContext, SharedBuildCommand};
 use android_manifest::AndroidManifest;
-use android_tools::{
-    java_tools::{JarSigner, Key},
-    sdk_install_path,
-};
+use android_tools::java_tools::{JarSigner, Key};
 use clap::Parser;
 use crossbundle_tools::{
     commands::android::{self, rust_compile},
@@ -77,6 +74,7 @@ impl AndroidBuildCommand {
         context: &BuildContext,
         export_path: &Option<PathBuf>,
     ) -> crate::error::Result<(AndroidManifest, AndroidSdk, PathBuf)> {
+        let sdk = AndroidSdk::from_env()?;
         let profile = self.shared.profile();
         let example = self.shared.example.as_ref();
         let (_, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
@@ -89,9 +87,12 @@ impl AndroidBuildCommand {
             target_dir.join("android").join(&package_name)
         };
 
-        config.status("Generating gradle project")?;
-        std::env::set_var("ANDROID_SDK_ROOT", sdk_install_path()?.to_str().unwrap());
+        // Set ANDROID_SDK_ROOT if there's no one
+        if std::env::var("ANDROID_SDK_ROOT").is_err() {
+            std::env::set_var("ANDROID_SDK_ROOT", sdk.sdk_path());
+        }
 
+        config.status("Generating gradle project")?;
         let gradle_project_path = android::gen_gradle_project(
             &android_build_dir,
             &context.android_config.assets,
@@ -100,7 +101,6 @@ impl AndroidBuildCommand {
         )?;
 
         // Get AndroidManifest.xml from file or generate from Cargo.toml
-        let (sdk, _, _) = Self::android_toolchain(context)?;
         let (android_manifest, _manifest_path) = Self::android_manifest(
             config,
             context,

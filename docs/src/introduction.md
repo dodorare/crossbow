@@ -20,3 +20,9 @@ A lot of functionality was inspired by [Godot](https://github.com/godotengine/go
 * **Simple**: Easy to start but flexible for strong devs.
 * **Capable**: It's possible to build plain **.apk/.aab** or **.app/.ipa**; or with help of *Gradle/XCode*.
 * **Rust**: Don't leave your *Rust* code - **everything** can be configured from `Cargo.toml`.
+
+## Next steps
+
+As the next steps we recommend you to install and setup `crossbundle` to be able to build, test, and run your project!
+
+See [Getting Started](install/README.md) for more information.

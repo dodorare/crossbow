@@ -68,6 +68,17 @@ jobs:
         cd ~/example/
         crossbundle build android --apk --release --quad
 
+  build-example-in-docker:
+    name: Build Crossbundle Example from Docker
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Build Crossbundle image
+      run: docker build -t tmp -f .github/docker/crossbundle.Dockerfile .
+    - name: Build Crossbundle Example
+      run: |
+        docker run --rm -v "$(pwd)/:/src" -w /src/examples/macroquad-permissions tmp build android --quad --release
+
   clean:
     name: Check code format
     runs-on: ubuntu-latest
