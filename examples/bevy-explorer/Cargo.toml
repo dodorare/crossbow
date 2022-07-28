@@ -1,6 +1,6 @@
 [package]
 name = "bevy-explorer"
-version = "0.1.6"
+version = "0.1.7"
 authors = ["DodoRare Team <support@dodorare.com>"]
 edition = "2021"
 
