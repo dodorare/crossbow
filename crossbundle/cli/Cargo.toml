@@ -33,7 +33,7 @@ log = "0.4"
 fs_extra = "1.2"
 dirs = "4.0.0"
 dunce = "1.0"
-ureq = "2.4.0"
+ureq = { version = "2.4.0", features = ["tls"] }
 cargo = "0.63.1"
 cargo-util = "0.2.0"
 
