@@ -12,15 +12,15 @@ pub struct CommandLineToolsInstallCommand {
     /// Assign path to install command line tools
     #[clap(long, short)]
     pub install_path: Option<PathBuf>,
-    /// Remove corrupted zip archive if installation was aborted
+    /// Force install command line tools even if found or corrupted.
     #[clap(long, short)]
-    pub remove_zip: bool,
+    pub force: bool,
 }
 
 impl CommandLineToolsInstallCommand {
     /// Download command line tools zip archive and extract it in specified sdk root directory
     pub fn install(&self, config: &Config) -> crate::error::Result<()> {
-        if self.remove_zip {
+        if self.force {
             remove(vec![default_file_path(self.file_name())?])?;
         }
 
@@ -33,7 +33,7 @@ impl CommandLineToolsInstallCommand {
         let file_path = default_file_path(self.file_name())?;
 
         config.status_message(
-            "Downloading command line tools zip archive into",
+            format!("Downloading {} into", self.file_name()),
             &file_path.parent().unwrap().to_str().unwrap(),
         )?;
         self.download_and_save_file(command_line_tools_download_url, &file_path)?;
@@ -62,7 +62,7 @@ impl CommandLineToolsInstallCommand {
 
     /// Return command line tools zip archive for defined operating system
     fn file_name(&self) -> String {
-        format!("commandlinetools-{}-8092744_latest.zip", OS_TAG)
+        format!("commandlinetools-{}-8512546_latest.zip", OS_TAG)
     }
 
     /// Check home directory for zip file. If it doesn't exists download zip file and save it in the directory

@@ -6,8 +6,8 @@ use std::path::PathBuf;
 #[derive(Parser, Clone, Debug, Default)]
 pub struct BundletoolInstallCommand {
     /// Required. Version of download bundletool. For example:
-    /// --version 1.8.2
-    #[clap(long, short, default_value = "1.8.2")]
+    /// --version 1.11.0
+    #[clap(long, short, default_value = "1.11.0")]
     version: String,
     /// Path to install bundletool. By default bundletool will be downloaded and saved in home directory
     #[clap(long, short)]
@@ -20,14 +20,15 @@ pub struct BundletoolInstallCommand {
 impl BundletoolInstallCommand {
     /// Download and install bundletool to provided or default path
     pub fn install(&self, config: &Config) -> crate::error::Result<()> {
-        config.status("Installing bundletool")?;
+        let home_dir = default_file_path(self.file_name())?
+            .parent()
+            .unwrap()
+            .to_owned();
         if !self.force {
-            for bundletool in
-                std::fs::read_dir(default_file_path(self.file_name())?.parent().unwrap())?
-            {
+            for bundletool in std::fs::read_dir(&home_dir)? {
                 let installed_bundletool = bundletool?.path();
                 if installed_bundletool.ends_with(self.file_name()) {
-                    config.status("You have installed budletool on your system already")?;
+                    config.status("You have installed budletool on your system already. Use `--force` command to overwrite.")?;
                     return Ok(());
                 }
             }
@@ -38,9 +39,17 @@ impl BundletoolInstallCommand {
         let download_url_str = String::from(download_url.to_str().unwrap());
 
         if let Some(install_path) = &self.path {
+            config.status_message(
+                format!("{} installing into", self.file_name()),
+                install_path.to_string_lossy(),
+            )?;
             let jar_path = install_path.join(self.file_name());
             download_to_file(&download_url_str, &jar_path)?;
         } else {
+            config.status_message(
+                format!("{} installing into", self.file_name()),
+                home_dir.to_string_lossy(),
+            )?;
             let default_jar_path = default_file_path(self.file_name())?;
             download_to_file(&download_url_str, &default_jar_path)?;
         };
