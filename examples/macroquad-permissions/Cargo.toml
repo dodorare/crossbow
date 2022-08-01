@@ -15,7 +15,6 @@ crossbow-admob = { version = "0.1.7", path = "../../plugins/admob" }
 
 [package.metadata]
 app_name = "Permissions"
-assets = "assets"
 
 [package.metadata.android]
 app_wrapper = "sokol"

@@ -11,8 +11,8 @@ anyhow = "1.0"
 macroquad = "0.3.7"
 
 [package.metadata]
-app_name = "Macroquad_3D"
-assets = "assets"
+app_name = "Macroquad 3D"
+assets = "../../assets"
 
 [package.metadata.android]
 manifest_path = "res/AndroidManifest.xml"
@@ -20,6 +20,5 @@ release_targets = ["aarch64-linux-android"]
 res = "res/android"
 
 [package.metadata.apple]
-app_name = "Macroquad_3D"
 release_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
 res = "res/apple"
