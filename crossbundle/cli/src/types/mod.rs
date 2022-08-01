@@ -5,11 +5,33 @@ pub use android_config::*;
 pub use apple_config::*;
 
 use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 
+/// Cross-platform configuration for Android and Apple for Crossbow.
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
-pub struct Metadata {
+pub struct CrossbowMetadata {
+    /// Application name for Android and Apple.
+    ///
+    /// **Important:** This property has lower priority than Android or Apple `manifest` or `info_plist` property.
+    pub app_name: Option<String>,
+    /// Assets directory path relatively to project path.
+    ///
+    /// **Important:** This property has lower priority than Android or Apple `assets` property.
+    pub assets: Option<PathBuf>,
+    // TODO: Add `icon` field and icon generation.
+    // pub icon: Option<PathBuf>,
     #[serde(default)]
     pub android: AndroidConfig,
     #[serde(default)]
     pub apple: AppleConfig,
+}
+
+impl CrossbowMetadata {
+    pub fn get_android_assets(&self) -> Option<PathBuf> {
+        self.android.assets.clone().or(self.assets.clone())
+    }
+
+    pub fn get_apple_assets(&self) -> Option<PathBuf> {
+        self.apple.assets.clone().or(self.assets.clone())
+    }
 }

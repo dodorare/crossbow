@@ -1,7 +1,7 @@
 #[cfg(target_os = "macos")]
 use crossbundle_tools::{
     commands::{apple::*, gen_minimal_project},
-    types::{AppleTarget, Profile, Target},
+    types::{IosTarget, Profile, Target},
 };
 
 #[test]
@@ -13,7 +13,7 @@ fn test_compile_apple() {
 
     compile_rust_for_ios(
         Target::Bin(name),
-        AppleTarget::Aarch64AppleIos,
+        IosTarget::Aarch64,
         dir,
         Profile::Release,
         vec![],

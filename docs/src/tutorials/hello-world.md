@@ -59,7 +59,7 @@ Let's build and run our first `crossbundle` application. Android commands below 
 # cd project-name
 crossbundle run android
 # or (if your project uses macroquad)
-crossbundle run android --quad
+crossbundle run android
 # or
 crossbundle run apple
 ```

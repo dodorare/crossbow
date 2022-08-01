@@ -6,7 +6,7 @@ use crossbundle_tools::{commands::apple, types::*, utils::Config};
 use std::path::{Path, PathBuf};
 
 #[derive(Parser, Clone, Debug)]
-pub struct AppleBuildCommand {
+pub struct IosBuildCommand {
     #[clap(flatten)]
     pub shared: SharedBuildCommand,
     /// Specify custom cargo binary
@@ -16,7 +16,7 @@ pub struct AppleBuildCommand {
     /// Supported targets are: `aarch64-apple-ios`, `aarch64-apple-ios-sim`,
     /// `armv7-apple-ios`, `armv7s-apple-ios`, `i386-apple-ios`, `x86_64-apple-ios`
     #[clap(long, default_value = "aarch64-apple-ios-sim")]
-    pub target: Vec<AppleTarget>,
+    pub target: Vec<IosTarget>,
     /// Provisioning profile name to find in this directory: `~/Library/MobileDevice/Provisioning\ Profiles/`
     #[clap(long, conflicts_with = "profile-path")]
     pub profile_name: Option<String>,
@@ -31,7 +31,7 @@ pub struct AppleBuildCommand {
     pub identity: Option<String>,
 }
 
-impl AppleBuildCommand {
+impl IosBuildCommand {
     pub fn run(&self, config: &Config) -> Result<()> {
         let context = BuildContext::new(config, self.shared.target_dir.clone())?;
         self.execute(config, &context)?;
@@ -79,7 +79,7 @@ impl AppleBuildCommand {
         context: &BuildContext,
         target: Target,
         project_path: &Path,
-        build_target: AppleTarget,
+        build_target: IosTarget,
         properties: &InfoPlist,
         profile: Profile,
         name: &str,
@@ -107,13 +107,14 @@ impl AppleBuildCommand {
             apple_target_dir,
             name,
             context
-                .apple_config
+                .config
+                .apple
                 .res
                 .as_ref()
                 .map(|r| project_path.join(r)),
             context
-                .apple_config
-                .assets
+                .config
+                .get_apple_assets()
                 .as_ref()
                 .map(|r| project_path.join(r)),
         )?;

@@ -10,19 +10,16 @@ log = "0.4"
 anyhow = "1.0"
 macroquad = "0.3.7"
 
-[package.metadata.android]
+[package.metadata]
 app_name = "Macroquad_3D"
-target_sdk_version = 30
-version_code = 1
-icon = "ic_launcher"
-manifest_path = "res/AndroidManifest.xml"
-
-build_targets = ["aarch64-linux-android"]
 assets = "assets"
+
+[package.metadata.android]
+manifest_path = "res/AndroidManifest.xml"
+release_targets = ["aarch64-linux-android"]
 res = "res/android"
 
 [package.metadata.apple]
 app_name = "Macroquad_3D"
-build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
-assets = "assets"
+release_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
 res = "res/apple"

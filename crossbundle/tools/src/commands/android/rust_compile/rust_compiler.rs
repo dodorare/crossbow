@@ -13,7 +13,7 @@ pub fn rust_compile(
     no_default_features: bool,
     target_sdk_version: u32,
     lib_name: &str,
-    app_wrapper: ApplicationWrapper,
+    app_wrapper: AppWrapper,
 ) -> Result<()> {
     // Specify path to workspace
     let rust_triple = build_target.rust_triple();
@@ -79,7 +79,7 @@ struct SharedLibraryExecutor {
     ndk: AndroidNdk,
     profile: Profile,
     nostrip: bool,
-    app_wrapper: ApplicationWrapper,
+    app_wrapper: AppWrapper,
 }
 
 impl cargo::core::compiler::Executor for SharedLibraryExecutor {
@@ -99,8 +99,8 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
             let mut new_args = cmd.get_args().cloned().collect::<Vec<_>>();
 
             let extra_code = match self.app_wrapper {
-                ApplicationWrapper::Sokol => consts::SOKOL_EXTRA_CODE,
-                ApplicationWrapper::NdkGlue => consts::NDK_GLUE_EXTRA_CODE,
+                AppWrapper::Sokol => consts::SOKOL_EXTRA_CODE,
+                AppWrapper::NdkGlue => consts::NDK_GLUE_EXTRA_CODE,
             };
 
             let path =
@@ -114,12 +114,8 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
             // Generate tmp_file with bevy or quad extra code depending on either sokol or ndk glue
             // dependency
             let tmp_file = match self.app_wrapper {
-                ApplicationWrapper::Sokol => {
-                    gen_tmp_lib_file::generate_lib_file(&path, extra_code)?
-                }
-                ApplicationWrapper::NdkGlue => {
-                    gen_tmp_lib_file::generate_lib_file(&path, extra_code)?
-                }
+                AppWrapper::Sokol => gen_tmp_lib_file::generate_lib_file(&path, extra_code)?,
+                AppWrapper::NdkGlue => gen_tmp_lib_file::generate_lib_file(&path, extra_code)?,
             };
 
             // Replace source argument
@@ -179,19 +175,17 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
             if build_tag > 7272597 {
                 let error_msg = anyhow::Error::msg("Failed to write content into libgcc.a file");
                 let mut args = match self.app_wrapper {
-                    ApplicationWrapper::Sokol => {
+                    AppWrapper::Sokol => {
                         new_ndk_quad_args(tool_root, &self.build_target, self.target_sdk_version)
                             .map_err(|_| error_msg)?
                     }
-                    ApplicationWrapper::NdkGlue => {
-                        linker_args(&tool_root).map_err(|_| error_msg)?
-                    }
+                    AppWrapper::NdkGlue => linker_args(&tool_root).map_err(|_| error_msg)?,
                 };
                 new_args.append(&mut args);
                 cmd.args_replace(&new_args);
                 cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
                     .map(drop)?;
-            } else if self.app_wrapper == ApplicationWrapper::Sokol {
+            } else if self.app_wrapper == AppWrapper::Sokol {
                 // Set linker arguments using in ndk =< 22
                 let mut linker_args =
                     add_clinker_args(&self.ndk, &self.build_target, self.target_sdk_version)?;
@@ -209,7 +203,7 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
                 // Execute the command
                 cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
                     .map(drop)?;
-            } else if self.app_wrapper == ApplicationWrapper::NdkGlue {
+            } else if self.app_wrapper == AppWrapper::NdkGlue {
                 cmd.args_replace(&new_args);
 
                 cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)

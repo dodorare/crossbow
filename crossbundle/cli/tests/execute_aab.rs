@@ -9,7 +9,7 @@ use crossbundle_tools::{
 /// Use bevy minimal project in a temporary directory to test AAB generation.
 /// It is working likewise the command below.
 /// ```sh
-/// crossbundle build android --quad --aab
+/// crossbundle build android --aab
 /// ```
 fn test_execute_aab() {
     let tempdir = tempfile::tempdir().unwrap();
@@ -31,12 +31,11 @@ fn test_execute_aab() {
         no_default_features: false,
         release: false,
         target_dir: None,
-        quad: false,
     };
 
     let android_build_command = AndroidBuildCommand {
         shared: shared_build_command,
-        target: vec![AndroidTarget::Aarch64LinuxAndroid],
+        target: vec![AndroidTarget::Aarch64],
         aab: false,
         lib: None,
         export_path: None,

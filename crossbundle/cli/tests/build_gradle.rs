@@ -9,7 +9,7 @@ use crossbundle_tools::{
 /// Use macroquad minimal project in a temporary directory to test gradle project generation.
 /// It is working likewise the command below.
 /// ```sh
-/// crossbundle build android --quad --gradle
+/// crossbundle build android
 /// ```
 fn test_build_gradle() {
     let tempdir = tempfile::tempdir().unwrap();
@@ -31,19 +31,18 @@ fn test_build_gradle() {
         no_default_features: false,
         release: false,
         target_dir: None,
-        quad: false,
     };
 
     let android_build_command = AndroidBuildCommand {
         shared: shared_build_command,
-        target: vec![AndroidTarget::Aarch64LinuxAndroid],
+        target: vec![AndroidTarget::Aarch64],
         aab: false,
+        apk: false,
         lib: None,
         export_path: None,
         sign_key_path: None,
         sign_key_pass: None,
         sign_key_alias: None,
-        apk: false,
     };
 
     let (_, _, gradle_project_path) = AndroidBuildCommand::build_gradle(

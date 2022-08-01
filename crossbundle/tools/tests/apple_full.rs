@@ -70,7 +70,7 @@ fn test_apple_full() {
     assert!(app_dir.exists());
 
     // Compile app
-    let build_target = AppleTarget::X86_64AppleIos;
+    let build_target = IosTarget::X86_64;
     let profile = Profile::Release;
     compile_rust_for_ios(
         Target::Bin(name.clone()),

@@ -1,5 +1,7 @@
 use apple_bundle::prelude::*;
 
+// TODO: Update as in AndroidManifest.
+
 /// Generates minimal [`InfoPlist`](apple_bundle::prelude::InfoPlist) with given changes.
 pub fn gen_minimal_info_plist(
     package_name: &str,

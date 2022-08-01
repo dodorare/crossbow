@@ -5,6 +5,8 @@ use std::{
     io::Write,
 };
 
+// TODO: Fix this file logic.
+
 /// Generates a new minimal project in given path.
 pub fn gen_minimal_project(
     out_dir: &std::path::Path,

@@ -201,9 +201,6 @@ OPTIONS:
     --no-default-features
         Do not activate the `default` feature of the current directory's package
 
-    --quad
-        Specifies to build macroquad-based game with Sokol application wrapper
-
     --release
         Build optimized artifact with the `release` profile
 
@@ -265,9 +262,6 @@ OPTIONS:
 
     --profile-path <PROFILE_PATH>
         Absolute path to provisioning profile
-
-    --quad
-        Specifies to build macroquad-based game with Sokol application wrapper
 
     --release
         Build optimized artifact with the `release` profile

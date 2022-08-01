@@ -38,6 +38,8 @@ pub enum AndroidError {
     InvalidSemver,
     /// Unsupported or invalid target: {0}
     InvalidBuildTarget(String),
+    /// Unsupported or invalid app wrapper: {0}
+    InvalidAppWrapper(String),
     /// Failed to find AndroidManifest.xml in path: {0}
     FailedToFindAndroidManifest(String),
     /// Unable to find NDK file

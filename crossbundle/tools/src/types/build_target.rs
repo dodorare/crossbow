@@ -6,56 +6,59 @@ pub trait IntoRustTriple {
     fn rust_triple(&self) -> &'static str;
 }
 
+/// Android Target.
+///
+/// More details: https://doc.rust-lang.org/nightly/rustc/platform-support.html
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub enum AndroidTarget {
     #[serde(rename = "armv7-linux-androideabi")]
-    Armv7LinuxAndroideabi,
+    Armv7,
     #[serde(rename = "aarch64-linux-android")]
-    Aarch64LinuxAndroid,
+    Aarch64,
     #[serde(rename = "i686-linux-android")]
-    I686LinuxAndroid,
+    I686,
     #[serde(rename = "x86_64-linux-android")]
-    X8664LinuxAndroid,
+    X8664,
 }
 
 impl AndroidTarget {
     /// Identifier used in the NDK to refer to the ABI
     pub fn android_abi(self) -> &'static str {
         match self {
-            Self::Armv7LinuxAndroideabi => "armeabi-v7a",
-            Self::Aarch64LinuxAndroid => "arm64-v8a",
-            Self::I686LinuxAndroid => "x86",
-            Self::X8664LinuxAndroid => "x86_64",
+            Self::Armv7 => "armeabi-v7a",
+            Self::Aarch64 => "arm64-v8a",
+            Self::I686 => "x86",
+            Self::X8664 => "x86_64",
         }
     }
 
     // Returns the triple NDK provided LLVM
     pub fn ndk_llvm_triple(self) -> &'static str {
         match self {
-            Self::Armv7LinuxAndroideabi => "armv7a-linux-androideabi",
-            Self::Aarch64LinuxAndroid => "aarch64-linux-android",
-            Self::I686LinuxAndroid => "i686-linux-android",
-            Self::X8664LinuxAndroid => "x86_64-linux-android",
+            Self::Armv7 => "armv7a-linux-androideabi",
+            Self::Aarch64 => "aarch64-linux-android",
+            Self::I686 => "i686-linux-android",
+            Self::X8664 => "x86_64-linux-android",
         }
     }
 
     /// Returns the triple used by the non-LLVM parts of the NDK
     pub fn ndk_triple(self) -> &'static str {
         match self {
-            Self::Armv7LinuxAndroideabi => "arm-linux-androideabi",
-            Self::Aarch64LinuxAndroid => "aarch64-linux-android",
-            Self::I686LinuxAndroid => "i686-linux-android",
-            Self::X8664LinuxAndroid => "x86_64-linux-android",
+            Self::Armv7 => "arm-linux-androideabi",
+            Self::Aarch64 => "aarch64-linux-android",
+            Self::I686 => "i686-linux-android",
+            Self::X8664 => "x86_64-linux-android",
         }
     }
 
     /// Returns `AndroidTarget` for abi.
     pub fn from_android_abi(abi: &str) -> Result<Self> {
         match abi {
-            "armeabi-v7a" => Ok(Self::Armv7LinuxAndroideabi),
-            "arm64-v8a" => Ok(Self::Aarch64LinuxAndroid),
-            "x86" => Ok(Self::I686LinuxAndroid),
-            "x86_64" => Ok(Self::X8664LinuxAndroid),
+            "armeabi-v7a" => Ok(Self::Armv7),
+            "arm64-v8a" => Ok(Self::Aarch64),
+            "x86" => Ok(Self::I686),
+            "x86_64" => Ok(Self::X8664),
             _ => Err(AndroidError::UnsupportedTarget.into()),
         }
     }
@@ -63,7 +66,7 @@ impl AndroidTarget {
 
 impl Default for AndroidTarget {
     fn default() -> Self {
-        Self::Aarch64LinuxAndroid
+        Self::Aarch64
     }
 }
 
@@ -72,10 +75,10 @@ impl std::str::FromStr for AndroidTarget {
 
     fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
         match s {
-            "armv7-linux-androideabi" => Ok(Self::Armv7LinuxAndroideabi),
-            "aarch64-linux-android" => Ok(Self::Aarch64LinuxAndroid),
-            "i686-linux-android" => Ok(Self::I686LinuxAndroid),
-            "x86_64-linux-android" => Ok(Self::X8664LinuxAndroid),
+            "armv7-linux-androideabi" => Ok(Self::Armv7),
+            "aarch64-linux-android" => Ok(Self::Aarch64),
+            "i686-linux-android" => Ok(Self::I686),
+            "x86_64-linux-android" => Ok(Self::X8664),
             _ => Err(AndroidError::InvalidBuildTarget(s.to_owned())),
         }
     }
@@ -84,56 +87,57 @@ impl std::str::FromStr for AndroidTarget {
 impl IntoRustTriple for AndroidTarget {
     fn rust_triple(&self) -> &'static str {
         match self {
-            Self::Armv7LinuxAndroideabi => "armv7-linux-androideabi",
-            Self::Aarch64LinuxAndroid => "aarch64-linux-android",
-            Self::I686LinuxAndroid => "i686-linux-android",
-            Self::X8664LinuxAndroid => "x86_64-linux-android",
+            Self::Armv7 => "armv7-linux-androideabi",
+            Self::Aarch64 => "aarch64-linux-android",
+            Self::I686 => "i686-linux-android",
+            Self::X8664 => "x86_64-linux-android",
         }
     }
 }
 
-/// Apple Target architectures.
-/// List of Apple processors: https://en.wikipedia.org/wiki/Apple-designed_processors#List_of_Apple_processors.
+/// iOS Target.
+///
+/// More details: https://doc.rust-lang.org/nightly/rustc/platform-support.html
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
-pub enum AppleTarget {
+pub enum IosTarget {
     #[serde(rename = "x86_64-apple-ios")]
-    X86_64AppleIos,
+    X86_64,
     #[serde(rename = "i386-apple-ios")]
-    I386AppleIos,
+    I386,
     #[serde(rename = "aarch64-apple-ios")]
-    Aarch64AppleIos,
+    Aarch64,
     #[serde(rename = "aarch64-apple-ios-sim")]
-    Aarch64AppleIosSim,
+    Aarch64Sim,
     #[serde(rename = "armv7-apple-ios")]
-    Armv7AppleIos,
+    Armv7,
     #[serde(rename = "armv7s-apple-ios")]
-    Armv7sAppleIos,
+    Armv7s,
 }
 
-impl IntoRustTriple for AppleTarget {
+impl IntoRustTriple for IosTarget {
     fn rust_triple(&self) -> &'static str {
         match self {
-            Self::X86_64AppleIos => "x86_64-apple-ios",
-            Self::I386AppleIos => "i386-apple-ios",
-            Self::Aarch64AppleIos => "aarch64-apple-ios",
-            Self::Aarch64AppleIosSim => "aarch64-apple-ios-sim",
-            Self::Armv7AppleIos => "armv7-apple-ios",
-            Self::Armv7sAppleIos => "armv7s-apple-ios",
+            Self::X86_64 => "x86_64-apple-ios",
+            Self::I386 => "i386-apple-ios",
+            Self::Aarch64 => "aarch64-apple-ios",
+            Self::Aarch64Sim => "aarch64-apple-ios-sim",
+            Self::Armv7 => "armv7-apple-ios",
+            Self::Armv7s => "armv7s-apple-ios",
         }
     }
 }
 
-impl std::str::FromStr for AppleTarget {
+impl std::str::FromStr for IosTarget {
     type Err = AndroidError;
 
     fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
         match s {
-            "x86_64-apple-ios" => Ok(Self::X86_64AppleIos),
-            "i386-apple-ios" => Ok(Self::I386AppleIos),
-            "aarch64-apple-ios" => Ok(Self::Aarch64AppleIos),
-            "aarch64-apple-ios-sim" => Ok(Self::Aarch64AppleIosSim),
-            "armv7-apple-ios" => Ok(Self::Armv7AppleIos),
-            "armv7s-apple-ios" => Ok(Self::Armv7sAppleIos),
+            "x86_64-apple-ios" => Ok(Self::X86_64),
+            "i386-apple-ios" => Ok(Self::I386),
+            "aarch64-apple-ios" => Ok(Self::Aarch64),
+            "aarch64-apple-ios-sim" => Ok(Self::Aarch64Sim),
+            "armv7-apple-ios" => Ok(Self::Armv7),
+            "armv7s-apple-ios" => Ok(Self::Armv7s),
             _ => Err(AndroidError::InvalidBuildTarget(s.to_owned())),
         }
     }
@@ -142,7 +146,7 @@ impl std::str::FromStr for AppleTarget {
 #[derive(Debug, Clone)]
 pub enum BuildTarget {
     Android(AndroidTarget),
-    Apple(AppleTarget),
+    Apple(IosTarget),
 }
 
 impl IntoRustTriple for BuildTarget {
@@ -154,8 +158,8 @@ impl IntoRustTriple for BuildTarget {
     }
 }
 
-impl From<AppleTarget> for BuildTarget {
-    fn from(target: AppleTarget) -> Self {
+impl From<IosTarget> for BuildTarget {
+    fn from(target: IosTarget) -> Self {
         Self::Apple(target)
     }
 }
@@ -169,7 +173,7 @@ impl From<AndroidTarget> for BuildTarget {
 #[derive(Debug, Clone)]
 pub enum BuildTargets {
     Android(Vec<AndroidTarget>),
-    Apple(Vec<AppleTarget>),
+    Apple(Vec<IosTarget>),
 }
 
 impl From<Vec<AndroidTarget>> for BuildTargets {
@@ -178,8 +182,8 @@ impl From<Vec<AndroidTarget>> for BuildTargets {
     }
 }
 
-impl From<Vec<AppleTarget>> for BuildTargets {
-    fn from(targets: Vec<AppleTarget>) -> Self {
+impl From<Vec<IosTarget>> for BuildTargets {
+    fn from(targets: Vec<IosTarget>) -> Self {
         Self::Apple(targets)
     }
 }

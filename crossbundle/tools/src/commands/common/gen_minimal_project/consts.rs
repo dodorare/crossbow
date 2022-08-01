@@ -22,6 +22,9 @@ edition = "2021"
 crossbow = { git = "https://github.com/dodorare/crossbow" }
 anyhow = "1.0"
 macroquad = "0.3.7"
+
+[package.metadata.android]
+app_wrapper = "sokol"
 "#;
 
 pub const MINIMAL_MQ_GRADLE_CARGO_TOML_VALUE: &str = r#"
@@ -37,6 +40,7 @@ anyhow = "1.0"
 macroquad = "0.3.7"
 
 [package.metadata.android]
+app_wrapper = "sokol"
 target_sdk_version = 30
 
 [[package.metadata.android.plugins_local_projects]]
@@ -63,11 +67,9 @@ version = 1
 
 [[package.metadata.android.manifest.permission]]
 name = "android.permission.WRITE_EXTERNAL_STORAGE"
-max_sdk_version = 30
 
 [[package.metadata.android.manifest.uses_permission_sdk_23]]
 name = "android.permission.INTERNET"
-max_sdk_version = 30
 
 [package.metadata.apple]
 app_name = "Macroquad_3D"

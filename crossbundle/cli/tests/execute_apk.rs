@@ -9,7 +9,7 @@ use crossbundle_tools::{
 /// Use macroquad minimal project in a temporary directory to test APK generation.
 /// It is working likewise the command below.
 /// ```sh
-/// crossbundle build android --quad
+/// crossbundle build android --apk
 /// ```
 fn test_execute_apk() {
     let tempdir = tempfile::tempdir().unwrap();
@@ -31,12 +31,11 @@ fn test_execute_apk() {
         no_default_features: false,
         release: false,
         target_dir: None,
-        quad: false,
     };
 
     let android_build_command = AndroidBuildCommand {
         shared: shared_build_command,
-        target: vec![AndroidTarget::Aarch64LinuxAndroid],
+        target: vec![AndroidTarget::Aarch64],
         aab: false,
         lib: None,
         export_path: None,

@@ -5,7 +5,7 @@ mod build_context;
 pub use build_context::*;
 
 use android::AndroidBuildCommand;
-use apple::AppleBuildCommand;
+use apple::IosBuildCommand;
 
 use crate::error::Result;
 use clap::Parser;
@@ -17,14 +17,14 @@ pub enum BuildCommand {
     /// Starts the process of building/packaging/signing of the rust crate for Android
     Android(AndroidBuildCommand),
     /// Starts the process of building/packaging/signing of the rust crate for iOS
-    Apple(AppleBuildCommand),
+    Ios(IosBuildCommand),
 }
 
 impl BuildCommand {
     pub fn handle_command(&self, config: &Config) -> Result<()> {
         match &self {
             Self::Android(cmd) => cmd.run(config),
-            Self::Apple(cmd) => cmd.run(config),
+            Self::Ios(cmd) => cmd.run(config),
         }
     }
 }
@@ -51,9 +51,6 @@ pub struct SharedBuildCommand {
     /// Directory for generated artifact and intermediate files
     #[clap(long)]
     pub target_dir: Option<PathBuf>,
-    /// Specifies to build macroquad-based game with Sokol application wrapper
-    #[clap(long)]
-    pub quad: bool,
 }
 
 impl SharedBuildCommand {

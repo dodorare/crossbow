@@ -6,7 +6,7 @@ use std::path::Path;
 /// Compiles rust code for iOS.
 pub fn compile_rust_for_ios(
     target: Target,
-    build_target: AppleTarget,
+    build_target: IosTarget,
     project_path: &Path,
     profile: Profile,
     features: Vec<String>,

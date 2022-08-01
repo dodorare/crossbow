@@ -28,12 +28,11 @@ fn test_cargo_metadata() {
         no_default_features: false,
         release: false,
         target_dir: None,
-        quad: false,
     };
 
     let android_build_command = AndroidBuildCommand {
         shared: shared_build_command,
-        target: vec![AndroidTarget::Aarch64LinuxAndroid],
+        target: vec![AndroidTarget::Aarch64],
         aab: false,
         lib: None,
         export_path: None,
@@ -43,14 +42,13 @@ fn test_cargo_metadata() {
         apk: false,
     };
 
-    let profile = android_build_command.shared.profile();
     let example = android_build_command.shared.example.as_ref();
     let (_project_path, target_dir, package_name) =
         AndroidBuildCommand::needed_project_dirs(example, &context).unwrap();
     config
         .status_message("Starting apk build process", &package_name)
         .unwrap();
-    let (sdk, _ndk, _target_sdk_version) =
+    let (_sdk, _ndk, _target_sdk_version) =
         AndroidBuildCommand::android_toolchain(&context).unwrap();
 
     let android_build_dir = target_dir.join("android").join(&package_name);
@@ -60,9 +58,7 @@ fn test_cargo_metadata() {
     let (android_manifest, manifest_path) = AndroidBuildCommand::android_manifest(
         &config,
         &context,
-        &sdk,
         &package_name,
-        profile,
         &native_build_dir,
         false,
     )
