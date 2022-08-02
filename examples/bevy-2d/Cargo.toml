@@ -16,8 +16,8 @@ assets = "../../assets"
 
 [package.metadata.android]
 release_build_targets = ["aarch64-linux-android"]
-res = "res/android"
+res = "../../assets/res/android"
 
 [package.metadata.apple]
 release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
-res = "res/apple"
+res = "../../assets/res/apple"

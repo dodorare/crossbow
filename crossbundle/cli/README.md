@@ -1,6 +1,6 @@
 # Crossbundle CLI
 
-![splash](https://github.com/dodorare/crossbow/blob/main/.github/assets/splash.png?raw=true)
+![splash](https://github.com/dodorare/crossbow/blob/main/assets/splash.png?raw=true)
 
 The **crossbundle** is a command-line tool that encapsulates boring stuff of **Android** and **iOS** build/packaging processes and helps mobile developers to create and maintain applications written in **rust** programming language.
 

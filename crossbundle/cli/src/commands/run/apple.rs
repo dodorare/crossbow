@@ -24,16 +24,16 @@ pub struct IosRunCommand {
 
 impl IosRunCommand {
     pub fn run(&self, config: &Config) -> Result<()> {
-        let mut build_command = self.build_command.clone();
-        if self.device && build_command.target.is_empty() {
-            build_command.target = vec![IosTarget::Aarch64];
-        } else if build_command.target.is_empty() {
-            if cfg!(target_arch = "aarch64") {
-                build_command.target = vec![IosTarget::Aarch64];
-            } else {
-                build_command.target = vec![IosTarget::X86_64];
-            }
-        }
+        let build_command = self.build_command.clone();
+        // if self.device && build_command.target.is_empty() {
+        //     build_command.target = vec![IosTarget::Aarch64];
+        // } else if build_command.target.is_empty() {
+        //     if cfg!(target_arch = "aarch64") {
+        //         build_command.target = vec![IosTarget::Aarch64];
+        //     } else {
+        //         build_command.target = vec![IosTarget::X86_64];
+        //     }
+        // }
         let context = BuildContext::new(config, build_command.shared.target_dir.clone())?;
         let (info_plist, app_paths) = build_command.execute(config, &context)?;
         config.status("Starting run process")?;

@@ -4,10 +4,6 @@ fn main() {
     println!("Initialization.");
     std::thread::sleep(std::time::Duration::from_secs(2));
     App::new()
-        // .insert_resource(LogSettings {
-        //     level: Level::DEBUG,
-        //     filter: "wgpu=debug,wgpu_hal=debug,bevy_render=info".to_string(),
-        // })
         .add_plugins(DefaultPlugins)
         .add_startup_system(audio)
         .add_startup_system(icon)
@@ -17,7 +13,7 @@ fn main() {
 fn icon(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn_bundle(OrthographicCameraBundle::new_2d());
     commands.spawn_bundle(SpriteBundle {
-        texture: asset_server.load("branding/icon.png"),
+        texture: asset_server.load("images/icon.png"),
         ..Default::default()
     });
 }

@@ -123,10 +123,10 @@ impl BuildContext {
         if !build_targets.is_empty() {
             return build_targets.clone();
         }
-        if profile == Profile::Debug && self.config.apple.debug_build_targets.is_empty() {
+        if profile == Profile::Debug && !self.config.apple.debug_build_targets.is_empty() {
             return self.config.apple.debug_build_targets.clone();
         }
-        if profile == Profile::Release && self.config.apple.release_build_targets.is_empty() {
+        if profile == Profile::Release && !self.config.apple.release_build_targets.is_empty() {
             return self.config.apple.release_build_targets.clone();
         }
         vec![IosTarget::Aarch64Sim]
@@ -137,16 +137,15 @@ impl BuildContext {
         if let Some(info_plist_path) = &self.config.apple.info_plist_path {
             return Ok(apple::read_info_plist(info_plist_path)?);
         }
-        let info_plist = if let Some(info_plist) = &self.config.apple.info_plist {
+        let mut info_plist = if let Some(info_plist) = &self.config.apple.info_plist {
             info_plist.clone()
         } else {
             InfoPlist::default()
         };
-        // FIXME
-        apple::gen_minimal_info_plist(
+        apple::update_android_manifest_with_default(
+            &mut info_plist,
             package_name,
             self.config.app_name.clone(),
-            self.package_version(),
         );
         Ok(info_plist)
     }

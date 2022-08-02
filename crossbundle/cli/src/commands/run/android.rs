@@ -40,7 +40,7 @@ impl AndroidRunCommand {
 
     pub fn run_native_aab(&self, config: &Config, context: &BuildContext) -> Result<()> {
         let (android_manifest, sdk, aab_path, package_name, key) =
-            self.build_command.execute_aab(config, &context)?;
+            self.build_command.execute_aab(config, context)?;
         config.status("Generating apks")?;
         let apks = aab_path
             .parent()

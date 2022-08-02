@@ -11,7 +11,7 @@ pub fn update_android_manifest_with_default(
     gradle: bool,
 ) {
     if manifest.package.is_empty() {
-        manifest.package = format!("com.crossbow.{}", package_name);
+        manifest.package = format!("com.crossbow.{}", package_name.replace('-', "_"));
     }
     if manifest.version_name.is_none() {
         manifest.version_name = Some("1".to_owned());
@@ -31,7 +31,7 @@ pub fn update_android_manifest_with_default(
     }
     if manifest.application.label.is_none() {
         manifest.application.label = Some(StringResourceOrString::string(
-            &app_name.unwrap_or("Crossbow".to_owned()),
+            &app_name.unwrap_or_else(|| "Crossbow".to_owned()),
         ));
     }
     if manifest.application.theme.is_none() {
@@ -54,11 +54,10 @@ pub fn update_android_manifest_with_default(
         if activity.resizeable_activity.is_none() {
             activity.resizeable_activity = Some(true);
         }
-        if activity
+        if !activity
             .meta_data
             .iter()
-            .find(|m| m.name == Some("android.app.lib_name".to_string()))
-            .is_none()
+            .any(|m| m.name == Some("android.app.lib_name".to_string()))
         {
             activity.meta_data.push(MetaData {
                 name: Some("android.app.lib_name".to_string()),

@@ -19,7 +19,7 @@ pub struct IosBuildCommand {
     pub target: Vec<IosTarget>,
     /// Build strategy specifies what and how to build iOS application: with help of XCode,
     /// or with our native approach.
-    #[clap(long, short, default_value = "native-app")]
+    #[clap(long, short, default_value = "native-ipa")]
     pub strategy: IosStrategy,
     /// Provisioning profile name to find in this directory: `~/Library/MobileDevice/Provisioning\ Profiles/`.
     #[clap(long, conflicts_with = "profile-path")]
@@ -114,13 +114,13 @@ impl IosBuildCommand {
             name,
             context
                 .config
-                .apple
-                .res
+                .get_apple_assets()
                 .as_ref()
                 .map(|r| project_path.join(r)),
             context
                 .config
-                .get_apple_assets()
+                .apple
+                .res
                 .as_ref()
                 .map(|r| project_path.join(r)),
         )?;

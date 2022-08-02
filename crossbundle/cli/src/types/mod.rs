@@ -28,10 +28,10 @@ pub struct CrossbowMetadata {
 
 impl CrossbowMetadata {
     pub fn get_android_assets(&self) -> Option<PathBuf> {
-        self.android.assets.clone().or(self.assets.clone())
+        self.android.assets.clone().or_else(|| self.assets.clone())
     }
 
     pub fn get_apple_assets(&self) -> Option<PathBuf> {
-        self.apple.assets.clone().or(self.assets.clone())
+        self.apple.assets.clone().or_else(|| self.assets.clone())
     }
 }
