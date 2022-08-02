@@ -73,6 +73,16 @@ impl BuildContext {
         sdk.default_platform()
     }
 
+    // Get target sdk version from cargo manifest
+    pub fn min_sdk_version(&self, android_manifest: &AndroidManifest) -> u32 {
+        android_manifest
+            .uses_sdk
+            .as_ref()
+            .unwrap()
+            .min_sdk_version
+            .unwrap()
+    }
+
     /// Get android build targets from cargo manifest
     pub fn android_build_targets(
         &self,

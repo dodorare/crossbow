@@ -22,8 +22,7 @@ fn test_build_apks() {
 
     // Removes old keystore if it exists
     let android_dir = android_dir().unwrap();
-    let target = vec![android_dir.join("aab.keystore")];
-    remove(target).unwrap();
+    remove(vec![android_dir.join("aab.keystore").as_path()]).unwrap();
 
     // Creates new keystore to sign aab
     let aab_key = Key::new_default().unwrap();
@@ -80,8 +79,7 @@ fn build_bundle_test() {
 
     // Removes old keystore if it exists
     let android_dir = android_dir().unwrap();
-    let target = vec![android_dir.join("aab.keystore")];
-    remove(target).unwrap();
+    remove(vec![android_dir.join("aab.keystore").as_path()]).unwrap();
 
     // Creates new keystore to sign aab
     let aab_key = Key::new_default().unwrap();

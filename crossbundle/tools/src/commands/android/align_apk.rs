@@ -7,10 +7,10 @@ use std::path::{Path, PathBuf};
 pub fn align_apk(
     sdk: &AndroidSdk,
     unaligned_apk_path: &Path,
-    package: &str,
+    package_name: &str,
     build_dir: &Path,
 ) -> Result<PathBuf> {
-    let unsigned_apk_path = build_dir.join(format!("{}.apk", package));
+    let unsigned_apk_path = build_dir.join(format!("{}.apk", package_name));
     let mut zipalign = sdk.build_tool(bin!("zipalign"), None)?;
     zipalign
         .arg("-f")

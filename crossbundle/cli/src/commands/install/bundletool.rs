@@ -6,8 +6,9 @@ use std::path::PathBuf;
 #[derive(Parser, Clone, Debug, Default)]
 pub struct BundletoolInstallCommand {
     /// Required. Version of download bundletool. For example:
-    /// --version 1.11.0
-    #[clap(long, short, default_value = "1.11.0")]
+    /// --version 1.8.2
+    // TODO: test bundletool 1.11.0 version
+    #[clap(long, short, default_value = "1.8.2")]
     version: String,
     /// Path to install bundletool. By default bundletool will be downloaded and saved in home directory
     #[clap(long, short)]

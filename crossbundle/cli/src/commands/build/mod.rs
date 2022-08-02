@@ -51,6 +51,15 @@ pub struct SharedBuildCommand {
     /// Directory for generated artifact and intermediate files
     #[clap(long)]
     pub target_dir: Option<PathBuf>,
+    /// Path to the signing key
+    #[clap(long, requires_all = &["sign-key-pass", "sign-key-alias"])]
+    pub sign_key_path: Option<PathBuf>,
+    /// Signing key password
+    #[clap(long)]
+    pub sign_key_pass: Option<String>,
+    /// Signing key alias
+    #[clap(long)]
+    pub sign_key_alias: Option<String>,
 }
 
 impl SharedBuildCommand {

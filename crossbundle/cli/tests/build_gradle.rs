@@ -31,6 +31,9 @@ fn test_build_gradle() {
         no_default_features: false,
         release: false,
         target_dir: None,
+        sign_key_path: None,
+        sign_key_pass: None,
+        sign_key_alias: None,
     };
 
     let android_build_command = AndroidBuildCommand {
@@ -40,9 +43,6 @@ fn test_build_gradle() {
         apk: false,
         lib: None,
         export_path: None,
-        sign_key_path: None,
-        sign_key_pass: None,
-        sign_key_alias: None,
     };
 
     let (_, _, gradle_project_path) = AndroidBuildCommand::build_gradle(

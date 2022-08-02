@@ -28,6 +28,9 @@ fn test_cargo_metadata() {
         no_default_features: false,
         release: false,
         target_dir: None,
+        sign_key_path: None,
+        sign_key_pass: None,
+        sign_key_alias: None,
     };
 
     let android_build_command = AndroidBuildCommand {
@@ -36,9 +39,6 @@ fn test_cargo_metadata() {
         aab: false,
         lib: None,
         export_path: None,
-        sign_key_path: None,
-        sign_key_pass: None,
-        sign_key_alias: None,
         apk: false,
     };
 
@@ -48,8 +48,7 @@ fn test_cargo_metadata() {
     config
         .status_message("Starting apk build process", &package_name)
         .unwrap();
-    let (_sdk, _ndk, _target_sdk_version) =
-        AndroidBuildCommand::android_toolchain(&context).unwrap();
+    let (_sdk, _ndk) = AndroidBuildCommand::android_toolchain().unwrap();
 
     let android_build_dir = target_dir.join("android").join(&package_name);
     let native_build_dir = android_build_dir.join("native");
@@ -64,20 +63,18 @@ fn test_cargo_metadata() {
     )
     .unwrap();
 
-    let expected_manifest = r#"<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.rust.example" android:versionCode="1" android:versionName="0.1.0">
-  <application android:debuggable="true" android:hasCode="false" android:label="example" android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen">
-    <activity android:configChanges="orientation|keyboardHidden|screenSize" android:name="android.app.NativeActivity" android:resizeableActivity="true">
-      <intent-filter>
-        <action android:name="android.intent.action.MAIN" />
-        <category android:name="android.intent.category.LAUNCHER" />
-      </intent-filter>
+    let expected_manifest = r#"
+    <?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.rust.example" android:versionCode="1" android:versionName="1">
+  <application android:hasCode="false" android:label="Crossbow" android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen">
+    <activity android:name="android.app.NativeActivity" android:resizeableActivity="true">
       <meta-data android:name="android.app.lib_name" android:value="example" />
     </activity>
   </application>
   <uses-sdk android:minSdkVersion="19" android:targetSdkVersion="30" />
 </manifest>
 "#;
+
     let expected_manifest = from_str(expected_manifest).unwrap();
     assert_eq!(expected_manifest, android_manifest);
     assert!(manifest_path.exists())

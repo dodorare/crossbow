@@ -21,7 +21,7 @@ impl CommandLineToolsInstallCommand {
     /// Download command line tools zip archive and extract it in specified sdk root directory
     pub fn install(&self, config: &Config) -> crate::error::Result<()> {
         if self.force {
-            remove(vec![default_file_path(self.file_name())?])?;
+            remove(vec![&default_file_path(self.file_name())?])?;
         }
 
         let command_line_tools_download_url = COMMAND_LINE_TOOLS_DOWNLOAD_URL
@@ -56,7 +56,7 @@ impl CommandLineToolsInstallCommand {
         }
 
         config.status("Deleting zip archive was left after installation")?;
-        remove(vec![file_path])?;
+        remove(vec![&file_path])?;
         Ok(())
     }
 

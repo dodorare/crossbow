@@ -31,6 +31,9 @@ fn test_execute_aab() {
         no_default_features: false,
         release: false,
         target_dir: None,
+        sign_key_path: None,
+        sign_key_pass: None,
+        sign_key_alias: None,
     };
 
     let android_build_command = AndroidBuildCommand {
@@ -39,9 +42,6 @@ fn test_execute_aab() {
         aab: false,
         lib: None,
         export_path: None,
-        sign_key_path: None,
-        sign_key_pass: None,
-        sign_key_alias: None,
         apk: false,
     };
 
