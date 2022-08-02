@@ -61,7 +61,7 @@ crossbundle run android
 # or (if your project uses macroquad)
 crossbundle run android
 # or
-crossbundle run apple
+crossbundle run ios
 ```
 
 If you want to build the application for android as native AAB - add `--aab` flag or add `--apk` to build native APK.

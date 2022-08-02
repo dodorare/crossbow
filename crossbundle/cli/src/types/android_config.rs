@@ -23,8 +23,12 @@ pub struct AndroidConfig {
     ///
     /// **Important:** This property has higher priority than global property.
     pub assets: Option<PathBuf>,
+    /// Android debug build targets.
+    #[serde(default)]
+    pub debug_build_targets: Vec<AndroidTarget>,
     /// Android release build targets.
-    pub release_targets: Option<Vec<AndroidTarget>>,
+    #[serde(default)]
+    pub release_build_targets: Vec<AndroidTarget>,
     /// Crossbow Android Plugins.
     #[serde(flatten)]
     pub plugins: AndroidGradlePlugins,

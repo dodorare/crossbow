@@ -19,7 +19,7 @@ pub struct AndroidBuildCommand {
     /// Build for the given android architecture.
     /// Supported targets are: `armv7-linux-androideabi`, `aarch64-linux-android`,
     /// `i686-linux-android`, `x86_64-linux-android`
-    #[clap(long, default_value = "aarch64-linux-android")]
+    #[clap(long, short, multiple_values = true)]
     pub target: Vec<AndroidTarget>,
     /// Generating native aab without Java. By default crossbow generating gradle project
     #[clap(long)]
@@ -140,7 +140,7 @@ impl AndroidBuildCommand {
         };
 
         config.status_message("Compiling", "lib")?;
-        let build_targets = context.android_build_targets(&self.target);
+        let build_targets = context.android_build_targets(profile, &self.target);
         let compiled_libs = self.build_target(
             context,
             build_targets,
@@ -193,7 +193,7 @@ impl AndroidBuildCommand {
             Self::android_manifest(config, context, &package_name, &native_build_dir, false)?;
 
         config.status_message("Compiling", "lib")?;
-        let build_targets = context.android_build_targets(&self.target);
+        let build_targets = context.android_build_targets(profile, &self.target);
         let compiled_libs = self.build_target(
             context,
             build_targets,
@@ -292,7 +292,7 @@ impl AndroidBuildCommand {
             Self::android_manifest(config, context, &package_name, &native_build_dir, false)?;
 
         config.status_message("Compiling", "lib")?;
-        let build_targets = context.android_build_targets(&self.target);
+        let build_targets = context.android_build_targets(profile, &self.target);
         let compiled_libs = self.build_target(
             context,
             build_targets,

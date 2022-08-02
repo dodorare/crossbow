@@ -46,7 +46,7 @@ To build native APK and run it on the device using the command. If you want to b
 ```sh
 crossbundle run android --apk
 # or
-crossbundle run apple
+crossbundle run ios
 ```
 
 To build native AAB and run it on the device using the command. If you want to build an application replaces `run` with `build`.

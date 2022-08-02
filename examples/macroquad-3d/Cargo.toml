@@ -16,9 +16,9 @@ assets = "../../assets"
 
 [package.metadata.android]
 manifest_path = "res/AndroidManifest.xml"
-release_targets = ["aarch64-linux-android"]
+release_build_targets = ["aarch64-linux-android"]
 res = "res/android"
 
 [package.metadata.apple]
-release_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
+release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
 res = "res/apple"

@@ -19,11 +19,11 @@ app_name = "Bevy Explorer"
 assets = "../../assets"
 
 [package.metadata.android]
-release_targets = ["aarch64-linux-android"]
+release_build_targets = ["aarch64-linux-android"]
 res = "res/android"
 [[package.metadata.android.manifest.permission]]
 name = "android.permission.INTERNET"
 
 [package.metadata.apple]
-release_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
+release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
 res = "res/apple"

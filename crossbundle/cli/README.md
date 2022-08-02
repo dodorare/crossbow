@@ -73,7 +73,7 @@ res = "res/android"
 # Android assets directory path relatively to project path.
 assets = "assets"
 # Android build targets.
-build_targets = ["aarch64-linux-android"]
+release_build_targets = ["aarch64-linux-android"]
 
 # Adds a uses-permission element to the AndroidManifest.xml.
 # Note that android_version 23 and higher, Android requires the application to request permissions at runtime.
@@ -119,7 +119,7 @@ value = "true"
 # The user-friendly application name for your app. Displayed in the applications menu
 app_name = "Example"
 # Apple build targets.
-build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
+release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
 # Apple resources directory path relatively to project path.
 res = "res/apple"
 # Apple assets directory path relatively to project path.
@@ -133,7 +133,7 @@ To see the complete documentation for each command/subcommand you can write `-h`
 ```sh
 crossbundle -h
 crossbundle build android -h
-crossbundle run apple -h
+crossbundle run ios -h
 crossbundle install -h
 # ...
 ```
@@ -222,13 +222,13 @@ OPTIONS:
         Directory for generated artifact and intermediate files
 ```
 
-Result of `crossbundle build apple -h`:
+Result of `crossbundle build ios -h`:
 
 ```text
 Starts the process of building/packaging/signing of the rust crate for iOS
 
 USAGE:
-    crossbundle build apple [OPTIONS]
+    crossbundle build ios [OPTIONS]
 
 OPTIONS:
     --all-features

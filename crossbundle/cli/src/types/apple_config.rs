@@ -25,8 +25,12 @@ pub struct AppleConfig {
     ///
     /// **Important:** This property has higher priority than global property.
     pub assets: Option<PathBuf>,
+    /// Apple debug build targets.
+    #[serde(default)]
+    pub debug_build_targets: Vec<IosTarget>,
     /// Apple release build targets.
-    pub release_targets: Option<Vec<IosTarget>>,
+    #[serde(default)]
+    pub release_build_targets: Vec<IosTarget>,
     // TODO: Add Apple plugins.
     // #[serde(flatten)]
     // pub plugins: ApplePlugins,

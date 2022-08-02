@@ -15,7 +15,7 @@ pub struct IosBuildCommand {
     /// Build for the given apple architecture.
     /// Supported targets are: `aarch64-apple-ios`, `aarch64-apple-ios-sim`,
     /// `armv7-apple-ios`, `armv7s-apple-ios`, `i386-apple-ios`, `x86_64-apple-ios`
-    #[clap(long, default_value = "aarch64-apple-ios-sim")]
+    #[clap(long, short, multiple_values = true)]
     pub target: Vec<IosTarget>,
     /// Provisioning profile name to find in this directory: `~/Library/MobileDevice/Provisioning\ Profiles/`
     #[clap(long, conflicts_with = "profile-path")]
@@ -55,7 +55,7 @@ impl IosBuildCommand {
         let properties = context.gen_info_plist(&package_name)?;
         config.status_message("Starting build process", &package_name)?;
         config.status("Compiling app")?;
-        let build_targets = context.apple_build_targets(&self.target);
+        let build_targets = context.apple_build_targets(profile, &self.target);
         let mut app_paths = vec![];
         for build_target in build_targets {
             let app_path = self.build_app(

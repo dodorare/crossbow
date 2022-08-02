@@ -58,7 +58,7 @@ app_name = "example"
 target_sdk_version = 30
 version_code = 1
 
-build_targets = ["aarch64-linux-android"]
+release_build_targets = ["aarch64-linux-android"]
 
 [[package.metadata.android.manifest.uses_feature]]
 name = "android.hardware.vulkan.level"
@@ -73,7 +73,7 @@ name = "android.permission.INTERNET"
 
 [package.metadata.apple]
 app_name = "Macroquad_3D"
-build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
+release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
 "#;
 
 pub const MQ_MAIN_RS_VALUE: &str = r#"

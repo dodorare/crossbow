@@ -18,7 +18,7 @@ app_name = "Permissions"
 
 [package.metadata.android]
 app_wrapper = "sokol"
-release_targets = ["aarch64-linux-android"]
+release_build_targets = ["aarch64-linux-android"]
 res = "res/android"
 
 # plugins_remote = ["com.crossbow.admob:admob:0.1.7"]
@@ -48,11 +48,11 @@ name = "android.permission.CAMERA"
 name = "android.permission.RECORD_AUDIO"
 
 [package.metadata.apple]
-release_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
+release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
 res = "res/apple"
 
 [package.metadata.apple.info_plist]
-CFBundleIdentifier = "com.crossbow.macroquad-permissions"
+CFBundleIdentifier = "com.crossbow.permissions"
 CFBundleVersion = "1.0"
 CFBundleShortVersionString = "1.0"
 CFBundleExecutable = "macroquad-permissions"

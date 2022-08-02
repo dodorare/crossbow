@@ -4,7 +4,7 @@ use crossbundle_tools::{
     tools::*,
     types::{
         android_manifest::AndroidManifest, apple_bundle::prelude::InfoPlist,
-        update_android_manifest_with_default, AndroidTarget, IosTarget,
+        update_android_manifest_with_default, AndroidTarget, IosTarget, Profile,
     },
     utils::*,
 };
@@ -74,17 +74,19 @@ impl BuildContext {
     }
 
     /// Get android build targets from cargo manifest
-    pub fn android_build_targets(&self, build_targets: &Vec<AndroidTarget>) -> Vec<AndroidTarget> {
-        // TODO: Change this. Release targets shouldn't impact dev build.
+    pub fn android_build_targets(
+        &self,
+        profile: Profile,
+        build_targets: &Vec<AndroidTarget>,
+    ) -> Vec<AndroidTarget> {
         if !build_targets.is_empty() {
             return build_targets.clone();
         };
-        if self.config.android.release_targets.is_none() {
-            return vec![AndroidTarget::Aarch64];
+        if profile == Profile::Debug && !self.config.android.debug_build_targets.is_empty() {
+            return self.config.android.debug_build_targets.clone();
         };
-        let targets = self.config.android.release_targets.clone();
-        if targets.is_some() && !targets.as_ref().unwrap().is_empty() {
-            return targets.unwrap();
+        if profile == Profile::Release && !self.config.android.release_build_targets.is_empty() {
+            return self.config.android.release_build_targets.clone();
         };
         vec![AndroidTarget::Aarch64]
     }
@@ -113,19 +115,21 @@ impl BuildContext {
     }
 
     /// Get apple build targets from cargo manifest
-    pub fn apple_build_targets(&self, build_targets: &Vec<IosTarget>) -> Vec<IosTarget> {
-        // TODO: Change this. Release targets shouldn't impact dev build.
+    pub fn apple_build_targets(
+        &self,
+        profile: Profile,
+        build_targets: &Vec<IosTarget>,
+    ) -> Vec<IosTarget> {
         if !build_targets.is_empty() {
             return build_targets.clone();
-        };
-        if self.config.apple.release_targets.is_none() {
-            return vec![IosTarget::X86_64];
-        };
-        let targets = self.config.apple.clone().release_targets;
-        if targets.is_some() && !targets.as_ref().unwrap().is_empty() {
-            return targets.unwrap();
-        };
-        vec![IosTarget::X86_64]
+        }
+        if profile == Profile::Debug && self.config.apple.debug_build_targets.is_empty() {
+            return self.config.apple.debug_build_targets.clone();
+        }
+        if profile == Profile::Release && self.config.apple.release_build_targets.is_empty() {
+            return self.config.apple.release_build_targets.clone();
+        }
+        vec![IosTarget::Aarch64Sim]
     }
 
     /// Get info plist from the path in cargo manifest or generate it with the given configuration
