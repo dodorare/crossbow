@@ -2,17 +2,9 @@ use crossbundle_tools::types::{apple_bundle::prelude::*, IosTarget};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
-// #[derive(Debug, Clone, Deserialize, Serialize, Default)]
-// pub enum AppleStrategy {
-//     #[default]
-//     NativeIosApp,
-// }
-
 /// Full Apple configuration.
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct AppleConfig {
-    // /// Supported strategies for building working application.
-    // pub strategies: Option<Vec<AppleStrategy>>,
     /// `Info.plist` configuration.
     pub info_plist: Option<InfoPlist>,
     /// Path to `Info.plist` file.

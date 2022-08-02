@@ -64,7 +64,7 @@ crossbundle run android
 crossbundle run ios
 ```
 
-If you want to build the application for android as native AAB - add `--aab` flag or add `--apk` to build native APK.
+If you want to build the application for android as native AAB - add `-s=native-aab` flag or add `-s=native-apk` to build native APK.
 
 When the application deploys on your device, you can attach a logger.
 

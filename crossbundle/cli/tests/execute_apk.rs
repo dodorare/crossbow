@@ -1,7 +1,7 @@
 use crossbundle_lib::build::{android::AndroidBuildCommand, BuildContext, SharedBuildCommand};
 use crossbundle_tools::{
     commands::gen_minimal_project,
-    types::AndroidTarget,
+    types::{AndroidStrategy, AndroidTarget},
     utils::{Config, Shell},
 };
 
@@ -9,7 +9,7 @@ use crossbundle_tools::{
 /// Use macroquad minimal project in a temporary directory to test APK generation.
 /// It is working likewise the command below.
 /// ```sh
-/// crossbundle build android --apk
+/// crossbundle build android -s=native-apk
 /// ```
 fn test_execute_apk() {
     let tempdir = tempfile::tempdir().unwrap();
@@ -36,13 +36,12 @@ fn test_execute_apk() {
     let android_build_command = AndroidBuildCommand {
         shared: shared_build_command,
         target: vec![AndroidTarget::Aarch64],
-        aab: false,
+        strategy: AndroidStrategy::NativeApk,
         lib: None,
         export_path: None,
         sign_key_path: None,
         sign_key_pass: None,
         sign_key_alias: None,
-        apk: false,
     };
 
     let (_, _, generated_apk_path) =

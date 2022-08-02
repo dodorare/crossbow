@@ -2,7 +2,7 @@ use crate::error::{AndroidError, Result};
 use serde::{Deserialize, Serialize};
 
 pub trait IntoRustTriple {
-    /// Returns the triple used by the rust build tools
+    /// Returns the triple used by the rust build tools.
     fn rust_triple(&self) -> &'static str;
 }
 
@@ -22,7 +22,7 @@ pub enum AndroidTarget {
 }
 
 impl AndroidTarget {
-    /// Identifier used in the NDK to refer to the ABI
+    /// Identifier used in the NDK to refer to the ABI.
     pub fn android_abi(self) -> &'static str {
         match self {
             Self::Armv7 => "armeabi-v7a",
@@ -32,7 +32,7 @@ impl AndroidTarget {
         }
     }
 
-    // Returns the triple NDK provided LLVM
+    // Returns the triple NDK provided LLVM.
     pub fn ndk_llvm_triple(self) -> &'static str {
         match self {
             Self::Armv7 => "armv7a-linux-androideabi",
@@ -42,7 +42,7 @@ impl AndroidTarget {
         }
     }
 
-    /// Returns the triple used by the non-LLVM parts of the NDK
+    /// Returns the triple used by the non-LLVM parts of the NDK.
     pub fn ndk_triple(self) -> &'static str {
         match self {
             Self::Armv7 => "arm-linux-androideabi",

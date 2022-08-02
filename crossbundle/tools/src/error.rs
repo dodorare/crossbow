@@ -40,6 +40,8 @@ pub enum AndroidError {
     InvalidBuildTarget(String),
     /// Unsupported or invalid app wrapper: {0}
     InvalidAppWrapper(String),
+    /// Unsupported or invalid build strategy: {0}
+    InvalidBuildStrategy(String),
     /// Failed to find AndroidManifest.xml in path: {0}
     FailedToFindAndroidManifest(String),
     /// Unable to find NDK file
@@ -69,6 +71,8 @@ pub enum AppleError {
     TargetNotFound,
     /// Resources dir does not exists
     ResourcesNotFound,
+    /// Unsupported or invalid build strategy: {0}
+    InvalidBuildStrategy(String),
     /// Assets dir does not exists
     AssetsNotFound,
     /// Failed to find Info.plist in path: {0}

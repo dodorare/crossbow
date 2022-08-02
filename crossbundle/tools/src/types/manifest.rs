@@ -10,6 +10,9 @@ pub fn update_android_manifest_with_default(
     package_name: &str,
     gradle: bool,
 ) {
+    if manifest.package.is_empty() {
+        manifest.package = format!("com.crossbow.{}", package_name);
+    }
     if manifest.version_name.is_none() {
         manifest.version_name = Some("1".to_owned());
     }

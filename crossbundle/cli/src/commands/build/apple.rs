@@ -9,7 +9,7 @@ use std::path::{Path, PathBuf};
 pub struct IosBuildCommand {
     #[clap(flatten)]
     pub shared: SharedBuildCommand,
-    /// Specify custom cargo binary
+    /// Specify custom cargo binary.
     #[clap(long, conflicts_with = "example")]
     pub bin: Option<String>,
     /// Build for the given apple architecture.
@@ -17,16 +17,20 @@ pub struct IosBuildCommand {
     /// `armv7-apple-ios`, `armv7s-apple-ios`, `i386-apple-ios`, `x86_64-apple-ios`
     #[clap(long, short, multiple_values = true)]
     pub target: Vec<IosTarget>,
-    /// Provisioning profile name to find in this directory: `~/Library/MobileDevice/Provisioning\ Profiles/`
+    /// Build strategy specifies what and how to build iOS application: with help of XCode,
+    /// or with our native approach.
+    #[clap(long, short, default_value = "native-app")]
+    pub strategy: IosStrategy,
+    /// Provisioning profile name to find in this directory: `~/Library/MobileDevice/Provisioning\ Profiles/`.
     #[clap(long, conflicts_with = "profile-path")]
     pub profile_name: Option<String>,
-    /// Absolute path to provisioning profile
+    /// Absolute path to provisioning profile.
     #[clap(long)]
     pub profile_path: Option<PathBuf>,
-    /// The team identifier of your signing identity
+    /// The team identifier of your signing identity.
     #[clap(long)]
     pub team_identifier: Option<String>,
-    /// The id of the identity used for signing. It won't start the signing process until you provide this flag
+    /// The id of the identity used for signing. It won't start the signing process until you provide this flag.
     #[clap(long)]
     pub identity: Option<String>,
 }
@@ -34,7 +38,9 @@ pub struct IosBuildCommand {
 impl IosBuildCommand {
     pub fn run(&self, config: &Config) -> Result<()> {
         let context = BuildContext::new(config, self.shared.target_dir.clone())?;
-        self.execute(config, &context)?;
+        match &self.strategy {
+            IosStrategy::NativeIpa => self.execute(config, &context)?,
+        };
         Ok(())
     }
 

@@ -21,31 +21,29 @@ pub struct AndroidBuildCommand {
     /// `i686-linux-android`, `x86_64-linux-android`
     #[clap(long, short, multiple_values = true)]
     pub target: Vec<AndroidTarget>,
-    /// Generating native aab without Java. By default crossbow generating gradle project
-    #[clap(long)]
-    pub aab: bool,
-    /// Generating native apk without Java. By default crossbow generating gradle project
-    #[clap(long)]
-    pub apk: bool,
-    /// Compile rust code as a dynamic library [default: crossbow-android]
+    /// Build strategy specifies what and how to build Android application: with help of
+    /// Gradle, or with our native approach.
+    #[clap(long, short, default_value = "gradle-apk")]
+    pub strategy: AndroidStrategy,
+    /// Only compile rust code as a dynamic library. By default: "crossbow-android"
     #[clap(long, default_missing_value = "crossbow_android")]
     pub lib: Option<String>,
-    /// Path to export Gradle project. By default exports to `target/android/` folder
+    /// Path to export Gradle project. By default exports to `target/android/` folder.
     #[clap(long)]
     pub export_path: Option<PathBuf>,
-    /// Path to the signing key
+    /// Path to the signing key.
     #[clap(long, requires_all = &["sign-key-pass", "sign-key-alias"])]
     pub sign_key_path: Option<PathBuf>,
-    /// Signing key password
+    /// Signing key password.
     #[clap(long)]
     pub sign_key_pass: Option<String>,
-    /// Signing key alias
+    /// Signing key alias.
     #[clap(long)]
     pub sign_key_alias: Option<String>,
 }
 
 impl AndroidBuildCommand {
-    // Checks options was specified in AndroidBuildCommand and then builds application
+    // Checks options was specified in AndroidBuildCommand and then builds application.
     pub fn run(&self, config: &Config) -> crate::error::Result<()> {
         if self.sign_key_path.is_some() && self.sign_key_pass.is_none() {
             config
@@ -53,19 +51,33 @@ impl AndroidBuildCommand {
                 .warn("You provided a signing key but not password - set password please by providing `sign_key_pass` flag")?;
         }
         let context = BuildContext::new(config, self.shared.target_dir.clone())?;
-        if self.aab {
-            self.execute_aab(config, &context)?;
-        } else if self.apk {
-            self.execute_apk(config, &context)?;
-        } else if let Some(lib_name) = &self.lib {
-            self.build_rust_lib(config, &context, lib_name, None)?;
-        } else {
-            self.build_gradle(config, &context, &self.export_path)?;
+        if let Some(name) = &self.lib {
+            self.build_rust_lib(config, &context, name, None)?;
+            return Ok(());
+        }
+        match &self.strategy {
+            AndroidStrategy::NativeApk => {
+                self.execute_apk(config, &context)?;
+            }
+            AndroidStrategy::NativeAab => {
+                self.execute_aab(config, &context)?;
+            }
+            AndroidStrategy::GradleApk => {
+                let (_, _, gradle_project_path) =
+                    self.build_gradle(config, &context, &self.export_path)?;
+                config.status("Building Gradle project")?;
+                let mut gradle = android::gradle_init()?;
+                gradle
+                    .arg("build")
+                    .arg("-p")
+                    .arg(dunce::simplified(&gradle_project_path));
+                gradle.output_err(true)?;
+            }
         }
         Ok(())
     }
 
-    /// Compile rust code as a dynamic library, generate Gradle project
+    /// Compile rust code as a dynamic library, generate Gradle project.
     pub fn build_gradle(
         &self,
         config: &Config,
@@ -108,18 +120,10 @@ impl AndroidBuildCommand {
             "Gradle project generated",
             gradle_project_path.to_str().unwrap(),
         )?;
-
-        config.status("Building Gradle project")?;
-        let mut gradle = android::gradle_init()?;
-        gradle
-            .arg("build")
-            .arg("-p")
-            .arg(dunce::simplified(&gradle_project_path));
-        gradle.output_err(true)?;
         Ok((android_manifest, sdk, gradle_project_path))
     }
 
-    /// Compile rust code as a dynamic library
+    /// Compile rust code as a dynamic library.
     pub fn build_rust_lib(
         &self,
         config: &Config,
@@ -169,7 +173,7 @@ impl AndroidBuildCommand {
         Ok(())
     }
 
-    /// Builds APK with aapt tool and signs it with apksigner
+    /// Builds APK with aapt tool and signs it with apksigner.
     pub fn execute_apk(
         &self,
         config: &Config,
@@ -268,7 +272,7 @@ impl AndroidBuildCommand {
         Ok((android_manifest, sdk, aligned_apk_path))
     }
 
-    /// Builds AAB with aapt2 tool and signs it with jarsigner
+    /// Builds AAB with aapt2 tool and signs it with jarsigner.
     pub fn execute_aab(
         &self,
         config: &Config,
@@ -403,7 +407,7 @@ impl AndroidBuildCommand {
         Ok((android_manifest, sdk, aab_output_path, package_name, key))
     }
 
-    /// Specifies project path and target directory needed to build application
+    /// Specifies project path and target directory needed to build application.
     pub fn needed_project_dirs(
         example: Option<&String>,
         context: &BuildContext,
@@ -418,7 +422,7 @@ impl AndroidBuildCommand {
         Ok((project_path, target_dir, package_name))
     }
 
-    /// Specifies path to Android SDK and Android NDK
+    /// Specifies path to Android SDK and Android NDK.
     pub fn android_toolchain(
         context: &BuildContext,
     ) -> crate::error::Result<(AndroidSdk, AndroidNdk, u32)> {
@@ -428,7 +432,7 @@ impl AndroidBuildCommand {
         Ok((sdk, ndk, target_sdk_version))
     }
 
-    /// Generates or copies AndroidManifest.xml from specified path, then saves it to android folder
+    /// Generates or copies AndroidManifest.xml from specified path, then saves it to android folder.
     pub fn android_manifest(
         config: &Config,
         context: &BuildContext,
@@ -442,7 +446,7 @@ impl AndroidBuildCommand {
         Ok((android_manifest, manifest_path))
     }
 
-    /// Find keystore for signing application or create it
+    /// Find keystore for signing application or create it.
     pub fn find_keystore(
         sign_key_path: Option<PathBuf>,
         sign_key_pass: Option<String>,
@@ -478,7 +482,7 @@ impl AndroidBuildCommand {
         Ok(key)
     }
 
-    /// Compiling libs for architecture and write out it in vector
+    /// Compiling libs for architecture and write out it in vector.
     pub fn build_target(
         &self,
         context: &BuildContext,

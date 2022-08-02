@@ -44,7 +44,7 @@ By default `crossbundle build android` command will generate gradle project and 
 To build native APK and run it on the device using the command. If you want to build an application replaces `run` with `build`.
 
 ```sh
-crossbundle run android --apk
+crossbundle run android -s=native-apk
 # or
 crossbundle run ios
 ```
@@ -52,5 +52,5 @@ crossbundle run ios
 To build native AAB and run it on the device using the command. If you want to build an application replaces `run` with `build`.
 
 ```sh
-crossbundle run android --aab
+crossbundle run android -s=native-aab
 ```

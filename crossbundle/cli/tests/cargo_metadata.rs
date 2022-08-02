@@ -1,12 +1,13 @@
 use crossbundle_lib::build::{android::AndroidBuildCommand, BuildContext, SharedBuildCommand};
 use crossbundle_tools::{
     commands::gen_minimal_project,
-    types::{android_manifest::from_str, AndroidTarget},
+    types::{android_manifest::from_str, AndroidStrategy, AndroidTarget},
     utils::{Config, Shell},
 };
 
 #[test]
-/// Create macroquad minimal project with full cargo toml metadata in a temporary directory to test manifest generating.
+/// Create macroquad minimal project with full cargo toml metadata in a
+/// temporary directory to test manifest generating.
 fn test_cargo_metadata() {
     let tempdir = tempfile::tempdir().unwrap();
     let project_path = tempdir.path();
@@ -33,13 +34,12 @@ fn test_cargo_metadata() {
     let android_build_command = AndroidBuildCommand {
         shared: shared_build_command,
         target: vec![AndroidTarget::Aarch64],
-        aab: false,
+        strategy: AndroidStrategy::GradleApk,
         lib: None,
         export_path: None,
         sign_key_path: None,
         sign_key_pass: None,
         sign_key_alias: None,
-        apk: false,
     };
 
     let example = android_build_command.shared.example.as_ref();

@@ -1,18 +1,19 @@
-# 🏹 CrossBundle CLI
+# Crossbundle CLI
 
 ![splash](https://github.com/dodorare/crossbow/blob/main/.github/assets/splash.png?raw=true)
 
 The **crossbundle** is a command-line tool that encapsulates boring stuff of **Android** and **iOS** build/packaging processes and helps mobile developers to create and maintain applications written in **rust** programming language.
 
-## 👁️‍🗨️ Support status
+## Support status
 
-Packaging status:
+Packaging Strategy status:
 
 | Name | Description | Status |
 | ---- | ----------- | ------ |
-| Android APK | Default build result method. | ✅ |
-| Android AAB | Supported via `--aab` flag. | ✅ |
-| Apple Debug IPA | Default build result method. Works only on Simulator and could be run on iPhone with Dev Certificate. | 🆗 |
+| Android APK | Supported via `-s=native-apk` flag. | ✅ |
+| Android AAB | Supported via `-s=native-aab` flag. | ✅ |
+| Apple Debug APP | Default build strategy. Works only on Simulator and could be run on iPhone with Dev Certificate. | ✅ |
+| Apple Debug IPA | Works only on Simulator and could be run on iPhone with Dev Certificate. | 🆗 |
 | Apple Release IPA | Not supported yet. Crossbundle should generate `xcodeproj`, but user should build and sign IPA manually. | 🛠 |
 
 Supported game engines:
@@ -25,7 +26,7 @@ Supported game engines:
 
 ✅ = Works and tested — 🆗 = Works but may contain bugs — 🛠 = Under development
 
-## 🌀 Installation
+## Installation
 
 ```sh
 cargo install --git=https://github.com/dodorare/crossbow crossbundle
@@ -42,9 +43,15 @@ More information about how to set up the environment in the **Android setup** an
 
 ---
 
-## ⚙️ Cargo.toml Metadata syntax
+## Cargo.toml Metadata syntax
 
 ```toml
+[[package.metadata.android]]
+# Cross-platform user-friendly application name for your app.
+app_name = "Example"
+# Apple assets directory path relatively to project path.
+assets = "assets"
+
 [[package.metadata.android]]
 # The user-friendly application name for your app. Displayed in the applications menu
 app_name = "Example"
@@ -122,11 +129,9 @@ app_name = "Example"
 release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
 # Apple resources directory path relatively to project path.
 res = "res/apple"
-# Apple assets directory path relatively to project path.
-assets = "assets"
 ```
 
-## 🎏 CLI options and flags
+## CLI options and flags
 
 To see the complete documentation for each command/subcommand you can write `-h` or `--help`:
 
@@ -171,14 +176,8 @@ USAGE:
     crossbundle build android [OPTIONS]
 
 OPTIONS:
-    --aab
-        Generating native aab without Java. By default crossbow generating gradle project
-
     --all-features
         Activate all available features of selected package
-
-    --apk
-        Generating native apk without Java. By default crossbow generating gradle project
 
     --example <EXAMPLE>
         Build the specified example
@@ -196,13 +195,17 @@ OPTIONS:
         Print help information
 
     --lib <LIB>
-        Compile rust code as a dynamic library [default: crossbow-android]
+        Only compile rust code as a dynamic library. By default: "crossbow-android"
 
     --no-default-features
         Do not activate the `default` feature of the current directory's package
 
     --release
         Build optimized artifact with the `release` profile
+
+    -s, --strategy <STRATEGY>
+        Build strategy specifies what and how to build Android application: with help of Gradle,
+        or with our native approach [default: gradle-apk]
 
     --sign-key-alias <SIGN_KEY_ALIAS>
         Signing key alias
@@ -213,10 +216,10 @@ OPTIONS:
     --sign-key-path <SIGN_KEY_PATH>
         Path to the signing key
 
-    --target <TARGET>
+    -t, --target <TARGET>...
         Build for the given android architecture. Supported targets are:
         `armv7-linux-androideabi`, `aarch64-linux-android`, `i686-linux-android`,
-        `x86_64-linux-android` [default: aarch64-linux-android]
+        `x86_64-linux-android`
 
     --target-dir <TARGET_DIR>
         Directory for generated artifact and intermediate files
@@ -266,10 +269,10 @@ OPTIONS:
     --release
         Build optimized artifact with the `release` profile
 
-    --target <TARGET>
+    -t, --target <TARGET>...
         Build for the given apple architecture. Supported targets are: `aarch64-apple-ios`,
         `aarch64-apple-ios-sim`, `armv7-apple-ios`, `armv7s-apple-ios`, `i386-apple-ios`,
-        `x86_64-apple-ios` [default: aarch64-apple-ios-sim]
+        `x86_64-apple-ios`
 
     --target-dir <TARGET_DIR>
         Directory for generated artifact and intermediate files
@@ -278,12 +281,12 @@ OPTIONS:
         The team identifier of your signing identity
 ```
 
-## ❌ Troubleshooting
+## Troubleshooting
 
 ### Shared library "<lib_name>" not found
 
 If you ran into problem of missing shared library in the `apk/aab` - you can fix this by placing your `.so` file into `target/<rust-triple>/<profile>/tools/libname.so`. The builder will pick the library up and put it in the final package.
 
-## 📑 License
+## License
 
 Licensed under [Apache-2.0 License](../../LICENSE).

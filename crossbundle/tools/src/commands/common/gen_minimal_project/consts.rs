@@ -54,11 +54,14 @@ include = ":crossbow:lib"
 
 pub const CARGO_TOML_VALUE: &str = r#"
 [package.metadata.android]
-app_name = "example"
-target_sdk_version = 30
-version_code = 1
-
+app_name = "Example"
 release_build_targets = ["aarch64-linux-android"]
+
+[package.metadata.android.manifest]
+package = "com.crossbow.example"
+[package.metadata.android.manifest.uses_sdk]
+min_sdk_version = 19
+target_sdk_version = 30
 
 [[package.metadata.android.manifest.uses_feature]]
 name = "android.hardware.vulkan.level"
