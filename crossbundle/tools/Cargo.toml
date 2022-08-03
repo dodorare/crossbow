@@ -13,27 +13,30 @@ readme = "README.md"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.61"
 serde_plain = "0.3"
+
 dunce = "1.0"
 fs_extra = "1.2"
 dirs = "4.0.0"
+which = "4.0"
+tempfile = "3.2"
+zip = "0.5.13"
+zip-extensions = "0.6"
+
 simctl = { version = "0.1.1", package = "creator-simctl" }
 android-manifest = "0.1.9"
 apple-bundle = "0.1.2"
 android-tools = "0.2.10"
-thiserror = "1.0"
-anyhow = "1.0"
-displaydoc = "0.2"
-which = "4.0"
 itertools = "0.10"
-termcolor = "1.1.2"
-atty = "0.2.14"
-log = "0.4"
-zip = "0.5.13"
-zip-extensions = "0.6"
-tempfile = "3.2"
 cargo = "0.63.1"
 cargo-util = "0.2.0"
 rust-embed = { version = "6.4.0", features = ["include-exclude"] }
+
+thiserror = "1.0"
+anyhow = "1.0"
+displaydoc = "0.2"
+log = "0.4"
+termcolor = "1.1.2"
+atty = "0.2.14"
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"

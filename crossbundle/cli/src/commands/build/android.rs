@@ -548,6 +548,9 @@ impl AndroidBuildCommand {
             context.package_name().as_str(),
             strategy,
         );
+        context.config.permissions.iter().for_each(|permission| {
+            permission.update_manifest(&mut manifest);
+        });
         Ok(manifest)
     }
 }

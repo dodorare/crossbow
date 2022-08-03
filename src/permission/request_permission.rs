@@ -4,9 +4,10 @@ use crate::error::*;
 use crossbow_android::permission::*;
 #[cfg(all(target_os = "ios", feature = "ios"))]
 use crossbow_ios::permission::*;
+use serde::{Deserialize, Serialize};
 
 /// Generic Permission type.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub enum Permission {
     /// Read Access to the Calendar.
     ///
@@ -17,6 +18,7 @@ pub enum Permission {
     ///
     /// Required Permissions for **iOS**:
     /// * **NSCalendarsUsageDescription**
+    #[serde(rename = "calendar-read")]
     CalendarRead,
     /// Read and Write Access to the Calendar.
     ///
@@ -27,6 +29,7 @@ pub enum Permission {
     ///
     /// Required Permissions for **iOS**:
     /// * **NSCalendarsUsageDescription**
+    #[serde(rename = "calendar-write")]
     CalendarWrite,
     /// Access to the Camera.
     ///
@@ -37,6 +40,7 @@ pub enum Permission {
     ///
     /// Required Permissions for **iOS**:
     /// * **NSCameraUsageDescription**
+    #[serde(rename = "camera")]
     Camera,
     /// Read Access to the Contacts.
     ///
@@ -47,6 +51,7 @@ pub enum Permission {
     ///
     /// Required Permissions for **iOS**:
     /// * **NSContactsUsageDescription**
+    #[serde(rename = "contacts-read")]
     ContactsRead,
     /// Read and Write Access to the Contacts.
     ///
@@ -57,6 +62,7 @@ pub enum Permission {
     ///
     /// Required Permissions for **iOS**:
     /// * **NSContactsUsageDescription**
+    #[serde(rename = "contacts-write")]
     ContactsWrite,
     /// Access to the Flashlight.
     ///
@@ -65,6 +71,7 @@ pub enum Permission {
     /// Required Permissions for **Android**:
     /// * **android.permission.CAMERA**
     /// * **android.permission.FLASHLIGHT**
+    #[serde(rename = "flashlight")]
     Flashlight,
     /// Access to the Location when in use.
     ///
@@ -76,6 +83,7 @@ pub enum Permission {
     ///
     /// Required Permissions for **iOS**:
     /// * **NSLocationWhenInUseUsageDescription**
+    #[serde(rename = "location-when-in-use")]
     LocationWhenInUse,
     /// Permanent Access to the Location.
     ///
@@ -89,6 +97,7 @@ pub enum Permission {
     /// Required Permissions for **iOS**:
     /// * **NSLocationAlwaysAndWhenInUseUsageDescription**
     /// * **NSLocationAlwaysUsageDescription**
+    #[serde(rename = "location-always")]
     LocationAlways,
     /// Access to the Media.
     ///
@@ -96,6 +105,7 @@ pub enum Permission {
     ///
     /// Required Permissions for **iOS**:
     /// * **NSAppleMusicUsageDescription**
+    #[serde(rename = "media")]
     Media,
     /// Access to the Microphone.
     ///
@@ -106,6 +116,7 @@ pub enum Permission {
     ///
     /// Required Permissions for **iOS**:
     /// * **NSMicrophoneUsageDescription**
+    #[serde(rename = "microphone")]
     Microphone,
     /// Access to the Phone.
     ///
@@ -120,6 +131,7 @@ pub enum Permission {
     /// * **android.permission.USE_SIP**
     /// * **android.permission.ANSWER_PHONE_CALLS**
     /// * **android.permission.PROCESS_OUTGOING_CALLS**
+    #[serde(rename = "phone")]
     Phone,
     /// Access to the Photos.
     ///
@@ -128,6 +140,7 @@ pub enum Permission {
     /// Required Permissions for **iOS**:
     /// * **NSPhotoLibraryAddUsageDescription**
     /// * **NSPhotoLibraryUsageDescription**
+    #[serde(rename = "photos")]
     Photos,
     /// Access to the Reminders.
     ///
@@ -135,6 +148,7 @@ pub enum Permission {
     ///
     /// Required Permissions for **iOS**:
     /// * **NSRemindersUsageDescription**
+    #[serde(rename = "reminders")]
     Reminders,
     /// Access to the Sensors.
     ///
@@ -145,6 +159,7 @@ pub enum Permission {
     ///
     /// Required Permissions for **iOS**:
     /// * **NSMotionUsageDescription**
+    #[serde(rename = "sensors")]
     Sensors,
     /// Access to the SMS.
     ///
@@ -156,6 +171,7 @@ pub enum Permission {
     /// * **android.permission.READ_SMS**
     /// * **android.permission.RECEIVE_WAP_PUSH**
     /// * **android.permission.RECEIVE_MMS**
+    #[serde(rename = "sms")]
     Sms,
     /// Access to the Speech Service.
     ///
@@ -166,6 +182,7 @@ pub enum Permission {
     ///
     /// Required Permissions for **iOS**:
     /// * **NSSpeechRecognitionUsageDescription**
+    #[serde(rename = "speech")]
     Speech,
     /// Read Access to the Storage.
     ///
@@ -173,6 +190,7 @@ pub enum Permission {
     ///
     /// Required Permissions for **Android**:
     /// * **android.permission.READ_EXTERNAL_STORAGE**
+    #[serde(rename = "storage-read")]
     StorageRead,
     /// Read and Write Access to the Storage.
     ///
@@ -180,6 +198,7 @@ pub enum Permission {
     ///
     /// Required Permissions for **Android**:
     /// * **android.permission.WRITE_EXTERNAL_STORAGE**
+    #[serde(rename = "storage-write")]
     StorageWrite,
 }
 
@@ -414,6 +433,165 @@ impl Permission {
                     .into();
                 Ok(_res)
             }
+        }
+    }
+
+    #[cfg(feature = "update-manifest")]
+    pub fn update_manifest(&self, manifest: &mut android_manifest::AndroidManifest) {
+        let mut permissions = vec![];
+        let mut add_p = |p: &str| {
+            permissions.push(android_manifest::UsesPermission {
+                name: Some(p.to_owned()),
+                ..Default::default()
+            });
+        };
+        match self {
+            Permission::CalendarRead => {
+                add_p("android.permission.READ_CALENDAR");
+            }
+            Permission::CalendarWrite => {
+                add_p("android.permission.WRITE_CALENDAR");
+            }
+            Permission::Camera => {
+                add_p("android.permission.CAMERA");
+            }
+            Permission::ContactsRead => {
+                add_p("android.permission.READ_CONTACTS");
+            }
+            Permission::ContactsWrite => {
+                add_p("android.permission.WRITE_CONTACTS");
+            }
+            Permission::Flashlight => {
+                add_p("android.permission.CAMERA");
+                add_p("android.permission.FLASHLIGHT");
+            }
+            Permission::LocationWhenInUse => {
+                add_p("android.permission.ACCESS_COARSE_LOCATION");
+                add_p("android.permission.ACCESS_FINE_LOCATION");
+            }
+            Permission::LocationAlways => {
+                add_p("android.permission.ACCESS_COARSE_LOCATION");
+                add_p("android.permission.ACCESS_FINE_LOCATION");
+                add_p("android.permission.ACCESS_BACKGROUND_LOCATION");
+            }
+            Permission::Media => {}
+            Permission::Microphone => {
+                add_p("android.permission.RECORD_AUDIO");
+            }
+            Permission::Phone => {
+                add_p("android.permission.READ_PHONE_STATE");
+                add_p("android.permission.CALL_PHONE");
+                add_p("android.permission.READ_CALL_LOG");
+                add_p("android.permission.WRITE_CALL_LOG");
+                add_p("android.permission.ADD_VOICEMAIL");
+                add_p("android.permission.USE_SIP");
+                add_p("android.permission.ANSWER_PHONE_CALLS");
+                add_p("android.permission.PROCESS_OUTGOING_CALLS");
+            }
+            Permission::Photos => {}
+            Permission::Reminders => {}
+            Permission::Sensors => {
+                add_p("android.permission.BODY_SENSORS");
+            }
+            Permission::Sms => {
+                add_p("android.permission.RECEIVE_SMS");
+                add_p("android.permission.SEND_SMS");
+                add_p("android.permission.READ_SMS");
+                add_p("android.permission.RECEIVE_WAP_PUSH");
+                add_p("android.permission.RECEIVE_MMS");
+            }
+            Permission::Speech => {
+                add_p("android.permission.RECORD_AUDIO");
+            }
+            Permission::StorageRead => {
+                add_p("android.permission.READ_EXTERNAL_STORAGE");
+            }
+            Permission::StorageWrite => {
+                add_p("android.permission.WRITE_EXTERNAL_STORAGE");
+            }
+        }
+        // If AndroidManifest already has permission we want to add - don't add it.
+        let mut filtered = permissions
+            .iter()
+            .filter(|p| {
+                manifest
+                    .uses_permission
+                    .iter()
+                    .find(|x| x.name == p.name)
+                    .is_none()
+            })
+            .cloned()
+            .collect();
+        manifest.uses_permission.append(&mut filtered);
+    }
+
+    #[cfg(feature = "update-manifest")]
+    pub fn update_info_plist(&self, props: &mut apple_bundle::info_plist::InfoPlist) {
+        match self {
+            Permission::CalendarRead => {
+                props.calendar_and_reminders.calendars_usage_description =
+                    Some("This app needs access to your phone's calendar.".to_string());
+            }
+            Permission::CalendarWrite => {
+                props.calendar_and_reminders.calendars_usage_description =
+                    Some("This app needs access to your phone's calendar.".to_string());
+            }
+            Permission::Camera => {
+                props.camera_and_microphone.camera_usage_description =
+                    Some("This app needs access to your phone's camera.".to_string());
+            }
+            Permission::ContactsRead => {
+                props.contacts.contacts_usage_description =
+                    Some("This app needs access to your phone's contacts.".to_string());
+            }
+            Permission::ContactsWrite => {
+                props.contacts.contacts_usage_description =
+                    Some("This app needs access to your phone's contacts.".to_string());
+            }
+            Permission::Flashlight => {}
+            Permission::LocationWhenInUse => {
+                props.location.location_when_in_use_usage_description =
+                    Some("This app needs access to your phone's location when in use.".to_string());
+            }
+            Permission::LocationAlways => {
+                props
+                    .location
+                    .location_always_and_when_in_use_usage_description =
+                    Some("This app needs permanent access to your phone's location.".to_string());
+                // #[warn(deprecated)]
+                // props.location.location_always_usage_description =
+                //     Some("This app needs permanent access to your phone's location.".to_string());
+            }
+            Permission::Media => {
+                props.media_player.apple_music_usage_description =
+                    Some("This app needs access to your phone's Apple Music.".to_string());
+            }
+            Permission::Microphone => {
+                props.camera_and_microphone.microphone_usage_description =
+                    Some("This app needs access to your phone's microphone.".to_string());
+            }
+            Permission::Phone => {}
+            Permission::Photos => {
+                props.photos.photo_library_add_usage_description =
+                    Some("This app needs add access to your phone's photo library.".to_string());
+                props.photos.photo_library_usage_description =
+                    Some("This app needs access to your phone's photo library.".to_string());
+            }
+            Permission::Reminders => {
+                props.calendar_and_reminders.reminders_usage_description =
+                    Some("This app needs access to your phone's reminders.".to_string());
+            }
+            Permission::Sensors => {
+                props.motion.motion_usage_description =
+                    Some("This app needs access to your phone's motion sensors.".to_string());
+            }
+            Permission::Sms => {}
+            Permission::Speech => {
+                props.speech.speech_recognition_usage_description =
+                    Some("This app needs access to your phone's speech recognition.".to_string());
+            }
+            Permission::StorageRead => {}
+            Permission::StorageWrite => {}
         }
     }
 }

@@ -4,6 +4,7 @@ pub mod apple_config;
 pub use android_config::*;
 pub use apple_config::*;
 
+use crossbow::Permission;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
@@ -18,6 +19,10 @@ pub struct CrossbowMetadata {
     ///
     /// **Important:** This property has lower priority than Android or Apple `assets` property.
     pub assets: Option<PathBuf>,
+    /// Cross-platform permissions for Android and Apple.
+    ///
+    /// **Important:** This property has lower priority than AndroidManifest or Apple Info.plist properties.
+    pub permissions: Vec<Permission>,
     // TODO: Add `icon` field and icon generation.
     // pub icon: Option<PathBuf>,
     #[serde(default)]

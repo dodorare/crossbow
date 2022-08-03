@@ -1,6 +1,27 @@
 # Crossbow permissions
 
-To request permissions with Crossbow you will need to add `crossbow` dependency to your Cargo.toml file. Then invoke request_permission function. This function checks the permission status in the application and will request permission if it's not granted yet:
+To request permissions with Crossbow you will need to add `crossbow` dependency to your Cargo.toml file. And add permissions to `AndroidManifest.xml` or `Info.plist`:
+
+```toml
+# This one:
+[package.metadata]
+permissions = ["camera", "microphone", "photos", "storage-read"]
+
+# Will make the same as this one:
+[[package.metadata.android.manifest.uses_permission]]
+name = "android.permission.READ_EXTERNAL_STORAGE"
+[[package.metadata.android.manifest.uses_permission]]
+name = "android.permission.CAMERA"
+[[package.metadata.android.manifest.uses_permission]]
+name = "android.permission.RECORD_AUDIO"
+
+[package.metadata.apple.info_plist]
+NSCameraUsageDescription = "This app needs access to your phone's camera."
+NSMicrophoneUsageDescription = "This app needs access to your phone's microphone."
+NSPhotoLibraryUsageDescription = "This app needs access to your phone's photo library."
+```
+
+Then invoke `request_async` function. This function checks the permission status in the application and will request permission if it's not granted yet:
 
 ```rust
 use crossbow::Permission;

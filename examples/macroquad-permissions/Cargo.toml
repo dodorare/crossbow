@@ -15,12 +15,12 @@ crossbow-admob = { version = "0.1.7", path = "../../plugins/admob" }
 
 [package.metadata]
 app_name = "Permissions"
+permissions = ["camera", "microphone", "photos", "storage-read"]
 
 [package.metadata.android]
 app_wrapper = "sokol"
 release_build_targets = ["aarch64-linux-android"]
 res = "../../assets/res/android"
-
 # plugins_remote = ["com.crossbow.admob:admob:0.1.7"]
 
 [[package.metadata.android.plugins_local_projects]]
@@ -40,12 +40,6 @@ package = "com.crossbow.permissions"
 [package.metadata.android.manifest.uses_sdk]
 min_sdk_version = 19
 target_sdk_version = 30
-[[package.metadata.android.manifest.uses_permission]]
-name = "android.permission.READ_EXTERNAL_STORAGE"
-[[package.metadata.android.manifest.uses_permission]]
-name = "android.permission.CAMERA"
-[[package.metadata.android.manifest.uses_permission]]
-name = "android.permission.RECORD_AUDIO"
 
 [package.metadata.apple]
 release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
@@ -55,12 +49,3 @@ res = "../../assets/res/apple"
 CFBundleIdentifier = "com.crossbow.permissions"
 CFBundleVersion = "1.0"
 CFBundleShortVersionString = "1.0"
-CFBundleExecutable = "macroquad-permissions"
-UILaunchStoryboardName = "LaunchScreen"
-CFBundleName = "Permissions"
-CFBundleIconName = "AppIcon"
-CFBundleIconFile = "icon.png"
-# Permissions
-NSCameraUsageDescription = "Permissions App requires access to your phone's camera."
-NSMicrophoneUsageDescription = "Permissions App requires access to your phone's microphone."
-NSPhotoLibraryUsageDescription = "Permissions App requires access to your phone's photo library."

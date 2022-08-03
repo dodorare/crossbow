@@ -190,6 +190,9 @@ impl IosBuildCommand {
             package_name,
             context.config.app_name.clone(),
         );
+        context.config.permissions.iter().for_each(|permission| {
+            permission.update_info_plist(&mut info_plist);
+        });
         Ok(info_plist)
     }
 }
