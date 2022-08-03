@@ -12,7 +12,7 @@ use crossbundle_tools::{
 use std::path::{Path, PathBuf};
 
 /// Specifies flags and options needed to build application
-#[derive(Parser, Clone, Debug)]
+#[derive(Parser, Clone, Debug, Default)]
 pub struct AndroidBuildCommand {
     #[clap(flatten)]
     pub shared: SharedBuildCommand,
@@ -33,12 +33,21 @@ pub struct AndroidBuildCommand {
     /// Path to export Gradle project. By default exports to `target/android/` folder
     #[clap(long)]
     pub export_path: Option<PathBuf>,
+    /// Path to the signing key
+    #[clap(long, requires_all = &["sign-key-pass", "sign-key-alias"])]
+    pub sign_key_path: Option<PathBuf>,
+    /// Signing key password
+    #[clap(long)]
+    pub sign_key_pass: Option<String>,
+    /// Signing key alias
+    #[clap(long)]
+    pub sign_key_alias: Option<String>,
 }
 
 impl AndroidBuildCommand {
     // Checks options was specified in AndroidBuildCommand and then builds application
     pub fn run(&self, config: &Config) -> crate::error::Result<()> {
-        if self.shared.sign_key_path.is_some() && self.shared.sign_key_pass.is_none() {
+        if self.sign_key_path.is_some() && self.sign_key_pass.is_none() {
             config
                 .shell()
                 .warn("You provided a signing key but not password - set password please by providing `sign_key_pass` flag")?;
@@ -220,9 +229,9 @@ impl AndroidBuildCommand {
 
         config.status_message("Generating", "debug signing key")?;
         let key = Self::find_keystore(
-            self.shared.sign_key_path.clone(),
-            self.shared.sign_key_pass.clone(),
-            self.shared.sign_key_alias.clone(),
+            self.sign_key_path.clone(),
+            self.sign_key_pass.clone(),
+            self.sign_key_alias.clone(),
         )?;
 
         config.status("Signing APK file")?;
@@ -318,9 +327,9 @@ impl AndroidBuildCommand {
 
         config.status_message("Generating", "debug signing key")?;
         let key = Self::find_keystore(
-            self.shared.sign_key_path.clone(),
-            self.shared.sign_key_pass.clone(),
-            self.shared.sign_key_alias.clone(),
+            self.sign_key_path.clone(),
+            self.sign_key_pass.clone(),
+            self.sign_key_alias.clone(),
         )?;
 
         config.status_message("Signing", "debug signing key")?;

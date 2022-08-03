@@ -1,7 +1,7 @@
-use crossbundle_lib::build::{android::AndroidBuildCommand, BuildContext, SharedBuildCommand};
+use crossbundle_lib::build::{android::AndroidBuildCommand, BuildContext};
 use crossbundle_tools::{
     commands::gen_minimal_project,
-    types::{android_manifest::from_str, AndroidTarget},
+    types::android_manifest::from_str,
     utils::{Config, Shell},
 };
 
@@ -21,26 +21,7 @@ fn test_cargo_metadata() {
     let config = Config::new(shell, target_dir.clone());
     let context = BuildContext::new(&config, Some(target_dir)).unwrap();
 
-    let shared_build_command = SharedBuildCommand {
-        example: None,
-        features: vec![],
-        all_features: false,
-        no_default_features: false,
-        release: false,
-        target_dir: None,
-        sign_key_path: None,
-        sign_key_pass: None,
-        sign_key_alias: None,
-    };
-
-    let android_build_command = AndroidBuildCommand {
-        shared: shared_build_command,
-        target: vec![AndroidTarget::Aarch64],
-        aab: false,
-        lib: None,
-        export_path: None,
-        apk: false,
-    };
+    let android_build_command = AndroidBuildCommand::default();
 
     let example = android_build_command.shared.example.as_ref();
     let (_project_path, target_dir, package_name) =
@@ -65,7 +46,7 @@ fn test_cargo_metadata() {
 
     let expected_manifest = r#"
     <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.rust.example" android:versionCode="1" android:versionName="1">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.crossbow.example" android:versionCode="1" android:versionName="1">
   <application android:hasCode="false" android:label="Crossbow" android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen">
     <activity android:name="android.app.NativeActivity" android:resizeableActivity="true">
       <meta-data android:name="android.app.lib_name" android:value="example" />

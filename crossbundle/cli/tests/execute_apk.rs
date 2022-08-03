@@ -1,7 +1,6 @@
-use crossbundle_lib::build::{android::AndroidBuildCommand, BuildContext, SharedBuildCommand};
+use crossbundle_lib::build::{android::AndroidBuildCommand, BuildContext};
 use crossbundle_tools::{
     commands::gen_minimal_project,
-    types::AndroidTarget,
     utils::{Config, Shell},
 };
 
@@ -24,26 +23,7 @@ fn test_execute_apk() {
     let config = Config::new(shell, target_dir.clone());
     let context = BuildContext::new(&config, Some(target_dir.clone())).unwrap();
 
-    let shared_build_command = SharedBuildCommand {
-        example: None,
-        features: vec![],
-        all_features: false,
-        no_default_features: false,
-        release: false,
-        target_dir: None,
-        sign_key_path: None,
-        sign_key_pass: None,
-        sign_key_alias: None,
-    };
-
-    let android_build_command = AndroidBuildCommand {
-        shared: shared_build_command,
-        target: vec![AndroidTarget::Aarch64],
-        aab: false,
-        lib: None,
-        export_path: None,
-        apk: false,
-    };
+    let android_build_command = AndroidBuildCommand::default();
 
     let (_, _, generated_apk_path) =
         AndroidBuildCommand::execute_apk(&android_build_command, &config, &context).unwrap();

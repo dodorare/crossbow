@@ -10,7 +10,9 @@ pub fn update_android_manifest_with_default(
     package_name: &str,
     gradle: bool,
 ) {
-    manifest.package = format!("com.rust.{}", package_name.to_string());
+    if manifest.package.is_empty() {
+        manifest.package = format!("com.crossbow.{}", package_name.replace('-', "_"));
+    }
     if manifest.version_name.is_none() {
         manifest.version_name = Some("1".to_owned());
     }
