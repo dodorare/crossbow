@@ -1,6 +1,6 @@
 [package]
 name = "crossbundle-tools"
-version = "0.1.7"
+version = "0.1.8"
 edition = "2021"
 authors = ["DodoRare Team <support@dodorare.com>"]
 description = "Build and publish apps for Android/iOS"
@@ -12,7 +12,7 @@ readme = "README.md"
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.61"
-serde_plain = "0.3"
+serde_plain = "1.0"
 
 dunce = "1.0"
 fs_extra = "1.2"

@@ -1,17 +1,17 @@
 [package]
 name = "macroquad-permissions"
-version = "0.1.7"
+version = "0.1.8"
 authors = ["DodoRare Team <support@dodorare.com>"]
 edition = "2021"
 
 [dependencies]
-crossbow = { version = "0.1.7", path = "../../" }
+crossbow = { version = "0.1.8", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
 macroquad = "0.3.7"
 
 [target.'cfg(target_os = "android")'.dependencies]
-crossbow-admob = { version = "0.1.7", path = "../../plugins/admob" }
+crossbow-admob = { version = "0.1.8", path = "../../plugins/admob" }
 
 [package.metadata]
 app_name = "Permissions"
@@ -21,7 +21,7 @@ permissions = ["camera", "microphone", "photos", "storage-read"]
 app_wrapper = "sokol"
 release_build_targets = ["aarch64-linux-android"]
 res = "../../assets/res/android"
-# plugins_remote = ["com.crossbow.admob:admob:0.1.7"]
+# plugins_remote = ["com.crossbow.admob:admob:0.1.8"]
 
 [[package.metadata.android.plugins_local_projects]]
 include = ":crossbow"

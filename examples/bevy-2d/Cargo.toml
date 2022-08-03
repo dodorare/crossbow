@@ -1,11 +1,11 @@
 [package]
 name = "bevy-2d"
-version = "0.1.7"
+version = "0.1.8"
 authors = ["DodoRare Team <support@dodorare.com>"]
 edition = "2021"
 
 [dependencies]
-crossbow = { version = "0.1.7", path = "../../" }
+crossbow = { version = "0.1.8", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
 bevy = { version = "0.7.0", features = ["mp3"] }
