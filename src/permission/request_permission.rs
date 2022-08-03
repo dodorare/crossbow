@@ -513,13 +513,7 @@ impl Permission {
         // If AndroidManifest already has permission we want to add - don't add it.
         let mut filtered = permissions
             .iter()
-            .filter(|p| {
-                manifest
-                    .uses_permission
-                    .iter()
-                    .find(|x| x.name == p.name)
-                    .is_none()
-            })
+            .filter(|p| !manifest.uses_permission.iter().any(|x| x.name == p.name))
             .cloned()
             .collect();
         manifest.uses_permission.append(&mut filtered);

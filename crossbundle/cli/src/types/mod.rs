@@ -22,6 +22,7 @@ pub struct CrossbowMetadata {
     /// Cross-platform permissions for Android and Apple.
     ///
     /// **Important:** This property has lower priority than AndroidManifest or Apple Info.plist properties.
+    #[serde(default)]
     pub permissions: Vec<Permission>,
     // TODO: Add `icon` field and icon generation.
     // pub icon: Option<PathBuf>,
