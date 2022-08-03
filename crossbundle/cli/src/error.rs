@@ -6,14 +6,10 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Display, Debug, Error)]
 pub enum Error {
-    /// Build targets not provided
-    BuildTargetsNotProvided,
     /// Can't find target to run
     CantFindTargetToRun,
     /// Team identifier not provided
     TeamIdentifierNotProvided,
-    /// Invalid cargo metadata values
-    InvalidCargoMetadata,
     /// Invalid metadata in manifest: {0:?}
     InvalidMetadata(anyhow::Error),
     /// IO error: {0:?}

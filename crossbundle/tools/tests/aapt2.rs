@@ -11,8 +11,7 @@ fn test_aapt2_compile() {
     let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let dir = user_dirs.parent().unwrap().parent().unwrap().to_path_buf();
     let res_path = dir
-        .join("examples")
-        .join("bevy-2d")
+        .join("assets")
         .join("res")
         .join("android")
         .join("mipmap-hdpi");
@@ -43,8 +42,7 @@ fn test_aapt2_link() {
     let user_dirs = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let dir = user_dirs.parent().unwrap().parent().unwrap().to_path_buf();
     let res_path = dir
-        .join("examples")
-        .join("bevy-2d")
+        .join("assets")
         .join("res")
         .join("android")
         .join("mipmap-hdpi");
@@ -67,7 +65,7 @@ fn test_aapt2_link() {
         &mut android_manifest,
         Some("Example".to_owned()),
         "example",
-        false,
+        AndroidStrategy::NativeApk,
     );
 
     // Saves android manifest into temporary directory

@@ -1,4 +1,9 @@
-use crate::{error::*, tools::AndroidSdk, types::get_default_android_manifest};
+use crate::{
+    error::*,
+    tools::AndroidSdk,
+    types::{update_android_manifest_with_default, AndroidStrategy},
+};
+use android_manifest::AndroidManifest;
 use std::path::{Path, PathBuf};
 
 /// Generates minimal unsigned aab
@@ -8,9 +13,18 @@ pub fn gen_minimal_unsigned_aab(
     target_sdk_version: u32,
     aab_build_dir: &Path,
 ) -> Result<PathBuf> {
-    let android_manifest = get_default_android_manifest();
+    let mut manifest = AndroidManifest {
+        package: "com.crossbow.minimal".to_owned(),
+        ..Default::default()
+    };
+    update_android_manifest_with_default(
+        &mut manifest,
+        Some("Minimal".to_owned()),
+        "minimal",
+        AndroidStrategy::NativeAab,
+    );
 
-    let manifest_path = super::super::save_android_manifest(aab_build_dir, &android_manifest)?;
+    let manifest_path = super::super::save_android_manifest(aab_build_dir, &manifest)?;
     let apk_path = aab_build_dir.join(format!("{}_module.apk", package_name));
     if !aab_build_dir.exists() {
         std::fs::create_dir_all(&aab_build_dir)?;

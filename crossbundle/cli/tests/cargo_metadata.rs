@@ -34,7 +34,8 @@ fn test_cargo_metadata() {
         .status_message("Starting apk build process", &package_name)
         .unwrap();
 
-    let android_manifest = AndroidBuildCommand::get_android_manifest(&context, false).unwrap();
+    let android_manifest =
+        AndroidBuildCommand::get_android_manifest(&context, AndroidStrategy::NativeApk).unwrap();
 
     let expected_manifest = r#"<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.crossbow.example" android:versionCode="1" android:versionName="0.1.0">

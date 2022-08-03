@@ -13,7 +13,7 @@ pub struct AndroidNdk {
 
 impl AndroidNdk {
     /// Using environment variables
-    pub fn from_env(sdk_path: Option<&Path>) -> Result<Self> {
+    pub fn from_env(sdk_path: &Path) -> Result<Self> {
         let ndk_path = {
             let ndk_path = std::env::var("ANDROID_NDK_ROOT")
                 .ok()
@@ -23,18 +23,10 @@ impl AndroidNdk {
             // Default ndk installation path
             if let Some(ndk_path) = ndk_path {
                 PathBuf::from(ndk_path)
-            } else if ndk_path.is_none()
-                && sdk_path.is_some()
-                && sdk_path.as_ref().unwrap().join("ndk-bundle").exists()
-            {
-                sdk_path.unwrap().join("ndk-bundle")
+            } else if ndk_path.is_none() && sdk_path.join("ndk-bundle").exists() {
+                sdk_path.join("ndk-bundle")
             } else {
-                let ndk_path = if let Some(sdk_path) = sdk_path {
-                    sdk_path.to_owned()
-                } else {
-                    android_tools::sdk_install_path()?
-                }
-                .join("ndk");
+                let ndk_path = sdk_path.join("ndk");
                 let ndk_ver = std::fs::read_dir(&ndk_path)
                     .map_err(|_| Error::PathNotFound(ndk_path.clone()))?
                     .filter_map(|path| path.ok())

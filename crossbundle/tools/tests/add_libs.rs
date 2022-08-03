@@ -18,7 +18,7 @@ fn add_bevy_libs() {
 
     // Assign needed configuration to compile rust for android with bevy
     let sdk = AndroidSdk::from_env().unwrap();
-    let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
+    let ndk = AndroidNdk::from_env(sdk.sdk_path()).unwrap();
     let build_target = AndroidTarget::Aarch64;
     let profile = Profile::Release;
     let target_sdk_version = 30;
@@ -87,7 +87,7 @@ fn add_quad_libs() {
 
     // Assign needed configuration to compile rust for android with bevy
     let sdk = AndroidSdk::from_env().unwrap();
-    let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
+    let ndk = AndroidNdk::from_env(sdk.sdk_path()).unwrap();
     let build_target = AndroidTarget::Aarch64;
     let profile = Profile::Release;
     let target_sdk_version = 30;

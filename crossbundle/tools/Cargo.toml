@@ -19,7 +19,7 @@ dirs = "4.0.0"
 simctl = { version = "0.1.1", package = "creator-simctl" }
 android-manifest = "0.1.9"
 apple-bundle = "0.1.2"
-android-tools = "0.2.9"
+android-tools = "0.2.10"
 thiserror = "1.0"
 anyhow = "1.0"
 displaydoc = "0.2"

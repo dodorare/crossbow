@@ -1,6 +1,7 @@
 pub use android_manifest;
 pub use apple_bundle;
 
+use super::AndroidStrategy;
 use android_manifest::*;
 use apple_bundle::prelude::*;
 
@@ -9,7 +10,7 @@ pub fn update_android_manifest_with_default(
     manifest: &mut AndroidManifest,
     app_name: Option<String>,
     package_name: &str,
-    gradle: bool,
+    strategy: super::AndroidStrategy,
 ) {
     if manifest.package.is_empty() {
         manifest.package = format!("com.crossbow.{}", package_name.replace('-', "_"));
@@ -28,7 +29,7 @@ pub fn update_android_manifest_with_default(
         });
     }
     if manifest.application.has_code.is_none() {
-        manifest.application.has_code = Some(gradle);
+        manifest.application.has_code = Some(strategy == AndroidStrategy::GradleApk);
     }
     if manifest.application.label.is_none() {
         manifest.application.label = Some(StringResourceOrString::string(
@@ -47,7 +48,7 @@ pub fn update_android_manifest_with_default(
     if manifest.application.activity.len() == 1 {
         let mut activity = manifest.application.activity.get_mut(0).unwrap();
         if activity.name.is_empty() {
-            activity.name = match gradle {
+            activity.name = match strategy == AndroidStrategy::GradleApk {
                 true => "com.crossbow.game.CrossbowApp".to_string(),
                 false => "android.app.NativeActivity".to_string(),
             };
@@ -62,7 +63,7 @@ pub fn update_android_manifest_with_default(
         {
             activity.meta_data.push(MetaData {
                 name: Some("android.app.lib_name".to_string()),
-                value: Some(match gradle {
+                value: Some(match strategy == AndroidStrategy::GradleApk {
                     true => "crossbow_android".to_string(),
                     false => package_name.replace('-', "_"),
                 }),
@@ -81,21 +82,6 @@ pub fn update_android_manifest_with_default(
             }];
         }
     }
-}
-
-/// Generate android manifest with minimal required tags.
-pub fn get_default_android_manifest() -> AndroidManifest {
-    let mut manifest = AndroidManifest {
-        package: "com.crossbow.minimal".to_owned(),
-        ..Default::default()
-    };
-    update_android_manifest_with_default(
-        &mut manifest,
-        Some("Minimal".to_owned()),
-        "minimal",
-        false,
-    );
-    manifest
 }
 
 /// Updates [`InfoPlist`](InfoPlist) with default values.

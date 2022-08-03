@@ -2,7 +2,7 @@ use crate::error::{AndroidError, AppleError};
 use serde::{Deserialize, Serialize};
 
 /// Supported strategies for building application for Apple devices.
-#[derive(Debug, Default, Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
 pub enum IosStrategy {
     #[default]
     /// Generate .app and .ipa without XCode. Default strategy.
@@ -22,7 +22,7 @@ impl std::str::FromStr for IosStrategy {
 }
 
 /// Supported strategies for building Android application.
-#[derive(Debug, Default, Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
 pub enum AndroidStrategy {
     /// Generate .apk with Gradle. Default strategy.
     #[default]

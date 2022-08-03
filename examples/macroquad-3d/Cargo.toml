@@ -11,6 +11,7 @@ anyhow = "1.0"
 macroquad = "0.3.7"
 
 [package.metadata]
+app_wrapper = "sokol"
 app_name = "Macroquad 3D"
 assets = "../../assets"
 

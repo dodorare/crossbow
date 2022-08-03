@@ -111,7 +111,7 @@ impl AndroidBuildCommand {
         )?;
 
         config.status_message("Reading", "AndroidManifest.xml")?;
-        let manifest = Self::get_android_manifest(context, true)?;
+        let manifest = Self::get_android_manifest(context, AndroidStrategy::GradleApk)?;
         config.status_message("Generating", "AndroidManifest.xml")?;
         android::save_android_manifest(&gradle_project_path, &manifest)?;
 
@@ -146,7 +146,7 @@ impl AndroidBuildCommand {
         };
 
         config.status_message("Reading", "AndroidManifest.xml")?;
-        let manifest = Self::get_android_manifest(context, false)?;
+        let manifest = Self::get_android_manifest(context, AndroidStrategy::NativeApk)?;
 
         config.status_message("Compiling", "lib")?;
         let target_sdk_version = Self::target_sdk_version(&manifest, &sdk);
@@ -199,7 +199,7 @@ impl AndroidBuildCommand {
         }
 
         config.status_message("Reading", "AndroidManifest.xml")?;
-        let manifest = Self::get_android_manifest(context, false)?;
+        let manifest = Self::get_android_manifest(context, AndroidStrategy::NativeApk)?;
         config.status_message("Generating", "AndroidManifest.xml")?;
         let manifest_path = android::save_android_manifest(&native_build_dir, &manifest)?;
 
@@ -282,13 +282,7 @@ impl AndroidBuildCommand {
         }
 
         config.status_message("Reading", "AndroidManifest.xml")?;
-        let manifest = Self::get_android_manifest(context, false)?;
-        config.status_message("Generating", "AndroidManifest.xml")?;
-        android::save_android_manifest(&native_build_dir, &manifest)?;
-
-        // Get AndroidManifest.xml from file or generate from Cargo.toml
-        config.status_message("Reading", "AndroidManifest.xml")?;
-        let manifest = Self::get_android_manifest(context, false)?;
+        let manifest = Self::get_android_manifest(context, AndroidStrategy::NativeAab)?;
         config.status_message("Generating", "AndroidManifest.xml")?;
         let manifest_path = android::save_android_manifest(&native_build_dir, &manifest)?;
 
@@ -417,7 +411,7 @@ impl AndroidBuildCommand {
     /// Specifies path to Android SDK and Android NDK.
     pub fn android_toolchain() -> Result<(AndroidSdk, AndroidNdk)> {
         let sdk = AndroidSdk::from_env()?;
-        let ndk = AndroidNdk::from_env(Some(sdk.sdk_path()))?;
+        let ndk = AndroidNdk::from_env(sdk.sdk_path())?;
         Ok((sdk, ndk))
     }
 
@@ -536,7 +530,10 @@ impl AndroidBuildCommand {
     }
 
     /// Get android manifest from the path in cargo manifest or generate it with the given configuration
-    pub fn get_android_manifest(context: &BuildContext, gradle: bool) -> Result<AndroidManifest> {
+    pub fn get_android_manifest(
+        context: &BuildContext,
+        strategy: AndroidStrategy,
+    ) -> Result<AndroidManifest> {
         if let Some(manifest_path) = &context.config.android.manifest_path {
             return Ok(android::read_android_manifest(manifest_path)?);
         }
@@ -549,7 +546,7 @@ impl AndroidBuildCommand {
             &mut manifest,
             context.config.app_name.clone(),
             context.package_name().as_str(),
-            gradle,
+            strategy,
         );
         Ok(manifest)
     }

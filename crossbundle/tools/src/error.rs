@@ -12,8 +12,6 @@ pub type Result<T> = std::result::Result<T, Error>;
 /// Android specific error type.
 #[derive(Display, Debug, Error)]
 pub enum AndroidError {
-    /// Android SDK is not found
-    AndroidSdkNotFound,
     /// Android NDK is not found
     AndroidNdkNotFound,
     /// Gradle Dependency project dir not found: {0}
@@ -26,8 +24,6 @@ pub enum AndroidError {
     BuildToolsNotFound,
     /// Android SDK has no platforms installed
     NoPlatformsFound,
-    /// Failed to create directory
-    DirectoryWasNotCreated,
     /// Platform {0} is not installed
     PlatformNotFound(u32),
     /// Target is not supported
@@ -98,15 +94,6 @@ pub enum Error {
     FailedToFindManifest(PathBuf),
     /// Invalid profile: {0}
     InvalidProfile(String),
-    /// Invalid interface orientation: {0:?}
-    InvalidInterfaceOrientation(String),
-    /// Home dir not found
-    HomeDirNotFound,
-    /// Failed to create jar file in specified path `{path}` cause of `{cause}`
-    JarFileCreationFailed {
-        path: PathBuf,
-        cause: std::io::Error,
-    },
     /// GNU toolchain binary `{gnu_bin}` nor LLVM toolchain binary `{llvm_bin}` found in
     /// `{toolchain_path:?}`
     ToolchainBinaryNotFound {
