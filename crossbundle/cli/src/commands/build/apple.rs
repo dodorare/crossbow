@@ -58,10 +58,10 @@ impl IosBuildCommand {
         } else {
             (Target::Bin(context.package_name()), context.package_name())
         };
-        let properties = context.gen_info_plist(&package_name)?;
+        let properties = Self::gen_info_plist(context, &package_name)?;
         config.status_message("Starting build process", &package_name)?;
         config.status("Compiling app")?;
-        let build_targets = context.apple_build_targets(profile, &self.target);
+        let build_targets = Self::apple_build_targets(context, profile, &self.target);
         let mut app_paths = vec![];
         for build_target in build_targets {
             let app_path = self.build_app(
@@ -155,5 +155,41 @@ impl IosBuildCommand {
         apple::gen_apple_ipa(apple_target_dir, &app_path, name)?;
         config.status("Build finished successfully")?;
         Ok(app_path)
+    }
+
+    /// Get apple build targets from cargo manifest
+    pub fn apple_build_targets(
+        context: &BuildContext,
+        profile: Profile,
+        build_targets: &Vec<IosTarget>,
+    ) -> Vec<IosTarget> {
+        if !build_targets.is_empty() {
+            return build_targets.clone();
+        }
+        if profile == Profile::Debug && !context.config.apple.debug_build_targets.is_empty() {
+            return context.config.apple.debug_build_targets.clone();
+        }
+        if profile == Profile::Release && !context.config.apple.release_build_targets.is_empty() {
+            return context.config.apple.release_build_targets.clone();
+        }
+        vec![IosTarget::Aarch64Sim]
+    }
+
+    /// Get info plist from the path in cargo manifest or generate it with the given configuration
+    pub fn gen_info_plist(context: &BuildContext, package_name: &str) -> Result<InfoPlist> {
+        if let Some(info_plist_path) = &context.config.apple.info_plist_path {
+            return Ok(apple::read_info_plist(info_plist_path)?);
+        }
+        let mut info_plist = if let Some(info_plist) = &context.config.apple.info_plist {
+            info_plist.clone()
+        } else {
+            InfoPlist::default()
+        };
+        update_info_plist_with_default(
+            &mut info_plist,
+            package_name,
+            context.config.app_name.clone(),
+        );
+        Ok(info_plist)
     }
 }

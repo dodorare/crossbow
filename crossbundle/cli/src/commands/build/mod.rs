@@ -29,7 +29,7 @@ impl BuildCommand {
     }
 }
 
-#[derive(Parser, Clone, Debug)]
+#[derive(Parser, Clone, Debug, Default)]
 pub struct SharedBuildCommand {
     /// Build the specified example
     #[clap(long)]

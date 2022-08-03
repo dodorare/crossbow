@@ -12,13 +12,13 @@ pub fn gen_unaligned_apk(
     manifest_path: &Path,
     assets: &Option<PathBuf>,
     res: &Option<PathBuf>,
-    package_label: &str,
+    package_name: &str,
     target_sdk_version: u32,
 ) -> Result<PathBuf> {
     if !build_dir.exists() {
         create_dir_all(&build_dir)?;
     }
-    let apk_path = build_dir.join(format!("{}-unaligned.apk", package_label));
+    let apk_path = build_dir.join(format!("{}-unaligned.apk", package_name));
     let mut aapt = sdk.build_tool(bin!("aapt"), Some(project_path))?;
     aapt.arg("package")
         .arg("-f")
