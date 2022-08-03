@@ -17,7 +17,7 @@ anyhow = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 
 android-manifest = { version = "0.1.9", optional = true }
-apple-bundle = { version = "0.1.2", optional = true }
+apple-bundle = { version = "0.1.4", optional = true }
 
 [target.'cfg(target_os = "android")'.dependencies]
 ndk-glue = "0.6.2"
