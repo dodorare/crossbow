@@ -65,9 +65,9 @@ fn test_cargo_metadata() {
     .unwrap();
 
     let expected_manifest = r#"<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.rust.example" android:versionCode="1" android:versionName="0.1.0">
-  <application android:debuggable="true" android:hasCode="false" android:label="example" android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen">
-    <activity android:configChanges="orientation|keyboardHidden|screenSize" android:name="android.app.NativeActivity" android:resizeableActivity="true">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.crossbow.example" android:versionCode="1" android:versionName="0.1.0">
+  <application android:hasCode="false" android:label="Crossbow" android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen">
+    <activity android:name="android.app.NativeActivity" android:resizeableActivity="true">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />

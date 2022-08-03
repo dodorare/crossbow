@@ -4,7 +4,8 @@ use crossbundle_tools::{
     tools::*,
     types::{
         android_manifest::AndroidManifest, apple_bundle::prelude::InfoPlist,
-        update_android_manifest_with_default, AndroidTarget, IosTarget, Profile,
+        update_android_manifest_with_default, update_info_plist_with_default, AndroidTarget,
+        IosTarget, Profile,
     },
     utils::*,
 };
@@ -142,11 +143,7 @@ impl BuildContext {
         } else {
             InfoPlist::default()
         };
-        apple::update_android_manifest_with_default(
-            &mut info_plist,
-            package_name,
-            self.config.app_name.clone(),
-        );
+        update_info_plist_with_default(&mut info_plist, package_name, self.config.app_name.clone());
         Ok(info_plist)
     }
 }
