@@ -1,4 +1,4 @@
-#![cfg(target_os = "macos")]
+#![cfg(all(target_os = "macos", feature = "apple"))]
 
 use apple_bundle::prelude::*;
 use crossbundle_tools::{
@@ -80,6 +80,7 @@ fn test_apple_full() {
         vec![],
         false,
         false,
+        &[],
     )
     .unwrap();
     let out_dir = dir

@@ -1,7 +1,5 @@
 use super::*;
-use crate::error::*;
-use crate::tools::*;
-use crate::types::*;
+use crate::{error::*, types::*};
 
 pub fn rust_compile(
     ndk: &AndroidNdk,

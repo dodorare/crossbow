@@ -1,4 +1,4 @@
-use crate::{error::*, tools::Aapt2};
+use crate::{error::*, types::Aapt2};
 use std::path::{Path, PathBuf};
 use std::process::Command as ProcessCommand;
 

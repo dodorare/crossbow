@@ -1,31 +1,41 @@
+#[cfg(feature = "android")]
 pub mod android;
+#[cfg(feature = "apple")]
 pub mod apple;
 mod build_context;
 
 pub use build_context::*;
 
+#[cfg(feature = "android")]
 use android::AndroidBuildCommand;
+#[cfg(feature = "apple")]
 use apple::IosBuildCommand;
 
 use crate::error::Result;
 use clap::Parser;
-use crossbundle_tools::{types::Profile, utils::Config};
+use crossbundle_tools::types::{Config, Profile};
 use std::path::PathBuf;
 
 #[derive(Parser, Clone, Debug)]
 pub enum BuildCommand {
     /// Starts the process of building/packaging/signing of the rust crate for Android
+    #[cfg(feature = "android")]
     Android(AndroidBuildCommand),
     /// Starts the process of building/packaging/signing of the rust crate for iOS
+    #[cfg(feature = "apple")]
     Ios(IosBuildCommand),
 }
 
 impl BuildCommand {
     pub fn handle_command(&self, config: &Config) -> Result<()> {
+        #[cfg(any(feature = "android", feature = "apple"))]
         match &self {
-            Self::Android(cmd) => cmd.run(config),
-            Self::Ios(cmd) => cmd.run(config),
+            #[cfg(feature = "android")]
+            Self::Android(cmd) => cmd.run(config)?,
+            #[cfg(feature = "apple")]
+            Self::Ios(cmd) => cmd.run(config)?,
         }
+        Ok(())
     }
 }
 

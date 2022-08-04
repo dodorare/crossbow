@@ -1,10 +1,9 @@
+#![cfg(feature = "android")]
+
 use android_tools::java_tools::*;
 use crossbundle_tools::{
-    commands::android::{
-        common::{extract_archive::extract_archive, remove},
-        native::*,
-    },
-    tools::{AndroidSdk, BuildApks, BuildBundle, GetSizeTotal},
+    commands::android::*,
+    types::{AndroidSdk, BuildApks, BuildBundle, GetSizeTotal},
 };
 
 #[test]

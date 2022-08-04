@@ -7,8 +7,8 @@ pub mod types;
 
 use clap::Parser;
 use colored::Colorize;
-pub use commands::*;
-use crossbundle_tools::utils::{Config, Shell, Verbosity};
+use commands::*;
+use crossbundle_tools::types::{Config, Shell, Verbosity};
 use std::path::PathBuf;
 
 #[derive(Parser, Clone, Debug)]

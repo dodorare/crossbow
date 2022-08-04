@@ -2,7 +2,7 @@ use crate::types::*;
 
 /// Add linker args for quad engine using NDK versions <=22
 pub fn add_clinker_args(
-    ndk: &crate::tools::AndroidNdk,
+    ndk: &AndroidNdk,
     build_target: &AndroidTarget,
     target_sdk_version: u32,
 ) -> cargo::CargoResult<Vec<std::ffi::OsString>> {

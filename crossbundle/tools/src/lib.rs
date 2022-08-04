@@ -28,8 +28,4 @@ pub const EXECUTABLE_SUFFIX_BAT: &str = "";
 
 pub mod commands;
 pub mod error;
-pub mod tools;
 pub mod types;
-pub mod utils;
-
-pub use simctl;

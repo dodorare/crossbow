@@ -1,11 +1,11 @@
-#[cfg(target_os = "macos")]
+#![cfg(all(target_os = "macos", feature = "apple"))]
+
 use crossbundle_tools::{
     commands::{apple::*, gen_minimal_project},
     types::{IosTarget, Profile, Target},
 };
 
 #[test]
-#[cfg(target_os = "macos")]
 fn test_compile_apple() {
     let tempdir = tempfile::tempdir().unwrap();
     let dir = tempdir.path();
@@ -19,6 +19,7 @@ fn test_compile_apple() {
         vec![],
         false,
         false,
+        &[],
     )
     .unwrap();
 }

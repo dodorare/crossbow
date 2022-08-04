@@ -1,7 +1,8 @@
-use crate::error::*;
-use crate::tools::*;
-use std::fs::create_dir_all;
-use std::path::{Path, PathBuf};
+use crate::{error::*, types::*};
+use std::{
+    fs::create_dir_all,
+    path::{Path, PathBuf},
+};
 
 /// Generates unaligned APK with given `manifest_path`, `assets` and `res`.
 /// Uses `aapt` build tool

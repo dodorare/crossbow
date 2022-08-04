@@ -2,15 +2,10 @@ use crate::commands::build::{android::AndroidBuildCommand, BuildContext};
 use crate::error::*;
 use clap::Parser;
 use crossbundle_tools::{
-    commands::android::{
-        common::{attach_logger_only_rust, start_app},
-        gradle::gradle_init,
-        native::install_apk,
-    },
+    commands::android::*,
     error::CommandExt,
-    tools::{BuildApks, InstallApks},
-    types::AndroidStrategy,
-    utils::Config,
+    types::Config,
+    types::{AndroidStrategy, BuildApks, InstallApks},
 };
 
 #[derive(Parser, Clone, Debug)]

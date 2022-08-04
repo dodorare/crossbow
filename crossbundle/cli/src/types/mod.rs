@@ -1,7 +1,11 @@
+#[cfg(feature = "android")]
 pub mod android_config;
+#[cfg(feature = "apple")]
 pub mod apple_config;
 
+#[cfg(feature = "android")]
 pub use android_config::*;
+#[cfg(feature = "apple")]
 pub use apple_config::*;
 
 use crossbow::Permission;
@@ -29,17 +33,21 @@ pub struct CrossbowMetadata {
     pub permissions: Vec<Permission>,
     // TODO: Add `icon` field and icon generation.
     // pub icon: Option<PathBuf>,
+    #[cfg(feature = "android")]
     #[serde(default)]
     pub android: AndroidConfig,
+    #[cfg(feature = "apple")]
     #[serde(default)]
     pub apple: AppleConfig,
 }
 
 impl CrossbowMetadata {
+    #[cfg(feature = "android")]
     pub fn get_android_assets(&self) -> Option<PathBuf> {
         self.android.assets.clone().or_else(|| self.assets.clone())
     }
 
+    #[cfg(feature = "apple")]
     pub fn get_apple_assets(&self) -> Option<PathBuf> {
         self.apple.assets.clone().or_else(|| self.assets.clone())
     }

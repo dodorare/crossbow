@@ -1,5 +1,4 @@
-use crate::error::*;
-use crate::tools::*;
+use crate::{error::*, types::*};
 use std::path::{Path, PathBuf};
 
 /// Aligns APK on 4-byte memory boundary.

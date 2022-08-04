@@ -1,5 +1,4 @@
-use crate::error::*;
-use crate::tools::AndroidSdk;
+use crate::{error::*, types::AndroidSdk};
 
 /// Installing APK or AAB on emulator or connected device.
 /// Runs `adb shell am start ...` command

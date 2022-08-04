@@ -4,7 +4,7 @@ use std::io::Write;
 /// Sets needed environment variables
 pub fn set_cmake_vars(
     build_target: crate::types::AndroidTarget,
-    ndk: &crate::tools::AndroidNdk,
+    ndk: &AndroidNdk,
     target_sdk_version: u32,
     build_target_dir: &std::path::Path,
 ) -> cargo::CargoResult<()> {

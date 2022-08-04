@@ -2,7 +2,7 @@ use super::{BuildContext, SharedBuildCommand};
 use crate::error::*;
 use apple_bundle::prelude::InfoPlist;
 use clap::Parser;
-use crossbundle_tools::{commands::apple, types::*, utils::Config};
+use crossbundle_tools::{commands::apple, types::*};
 use std::path::{Path, PathBuf};
 
 #[derive(Parser, Clone, Debug)]
@@ -102,6 +102,7 @@ impl IosBuildCommand {
             self.shared.features.clone(),
             self.shared.all_features,
             self.shared.no_default_features,
+            &[],
         )?;
         let out_dir = context.target_dir.join(rust_triple).join(&profile);
         let bin_path = out_dir.join(&name);

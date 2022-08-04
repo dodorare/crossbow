@@ -1,9 +1,7 @@
+#![cfg(feature = "android")]
+
 use crossbundle_tools::{
-    commands::{
-        android::{common::rust_compile, native::add_libs_into_aapt2},
-        gen_minimal_project,
-    },
-    tools::*,
+    commands::{android::*, gen_minimal_project},
     types::*,
 };
 

@@ -1,5 +1,5 @@
 use crossbundle_tools::{
-    commands::android::gradle::AndroidGradlePlugins,
+    commands::android::*,
     types::{android_manifest::AndroidManifest, AndroidTarget, AppWrapper},
 };
 use serde::{Deserialize, Serialize};

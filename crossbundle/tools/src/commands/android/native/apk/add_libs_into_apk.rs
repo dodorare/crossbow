@@ -1,7 +1,6 @@
 use crate::{
     error::*,
-    tools::{AndroidNdk, AndroidSdk},
-    types::{AndroidTarget, IntoRustTriple, Profile},
+    types::{AndroidNdk, AndroidSdk, AndroidTarget, IntoRustTriple, Profile},
 };
 use std::{
     fs::File,

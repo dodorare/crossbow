@@ -1,6 +1,7 @@
-use crate::error::*;
-use crate::tools::AndroidSdk;
-use crate::types::AndroidTarget;
+use crate::{
+    error::*,
+    types::{AndroidSdk, AndroidTarget},
+};
 
 /// Returns current android target.
 /// Runs `adb shell getprop ro.product.cpu.abi` command

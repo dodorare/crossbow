@@ -1,7 +1,7 @@
 use crate::commands::build::{apple::IosBuildCommand, BuildContext};
 use crate::error::*;
 use clap::Parser;
-use crossbundle_tools::{commands::apple, types::*, utils::Config};
+use crossbundle_tools::{commands::apple, types::Config, types::*};
 use std::path::PathBuf;
 
 #[derive(Parser, Clone, Debug)]
@@ -45,7 +45,7 @@ impl IosRunCommand {
         } else {
             config.status("Installing and launching application on simulator")?;
             apple::launch_apple_app(&app_path, &self.simulator_name, bundle_id, true)?;
-            crossbundle_tools::simctl::Simctl::new()
+            crossbundle_tools::types::simctl::Simctl::new()
                 .open()
                 .map_err(|err| Error::CrossbundleTools(err.into()))?;
         }

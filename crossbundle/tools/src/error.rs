@@ -1,5 +1,6 @@
 //! Contains `Error`, `AndroidError`, `AppleError` types used by `crossbundle-tools`.
 
+#[cfg(feature = "apple")]
 use apple_bundle::plist;
 use displaydoc::Display;
 use std::path::PathBuf;
@@ -10,6 +11,7 @@ use thiserror::Error;
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Android specific error type.
+#[cfg(feature = "android")]
 #[derive(Display, Debug, Error)]
 pub enum AndroidError {
     /// Android NDK is not found
@@ -49,6 +51,7 @@ pub enum AndroidError {
 }
 
 /// Apple specific error type.
+#[cfg(feature = "apple")]
 #[derive(Display, Debug, Error)]
 pub enum AppleError {
     /// Code signing profile not found
@@ -69,6 +72,8 @@ pub enum AppleError {
     ResourcesNotFound,
     /// Unsupported or invalid build strategy: {0}
     InvalidBuildStrategy(String),
+    /// Unsupported or invalid target: {0}
+    InvalidBuildTarget(String),
     /// Assets dir does not exists
     AssetsNotFound,
     /// Failed to find Info.plist in path: {0}
@@ -115,8 +120,10 @@ pub enum Error {
     /// Zip error: {0:?}
     Zip(#[from] zip::result::ZipError),
     /// Android error: {0:?}
+    #[cfg(feature = "android")]
     Android(#[from] AndroidError),
     /// Apple error: {0:?}
+    #[cfg(feature = "apple")]
     Apple(#[from] AppleError),
     /// Anyhow error: {0:?}
     AnyhowError(#[from] anyhow::Error),
@@ -152,18 +159,21 @@ impl CommandExt for Command {
     }
 }
 
+#[cfg(feature = "apple")]
 impl From<plist::Error> for Error {
     fn from(error: plist::Error) -> Self {
         AppleError::from(error).into()
     }
 }
 
+#[cfg(feature = "apple")]
 impl From<simctl::Error> for Error {
     fn from(error: simctl::Error) -> Self {
         AppleError::Simctl(error).into()
     }
 }
 
+#[cfg(feature = "android")]
 impl From<android_tools::error::Error> for Error {
     fn from(error: android_tools::error::Error) -> Self {
         AndroidError::AndroidTools(error).into()

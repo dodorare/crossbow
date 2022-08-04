@@ -1,8 +1,7 @@
 use crate::{
     commands::android::native::{get_libs_in_dir, recursively_define_needed_libs, search_dylibs},
     error::*,
-    tools::AndroidNdk,
-    types::{AndroidTarget, IntoRustTriple, Profile},
+    types::{AndroidNdk, AndroidTarget, IntoRustTriple, Profile},
 };
 use std::path::{Path, PathBuf};
 

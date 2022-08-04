@@ -1,6 +1,6 @@
 use clap::Parser;
 use crossbundle_tools::{
-    error::CommandExt, tools::AndroidSdk, utils::Config, EXECUTABLE_SUFFIX_BAT,
+    error::CommandExt, types::AndroidSdk, types::Config, EXECUTABLE_SUFFIX_BAT,
 };
 use std::path::Path;
 

@@ -340,11 +340,6 @@ impl Shell {
         self.err().write_all(message)?;
         Ok(())
     }
-
-    pub fn print_json<T: serde::ser::Serialize>(&mut self, obj: &T) {
-        let encoded = serde_json::to_string(&obj).unwrap();
-        drop(writeln!(self.out(), "{}", encoded));
-    }
 }
 
 impl Default for Shell {

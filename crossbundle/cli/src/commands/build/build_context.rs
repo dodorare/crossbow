@@ -1,5 +1,5 @@
 use crate::{error::*, types::*};
-use crossbundle_tools::{commands::*, utils::*};
+use crossbundle_tools::{commands::*, types::Config};
 use std::path::PathBuf;
 
 pub struct BuildContext {

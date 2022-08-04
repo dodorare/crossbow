@@ -2,7 +2,7 @@ use crate::error::Result;
 use clap::Parser;
 use crossbundle_tools::{
     commands::{check_cargo_generate, create_project},
-    utils::Config,
+    types::Config,
 };
 
 const TEMPLATES_REPO: &str = "https://github.com/dodorare/crossbundle-templates.git";

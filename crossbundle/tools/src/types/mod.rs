@@ -1,15 +1,11 @@
-mod app_wrapper;
-mod build_target;
-mod manifest;
-mod profile;
-mod strategies;
-mod target;
-mod version_code;
+#[cfg(feature = "android")]
+mod android;
+#[cfg(feature = "apple")]
+mod apple;
+mod common;
 
-pub use app_wrapper::*;
-pub use build_target::*;
-pub use manifest::*;
-pub use profile::*;
-pub use strategies::*;
-pub use target::*;
-pub use version_code::*;
+#[cfg(feature = "android")]
+pub use android::*;
+#[cfg(feature = "apple")]
+pub use apple::*;
+pub use common::*;

@@ -1,9 +1,4 @@
-use crate::{
-    commands::android::common::{extract_archive::extract_archive, remove, save_android_manifest},
-    error::*,
-    tools::AndroidSdk,
-    types::{update_android_manifest_with_default, AndroidStrategy},
-};
+use crate::{commands::android::*, error::*, types::*};
 use android_manifest::AndroidManifest;
 use std::path::{Path, PathBuf};
 

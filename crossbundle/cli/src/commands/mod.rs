@@ -5,7 +5,7 @@ pub mod run;
 
 use crate::error::Result;
 use clap::Parser;
-use crossbundle_tools::utils::Config;
+use crossbundle_tools::types::Config;
 
 #[derive(Parser, Clone, Debug)]
 pub enum Commands {

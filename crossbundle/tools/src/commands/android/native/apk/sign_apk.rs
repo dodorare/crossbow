@@ -1,5 +1,4 @@
-use crate::error::*;
-use crate::tools::*;
+use crate::{error::*, types::AndroidSdk};
 use android_tools::java_tools::Key;
 use std::path::Path;
 
