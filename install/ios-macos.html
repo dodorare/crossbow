@@ -195,10 +195,10 @@ iOS setup on MacOS</li>
 cd game/
 </code></pre>
 <p>Now run the build command:</p>
-<pre><code class="language-sh">crossbundle build apple --target=x86_64-apple-ios
+<pre><code class="language-sh">crossbundle build ios --target=x86_64-apple-ios
 </code></pre>
 <p>And if you want to run on the simulator:</p>
-<pre><code class="language-sh">crossbundle run apple --target=x86_64-apple-ios
+<pre><code class="language-sh">crossbundle run ios --target=x86_64-apple-ios
 </code></pre>
 <h2 id="run-your-app-on-a-real-device"><a class="header" href="#run-your-app-on-a-real-device">Run your app on a real device</a></h2>
 <p>To run your application on a real device you will need to open <code>Xcode</code> and create a new project
@@ -218,7 +218,7 @@ MIIFtTCCBJ2...&lt;rest-of-private-key&gt;
 </code></pre>
 <p>Next to <code>OU</code> - you will find Team ID. (in our case <code>AS9UV719T7</code>).</p>
 <p>Now we are good to install our app on a real device. To run/build app for a real device you will need similar to this command to be run in your cargo project:</p>
-<pre><code class="language-sh">crossbundle run apple --release --device --profile-name=aec73e2f-c2f9-4e3b-9393-be19cc52fea3.mobileprovision --team-identifier=AS9UV719T7 --identity=AF96DABFC5DEE81E339ED8755DA8D1E48A87CBFE
+<pre><code class="language-sh">crossbundle run ios --release --device --profile-name=aec73e2f-c2f9-4e3b-9393-be19cc52fea3.mobileprovision --team-identifier=AS9UV719T7 --identity=AF96DABFC5DEE81E339ED8755DA8D1E48A87CBFE
 </code></pre>
 <p>Now replace test data (<code>aec73e2f-c2f9-4e3b-9393-be19cc52fea3.mobileprovision</code>, <code>AS9UV719T7</code>, <code>AF96DABFC5DEE81E339ED8755DA8D1E48A87CBFE</code>) - with your own and run command. If everything worked well - you will see new app on your device.</p>
 

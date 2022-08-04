@@ -144,21 +144,22 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
-<p><img src="https://github.com/dodorare/crossbow/blob/main/.github/assets/splash.png?raw=true" alt="splash" /></p>
+<p><img src="https://github.com/dodorare/crossbow/blob/main/assets/splash.png?raw=true" alt="splash" /></p>
 <h2 id="what-is-crossbow"><a class="header" href="#what-is-crossbow">What is Crossbow?</a></h2>
 <p>The <code>crossbow</code> project aims to provide a complete toolkit for cross-platform game development in <em>Rust</em> - from project creation to publishing. In addition, the project simplifies the creation, packaging, and signing of <strong>Android</strong> and <strong>iOS</strong> applications. We want to make most of our tools - engine agnostic to help rust game developers integrate them into their engines or games.</p>
 <h2 id="why-crossbow"><a class="header" href="#why-crossbow">Why Crossbow?</a></h2>
 <blockquote>
 <p>There are already <a href="https://github.com/rust-windowing/android-ndk-rs/tree/master/cargo-apk">cargo-apk</a>, <a href="https://github.com/BrainiumLLC/cargo-mobile">cargo-mobile</a>, <a href="https://gitlab.com/kornelski/cargo-xcode">cargo-xcode</a>, etc. - why do I need another packaging tool?</p>
 </blockquote>
-<p>Project <code>crossbow</code> is not only a packaging tool for <strong>Android</strong> and iOS - it's a toolkit. With <code>crossbundle-tools</code> you can customize and create new commands; with <code>crossbundle</code> you can create native <strong>.apk/.aab</strong> without any <em>Java</em> or setup <em>Gradle</em> project with fancy <strong>Crossbow Android plugins</strong> (<strong>iOS</strong> in near future); with <code>crossbow-android</code> you can write your own Android plugins in <em>Java/Kotlin</em>.</p>
+<p>Project <code>crossbow</code> is not only a packaging tool for <strong>Android</strong> and <strong>iOS</strong> - it's cross-platform build tools and toolkit for Rust! With <code>crossbundle</code> you can create native <strong>.apk/.aab</strong> without any <em>Java</em> or setup <em>Gradle</em> project with fancy <strong>Crossbow Android plugins</strong> (<strong>iOS</strong> in near future); with <code>crossbundle-tools</code> you can customize and create new commands; with <code>crossbow-android</code> you can write your own Android plugins in <em>Java/Kotlin</em>.</p>
 <p>A lot of functionality was inspired by <a href="https://github.com/godotengine/godot">Godot</a>, <a href="https://dotnet.microsoft.com/en-us/apps/xamarin">Xamarin</a>, and <a href="https://github.com/rust-windowing/android-ndk-rs/tree/master/cargo-apk">cargo-apk</a>.</p>
 <h2 id="design-goals"><a class="header" href="#design-goals">Design Goals</a></h2>
 <ul>
 <li><strong>Customizable</strong>: Create new commands with available tools.</li>
-<li><strong>Simple</strong>: Easy to start but flexible for strong devs.</li>
+<li><strong>Simple</strong>: Easy to install and start hacking but also pretty flexible for strong devs.</li>
 <li><strong>Capable</strong>: It's possible to build plain <strong>.apk/.aab</strong> or <strong>.app/.ipa</strong>; or with help of <em>Gradle/XCode</em>.</li>
 <li><strong>Rust</strong>: Don't leave your <em>Rust</em> code - <strong>everything</strong> can be configured from <code>Cargo.toml</code>.</li>
+<li><strong>Plugins</strong>: Godot-like plugins for <strong>Android</strong> (and <strong>iOS</strong> in future) with <em>Rust</em> wrapper!</li>
 </ul>
 <h2 id="next-steps"><a class="header" href="#next-steps">Next steps</a></h2>
 <p>As the next steps we recommend you to install and setup <code>crossbundle</code> to be able to build, test, and run your project!</p>
@@ -417,9 +418,9 @@ cd ./crossbow/
 </code></pre>
 <p>Run the following command at the root of <code>crossbow</code> project:</p>
 <pre><code class="language-sh"># For unix systems:
-docker run --rm -it -v &quot;$(pwd)/:/src&quot; -w /src/examples/macroquad-permissions ghcr.io/dodorare/crossbundle build android --quad --release
+docker run --rm -it -v &quot;$(pwd)/:/src&quot; -w /src/examples/macroquad-permissions ghcr.io/dodorare/crossbundle build android --release
 # For Windows:
-docker run --rm -it -v &quot;${pwd}/:/src&quot; -w /src/examples/macroquad-permissions ghcr.io/dodorare/crossbundle build android --quad --release
+docker run --rm -it -v &quot;${pwd}/:/src&quot; -w /src/examples/macroquad-permissions ghcr.io/dodorare/crossbundle build android --release
 </code></pre>
 <p>Install APK on connected Android phone via USB:</p>
 <pre><code class="language-sh">adb install ./target/android/macroquad-permissions/gradle/build/outputs/apk/release/gradle-release-unsigned.apk
@@ -478,10 +479,10 @@ iOS setup on MacOS</li>
 cd game/
 </code></pre>
 <p>Now run the build command:</p>
-<pre><code class="language-sh">crossbundle build apple --target=x86_64-apple-ios
+<pre><code class="language-sh">crossbundle build ios --target=x86_64-apple-ios
 </code></pre>
 <p>And if you want to run on the simulator:</p>
-<pre><code class="language-sh">crossbundle run apple --target=x86_64-apple-ios
+<pre><code class="language-sh">crossbundle run ios --target=x86_64-apple-ios
 </code></pre>
 <h2 id="run-your-app-on-a-real-device"><a class="header" href="#run-your-app-on-a-real-device">Run your app on a real device</a></h2>
 <p>To run your application on a real device you will need to open <code>Xcode</code> and create a new project
@@ -501,7 +502,7 @@ MIIFtTCCBJ2...&lt;rest-of-private-key&gt;
 </code></pre>
 <p>Next to <code>OU</code> - you will find Team ID. (in our case <code>AS9UV719T7</code>).</p>
 <p>Now we are good to install our app on a real device. To run/build app for a real device you will need similar to this command to be run in your cargo project:</p>
-<pre><code class="language-sh">crossbundle run apple --release --device --profile-name=aec73e2f-c2f9-4e3b-9393-be19cc52fea3.mobileprovision --team-identifier=AS9UV719T7 --identity=AF96DABFC5DEE81E339ED8755DA8D1E48A87CBFE
+<pre><code class="language-sh">crossbundle run ios --release --device --profile-name=aec73e2f-c2f9-4e3b-9393-be19cc52fea3.mobileprovision --team-identifier=AS9UV719T7 --identity=AF96DABFC5DEE81E339ED8755DA8D1E48A87CBFE
 </code></pre>
 <p>Now replace test data (<code>aec73e2f-c2f9-4e3b-9393-be19cc52fea3.mobileprovision</code>, <code>AS9UV719T7</code>, <code>AF96DABFC5DEE81E339ED8755DA8D1E48A87CBFE</code>) - with your own and run command. If everything worked well - you will see new app on your device.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="overview"><a class="header" href="#overview">Overview</a></h1>
@@ -541,10 +542,10 @@ Note: Android studio install cmdline tools into <code>$SDK_ROOT/cmdline-tools/&l
 <div style="break-before: page; page-break-before: always;"></div><h1 id="crossbow-gradle"><a class="header" href="#crossbow-gradle">Crossbow gradle</a></h1>
 <p>Crossbow default build process requires installed Gradle on your PC. You can download it <a href="https://gradle.org/">here</a>. Don't forget to install <code>GRADLE_HOME</code> environment variable.</p>
 <p>To create a project go to the example you want to build and use the command below. The command belongs to macroquad engine examples building:</p>
-<pre><code class="language-sh">crossbundle build android --quad
+<pre><code class="language-sh">crossbundle build android
 
 # To specify custom export gradle directory
-crossbundle build android --quad --export-path=./gen/
+crossbundle build android --export-path=./gen/
 </code></pre>
 <p>By default build directory is <code>target/android/&lt;project_name&gt;/gradle</code>. But you can specify your own build directory via <code>--export-path=&lt;OUT_PATH&gt;</code> flag. Go to the directory where Gradle project was built and use command below to manually install APK on the device.</p>
 <pre><code class="language-sh">gradle installDebug
@@ -573,7 +574,7 @@ app_name = &quot;Game&quot;
 target_sdk_version = 30
 icon = &quot;ic_launcher&quot;
 
-build_targets = [&quot;aarch64-linux-android&quot;]
+release_build_targets = [&quot;aarch64-linux-android&quot;]
 assets = &quot;assets&quot;
 res = &quot;res/android&quot;
 
@@ -581,7 +582,7 @@ res = &quot;res/android&quot;
 app_name = &quot;Game&quot;
 icon = &quot;ic_launcher&quot;
 
-build_targets = [&quot;aarch64-apple-ios&quot;, &quot;x86_64-apple-ios&quot;]
+release_build_targets = [&quot;aarch64-apple-ios&quot;, &quot;x86_64-apple-ios&quot;]
 assets = &quot;assets&quot;
 res = &quot;res/apple&quot;
 </code></pre>
@@ -624,7 +625,25 @@ info_plist_path = &quot;/path/to/file&quot;
 </code></pre>
 <p>That's it, this config file will be used for your mobile application.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="crossbow-permissions"><a class="header" href="#crossbow-permissions">Crossbow permissions</a></h1>
-<p>To request permissions with Crossbow you will need to add <code>crossbow</code> dependency to your Cargo.toml file. Then invoke request_permission function. This function checks the permission status in the application and will request permission if it's not granted yet:</p>
+<p>To request permissions with Crossbow you will need to add <code>crossbow</code> dependency to your Cargo.toml file. And add permissions to <code>AndroidManifest.xml</code> or <code>Info.plist</code>:</p>
+<pre><code class="language-toml"># This one:
+[package.metadata]
+permissions = [&quot;camera&quot;, &quot;microphone&quot;, &quot;photos&quot;, &quot;storage-read&quot;]
+
+# Will make the same as this one:
+[[package.metadata.android.manifest.uses_permission]]
+name = &quot;android.permission.READ_EXTERNAL_STORAGE&quot;
+[[package.metadata.android.manifest.uses_permission]]
+name = &quot;android.permission.CAMERA&quot;
+[[package.metadata.android.manifest.uses_permission]]
+name = &quot;android.permission.RECORD_AUDIO&quot;
+
+[package.metadata.apple.info_plist]
+NSCameraUsageDescription = &quot;This app needs access to your phone's camera.&quot;
+NSMicrophoneUsageDescription = &quot;This app needs access to your phone's microphone.&quot;
+NSPhotoLibraryUsageDescription = &quot;This app needs access to your phone's photo library.&quot;
+</code></pre>
+<p>Then invoke <code>request_async</code> function. This function checks the permission status in the application and will request permission if it's not granted yet:</p>
 <pre><pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use crossbow::Permission;
@@ -742,11 +761,11 @@ fn main() {
 <pre><code class="language-sh"># cd project-name
 crossbundle run android
 # or (if your project uses macroquad)
-crossbundle run android --quad
+crossbundle run android
 # or
-crossbundle run apple
+crossbundle run ios
 </code></pre>
-<p>If you want to build the application for android as native AAB - add <code>--aab</code> flag or add <code>--apk</code> to build native APK.</p>
+<p>If you want to build the application for android as native AAB - add <code>-s=native-aab</code> flag or add <code>-s=native-apk</code> to build native APK.</p>
 <p>When the application deploys on your device, you can attach a logger.</p>
 <pre><code class="language-sh">crossbundle log android
 </code></pre>
@@ -821,12 +840,12 @@ cd example/bevy-explorer
 </code></pre>
 <p>By default <code>crossbundle build android</code> command will generate gradle project and install apk on your device. To build native <code>.apk</code> and <code>.aab</code> see commands below.
 To build native APK and run it on the device using the command. If you want to build an application replaces <code>run</code> with <code>build</code>.</p>
-<pre><code class="language-sh">crossbundle run android --apk
+<pre><code class="language-sh">crossbundle run android -s=native-apk
 # or
-crossbundle run apple
+crossbundle run ios
 </code></pre>
 <p>To build native AAB and run it on the device using the command. If you want to build an application replaces <code>run</code> with <code>build</code>.</p>
-<pre><code class="language-sh">crossbundle run android --aab
+<pre><code class="language-sh">crossbundle run android -s=native-aab
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="contributing"><a class="header" href="#contributing">Contributing</a></h1>
 <p>If you want to help us build an awesome Cross-Platform future for Rust Games, please reach out! We need all the help we can get:</p>
@@ -892,13 +911,13 @@ crossbundle run apple
 <tr><td style="text-align: right">4.</td><td>Support Cross-platform permissions</td><td>Provide a single cross-platform permission API that works with any <a href="https://developer.apple.com/design/human-interface-guidelines/ios/app-architecture/accessing-user-data/">iOS</a>, <a href="https://developer.android.com/games/develop/permissions">Android</a>, etc application that can be accessed from shared code no matter how the user interface is created.</td><td>✅</td></tr>
 <tr><td style="text-align: right">5.</td><td>Simple installation</td><td>Simple installation with environment variables, libs, etc. Make installation of Android SDK, NDK, tools more robust.</td><td>✅</td></tr>
 <tr><td style="text-align: right">6.</td><td>Support iOS Plugins</td><td>Add support of iOS plugins to help add additional functionality provided by the Apple platforms and ecosystem (like Ads, Auth, In-app purchases, etc.). Something similar to <a href="https://docs.godotengine.org/en/stable/tutorials/platform/ios/ios_plugin.html">Godot iOS plugins</a>.</td><td>🛠</td></tr>
-<tr><td style="text-align: right">7.</td><td>Sign in with Google</td><td>Add support of <a href="https://developers.google.com/games/services/common/concepts/sign-in">Google Sign In</a> inside any application.</td><td>📝</td></tr>
+<tr><td style="text-align: right">7.</td><td>Sign in with Google</td><td>Add support of <a href="https://developers.google.com/games/services/common/concepts/sign-in">Google Sign In</a> inside any application.</td><td>🛠</td></tr>
 <tr><td style="text-align: right">8.</td><td>Sign in with Apple</td><td>Add support of <a href="https://github.com/lupidan/apple-signin-unity">Apple Sign In</a> inside any application.</td><td>📝</td></tr>
 <tr><td style="text-align: right">9.</td><td>Better support for Apple xcrun, xcode proj</td><td>Add better support and rust wrappers for Apple xcode tools, xcrun. Make cool xcode project generation library.</td><td>📝</td></tr>
 <tr><td style="text-align: right">10.</td><td>Apple Game Center</td><td>Add <a href="https://developer.apple.com/documentation/gamekit">Apple Game Center</a> support.</td><td>📝</td></tr>
-<tr><td style="text-align: right">11.</td><td>Android In-App purchases &amp; Google Play Billing</td><td>Add support for <a href="https://github.com/godotengine/godot-google-play-billing">Google Play Billing</a>. Make it possible to buy items from your application.</td><td>📝</td></tr>
+<tr><td style="text-align: right">11.</td><td>Android In-App purchases &amp; Google Play Billing</td><td>Add support for <a href="https://github.com/godotengine/godot-google-play-billing">Google Play Billing</a>. Make it possible to buy items from your application.</td><td>🛠</td></tr>
 <tr><td style="text-align: right">12.</td><td>Support Apple In-App purchases</td><td>Support Apple <a href="https://developer.apple.com/documentation/storekit/in-app_purchase">StoreKit</a>. Make it possible to buy items from your application.</td><td>📝</td></tr>
-<tr><td style="text-align: right">13.</td><td>Support Android In-App updates</td><td>Add support for <a href="https://developer.android.com/guide/playcore/in-app-updates">Android In-App updates</a>.</td><td>📝</td></tr>
+<tr><td style="text-align: right">13.</td><td>Support Android In-App updates</td><td>Add support for <a href="https://developer.android.com/guide/playcore/in-app-updates">Android In-App updates</a>.</td><td>🛠</td></tr>
 </tbody></table>
 </div>
 <p>✅ = Works and tested — 🆗 = Works but may contain bugs — 🛠 = Under development — 📝 = Planned</p>

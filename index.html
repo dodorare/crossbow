@@ -143,21 +143,22 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
-<p><img src="https://github.com/dodorare/crossbow/blob/main/.github/assets/splash.png?raw=true" alt="splash" /></p>
+<p><img src="https://github.com/dodorare/crossbow/blob/main/assets/splash.png?raw=true" alt="splash" /></p>
 <h2 id="what-is-crossbow"><a class="header" href="#what-is-crossbow">What is Crossbow?</a></h2>
 <p>The <code>crossbow</code> project aims to provide a complete toolkit for cross-platform game development in <em>Rust</em> - from project creation to publishing. In addition, the project simplifies the creation, packaging, and signing of <strong>Android</strong> and <strong>iOS</strong> applications. We want to make most of our tools - engine agnostic to help rust game developers integrate them into their engines or games.</p>
 <h2 id="why-crossbow"><a class="header" href="#why-crossbow">Why Crossbow?</a></h2>
 <blockquote>
 <p>There are already <a href="https://github.com/rust-windowing/android-ndk-rs/tree/master/cargo-apk">cargo-apk</a>, <a href="https://github.com/BrainiumLLC/cargo-mobile">cargo-mobile</a>, <a href="https://gitlab.com/kornelski/cargo-xcode">cargo-xcode</a>, etc. - why do I need another packaging tool?</p>
 </blockquote>
-<p>Project <code>crossbow</code> is not only a packaging tool for <strong>Android</strong> and iOS - it's a toolkit. With <code>crossbundle-tools</code> you can customize and create new commands; with <code>crossbundle</code> you can create native <strong>.apk/.aab</strong> without any <em>Java</em> or setup <em>Gradle</em> project with fancy <strong>Crossbow Android plugins</strong> (<strong>iOS</strong> in near future); with <code>crossbow-android</code> you can write your own Android plugins in <em>Java/Kotlin</em>.</p>
+<p>Project <code>crossbow</code> is not only a packaging tool for <strong>Android</strong> and <strong>iOS</strong> - it's cross-platform build tools and toolkit for Rust! With <code>crossbundle</code> you can create native <strong>.apk/.aab</strong> without any <em>Java</em> or setup <em>Gradle</em> project with fancy <strong>Crossbow Android plugins</strong> (<strong>iOS</strong> in near future); with <code>crossbundle-tools</code> you can customize and create new commands; with <code>crossbow-android</code> you can write your own Android plugins in <em>Java/Kotlin</em>.</p>
 <p>A lot of functionality was inspired by <a href="https://github.com/godotengine/godot">Godot</a>, <a href="https://dotnet.microsoft.com/en-us/apps/xamarin">Xamarin</a>, and <a href="https://github.com/rust-windowing/android-ndk-rs/tree/master/cargo-apk">cargo-apk</a>.</p>
 <h2 id="design-goals"><a class="header" href="#design-goals">Design Goals</a></h2>
 <ul>
 <li><strong>Customizable</strong>: Create new commands with available tools.</li>
-<li><strong>Simple</strong>: Easy to start but flexible for strong devs.</li>
+<li><strong>Simple</strong>: Easy to install and start hacking but also pretty flexible for strong devs.</li>
 <li><strong>Capable</strong>: It's possible to build plain <strong>.apk/.aab</strong> or <strong>.app/.ipa</strong>; or with help of <em>Gradle/XCode</em>.</li>
 <li><strong>Rust</strong>: Don't leave your <em>Rust</em> code - <strong>everything</strong> can be configured from <code>Cargo.toml</code>.</li>
+<li><strong>Plugins</strong>: Godot-like plugins for <strong>Android</strong> (and <strong>iOS</strong> in future) with <em>Rust</em> wrapper!</li>
 </ul>
 <h2 id="next-steps"><a class="header" href="#next-steps">Next steps</a></h2>
 <p>As the next steps we recommend you to install and setup <code>crossbundle</code> to be able to build, test, and run your project!</p>

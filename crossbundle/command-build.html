@@ -145,10 +145,10 @@
                         <h1 id="crossbow-gradle"><a class="header" href="#crossbow-gradle">Crossbow gradle</a></h1>
 <p>Crossbow default build process requires installed Gradle on your PC. You can download it <a href="https://gradle.org/">here</a>. Don't forget to install <code>GRADLE_HOME</code> environment variable.</p>
 <p>To create a project go to the example you want to build and use the command below. The command belongs to macroquad engine examples building:</p>
-<pre><code class="language-sh">crossbundle build android --quad
+<pre><code class="language-sh">crossbundle build android
 
 # To specify custom export gradle directory
-crossbundle build android --quad --export-path=./gen/
+crossbundle build android --export-path=./gen/
 </code></pre>
 <p>By default build directory is <code>target/android/&lt;project_name&gt;/gradle</code>. But you can specify your own build directory via <code>--export-path=&lt;OUT_PATH&gt;</code> flag. Go to the directory where Gradle project was built and use command below to manually install APK on the device.</p>
 <pre><code class="language-sh">gradle installDebug

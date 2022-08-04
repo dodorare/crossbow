@@ -180,12 +180,12 @@ cd example/bevy-explorer
 </code></pre>
 <p>By default <code>crossbundle build android</code> command will generate gradle project and install apk on your device. To build native <code>.apk</code> and <code>.aab</code> see commands below.
 To build native APK and run it on the device using the command. If you want to build an application replaces <code>run</code> with <code>build</code>.</p>
-<pre><code class="language-sh">crossbundle run android --apk
+<pre><code class="language-sh">crossbundle run android -s=native-apk
 # or
-crossbundle run apple
+crossbundle run ios
 </code></pre>
 <p>To build native AAB and run it on the device using the command. If you want to build an application replaces <code>run</code> with <code>build</code>.</p>
-<pre><code class="language-sh">crossbundle run android --aab
+<pre><code class="language-sh">crossbundle run android -s=native-aab
 </code></pre>
 
                     </main>

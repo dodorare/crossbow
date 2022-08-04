@@ -185,11 +185,11 @@ fn main() {
 <pre><code class="language-sh"># cd project-name
 crossbundle run android
 # or (if your project uses macroquad)
-crossbundle run android --quad
+crossbundle run android
 # or
-crossbundle run apple
+crossbundle run ios
 </code></pre>
-<p>If you want to build the application for android as native AAB - add <code>--aab</code> flag or add <code>--apk</code> to build native APK.</p>
+<p>If you want to build the application for android as native AAB - add <code>-s=native-aab</code> flag or add <code>-s=native-apk</code> to build native APK.</p>
 <p>When the application deploys on your device, you can attach a logger.</p>
 <pre><code class="language-sh">crossbundle log android
 </code></pre>
