@@ -1,5 +1,4 @@
-use crate::commands::android::write_zip;
-use crate::error::*;
+use crate::{commands::android::common::write_zip, error::*};
 use std::path::{Path, PathBuf};
 
 /// Allows to generate archive from files extracted from APK

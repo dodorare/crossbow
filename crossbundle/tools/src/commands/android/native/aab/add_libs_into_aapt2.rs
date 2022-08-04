@@ -1,5 +1,5 @@
 use crate::{
-    commands::android::{get_libs_in_dir, recursively_define_needed_libs, search_dylibs},
+    commands::android::native::{get_libs_in_dir, recursively_define_needed_libs, search_dylibs},
     error::*,
     tools::AndroidNdk,
     types::{AndroidTarget, IntoRustTriple, Profile},

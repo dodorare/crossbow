@@ -14,7 +14,8 @@ pub fn gradle_init() -> Result<Command> {
 
 #[cfg(test)]
 mod tests {
-    use crate::error::CommandExt;
+
+    use android_tools::error::CommandExt;
 
     use super::gradle_init;
     #[test]
