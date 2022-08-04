@@ -13,15 +13,18 @@ use std::path::PathBuf;
 pub struct CrossbowMetadata {
     /// Application name for Android and Apple.
     ///
-    /// **Important:** This property has lower priority than Android or Apple `manifest` or `info_plist` property.
+    /// **Important:** This property has lower priority than Android or Apple `manifest`
+    /// or `info_plist` property.
     pub app_name: Option<String>,
     /// Assets directory path relatively to project path.
     ///
-    /// **Important:** This property has lower priority than Android or Apple `assets` property.
+    /// **Important:** This property has lower priority than Android or Apple `assets`
+    /// property.
     pub assets: Option<PathBuf>,
     /// Cross-platform permissions for Android and Apple.
     ///
-    /// **Important:** This property has lower priority than AndroidManifest or Apple Info.plist properties.
+    /// **Important:** This property has lower priority than AndroidManifest or Apple
+    /// Info.plist properties.
     #[serde(default)]
     pub permissions: Vec<Permission>,
     // TODO: Add `icon` field and icon generation.

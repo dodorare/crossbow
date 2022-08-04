@@ -239,7 +239,8 @@ pub enum AndroidPermission {
     ///
     /// [TvInputService]: https://developer.android.com/reference/android/media/tv/TvInputService
     BindTvInput,
-    /// Must be required by a TvInteractiveAppService to ensure that only the system can bind to it.
+    /// Must be required by a TvInteractiveAppService to ensure that only the system can
+    /// bind to it.
     ///
     /// Protection level: signature|privileged
     BindTvInteractiveApp,
@@ -306,7 +307,10 @@ pub enum AndroidPermission {
     ///
     /// Protection level: dangerous
     BodySensors,
-    /// Allows an application to access data from sensors that the user uses to measure what is happening inside their body, such as heart rate. If you're requesting this permission, you must also request BODY_SENSORS. Requesting this permission by itself doesn't give you Body sensors access.
+    /// Allows an application to access data from sensors that the user uses to measure
+    /// what is happening inside their body, such as heart rate. If you're requesting this
+    /// permission, you must also request BODY_SENSORS. Requesting this permission by
+    /// itself doesn't give you Body sensors access.
     ///
     /// Protection level: dangerous
     BodySensorsBackground,
@@ -536,8 +540,8 @@ pub enum AndroidPermission {
     /// granted the READ_EXTERNAL_STORAGE or MANAGE_EXTERNAL_STORAGE} permissions for this
     /// permission to take effect.
     ///
-    /// Even if applications are granted this permission, if applications want to modify or
-    /// delete media files, they also must get the access by calling
+    /// Even if applications are granted this permission, if applications want to modify
+    /// or delete media files, they also must get the access by calling
     /// MediaStore.createWriteRequest(ContentResolver, Collection),
     /// MediaStore.createDeleteRequest(ContentResolver, Collection), or
     /// MediaStore.createTrashRequest(ContentResolver, Collection, boolean).
@@ -559,11 +563,14 @@ pub enum AndroidPermission {
     ///
     /// [ConnectionService]: https://developer.android.com/reference/android/telecom/ConnectionService
     ManageOwnCalls,
-    /// Allows applications to enable/disable wifi auto join. This permission is used to let OEMs grant their trusted app access to a subset of privileged wifi APIs to improve wifi performance.
-    /// Not for use by third-party applications.
+    /// Allows applications to enable/disable wifi auto join. This permission is used to
+    /// let OEMs grant their trusted app access to a subset of privileged wifi APIs to
+    /// improve wifi performance. Not for use by third-party applications.
     ManageWifiAutoJoin,
-    /// Allows applications to get notified when a Wi-Fi interface request cannot be satisfied without tearing down one or more other interfaces, and provide a decision whether to approve the request or reject it.
-    /// Not for use by third-party applications.
+    /// Allows applications to get notified when a Wi-Fi interface request cannot be
+    /// satisfied without tearing down one or more other interfaces, and provide a
+    /// decision whether to approve the request or reject it. Not for use by
+    /// third-party applications.
     ManageWifiInterfaces,
     /// Not for use by third-party applications.
     MasterClear,
@@ -605,8 +612,9 @@ pub enum AndroidPermission {
     ///
     /// Protection level: normal
     NfcTransactionEvent,
-    /// Allows an application to modify any wifi configuration, even if created by another application. Once reconfigured the original creator cannot make any further modifications.
-    /// Not for use by third-party applications.
+    /// Allows an application to modify any wifi configuration, even if created by another
+    /// application. Once reconfigured the original creator cannot make any further
+    /// modifications. Not for use by third-party applications.
     OverrideWifiConfig,
     /// Allows an application to collect component usage statistics.
     ///
@@ -637,9 +645,11 @@ pub enum AndroidPermission {
     ///
     /// Protection level: normal
     QueryAllPackages,
-    /// Allows an application to query over global data in AppSearch that's visible to the ASSISTANT role.
+    /// Allows an application to query over global data in AppSearch that's visible to the
+    /// ASSISTANT role.
     ReadAssistantAppSearchData,
-    /// Allows read only access to phone state with a non dangerous permission, including the information like cellular network type, software version.
+    /// Allows read only access to phone state with a non dangerous permission, including
+    /// the information like cellular network type, software version.
     ReadBasicPhoneState,
     /// Allows an application to read the user's calendar data.
     ///
@@ -707,23 +717,36 @@ pub enum AndroidPermission {
     ReadLogs,
     /// Allows an application to read audio files from external storage.
     ///
-    /// This permission is enforced starting in API level Build.VERSION_CODES.TIRAMISU. For apps with a targetSdkVersion of Build.VERSION_CODES.S or lower, this permission must not be used and the READ_EXTERNAL_STORAGE permission must be used instead.
+    /// This permission is enforced starting in API level Build.VERSION_CODES.TIRAMISU.
+    /// For apps with a targetSdkVersion of Build.VERSION_CODES.S or lower, this
+    /// permission must not be used and the READ_EXTERNAL_STORAGE permission must be used
+    /// instead.
     ///
     /// Protection level: dangerous
     ReadMediaAudio,
     /// Allows an application to read image files from external storage.
     ///
-    /// This permission is enforced starting in API level Build.VERSION_CODES.TIRAMISU. For apps with a targetSdkVersion of Build.VERSION_CODES.S or lower, this permission must not be used and the READ_EXTERNAL_STORAGE permission must be used instead.
+    /// This permission is enforced starting in API level Build.VERSION_CODES.TIRAMISU.
+    /// For apps with a targetSdkVersion of Build.VERSION_CODES.S or lower, this
+    /// permission must not be used and the READ_EXTERNAL_STORAGE permission must be used
+    /// instead.
     ///
     /// Protection level: dangerous
     ReadMediaImage,
     /// Allows an application to read audio files from external storage.
     ///
-    /// This permission is enforced starting in API level Build.VERSION_CODES.TIRAMISU. For apps with a targetSdkVersion of Build.VERSION_CODES.S or lower, this permission must not be used and the READ_EXTERNAL_STORAGE permission must be used instead.
+    /// This permission is enforced starting in API level Build.VERSION_CODES.TIRAMISU.
+    /// For apps with a targetSdkVersion of Build.VERSION_CODES.S or lower, this
+    /// permission must not be used and the READ_EXTERNAL_STORAGE permission must be used
+    /// instead.
     ///
     /// Protection level: dangerous
     ReadMediaVideo,
-    /// Allows an application to read nearby streaming policy. The policy controls whether to allow the device to stream its notifications and apps to nearby devices. Applications that are not the device owner will need this permission to call DevicePolicyManager.getNearbyNotificationStreamingPolicy() or DevicePolicyManager.getNearbyAppStreamingPolicy().
+    /// Allows an application to read nearby streaming policy. The policy controls whether
+    /// to allow the device to stream its notifications and apps to nearby devices.
+    /// Applications that are not the device owner will need this permission to call
+    /// DevicePolicyManager.getNearbyNotificationStreamingPolicy() or
+    /// DevicePolicyManager.getNearbyAppStreamingPolicy().
     ReadNearbyStreamingPolicy,
     /// Allows read access to the device's phone number(s). This is a subset of
     /// the capabilities granted by READ_PHONE_STATE but is exposed to instant
@@ -816,15 +839,23 @@ pub enum AndroidPermission {
     ///
     /// Protection level: normal
     ReorderTasks,
-    /// Allows an application to read nearby streaming policy. The policy controls whether to allow the device to stream its notifications and apps to nearby devices. Applications that are not the device owner will need this permission to call DevicePolicyManager.getNearbyNotificationStreamingPolicy() or DevicePolicyManager.getNearbyAppStreamingPolicy().
+    /// Allows an application to read nearby streaming policy. The policy controls whether
+    /// to allow the device to stream its notifications and apps to nearby devices.
+    /// Applications that are not the device owner will need this permission to call
+    /// DevicePolicyManager.getNearbyNotificationStreamingPolicy() or
+    /// DevicePolicyManager.getNearbyAppStreamingPolicy().
     ///
     /// Not for use by third-party applications.
     RequestCompanionProfileAppStreaming,
-    /// Allows application to request to be associated with a vehicle head unit capable of automotive projection (AssociationRequest.DEVICE_PROFILE_AUTOMOTIVE_PROJECTION) by CompanionDeviceManager.
+    /// Allows application to request to be associated with a vehicle head unit capable of
+    /// automotive projection (AssociationRequest.DEVICE_PROFILE_AUTOMOTIVE_PROJECTION) by
+    /// CompanionDeviceManager.
     ///
     /// Not for use by third-party applications.
     RequestCompanionProfileAutomotiveProjection,
-    /// Allows application to request to be associated with a computer to share functionality and/or data with other devices, such as notifications, photos and media (AssociationRequest.DEVICE_PROFILE_COMPUTER) by CompanionDeviceManager.
+    /// Allows application to request to be associated with a computer to share
+    /// functionality and/or data with other devices, such as notifications, photos and
+    /// media (AssociationRequest.DEVICE_PROFILE_COMPUTER) by CompanionDeviceManager.
     ///
     /// Not for use by third-party applications.
     RequestCompanionProfileComputer,
@@ -946,11 +977,11 @@ pub enum AndroidPermission {
     ///
     ///  Protection level: signature|appop
     SMSFinancialTransactions,
-    /// Allows an application to start foreground services from the background at any time.
-    /// This permission is not for use by third-party applications, with the only
-    /// exception being if the app is the default SMS app. Otherwise, it's only usable by
-    /// privileged apps, app verifier app, and apps with any of the EMERGENCY or SYSTEM
-    /// GALLERY roles.
+    /// Allows an application to start foreground services from the background at any
+    /// time. This permission is not for use by third-party applications, with the
+    /// only exception being if the app is the default SMS app. Otherwise, it's only
+    /// usable by privileged apps, app verifier app, and apps with any of the
+    /// EMERGENCY or SYSTEM GALLERY roles.
     StartForegroundServicesFromBackground,
     /// Allows the holder to start the screen with a list of app features.
     ///
@@ -1001,9 +1032,13 @@ pub enum AndroidPermission {
     ///
     /// Protection level: normal
     UseBiometric,
-    /// Allows apps to use exact alarms just like with SCHEDULE_EXACT_ALARM but without needing to request this permission from the user.
+    /// Allows apps to use exact alarms just like with SCHEDULE_EXACT_ALARM but without
+    /// needing to request this permission from the user.
     ///
-    /// This is only for apps that rely on exact alarms for their core functionality. App stores may enforce policies to audit and review the use of this permission. Any app that requests this but is found to not require exact alarms for its primary function may be removed from the app store.
+    /// This is only for apps that rely on exact alarms for their core functionality. App
+    /// stores may enforce policies to audit and review the use of this permission. Any
+    /// app that requests this but is found to not require exact alarms for its primary
+    /// function may be removed from the app store.
     UseExactAlarm,
     /// This constant was deprecated in API level 28. Applications should request
     /// [USE_BIOMETRIC] instead.

@@ -54,7 +54,8 @@ pub fn permission_status<'a>(
     Ok((permission_granted, permission_denied))
 }
 
-/// Provides checking permission status in the application and will request permission if it is denied.
+/// Provides checking permission status in the application and will request permission if
+/// it is denied.
 pub fn request_permission(permission: &AndroidPermission) -> Result<bool> {
     let (_, vm) = crate::create_java_vm()?;
     let jnienv = vm.attach_current_thread()?;

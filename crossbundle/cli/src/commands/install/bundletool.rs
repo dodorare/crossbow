@@ -9,7 +9,8 @@ pub struct BundletoolInstallCommand {
     /// --version 1.8.2
     #[clap(long, short, default_value = "1.8.2")]
     version: String,
-    /// Path to install bundletool. By default bundletool will be downloaded and saved in home directory
+    /// Path to install bundletool. By default bundletool will be downloaded and saved in
+    /// home directory
     #[clap(long, short)]
     path: Option<PathBuf>,
     /// Force install bundletool even if found.

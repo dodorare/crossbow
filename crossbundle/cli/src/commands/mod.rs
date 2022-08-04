@@ -13,10 +13,12 @@ pub enum Commands {
     /// Starts the process of building/packaging/signing of the rust crate
     #[clap(subcommand)]
     Build(build::BuildCommand),
-    /// Executes `build` command and then deploy and launches the application on the device/emulator
+    /// Executes `build` command and then deploy and launches the application on the
+    /// device/emulator
     #[clap(subcommand)]
     Run(run::RunCommand),
-    /// Creates a new Cargo package in the given directory. Project will be ready to build with `crossbundle`
+    /// Creates a new Cargo package in the given directory. Project will be ready to build
+    /// with `crossbundle`
     New(new::NewCommand),
     /// Attach logger to device with running application
     #[clap(subcommand)]

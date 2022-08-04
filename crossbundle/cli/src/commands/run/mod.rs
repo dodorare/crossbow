@@ -7,9 +7,11 @@ use crossbundle_tools::utils::Config;
 
 #[derive(Parser, Clone, Debug)]
 pub enum RunCommand {
-    /// Executes `build` command and then deploy and launches the application on the Android device/emulator
+    /// Executes `build` command and then deploy and launches the application on the
+    /// Android device/emulator
     Android(android::AndroidRunCommand),
-    /// Executes `build` command and then deploy and launches the application on the iOS device/emulator
+    /// Executes `build` command and then deploy and launches the application on the iOS
+    /// device/emulator
     Ios(apple::IosRunCommand),
 }
 

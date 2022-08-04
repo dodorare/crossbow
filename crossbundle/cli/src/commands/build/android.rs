@@ -532,7 +532,8 @@ impl AndroidBuildCommand {
         vec![AndroidTarget::Aarch64]
     }
 
-    /// Get android manifest from the path in cargo manifest or generate it with the given configuration
+    /// Get android manifest from the path in cargo manifest or generate it with the given
+    /// configuration
     pub fn get_android_manifest(
         context: &BuildContext,
         strategy: AndroidStrategy,

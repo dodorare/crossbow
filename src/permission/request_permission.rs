@@ -554,7 +554,8 @@ impl Permission {
                     Some("This app needs permanent access to your phone's location.".to_string());
                 // #[warn(deprecated)]
                 // props.location.location_always_usage_description =
-                //     Some("This app needs permanent access to your phone's location.".to_string());
+                //     Some("This app needs permanent access to your phone's
+                // location.".to_string());
             }
             Permission::Media => {
                 props.media_player.apple_music_usage_description =

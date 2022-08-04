@@ -18,7 +18,8 @@ pub struct CommandLineToolsInstallCommand {
 }
 
 impl CommandLineToolsInstallCommand {
-    /// Download command line tools zip archive and extract it in specified sdk root directory
+    /// Download command line tools zip archive and extract it in specified sdk root
+    /// directory
     pub fn install(&self, config: &Config) -> crate::error::Result<()> {
         if self.force {
             remove(vec![default_file_path(self.file_name())?])?;
@@ -65,7 +66,8 @@ impl CommandLineToolsInstallCommand {
         format!("commandlinetools-{}-8512546_latest.zip", OS_TAG)
     }
 
-    /// Check home directory for zip file. If it doesn't exists download zip file and save it in the directory
+    /// Check home directory for zip file. If it doesn't exists download zip file and save
+    /// it in the directory
     pub fn download_and_save_file(
         &self,
         download_url: PathBuf,

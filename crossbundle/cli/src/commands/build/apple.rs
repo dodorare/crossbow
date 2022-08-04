@@ -17,11 +17,12 @@ pub struct IosBuildCommand {
     /// `armv7-apple-ios`, `armv7s-apple-ios`, `i386-apple-ios`, `x86_64-apple-ios`
     #[clap(long, short, multiple_values = true)]
     pub target: Vec<IosTarget>,
-    /// Build strategy specifies what and how to build iOS application: with help of XCode,
-    /// or with our native approach.
+    /// Build strategy specifies what and how to build iOS application: with help of
+    /// XCode, or with our native approach.
     #[clap(long, short, default_value = "native-ipa")]
     pub strategy: IosStrategy,
-    /// Provisioning profile name to find in this directory: `~/Library/MobileDevice/Provisioning\ Profiles/`.
+    /// Provisioning profile name to find in this directory:
+    /// `~/Library/MobileDevice/Provisioning\ Profiles/`.
     #[clap(long, conflicts_with = "profile-path")]
     pub profile_name: Option<String>,
     /// Absolute path to provisioning profile.
@@ -30,7 +31,8 @@ pub struct IosBuildCommand {
     /// The team identifier of your signing identity.
     #[clap(long)]
     pub team_identifier: Option<String>,
-    /// The id of the identity used for signing. It won't start the signing process until you provide this flag.
+    /// The id of the identity used for signing. It won't start the signing process until
+    /// you provide this flag.
     #[clap(long)]
     pub identity: Option<String>,
 }
@@ -175,7 +177,8 @@ impl IosBuildCommand {
         vec![IosTarget::Aarch64Sim]
     }
 
-    /// Get info plist from the path in cargo manifest or generate it with the given configuration
+    /// Get info plist from the path in cargo manifest or generate it with the given
+    /// configuration
     pub fn gen_info_plist(context: &BuildContext, package_name: &str) -> Result<InfoPlist> {
         if let Some(info_plist_path) = &context.config.apple.info_plist_path {
             return Ok(apple::read_info_plist(info_plist_path)?);

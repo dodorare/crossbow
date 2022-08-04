@@ -6,8 +6,8 @@ use crossbundle_tools::{
 };
 
 #[test]
-/// Use macroquad minimal project in a temporary directory to test gradle project generation.
-/// It is working likewise the command below.
+/// Use macroquad minimal project in a temporary directory to test gradle project
+/// generation. It is working likewise the command below.
 /// ```sh
 /// crossbundle build android
 /// ```

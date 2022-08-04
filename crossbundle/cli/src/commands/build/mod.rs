@@ -34,9 +34,10 @@ pub struct SharedBuildCommand {
     /// Build the specified example
     #[clap(long)]
     pub example: Option<String>,
-    /// Space or comma separated list of features to activate. These features only apply to the current
-    /// directory's package. Features of direct dependencies may be enabled with `<dep-name>/<feature-name>` syntax.
-    /// This flag may be specified multiple times, which enables all specified features
+    /// Space or comma separated list of features to activate. These features only apply
+    /// to the current directory's package. Features of direct dependencies may be
+    /// enabled with `<dep-name>/<feature-name>` syntax. This flag may be specified
+    /// multiple times, which enables all specified features
     #[clap(long)]
     pub features: Vec<String>,
     /// Activate all available features of selected package

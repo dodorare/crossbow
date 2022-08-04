@@ -26,10 +26,12 @@ const BUNDLETOOL_JAR_FILE_DOWNLOAD_URL: &str =
 
 #[derive(Parser, Clone, Debug)]
 pub enum InstallCommand {
-    /// Install bundletool. You can specify version of bundletool. By default, we have 1.8.2 bundletool version in usage
+    /// Install bundletool. You can specify version of bundletool. By default, we have
+    /// 1.8.2 bundletool version in usage
     Bundletool(BundletoolInstallCommand),
-    /// Download the basic Android command line tools below. You can use the included sdkmanager to download other SDK packages.
-    /// These tools are included in Android Studio
+    /// Download the basic Android command line tools below. You can use the included
+    /// sdkmanager to download other SDK packages. These tools are included in Android
+    /// Studio
     CommandLineTools(CommandLineToolsInstallCommand),
     /// Allows you to view, install, update, and uninstall packages for the Android SDK
     SdkManager(SdkManagerInstallCommand),

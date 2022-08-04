@@ -6,11 +6,13 @@ use std::path::Path;
 
 #[derive(Parser, Clone, Debug, Default)]
 pub struct SdkManagerInstallCommand {
-    /// Install all preferred tools for correct crossbundle work. It will install build-tools;31.0.0, ndk;23.1.7779620 and platforms;android-30
+    /// Install all preferred tools for correct crossbundle work. It will install
+    /// build-tools;31.0.0, ndk;23.1.7779620 and platforms;android-30
     #[clap(long, short)]
     preferred_tools: bool,
-    /// List installed and available packages. Use the channel option to include a package from a channel up to and including channel_id.
-    /// For example, specify the canary channel to list packages from all channels
+    /// List installed and available packages. Use the channel option to include a package
+    /// from a channel up to and including channel_id. For example, specify the canary
+    /// channel to list packages from all channels
     #[clap(long, short)]
     list: bool,
     /// Install package. To see all available packages use --list.
@@ -26,11 +28,12 @@ pub struct SdkManagerInstallCommand {
     /// Use the specified SDK path instead of the SDK containing this tool
     #[clap(long, short)]
     sdk_root: Option<std::path::PathBuf>,
-    /// Include packages in channels up to and including channel_id. Available channels are:
-    /// 0 (Stable), 1 (Beta), 2 (Dev), and 3 (Canary)
+    /// Include packages in channels up to and including channel_id. Available channels
+    /// are: 0 (Stable), 1 (Beta), 2 (Dev), and 3 (Canary)
     #[clap(long, short)]
     channel: Option<u32>,
-    /// Include obsolete packages in the package listing or package updates. For use with --list and --update only
+    /// Include obsolete packages in the package listing or package updates. For use with
+    /// --list and --update only
     #[clap(long)]
     include_obsolete: bool,
     /// Force all connections to use HTTP rather than HTTPS
@@ -39,8 +42,8 @@ pub struct SdkManagerInstallCommand {
     /// Verbose output mode. Errors, warnings and informational messages are printed
     #[clap(long, short)]
     verbose: bool,
-    /// Connect via a proxy of the given type: either http for high level protocols such as HTTP or FTP,
-    /// or socks for a SOCKS (V4 or V5) proxy
+    /// Connect via a proxy of the given type: either http for high level protocols such
+    /// as HTTP or FTP, or socks for a SOCKS (V4 or V5) proxy
     #[clap(long)]
     proxy: Option<String>,
     /// IP or DNS address of the proxy to use
@@ -59,8 +62,9 @@ impl SdkManagerInstallCommand {
         }
     }
 
-    /// List installed and available packages. Use the channel option to include a package from a channel up to and including channel_id.
-    /// For example, specify the canary channel to list packages from all channels
+    /// List installed and available packages. Use the channel option to include a package
+    /// from a channel up to and including channel_id. For example, specify the canary
+    /// channel to list packages from all channels
     pub fn list(&mut self, list: bool) -> &mut Self {
         self.list = list;
         self
@@ -100,8 +104,8 @@ impl SdkManagerInstallCommand {
         self
     }
 
-    /// Include packages in channels up to and including channel_id. Available channels are:
-    /// 0 (Stable), 1 (Beta), 2 (Dev), and 3 (Canary).
+    /// Include packages in channels up to and including channel_id. Available channels
+    /// are: 0 (Stable), 1 (Beta), 2 (Dev), and 3 (Canary).
     /// ```sh
     /// --channel=channel_id
     /// ```
@@ -110,7 +114,8 @@ impl SdkManagerInstallCommand {
         self
     }
 
-    /// Include obsolete packages in the package listing or package updates. For use with --list and --update only.
+    /// Include obsolete packages in the package listing or package updates. For use with
+    /// --list and --update only.
     pub fn include_obsolete(&mut self, include_obsolete: bool) -> &mut Self {
         self.include_obsolete = include_obsolete;
         self
@@ -128,8 +133,8 @@ impl SdkManagerInstallCommand {
         self
     }
 
-    /// Connect via a proxy of the given type: either http for high level protocols such as HTTP or FTP, or socks for a SOCKS (V4 or V5) proxy.
-    /// ```sh
+    /// Connect via a proxy of the given type: either http for high level protocols such
+    /// as HTTP or FTP, or socks for a SOCKS (V4 or V5) proxy. ```sh
     /// --proxy={http | socks}
     /// ```
     pub fn proxy(&mut self, proxy: String) -> &mut Self {
@@ -159,8 +164,10 @@ impl SdkManagerInstallCommand {
     pub fn run(&self, _config: &Config) -> crate::error::Result<()> {
         let sdk = AndroidSdk::from_env()?;
         let sdk_path = sdk.sdk_path();
-        // Android Studio installs cmdline-tools into $ANDROID_SDK_ROOT/cmdline-tools/<version>/bin.
-        // Crossbundle install command ignores <version> directory so we need convert cmd-line-tools path to Option<T> to avoid confusion
+        // Android Studio installs cmdline-tools into
+        // $ANDROID_SDK_ROOT/cmdline-tools/<version>/bin. Crossbundle install command
+        // ignores <version> directory so we need convert cmd-line-tools path to Option<T> to
+        // avoid confusion
         let cmdline_tools_path = std::path::PathBuf::from(&sdk_path)
             .join("cmdline-tools")
             .join("latest")
