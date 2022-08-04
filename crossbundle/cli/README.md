@@ -6,12 +6,21 @@ The **crossbundle** is a command-line tool that encapsulates boring stuff of **A
 
 ## Support status
 
+Supported operating systems for build (**iOS** only on **macOS**):
+
+| Name | Status |
+| ---- | ------ |
+| Windows | ✅ |
+| Linux | ✅ |
+| macOS | ✅ |
+
 Packaging Strategy status:
 
 | Name | Description | Status |
 | ---- | ----------- | ------ |
 | Android APK | Supported via `-s=native-apk` flag. | ✅ |
 | Android AAB | Supported via `-s=native-aab` flag. | ✅ |
+| Android Gradle | Supported via `-s=gradle-apk` flag. | ✅ |
 | Apple Debug APP | Default build strategy. Works only on Simulator and could be run on iPhone with Dev Certificate. | ✅ |
 | Apple Debug IPA | Works only on Simulator and could be run on iPhone with Dev Certificate. | 🆗 |
 | Apple Release IPA | Not supported yet. Crossbundle should generate `xcodeproj`, but user should build and sign IPA manually. | 🛠 |
@@ -21,7 +30,7 @@ Supported game engines:
 | Name | Description | Status |
 | ---- | ----------- | ------ |
 | [Bevy](https://github.com/bevyengine/bevy) | Default build method. Injects [ndk-glue](https://github.com/rust-windowing/android-ndk-rs/tree/master/ndk-glue) into generated tmp `lib.rs` file. | 🆗 |
-| [Macroquad](https://github.com/not-fl3/macroquad) | Supported via `--quad` flag. Works as [cargo-quad-apk](https://github.com/not-fl3/cargo-quad-apk) but with all `crossbundle` features. | ✅ |
+| [Macroquad](https://github.com/not-fl3/macroquad) | Supported via `app_wrapper = "sokol"` inside `Cargo.toml` metadata. Also, can work as [cargo-quad-apk](https://github.com/not-fl3/cargo-quad-apk) but with all `crossbundle` features. | ✅ |
 | **placeholder** | Don't find your game engine here? Open an issue! We are happy to add support for new engines. | 🛠 |
 
 ✅ = Works and tested — 🆗 = Works but may contain bugs — 🛠 = Under development
@@ -32,16 +41,7 @@ Supported game engines:
 cargo install --git=https://github.com/dodorare/crossbow crossbundle
 ```
 
-See [installation documentation](../../docs/README.md) for more details on how to setup environment on your platform.
-
----
-
-**_NOTE_**
-
-For the correct work of the tool, you need to set up a development environment (ex. install some libraries and tools - such as Android SDK, Android NDK, XCode, etc).
-More information about how to set up the environment in the **Android setup** and **iOS setup** wiki pages.
-
----
+See [installation documentation](https://crossbow.dodorare.com/install/index.html) for more details on how to setup environment on your platform.
 
 ## Cargo.toml Metadata syntax
 
@@ -49,42 +49,31 @@ More information about how to set up the environment in the **Android setup** an
 [[package.metadata.android]]
 # Cross-platform user-friendly application name for your app.
 app_name = "Example"
-# Apple assets directory path relatively to project path.
+# Cross-platform assets directory path relatively to project path.
 assets = "assets"
 
 [[package.metadata.android]]
+# Android application wrapper: supports ndk-glue and sokol
+app_wrapper = "sokol"
 # The user-friendly application name for your app. Displayed in the applications menu
 app_name = "Example"
-# The version number shown to users
-version_name = "0.1.0"
-# Internal version number used to determine whether one version is more recent than another
-#
-# See https://developer.android.com/guide/topics/manifest/manifest-element
-version_code = 1
-# Min SDK version
-min_sdk_version = 19
-# Target SDK version
-target_sdk_version = 30
-# Max SDK version
-max_sdk_version = 31
-# Virtual path your application's icon as mipmap resource.
-icon = "ic_launcher"
-
 # Path to AndroidManifest.xml file
 manifest_path = "path/to/AndroidManifest.xml"
-
-# Android package to place in AndroidManifest.xml.
-package = "com.example.ExampleProject"
 # Android resources directory path relatively to project path.
 res = "res/android"
 # Android assets directory path relatively to project path.
 assets = "assets"
-# Android build targets.
+# Android targets to build on debug or release.
+debug_build_targets = ["aarch64-linux-android"]
 release_build_targets = ["aarch64-linux-android"]
+
+# Complete support of ALL AndroidManifest.xml attributes
+[package.metadata.android.manifest]
+package = "com.example.ExampleProject"
 
 # Adds a uses-permission element to the AndroidManifest.xml.
 # Note that android_version 23 and higher, Android requires the application to request permissions at runtime.
-[[package.metadata.android.manifest.permission]]
+[[package.metadata.android.manifest.uses_permission]]
 name = "android.permission.INTERNET"
 
 # Specifies that an app wants a particular permission, but only if the app is installed on a device running
@@ -125,7 +114,8 @@ value = "true"
 [package.metadata.apple]
 # The user-friendly application name for your app. Displayed in the applications menu
 app_name = "Example"
-# Apple build targets.
+# Apple targets to build on debug or release.
+debug_build_targets = ["aarch64-apple-ios"]
 release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
 # Apple resources directory path relatively to project path.
 res = "res/apple"
@@ -160,20 +150,19 @@ SUBCOMMANDS:
     build      Starts the process of building/packaging/signing of the rust crate
     help       Print this message or the help of the given subcommand(s)
     install    Installs bundletool and Android Studio's sdkmanager
-    log        Attach logger to device with running application
     new        Creates a new Cargo package in the given directory. Project will be ready to
                build with `crossbundle`
     run        Executes `build` command and then deploy and launches the application on the
                device/emulator
 ```
 
-Result of `crossbundle build android -h`:
+Result of `crossbundle run android -h` (this command extends `crossbundle build android`):
 
 ```text
-Starts the process of building/packaging/signing of the rust crate for Android
+Executes `build` command and then deploy and launches the application on the Android device/emulator
 
 USAGE:
-    crossbundle build android [OPTIONS]
+    crossbundle run android [OPTIONS]
 
 OPTIONS:
     --all-features
@@ -196,6 +185,9 @@ OPTIONS:
 
     --lib <LIB>
         Only compile rust code as a dynamic library. By default: "crossbow-android"
+
+    --log
+        Enable logging attach after run
 
     --no-default-features
         Do not activate the `default` feature of the current directory's package
@@ -225,13 +217,13 @@ OPTIONS:
         Directory for generated artifact and intermediate files
 ```
 
-Result of `crossbundle build ios -h`:
+Result of `crossbundle build ios -h` (this command extends `crossbundle build ios`):
 
 ```text
-Starts the process of building/packaging/signing of the rust crate for iOS
+Executes `build` command and then deploy and launches the application on the iOS device/emulator
 
 USAGE:
-    crossbundle build ios [OPTIONS]
+    crossbundle run ios [OPTIONS]
 
 OPTIONS:
     --all-features
@@ -239,6 +231,15 @@ OPTIONS:
 
     --bin <BIN>
         Specify custom cargo binary
+
+    -d, --debug
+        Run in debug mode
+
+    -d, --device
+        Install and launch on the connected device
+
+    -D, --device-id <DEVICE_ID>
+        Connected device id
 
     --example <EXAMPLE>
         Build the specified example
@@ -268,6 +269,13 @@ OPTIONS:
 
     --release
         Build optimized artifact with the `release` profile
+
+    -s, --strategy <STRATEGY>
+        Build strategy specifies what and how to build iOS application: with help of XCode, or
+        with our native approach [default: native-ipa]
+
+    -s, --simulator-name <SIMULATOR_NAME>
+        Simulator device name [default: "iPhone 13"]
 
     -t, --target <TARGET>...
         Build for the given apple architecture. Supported targets are: `aarch64-apple-ios`,
