@@ -1,10 +1,10 @@
 use crossbundle_tools::{
     commands::{
-        android::{self, rust_compile},
+        android::{common::rust_compile, native::add_libs_into_aapt2},
         gen_minimal_project,
     },
-    tools::{AndroidNdk, AndroidSdk},
-    types::{AndroidTarget, AppWrapper, IntoRustTriple, Profile},
+    tools::*,
+    types::*,
 };
 
 #[test]
@@ -53,7 +53,7 @@ fn add_bevy_libs() {
 
     // Add libs into the directory ./target/aarch64-linux-android/debug/
     for (compiled_lib, build_target) in libs {
-        let lib = android::add_libs_into_aapt2(
+        let lib = add_libs_into_aapt2(
             &ndk,
             &compiled_lib,
             build_target,
@@ -122,7 +122,7 @@ fn add_quad_libs() {
 
     // Adds libs into ./target/aarch64-linux-android/debug/
     for (compiled_lib, build_target) in libs {
-        let lib = android::add_libs_into_aapt2(
+        let lib = add_libs_into_aapt2(
             &ndk,
             &compiled_lib,
             build_target,

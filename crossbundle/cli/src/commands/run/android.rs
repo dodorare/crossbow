@@ -1,10 +1,9 @@
 use crate::commands::build::{android::AndroidBuildCommand, BuildContext};
-use crate::error::Result;
-use android_tools::error::CommandExt;
+use crate::error::*;
 use clap::Parser;
 use crossbundle_tools::{
-    commands::android,
-    commands::android::gradle_init,
+    commands::android::{common::start_app, gradle::gradle_init, native::install_apk},
+    error::CommandExt,
     tools::{BuildApks, InstallApks},
     types::AndroidStrategy,
     utils::Config,
@@ -56,7 +55,7 @@ impl AndroidRunCommand {
         config.status("Installing APKs file")?;
         InstallApks::new(&apks_path).run()?;
         config.status("Starting APK file")?;
-        android::start_apk(
+        start_app(
             &sdk,
             &android_manifest.package,
             "android.app.NativeActivity",
@@ -69,9 +68,9 @@ impl AndroidRunCommand {
         let (android_manifest, sdk, apk_path) = self.build_command.execute_apk(config, context)?;
         config.status("Starting run process")?;
         config.status("Installing APK file")?;
-        android::install_apk(&sdk, &apk_path)?;
+        install_apk(&sdk, &apk_path)?;
         config.status("Starting APK file")?;
-        android::start_apk(
+        start_app(
             &sdk,
             &android_manifest.package,
             "android.app.NativeActivity",
@@ -92,7 +91,7 @@ impl AndroidRunCommand {
             .arg(dunce::simplified(&gradle_project_path));
         gradle.output_err(true)?;
         config.status("Starting APK file")?;
-        android::start_apk(
+        start_app(
             &sdk,
             &android_manifest.package,
             "com.crossbow.game.CrossbowApp",

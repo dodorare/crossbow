@@ -4,9 +4,13 @@ use android_manifest::AndroidManifest;
 use android_tools::java_tools::{JarSigner, Key};
 use clap::Parser;
 use crossbundle_tools::{
-    commands::android::{self, rust_compile},
+    commands::android::{
+        common::{extract_archive::extract_archive, *},
+        gradle::*,
+        native::*,
+    },
     error::CommandExt,
-    tools::*,
+    tools::{AndroidNdk, AndroidSdk},
     types::*,
     utils::Config,
 };
@@ -67,7 +71,7 @@ impl AndroidBuildCommand {
                 let (_, _, gradle_project_path) =
                     self.build_gradle(config, &context, &self.export_path)?;
                 config.status("Building Gradle project")?;
-                let mut gradle = android::gradle_init()?;
+                let mut gradle = gradle_init()?;
                 gradle
                     .arg("build")
                     .arg("-p")
@@ -103,7 +107,7 @@ impl AndroidBuildCommand {
         }
 
         config.status("Generating gradle project")?;
-        let gradle_project_path = android::gen_gradle_project(
+        let gradle_project_path = gen_gradle_project(
             &android_build_dir,
             &context.config.get_android_assets(),
             &context.config.android.res,
@@ -113,7 +117,7 @@ impl AndroidBuildCommand {
         config.status_message("Reading", "AndroidManifest.xml")?;
         let manifest = Self::get_android_manifest(context, AndroidStrategy::GradleApk)?;
         config.status_message("Generating", "AndroidManifest.xml")?;
-        android::save_android_manifest(&gradle_project_path, &manifest)?;
+        save_android_manifest(&gradle_project_path, &manifest)?;
 
         let lib_name = "crossbow_android";
         self.build_rust_lib(config, context, lib_name, Some(android_build_dir))?;
@@ -201,7 +205,7 @@ impl AndroidBuildCommand {
         config.status_message("Reading", "AndroidManifest.xml")?;
         let manifest = Self::get_android_manifest(context, AndroidStrategy::NativeApk)?;
         config.status_message("Generating", "AndroidManifest.xml")?;
-        let manifest_path = android::save_android_manifest(&native_build_dir, &manifest)?;
+        let manifest_path = save_android_manifest(&native_build_dir, &manifest)?;
 
         config.status_message("Compiling", "lib")?;
         let target_sdk_version = Self::target_sdk_version(&manifest, &sdk);
@@ -219,7 +223,7 @@ impl AndroidBuildCommand {
         )?;
 
         config.status_message("Generating", "unaligned APK file")?;
-        let unaligned_apk_path = android::gen_unaligned_apk(
+        let unaligned_apk_path = gen_unaligned_apk(
             &sdk,
             &project_path,
             &native_build_dir,
@@ -232,7 +236,7 @@ impl AndroidBuildCommand {
 
         config.status("Adding libs into APK file")?;
         for (compiled_lib, build_target) in compiled_libs {
-            android::add_libs_into_apk(
+            add_libs_into_apk(
                 &sdk,
                 &ndk,
                 &unaligned_apk_path,
@@ -247,7 +251,7 @@ impl AndroidBuildCommand {
 
         config.status("Aligning APK file")?;
         let aligned_apk_path =
-            android::align_apk(&sdk, &unaligned_apk_path, &package_name, &outputs_build_dir)?;
+            align_apk(&sdk, &unaligned_apk_path, &package_name, &outputs_build_dir)?;
 
         config.status_message("Generating", "debug signing key")?;
         let key = Self::find_keystore(
@@ -257,7 +261,7 @@ impl AndroidBuildCommand {
         )?;
 
         config.status("Signing APK file")?;
-        android::sign_apk(&sdk, &aligned_apk_path, key)?;
+        sign_apk(&sdk, &aligned_apk_path, key)?;
         config.status("Build finished successfully")?;
         Ok((manifest, sdk, aligned_apk_path))
     }
@@ -284,7 +288,7 @@ impl AndroidBuildCommand {
         config.status_message("Reading", "AndroidManifest.xml")?;
         let manifest = Self::get_android_manifest(context, AndroidStrategy::NativeAab)?;
         config.status_message("Generating", "AndroidManifest.xml")?;
-        let manifest_path = android::save_android_manifest(&native_build_dir, &manifest)?;
+        let manifest_path = save_android_manifest(&native_build_dir, &manifest)?;
 
         config.status_message("Compiling", "lib")?;
         let target_sdk_version = Self::target_sdk_version(&manifest, &sdk);
@@ -334,11 +338,11 @@ impl AndroidBuildCommand {
 
         config.status("Extracting apk files")?;
         let output_dir = native_build_dir.join("extracted_apk_files");
-        let extracted_apk_path = android::extract_archive(&apk_path, &output_dir)?;
+        let extracted_apk_path = extract_archive(&apk_path, &output_dir)?;
 
         config.status("Adding libs")?;
         for (compiled_lib, build_target) in compiled_libs {
-            android::add_libs_into_aapt2(
+            add_libs_into_aapt2(
                 &ndk,
                 &compiled_lib,
                 build_target,
@@ -352,7 +356,7 @@ impl AndroidBuildCommand {
 
         config.status("Generating ZIP module from extracted files")?;
         let gen_zip_modules =
-            android::gen_zip_modules(&native_build_dir, &package_name, &extracted_apk_path)?;
+            gen_zip_modules(&native_build_dir, &package_name, &extracted_apk_path)?;
 
         for entry in std::fs::read_dir(&native_build_dir)? {
             let entry = entry?;
@@ -363,8 +367,7 @@ impl AndroidBuildCommand {
         }
 
         config.status("Generating aab from modules")?;
-        let aab_path =
-            android::gen_aab_from_modules(&package_name, &[gen_zip_modules], &outputs_build_dir)?;
+        let aab_path = gen_aab_from_modules(&package_name, &[gen_zip_modules], &outputs_build_dir)?;
 
         config.status_message("Generating", "debug signing key")?;
         let key = Self::find_keystore(
@@ -430,7 +433,7 @@ impl AndroidBuildCommand {
             if aab_key.key_path.exists() {
                 aab_key
             } else {
-                android::gen_key(
+                gen_key(
                     Some(aab_key.key_path),
                     Some(aab_key.key_pass),
                     Some(aab_key.key_alias),
@@ -441,7 +444,7 @@ impl AndroidBuildCommand {
             if aab_key.key_path.exists() {
                 aab_key
             } else {
-                android::gen_key(
+                gen_key(
                     Some(aab_key.key_path),
                     Some(aab_key.key_pass),
                     Some(aab_key.key_alias),
@@ -535,7 +538,7 @@ impl AndroidBuildCommand {
         strategy: AndroidStrategy,
     ) -> Result<AndroidManifest> {
         if let Some(manifest_path) = &context.config.android.manifest_path {
-            return Ok(android::read_android_manifest(manifest_path)?);
+            return Ok(read_android_manifest(manifest_path)?);
         }
         let mut manifest = if let Some(manifest) = &context.config.android.manifest {
             manifest.clone()

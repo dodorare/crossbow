@@ -1,4 +1,6 @@
-use crossbundle_tools::{commands::android::save_android_manifest, tools::AndroidSdk, types::*};
+use crossbundle_tools::{
+    commands::android::common::save_android_manifest, tools::AndroidSdk, types::*,
+};
 
 #[test]
 fn test_aapt2_compile() {

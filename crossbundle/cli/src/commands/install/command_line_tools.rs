@@ -1,7 +1,7 @@
 use super::*;
 use clap::Parser;
 use crossbundle_tools::{
-    commands::android::{self, remove},
+    commands::android::common::{extract_archive::extract_archive, remove},
     tools::AndroidSdk,
     utils::Config,
 };
@@ -46,13 +46,13 @@ impl CommandLineToolsInstallCommand {
                 "Extracting zip archive contents into",
                 path.to_str().unwrap(),
             )?;
-            android::extract_archive(&file_path, path)?;
+            extract_archive(&file_path, path)?;
         } else {
             config.status_message(
                 "Extracting zip archive contents into",
                 &sdk_path.to_str().unwrap(),
             )?;
-            android::extract_archive(&file_path, Path::new(&sdk_path))?;
+            extract_archive(&file_path, Path::new(&sdk_path))?;
         }
 
         config.status("Deleting zip archive was left after installation")?;
