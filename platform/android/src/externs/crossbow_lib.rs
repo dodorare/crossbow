@@ -1,4 +1,4 @@
-use crate::permission::*;
+use crate::{crossbow::*, permission::*};
 use jni::{
     objects::{JClass, JObject, JString},
     sys::jboolean,
@@ -12,20 +12,21 @@ pub extern "C" fn Java_com_crossbow_library_CrossbowLib_initialize(
     _class: JClass,
     activity: JObject,
     crossbow_instance: JObject,
-    _asset_manager: JObject,
+    asset_manager: JObject,
 ) {
-    println!("CrossbowLib_initialize: {:?}", activity);
-
-    env.call_method(crossbow_instance, "onRenderInit", "()V", &[])
-        .unwrap();
-
-    // TODO: Create wrapper around CrossbowInstance
+    crossbow_initialize(env, activity, crossbow_instance, asset_manager).unwrap();
 }
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "C" fn Java_com_crossbow_library_CrossbowLib_onDestroy(_env: JNIEnv, _class: JClass) {
-    println!("CrossbowLib_onDestroy");
+pub extern "C" fn Java_com_crossbow_library_CrossbowLib_onBackPressed(env: JNIEnv, _class: JClass) {
+    crossbow_on_back_pressed(env).unwrap();
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "C" fn Java_com_crossbow_library_CrossbowLib_onDestroy(env: JNIEnv, _class: JClass) {
+    crossbow_on_destroy(env).unwrap();
 }
 
 #[no_mangle]

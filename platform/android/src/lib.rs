@@ -1,6 +1,7 @@
 pub(crate) mod externs;
 pub(crate) mod utils;
 
+pub mod crossbow;
 pub mod error;
 pub mod permission;
 pub mod plugin;

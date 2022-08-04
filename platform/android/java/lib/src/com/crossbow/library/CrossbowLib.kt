@@ -29,11 +29,11 @@ object CrossbowLib {
     @JvmStatic
     external fun onDestroy()
 
-    // /**
-    //  * Forward [Activity.onBackPressed] event from the main thread to the GL thread.
-    //  */
-    // @JvmStatic
-    // external fun back()
+    /**
+     * Forward [Activity.onBackPressed] event from the main thread to the GL thread.
+     */
+    @JvmStatic
+    external fun onBackPressed()
 
     /**
      * Forward the results from a permission request.

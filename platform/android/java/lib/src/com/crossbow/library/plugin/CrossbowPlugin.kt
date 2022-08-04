@@ -53,6 +53,7 @@ abstract class CrossbowPlugin(
      * Provides access to the underlying [Activity].
      */
     protected val activity: Activity?
+        @Suppress("DEPRECATION")
         get() = crossbow.activity
 
     /**
@@ -78,7 +79,7 @@ abstract class CrossbowPlugin(
      * @see Activity.onCreate
      * @return the plugin's view to be included; null if no views should be included.
      */
-    open fun onMainCreate(activity: Activity): View? {
+    open fun onMainCreate(pActivity: Activity): View? {
         return null
     }
 

@@ -244,8 +244,7 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
                     "MEDIUM_RECTANGLE" -> aAdView!!.setAdSize(AdSize.MEDIUM_RECTANGLE)
                     "FULL_BANNER" -> aAdView!!.setAdSize(AdSize.FULL_BANNER)
                     "LEADERBOARD" -> aAdView!!.setAdSize(AdSize.LEADERBOARD)
-                    "ADAPTIVE" -> aAdView!!.setAdSize(adSizeAdaptive)
-                    else -> aAdView!!.setAdSize(AdSize.SMART_BANNER) // Replaced by getCurrentOrientationAnchoredAdaptiveBannerAdSize(Context, int)
+                    else -> aAdView!!.setAdSize(adSizeAdaptive)
                 }
                 aAdSize =
                     aAdView!!.getAdSize() //store AdSize of banner due a bug (throws error when do aAdView!!.getAdSize() called by Crossbow)
@@ -569,7 +568,7 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
                 if (aConsentInformation!!.getConsentStatus() == ConsentInformation.ConsentStatus.REQUIRED) {
                     consentForm.show(
                         aActivity!!
-                    ) { formError ->
+                    ) { _ ->
                         loadConsentForm()
                         emitSignal("consent_form_dismissed")
                     }
@@ -650,10 +649,18 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
         // If the ad hasn't been laid out, default to the full screen width.
         get() {
             // Determine the screen width (less decorations) to use for the ad width.
-            val display: Display = aActivity!!.getWindowManager().getDefaultDisplay() // getDefaultDisplay() method was deprecated in API level 30. Use Context#getDisplay() instead.
             val outMetrics = DisplayMetrics()
-            display.getMetrics(outMetrics)
-            val density: Float = outMetrics.density 
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                val display = aActivity!!.display
+                @Suppress("DEPRECATION")
+                display?.getRealMetrics(outMetrics)
+            } else {
+                @Suppress("DEPRECATION")
+                val display = aActivity!!.windowManager.defaultDisplay
+                @Suppress("DEPRECATION")
+                display.getMetrics(outMetrics)
+            }
+            val density: Float = outMetrics.density
             var adWidthPixels: Float = aCrossbowLayout!!.getWidth().toFloat()
 
             // If the ad hasn't been laid out, default to the full screen width.
