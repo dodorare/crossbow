@@ -2,7 +2,11 @@ use crate::commands::build::{android::AndroidBuildCommand, BuildContext};
 use crate::error::*;
 use clap::Parser;
 use crossbundle_tools::{
-    commands::android::{common::start_app, gradle::gradle_init, native::install_apk},
+    commands::android::{
+        common::{attach_logger_only_rust, start_app},
+        gradle::gradle_init,
+        native::install_apk,
+    },
     error::CommandExt,
     tools::{BuildApks, InstallApks},
     types::AndroidStrategy,
@@ -13,6 +17,9 @@ use crossbundle_tools::{
 pub struct AndroidRunCommand {
     #[clap(flatten)]
     pub build_command: AndroidBuildCommand,
+    /// Enable logging attach after run.
+    #[clap(long)]
+    pub log: bool,
 }
 
 impl AndroidRunCommand {
@@ -60,6 +67,10 @@ impl AndroidRunCommand {
             &android_manifest.package,
             "android.app.NativeActivity",
         )?;
+        if self.log {
+            config.status("Attaching logger")?;
+            attach_logger_only_rust(&sdk)?;
+        }
         config.status("Run finished successfully")?;
         Ok(())
     }
@@ -75,12 +86,16 @@ impl AndroidRunCommand {
             &android_manifest.package,
             "android.app.NativeActivity",
         )?;
+        if self.log {
+            config.status("Attaching logger")?;
+            attach_logger_only_rust(&sdk)?;
+        }
         config.status("Run finished successfully")?;
         Ok(())
     }
 
     pub fn run_gradle_apk(&self, config: &Config, context: &BuildContext) -> Result<()> {
-        let (android_manifest, sdk, gradle_project_path) =
+        let (_, sdk, gradle_project_path) =
             self.build_command
                 .build_gradle(config, context, &self.build_command.export_path)?;
         config.status("Installing APK file on device")?;
@@ -91,11 +106,11 @@ impl AndroidRunCommand {
             .arg(dunce::simplified(&gradle_project_path));
         gradle.output_err(true)?;
         config.status("Starting APK file")?;
-        start_app(
-            &sdk,
-            &android_manifest.package,
-            "com.crossbow.game.CrossbowApp",
-        )?;
+        start_app(&sdk, "com.crossbow.game", ".CrossbowApp")?;
+        if self.log {
+            config.status("Attaching logger")?;
+            attach_logger_only_rust(&sdk)?;
+        }
         config.status("Run finished successfully")?;
         Ok(())
     }

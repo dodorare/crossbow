@@ -14,6 +14,6 @@ fn logcat_cmd(sdk: &AndroidSdk) -> Result<Command> {
 pub fn attach_logger_only_rust(sdk: &AndroidSdk) -> Result<()> {
     let mut adb = logcat_cmd(sdk)?;
     adb.arg("RustStdoutStderr:D").arg("SAPP:D").arg("*:S");
-    adb.spawn()?;
+    adb.spawn()?.wait()?;
     Ok(())
 }
