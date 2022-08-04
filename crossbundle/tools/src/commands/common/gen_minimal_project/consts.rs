@@ -22,6 +22,9 @@ edition = "2021"
 crossbow = { git = "https://github.com/dodorare/crossbow" }
 anyhow = "1.0"
 macroquad = "0.3.7"
+
+[package.metadata.android]
+app_wrapper = "sokol"
 "#;
 
 pub const MINIMAL_MQ_GRADLE_CARGO_TOML_VALUE: &str = r#"
@@ -37,6 +40,7 @@ anyhow = "1.0"
 macroquad = "0.3.7"
 
 [package.metadata.android]
+app_wrapper = "sokol"
 target_sdk_version = 30
 
 [[package.metadata.android.plugins_local_projects]]
@@ -50,41 +54,29 @@ include = ":crossbow:lib"
 
 pub const CARGO_TOML_VALUE: &str = r#"
 [package.metadata.android]
-app_name = "example"
+app_name = "Example"
+release_build_targets = ["aarch64-linux-android"]
+
+[package.metadata.android.manifest]
+package = "com.crossbow.example"
+[package.metadata.android.manifest.uses_sdk]
+min_sdk_version = 19
 target_sdk_version = 30
-version_code = 1
 
-build_targets = ["aarch64-linux-android"]
-
-[[package.metadata.android.features]]
+[[package.metadata.android.manifest.uses_feature]]
 name = "android.hardware.vulkan.level"
 required = true
 version = 1
 
-[[package.metadata.android.permissions]]
+[[package.metadata.android.manifest.permission]]
 name = "android.permission.WRITE_EXTERNAL_STORAGE"
-max_sdk_version = 30
 
-[[package.metadata.android.permissions_sdk_23]]
+[[package.metadata.android.manifest.uses_permission_sdk_23]]
 name = "android.permission.INTERNET"
-max_sdk_version = 30
-
-[[package.metadata.android.queries.provider]]
-authorities = "org.khronos.openxr.runtime_broker;org.khronos.openxr.system_runtime_broker"
-name = "org.khronos.openxr"
-
-[[package.metadata.android.meta_data]]
-name = "com.oculus.vr.focusaware"
-value = "true"
-
-[[package.metadata.android.service]]
-name = "UpdateService"
-intent_filter = []
-meta_data = []
 
 [package.metadata.apple]
 app_name = "Macroquad_3D"
-build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
+release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
 "#;
 
 pub const MQ_MAIN_RS_VALUE: &str = r#"

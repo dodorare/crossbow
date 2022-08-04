@@ -1,81 +1,85 @@
-use crate::types::MIN_SDK_VERSION;
-
 use super::{BuildContext, SharedBuildCommand};
+use crate::error::Result;
 use android_manifest::AndroidManifest;
 use android_tools::java_tools::{JarSigner, Key};
 use clap::Parser;
-use crossbundle_tools::{
-    commands::android::{self, rust_compile},
-    error::CommandExt,
-    tools::*,
-    types::*,
-    utils::Config,
-};
+use crossbundle_tools::{commands::android::*, error::CommandExt, types::*};
 use std::path::{Path, PathBuf};
 
 /// Specifies flags and options needed to build application
-#[derive(Parser, Clone, Debug)]
+#[derive(Parser, Clone, Debug, Default)]
 pub struct AndroidBuildCommand {
     #[clap(flatten)]
     pub shared: SharedBuildCommand,
     /// Build for the given android architecture.
     /// Supported targets are: `armv7-linux-androideabi`, `aarch64-linux-android`,
     /// `i686-linux-android`, `x86_64-linux-android`
-    #[clap(long, default_value = "aarch64-linux-android")]
+    #[clap(long, short, multiple_values = true)]
     pub target: Vec<AndroidTarget>,
-    /// Generating native aab without Java. By default crossbow generating gradle project
-    #[clap(long)]
-    pub aab: bool,
-    /// Generating native apk without Java. By default crossbow generating gradle project
-    #[clap(long)]
-    pub apk: bool,
-    /// Compile rust code as a dynamic library [default: crossbow-android]
+    /// Build strategy specifies what and how to build Android application: with help of
+    /// Gradle, or with our native approach.
+    #[clap(long, short, default_value = "gradle-apk")]
+    pub strategy: AndroidStrategy,
+    /// Only compile rust code as a dynamic library. By default: "crossbow-android"
     #[clap(long, default_missing_value = "crossbow_android")]
     pub lib: Option<String>,
-    /// Path to export Gradle project. By default exports to `target/android/` folder
+    /// Path to export Gradle project. By default exports to `target/android/` folder.
     #[clap(long)]
     pub export_path: Option<PathBuf>,
-    /// Path to the signing key
+    /// Path to the signing key.
     #[clap(long, requires_all = &["sign-key-pass", "sign-key-alias"])]
     pub sign_key_path: Option<PathBuf>,
-    /// Signing key password
+    /// Signing key password.
     #[clap(long)]
     pub sign_key_pass: Option<String>,
-    /// Signing key alias
+    /// Signing key alias.
     #[clap(long)]
     pub sign_key_alias: Option<String>,
 }
 
 impl AndroidBuildCommand {
-    // Checks options was specified in AndroidBuildCommand and then builds application
-    pub fn run(&self, config: &Config) -> crate::error::Result<()> {
+    // Checks options was specified in AndroidBuildCommand and then builds application.
+    pub fn run(&self, config: &Config) -> Result<()> {
         if self.sign_key_path.is_some() && self.sign_key_pass.is_none() {
             config
                 .shell()
                 .warn("You provided a signing key but not password - set password please by providing `sign_key_pass` flag")?;
         }
         let context = BuildContext::new(config, self.shared.target_dir.clone())?;
-        if self.aab {
-            self.execute_aab(config, &context)?;
-        } else if self.apk {
-            self.execute_apk(config, &context)?;
-        } else if let Some(lib_name) = &self.lib {
-            self.build_rust_lib(config, &context, lib_name, None)?;
-        } else {
-            self.build_gradle(config, &context, &self.export_path)?;
+        if let Some(name) = &self.lib {
+            self.build_rust_lib(config, &context, name, None)?;
+            return Ok(());
+        }
+        match &self.strategy {
+            AndroidStrategy::NativeApk => {
+                self.execute_apk(config, &context)?;
+            }
+            AndroidStrategy::NativeAab => {
+                self.execute_aab(config, &context)?;
+            }
+            AndroidStrategy::GradleApk => {
+                let (_, _, gradle_project_path) =
+                    self.build_gradle(config, &context, &self.export_path)?;
+                config.status("Building Gradle project")?;
+                let mut gradle = gradle_init()?;
+                gradle
+                    .arg("build")
+                    .arg("-p")
+                    .arg(dunce::simplified(&gradle_project_path));
+                gradle.output_err(true)?;
+            }
         }
         Ok(())
     }
 
-    /// Compile rust code as a dynamic library, generate Gradle project
+    /// Compile rust code as a dynamic library, generate Gradle project.
     pub fn build_gradle(
         &self,
         config: &Config,
         context: &BuildContext,
         export_path: &Option<PathBuf>,
-    ) -> crate::error::Result<(AndroidManifest, AndroidSdk, PathBuf)> {
+    ) -> Result<(AndroidManifest, AndroidSdk, PathBuf)> {
         let sdk = AndroidSdk::from_env()?;
-        let profile = self.shared.profile();
         let example = self.shared.example.as_ref();
         let (_, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
 
@@ -93,23 +97,17 @@ impl AndroidBuildCommand {
         }
 
         config.status("Generating gradle project")?;
-        let gradle_project_path = android::gen_gradle_project(
+        let gradle_project_path = gen_gradle_project(
             &android_build_dir,
-            &context.android_config.assets,
-            &context.android_config.res,
-            &context.android_config.plugins,
+            &context.config.get_android_assets(),
+            &context.config.android.res,
+            &context.config.android.plugins,
         )?;
 
-        // Get AndroidManifest.xml from file or generate from Cargo.toml
-        let (android_manifest, _manifest_path) = Self::android_manifest(
-            config,
-            context,
-            &sdk,
-            &package_name,
-            profile,
-            &gradle_project_path,
-            true,
-        )?;
+        config.status_message("Reading", "AndroidManifest.xml")?;
+        let manifest = Self::get_android_manifest(context, AndroidStrategy::GradleApk)?;
+        config.status_message("Generating", "AndroidManifest.xml")?;
+        save_android_manifest(&gradle_project_path, &manifest)?;
 
         let lib_name = "crossbow_android";
         self.build_rust_lib(config, context, lib_name, Some(android_build_dir))?;
@@ -118,30 +116,22 @@ impl AndroidBuildCommand {
             "Gradle project generated",
             gradle_project_path.to_str().unwrap(),
         )?;
-
-        config.status("Building Gradle project")?;
-        let mut gradle = android::gradle_init()?;
-        gradle
-            .arg("build")
-            .arg("-p")
-            .arg(dunce::simplified(&gradle_project_path));
-        gradle.output_err(true)?;
-        Ok((android_manifest, sdk, gradle_project_path))
+        Ok((manifest, sdk, gradle_project_path))
     }
 
-    /// Compile rust code as a dynamic library
+    /// Compile rust code as a dynamic library.
     pub fn build_rust_lib(
         &self,
         config: &Config,
         context: &BuildContext,
         lib_name: &str,
         export_path: Option<PathBuf>,
-    ) -> crate::error::Result<()> {
+    ) -> Result<()> {
         let profile = self.shared.profile();
         let example = self.shared.example.as_ref();
         let (project_path, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
         config.status_message("Starting lib build process", &package_name)?;
-        let (_sdk, ndk, target_sdk_version) = Self::android_toolchain(context)?;
+        let (sdk, ndk) = Self::android_toolchain()?;
 
         let android_build_dir = if let Some(export_path) = export_path {
             export_path
@@ -149,9 +139,14 @@ impl AndroidBuildCommand {
             target_dir.join("android").join(&package_name)
         };
 
+        config.status_message("Reading", "AndroidManifest.xml")?;
+        let manifest = Self::get_android_manifest(context, AndroidStrategy::NativeApk)?;
+
         config.status_message("Compiling", "lib")?;
-        let build_targets = context.android_build_targets(&self.target);
+        let target_sdk_version = Self::target_sdk_version(&manifest, &sdk);
+        let build_targets = Self::android_build_targets(context, profile, &self.target);
         let compiled_libs = self.build_target(
+            context,
             build_targets,
             lib_name,
             &ndk,
@@ -178,17 +173,17 @@ impl AndroidBuildCommand {
         Ok(())
     }
 
-    /// Builds APK with aapt tool and signs it with apksigner
+    /// Builds APK with aapt tool and signs it with apksigner.
     pub fn execute_apk(
         &self,
         config: &Config,
         context: &BuildContext,
-    ) -> crate::error::Result<(AndroidManifest, AndroidSdk, PathBuf)> {
+    ) -> Result<(AndroidManifest, AndroidSdk, PathBuf)> {
         let profile = self.shared.profile();
         let example = self.shared.example.as_ref();
         let (project_path, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
         config.status_message("Starting apk build process", &package_name)?;
-        let (sdk, ndk, target_sdk_version) = Self::android_toolchain(context)?;
+        let (sdk, ndk) = Self::android_toolchain()?;
 
         let android_build_dir = target_dir.join("android").join(&package_name);
         let native_build_dir = android_build_dir.join("native").join("apk");
@@ -197,20 +192,16 @@ impl AndroidBuildCommand {
             std::fs::create_dir_all(&outputs_build_dir)?;
         }
 
-        // Get AndroidManifest.xml from file or generate from Cargo.toml
-        let (android_manifest, manifest_path) = Self::android_manifest(
-            config,
-            context,
-            &sdk,
-            &package_name,
-            profile,
-            &native_build_dir,
-            false,
-        )?;
+        config.status_message("Reading", "AndroidManifest.xml")?;
+        let manifest = Self::get_android_manifest(context, AndroidStrategy::NativeApk)?;
+        config.status_message("Generating", "AndroidManifest.xml")?;
+        let manifest_path = save_android_manifest(&native_build_dir, &manifest)?;
 
         config.status_message("Compiling", "lib")?;
-        let build_targets = context.android_build_targets(&self.target);
+        let target_sdk_version = Self::target_sdk_version(&manifest, &sdk);
+        let build_targets = Self::android_build_targets(context, profile, &self.target);
         let compiled_libs = self.build_target(
+            context,
             build_targets,
             &package_name,
             &ndk,
@@ -222,53 +213,35 @@ impl AndroidBuildCommand {
         )?;
 
         config.status_message("Generating", "unaligned APK file")?;
-        let package_label = android_manifest
-            .application
-            .label
-            .clone()
-            .unwrap()
-            .to_string();
-
-        let unaligned_apk_path = android::gen_unaligned_apk(
+        let unaligned_apk_path = gen_unaligned_apk(
             &sdk,
             &project_path,
             &native_build_dir,
             &manifest_path,
-            &context.android_config.assets,
-            &context.android_config.res,
-            &package_label,
+            &context.config.get_android_assets(),
+            &context.config.android.res,
+            &package_name,
             target_sdk_version,
         )?;
 
-        let min_sdk_version = android_manifest
-            .uses_sdk
-            .as_ref()
-            .unwrap()
-            .min_sdk_version
-            .unwrap_or(MIN_SDK_VERSION);
-
         config.status("Adding libs into APK file")?;
         for (compiled_lib, build_target) in compiled_libs {
-            android::add_libs_into_apk(
+            add_libs_into_apk(
                 &sdk,
                 &ndk,
                 &unaligned_apk_path,
                 &compiled_lib,
                 build_target,
                 profile,
-                min_sdk_version,
+                Self::min_sdk_version(&manifest),
                 &android_build_dir,
                 &target_dir,
             )?;
         }
 
         config.status("Aligning APK file")?;
-        let aligned_apk_path = android::align_apk(
-            &sdk,
-            &unaligned_apk_path,
-            &package_label,
-            &outputs_build_dir,
-        )?;
+        let aligned_apk_path =
+            align_apk(&sdk, &unaligned_apk_path, &package_name, &outputs_build_dir)?;
 
         config.status_message("Generating", "debug signing key")?;
         let key = Self::find_keystore(
@@ -278,22 +251,22 @@ impl AndroidBuildCommand {
         )?;
 
         config.status("Signing APK file")?;
-        android::sign_apk(&sdk, &aligned_apk_path, key)?;
+        sign_apk(&sdk, &aligned_apk_path, key)?;
         config.status("Build finished successfully")?;
-        Ok((android_manifest, sdk, aligned_apk_path))
+        Ok((manifest, sdk, aligned_apk_path))
     }
 
-    /// Builds AAB with aapt2 tool and signs it with jarsigner
+    /// Builds AAB with aapt2 tool and signs it with jarsigner.
     pub fn execute_aab(
         &self,
         config: &Config,
         context: &BuildContext,
-    ) -> crate::error::Result<(AndroidManifest, AndroidSdk, PathBuf, String, Key)> {
+    ) -> Result<(AndroidManifest, AndroidSdk, PathBuf, String, Key)> {
         let profile = self.shared.profile();
         let example = self.shared.example.as_ref();
         let (project_path, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
         config.status_message("Starting aab build process", &package_name)?;
-        let (sdk, ndk, target_sdk_version) = Self::android_toolchain(context)?;
+        let (sdk, ndk) = Self::android_toolchain()?;
 
         let android_build_dir = target_dir.join("android").join(&package_name);
         let native_build_dir = android_build_dir.join("native").join("aab");
@@ -302,20 +275,16 @@ impl AndroidBuildCommand {
             std::fs::create_dir_all(&outputs_build_dir)?;
         }
 
-        // Get AndroidManifest.xml from file or generate from Cargo.toml
-        let (android_manifest, manifest_path) = Self::android_manifest(
-            config,
-            context,
-            &sdk,
-            &package_name,
-            profile,
-            &native_build_dir,
-            false,
-        )?;
+        config.status_message("Reading", "AndroidManifest.xml")?;
+        let manifest = Self::get_android_manifest(context, AndroidStrategy::NativeAab)?;
+        config.status_message("Generating", "AndroidManifest.xml")?;
+        let manifest_path = save_android_manifest(&native_build_dir, &manifest)?;
 
         config.status_message("Compiling", "lib")?;
-        let build_targets = context.android_build_targets(&self.target);
+        let target_sdk_version = Self::target_sdk_version(&manifest, &sdk);
+        let build_targets = Self::android_build_targets(context, profile, &self.target);
         let compiled_libs = self.build_target(
+            context,
             build_targets,
             &package_name,
             &ndk,
@@ -328,7 +297,7 @@ impl AndroidBuildCommand {
 
         config.status_message("Generating", "proto format APK file")?;
 
-        let compiled_res = if let Some(res) = &context.android_config.res {
+        let compiled_res = if let Some(res) = &context.config.android.res {
             let compiled_res_path = native_build_dir.join("compiled_res");
             if !compiled_res_path.exists() {
                 std::fs::create_dir_all(&compiled_res_path)?;
@@ -347,7 +316,7 @@ impl AndroidBuildCommand {
         let mut aapt2_link =
             sdk.aapt2()?
                 .link_compiled_res(compiled_res, &apk_path, &manifest_path);
-        if let Some(assets) = &context.android_config.assets {
+        if let Some(assets) = &context.config.get_android_assets() {
             aapt2_link.assets(assets.clone())
         } else {
             &mut aapt2_link
@@ -359,22 +328,16 @@ impl AndroidBuildCommand {
 
         config.status("Extracting apk files")?;
         let output_dir = native_build_dir.join("extracted_apk_files");
-        let extracted_apk_path = android::extract_archive(&apk_path, &output_dir)?;
+        let extracted_apk_path = extract_archive(&apk_path, &output_dir)?;
 
         config.status("Adding libs")?;
         for (compiled_lib, build_target) in compiled_libs {
-            android::add_libs_into_aapt2(
+            add_libs_into_aapt2(
                 &ndk,
                 &compiled_lib,
                 build_target,
                 profile,
-                android_manifest
-                    .clone()
-                    .uses_sdk
-                    .as_ref()
-                    .unwrap()
-                    .min_sdk_version
-                    .unwrap_or(MIN_SDK_VERSION),
+                Self::min_sdk_version(&manifest),
                 &extracted_apk_path,
                 &target_dir,
                 &package_name,
@@ -383,7 +346,7 @@ impl AndroidBuildCommand {
 
         config.status("Generating ZIP module from extracted files")?;
         let gen_zip_modules =
-            android::gen_zip_modules(&native_build_dir, &package_name, &extracted_apk_path)?;
+            gen_zip_modules(&native_build_dir, &package_name, &extracted_apk_path)?;
 
         for entry in std::fs::read_dir(&native_build_dir)? {
             let entry = entry?;
@@ -394,8 +357,7 @@ impl AndroidBuildCommand {
         }
 
         config.status("Generating aab from modules")?;
-        let aab_path =
-            android::gen_aab_from_modules(&package_name, &[gen_zip_modules], &outputs_build_dir)?;
+        let aab_path = gen_aab_from_modules(&package_name, &[gen_zip_modules], &outputs_build_dir)?;
 
         config.status_message("Generating", "debug signing key")?;
         let key = Self::find_keystore(
@@ -421,14 +383,14 @@ impl AndroidBuildCommand {
         options.overwrite = true;
         fs_extra::file::move_file(&signed_aab, &outputs_build_dir.join(output_aab), &options)?;
         config.status("Build finished successfully")?;
-        Ok((android_manifest, sdk, aab_output_path, package_name, key))
+        Ok((manifest, sdk, aab_output_path, package_name, key))
     }
 
-    /// Specifies project path and target directory needed to build application
+    /// Specifies project path and target directory needed to build application.
     pub fn needed_project_dirs(
         example: Option<&String>,
         context: &BuildContext,
-    ) -> crate::error::Result<(PathBuf, PathBuf, String)> {
+    ) -> Result<(PathBuf, PathBuf, String)> {
         let project_path: PathBuf = context.project_path.clone();
         let target_dir: PathBuf = context.target_dir.clone();
         let (_target, package_name) = if let Some(example) = example {
@@ -439,39 +401,19 @@ impl AndroidBuildCommand {
         Ok((project_path, target_dir, package_name))
     }
 
-    /// Specifies path to Android SDK and Android NDK
-    pub fn android_toolchain(
-        context: &BuildContext,
-    ) -> crate::error::Result<(AndroidSdk, AndroidNdk, u32)> {
+    /// Specifies path to Android SDK and Android NDK.
+    pub fn android_toolchain() -> Result<(AndroidSdk, AndroidNdk)> {
         let sdk = AndroidSdk::from_env()?;
-        let ndk = AndroidNdk::from_env(Some(sdk.sdk_path()))?;
-        let target_sdk_version = context.target_sdk_version(&sdk);
-        Ok((sdk, ndk, target_sdk_version))
+        let ndk = AndroidNdk::from_env(sdk.sdk_path())?;
+        Ok((sdk, ndk))
     }
 
-    /// Generates or copies AndroidManifest.xml from specified path, then saves it to android folder
-    pub fn android_manifest(
-        config: &Config,
-        context: &BuildContext,
-        sdk: &AndroidSdk,
-        package_name: &str,
-        profile: Profile,
-        android_build_dir: &Path,
-        gradle: bool,
-    ) -> crate::error::Result<(AndroidManifest, PathBuf)> {
-        config.status_message("Generating", "AndroidManifest.xml")?;
-        let android_manifest =
-            context.gen_android_manifest(sdk, package_name, profile.is_debug(), gradle)?;
-        let manifest_path = android::save_android_manifest(android_build_dir, &android_manifest)?;
-        Ok((android_manifest, manifest_path))
-    }
-
-    /// Find keystore for signing application or create it
+    /// Find keystore for signing application or create it.
     pub fn find_keystore(
         sign_key_path: Option<PathBuf>,
         sign_key_pass: Option<String>,
         sign_key_alias: Option<String>,
-    ) -> crate::error::Result<Key> {
+    ) -> Result<Key> {
         let key = if let Some(key_path) = sign_key_path {
             let aab_key = Key {
                 key_path,
@@ -481,7 +423,7 @@ impl AndroidBuildCommand {
             if aab_key.key_path.exists() {
                 aab_key
             } else {
-                android::gen_key(
+                gen_key(
                     Some(aab_key.key_path),
                     Some(aab_key.key_pass),
                     Some(aab_key.key_alias),
@@ -492,7 +434,7 @@ impl AndroidBuildCommand {
             if aab_key.key_path.exists() {
                 aab_key
             } else {
-                android::gen_key(
+                gen_key(
                     Some(aab_key.key_path),
                     Some(aab_key.key_pass),
                     Some(aab_key.key_alias),
@@ -502,9 +444,10 @@ impl AndroidBuildCommand {
         Ok(key)
     }
 
-    /// Compiling libs for architecture and write out it in vector
+    /// Compiling libs for architecture and write out it in vector.
     pub fn build_target(
         &self,
+        context: &BuildContext,
         build_targets: Vec<AndroidTarget>,
         package_name: &str,
         ndk: &AndroidNdk,
@@ -513,18 +456,13 @@ impl AndroidBuildCommand {
         target_sdk_version: u32,
         target_dir: &Path,
         config: &Config,
-    ) -> crate::error::Result<Vec<(PathBuf, AndroidTarget)>> {
+    ) -> Result<Vec<(PathBuf, AndroidTarget)>> {
         let mut libs = Vec::new();
         for build_target in build_targets {
             let lib_name = format!("lib{}.so", package_name.replace('-', "_"));
             let rust_triple = build_target.rust_triple();
 
             config.status_message("Compiling for architecture", rust_triple)?;
-            let app_wrapper = match self.shared.quad {
-                true => ApplicationWrapper::Sokol,
-                false => ApplicationWrapper::NdkGlue,
-            };
-
             // Compile rust code for android depending on application wrapper
             rust_compile(
                 ndk,
@@ -536,7 +474,7 @@ impl AndroidBuildCommand {
                 self.shared.no_default_features,
                 target_sdk_version,
                 &lib_name,
-                app_wrapper,
+                context.config.android.app_wrapper,
             )?;
 
             let out_dir = target_dir.join(build_target.rust_triple()).join(&profile);
@@ -544,5 +482,69 @@ impl AndroidBuildCommand {
             libs.push((compiled_lib, build_target));
         }
         Ok(libs)
+    }
+
+    /// Get target sdk version from cargo manifest
+    pub fn target_sdk_version(android_manifest: &AndroidManifest, sdk: &AndroidSdk) -> u32 {
+        if let Some(target_sdk_version) = android_manifest
+            .uses_sdk
+            .as_ref()
+            .and_then(|u| u.target_sdk_version)
+        {
+            return target_sdk_version;
+        };
+        sdk.default_platform()
+    }
+
+    pub fn min_sdk_version(android_manifest: &AndroidManifest) -> u32 {
+        android_manifest
+            .uses_sdk
+            .as_ref()
+            .and_then(|uses_sdk| uses_sdk.min_sdk_version)
+            .unwrap()
+    }
+
+    /// Get android build targets from cargo manifest
+    pub fn android_build_targets(
+        context: &BuildContext,
+        profile: Profile,
+        build_targets: &Vec<AndroidTarget>,
+    ) -> Vec<AndroidTarget> {
+        if !build_targets.is_empty() {
+            return build_targets.clone();
+        };
+        if profile == Profile::Debug && !context.config.android.debug_build_targets.is_empty() {
+            return context.config.android.debug_build_targets.clone();
+        };
+        if profile == Profile::Release && !context.config.android.release_build_targets.is_empty() {
+            return context.config.android.release_build_targets.clone();
+        };
+        vec![AndroidTarget::Aarch64]
+    }
+
+    /// Get android manifest from the path in cargo manifest or generate it with the given
+    /// configuration
+    pub fn get_android_manifest(
+        context: &BuildContext,
+        strategy: AndroidStrategy,
+    ) -> Result<AndroidManifest> {
+        if let Some(manifest_path) = &context.config.android.manifest_path {
+            return Ok(read_android_manifest(manifest_path)?);
+        }
+        let mut manifest = if let Some(manifest) = &context.config.android.manifest {
+            manifest.clone()
+        } else {
+            AndroidManifest::default()
+        };
+        update_android_manifest_with_default(
+            &mut manifest,
+            context.config.app_name.clone(),
+            context.package_name().as_str(),
+            strategy,
+        );
+        context.config.permissions.iter().for_each(|permission| {
+            permission.update_manifest(&mut manifest);
+        });
+        Ok(manifest)
     }
 }

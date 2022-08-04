@@ -1,5 +1,6 @@
 //! Contains `Error`, `AndroidError`, `AppleError` types used by `crossbundle-tools`.
 
+#[cfg(feature = "apple")]
 use apple_bundle::plist;
 use displaydoc::Display;
 use std::path::PathBuf;
@@ -10,10 +11,9 @@ use thiserror::Error;
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Android specific error type.
+#[cfg(feature = "android")]
 #[derive(Display, Debug, Error)]
 pub enum AndroidError {
-    /// Android SDK is not found
-    AndroidSdkNotFound,
     /// Android NDK is not found
     AndroidNdkNotFound,
     /// Gradle Dependency project dir not found: {0}
@@ -26,8 +26,6 @@ pub enum AndroidError {
     BuildToolsNotFound,
     /// Android SDK has no platforms installed
     NoPlatformsFound,
-    /// Failed to create directory
-    DirectoryWasNotCreated,
     /// Platform {0} is not installed
     PlatformNotFound(u32),
     /// Target is not supported
@@ -38,6 +36,10 @@ pub enum AndroidError {
     InvalidSemver,
     /// Unsupported or invalid target: {0}
     InvalidBuildTarget(String),
+    /// Unsupported or invalid app wrapper: {0}
+    InvalidAppWrapper(String),
+    /// Unsupported or invalid build strategy: {0}
+    InvalidBuildStrategy(String),
     /// Failed to find AndroidManifest.xml in path: {0}
     FailedToFindAndroidManifest(String),
     /// Unable to find NDK file
@@ -49,6 +51,7 @@ pub enum AndroidError {
 }
 
 /// Apple specific error type.
+#[cfg(feature = "apple")]
 #[derive(Display, Debug, Error)]
 pub enum AppleError {
     /// Code signing profile not found
@@ -67,6 +70,10 @@ pub enum AppleError {
     TargetNotFound,
     /// Resources dir does not exists
     ResourcesNotFound,
+    /// Unsupported or invalid build strategy: {0}
+    InvalidBuildStrategy(String),
+    /// Unsupported or invalid target: {0}
+    InvalidBuildTarget(String),
     /// Assets dir does not exists
     AssetsNotFound,
     /// Failed to find Info.plist in path: {0}
@@ -92,15 +99,6 @@ pub enum Error {
     FailedToFindManifest(PathBuf),
     /// Invalid profile: {0}
     InvalidProfile(String),
-    /// Invalid interface orientation: {0:?}
-    InvalidInterfaceOrientation(String),
-    /// Home dir not found
-    HomeDirNotFound,
-    /// Failed to create jar file in specified path `{path}` cause of `{cause}`
-    JarFileCreationFailed {
-        path: PathBuf,
-        cause: std::io::Error,
-    },
     /// GNU toolchain binary `{gnu_bin}` nor LLVM toolchain binary `{llvm_bin}` found in
     /// `{toolchain_path:?}`
     ToolchainBinaryNotFound {
@@ -122,8 +120,10 @@ pub enum Error {
     /// Zip error: {0:?}
     Zip(#[from] zip::result::ZipError),
     /// Android error: {0:?}
+    #[cfg(feature = "android")]
     Android(#[from] AndroidError),
     /// Apple error: {0:?}
+    #[cfg(feature = "apple")]
     Apple(#[from] AppleError),
     /// Anyhow error: {0:?}
     AnyhowError(#[from] anyhow::Error),
@@ -159,18 +159,21 @@ impl CommandExt for Command {
     }
 }
 
+#[cfg(feature = "apple")]
 impl From<plist::Error> for Error {
     fn from(error: plist::Error) -> Self {
         AppleError::from(error).into()
     }
 }
 
+#[cfg(feature = "apple")]
 impl From<simctl::Error> for Error {
     fn from(error: simctl::Error) -> Self {
         AppleError::Simctl(error).into()
     }
 }
 
+#[cfg(feature = "android")]
 impl From<android_tools::error::Error> for Error {
     fn from(error: android_tools::error::Error) -> Self {
         AndroidError::AndroidTools(error).into()

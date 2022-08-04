@@ -1,4 +1,4 @@
-#![cfg(target_os = "macos")]
+#![cfg(all(target_os = "macos", feature = "apple"))]
 
 use crossbundle_tools::commands::{apple::*, gen_minimal_project};
 

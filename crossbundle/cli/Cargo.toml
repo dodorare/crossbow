@@ -1,6 +1,6 @@
 [package]
 name = "crossbundle"
-version = "0.1.7"
+version = "0.1.8"
 edition = "2021"
 authors = ["DodoRare Team <support@dodorare.com>"]
 description = "Build and publish apps for Android/iOS"
@@ -18,9 +18,10 @@ name = "crossbundle"
 path = "src/main.rs"
 
 [dependencies]
-crossbundle-tools = { path = "../tools", version = "0.1.7" }
-android-tools = "0.2.9"
-clap = { version = "3.2.8", features = ["derive"] }
+crossbow = { path = "../../", version = "0.1.8", default-features = false, features = ["update-manifest"] }
+crossbundle-tools = { path = "../tools", version = "0.1.8", default-features = false }
+android-tools = { version = "0.2.10", optional = true }
+clap = { version = "3.2", features = ["derive"] }
 serde = { version = "1.0", features = ["derive"] }
 
 anyhow = "1.0"
@@ -31,16 +32,16 @@ pretty_env_logger = "0.4"
 log = "0.4"
 
 fs_extra = "1.2"
-dirs = "4.0.0"
+dirs = "4.0"
 dunce = "1.0"
-ureq = { version = "2.4.0", features = ["tls"] }
+ureq = { version = "2.5", features = ["tls"] }
 cargo = "0.63.1"
 cargo-util = "0.2.0"
 
 [dev-dependencies]
-tempfile = "3.2"
+tempfile = "3.3"
 
 [features]
-default = ["android", "ios"]
-android = []
-ios = []
+default = ["android", "apple"]
+android = ["crossbow/android", "crossbundle-tools/android", "android-tools"]
+apple = ["crossbow/ios", "crossbundle-tools/apple"]

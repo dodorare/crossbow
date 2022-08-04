@@ -1,6 +1,6 @@
 [package]
 name = "bevy-explorer"
-version = "0.1.7"
+version = "0.1.8"
 authors = ["DodoRare Team <support@dodorare.com>"]
 edition = "2021"
 
@@ -14,26 +14,14 @@ bevy = { version = "0.7.0", features = ["mp3"] }
 codec = { package = "parity-scale-codec", version = "3.0.0", default-features = false, features = ["derive", "full", "bit-vec"] }
 jsonrpsee = { version = "0.10.1", features = ["async-client", "client-ws-transport"] }
 
-[package.metadata.android]
+[package.metadata]
 app_name = "Bevy Explorer"
-version_code = 1
-target_sdk_version = 30
-icon = "ic_launcher"
+assets = "../../assets"
 
-build_targets = ["aarch64-linux-android"]
-assets = "assets"
-res = "res/android"
+[package.metadata.android]
+release_build_targets = ["aarch64-linux-android"]
+res = "../../assets/res/android"
 
 [package.metadata.apple]
-app_name = "Bevy Explorer"
-version_code = 1
-target_sdk_version = 30
-icon = "ic_launcher"
-
-build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
-assets = "assets"
-res = "res/apple"
-
-[[package.metadata.android_permissions]]
-name = "android.permission.INTERNET"
-max_sdk_version = 31
+release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
+res = "../../assets/res/apple"

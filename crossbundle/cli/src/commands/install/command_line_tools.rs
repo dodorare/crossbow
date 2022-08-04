@@ -1,11 +1,16 @@
 use super::*;
 use clap::Parser;
-use crossbundle_tools::{
-    commands::android::{self, remove},
-    tools::AndroidSdk,
-    utils::Config,
-};
+use crossbundle_tools::{commands::android::*, types::AndroidSdk, types::Config};
 use std::path::{Path, PathBuf};
+
+#[cfg(target_os = "windows")]
+const OS_TAG: &str = "win";
+#[cfg(target_os = "macos")]
+const OS_TAG: &str = "mac";
+#[cfg(target_os = "linux")]
+const OS_TAG: &str = "linux";
+
+const COMMAND_LINE_TOOLS_DOWNLOAD_URL: &str = "https://dl.google.com/android/repository/";
 
 #[derive(Parser, Clone, Debug, Default)]
 pub struct CommandLineToolsInstallCommand {
@@ -18,7 +23,8 @@ pub struct CommandLineToolsInstallCommand {
 }
 
 impl CommandLineToolsInstallCommand {
-    /// Download command line tools zip archive and extract it in specified sdk root directory
+    /// Download command line tools zip archive and extract it in specified sdk root
+    /// directory
     pub fn install(&self, config: &Config) -> crate::error::Result<()> {
         if self.force {
             remove(vec![default_file_path(self.file_name())?])?;
@@ -46,13 +52,13 @@ impl CommandLineToolsInstallCommand {
                 "Extracting zip archive contents into",
                 path.to_str().unwrap(),
             )?;
-            android::extract_archive(&file_path, path)?;
+            extract_archive(&file_path, path)?;
         } else {
             config.status_message(
                 "Extracting zip archive contents into",
                 &sdk_path.to_str().unwrap(),
             )?;
-            android::extract_archive(&file_path, Path::new(&sdk_path))?;
+            extract_archive(&file_path, Path::new(&sdk_path))?;
         }
 
         config.status("Deleting zip archive was left after installation")?;
@@ -65,7 +71,8 @@ impl CommandLineToolsInstallCommand {
         format!("commandlinetools-{}-8512546_latest.zip", OS_TAG)
     }
 
-    /// Check home directory for zip file. If it doesn't exists download zip file and save it in the directory
+    /// Check home directory for zip file. If it doesn't exists download zip file and save
+    /// it in the directory
     pub fn download_and_save_file(
         &self,
         download_url: PathBuf,

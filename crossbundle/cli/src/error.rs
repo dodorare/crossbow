@@ -1,3 +1,4 @@
+#[cfg(feature = "android")]
 use crossbundle_tools::types::android_manifest;
 use displaydoc::Display;
 use thiserror::Error;
@@ -6,14 +7,10 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Display, Debug, Error)]
 pub enum Error {
-    /// Build targets not provided
-    BuildTargetsNotProvided,
     /// Can't find target to run
     CantFindTargetToRun,
     /// Team identifier not provided
     TeamIdentifierNotProvided,
-    /// Invalid cargo metadata values
-    InvalidCargoMetadata,
     /// Invalid metadata in manifest: {0:?}
     InvalidMetadata(anyhow::Error),
     /// IO error: {0:?}
@@ -25,6 +22,7 @@ pub enum Error {
     /// Crossbundle Tools error: {0:?}
     CrossbundleTools(#[from] crossbundle_tools::error::Error),
     /// AndroidManifest error: {0:?}
+    #[cfg(feature = "android")]
     AndroidManifest(#[from] android_manifest::error::Error),
     /// FsExtra error: {0:?}
     FsExtra(#[from] fs_extra::error::Error),
@@ -47,8 +45,9 @@ pub enum Error {
 }
 
 // TODO: Fix this. Is there a better casting for it?
-impl From<crossbundle_tools::tools::AndroidToolsError> for Error {
-    fn from(error: crossbundle_tools::tools::AndroidToolsError) -> Self {
+#[cfg(feature = "android")]
+impl From<crossbundle_tools::types::AndroidToolsError> for Error {
+    fn from(error: crossbundle_tools::types::AndroidToolsError) -> Self {
         Error::CrossbundleTools(error.into())
     }
 }

@@ -1,15 +1,19 @@
 use super::*;
 use clap::Parser;
-use crossbundle_tools::utils::Config;
+use crossbundle_tools::types::Config;
 use std::path::PathBuf;
+
+const BUNDLETOOL_JAR_FILE_DOWNLOAD_URL: &str =
+    "https://github.com/google/bundletool/releases/download";
 
 #[derive(Parser, Clone, Debug, Default)]
 pub struct BundletoolInstallCommand {
     /// Required. Version of download bundletool. For example:
-    /// --version 1.11.0
-    #[clap(long, short, default_value = "1.11.0")]
+    /// --version 1.8.2
+    #[clap(long, short, default_value = "1.8.2")]
     version: String,
-    /// Path to install bundletool. By default bundletool will be downloaded and saved in home directory
+    /// Path to install bundletool. By default bundletool will be downloaded and saved in
+    /// home directory
     #[clap(long, short)]
     path: Option<PathBuf>,
     /// Force install bundletool even if found.
@@ -33,7 +37,7 @@ impl BundletoolInstallCommand {
                 }
             }
         }
-        let download_url = std::path::Path::new(super::BUNDLETOOL_JAR_FILE_DOWNLOAD_URL)
+        let download_url = std::path::Path::new(BUNDLETOOL_JAR_FILE_DOWNLOAD_URL)
             .join(self.version.clone())
             .join(self.file_name());
         let download_url_str = String::from(download_url.to_str().unwrap());

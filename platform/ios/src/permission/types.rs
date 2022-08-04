@@ -5,7 +5,8 @@ use cocoa_foundation::{base::id, foundation::NSUInteger};
 pub enum IosPermission {
     /// EKEventStore.
     ///
-    /// An object that accesses the user’s calendar events and reminders and supports the scheduling of new events.
+    /// An object that accesses the user’s calendar events and reminders and supports the
+    /// scheduling of new events.
     ///
     /// More details: https://developer.apple.com/documentation/eventkit/ekeventstore
     EventStore(EntityType),
@@ -48,7 +49,8 @@ pub enum IosPermission {
     MotionActivityManager,
     /// CLLocationManager.
     ///
-    /// The object that you use to start and stop the delivery of location-related events to your app.
+    /// The object that you use to start and stop the delivery of location-related events
+    /// to your app.
     ///
     /// More details: https://developer.apple.com/documentation/corelocation/cllocationmanager
     LocationManager(LocationAuthorizationType),
@@ -59,7 +61,8 @@ pub enum IosPermission {
 pub enum LocationAuthorizationType {
     /// Requests the user’s permission to use location services while the app is in use.
     WhenInUse,
-    /// Requests the user’s permission to use location services regardless of whether the app is in use.
+    /// Requests the user’s permission to use location services regardless of whether the
+    /// app is in use.
     Always,
 }
 
@@ -100,7 +103,8 @@ impl Into<id> for &MediaType {
 pub enum AccessLevel {
     /// A value that indicates the app may only add to the user’s photo library.
     AddOnly,
-    /// A value that indicates the app can read from and write to the user’s photo library.
+    /// A value that indicates the app can read from and write to the user’s photo
+    /// library.
     ReadWrite,
 }
 
@@ -122,7 +126,8 @@ impl Into<NSUInteger> for &AccessLevel {
 pub enum AuthorizationStatus {
     /// The user hasn’t set the app’s authorization status.
     NotDetermined,
-    /// The app isn’t authorized to access the photo library, and the user can’t grant such permission.
+    /// The app isn’t authorized to access the photo library, and the user can’t grant
+    /// such permission.
     Restricted,
     /// The user explicitly denied this app access to the photo library.
     Denied,

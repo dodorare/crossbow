@@ -162,18 +162,18 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
     ) {
         if (!aIsInitialized) {
             aIsForChildDirectedTreatment = pIsForChildDirectedTreatment
-            aConsentInformation = UserMessagingPlatform.getConsentInformation(aActivity)
+            aConsentInformation = UserMessagingPlatform.getConsentInformation(aActivity!!)
             aIsTestEuropeUserConsent = pIsTestEuropeUserConsent
             setMobileAdsRequestConfiguration(
                 aIsForChildDirectedTreatment,
                 pMaxAdContentRating,
                 pIsReal
-            ) //First call MobileAds.setRequestConfiguration https://groups.google.com/g/google-admob-ads-sdk/c/17oVu0sABjs
-            MobileAds.initialize(aActivity) { initializationStatus ->
+            ) // First call MobileAds.setRequestConfiguration https://groups.google.com/g/google-admob-ads-sdk/c/17oVu0sABjs
+            MobileAds.initialize(aActivity!!) { initializationStatus ->
                 val statusGADMobileAds: Int = Objects.requireNonNull(
                     initializationStatus.getAdapterStatusMap()
-                        .get("com.google.android.gms.ads.MobileAds")
-                )!!.getInitializationState().ordinal
+                        .get("com.google.android.gms.ads.MobileAds")!!
+                ).getInitializationState().ordinal
                 if (statusGADMobileAds == 0) {
                     aIsInitialized = false
                 } else if (statusGADMobileAds == 1) {
@@ -186,14 +186,14 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
 
     @ExposedToCrossbow
     fun request_user_consent() {
-        aConsentInformation = UserMessagingPlatform.getConsentInformation(aActivity)
+        aConsentInformation = UserMessagingPlatform.getConsentInformation(aActivity!!)
         val paramsBuilder: ConsentRequestParameters.Builder =
             ConsentRequestParameters.Builder().setTagForUnderAgeOfConsent(aIsForChildDirectedTreatment)
         val params: ConsentRequestParameters
         params =
             if (aIsTestEuropeUserConsent) //https://developers.google.com/admob/ump/android/quick-start#testing
             {
-                val debugSettings: ConsentDebugSettings = ConsentDebugSettings.Builder(aActivity)
+                val debugSettings: ConsentDebugSettings = ConsentDebugSettings.Builder(aActivity!!)
                     .setDebugGeography(ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA)
                     .addTestDeviceHashedId(deviceId)
                     .build()
@@ -201,7 +201,7 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
             } else {
                 paramsBuilder.build()
             }
-        aConsentInformation!!.requestConsentInfoUpdate(aActivity, params,
+        aConsentInformation!!.requestConsentInfoUpdate(aActivity!!, params,
             {
                 if (aConsentInformation!!.isConsentFormAvailable()) {
                     emitSignal("consent_info_update_success", "Consent Form Available")
@@ -236,16 +236,15 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
         aActivity!!.runOnUiThread(Runnable {
             if (aIsInitialized) {
                 if (aAdView != null) destroy_banner()
-                aAdView = AdView(aActivity)
-                aAdView!!.setAdUnitId(pAdUnitId)
+                aAdView = AdView(aActivity!!)
+                aAdView!!.setAdUnitId(pAdUnitId!!)
                 when (pSize) {
                     "BANNER" -> aAdView!!.setAdSize(AdSize.BANNER)
                     "LARGE_BANNER" -> aAdView!!.setAdSize(AdSize.LARGE_BANNER)
                     "MEDIUM_RECTANGLE" -> aAdView!!.setAdSize(AdSize.MEDIUM_RECTANGLE)
                     "FULL_BANNER" -> aAdView!!.setAdSize(AdSize.FULL_BANNER)
                     "LEADERBOARD" -> aAdView!!.setAdSize(AdSize.LEADERBOARD)
-                    "ADAPTIVE" -> aAdView!!.setAdSize(adSizeAdaptive)
-                    else -> aAdView!!.setAdSize(AdSize.SMART_BANNER)
+                    else -> aAdView!!.setAdSize(adSizeAdaptive)
                 }
                 aAdSize =
                     aAdView!!.getAdSize() //store AdSize of banner due a bug (throws error when do aAdView!!.getAdSize() called by Crossbow)
@@ -296,11 +295,11 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
                 if (pPosition == 0) //BOTTOM
                 {
                     aCrossbowLayoutParams!!.gravity = Gravity.BOTTOM
-                    if (pRespectSafeArea) aAdView!!.setY(-safeArea.bottom as Float) //Need to validate if this value will be positive or negative
+                    if (pRespectSafeArea) aAdView!!.setY(-safeArea.bottom.toFloat()) // Need to validate if this value will be positive or negative
                 } else if (pPosition == 1) //TOP
                 {
                     aCrossbowLayoutParams!!.gravity = Gravity.TOP
-                    if (pRespectSafeArea) aAdView!!.setY(safeArea.top as Float)
+                    if (pRespectSafeArea) aAdView!!.setY(safeArea.top.toFloat())
                 }
                 aCrossbowLayout!!.addView(aAdView, aCrossbowLayoutParams)
                 aAdView!!.loadAd(adRequest)
@@ -326,7 +325,7 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
     fun show_banner() {
         aActivity!!.runOnUiThread(Runnable {
             if (aIsInitialized && aAdView != null) {
-                if (aAdView!!.getVisibility() !== View.VISIBLE) {
+                if (aAdView!!.getVisibility() == View.VISIBLE) {
                     aAdView!!.setVisibility(View.VISIBLE)
                     aAdView!!.resume()
                 }
@@ -338,7 +337,7 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
     fun hide_banner() {
         aActivity!!.runOnUiThread(Runnable {
             if (aIsInitialized && aAdView != null) {
-                if (aAdView!!.getVisibility() !== View.GONE) {
+                if (aAdView!!.getVisibility() == View.GONE) {
                     aAdView!!.setVisibility(View.GONE)
                     aAdView!!.pause()
                 }
@@ -363,14 +362,14 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
     @ExposedToCrossbow
     fun get_banner_width_in_pixels(): Int {
         return if (aIsInitialized && aAdSize != null) {
-            aAdSize!!.getWidthInPixels(aActivity)
+            aAdSize!!.getWidthInPixels(aActivity!!)
         } else 0
     }
 
     @ExposedToCrossbow
     fun get_banner_height_in_pixels(): Int {
         return if (aIsInitialized && aAdSize != null) {
-            aAdSize!!.getHeightInPixels(aActivity)
+            aAdSize!!.getHeightInPixels(aActivity!!)
         } else 0
     }
 
@@ -381,8 +380,8 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
         aActivity!!.runOnUiThread(Runnable {
             if (aIsInitialized) {
                 InterstitialAd.load(
-                    aActivity,
-                    pAdUnitId,
+                    aActivity!!,
+                    pAdUnitId!!,
                     adRequest,
                     object : InterstitialAdLoadCallback() {
                         override fun onAdLoaded(interstitialAd: InterstitialAd) {
@@ -428,7 +427,7 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
         aActivity!!.runOnUiThread(Runnable {
             if (aIsInitialized) {
                 if (aInterstitialAd != null) {
-                    aInterstitialAd!!.show(aActivity)
+                    aInterstitialAd!!.show(aActivity!!)
                 }
             }
         })
@@ -440,7 +439,7 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
     fun load_rewarded(pAdUnitId: String?) {
         aActivity!!.runOnUiThread(Runnable {
             if (aIsInitialized) {
-                RewardedAd.load(aActivity, pAdUnitId, adRequest, object : RewardedAdLoadCallback() {
+                RewardedAd.load(aActivity!!, pAdUnitId!!, adRequest, object : RewardedAdLoadCallback() {
                     override fun onAdFailedToLoad(loadAdError: LoadAdError) {
                         // Handle the error.
                         aRewardedAd = null
@@ -481,7 +480,7 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
                             aIsRewardedLoaded = false
                         }
                     })
-                    aRewardedAd!!.show(aActivity) { rewardItem ->
+                    aRewardedAd!!.show(aActivity!!) { rewardItem ->
                         // Handle the reward.
                         emitSignal(
                             "user_earned_rewarded",
@@ -499,8 +498,8 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
         aActivity!!.runOnUiThread(Runnable {
             if (aIsInitialized) {
                 RewardedInterstitialAd.load(
-                    aActivity,
-                    pAdUnitId,
+                    aActivity!!,
+                    pAdUnitId!!,
                     adRequest,
                     object : RewardedInterstitialAdLoadCallback() {
                         override fun onAdFailedToLoad(loadAdError: LoadAdError) {
@@ -548,7 +547,7 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
                             aIsRewardedInterstitialLoaded = false
                         }
                     })
-                    aRewardedInterstitialAd!!.show(aActivity) { rewardItem ->
+                    aRewardedInterstitialAd!!.show(aActivity!!) { rewardItem ->
                         // Handle the reward.
                         emitSignal(
                             "user_earned_rewarded",
@@ -563,13 +562,13 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
 
     private fun loadConsentForm() {
         UserMessagingPlatform.loadConsentForm(
-            aActivity,
+            aActivity!!,
             { consentForm ->
                 var consentStatusMsg = ""
-                if (aConsentInformation!!.getConsentStatus() === ConsentInformation.ConsentStatus.REQUIRED) {
+                if (aConsentInformation!!.getConsentStatus() == ConsentInformation.ConsentStatus.REQUIRED) {
                     consentForm.show(
-                        aActivity
-                    ) { formError ->
+                        aActivity!!
+                    ) { _ ->
                         loadConsentForm()
                         emitSignal("consent_form_dismissed")
                     }
@@ -619,13 +618,13 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
     }
 
     private val adRequest: AdRequest
-        private get() {
+        get() {
             val adRequestBuilder = AdRequest.Builder()
             return adRequestBuilder.build()
         }
 
     private val safeArea: Rect
-        private get() {
+        get() {
             val safeInsetRect = Rect()
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
                 return safeInsetRect
@@ -648,11 +647,19 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
     // Determine the screen width (less decorations) to use for the ad width.
     private val adSizeAdaptive: AdSize
         // If the ad hasn't been laid out, default to the full screen width.
-        private get() {
+        get() {
             // Determine the screen width (less decorations) to use for the ad width.
-            val display: Display = aActivity!!.getWindowManager().getDefaultDisplay()
             val outMetrics = DisplayMetrics()
-            display.getMetrics(outMetrics)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                val display = aActivity!!.display
+                @Suppress("DEPRECATION")
+                display?.getRealMetrics(outMetrics)
+            } else {
+                @Suppress("DEPRECATION")
+                val display = aActivity!!.windowManager.defaultDisplay
+                @Suppress("DEPRECATION")
+                display.getMetrics(outMetrics)
+            }
             val density: Float = outMetrics.density
             var adWidthPixels: Float = aCrossbowLayout!!.getWidth().toFloat()
 
@@ -661,7 +668,7 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
                 adWidthPixels = outMetrics.widthPixels.toFloat()
             }
             val adWidth = (adWidthPixels / density).toInt()
-            return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(aActivity, adWidth)
+            return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(aActivity!!, adWidth)
         }
 
     /**
@@ -695,7 +702,7 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
      * @return String Device ID
      */
     private val deviceId: String
-        private get() {
+         get() {
             val android_id = Settings.Secure.getString(
                 aActivity!!.getContentResolver(),
                 Settings.Secure.ANDROID_ID

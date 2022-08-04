@@ -1,15 +1,16 @@
-use crossbundle_lib::build::{android::AndroidBuildCommand, BuildContext, SharedBuildCommand};
+#![cfg(feature = "android")]
+
+use crossbundle_lib::commands::build::{android::AndroidBuildCommand, BuildContext};
 use crossbundle_tools::{
     commands::gen_minimal_project,
-    types::AndroidTarget,
-    utils::{Config, Shell},
+    types::{AndroidStrategy, AndroidTarget, Config, Shell},
 };
 
 #[test]
 /// Use bevy minimal project in a temporary directory to test AAB generation.
 /// It is working likewise the command below.
 /// ```sh
-/// crossbundle build android --quad --aab
+/// crossbundle build android -s=native-aab
 /// ```
 fn test_execute_aab() {
     let tempdir = tempfile::tempdir().unwrap();
@@ -24,26 +25,10 @@ fn test_execute_aab() {
     let config = Config::new(shell, target_dir.clone());
     let context = BuildContext::new(&config, Some(target_dir.clone())).unwrap();
 
-    let shared_build_command = SharedBuildCommand {
-        example: None,
-        features: vec![],
-        all_features: false,
-        no_default_features: false,
-        release: false,
-        target_dir: None,
-        quad: false,
-    };
-
     let android_build_command = AndroidBuildCommand {
-        shared: shared_build_command,
-        target: vec![AndroidTarget::Aarch64LinuxAndroid],
-        aab: false,
-        lib: None,
-        export_path: None,
-        sign_key_path: None,
-        sign_key_pass: None,
-        sign_key_alias: None,
-        apk: false,
+        target: vec![AndroidTarget::Aarch64],
+        strategy: AndroidStrategy::NativeAab,
+        ..Default::default()
     };
 
     let (_, _, generated_aab_path, _, _) =

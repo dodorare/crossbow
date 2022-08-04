@@ -1,15 +1,16 @@
-use crossbundle_lib::build::{android::AndroidBuildCommand, BuildContext, SharedBuildCommand};
+#![cfg(feature = "android")]
+
+use crossbundle_lib::commands::build::{android::AndroidBuildCommand, BuildContext};
 use crossbundle_tools::{
     commands::gen_minimal_project,
-    types::AndroidTarget,
-    utils::{Config, Shell},
+    types::{AndroidStrategy, AndroidTarget, Config, Shell},
 };
 
 #[test]
-/// Use macroquad minimal project in a temporary directory to test gradle project generation.
-/// It is working likewise the command below.
+/// Use macroquad minimal project in a temporary directory to test gradle project
+/// generation. It is working likewise the command below.
 /// ```sh
-/// crossbundle build android --quad --gradle
+/// crossbundle build android
 /// ```
 fn test_build_gradle() {
     let tempdir = tempfile::tempdir().unwrap();
@@ -24,26 +25,10 @@ fn test_build_gradle() {
     let config = Config::new(shell, target_dir.clone());
     let context = BuildContext::new(&config, Some(target_dir)).unwrap();
 
-    let shared_build_command = SharedBuildCommand {
-        example: None,
-        features: vec![],
-        all_features: false,
-        no_default_features: false,
-        release: false,
-        target_dir: None,
-        quad: false,
-    };
-
     let android_build_command = AndroidBuildCommand {
-        shared: shared_build_command,
-        target: vec![AndroidTarget::Aarch64LinuxAndroid],
-        aab: false,
-        lib: None,
-        export_path: None,
-        sign_key_path: None,
-        sign_key_pass: None,
-        sign_key_alias: None,
-        apk: false,
+        target: vec![AndroidTarget::Aarch64],
+        strategy: AndroidStrategy::GradleApk,
+        ..Default::default()
     };
 
     let (_, _, gradle_project_path) = AndroidBuildCommand::build_gradle(

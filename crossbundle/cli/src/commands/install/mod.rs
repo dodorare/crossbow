@@ -1,47 +1,48 @@
+#[cfg(feature = "android")]
 pub mod bundletool;
+#[cfg(feature = "android")]
 pub mod command_line_tools;
+#[cfg(feature = "android")]
 pub mod sdkmanager;
 
 use crate::error::Result;
 use clap::Parser;
-use crossbundle_tools::utils::Config;
+use crossbundle_tools::types::Config;
 
+#[cfg(feature = "android")]
 use self::{
     bundletool::BundletoolInstallCommand, command_line_tools::CommandLineToolsInstallCommand,
     sdkmanager::SdkManagerInstallCommand,
 };
 
-#[cfg(target_os = "windows")]
-const OS_TAG: &str = "win";
-
-#[cfg(target_os = "macos")]
-const OS_TAG: &str = "mac";
-
-#[cfg(target_os = "linux")]
-const OS_TAG: &str = "linux";
-
-const COMMAND_LINE_TOOLS_DOWNLOAD_URL: &str = "https://dl.google.com/android/repository/";
-const BUNDLETOOL_JAR_FILE_DOWNLOAD_URL: &str =
-    "https://github.com/google/bundletool/releases/download";
-
 #[derive(Parser, Clone, Debug)]
 pub enum InstallCommand {
-    /// Install bundletool. You can specify version of bundletool. By default, we have 1.8.2 bundletool version in usage
+    /// Install bundletool. You can specify version of bundletool. By default, we have
+    /// 1.8.2 bundletool version in usage
+    #[cfg(feature = "android")]
     Bundletool(BundletoolInstallCommand),
-    /// Download the basic Android command line tools below. You can use the included sdkmanager to download other SDK packages.
-    /// These tools are included in Android Studio
+    /// Download the basic Android command line tools below. You can use the included
+    /// sdkmanager to download other SDK packages. These tools are included in Android
+    /// Studio
+    #[cfg(feature = "android")]
     CommandLineTools(CommandLineToolsInstallCommand),
     /// Allows you to view, install, update, and uninstall packages for the Android SDK
+    #[cfg(feature = "android")]
     SdkManager(SdkManagerInstallCommand),
 }
 
 impl InstallCommand {
     pub fn handle_command(&self, config: &Config) -> Result<()> {
+        #[cfg(feature = "android")]
         match self {
-            InstallCommand::Bundletool(cmd) => cmd.install(config),
-            InstallCommand::CommandLineTools(cmd) => cmd.install(config),
-            InstallCommand::SdkManager(cmd) => cmd.run(config),
+            #[cfg(feature = "android")]
+            InstallCommand::Bundletool(cmd) => cmd.install(config)?,
+            #[cfg(feature = "android")]
+            InstallCommand::CommandLineTools(cmd) => cmd.install(config)?,
+            #[cfg(feature = "android")]
+            InstallCommand::SdkManager(cmd) => cmd.run(config)?,
         }
+        Ok(())
     }
 }
 

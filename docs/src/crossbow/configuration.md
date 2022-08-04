@@ -21,7 +21,7 @@ app_name = "Game"
 target_sdk_version = 30
 icon = "ic_launcher"
 
-build_targets = ["aarch64-linux-android"]
+release_build_targets = ["aarch64-linux-android"]
 assets = "assets"
 res = "res/android"
 
@@ -29,7 +29,7 @@ res = "res/android"
 app_name = "Game"
 icon = "ic_launcher"
 
-build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
+release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
 assets = "assets"
 res = "res/apple"
 ```

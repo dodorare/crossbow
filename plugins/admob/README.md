@@ -22,15 +22,15 @@ Just add Rust dependencies like this:
 
 ```toml
 [dependencies]
-crossbow = "0.1.7"
-crossbow-admob = "0.1.7"
+crossbow = "0.1.8"
+crossbow-admob = "0.1.8"
 ```
 
 And finally, add this to your Crossbow Android configuration:
 
 ```toml
 [package.metadata.android]
-plugins_remote = ["com.crossbow.admob:admob:0.1.7"]
+plugins_remote = ["com.crossbow.admob:admob:0.1.8"]
 ```
 
 > That's it, now you can start using AdMob ads!
@@ -38,7 +38,7 @@ plugins_remote = ["com.crossbow.admob:admob:0.1.7"]
 If you want to configure custom APPLICATION_ID add this to your Cargo.toml file:
 
 ```toml
-[[package.metadata.android.meta_data]]
+[[package.metadata.android.manifest.application.meta_data]]
 name = "com.google.android.gms.ads.APPLICATION_ID"
 value = "<YOUR ID HERE>"
 # By default: ca-app-pub-3940256099942544~3347511713

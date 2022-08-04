@@ -91,6 +91,7 @@ impl JniSingleton {
             method.signature.ret.clone(),
             args,
         )?;
+        env.exception_check()?;
         Ok(result)
     }
 }

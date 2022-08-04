@@ -1,68 +1,52 @@
 [package]
 name = "macroquad-permissions"
-version = "0.1.7"
+version = "0.1.8"
 authors = ["DodoRare Team <support@dodorare.com>"]
 edition = "2021"
 
 [dependencies]
-crossbow = { version = "0.1.7", path = "../../" }
+crossbow = { version = "0.1.8", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
 macroquad = "0.3.7"
 
 [target.'cfg(target_os = "android")'.dependencies]
-crossbow-admob = { version = "0.1.7", path = "../../plugins/admob" }
+crossbow-admob = { version = "0.1.8", path = "../../plugins/admob" }
+
+[package.metadata]
+app_name = "Permissions"
+permissions = ["camera", "microphone", "photos", "storage-read"]
 
 [package.metadata.android]
-app_name = "Permissions"
-target_sdk_version = 30
-version_code = 1
-icon = "ic_launcher"
-
-build_targets = ["aarch64-linux-android"]
-assets = "assets"
-res = "res/android"
-
-# plugins_remote = ["com.crossbow.admob:admob:0.1.7"]
+app_wrapper = "sokol"
+release_build_targets = ["aarch64-linux-android"]
+res = "../../assets/res/android"
+# plugins_remote = ["com.crossbow.admob:admob:0.1.8"]
 
 [[package.metadata.android.plugins_local_projects]]
 include = ":crossbow"
 dont_implement = true
 project_dir = "../../platform/android/java"
-
 [[package.metadata.android.plugins_local_projects]]
 include = ":crossbow:lib"
-
 [[package.metadata.android.plugins_local_projects]]
 include = ":admob"
 project_dir = "../../plugins/admob/android"
 
-[[package.metadata.android.permissions]]
-name = "android.permission.READ_EXTERNAL_STORAGE"
-
-[[package.metadata.android.permissions]]
-name = "android.permission.CAMERA"
-
-[[package.metadata.android.permissions]]
-name = "android.permission.RECORD_AUDIO"
+[package.metadata.android.manifest]
+package = "com.crossbow.permissions"
+[package.metadata.android.manifest.uses_sdk]
+min_sdk_version = 19
+target_sdk_version = 30
+[package.metadata.android.manifest.application]
+icon = "@mipmap/ic_launcher"
+round_icon="@mipmap/ic_launcher"
 
 [package.metadata.apple]
-app_name = "Permissions"
-version_code = 1
-icon = "icon"
-
-build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
-assets = "assets"
-res = "res/apple"
+release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
+res = "../../assets/res/apple"
 
 [package.metadata.apple.info_plist]
-CFBundleIdentifier = "com.crossbow.macroquad-permissions"
+CFBundleIdentifier = "com.crossbow.permissions"
 CFBundleVersion = "1.0"
 CFBundleShortVersionString = "1.0"
-CFBundleExecutable = "macroquad-permissions"
-UILaunchStoryboardName = "LaunchScreen"
-CFBundleName = "Permissions"
-# Permissions
-NSCameraUsageDescription = "Permissions App requires access to your phone's camera."
-NSMicrophoneUsageDescription = "Permissions App requires access to your phone's microphone."
-NSPhotoLibraryUsageDescription = "Permissions App requires access to your phone's photo library."

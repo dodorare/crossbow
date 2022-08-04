@@ -1,10 +1,8 @@
+#![cfg(feature = "android")]
+
 use crossbundle_tools::{
-    commands::{
-        android::{self, rust_compile},
-        gen_minimal_project,
-    },
-    tools::{AndroidNdk, AndroidSdk},
-    types::{AndroidTarget, ApplicationWrapper, IntoRustTriple, Profile},
+    commands::{android::*, gen_minimal_project},
+    types::*,
 };
 
 #[test]
@@ -18,12 +16,12 @@ fn add_bevy_libs() {
 
     // Assign needed configuration to compile rust for android with bevy
     let sdk = AndroidSdk::from_env().unwrap();
-    let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
-    let build_target = AndroidTarget::Aarch64LinuxAndroid;
+    let ndk = AndroidNdk::from_env(sdk.sdk_path()).unwrap();
+    let build_target = AndroidTarget::Aarch64;
     let profile = Profile::Release;
     let target_sdk_version = 30;
     let bevy_lib_name = format!("lib{}.so", bevy_package_name.replace('-', "_"));
-    let app_wrapper_for_bevy = ApplicationWrapper::NdkGlue;
+    let app_wrapper_for_bevy = AppWrapper::NdkGlue;
 
     // Compile rust code for android with bevy engine
     rust_compile(
@@ -53,7 +51,7 @@ fn add_bevy_libs() {
 
     // Add libs into the directory ./target/aarch64-linux-android/debug/
     for (compiled_lib, build_target) in libs {
-        let lib = android::add_libs_into_aapt2(
+        let lib = add_libs_into_aapt2(
             &ndk,
             &compiled_lib,
             build_target,
@@ -87,12 +85,12 @@ fn add_quad_libs() {
 
     // Assign needed configuration to compile rust for android with bevy
     let sdk = AndroidSdk::from_env().unwrap();
-    let ndk = AndroidNdk::from_env(Some(sdk.sdk_path())).unwrap();
-    let build_target = AndroidTarget::Aarch64LinuxAndroid;
+    let ndk = AndroidNdk::from_env(sdk.sdk_path()).unwrap();
+    let build_target = AndroidTarget::Aarch64;
     let profile = Profile::Release;
     let target_sdk_version = 30;
     let quad_lib_name = format!("lib{}.so", quad_package_name.replace('-', "_"));
-    let app_wrapper_for_quad = ApplicationWrapper::Sokol;
+    let app_wrapper_for_quad = AppWrapper::Sokol;
 
     // Compile rust code for android with bevy engine
     rust_compile(
@@ -122,7 +120,7 @@ fn add_quad_libs() {
 
     // Adds libs into ./target/aarch64-linux-android/debug/
     for (compiled_lib, build_target) in libs {
-        let lib = android::add_libs_into_aapt2(
+        let lib = add_libs_into_aapt2(
             &ndk,
             &compiled_lib,
             build_target,

@@ -1,9 +1,9 @@
 [package]
 name = "crossbow-android"
-version = "0.1.7"
+version = "0.1.8"
 edition = "2021"
 authors = ["DodoRare Team <support@dodorare.com>"]
-description = "Cross-Platform Rust Toolkit for Games 🏹"
+description = "Cross-Platform build tools and toolkit for games"
 repository = "https://github.com/dodorare/crossbow"
 license = "Apache-2.0"
 keywords = ["crossbow", "android", "port"]
@@ -21,4 +21,4 @@ async-channel = "1.6"
 [package.metadata]
 app_name = "crossbow_android"
 target_sdk_version = 30
-android_build_targets = ["aarch64-linux-android"]
+android_release_build_targets = ["aarch64-linux-android"]

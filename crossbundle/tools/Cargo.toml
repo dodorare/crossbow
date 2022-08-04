@@ -1,6 +1,6 @@
 [package]
 name = "crossbundle-tools"
-version = "0.1.7"
+version = "0.1.8"
 edition = "2021"
 authors = ["DodoRare Team <support@dodorare.com>"]
 description = "Build and publish apps for Android/iOS"
@@ -10,36 +10,41 @@ keywords = ["android", "ios"]
 readme = "README.md"
 
 [dependencies]
+# Apple crates
+apple-bundle = { version = "0.1.4", optional = true }
+simctl = { version = "0.1.1", package = "creator-simctl", optional = true }
+# Android crates
+android-manifest = { version = "0.1.9", optional = true }
+android-tools = { version = "0.2.10", optional = true }
+
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0.61"
-serde_plain = "0.3"
+serde_plain = "1.0"
+
 dunce = "1.0"
 fs_extra = "1.2"
-dirs = "4.0.0"
-simctl = { version = "0.1.1", package = "creator-simctl" }
-android-manifest = "0.1.8"
-apple-bundle = "0.1.1"
-android-tools = "0.2.9"
-thiserror = "1.0"
-anyhow = "1.0"
-displaydoc = "0.2"
-which = "4.0"
+dirs = "4.0"
+which = "4.2"
+tempfile = "3.3"
+zip = "0.5"
+zip-extensions = "0.6.1"
+
 itertools = "0.10"
-termcolor = "1.1.2"
-atty = "0.2.14"
-log = "0.4"
-zip = "0.5.13"
-zip-extensions = "0.6"
-tempfile = "3.2"
 cargo = "0.63.1"
 cargo-util = "0.2.0"
 rust-embed = { version = "6.4.0", features = ["include-exclude"] }
+
+thiserror = "1.0"
+anyhow = "1.0"
+displaydoc = "0.2"
+log = "0.4"
+termcolor = "1.1"
+atty = "0.2"
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"
 
 [target.'cfg(windows)'.dependencies]
-fwdansi = "1.1.0"
+fwdansi = "1.1"
 
 [target.'cfg(windows)'.dependencies.winapi]
 version = "0.3"
@@ -51,3 +56,8 @@ features = [
   "wincon",
   "winnt",
 ]
+
+[features]
+default = ["android", "apple"]
+android = ["android-manifest", "android-tools"]
+apple = ["apple-bundle", "simctl"]

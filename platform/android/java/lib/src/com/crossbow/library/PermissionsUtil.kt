@@ -11,8 +11,7 @@ import android.os.Build
 import android.os.Environment
 import android.provider.Settings
 import android.util.Log
-import java.util.ArrayList
-import java.util.List
+import kotlin.collections.List
 import androidx.core.content.ContextCompat
 
 /**
@@ -40,7 +39,7 @@ object PermissionsUtil {
         if (name == "RECORD_AUDIO" && ContextCompat.checkSelfPermission(
                 activity,
                 Manifest.permission.RECORD_AUDIO
-            ) !== PackageManager.PERMISSION_GRANTED
+            ) != PackageManager.PERMISSION_GRANTED
         ) {
             activity.requestPermissions(
                 arrayOf(Manifest.permission.RECORD_AUDIO),
@@ -51,7 +50,7 @@ object PermissionsUtil {
         if (name == "CAMERA" && ContextCompat.checkSelfPermission(
                 activity,
                 Manifest.permission.CAMERA
-            ) !== PackageManager.PERMISSION_GRANTED
+            ) != PackageManager.PERMISSION_GRANTED
         ) {
             activity.requestPermissions(
                 arrayOf(Manifest.permission.CAMERA),
@@ -62,7 +61,7 @@ object PermissionsUtil {
         if (name == "VIBRATE" && ContextCompat.checkSelfPermission(
                 activity,
                 Manifest.permission.VIBRATE
-            ) !== PackageManager.PERMISSION_GRANTED
+            ) != PackageManager.PERMISSION_GRANTED
         ) {
             activity.requestPermissions(
                 arrayOf(Manifest.permission.VIBRATE),
@@ -121,12 +120,12 @@ object PermissionsUtil {
                 } else {
                     val permissionInfo: PermissionInfo =
                         getPermissionInfo(activity, manifestPermission)
-                    val protectionLevel: Int =
+                    val protectionLevel =
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) permissionInfo.getProtection() else permissionInfo.protectionLevel
                     if (protectionLevel == PermissionInfo.PROTECTION_DANGEROUS && ContextCompat.checkSelfPermission(
                             activity,
                             manifestPermission
-                        ) !== PackageManager.PERMISSION_GRANTED
+                        ) != PackageManager.PERMISSION_GRANTED
                     ) {
                         requestedPermissions.add(manifestPermission)
                     }
@@ -171,12 +170,12 @@ object PermissionsUtil {
                 } else {
                     val permissionInfo: PermissionInfo =
                         getPermissionInfo(activity, manifestPermission)
-                    val protectionLevel: Int =
+                    val protectionLevel =
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) permissionInfo.getProtection() else permissionInfo.protectionLevel
                     if (protectionLevel == PermissionInfo.PROTECTION_DANGEROUS && ContextCompat.checkSelfPermission(
                             activity,
                             manifestPermission
-                        ) === PackageManager.PERMISSION_GRANTED
+                        ) == PackageManager.PERMISSION_GRANTED
                     ) {
                         grantedPermissions.add(manifestPermission)
                     }

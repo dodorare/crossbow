@@ -2,39 +2,47 @@ use super::{BuildContext, SharedBuildCommand};
 use crate::error::*;
 use apple_bundle::prelude::InfoPlist;
 use clap::Parser;
-use crossbundle_tools::{commands::apple, types::*, utils::Config};
+use crossbundle_tools::{commands::apple, types::*};
 use std::path::{Path, PathBuf};
 
 #[derive(Parser, Clone, Debug)]
-pub struct AppleBuildCommand {
+pub struct IosBuildCommand {
     #[clap(flatten)]
     pub shared: SharedBuildCommand,
-    /// Specify custom cargo binary
+    /// Specify custom cargo binary.
     #[clap(long, conflicts_with = "example")]
     pub bin: Option<String>,
     /// Build for the given apple architecture.
     /// Supported targets are: `aarch64-apple-ios`, `aarch64-apple-ios-sim`,
     /// `armv7-apple-ios`, `armv7s-apple-ios`, `i386-apple-ios`, `x86_64-apple-ios`
-    #[clap(long, default_value = "aarch64-apple-ios-sim")]
-    pub target: Vec<AppleTarget>,
-    /// Provisioning profile name to find in this directory: `~/Library/MobileDevice/Provisioning\ Profiles/`
+    #[clap(long, short, multiple_values = true)]
+    pub target: Vec<IosTarget>,
+    /// Build strategy specifies what and how to build iOS application: with help of
+    /// XCode, or with our native approach.
+    #[clap(long, short, default_value = "native-ipa")]
+    pub strategy: IosStrategy,
+    /// Provisioning profile name to find in this directory:
+    /// `~/Library/MobileDevice/Provisioning\ Profiles/`.
     #[clap(long, conflicts_with = "profile-path")]
     pub profile_name: Option<String>,
-    /// Absolute path to provisioning profile
+    /// Absolute path to provisioning profile.
     #[clap(long)]
     pub profile_path: Option<PathBuf>,
-    /// The team identifier of your signing identity
+    /// The team identifier of your signing identity.
     #[clap(long)]
     pub team_identifier: Option<String>,
-    /// The id of the identity used for signing. It won't start the signing process until you provide this flag
+    /// The id of the identity used for signing. It won't start the signing process until
+    /// you provide this flag.
     #[clap(long)]
     pub identity: Option<String>,
 }
 
-impl AppleBuildCommand {
+impl IosBuildCommand {
     pub fn run(&self, config: &Config) -> Result<()> {
         let context = BuildContext::new(config, self.shared.target_dir.clone())?;
-        self.execute(config, &context)?;
+        match &self.strategy {
+            IosStrategy::NativeIpa => self.execute(config, &context)?,
+        };
         Ok(())
     }
 
@@ -52,10 +60,10 @@ impl AppleBuildCommand {
         } else {
             (Target::Bin(context.package_name()), context.package_name())
         };
-        let properties = context.gen_info_plist(&package_name)?;
+        let properties = Self::gen_info_plist(context, &package_name)?;
         config.status_message("Starting build process", &package_name)?;
         config.status("Compiling app")?;
-        let build_targets = context.apple_build_targets(&self.target);
+        let build_targets = Self::apple_build_targets(context, profile, &self.target);
         let mut app_paths = vec![];
         for build_target in build_targets {
             let app_path = self.build_app(
@@ -79,7 +87,7 @@ impl AppleBuildCommand {
         context: &BuildContext,
         target: Target,
         project_path: &Path,
-        build_target: AppleTarget,
+        build_target: IosTarget,
         properties: &InfoPlist,
         profile: Profile,
         name: &str,
@@ -94,6 +102,7 @@ impl AppleBuildCommand {
             self.shared.features.clone(),
             self.shared.all_features,
             self.shared.no_default_features,
+            &[],
         )?;
         let out_dir = context.target_dir.join(rust_triple).join(&profile);
         let bin_path = out_dir.join(&name);
@@ -107,13 +116,14 @@ impl AppleBuildCommand {
             apple_target_dir,
             name,
             context
-                .apple_config
-                .res
+                .config
+                .get_apple_assets()
                 .as_ref()
                 .map(|r| project_path.join(r)),
             context
-                .apple_config
-                .assets
+                .config
+                .apple
+                .res
                 .as_ref()
                 .map(|r| project_path.join(r)),
         )?;
@@ -148,5 +158,45 @@ impl AppleBuildCommand {
         apple::gen_apple_ipa(apple_target_dir, &app_path, name)?;
         config.status("Build finished successfully")?;
         Ok(app_path)
+    }
+
+    /// Get apple build targets from cargo manifest
+    pub fn apple_build_targets(
+        context: &BuildContext,
+        profile: Profile,
+        build_targets: &Vec<IosTarget>,
+    ) -> Vec<IosTarget> {
+        if !build_targets.is_empty() {
+            return build_targets.clone();
+        }
+        if profile == Profile::Debug && !context.config.apple.debug_build_targets.is_empty() {
+            return context.config.apple.debug_build_targets.clone();
+        }
+        if profile == Profile::Release && !context.config.apple.release_build_targets.is_empty() {
+            return context.config.apple.release_build_targets.clone();
+        }
+        vec![IosTarget::Aarch64Sim]
+    }
+
+    /// Get info plist from the path in cargo manifest or generate it with the given
+    /// configuration
+    pub fn gen_info_plist(context: &BuildContext, package_name: &str) -> Result<InfoPlist> {
+        if let Some(info_plist_path) = &context.config.apple.info_plist_path {
+            return Ok(apple::read_info_plist(info_plist_path)?);
+        }
+        let mut info_plist = if let Some(info_plist) = &context.config.apple.info_plist {
+            info_plist.clone()
+        } else {
+            InfoPlist::default()
+        };
+        update_info_plist_with_default(
+            &mut info_plist,
+            package_name,
+            context.config.app_name.clone(),
+        );
+        context.config.permissions.iter().for_each(|permission| {
+            permission.update_info_plist(&mut info_plist);
+        });
+        Ok(info_plist)
     }
 }

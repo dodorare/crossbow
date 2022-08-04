@@ -59,12 +59,12 @@ Let's build and run our first `crossbundle` application. Android commands below 
 # cd project-name
 crossbundle run android
 # or (if your project uses macroquad)
-crossbundle run android --quad
+crossbundle run android
 # or
-crossbundle run apple
+crossbundle run ios
 ```
 
-If you want to build the application for android as native AAB - add `--aab` flag or add `--apk` to build native APK.
+If you want to build the application for android as native AAB - add `-s=native-aab` flag or add `-s=native-apk` to build native APK.
 
 When the application deploys on your device, you can attach a logger.
 

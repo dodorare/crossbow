@@ -25,9 +25,9 @@ Run the following command at the root of `crossbow` project:
 
 ```sh
 # For unix systems:
-docker run --rm -it -v "$(pwd)/:/src" -w /src/examples/macroquad-permissions ghcr.io/dodorare/crossbundle build android --quad --release
+docker run --rm -it -v "$(pwd)/:/src" -w /src/examples/macroquad-permissions ghcr.io/dodorare/crossbundle build android --release
 # For Windows:
-docker run --rm -it -v "${pwd}/:/src" -w /src/examples/macroquad-permissions ghcr.io/dodorare/crossbundle build android --quad --release
+docker run --rm -it -v "${pwd}/:/src" -w /src/examples/macroquad-permissions ghcr.io/dodorare/crossbundle build android --release
 ```
 
 Install APK on connected Android phone via USB:

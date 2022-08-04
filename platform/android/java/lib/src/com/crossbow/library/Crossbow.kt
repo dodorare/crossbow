@@ -35,8 +35,7 @@ class Crossbow : Fragment() {
         pluginRegistry = CrossbowPluginRegistry.initializePluginRegistry(this)
 
 		Log.v(TAG, "Initializing CrossbowLib Instance")
-        // CrossbowLib.initialize(activity, this, activity!!.assets)
-        onRenderInit()
+        CrossbowLib.initialize(activity, this, activity!!.assets)
     }
 
     override fun onAttach(context: Context) {
@@ -151,7 +150,7 @@ class Crossbow : Fragment() {
             }
         }
         if (shouldQuit) {
-            // CrossbowLib.back()
+            CrossbowLib.onBackPressed()
         }
     }
 

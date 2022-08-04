@@ -1,9 +1,9 @@
 [package]
 name = "crossbow"
-version = "0.1.7"
+version = "0.1.8"
 edition = "2021"
 authors = ["DodoRare Team <support@dodorare.com>"]
-description = "Cross-Platform Rust Toolkit for Games 🏹"
+description = "Cross-Platform build tools and toolkit for games"
 repository = "https://github.com/dodorare/crossbow"
 license = "Apache-2.0"
 keywords = ["build", "android", "ios", "tools"]
@@ -14,13 +14,17 @@ exclude = [".github/**/*"]
 thiserror = "1.0"
 displaydoc = "0.2"
 anyhow = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+
+android-manifest = { version = "0.1.9", optional = true }
+apple-bundle = { version = "0.1.4", optional = true }
 
 [target.'cfg(target_os = "android")'.dependencies]
-crossbow-android = { path = "platform/android", version = "0.1.7", optional = true }
-ndk-glue = "0.6.2"
+ndk-glue = "0.7.0"
+crossbow-android = { path = "platform/android", version = "0.1.8", optional = true }
 
 [target.'cfg(target_os = "ios")'.dependencies]
-crossbow-ios = { path = "platform/ios", version = "0.1.7", optional = true }
+crossbow-ios = { path = "platform/ios", version = "0.1.8", optional = true }
 
 [patch.crates-io]
 winit = { git = "https://github.com/rust-windowing/winit", rev = "f93f2c158bf527ed56ab2b6f5272214f0c1d9f7d" }
@@ -31,6 +35,7 @@ miniquad = { git = "https://github.com/not-fl3/miniquad", rev = "d67ffe6950cf73d
 default = ["android", "ios"]
 android = ["crossbow-android"]
 ios = ["crossbow-ios"]
+update-manifest = ["apple-bundle", "android-manifest"]
 
 [workspace]
 members = [
