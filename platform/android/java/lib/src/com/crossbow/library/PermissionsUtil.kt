@@ -120,8 +120,8 @@ object PermissionsUtil {
                 } else {
                     val permissionInfo: PermissionInfo =
                         getPermissionInfo(activity, manifestPermission)
-                    val protectionLevel: Int =
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) permissionInfo.getProtection() else permissionInfo.protectionLevel // 'protectionLevel: Int' is deprecated. Deprecated in Java
+                    val protectionLevel =
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) permissionInfo.getProtection() else permissionInfo.protectionLevel
                     if (protectionLevel == PermissionInfo.PROTECTION_DANGEROUS && ContextCompat.checkSelfPermission(
                             activity,
                             manifestPermission
@@ -170,8 +170,8 @@ object PermissionsUtil {
                 } else {
                     val permissionInfo: PermissionInfo =
                         getPermissionInfo(activity, manifestPermission)
-                    val protectionLevel: Int =
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) permissionInfo.getProtection() else permissionInfo.protectionLevel // 'protectionLevel: Int' is deprecated. Deprecated in Java
+                    val protectionLevel =
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) permissionInfo.getProtection() else permissionInfo.protectionLevel
                     if (protectionLevel == PermissionInfo.PROTECTION_DANGEROUS && ContextCompat.checkSelfPermission(
                             activity,
                             manifestPermission
