@@ -28,11 +28,11 @@ pub enum AndroidStrategy {
     #[default]
     #[serde(rename = "gradle-apk")]
     GradleApk,
-    /// Generate native .aab without Gradle. This strategy currently dosn't support
+    /// Generate native .aab without Gradle. This strategy currently doesn't support
     /// Crossbow plugins.
     #[serde(rename = "native-apk")]
     NativeApk,
-    /// Generate native .apk without Gradle. This strategy currently dosn't support
+    /// Generate native .apk without Gradle. This strategy currently doesn't support
     /// Crossbow plugins.
     #[serde(rename = "native-aab")]
     NativeAab,
