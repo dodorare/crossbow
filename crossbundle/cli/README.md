@@ -2,6 +2,11 @@
 
 ![splash](https://github.com/dodorare/crossbow/blob/main/assets/splash.png?raw=true)
 
+[![Crate Info](https://img.shields.io/crates/v/crossbundle.svg)](https://crates.io/crates/crossbundle)
+[![Documentation](https://img.shields.io/badge/docs.rs-crossbundle-green)](https://docs.rs/crossbundle/)
+[![MIT/Apache 2.0](https://img.shields.io/badge/license-MIT%2FApache-blue.svg)](https://github.com/dodorare/crossbow#license)
+[![GitHub Stars](https://img.shields.io/github/stars/dodorare/crossbow.svg?style=social)](https://github.com/dodorare/crossbow/stargazers)
+
 The **crossbundle** is a command-line tool that encapsulates boring stuff of **Android** and **iOS** build/packaging processes and helps mobile developers to create and maintain applications written in **rust** programming language.
 
 ## Support status
@@ -297,4 +302,4 @@ If you ran into problem of missing shared library in the `apk/aab` - you can fix
 
 ## License
 
-Licensed under [Apache-2.0 License](../../LICENSE).
+Licensed under [MIT](../../LICENSE-MIT) or [Apache-2.0](../../LICENSE-APACHE).
