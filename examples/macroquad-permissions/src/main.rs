@@ -39,7 +39,7 @@ async fn main() -> anyhow::Result<()> {
     };
 
     #[cfg(target_os = "android")]
-    let (_, vm) = crossbow::android::create_java_vm().unwrap();
+    let (_, vm) = crossbow::android::get_java_vm().unwrap();
     #[cfg(target_os = "android")]
     let jnienv = vm.attach_current_thread_as_daemon().unwrap();
 

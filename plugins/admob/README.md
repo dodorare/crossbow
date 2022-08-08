@@ -8,7 +8,7 @@ This project is a Crossbow Plugin that allows showing AdMob ads from Rust. Witho
 
 | Ad Format | Available |
 | ---- | ----------- |
-| Banner | ❌ |
+| Banner | ❌ (probably doesn't work with **NativeActivity**) |
 | Interstitial | ✅ |
 | Rewarded | ✅ |
 | [Rewarded Interstitial](https://support.google.com/admob/answer/9884467) | ✅ |
@@ -51,7 +51,7 @@ In your rust project, you will need to get JNIEnv first and retrieve the JNI Sin
 ```rust
 use crossbow::android::{permission::*, plugin};
 
-let (_, vm) = crossbow::android::create_java_vm().unwrap();
+let (_, vm) = crossbow::android::get_java_vm().unwrap();
 let jnienv = vm.attach_current_thread_as_daemon().unwrap();
 
 let admob_singleton = plugin::get_jni_singleton("AdMob").expect("Crossbow Error: AdMob is not registered");
