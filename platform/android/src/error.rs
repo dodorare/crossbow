@@ -7,6 +7,8 @@ pub type Result<T> = std::result::Result<T, AndroidError>;
 /// Permissions error type.
 #[derive(Display, Debug, Error)]
 pub enum AndroidError {
+    /// Could not send to channel {0:?}
+    CouldNotSendToSignalChannel(#[from] async_channel::TrySendError<crate::plugin::Signal>),
     /// Signal Sender with `{0}` singleton name not available
     SignalSenderNotAvailable(String),
     /// Singleton with `{0}` name not found or haven't registered

@@ -66,6 +66,6 @@ jobs:
         USERNAME=dodorare TOKEN=${{ secrets.GH_CROSSBOW_PUBLISH_TOKEN }} gradle publish
     - name: Build and publish Crossbow AdMob library
       run: |
-        cd ./plugins/admob/android
+        cd ./plugins/admob-android/android
         gradle build
         USERNAME=dodorare TOKEN=${{ secrets.GH_CROSSBOW_PUBLISH_TOKEN }} gradle publish

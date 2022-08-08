@@ -3,8 +3,7 @@ mod request_permission;
 
 pub use android_permission::*;
 
-use crate::{error::*, utils::jstring_to_string};
-use jni::{objects::JString, sys::jboolean, sys::JNI_TRUE, JNIEnv};
+use crate::error::*;
 use std::sync::{
     mpsc::{sync_channel, SyncSender},
     RwLock,
@@ -36,16 +35,12 @@ pub async fn request_permission(permission: &AndroidPermission) -> crate::error:
     }
 }
 
-pub(crate) fn on_request_permission_result(
-    env: JNIEnv,
-    permission: JString,
-    result: jboolean,
-) -> Result<()> {
+pub(crate) fn on_request_permission_result(permission: String, granted: bool) -> Result<()> {
     let sender = PERMISSION_SENDER.read().unwrap();
     if let Some(sender) = sender.as_ref() {
         let permission_result = RequestPermissionResult {
-            granted: result == JNI_TRUE,
-            permission: jstring_to_string(&env, permission)?,
+            granted,
+            permission,
         };
         let res = sender.try_send(permission_result);
         if let Err(err) = res {

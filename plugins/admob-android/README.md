@@ -23,7 +23,8 @@ Just add Rust dependencies like this:
 ```toml
 [dependencies]
 crossbow = "0.1.8"
-crossbow-admob = "0.1.8"
+[target.'cfg(target_os = "android")'.dependencies]
+crossbow-admob = { package = "crossbow-admob-android", version = "0.1.8" }
 ```
 
 And finally, add this to your Crossbow Android configuration:
@@ -35,7 +36,7 @@ plugins_remote = ["com.crossbow.admob:admob:0.1.8"]
 
 > That's it, now you can start using AdMob ads!
 
-If you want to configure custom APPLICATION_ID add this to your Cargo.toml file:
+If you want to publish or share your application to show real ads - configure custom APPLICATION_ID through `Cargo.toml` file:
 
 ```toml
 [[package.metadata.android.manifest.application.meta_data]]
@@ -46,19 +47,18 @@ value = "<YOUR ID HERE>"
 
 ## Usage
 
-In your rust project, you will need to get JNIEnv first and retrieve the JNI Singleton instance of AdMob from Crossbow. To do this, write following code:
+In your rust project, you will need to get JNIEnv first and retrieve the JNI Singleton instance of AdMob from Crossbow. To do this, simply write the following code:
 
 ```rust
-use crossbow::android::{permission::*, plugin};
-
-let (_, vm) = crossbow::android::get_java_vm().unwrap();
-let jnienv = vm.attach_current_thread_as_daemon().unwrap();
-
-let admob_singleton = plugin::get_jni_singleton("AdMob").expect("Crossbow Error: AdMob is not registered");
-let admob = crossbow_admob::AdMobPlugin::from_jnienv(admob_singleton.clone(), jnienv).unwrap();
+#[cfg(target_os = "android")]
+use crossbow::android::*;
+#[cfg(target_os = "android")]
+let crossbow = CrossbowInstance::new();
+#[cfg(target_os = "android")]
+let admob: crossbow_admob::AdMobPlugin = crossbow.get_plugin()?;
 ```
 
-To show Interstitial Ad, use following code:
+To show Interstitial Ad, use following code (remember, there's no async API for this - so `load` and `show` functions should be called as soon as `Sinals` received or `is_initialized()` checked):
 
 ```rust
 admob.initialize(true, "G", false, true).unwrap();
@@ -66,15 +66,19 @@ admob.load_interstitial("ca-app-pub-3940256099942544/1033173712").unwrap();
 admob.show_interstitial().unwrap();
 ```
 
+The result will be like this:
+
+![AdMob Ad Result Example](../../assets/images/admob-example.png)
+
 To read signals:
 
 ```rust
-if let Ok(signal) = admob_singleton.get_receiver().recv().await {
-    println!("signal: {:?}", signal);
+if let Ok(signal) = admob.get_receiver().recv().await {
+    println!("Signal: {:?}", signal);
 }
 ```
 
-Complete documentation you can find [here](https://docs.rs/crossbow-admob/).
+Complete documentation you can find [here](https://docs.rs/crossbow-admob-android/).
 
 ## Thanks and inspiration
 

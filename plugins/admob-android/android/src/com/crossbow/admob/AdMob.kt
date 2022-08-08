@@ -60,14 +60,14 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
     private var aIsInterstitialLoaded = false
     private var aIsRewardedLoaded = false
     private var aIsRewardedInterstitialLoaded = false
-    private var aCrossbowLayout // store the crossbow layout
-            : FrameLayout? = null
-    private var aCrossbowLayoutParams // Store the crossbow layout params
-            : FrameLayout.LayoutParams? = null
-    private var aAdView //view of banner
-            : AdView? = null
-    private var aAdSize //adSize of banner
-            : AdSize? = null
+    // Stores the crossbow layout
+    private var aCrossbowLayout: FrameLayout? = null
+    // Stores the crossbow layout params
+    private var aCrossbowLayoutParams: FrameLayout.LayoutParams? = null
+    // View of banner
+    private var aAdView: AdView? = null
+    // The adSize of banner
+    private var aAdSize: AdSize? = null
     private var aInterstitialAd: InterstitialAd? = null
     private var aRewardedAd: RewardedAd? = null
     private var aRewardedInterstitialAd: RewardedInterstitialAd? = null
@@ -83,49 +83,37 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
 
     override val pluginSignals: Set<SignalInfo>
         get() {
-            val signals: MutableSet<SignalInfo> = ArraySet<SignalInfo>()
-            signals.add(SignalInfo("initialization_complete", Int::class.java, String::class.java))
-            signals.add(SignalInfo("consent_form_dismissed"))
-            signals.add(SignalInfo("consent_status_changed", String::class.java))
-            signals.add(
-                SignalInfo(
-                    "consent_form_load_failure",
-                    Int::class.java,
-                    String::class.java
-                )
-            )
-            signals.add(SignalInfo("consent_info_update_success", String::class.java))
-            signals.add(
-                SignalInfo(
-                    "consent_info_update_failure",
-                    Int::class.java,
-                    String::class.java
-                )
-            )
-            signals.add(SignalInfo("banner_loaded"))
-            signals.add(SignalInfo("banner_failed_to_load", Int::class.java))
-            signals.add(SignalInfo("banner_opened"))
-            signals.add(SignalInfo("banner_clicked"))
-            signals.add(SignalInfo("banner_closed"))
-            signals.add(SignalInfo("banner_recorded_impression"))
-            signals.add(SignalInfo("banner_destroyed"))
-            signals.add(SignalInfo("interstitial_failed_to_load", Int::class.java))
-            signals.add(SignalInfo("interstitial_loaded"))
-            signals.add(SignalInfo("interstitial_failed_to_show", Int::class.java))
-            signals.add(SignalInfo("interstitial_opened"))
-            signals.add(SignalInfo("interstitial_closed"))
-            signals.add(SignalInfo("rewarded_ad_failed_to_load", Int::class.java))
-            signals.add(SignalInfo("rewarded_ad_loaded"))
-            signals.add(SignalInfo("rewarded_ad_failed_to_show", Int::class.java))
-            signals.add(SignalInfo("rewarded_ad_opened"))
-            signals.add(SignalInfo("rewarded_ad_closed"))
-            signals.add(SignalInfo("rewarded_interstitial_ad_failed_to_load", Int::class.java))
-            signals.add(SignalInfo("rewarded_interstitial_ad_loaded"))
-            signals.add(SignalInfo("rewarded_interstitial_ad_failed_to_show", Int::class.java))
-            signals.add(SignalInfo("rewarded_interstitial_ad_opened"))
-            signals.add(SignalInfo("rewarded_interstitial_ad_closed"))
-            signals.add(SignalInfo("user_earned_rewarded", String::class.java, Int::class.java))
-            return signals
+            val s: MutableSet<SignalInfo> = ArraySet<SignalInfo>()
+            s.add(SignalInfo("initialization_complete", Int::class.java, String::class.java))
+            s.add(SignalInfo("consent_form_dismissed"))
+            s.add(SignalInfo("consent_status_changed", String::class.java))
+            s.add(SignalInfo("consent_form_load_failure", Int::class.java, String::class.java))
+            s.add(SignalInfo("consent_info_update_success", String::class.java))
+            s.add(SignalInfo("consent_info_update_failure", Int::class.java, String::class.java))
+            s.add(SignalInfo("banner_loaded"))
+            s.add(SignalInfo("banner_failed_to_load", Int::class.java))
+            s.add(SignalInfo("banner_opened"))
+            s.add(SignalInfo("banner_clicked"))
+            s.add(SignalInfo("banner_closed"))
+            s.add(SignalInfo("banner_recorded_impression"))
+            s.add(SignalInfo("banner_destroyed"))
+            s.add(SignalInfo("interstitial_failed_to_load", Int::class.java))
+            s.add(SignalInfo("interstitial_loaded"))
+            s.add(SignalInfo("interstitial_failed_to_show", Int::class.java))
+            s.add(SignalInfo("interstitial_opened"))
+            s.add(SignalInfo("interstitial_closed"))
+            s.add(SignalInfo("rewarded_ad_failed_to_load", Int::class.java))
+            s.add(SignalInfo("rewarded_ad_loaded"))
+            s.add(SignalInfo("rewarded_ad_failed_to_show", Int::class.java))
+            s.add(SignalInfo("rewarded_ad_opened"))
+            s.add(SignalInfo("rewarded_ad_closed"))
+            s.add(SignalInfo("rewarded_interstitial_ad_failed_to_load", Int::class.java))
+            s.add(SignalInfo("rewarded_interstitial_ad_loaded"))
+            s.add(SignalInfo("rewarded_interstitial_ad_failed_to_show", Int::class.java))
+            s.add(SignalInfo("rewarded_interstitial_ad_opened"))
+            s.add(SignalInfo("rewarded_interstitial_ad_closed"))
+            s.add(SignalInfo("user_earned_rewarded", String::class.java, Int::class.java))
+            return s
         }
 
     @ExposedToCrossbow
@@ -164,11 +152,12 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
             aIsForChildDirectedTreatment = pIsForChildDirectedTreatment
             aConsentInformation = UserMessagingPlatform.getConsentInformation(aActivity!!)
             aIsTestEuropeUserConsent = pIsTestEuropeUserConsent
+            // First call MobileAds.setRequestConfiguration https://groups.google.com/g/google-admob-ads-sdk/c/17oVu0sABjs
             setMobileAdsRequestConfiguration(
                 aIsForChildDirectedTreatment,
                 pMaxAdContentRating,
                 pIsReal
-            ) // First call MobileAds.setRequestConfiguration https://groups.google.com/g/google-admob-ads-sdk/c/17oVu0sABjs
+            )
             MobileAds.initialize(aActivity!!) { initializationStatus ->
                 val statusGADMobileAds: Int = Objects.requireNonNull(
                     initializationStatus.getAdapterStatusMap()
@@ -190,17 +179,16 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
         val paramsBuilder: ConsentRequestParameters.Builder =
             ConsentRequestParameters.Builder().setTagForUnderAgeOfConsent(aIsForChildDirectedTreatment)
         val params: ConsentRequestParameters
-        params =
-            if (aIsTestEuropeUserConsent) //https://developers.google.com/admob/ump/android/quick-start#testing
-            {
-                val debugSettings: ConsentDebugSettings = ConsentDebugSettings.Builder(aActivity!!)
-                    .setDebugGeography(ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA)
-                    .addTestDeviceHashedId(deviceId)
-                    .build()
-                paramsBuilder.setConsentDebugSettings(debugSettings).build()
-            } else {
-                paramsBuilder.build()
-            }
+        // https://developers.google.com/admob/ump/android/quick-start#testing
+        params = if (aIsTestEuropeUserConsent) {
+            val debugSettings: ConsentDebugSettings = ConsentDebugSettings.Builder(aActivity!!)
+                .setDebugGeography(ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA)
+                .addTestDeviceHashedId(deviceId)
+                .build()
+            paramsBuilder.setConsentDebugSettings(debugSettings).build()
+        } else {
+            paramsBuilder.build()
+        }
         aConsentInformation!!.requestConsentInfoUpdate(aActivity!!, params,
             {
                 if (aConsentInformation!!.isConsentFormAvailable()) {
@@ -219,9 +207,10 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
         }
     }
 
+    // https://developers.google.com/admob/ump/android/quick-start#reset_consent_state
     @ExposedToCrossbow
     fun reset_consent_state() {
-        aConsentInformation!!.reset() //https://developers.google.com/admob/ump/android/quick-start#reset_consent_state
+        aConsentInformation!!.reset()
     }
 
     // BANNER only one is allowed, please do not try to place more than one, as your ads on the app may have the chance to be banned!
@@ -246,8 +235,8 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
                     "LEADERBOARD" -> aAdView!!.setAdSize(AdSize.LEADERBOARD)
                     else -> aAdView!!.setAdSize(adSizeAdaptive)
                 }
-                aAdSize =
-                    aAdView!!.getAdSize() //store AdSize of banner due a bug (throws error when do aAdView!!.getAdSize() called by Crossbow)
+                // Store AdSize of banner due a bug (throws error when do aAdView!!.getAdSize() called by Crossbow)
+                aAdSize = aAdView!!.getAdSize()
                 aAdView!!.setAdListener(object : AdListener() {
                     override fun onAdLoaded() {
                         // Code to be executed when an ad finishes loading.
@@ -292,12 +281,11 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
                     FrameLayout.LayoutParams.MATCH_PARENT,
                     FrameLayout.LayoutParams.WRAP_CONTENT
                 )
-                if (pPosition == 0) //BOTTOM
-                {
+                if (pPosition == 0) {
                     aCrossbowLayoutParams!!.gravity = Gravity.BOTTOM
-                    if (pRespectSafeArea) aAdView!!.setY(-safeArea.bottom.toFloat()) // Need to validate if this value will be positive or negative
-                } else if (pPosition == 1) //TOP
-                {
+                    // Need to validate if this value will be positive or negative
+                    if (pRespectSafeArea) aAdView!!.setY(-safeArea.bottom.toFloat())
+                } else if (pPosition == 1) {
                     aCrossbowLayoutParams!!.gravity = Gravity.TOP
                     if (pRespectSafeArea) aAdView!!.setY(safeArea.top.toFloat())
                 }
@@ -307,8 +295,9 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
         })
     }
 
+    // IF THIS METHOD IS CALLED, THE BANNER WILL ONLY APPEAR AGAIN IF THE BANNER IS LOADED AGAIN
     @ExposedToCrossbow
-    fun destroy_banner() //IF THIS METHOD IS CALLED ON CROSSBOW, THE BANNER WILL ONLY APPEAR AGAIN IF THE BANNER IS LOADED AGAIN
+    fun destroy_banner()
     {
         aActivity!!.runOnUiThread(Runnable {
             if (aIsInitialized && aAdView != null) {
@@ -373,7 +362,6 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
         } else 0
     }
 
-    // BANNER
     // INTERSTITIAL
     @ExposedToCrossbow
     fun load_interstitial(pAdUnitId: String?) {
@@ -433,8 +421,7 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
         })
     }
 
-    //INTERSTITIAL
-    //REWARDED
+    // REWARDED INTERSTITIAL
     @ExposedToCrossbow
     fun load_rewarded(pAdUnitId: String?) {
         aActivity!!.runOnUiThread(Runnable {

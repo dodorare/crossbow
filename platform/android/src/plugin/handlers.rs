@@ -84,6 +84,6 @@ pub(crate) fn on_native_emit_signal(
         env.delete_local_ref(param_obj)?;
     }
 
-    sender.try_send(Signal { signal_name, args }).unwrap();
+    sender.try_send(Signal { signal_name, args })?;
     Ok(())
 }

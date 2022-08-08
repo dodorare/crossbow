@@ -14,7 +14,7 @@ readme = "README.md"
 apple-bundle = { version = "0.1.4", optional = true }
 simctl = { version = "0.1.1", package = "creator-simctl", optional = true }
 # Android crates
-android-manifest = { version = "0.1.9", optional = true }
+android-manifest = { version = "0.1.10", optional = true }
 android-tools = { version = "0.2.10", optional = true }
 
 serde = { version = "1.0", features = ["derive"] }

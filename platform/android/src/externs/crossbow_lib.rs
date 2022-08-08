@@ -1,4 +1,4 @@
-use crate::{crossbow::*, permission::*};
+use crate::crossbow::*;
 use jni::{
     objects::{JClass, JObject, JString},
     sys::jboolean,
@@ -14,7 +14,8 @@ pub extern "C" fn Java_com_crossbow_library_CrossbowLib_initialize(
     crossbow_instance: JObject,
     asset_manager: JObject,
 ) {
-    CrossbowInstance::crossbow_initialize(env, activity, crossbow_instance, asset_manager).unwrap();
+    CrossbowInstance::crossbow_on_initialize(env, activity, crossbow_instance, asset_manager)
+        .unwrap();
 }
 
 #[no_mangle]
@@ -49,5 +50,5 @@ pub extern "C" fn Java_com_crossbow_library_CrossbowLib_requestPermissionResult(
     permission: JString,
     result: jboolean,
 ) {
-    on_request_permission_result(env, permission, result).unwrap();
+    CrossbowInstance::on_request_permission_result(env, permission, result).unwrap();
 }

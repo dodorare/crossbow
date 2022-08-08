@@ -118,10 +118,13 @@ object PermissionsUtil {
                         }
                     }
                 } else {
-                    val permissionInfo: PermissionInfo =
-                        getPermissionInfo(activity, manifestPermission)
-                    val protectionLevel =
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) permissionInfo.getProtection() else permissionInfo.protectionLevel
+                    val permissionInfo: PermissionInfo = getPermissionInfo(activity, manifestPermission)
+                    val protectionLevel = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        permissionInfo.getProtection()
+                    } else {
+                        @Suppress("DEPRECATION")
+                        permissionInfo.protectionLevel
+                    }
                     if (protectionLevel == PermissionInfo.PROTECTION_DANGEROUS && ContextCompat.checkSelfPermission(
                             activity,
                             manifestPermission
@@ -168,10 +171,13 @@ object PermissionsUtil {
                         grantedPermissions.add(manifestPermission)
                     }
                 } else {
-                    val permissionInfo: PermissionInfo =
-                        getPermissionInfo(activity, manifestPermission)
-                    val protectionLevel =
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) permissionInfo.getProtection() else permissionInfo.protectionLevel
+                    val permissionInfo: PermissionInfo = getPermissionInfo(activity, manifestPermission)
+                    val protectionLevel = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        permissionInfo.getProtection()
+                    } else {
+                        @Suppress("DEPRECATION")
+                        permissionInfo.protectionLevel
+                    }
                     if (protectionLevel == PermissionInfo.PROTECTION_DANGEROUS && ContextCompat.checkSelfPermission(
                             activity,
                             manifestPermission

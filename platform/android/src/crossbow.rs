@@ -1,15 +1,32 @@
-use crate::error::*;
-use jni::{objects::JObject, JNIEnv};
-// use std::sync::Mutex;
+use crate::{
+    error::*, get_java_vm, permission::on_request_permission_result, plugin::CrossbowPlugin,
+    utils::jstring_to_string,
+};
+use jni::{
+    objects::{JObject, JString},
+    sys::{jboolean, JNI_TRUE},
+    JNIEnv,
+};
+use std::sync::Arc;
 
-// lazy_static::lazy_static! {
-//     static ref PERMISSION_SENDER: Mutex<Option<CrossbowInstance>> = Default::default();
-// }
-
-pub struct CrossbowInstance;
+pub struct CrossbowInstance {
+    pub vm: Arc<jni::JavaVM>,
+}
 
 impl CrossbowInstance {
-    pub(crate) fn crossbow_initialize(
+    pub fn new() -> Self {
+        let (_, vm) = get_java_vm().unwrap();
+        Self { vm: Arc::from(vm) }
+    }
+
+    pub fn get_plugin<T>(&self) -> Result<T>
+    where
+        T: CrossbowPlugin,
+    {
+        T::from_java_vm(self.vm.clone())
+    }
+
+    pub(crate) fn crossbow_on_initialize(
         env: JNIEnv,
         activity: JObject,
         crossbow_instance: JObject,
@@ -19,8 +36,6 @@ impl CrossbowInstance {
 
         env.call_method(crossbow_instance, "onRenderInit", "()V", &[])?;
         env.exception_check()?;
-
-        // TODO: Create wrapper around CrossbowInstance
 
         Ok(())
     }
@@ -42,6 +57,16 @@ impl CrossbowInstance {
 
     pub(crate) fn crossbow_on_focus_out(_env: JNIEnv) -> Result<()> {
         println!("CrossbowLib_focus_out");
+        Ok(())
+    }
+
+    pub(crate) fn on_request_permission_result(
+        env: JNIEnv,
+        permission: JString,
+        result: jboolean,
+    ) -> Result<()> {
+        let permission = jstring_to_string(&env, permission)?;
+        on_request_permission_result(permission, result == JNI_TRUE)?;
         Ok(())
     }
 }
