@@ -4,7 +4,7 @@
 [![Crate Info](https://img.shields.io/crates/v/crossbow.svg)](https://crates.io/crates/crossbow)
 [![Documentation](https://img.shields.io/badge/docs.rs-crossbow-green)](https://docs.rs/crossbow/)
 [![Crossbundle Crate](https://img.shields.io/crates/d/crossbundle?label=cargo%20installs)](https://crates.io/crates/crossbundle)
-[![Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
+[![MIT/Apache 2.0](https://img.shields.io/badge/license-MIT%2FApache-blue.svg)](./LICENSE-APACHE)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdodorare%2Fcrossbow.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdodorare%2Fcrossbow?ref=badge_shield)
 [![GitHub Stars](https://img.shields.io/github/stars/dodorare/crossbow.svg?style=social)](https://github.com/dodorare/crossbow/stargazers)
 
@@ -69,6 +69,6 @@ Also, this project initially funded by [Web3 Foundation Grants Program](https://
 
 ## 📑 License
 
-Licensed under [Apache-2.0 License](LICENSE).
+Licensed under [MIT](./LICENSE-MIT) or [Apache-2.0](./LICENSE-APACHE).
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdodorare%2Fcrossbow.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdodorare%2Fcrossbow?ref=badge_large)

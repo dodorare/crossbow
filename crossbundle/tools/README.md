@@ -18,4 +18,4 @@ Supported operating systems for build (**iOS** only on **macOS**):
 
 ## License
 
-Licensed under [Apache-2.0 License](../../LICENSE).
+Licensed under [MIT](../../LICENSE-MIT) or [Apache-2.0](../../LICENSE-APACHE).

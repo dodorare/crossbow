@@ -5,7 +5,7 @@ edition = "2021"
 authors = ["DodoRare Team <support@dodorare.com>"]
 description = "AdMob Plugin for Crossbow"
 repository = "https://github.com/dodorare/crossbow"
-license = "Apache-2.0"
+license = "MIT OR Apache-2.0"
 keywords = ["crossbow", "google", "admob", "android", "ads"]
 readme = "README.md"
 

@@ -297,4 +297,4 @@ If you ran into problem of missing shared library in the `apk/aab` - you can fix
 
 ## License
 
-Licensed under [Apache-2.0 License](../../LICENSE).
+Licensed under [MIT](../../LICENSE-MIT) or [Apache-2.0](../../LICENSE-APACHE).
