@@ -24,7 +24,7 @@ Just add Rust dependencies like this:
 [dependencies]
 crossbow = "0.1.8"
 [target.'cfg(target_os = "android")'.dependencies]
-crossbow-admob = { package = "crossbow-admob-android", version = "0.1.8" }
+admob-android = "0.1.8"
 ```
 
 And finally, add this to your Crossbow Android configuration:
@@ -55,7 +55,7 @@ use crossbow::android::*;
 #[cfg(target_os = "android")]
 let crossbow = CrossbowInstance::new();
 #[cfg(target_os = "android")]
-let admob: crossbow_admob::AdMobPlugin = crossbow.get_plugin()?;
+let admob: admob_android::AdMobPlugin = crossbow.get_plugin()?;
 ```
 
 To show Interstitial Ad, use following code (remember, currently there's no async API for this plugin - so `load` and `show` functions should be called as soon as `Sinals` received or `is_initialized()/is_interstitial_loaded()` checked):
@@ -78,7 +78,7 @@ if let Ok(signal) = admob.get_receiver().recv().await {
 }
 ```
 
-Complete documentation you can find [here](https://docs.rs/crossbow-admob-android/).
+Complete documentation you can find [here](https://docs.rs/admob-android/).
 
 ## Thanks and inspiration
 
