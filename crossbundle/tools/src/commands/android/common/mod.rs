@@ -8,7 +8,9 @@ mod rust_compile;
 mod save_manifest;
 mod start_app;
 mod write_zip;
+mod gen_icons;
 
+pub use gen_icons::*;
 pub use attach_logger::*;
 pub use detect_abi::*;
 pub use extract_archive::*;

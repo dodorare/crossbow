@@ -95,6 +95,10 @@ pub enum Error {
         path: PathBuf,
         cause: std::io::Error,
     },
+    /// Width and height of the icon have different sizes. Choose another image
+    WidthAndHeightDifSizes,
+    /// Icons already exist. Use overwrite flag
+    IconsAlreadyExist,
     /// Failed to find the manifest in path: {0}
     FailedToFindManifest(PathBuf),
     /// Invalid profile: {0}
@@ -122,6 +126,8 @@ pub enum Error {
     /// Android error: {0:?}
     #[cfg(feature = "android")]
     Android(#[from] AndroidError),
+    /// Image crate errors
+    ImageError(#[from] ImageError),
     /// Apple error: {0:?}
     #[cfg(feature = "apple")]
     Apple(#[from] AppleError),
