@@ -126,8 +126,8 @@ pub enum Error {
     /// Android error: {0:?}
     #[cfg(feature = "android")]
     Android(#[from] AndroidError),
-    /// Image crate errors
-    ImageError(#[from] ImageError),
+    /// Image crate error: {0:?}
+    ImageError(#[from] image::ImageError),
     /// Apple error: {0:?}
     #[cfg(feature = "apple")]
     Apple(#[from] AppleError),

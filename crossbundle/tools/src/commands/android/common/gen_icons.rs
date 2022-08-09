@@ -2,11 +2,16 @@ use image::{DynamicImage, GenericImageView, ImageFormat};
 use std::collections::HashMap;
 use std::env::current_dir;
 use std::fs::File;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use crate::error::*;
 
-fn gen_icons(icon_path: &Path, res_dir_path: Option<&Path>, force: bool) -> Result<()> {
+fn gen_icons(
+    icon_path: &Path,
+    res_dir_path: Option<PathBuf>,
+    force: bool,
+    image_format: Option<ImageFormat>,
+) -> Result<()> {
     let image = image::open(icon_path)?;
     let (width, height) = image.dimensions();
     if width != height {
@@ -16,13 +21,13 @@ fn gen_icons(icon_path: &Path, res_dir_path: Option<&Path>, force: bool) -> Resu
         let scaled = image.thumbnail(size, size);
         // Check or create res directory
         let res = Path::new("assets").join("res");
-        if let Some(res_dir) = res_dir_path {
+        if let Some(ref res_dir) = res_dir_path {
             let res_dir = res_dir.join(res);
-            write_image(&res_dir, name, size, scaled, force)?;
+            write_image(&res_dir, name, size, scaled, force, image_format)?;
         } else {
             let current_dir = current_dir()?;
             let res_dir = current_dir.join(res);
-            write_image(&res_dir, name, size, scaled, force)?;
+            write_image(&res_dir, name, size, scaled, force, image_format)?;
         }
     }
     Ok(())
@@ -34,6 +39,7 @@ fn write_image(
     size: u32,
     scaled: DynamicImage,
     overwrite: bool,
+    image_format: Option<ImageFormat>,
 ) -> Result<()> {
     let mipmap_dirs = &res_dir
         .join("android")
@@ -48,7 +54,12 @@ fn write_image(
         std::fs::create_dir_all(&mipmap_dirs)?;
     }
     let mut output = File::create(mipmap_dirs.join(format!("{}-{}.png", name, size)))?;
-    scaled.write_to(&mut output, ImageFormat::Png)?;
+    if let Some(format) = image_format {
+        scaled.write_to(&mut output, format)?;
+    } else {
+        scaled.write_to(&mut output, ImageFormat::Png)?;
+    }
+    println!("Generated for {} with {}x{} size", name, size, size);
     Ok(())
 }
 
@@ -82,5 +93,27 @@ impl ToString for MipmapDpi {
             Self::Mdpi => "mdpi".to_string(),
             Self::Ldpi => "ldpi".to_string(),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn test_icon_gen() {
+        let tempfile = tempfile::tempdir().unwrap();
+        let res_dir_path = tempfile.path().to_path_buf();
+        let icon_path = current_dir()
+            .unwrap()
+            .parent()
+            .unwrap()
+            .parent()
+            .unwrap()
+            .join("assets")
+            .join("images")
+            .join("icon.png");
+        let force = false;
+        let image_format = ImageFormat::Png;
+        gen_icons(&icon_path, Some(res_dir_path), force, Some(image_format)).unwrap();
     }
 }
