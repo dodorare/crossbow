@@ -1,6 +1,7 @@
 mod attach_logger;
 mod detect_abi;
 mod extract_archive;
+mod gen_icons;
 mod gen_key;
 mod helper_functions;
 mod read_manifest;
@@ -8,12 +9,11 @@ mod rust_compile;
 mod save_manifest;
 mod start_app;
 mod write_zip;
-mod gen_icons;
 
-pub use gen_icons::*;
 pub use attach_logger::*;
 pub use detect_abi::*;
 pub use extract_archive::*;
+pub use gen_icons::*;
 pub use gen_key::*;
 pub use helper_functions::*;
 pub use read_manifest::*;
