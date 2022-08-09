@@ -58,7 +58,7 @@ let crossbow = CrossbowInstance::new();
 let admob: crossbow_admob::AdMobPlugin = crossbow.get_plugin()?;
 ```
 
-To show Interstitial Ad, use following code (remember, there's no async API for this - so `load` and `show` functions should be called as soon as `Sinals` received or `is_initialized()` checked):
+To show Interstitial Ad, use following code (remember, currently there's no async API for this plugin - so `load` and `show` functions should be called as soon as `Sinals` received or `is_initialized()/is_interstitial_loaded()` checked):
 
 ```rust
 admob.initialize(true, "G", false, true).unwrap();

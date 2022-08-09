@@ -50,6 +50,7 @@ impl AdMobPlugin {
     //     Ok(())
     // }
 
+    // TODO: Fix initialization_complete Signal not being sent
     pub fn initialize<S>(
         &self,
         is_for_child_directed_treatment: bool,
