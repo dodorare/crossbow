@@ -17,9 +17,9 @@ object CrossbowLib {
      */
     @JvmStatic
     external fun initialize(
-        activity: Activity?,
-        instance: Crossbow?,
-        asset_manager: Any?
+        activity: Activity,
+        instance: Crossbow,
+        asset_manager: Any
     )
 
     /**
@@ -34,6 +34,20 @@ object CrossbowLib {
      */
     @JvmStatic
     external fun onBackPressed()
+
+	/**
+	 * Invoked when the Android app resumes.
+	 * @see androidx.fragment.app.Fragment#onResume()
+	 */
+    @JvmStatic
+    external fun focusIn()
+
+	/**
+	 * Invoked when the Android app pauses.
+	 * @see androidx.fragment.app.Fragment#onPause()
+	 */
+    @JvmStatic
+    external fun focusOut()
 
     /**
      * Forward the results from a permission request.

@@ -2,16 +2,25 @@ mod handlers;
 mod jni_rust_type;
 mod jni_singleton;
 
+pub use async_channel::{Receiver, Sender};
 pub(crate) use handlers::*;
 pub use jni_rust_type::*;
 pub use jni_singleton::*;
 
 use crate::error::*;
-use async_channel::Sender;
+use jni::JavaVM;
 use std::{
     collections::HashMap,
     sync::{Arc, Mutex},
 };
+
+pub trait CrossbowPlugin {
+    fn from_java_vm(vm: Arc<JavaVM>) -> Result<Self>
+    where
+        Self: Sized;
+    fn get_plugin_name() -> &'static str;
+    fn get_receiver(&self) -> &Receiver<Signal>;
+}
 
 lazy_static::lazy_static! {
     static ref JNI_SINGLETONS: Mutex<HashMap<String, Arc<JniSingleton>>> = Default::default();
@@ -26,16 +35,16 @@ fn insert_jni_singleton(
     jni_signletons_guard.insert(singleton_name.to_owned(), Arc::new(singleton))
 }
 
+pub fn get_jni_singleton(singleton_name: &str) -> Option<Arc<JniSingleton>> {
+    let jni_signletons_guard = JNI_SINGLETONS.lock().unwrap();
+    jni_signletons_guard.get(singleton_name).cloned()
+}
+
 fn insert_sender(singleton_name: &str, sender: Sender<Signal>) -> Option<Sender<Signal>> {
     JNI_SIGNAL_SENDERS
         .lock()
         .unwrap()
         .insert(singleton_name.to_owned(), sender)
-}
-
-pub fn get_jni_singleton(singleton_name: &str) -> Option<Arc<JniSingleton>> {
-    let jni_signletons_guard = JNI_SINGLETONS.lock().unwrap();
-    jni_signletons_guard.get(singleton_name).cloned()
 }
 
 pub fn get_jni_singleton_with_error(singleton_name: &str) -> Result<Arc<JniSingleton>> {

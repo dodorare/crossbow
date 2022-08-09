@@ -1,5 +1,5 @@
 [package]
-name = "crossbow-admob"
+name = "crossbow-admob-android"
 version = "0.1.8"
 edition = "2021"
 authors = ["DodoRare Team <support@dodorare.com>"]

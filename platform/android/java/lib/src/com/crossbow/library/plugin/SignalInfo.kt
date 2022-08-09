@@ -36,14 +36,14 @@ class SignalInfo(signalName: String, vararg argParamTypes: Class<*>) {
                 '}')
     }
 
-    override fun equals(o: Any?): Boolean {
-        if (this === o) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
             return true
         }
-        if (o !is SignalInfo) {
+        if (other !is SignalInfo) {
             return false
         }
-        return name == o.name
+        return name == other.name
     }
 
     override fun hashCode(): Int {

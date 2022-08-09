@@ -4,51 +4,12 @@ use macroquad::ui::{hash, root_ui, Skin};
 
 #[macroquad::main("Macroquad UI")]
 async fn main() -> anyhow::Result<()> {
-    let skin = {
-        let label_style = root_ui()
-            .style_builder()
-            .text_color(Color::from_rgba(180, 180, 120, 255))
-            .font_size(30)
-            .build();
-        let window_style = root_ui()
-            .style_builder()
-            .background_margin(RectOffset::new(20.0, 20.0, 10.0, 10.0))
-            .margin(RectOffset::new(-20.0, -30.0, 0.0, 0.0))
-            .build();
-        let button_style = root_ui()
-            .style_builder()
-            .background_margin(RectOffset::new(37.0, 37.0, 5.0, 5.0))
-            .margin(RectOffset::new(10.0, 10.0, 0.0, 0.0))
-            .text_color(Color::from_rgba(180, 180, 100, 255))
-            .font_size(40)
-            .build();
-        let editbox_style = root_ui()
-            .style_builder()
-            .background_margin(RectOffset::new(0., 0., 0., 0.))
-            .text_color(Color::from_rgba(120, 120, 120, 255))
-            .color_selected(Color::from_rgba(190, 190, 190, 255))
-            .font_size(50)
-            .build();
-        Skin {
-            editbox_style,
-            window_style,
-            button_style,
-            label_style,
-            ..root_ui().default_skin()
-        }
-    };
+    #[cfg(target_os = "android")]
+    let crossbow = crossbow::android::CrossbowInstance::new();
+    #[cfg(target_os = "android")]
+    let admob: crossbow_admob::AdMobPlugin = crossbow.get_plugin()?;
 
-    #[cfg(target_os = "android")]
-    let (_, vm) = crossbow::android::create_java_vm().unwrap();
-    #[cfg(target_os = "android")]
-    let jnienv = vm.attach_current_thread_as_daemon().unwrap();
-
-    #[cfg(target_os = "android")]
-    let admob_singleton = crossbow::android::plugin::get_jni_singleton("AdMob")
-        .expect("Crossbow Error: AdMob is not registered");
-    #[cfg(target_os = "android")]
-    let admob = crossbow_admob::AdMobPlugin::from_jnienv(admob_singleton.clone(), jnienv).unwrap();
-
+    let skin = get_skin();
     let mut label = "".to_owned();
     let window_skin = skin.clone();
     #[allow(unused_assignments)]
@@ -64,40 +25,25 @@ async fn main() -> anyhow::Result<()> {
             ui.label(vec2(15.0, 0.0), "AdMob");
             ui.label(vec2(15.0, 50.0), &label);
 
-            let btn_camera = "Camera permission";
-            if ui.button(vec2(-15.0, 150.0), btn_camera) {
-                btn_clicked = btn_camera;
+            let btn_text = "Camera permission";
+            if ui.button(vec2(-15.0, 100.0), btn_text) {
+                btn_clicked = btn_text;
             }
-            let btn_camera = "Mic permission";
-            if ui.button(vec2(-15.0, 300.0), btn_camera) {
-                btn_clicked = btn_camera;
+            let btn_text = "Mic permission";
+            if ui.button(vec2(-15.0, 150.0), btn_text) {
+                btn_clicked = btn_text;
             }
             #[cfg(target_os = "ios")]
-            let btn_camera = "Photos permission";
+            let btn_text = "Photos permission";
             #[cfg(target_os = "ios")]
-            if ui.button(vec2(-15.0, 450.0), btn_camera) {
-                btn_clicked = btn_camera;
+            if ui.button(vec2(-15.0, 200.0), btn_text) {
+                btn_clicked = btn_text;
             }
             #[cfg(target_os = "android")]
-            if ui.button(vec2(-15.0, 600.0), "Show ad") {
-                if !admob.get_is_initialized().unwrap() {
-                    println!("calling initialize()");
-                    admob.initialize(true, "G", false, true).unwrap();
-                }
-
-                if admob.get_is_initialized().unwrap()
-                    && !admob.get_is_interstitial_loaded().unwrap()
-                {
-                    println!("calling load_interstitial()");
-                    admob
-                        .load_interstitial("ca-app-pub-3940256099942544/1033173712")
-                        .unwrap();
-                }
-
-                if admob.get_is_interstitial_loaded().unwrap() {
-                    println!("calling show_interstitial()");
-                    admob.show_interstitial().unwrap();
-                }
+            let btn_text = "Show ad";
+            #[cfg(target_os = "android")]
+            if ui.button(vec2(-15.0, 250.0), btn_text) {
+                btn_clicked = btn_text;
             }
         });
         root_ui().pop_skin();
@@ -116,12 +62,31 @@ async fn main() -> anyhow::Result<()> {
                 let res = Permission::Photos.request_async().await?;
                 label = format!("Photos {:?}", res);
             }
+            #[cfg(target_os = "android")]
+            "Show ad" => {
+                if !admob.is_initialized()? {
+                    println!("Calling AdMob::initialize()");
+                    admob.initialize(true, "G", false, true)?;
+                }
+
+                if admob.is_initialized()? && !admob.is_interstitial_loaded()? {
+                    println!("Calling load_interstitial()");
+                    admob.load_interstitial("ca-app-pub-3940256099942544/1033173712")?;
+                }
+
+                if admob.is_interstitial_loaded()? {
+                    println!("Calling show_interstitial()");
+                    admob.show_interstitial()?;
+                }
+            }
             _ => {}
         }
 
         #[cfg(target_os = "android")]
-        if let Ok(signal) = admob_singleton.get_receiver().try_recv() {
-            println!("signal: {:?}", signal);
+        use crossbow::android::plugin::CrossbowPlugin;
+        #[cfg(target_os = "android")]
+        if let Ok(signal) = admob.get_receiver().try_recv() {
+            println!("Signal: {:?}", signal);
             label = format!(
                 "{}:{}",
                 signal.signal_name,
@@ -135,5 +100,39 @@ async fn main() -> anyhow::Result<()> {
         }
 
         next_frame().await;
+    }
+}
+
+fn get_skin() -> Skin {
+    let label_style = root_ui()
+        .style_builder()
+        .text_color(Color::from_rgba(180, 180, 120, 255))
+        .font_size(30)
+        .build();
+    let window_style = root_ui()
+        .style_builder()
+        .background_margin(RectOffset::new(20.0, 20.0, 10.0, 10.0))
+        .margin(RectOffset::new(-20.0, -30.0, 0.0, 0.0))
+        .build();
+    let button_style = root_ui()
+        .style_builder()
+        .background_margin(RectOffset::new(37.0, 37.0, 5.0, 5.0))
+        .margin(RectOffset::new(10.0, 10.0, 0.0, 0.0))
+        .text_color(Color::from_rgba(180, 180, 100, 255))
+        .font_size(40)
+        .build();
+    let editbox_style = root_ui()
+        .style_builder()
+        .background_margin(RectOffset::new(0., 0., 0., 0.))
+        .text_color(Color::from_rgba(120, 120, 120, 255))
+        .color_selected(Color::from_rgba(190, 190, 190, 255))
+        .font_size(50)
+        .build();
+    Skin {
+        editbox_style,
+        window_style,
+        button_style,
+        label_style,
+        ..root_ui().default_skin()
     }
 }

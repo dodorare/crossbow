@@ -35,7 +35,7 @@ class Crossbow : Fragment() {
         pluginRegistry = CrossbowPluginRegistry.initializePluginRegistry(this)
 
 		Log.v(TAG, "Initializing CrossbowLib Instance")
-        CrossbowLib.initialize(activity, this, activity!!.assets)
+        CrossbowLib.initialize(activity!!, this, activity!!.assets)
     }
 
     override fun onAttach(context: Context) {
@@ -124,12 +124,13 @@ class Crossbow : Fragment() {
         for (plugin in pluginRegistry!!.allPlugins) {
             plugin.onMainDestroy()
         }
-        // CrossbowLib.ondestroy()
+        CrossbowLib.onDestroy()
         super.onDestroy()
     }
 
     override fun onPause() {
         super.onPause()
+        CrossbowLib.focusOut()
         for (plugin in pluginRegistry!!.allPlugins) {
             plugin.onMainPause()
         }
@@ -137,6 +138,7 @@ class Crossbow : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        CrossbowLib.focusIn()
         for (plugin in pluginRegistry!!.allPlugins) {
             plugin.onMainResume()
         }

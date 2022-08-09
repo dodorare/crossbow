@@ -4,7 +4,7 @@ use jni::signature::{JavaType, Primitive};
 
 // TODO: Replace this implementation with one from Crossbow instance.
 
-/// Find declared permissions in AndroidManifest.xml and return it as JValue type
+/// Find declared permissions in AndroidManifest.xml and return it as JValue type.
 fn get_permission_from_manifest<'a>(
     permission: &AndroidPermission,
     jnienv: &jni::JNIEnv<'a>,
@@ -28,10 +28,8 @@ fn get_permission_from_manifest<'a>(
     Ok(string_permission)
 }
 
-/// Get `PERMISSION_GRANTED` and `PERMISSION_DENIED` status
-pub fn permission_status<'a>(
-    jnienv: &jni::JNIEnv<'a>,
-) -> Result<(jni::objects::JValue<'a>, jni::objects::JValue<'a>)> {
+/// Get `PERMISSION_GRANTED` and `PERMISSION_DENIED` statuses.
+pub fn permission_status(jnienv: &jni::JNIEnv) -> Result<(i32, i32)> {
     let class_package_manager = jnienv.find_class("android/content/pm/PackageManager")?;
     let field_permission_granted =
         jnienv.get_static_field_id(class_package_manager, "PERMISSION_GRANTED", "I")?;
@@ -51,18 +49,18 @@ pub fn permission_status<'a>(
         JavaType::Primitive(Primitive::Int),
     )?;
 
-    Ok((permission_granted, permission_denied))
+    Ok((permission_granted.i()?, permission_denied.i()?))
 }
 
 /// Provides checking permission status in the application and will request permission if
 /// it is denied.
 pub fn request_permission(permission: &AndroidPermission) -> Result<bool> {
-    let (_, vm) = crate::create_java_vm()?;
-    let jnienv = vm.attach_current_thread()?;
+    let (_, vm) = crate::get_java_vm()?;
+    let jnienv = vm.attach_current_thread_as_daemon()?;
 
     let string_permission = get_permission_from_manifest(permission, &jnienv)?;
 
-    let (_permission_granted, permission_denied) = permission_status(&jnienv)?;
+    let (permission_granted, _permission_denied) = permission_status(&jnienv)?;
 
     // Determine whether you have been granted a particular permission.
     let class_context = jnienv.find_class("android/content/Context")?;
@@ -79,31 +77,30 @@ pub fn request_permission(permission: &AndroidPermission) -> Result<bool> {
         &[string_permission],
     )?;
 
-    if ret.i()? == permission_denied.i()? {
-        let array_permissions = jnienv.new_object_array(
-            1,
-            jnienv.find_class("java/lang/String")?,
-            jnienv.new_string(String::new())?,
-        )?;
-
-        let string_permission = get_permission_from_manifest(permission, &jnienv)?;
-
-        jnienv.set_object_array_element(array_permissions, 0, string_permission.l()?)?;
-        let class_activity = jnienv.find_class("android/app/Activity")?;
-        let method_request_permissions = jnienv.get_method_id(
-            class_activity,
-            "requestPermissions",
-            "([Ljava/lang/String;I)V",
-        )?;
-
-        jnienv.call_method_unchecked(
-            ndk_context::android_context().context().cast(),
-            method_request_permissions,
-            JavaType::Primitive(Primitive::Void),
-            &[array_permissions.into(), jni::objects::JValue::Int(0)],
-        )?;
-        Ok(false)
-    } else {
-        Ok(true)
+    if ret.i()? == permission_granted {
+        return Ok(true);
     }
+
+    let array_permissions = jnienv.new_object_array(
+        1,
+        jnienv.find_class("java/lang/String")?,
+        jnienv.new_string(String::new())?,
+    )?;
+    let string_permission = get_permission_from_manifest(permission, &jnienv)?;
+
+    jnienv.set_object_array_element(array_permissions, 0, string_permission.l()?)?;
+    let class_activity = jnienv.find_class("android/app/Activity")?;
+    let method_request_permissions = jnienv.get_method_id(
+        class_activity,
+        "requestPermissions",
+        "([Ljava/lang/String;I)V",
+    )?;
+
+    jnienv.call_method_unchecked(
+        ndk_context::android_context().context().cast(),
+        method_request_permissions,
+        JavaType::Primitive(Primitive::Void),
+        &[array_permissions.into(), jni::objects::JValue::Int(0)],
+    )?;
+    Ok(false)
 }

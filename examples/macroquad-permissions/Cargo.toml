@@ -11,7 +11,7 @@ anyhow = "1.0"
 macroquad = "0.3.7"
 
 [target.'cfg(target_os = "android")'.dependencies]
-crossbow-admob = { version = "0.1.8", path = "../../plugins/admob" }
+crossbow-admob = { package = "crossbow-admob-android", version = "0.1.8", path = "../../plugins/admob-android" }
 
 [package.metadata]
 app_name = "Permissions"
@@ -31,7 +31,7 @@ project_dir = "../../platform/android/java"
 include = ":crossbow:lib"
 [[package.metadata.android.plugins_local_projects]]
 include = ":admob"
-project_dir = "../../plugins/admob/android"
+project_dir = "../../plugins/admob-android/android"
 
 [package.metadata.android.manifest]
 package = "com.crossbow.permissions"
@@ -40,7 +40,11 @@ min_sdk_version = 19
 target_sdk_version = 30
 [package.metadata.android.manifest.application]
 icon = "@mipmap/ic_launcher"
-round_icon="@mipmap/ic_launcher"
+round_icon = "@mipmap/ic_launcher"
+# [[package.metadata.android.manifest.application.activity]]
+# name = ""
+# config_changes = "screenSize|orientation"
+# screen_orientation = "landscape"
 
 [package.metadata.apple]
 release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]

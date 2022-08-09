@@ -6,7 +6,7 @@ To do so, run these commands:
 
 ```sh
 git clone https://github.com/dodorare/crossbow
-cp -r crossbow/plugins/admob ./my-awesome-plugin
+cp -r crossbow/plugins/admob-android ./my-awesome-plugin
 cd ./my-awesome-plugin
 ```
 
