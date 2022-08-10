@@ -288,9 +288,9 @@ class PlayGamesServices(crossbow: Crossbow) : CrossbowPlugin(crossbow), Achievem
     }
 
     @ExposedToCrossbow
-    fun showSavedGames(title: String, allowAdBtn: Boolean, allowDeleteBtn: Boolean, maxNumberOfSavedGamesToShow: Int) {
+    fun showSavedGames(title: String, allowAddBtn: Boolean, allowDeleteBtn: Boolean, maxNumberOfSavedGamesToShow: Int) {
         runOnUiThread {
-            savedGamesController.showSavedGamesUI(title, allowAdBtn, allowDeleteBtn, maxNumberOfSavedGamesToShow)
+            savedGamesController.showSavedGamesUI(title, allowAddBtn, allowDeleteBtn, maxNumberOfSavedGamesToShow)
         }
     }
 
