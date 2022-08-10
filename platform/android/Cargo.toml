@@ -17,12 +17,12 @@ anyhow = "1.0"
 
 rust-embed = { version = "6.4.0", features = ["include-exclude"], optional = true }
 
-[target.'cfg(target_os = "android")'.dependencies]
-jni = "0.19"
-ndk-context = "0.1"
-lazy_static = "1.4"
-async-channel = "1.7"
+jni = { version = "0.19", optional = true }
+ndk-context = { version = "0.1", optional = true }
+lazy_static = { version = "1.4", optional = true }
+async-channel = { version = "1.7", optional = true }
 
 [features]
-default = []
+default = ["android"]
+android = ["jni", "ndk-context", "lazy_static", "async-channel"]
 embed = ["rust-embed"]
