@@ -4,7 +4,7 @@
 
 This project is a Crossbow Plugin that allows showing AdMob ads from Rust. Without worrying about the building, just download and use.
 
-## Features
+### Supported features
 
 | Ad Format | Available |
 | ---- | ----------- |
@@ -47,21 +47,21 @@ value = "<YOUR ID HERE>"
 
 ## Usage
 
-In your rust project, you will need to get JNIEnv first and retrieve the JNI Singleton instance of AdMob from Crossbow. To do this, simply write the following code:
+First step is plugin initialization. In your rust project, you will need to initialize `Crossbow` instance and then get **Android** plugin:
 
 ```rust
-#[cfg(target_os = "android")]
+#![cfg(target_os = "android")]
+
 use crossbow::android::*;
-#[cfg(target_os = "android")]
 let crossbow = CrossbowInstance::new();
-#[cfg(target_os = "android")]
 let admob: admob_android::AdMobPlugin = crossbow.get_plugin()?;
+// Initialize AdMob Service
+admob.initialize(true, "G", false, true).unwrap();
 ```
 
 To show Interstitial Ad, use following code (remember, currently there's no async API for this plugin - so `load` and `show` functions should be called as soon as `Sinals` received or `is_initialized()/is_interstitial_loaded()` checked):
 
 ```rust
-admob.initialize(true, "G", false, true).unwrap();
 admob.load_interstitial("ca-app-pub-3940256099942544/1033173712").unwrap();
 admob.show_interstitial().unwrap();
 ```

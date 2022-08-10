@@ -1,6 +1,9 @@
 use crossbow_android::{error::*, jni::JavaVM, plugin::*};
 use std::sync::Arc;
 
+// TODO: Add better handling errors:
+// https://developers.google.com/android/reference/com/google/android/gms/common/api/CommonStatusCodes
+
 pub struct PlayGamesServicesPlugin {
     singleton: Arc<JniSingleton>,
     vm: Arc<JavaVM>,

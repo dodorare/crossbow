@@ -29,15 +29,9 @@ async fn main() -> anyhow::Result<()> {
             ui.label(vec2(15.0, 50.0), &label);
 
             #[cfg(target_os = "android")]
-            let btn_text = "Init";
-            #[cfg(target_os = "android")]
-            if ui.button(vec2(-15.0, 100.0), btn_text) {
-                _btn_clicked = btn_text;
-            }
-            #[cfg(target_os = "android")]
             let btn_text = "Sign In";
             #[cfg(target_os = "android")]
-            if ui.button(vec2(-15.0, 150.0), btn_text) {
+            if ui.button(vec2(-15.0, 100.0), btn_text) {
                 _btn_clicked = btn_text;
             }
         });
@@ -45,7 +39,6 @@ async fn main() -> anyhow::Result<()> {
 
         #[cfg(target_os = "android")]
         match _btn_clicked {
-            "Init" => {}
             "Sign In" => {
                 println!("Calling sign_in()");
                 play_games.sign_in()?;
