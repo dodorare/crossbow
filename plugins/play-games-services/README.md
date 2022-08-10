@@ -68,16 +68,16 @@ Just add Rust dependencies like this:
 
 ```toml
 [dependencies]
-crossbow = "0.1.9"
+crossbow = "0.2.0"
 [target.'cfg(target_os = "android")'.dependencies]
-play-games-services = "0.1.9"
+play-games-services = "0.2.0"
 ```
 
 And finally, add this to your Crossbow Android configuration:
 
 ```toml
 [package.metadata.android]
-plugins_remote = ["com.crossbow.play_games_services:play_games_services:0.1.9"]
+plugins_remote = ["com.crossbow.play_games_services:play_games_services:0.2.0"]
 ```
 
 > That's it, now you can start using Play Games Services!

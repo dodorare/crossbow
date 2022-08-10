@@ -1,4 +1,4 @@
-# [![Crossbow Splash Image](assets/splash.png)](https://github.com/dodorare/crossbow)
+# [![Crossbow Splash Image](https://github.com/dodorare/crossbow/blob/main/assets/crossbow/splash.png?raw=true)](https://github.com/dodorare/crossbow)
 
 [![CI Info](https://github.com/dodorare/crossbow/workflows/CI/badge.svg)](https://github.com/dodorare/crossbow/actions)
 [![Crate Info](https://img.shields.io/crates/v/crossbow.svg)](https://crates.io/crates/crossbow)
@@ -65,7 +65,7 @@ Helper crates:
 
 Also, this project initially funded by [Web3 Foundation Grants Program](https://github.com/w3f/Grants-Program/blob/master/applications/crossbow.md). Big shout-out to them!
 
-<img src="assets/w3f_grants_badge.svg" alt="W3F Grants Badge" width="400px" />
+<img src="assets/crossbow/w3f_grants_badge.svg" alt="W3F Grants Badge" width="400px" />
 
 ## License
 

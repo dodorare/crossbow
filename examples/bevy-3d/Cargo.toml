@@ -1,11 +1,11 @@
 [package]
 name = "bevy-3d"
-version = "0.1.9"
+version = "0.2.0"
 authors = ["DodoRare Team <support@dodorare.com>"]
 edition = "2021"
 
 [dependencies]
-crossbow = { version = "0.1.9", path = "../../" }
+crossbow = { version = "0.2.0", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
 bevy = "0.7.0"
