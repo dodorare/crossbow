@@ -34,6 +34,16 @@ assets = "assets"
 res = "res/apple"
 ```
 
+### If your project uses macroquad
+
+To use macroquad you need to add this to your `Cargo.toml`:
+
+```toml
+# for bevy it ​​is not necessary to specif 
+[package.metadata]
+app_wrapper = "sokol"
+```
+
 ### Сonfiguration through separate files
 
 But sometimes you need to configure something more complex. For such cases, a more suitable way is to use separate `AndroidManifest.xml` or/and `Info.plist` files.

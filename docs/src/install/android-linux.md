@@ -31,6 +31,12 @@ export PATH=<path_to_sdk>\sdk\emulator:$PATH
 export PATH=<path_to_sdk>\sdk\tools\bin:$PATH
 ```
 
+Crossbow default build process requires installed Gradle on your PC. You can download it [here](https://services.gradle.org/distributions/). Set to environment variable.
+
+```sh
+export GRADLE_HOME=<path_to_gradle>
+```
+
 Also, we need to make sure we have a java runtime environment (JRE) installed. We need a key tool utility from there. <br/>
 To make sure it's present type this command: `ls /usr/lib/jvm/default/bin/ | grep keytool`
 
@@ -46,7 +52,9 @@ Examples:
 
 If you haven't already done so, download bundletool from the [`GitHub repository`](https://github.com/google/bundletool/releases).
 
-- Add `BUNDLETOOL_PATH` variable with value `<path_to_bundletool>`.
+```sh
+export BUNDLETOOL_PATH=<path_to_bundletool>
+```
 
 ## Set up your Android device
 

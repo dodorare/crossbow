@@ -19,6 +19,10 @@ Take these steps to add Android-related environment variables:
 - Add `ANDROID_SDK_ROOT` variable with value `<path_to_sdk>\sdk`.<br/>(ex. `C:\Users\username\AppData\Local\android\sdk`)
 - Add `ANDROID_NDK_ROOT` variable with value `<path_to_sdk>\sdk\ndk\<version>`.<br/>(ex. `C:\Users\username\AppData\Local\Android\Sdk\ndk\23.1.7779620`)
 
+Crossbow default build process requires installed Gradle on your PC. You can download it [here](https://services.gradle.org/distributions/). Set to environment variable.
+
+- Add `GRADLE_HOME` variable with value `<path_to_gradle>`.
+
 If you will build application with emulator you should add this to environment variables:
 
 - Add `<path_to_sdk>\sdk\tools\bin` to `PATH` variable.
