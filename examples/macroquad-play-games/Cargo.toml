@@ -32,7 +32,7 @@ include = ":play_games_services"
 project_dir = "../../plugins/play-games-services/android"
 
 [package.metadata.android.manifest]
-package = "com.crossbow.play_games"
+package = "com.crossbow.example.play_games"
 [package.metadata.android.manifest.uses_sdk]
 min_sdk_version = 19
 target_sdk_version = 30

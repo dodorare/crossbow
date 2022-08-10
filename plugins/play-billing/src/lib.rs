@@ -163,27 +163,6 @@ impl PlayBillingPlugin {
         Ok(JniRustType::from_jobject(&jnienv, res.l()?)?)
     }
 
-    pub fn purchase_internal<S>(
-        &self,
-        old_token: S,
-        sku: S,
-        proration_mode: i32,
-    ) -> Result<JniRustType>
-    where
-        S: AsRef<str>,
-    {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        let old_token_str = jnienv.new_string(old_token)?;
-        let sku_str = jnienv.new_string(sku)?;
-        let res = self.singleton.call_method(
-            &jnienv,
-            "purchaseInternal",
-            &[old_token_str.into(), sku_str.into(), proration_mode.into()],
-        )?;
-        jnienv.exception_check()?;
-        Ok(JniRustType::from_jobject(&jnienv, res.l()?)?)
-    }
-
     pub fn set_obfuscated_account_id<S>(&self, account_id: S) -> Result<()>
     where
         S: AsRef<str>,
