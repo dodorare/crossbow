@@ -6,6 +6,7 @@ crates=(
     platform/android
     platform/ios
     plugins/admob-android
+    plugins/play-games-services
     crossbundle/tools
     crossbundle/cli
 )

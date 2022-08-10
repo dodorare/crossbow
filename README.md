@@ -28,11 +28,11 @@ A lot of functionality was inspired by [Godot](https://github.com/godotengine/go
 * **Rust**: Don't leave your *Rust* code - **everything** can be configured from `Cargo.toml`.
 * **Plugins**: Godot-like plugins for **Android** (and **iOS** in future) with *Rust* wrapper!
 
-## 📚 Documentation
+## Documentation
 
 Now we would recommend you to read [crossbow's documentation](https://crossbow.dodorare.com/). Over there you will find how to set up development environment, install needed crates and how to use the tools.
 
-## 🗂️ Project structure
+## Project structure
 
 Crossbundle crates:
 
