@@ -50,7 +50,7 @@ import java.util.Collections
 import java.util.Locale
 import java.util.Objects
 
-class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
+class CrossbowAdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
     private var aIsInitialized = false
     private var aActivity: Activity? = null
     private var aConsentInformation: ConsentInformation? = null

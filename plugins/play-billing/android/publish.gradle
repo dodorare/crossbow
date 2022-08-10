@@ -1,0 +1,49 @@
+apply plugin: "maven-publish"
+
+publishing {
+    repositories {
+        maven {
+            name = "com.crossbow.play_billing"
+            version = versions.crossbowLibrary
+            description = "Crossbow Play Billing Android Library"
+            url = uri("https://maven.pkg.github.com/dodorare/crossbow")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+            }
+        }
+    }
+    publications {
+        gpr(MavenPublication) {
+            groupId = "com.crossbow.play_billing"
+            artifact("$buildDir/outputs/aar/$artifactId-release.aar")
+
+            pom.withXml {
+                final dependenciesNode = asNode().appendNode("dependencies")
+                ext.addDependency = { Dependency dep, String scope ->
+                    if (dep.group == null || dep.version == null || dep.name == null || dep.name == "unspecified")
+                        return
+                    final dependencyNode = dependenciesNode.appendNode("dependency")
+                    dependencyNode.appendNode("groupId", dep.group)
+                    dependencyNode.appendNode("artifactId", dep.name)
+                    dependencyNode.appendNode("version", dep.version)
+                    dependencyNode.appendNode("scope", scope)
+                    if (!dep.transitive) {
+                        final exclusionNode = dependencyNode.appendNode("exclusions").appendNode("exclusion")
+                        exclusionNode.appendNode("groupId", "*")
+                        exclusionNode.appendNode("artifactId", "*")
+                    } else if (!dep.properties.excludeRules.empty) {
+                        final exclusionNode = dependencyNode.appendNode("exclusions").appendNode("exclusion")
+                        dep.properties.excludeRules.each { ExcludeRule rule ->
+                            exclusionNode.appendNode("groupId", rule.group ?: "*")
+                            exclusionNode.appendNode("artifactId", rule.module ?: "*")
+                        }
+                    }
+                }
+                configurations.implementation.getDependencies().each { dep -> addDependency(dep, "runtime") }
+                // configurations.compile.getDependencies().each { dep -> addDependency(dep, "compile") }
+                // configurations.api.getDependencies().each { dep -> addDependency(dep, "compile") }
+            }
+        }
+    }
+}

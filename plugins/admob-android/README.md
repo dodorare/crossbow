@@ -1,5 +1,10 @@
 # Crossbow Admob Plugin
 
+[![Crate Info](https://img.shields.io/crates/v/admob-android.svg)](https://crates.io/crates/admob-android)
+[![Documentation](https://img.shields.io/badge/docs.rs-admob_android-green)](https://docs.rs/admob-android/)
+[![MIT/Apache 2.0](https://img.shields.io/badge/license-MIT%2FApache-blue.svg)](https://github.com/dodorare/crossbow#license)
+[![GitHub Stars](https://img.shields.io/github/stars/dodorare/crossbow.svg?style=social)](https://github.com/dodorare/crossbow/stargazers)
+
 ## About
 
 This project is a Crossbow Plugin that allows showing AdMob ads from Rust. Without worrying about the building, just download and use.

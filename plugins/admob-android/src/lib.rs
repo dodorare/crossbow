@@ -18,7 +18,7 @@ impl CrossbowPlugin for AdMobPlugin {
     }
 
     fn get_plugin_name() -> &'static str {
-        "AdMob"
+        "CrossbowAdMob"
     }
 
     fn get_receiver(&self) -> &Receiver<Signal> {

@@ -33,7 +33,7 @@ import com.crossbow.library.plugin.SignalInfo
 import java.math.BigInteger
 import java.util.Random
 
-class PlayGamesServices(crossbow: Crossbow) : CrossbowPlugin(crossbow), AchievementsListener, EventsListener,
+class CrossbowPlayGamesServices(crossbow: Crossbow) : CrossbowPlugin(crossbow), AchievementsListener, EventsListener,
     LeaderBoardsListener, SavedGamesListener, SignInListener, PlayerStatsListener, PlayerInfoListener {
 
     private lateinit var connectionController: ConnectionController

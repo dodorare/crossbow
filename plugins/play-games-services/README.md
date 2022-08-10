@@ -62,6 +62,26 @@ name = "com.google.android.gms.version"
 value = "@integer/google_play_services_version"
 ```
 
+## Installation
+
+Just add Rust dependencies like this:
+
+```toml
+[dependencies]
+crossbow = "0.1.9"
+[target.'cfg(target_os = "android")'.dependencies]
+play-games-services = "0.1.9"
+```
+
+And finally, add this to your Crossbow Android configuration:
+
+```toml
+[package.metadata.android]
+plugins_remote = ["com.crossbow.play_games_services:play_games_services:0.1.9"]
+```
+
+> That's it, now you can start using Play Games Services!
+
 ## Usage
 
 First step is plugin initialization. In your rust project, you will need to initialize `Crossbow` instance and then get **Android** plugin:
