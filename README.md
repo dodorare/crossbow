@@ -48,8 +48,8 @@ Crossbow crates:
 | [crossbow-android](./platform/android) | Crossbow Android Platform implementation. | 🆗 |
 | [crossbow-ios](./platform/ios) | Crossbow iOS Platform implementation. | 🛠 |
 | [crossbow-admob](./crossbow/admob) | Google AdMob Plugin for Android (iOS in future). | 🆗 |
-| [crossbow-play-billing](./crossbow/play-billing) | Google Play Billing for Android. | 📝 |
-| [crossbow-play-games-sdk](./crossbow/play-games-sdk) | Google Play Games Sdk for Android. | 📝 |
+| [crossbow-play-games-sdk](./crossbow/play-games-sdk) | Google Play Games Sdk for Android. | 🆗 |
+| [crossbow-play-billing](./crossbow/play-billing) | Google Play Billing for Android. | 🛠 |
 
 Helper crates:
 

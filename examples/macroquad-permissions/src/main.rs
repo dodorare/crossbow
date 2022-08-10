@@ -7,7 +7,7 @@ async fn main() -> anyhow::Result<()> {
     #[cfg(target_os = "android")]
     let crossbow = crossbow::android::CrossbowInstance::new();
     #[cfg(target_os = "android")]
-    let admob: crossbow_admob::AdMobPlugin = crossbow.get_plugin()?;
+    let admob: admob_android::AdMobPlugin = crossbow.get_plugin()?;
 
     let skin = get_skin();
     let mut label = "".to_owned();
