@@ -80,3 +80,10 @@ jobs:
         cd ./plugins/play-games-services/android
         gradle build
         USERNAME=dodorare gradle publish
+    - name: Build and publish Crossbow Play Billing library
+      env:
+        TOKEN: ${{ secrets.GH_CROSSBOW_PUBLISH_TOKEN }}
+      run: |
+        cd ./plugins/play-billing/android
+        gradle build
+        USERNAME=dodorare gradle publish
