@@ -6,31 +6,47 @@ use std::path::{Path, PathBuf};
 
 use crate::error::*;
 
-fn gen_icons(
-    icon_path: &Path,
-    res_dir_path: Option<PathBuf>,
-    force: bool,
-    image_format: Option<ImageFormat>,
-) -> Result<()> {
-    let image = image::open(icon_path)?;
-    let (width, height) = image.dimensions();
-    if width != height {
-        return Err(Error::WidthAndHeightDifSizes);
-    }
-    for (name, size) in scale_down(width) {
-        let scaled = image.thumbnail(size, size);
-        // Check or create res directory
-        let res = Path::new("assets").join("res");
-        if let Some(ref res_dir) = res_dir_path {
-            let res_dir = res_dir.join(res);
-            write_image(&res_dir, name, size, scaled, force, image_format)?;
-        } else {
-            let current_dir = current_dir()?;
-            let res_dir = current_dir.join(res);
-            write_image(&res_dir, name, size, scaled, force, image_format)?;
+#[derive(Debug, Default, Clone)]
+pub struct ImageGeneration {
+    pub icon_path: PathBuf,
+    pub res_dir_path: Option<PathBuf>,
+    pub force: bool,
+    pub image_format: Option<ImageFormat>,
+}
+
+impl ImageGeneration {
+    pub fn new(icon_path: PathBuf) -> Self {
+        Self {
+            icon_path,
+            ..Default::default()
         }
     }
-    Ok(())
+
+    pub fn gen_icons(&self) -> Result<()> {
+        let image = image::open(&self.icon_path)?;
+        let (width, height) = image.dimensions();
+        if width != height {
+            return Err(Error::WidthAndHeightDifSizes);
+        }
+        let res = Path::new("assets").join("res");
+        for (name, size) in scale_down(width) {
+            let scaled = image.thumbnail(size, size);
+            if let Some(ref res_dir) = self.res_dir_path {
+                let res_dir = res_dir.join(&res);
+                write_image(&res_dir, name, size, scaled, self.force, self.image_format)?;
+            } else {
+                let current_dir = current_dir()?
+                    .parent()
+                    .unwrap()
+                    .parent()
+                    .unwrap()
+                    .to_owned();
+                let res_dir = current_dir.join(&res);
+                write_image(&res_dir, name, size, scaled, self.force, self.image_format)?;
+            }
+        }
+        Ok(())
+    }
 }
 
 fn write_image(
@@ -46,14 +62,14 @@ fn write_image(
         .join(format!("mipmap-{}", name))
         .to_owned();
     if mipmap_dirs.exists() {
-        return Err(Error::IconsAlreadyExist);
+        return Ok(());
     } else if !mipmap_dirs.exists() {
         std::fs::create_dir_all(&mipmap_dirs)?;
     } else if overwrite {
         std::fs::remove_dir(&res_dir.join("android"))?;
         std::fs::create_dir_all(&mipmap_dirs)?;
     }
-    let mut output = File::create(mipmap_dirs.join(format!("{}-{}.png", name, size)))?;
+    let mut output = File::create(mipmap_dirs.join("ic_launcher.png"))?;
     if let Some(format) = image_format {
         scaled.write_to(&mut output, format)?;
     } else {
@@ -114,6 +130,19 @@ mod tests {
             .join("icon.png");
         let force = false;
         let image_format = ImageFormat::Png;
-        gen_icons(&icon_path, Some(res_dir_path), force, Some(image_format)).unwrap();
+        let image_generation = ImageGeneration {
+            icon_path,
+            res_dir_path: Some(res_dir_path.clone()),
+            force,
+            image_format: Some(image_format),
+        };
+        image_generation.gen_icons().unwrap();
+        assert!(res_dir_path
+            .join("assets")
+            .join("res")
+            .join("android")
+            .join("mipmap-hdpi")
+            .join("ic_launcher.png")
+            .exists())
     }
 }

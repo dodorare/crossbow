@@ -8,7 +8,6 @@ async fn main() -> anyhow::Result<()> {
     let crossbow = crossbow::android::CrossbowInstance::new();
     #[cfg(target_os = "android")]
     let admob: crossbow_admob::AdMobPlugin = crossbow.get_plugin()?;
-
     let skin = get_skin();
     let mut label = "".to_owned();
     let window_skin = skin.clone();

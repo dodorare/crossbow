@@ -35,6 +35,9 @@ pub struct AndroidBuildCommand {
     /// Signing key alias.
     #[clap(long)]
     pub sign_key_alias: Option<String>,
+    /// Icon generation.
+    #[clap(long)]
+    pub gen_icon: Option<PathBuf>,
 }
 
 impl AndroidBuildCommand {
@@ -105,6 +108,11 @@ impl AndroidBuildCommand {
         )?;
 
         config.status_message("Reading", "AndroidManifest.xml")?;
+        if let Some(icon) = &self.gen_icon {
+            ImageGeneration::new(icon.to_owned()).gen_icons()?;
+        } else {
+            context.config.android.icon.as_ref().unwrap();
+        }
         let manifest = Self::get_android_manifest(context, AndroidStrategy::GradleApk)?;
         config.status_message("Generating", "AndroidManifest.xml")?;
         save_android_manifest(&gradle_project_path, &manifest)?;
@@ -193,6 +201,11 @@ impl AndroidBuildCommand {
         }
 
         config.status_message("Reading", "AndroidManifest.xml")?;
+        if let Some(icon) = &self.gen_icon {
+            ImageGeneration::new(icon.to_owned()).gen_icons()?;
+        } else {
+            context.config.android.icon.as_ref().unwrap();
+        }
         let manifest = Self::get_android_manifest(context, AndroidStrategy::NativeApk)?;
         config.status_message("Generating", "AndroidManifest.xml")?;
         let manifest_path = save_android_manifest(&native_build_dir, &manifest)?;
@@ -276,6 +289,11 @@ impl AndroidBuildCommand {
         }
 
         config.status_message("Reading", "AndroidManifest.xml")?;
+        if let Some(icon) = &self.gen_icon {
+            ImageGeneration::new(icon.to_owned()).gen_icons()?;
+        } else {
+            context.config.android.icon.as_ref().unwrap();
+        }
         let manifest = Self::get_android_manifest(context, AndroidStrategy::NativeAab)?;
         config.status_message("Generating", "AndroidManifest.xml")?;
         let manifest_path = save_android_manifest(&native_build_dir, &manifest)?;
