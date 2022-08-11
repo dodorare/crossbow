@@ -23,6 +23,24 @@ This project is a Crossbow Plugin for [Google Play Games Services](https://devel
 
 ✅ = Works and tested — 🆗 = Works but may contain bugs — 🛠 = Under development — 📝 = Planned - ❌ = Not working - ❗ = Not planned to be implemented
 
+## Installation
+
+Just add Rust dependencies like this:
+
+```toml
+[dependencies]
+crossbow = "0.2.0"
+[target.'cfg(target_os = "android")'.dependencies]
+play-games-services = "0.2.0"
+```
+
+And finally, add this to your Crossbow Android configuration:
+
+```toml
+[package.metadata.android]
+plugins_remote = ["com.crossbow.play_games_services:play_games_services:0.2.0"]
+```
+
 ## Getting started
 
 > **Important:** Before using this plugin please follow instructions on [Setting Up Google Play Games Services](https://developers.google.com/games/services/console/enabling) official guide.
@@ -60,24 +78,6 @@ value = "@string/app_id"
 [[package.metadata.android.manifest.application.meta_data]]
 name = "com.google.android.gms.version"
 value = "@integer/google_play_services_version"
-```
-
-## Installation
-
-Just add Rust dependencies like this:
-
-```toml
-[dependencies]
-crossbow = "0.2.0"
-[target.'cfg(target_os = "android")'.dependencies]
-play-games-services = "0.2.0"
-```
-
-And finally, add this to your Crossbow Android configuration:
-
-```toml
-[package.metadata.android]
-plugins_remote = ["com.crossbow.play_games_services:play_games_services:0.2.0"]
 ```
 
 > That's it, now you can start using Play Games Services!
