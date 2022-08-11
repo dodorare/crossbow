@@ -23,8 +23,8 @@ pub struct AndroidConfig {
     ///
     /// **Important:** This property has higher priority than global property.
     pub assets: Option<PathBuf>,
-    /// Icon generation
-    pub icon: Option<PathBuf>,
+    /// The path to the source icon will be provided to generate mipmap resources.
+    pub icon_path: Option<PathBuf>,
     /// Android debug build targets.
     #[serde(default)]
     pub debug_build_targets: Vec<AndroidTarget>,

@@ -22,14 +22,14 @@ impl ImageGeneration {
         }
     }
 
-    pub fn gen_icons(&self) -> Result<()> {
+    pub fn gen_mipmap_res_from_icon(&self) -> Result<()> {
         let image = image::open(&self.icon_path)?;
         let (width, height) = image.dimensions();
         if width != height {
             return Err(Error::WidthAndHeightDifSizes);
         }
         let res = Path::new("assets").join("res");
-        for (name, size) in scale_down(width) {
+        for (name, size) in scale_down() {
             let scaled = image.thumbnail(size, size);
             if let Some(ref res_dir) = self.res_dir_path {
                 let res_dir = res_dir.join(&res);
@@ -79,14 +79,14 @@ fn write_image(
     Ok(())
 }
 
-fn scale_down(width: u32) -> HashMap<String, u32> {
+fn scale_down() -> HashMap<String, u32> {
     let mut buf = HashMap::new();
-    buf.insert(MipmapDpi::Xxxhdpi.to_string(), width * 16 / 16);
-    buf.insert(MipmapDpi::Xxhdpi.to_string(), width * 12 / 16);
-    buf.insert(MipmapDpi::Xhdpi.to_string(), width * 8 / 16);
-    buf.insert(MipmapDpi::Hdpi.to_string(), width * 6 / 16);
-    buf.insert(MipmapDpi::Mdpi.to_string(), width * 4 / 16);
-    buf.insert(MipmapDpi::Ldpi.to_string(), width * 3 / 16);
+    buf.insert(MipmapDpi::Xxxhdpi.to_string(), 192);
+    buf.insert(MipmapDpi::Xxhdpi.to_string(), 144);
+    buf.insert(MipmapDpi::Xhdpi.to_string(), 96);
+    buf.insert(MipmapDpi::Hdpi.to_string(), 72);
+    buf.insert(MipmapDpi::Mdpi.to_string(), 48);
+    buf.insert(MipmapDpi::Ldpi.to_string(), 36);
     buf
 }
 
@@ -136,7 +136,7 @@ mod tests {
             force,
             image_format: Some(image_format),
         };
-        image_generation.gen_icons().unwrap();
+        image_generation.gen_mipmap_res_from_icon().unwrap();
         assert!(res_dir_path
             .join("assets")
             .join("res")

@@ -21,6 +21,7 @@ permissions = ["camera", "microphone", "photos", "storage-read"]
 app_wrapper = "sokol"
 release_build_targets = ["aarch64-linux-android"]
 res = "../../assets/res/android"
+icon_path = "../../assets/images/icon.png"
 # plugins_remote = ["com.crossbow.admob:admob:0.1.8"]
 
 [[package.metadata.android.plugins_local_projects]]

@@ -16,16 +16,10 @@ app_name = "Macroquad 3D"
 assets = "../../assets"
 
 [package.metadata.android]
-# manifest_path = "res/AndroidManifest.xml"
+manifest_path = "res/AndroidManifest.xml"
 release_build_targets = ["aarch64-linux-android"]
 res = "../../assets/res/android"
-
-[package.metadata.android.icon]
 icon_path = "../../assets/images/icon.png"
-
-[package.metadata.android.manifest.application]
-icon = "@mipmap/ic_launcher"
-round_icon = "@mipmap/ic_launcher"
 
 [package.metadata.apple]
 release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
