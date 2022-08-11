@@ -8,13 +8,18 @@ use crate::error::*;
 
 #[derive(Debug, Default, Clone)]
 pub struct ImageGeneration {
+    /// The path to the source icon will be provided to generate mipmap resources
     pub icon_path: PathBuf,
-    pub res_dir_path: Option<PathBuf>,
+    /// Output path for generated mipmap resources. By default it is located in crossbow root dir
+    pub output_path: Option<PathBuf>,
+    /// Overwrite android resource directory
     pub force: bool,
+    /// By default uses .png format
     pub image_format: Option<ImageFormat>,
 }
 
 impl ImageGeneration {
+    /// Creates an empty ImageGeneration instance
     pub fn new(icon_path: PathBuf) -> Self {
         Self {
             icon_path,
@@ -22,6 +27,7 @@ impl ImageGeneration {
         }
     }
 
+    /// Generate mipmap resources from the icon. Width and height of the icon must be equal
     pub fn gen_mipmap_res_from_icon(&self) -> Result<()> {
         let image = image::open(&self.icon_path)?;
         let (width, height) = image.dimensions();
@@ -31,7 +37,7 @@ impl ImageGeneration {
         let res = Path::new("assets").join("res");
         for (name, size) in scale_down() {
             let scaled = image.thumbnail(size, size);
-            if let Some(ref res_dir) = self.res_dir_path {
+            if let Some(ref res_dir) = self.output_path {
                 let res_dir = res_dir.join(&res);
                 write_image(&res_dir, name, size, scaled, self.force, self.image_format)?;
             } else {
@@ -49,6 +55,7 @@ impl ImageGeneration {
     }
 }
 
+/// Check res directory and then create mipmap resource if it empty
 fn write_image(
     res_dir: &Path,
     name: String,
@@ -79,6 +86,7 @@ fn write_image(
     Ok(())
 }
 
+/// Scale image down according to scale ratio
 fn scale_down() -> HashMap<String, u32> {
     let mut buf = HashMap::new();
     buf.insert(MipmapDpi::Xxxhdpi.to_string(), 192);
@@ -132,7 +140,7 @@ mod tests {
         let image_format = ImageFormat::Png;
         let image_generation = ImageGeneration {
             icon_path,
-            res_dir_path: Some(res_dir_path.clone()),
+            output_path: Some(res_dir_path.clone()),
             force,
             image_format: Some(image_format),
         };
