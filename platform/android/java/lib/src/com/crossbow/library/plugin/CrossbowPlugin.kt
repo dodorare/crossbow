@@ -165,9 +165,8 @@ abstract class CrossbowPlugin(
     /**
      * Returns the name of the plugin.
      *
-     *
      * This value must match the one listed in the plugin '<meta-data>' manifest entry.
-    </meta-data> */
+     */
     abstract val pluginName: String
 
     /**

@@ -1,0 +1,8 @@
+// Configure the root project.
+rootProject.name = "play_games_services"
+
+if (System.getenv("TOKEN") == null) {
+    include ":crossbow"
+    project(":crossbow").projectDir = new File("../../../platform/android/java/")
+    include ":crossbow:lib"
+}
