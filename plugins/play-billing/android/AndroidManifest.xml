@@ -1,0 +1,7 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.crossbow.play_billing">
+    <application>
+        <meta-data
+            android:name="com.crossbow.plugin.v1.CrossbowPlayBilling"
+            android:value="com.crossbow.play_billing.CrossbowPlayBilling"/>
+    </application>
+</manifest>

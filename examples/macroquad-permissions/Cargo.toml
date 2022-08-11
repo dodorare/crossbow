@@ -1,17 +1,17 @@
 [package]
 name = "macroquad-permissions"
-version = "0.1.9"
+version = "0.2.0"
 authors = ["DodoRare Team <support@dodorare.com>"]
 edition = "2021"
 
 [dependencies]
-crossbow = { version = "0.1.9", path = "../../" }
+crossbow = { version = "0.2.0", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
 macroquad = "0.3.7"
 
 [target.'cfg(target_os = "android")'.dependencies]
-admob-android = { version = "0.1.9", path = "../../plugins/admob-android" }
+admob-android = { version = "0.2.0", path = "../../plugins/admob-android" }
 
 [package.metadata]
 app_name = "Permissions"
@@ -21,7 +21,7 @@ permissions = ["camera", "microphone", "photos", "storage-read"]
 app_wrapper = "sokol"
 release_build_targets = ["aarch64-linux-android"]
 res = "../../assets/res/android"
-# plugins_remote = ["com.crossbow.admob:admob:0.1.9"]
+# plugins_remote = ["com.crossbow.admob:admob:0.2.0"]
 
 [[package.metadata.android.plugins_local_projects]]
 include = ":crossbow"
@@ -34,7 +34,7 @@ include = ":admob"
 project_dir = "../../plugins/admob-android/android"
 
 [package.metadata.android.manifest]
-package = "com.crossbow.permissions"
+package = "com.crossbow.example.permissions"
 [package.metadata.android.manifest.uses_sdk]
 min_sdk_version = 19
 target_sdk_version = 30
@@ -51,6 +51,6 @@ release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
 res = "../../assets/res/apple"
 
 [package.metadata.apple.info_plist]
-CFBundleIdentifier = "com.crossbow.permissions"
+CFBundleIdentifier = "com.crossbow.example.permissions"
 CFBundleVersion = "1.0"
 CFBundleShortVersionString = "1.0"

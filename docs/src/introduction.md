@@ -1,6 +1,6 @@
 # Introduction
 
-![splash](https://github.com/dodorare/crossbow/blob/main/assets/splash.png?raw=true)
+![splash](https://github.com/dodorare/crossbow/blob/main/assets/crossbow/splash.png?raw=true)
 
 ## What is Crossbow?
 

@@ -1,20 +1,11 @@
 use crate::error::*;
-use rust_embed::RustEmbed;
+use crossbow_android::embed::CrossbowAndroidAppTemplate;
 use serde::{Deserialize, Serialize};
 use std::{
     fs::File,
     io::Write,
     path::{Path, PathBuf},
 };
-
-#[derive(RustEmbed)]
-#[folder = "../../platform/android/java/app"]
-#[include = "src/*"]
-#[include = "*.xml"]
-#[include = "*.gradle"]
-#[exclude = "build/"]
-#[exclude = "libs/"]
-pub struct CrossbowAppTemplate;
 
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct AndroidGradlePlugins {
@@ -48,13 +39,13 @@ pub fn gen_gradle_project(
 ) -> Result<PathBuf> {
     let gradle_project_path = android_build_dir.join("gradle");
 
-    for file_name in CrossbowAppTemplate::iter() {
+    for file_name in CrossbowAndroidAppTemplate::iter() {
         let file_path = gradle_project_path.join(file_name.as_ref());
         if let Some(path) = file_path.parent() {
             std::fs::create_dir_all(path)?;
         }
         let mut build_gradle = File::create(file_path)?;
-        let file = CrossbowAppTemplate::get(file_name.as_ref()).unwrap();
+        let file = CrossbowAndroidAppTemplate::get(file_name.as_ref()).unwrap();
         write!(
             build_gradle,
             "{}",
@@ -160,15 +151,16 @@ mod tests {
 
     #[test]
     fn test_crossbow_app_template() {
-        for file in CrossbowAppTemplate::iter() {
+        for file in CrossbowAndroidAppTemplate::iter() {
             println!("{}", file.as_ref());
         }
         assert!(
-            CrossbowAppTemplate::get("src/com/crossbow/game/CrossbowApp.kt").is_some(),
+            CrossbowAndroidAppTemplate::get("src/com/crossbow/game/CrossbowApp.kt").is_some(),
             "CrossbowApp.kt should exist"
         );
         assert!(
-            CrossbowAppTemplate::get("libs/debug/arm64-v8a/libcrossbow_android.so").is_none(),
+            CrossbowAndroidAppTemplate::get("libs/debug/arm64-v8a/libcrossbow_android.so")
+                .is_none(),
             "libcrossbow_android.so shouldn't exist"
         );
     }
