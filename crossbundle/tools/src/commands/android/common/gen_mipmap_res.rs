@@ -10,7 +10,8 @@ use crate::error::*;
 pub struct ImageGeneration {
     /// The path to the source icon will be provided to generate mipmap resources
     pub icon_path: PathBuf,
-    /// Output path for generated mipmap resources. By default it is located in crossbow root dir
+    /// Output path for generated mipmap resources. By default it is located in crossbow
+    /// root dir
     pub output_path: Option<PathBuf>,
     /// Overwrite android resource directory
     pub force: bool,
@@ -27,7 +28,8 @@ impl ImageGeneration {
         }
     }
 
-    /// Generate mipmap resources from the icon. Width and height of the icon must be equal
+    /// Generate mipmap resources from the icon. Width and height of the icon must be
+    /// equal
     pub fn gen_mipmap_res_from_icon(&self) -> Result<()> {
         let image = image::open(&self.icon_path)?;
         let (width, height) = image.dimensions();
