@@ -16,6 +16,10 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum AndroidError {
     /// Android NDK is not found
     AndroidNdkNotFound,
+    /// Failed to read source.properties
+    FailedToReadSourceProperties,
+    /// Invalid source.properties: {0}
+    InvalidSourceProperties(String),
     /// Gradle Dependency project dir not found: {0}
     GradleDependencyProjectNotFound(PathBuf),
     /// Gradle Dependency project doesn't contain build.gradle: {0}

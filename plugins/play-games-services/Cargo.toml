@@ -1,6 +1,6 @@
 [package]
 name = "play-games-services"
-version = "0.1.9"
+version = "0.2.0"
 edition = "2021"
 authors = ["DodoRare Team <support@dodorare.com>"]
 description = "Google Play Games Services Plugin for Crossbow"
@@ -8,6 +8,7 @@ repository = "https://github.com/dodorare/crossbow"
 license = "MIT OR Apache-2.0"
 keywords = ["crossbow", "google", "admob", "android", "ads"]
 readme = "README.md"
+exclude = ["android/"]
 
 [dependencies]
-crossbow-android = { path = "../../platform/android", version = "0.1.9" }
+crossbow-android = { path = "../../platform/android", version = "0.2.0" }

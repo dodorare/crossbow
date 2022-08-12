@@ -1,6 +1,6 @@
 # Crossbundle CLI
 
-![splash](https://github.com/dodorare/crossbow/blob/main/assets/splash.png?raw=true)
+![splash](https://github.com/dodorare/crossbow/blob/main/assets/crossbow/splash.png?raw=true)
 
 [![Crate Info](https://img.shields.io/crates/v/crossbundle.svg)](https://crates.io/crates/crossbundle)
 [![Documentation](https://img.shields.io/badge/docs.rs-crossbundle-green)](https://docs.rs/crossbundle/)

@@ -50,7 +50,7 @@ import java.util.Collections
 import java.util.Locale
 import java.util.Objects
 
-class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
+class CrossbowAdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
     private var aIsInitialized = false
     private var aActivity: Activity? = null
     private var aConsentInformation: ConsentInformation? = null
@@ -117,27 +117,27 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
         }
 
     @ExposedToCrossbow
-    fun get_is_initialized(): Boolean {
+    fun getIsInitialized(): Boolean {
         return aIsInitialized
     }
 
     @ExposedToCrossbow
-    fun get_is_banner_loaded(): Boolean {
+    fun getIsBannerLoaded(): Boolean {
         return aIsBannerLoaded
     }
 
     @ExposedToCrossbow
-    fun get_is_interstitial_loaded(): Boolean {
+    fun getIsInterstitialLoaded(): Boolean {
         return aIsInterstitialLoaded
     }
 
     @ExposedToCrossbow
-    fun get_is_rewarded_loaded(): Boolean {
+    fun getIsRewardedLoaded(): Boolean {
         return aIsRewardedLoaded
     }
 
     @ExposedToCrossbow
-    fun get_is_rewarded_interstitial_loaded(): Boolean {
+    fun getIsRewardedInterstitialLoaded(): Boolean {
         return aIsRewardedInterstitialLoaded
     }
 
@@ -174,7 +174,7 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
     }
 
     @ExposedToCrossbow
-    fun request_user_consent() {
+    fun requestUserConsent() {
         aConsentInformation = UserMessagingPlatform.getConsentInformation(aActivity!!)
         val paramsBuilder: ConsentRequestParameters.Builder =
             ConsentRequestParameters.Builder().setTagForUnderAgeOfConsent(aIsForChildDirectedTreatment)
@@ -209,13 +209,13 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
 
     // https://developers.google.com/admob/ump/android/quick-start#reset_consent_state
     @ExposedToCrossbow
-    fun reset_consent_state() {
+    fun resetConsentState() {
         aConsentInformation!!.reset()
     }
 
     // BANNER only one is allowed, please do not try to place more than one, as your ads on the app may have the chance to be banned!
     @ExposedToCrossbow
-    fun load_banner(
+    fun loadBanner(
         pAdUnitId: String?,
         pPosition: Int,
         pSize: String?,
@@ -224,7 +224,7 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
     ) {
         aActivity!!.runOnUiThread(Runnable {
             if (aIsInitialized) {
-                if (aAdView != null) destroy_banner()
+                if (aAdView != null) destroyBanner()
                 aAdView = AdView(aActivity!!)
                 aAdView!!.setAdUnitId(pAdUnitId!!)
                 when (pSize) {
@@ -242,9 +242,9 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
                         // Code to be executed when an ad finishes loading.
                         emitSignal("banner_loaded")
                         if (pShowInstantly) {
-                            show_banner()
+                            showBanner()
                         } else {
-                            hide_banner()
+                            hideBanner()
                         }
                         aIsBannerLoaded = true
                     }
@@ -297,7 +297,7 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
 
     // IF THIS METHOD IS CALLED, THE BANNER WILL ONLY APPEAR AGAIN IF THE BANNER IS LOADED AGAIN
     @ExposedToCrossbow
-    fun destroy_banner()
+    fun destroyBanner()
     {
         aActivity!!.runOnUiThread(Runnable {
             if (aIsInitialized && aAdView != null) {
@@ -311,7 +311,7 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
     }
 
     @ExposedToCrossbow
-    fun show_banner() {
+    fun showBanner() {
         aActivity!!.runOnUiThread(Runnable {
             if (aIsInitialized && aAdView != null) {
                 if (aAdView!!.getVisibility() == View.VISIBLE) {
@@ -323,7 +323,7 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
     }
 
     @ExposedToCrossbow
-    fun hide_banner() {
+    fun hideBanner() {
         aActivity!!.runOnUiThread(Runnable {
             if (aIsInitialized && aAdView != null) {
                 if (aAdView!!.getVisibility() == View.GONE) {
@@ -335,36 +335,35 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
     }
 
     @ExposedToCrossbow
-    fun get_banner_width(): Int {
+    fun getBannerWidth(): Int {
         return if (aIsInitialized && aAdSize != null) {
             aAdSize!!.getWidth()
         } else 0
     }
 
     @ExposedToCrossbow
-    fun get_banner_height(): Int {
+    fun getBannerHeight(): Int {
         return if (aIsInitialized && aAdSize != null) {
             aAdSize!!.getHeight()
         } else 0
     }
 
     @ExposedToCrossbow
-    fun get_banner_width_in_pixels(): Int {
+    fun getBannerWidthInPixels(): Int {
         return if (aIsInitialized && aAdSize != null) {
             aAdSize!!.getWidthInPixels(aActivity!!)
         } else 0
     }
 
     @ExposedToCrossbow
-    fun get_banner_height_in_pixels(): Int {
+    fun getBannerHeightInPixels(): Int {
         return if (aIsInitialized && aAdSize != null) {
             aAdSize!!.getHeightInPixels(aActivity!!)
         } else 0
     }
 
-    // INTERSTITIAL
     @ExposedToCrossbow
-    fun load_interstitial(pAdUnitId: String?) {
+    fun loadInterstitial(pAdUnitId: String?) {
         aActivity!!.runOnUiThread(Runnable {
             if (aIsInitialized) {
                 InterstitialAd.load(
@@ -411,7 +410,7 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
     }
 
     @ExposedToCrossbow
-    fun show_interstitial() {
+    fun showInterstitial() {
         aActivity!!.runOnUiThread(Runnable {
             if (aIsInitialized) {
                 if (aInterstitialAd != null) {
@@ -421,9 +420,8 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
         })
     }
 
-    // REWARDED INTERSTITIAL
     @ExposedToCrossbow
-    fun load_rewarded(pAdUnitId: String?) {
+    fun loadRewarded(pAdUnitId: String?) {
         aActivity!!.runOnUiThread(Runnable {
             if (aIsInitialized) {
                 RewardedAd.load(aActivity!!, pAdUnitId!!, adRequest, object : RewardedAdLoadCallback() {
@@ -444,7 +442,7 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
     }
 
     @ExposedToCrossbow
-    fun show_rewarded() {
+    fun showRewarded() {
         aActivity!!.runOnUiThread(Runnable {
             if (aIsInitialized) {
                 if (aRewardedAd != null) {
@@ -481,7 +479,7 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
     }
 
     @ExposedToCrossbow
-    fun load_rewarded_interstitial(pAdUnitId: String?) {
+    fun loadRewardedInterstitial(pAdUnitId: String?) {
         aActivity!!.runOnUiThread(Runnable {
             if (aIsInitialized) {
                 RewardedInterstitialAd.load(
@@ -509,7 +507,7 @@ class AdMob(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
     }
 
     @ExposedToCrossbow
-    fun show_rewarded_interstitial() {
+    fun showRewardedInterstitial() {
         aActivity!!.runOnUiThread(Runnable {
             if (aIsInitialized) {
                 if (aRewardedInterstitialAd != null) {

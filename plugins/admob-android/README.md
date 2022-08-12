@@ -1,5 +1,10 @@
 # Crossbow Admob Plugin
 
+[![Crate Info](https://img.shields.io/crates/v/admob-android.svg)](https://crates.io/crates/admob-android)
+[![Documentation](https://img.shields.io/badge/docs.rs-admob_android-green)](https://docs.rs/admob-android/)
+[![MIT/Apache 2.0](https://img.shields.io/badge/license-MIT%2FApache-blue.svg)](https://github.com/dodorare/crossbow#license)
+[![GitHub Stars](https://img.shields.io/github/stars/dodorare/crossbow.svg?style=social)](https://github.com/dodorare/crossbow/stargazers)
+
 ## About
 
 This project is a Crossbow Plugin that allows showing AdMob ads from Rust. Without worrying about the building, just download and use.
@@ -22,16 +27,16 @@ Just add Rust dependencies like this:
 
 ```toml
 [dependencies]
-crossbow = "0.1.9"
+crossbow = "0.2.0"
 [target.'cfg(target_os = "android")'.dependencies]
-admob-android = "0.1.9"
+admob-android = "0.2.0"
 ```
 
 And finally, add this to your Crossbow Android configuration:
 
 ```toml
 [package.metadata.android]
-plugins_remote = ["com.crossbow.admob:admob:0.1.9"]
+plugins_remote = ["com.crossbow.admob:admob:0.2.0"]
 ```
 
 > That's it, now you can start using AdMob ads!

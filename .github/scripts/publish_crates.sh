@@ -3,18 +3,20 @@
 
 # Legends say that the order of the crates should be kept.
 crates=(
-    platform/android
-    platform/ios
-    plugins/admob-android
-    plugins/play-games-services
-    crossbundle/tools
-    crossbundle/cli
+    ./platform/android
+    ./platform/ios
+    ./
+    ./crossbundle/tools
+    ./crossbundle/cli
+    ./plugins/admob-android
+    ./plugins/play-games-services
+    ./plugins/play-billing
 )
 for crate in "${crates[@]}"
 do
     echo "Publishing ${crate}"
-    cargo publish --manifest-path=$crate/Cargo.toml
+    pushd $crate
+    cargo publish
     sleep 40
+    popd
 done
-sleep 40
-cargo publish
