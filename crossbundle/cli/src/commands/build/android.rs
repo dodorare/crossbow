@@ -558,7 +558,7 @@ impl AndroidBuildCommand {
         strategy: AndroidStrategy,
     ) -> Result<AndroidManifest> {
         if let Some(manifest_path) = &context.config.android.manifest_path {
-            return core::result::Result::Ok(read_android_manifest(manifest_path)?);
+            return Ok(read_android_manifest(manifest_path)?);
         }
         let mut manifest = if let Some(manifest) = &context.config.android.manifest {
             manifest.clone()
