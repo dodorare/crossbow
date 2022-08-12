@@ -1,10 +1,12 @@
-name: Docker images
+name: Publish Docker images
 on:
   push:
     branches: [main]
     paths:
     - '.github/docker/*.Dockerfile'
     - '.github/workflows/docker.yml'
+    - '**.rs'
+    - '**.toml'
 jobs:
   build-crossbundle-dockerfile:
     name: Build Crossbundle Dockerfile

@@ -1,7 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.crossbow.admob">
-    <uses-permission android:name="android.permission.INTERNET"/>
     <application>
-        <meta-data android:name="com.crossbow.plugin.v1.AdMob" android:value="com.crossbow.admob.AdMob" />
-        <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="ca-app-pub-3940256099942544~3347511713"/>
+        <meta-data
+            android:name="com.crossbow.plugin.v1.CrossbowAdMob"
+            android:value="com.crossbow.admob.CrossbowAdMob"/>
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3940256099942544~3347511713"/>
     </application>
 </manifest>

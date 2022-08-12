@@ -31,7 +31,7 @@ impl CrossbowPlugin for PlayGamesServicesPlugin {
 
 impl PlayGamesServicesPlugin {
     pub fn init(&self, enable_popups: bool) -> Result<()> {
-        let jnienv = self.vm.attach_current_thread_as_daemon().unwrap();
+        let jnienv = self.vm.attach_current_thread_as_daemon()?;
         self.singleton
             .call_method(&jnienv, "init", &[enable_popups.into()])?;
         jnienv.exception_check()?;
@@ -42,7 +42,7 @@ impl PlayGamesServicesPlugin {
     where
         S: AsRef<str>,
     {
-        let jnienv = self.vm.attach_current_thread_as_daemon().unwrap();
+        let jnienv = self.vm.attach_current_thread_as_daemon()?;
         let save_game_name_str = jnienv.new_string(save_game_name)?;
         self.singleton.call_method(
             &jnienv,
@@ -54,27 +54,27 @@ impl PlayGamesServicesPlugin {
     }
 
     pub fn sign_in(&self) -> Result<()> {
-        let jnienv = self.vm.attach_current_thread_as_daemon().unwrap();
+        let jnienv = self.vm.attach_current_thread_as_daemon()?;
         self.singleton.call_method(&jnienv, "signIn", &[])?;
         jnienv.exception_check()?;
         Ok(())
     }
 
     pub fn sign_out(&self) -> Result<()> {
-        let jnienv = self.vm.attach_current_thread_as_daemon().unwrap();
+        let jnienv = self.vm.attach_current_thread_as_daemon()?;
         self.singleton.call_method(&jnienv, "signOut", &[])?;
         jnienv.exception_check()?;
         Ok(())
     }
 
     pub fn is_signed_in(&self) -> Result<bool> {
-        let jnienv = self.vm.attach_current_thread_as_daemon().unwrap();
+        let jnienv = self.vm.attach_current_thread_as_daemon()?;
         let val = self.singleton.call_method(&jnienv, "isSignedIn", &[])?;
         Ok(val.z()?)
     }
 
     pub fn show_achievements(&self) -> Result<()> {
-        let jnienv = self.vm.attach_current_thread_as_daemon().unwrap();
+        let jnienv = self.vm.attach_current_thread_as_daemon()?;
         self.singleton
             .call_method(&jnienv, "showAchievements", &[])?;
         Ok(())
@@ -84,7 +84,7 @@ impl PlayGamesServicesPlugin {
     where
         S: AsRef<str>,
     {
-        let jnienv = self.vm.attach_current_thread_as_daemon().unwrap();
+        let jnienv = self.vm.attach_current_thread_as_daemon()?;
         let achievement_name_str = jnienv.new_string(achievement_name)?;
         self.singleton
             .call_method(&jnienv, "unlockAchievement", &[achievement_name_str.into()])?;
@@ -96,7 +96,7 @@ impl PlayGamesServicesPlugin {
     where
         S: AsRef<str>,
     {
-        let jnienv = self.vm.attach_current_thread_as_daemon().unwrap();
+        let jnienv = self.vm.attach_current_thread_as_daemon()?;
         let achievement_name_str = jnienv.new_string(achievement_name)?;
         self.singleton
             .call_method(&jnienv, "revealAchievement", &[achievement_name_str.into()])?;
@@ -108,7 +108,7 @@ impl PlayGamesServicesPlugin {
     where
         S: AsRef<str>,
     {
-        let jnienv = self.vm.attach_current_thread_as_daemon().unwrap();
+        let jnienv = self.vm.attach_current_thread_as_daemon()?;
         let achievement_name_str = jnienv.new_string(achievement_name)?;
         self.singleton.call_method(
             &jnienv,
@@ -123,7 +123,7 @@ impl PlayGamesServicesPlugin {
     where
         S: AsRef<str>,
     {
-        let jnienv = self.vm.attach_current_thread_as_daemon().unwrap();
+        let jnienv = self.vm.attach_current_thread_as_daemon()?;
         let achievement_name_str = jnienv.new_string(achievement_name)?;
         self.singleton.call_method(
             &jnienv,
@@ -135,7 +135,7 @@ impl PlayGamesServicesPlugin {
     }
 
     pub fn load_achievement_info(&self, force_reload: bool) -> Result<()> {
-        let jnienv = self.vm.attach_current_thread_as_daemon().unwrap();
+        let jnienv = self.vm.attach_current_thread_as_daemon()?;
         self.singleton
             .call_method(&jnienv, "loadAchievementInfo", &[force_reload.into()])?;
         jnienv.exception_check()?;
@@ -146,7 +146,7 @@ impl PlayGamesServicesPlugin {
     where
         S: AsRef<str>,
     {
-        let jnienv = self.vm.attach_current_thread_as_daemon().unwrap();
+        let jnienv = self.vm.attach_current_thread_as_daemon()?;
         let leader_board_id_str = jnienv.new_string(leader_board_id)?;
         self.singleton
             .call_method(&jnienv, "showLeaderBoard", &[leader_board_id_str.into()])?;
@@ -155,7 +155,7 @@ impl PlayGamesServicesPlugin {
     }
 
     pub fn show_all_leader_boards(&self) -> Result<()> {
-        let jnienv = self.vm.attach_current_thread_as_daemon().unwrap();
+        let jnienv = self.vm.attach_current_thread_as_daemon()?;
         self.singleton
             .call_method(&jnienv, "showAllLeaderBoards", &[])?;
         jnienv.exception_check()?;
@@ -166,7 +166,7 @@ impl PlayGamesServicesPlugin {
     where
         S: AsRef<str>,
     {
-        let jnienv = self.vm.attach_current_thread_as_daemon().unwrap();
+        let jnienv = self.vm.attach_current_thread_as_daemon()?;
         let leader_board_id_str = jnienv.new_string(leader_board_id)?;
         self.singleton.call_method(
             &jnienv,
@@ -181,7 +181,7 @@ impl PlayGamesServicesPlugin {
     where
         S: AsRef<str>,
     {
-        let jnienv = self.vm.attach_current_thread_as_daemon().unwrap();
+        let jnienv = self.vm.attach_current_thread_as_daemon()?;
         let event_id_str = jnienv.new_string(event_id)?;
         self.singleton.call_method(
             &jnienv,
@@ -193,7 +193,7 @@ impl PlayGamesServicesPlugin {
     }
 
     pub fn load_events(&self) -> Result<()> {
-        let jnienv = self.vm.attach_current_thread_as_daemon().unwrap();
+        let jnienv = self.vm.attach_current_thread_as_daemon()?;
         self.singleton.call_method(&jnienv, "loadEvents", &[])?;
         jnienv.exception_check()?;
         Ok(())
@@ -203,7 +203,7 @@ impl PlayGamesServicesPlugin {
     where
         S: AsRef<str>,
     {
-        let jnienv = self.vm.attach_current_thread_as_daemon().unwrap();
+        let jnienv = self.vm.attach_current_thread_as_daemon()?;
         let empty_str = jnienv.new_string("")?;
         let string_array =
             jnienv.new_object_array(ids.len() as i32, "java/lang/String", empty_str)?;
@@ -218,7 +218,7 @@ impl PlayGamesServicesPlugin {
     }
 
     pub fn load_player_stats(&self, force_refresh: bool) -> Result<()> {
-        let jnienv = self.vm.attach_current_thread_as_daemon().unwrap();
+        let jnienv = self.vm.attach_current_thread_as_daemon()?;
         self.singleton
             .call_method(&jnienv, "loadPlayerStats", &[force_refresh.into()])?;
         jnienv.exception_check()?;
@@ -235,7 +235,7 @@ impl PlayGamesServicesPlugin {
     where
         S: AsRef<str>,
     {
-        let jnienv = self.vm.attach_current_thread_as_daemon().unwrap();
+        let jnienv = self.vm.attach_current_thread_as_daemon()?;
         let title_str = jnienv.new_string(title)?;
         self.singleton.call_method(
             &jnienv,
@@ -255,7 +255,7 @@ impl PlayGamesServicesPlugin {
     where
         S: AsRef<str>,
     {
-        let jnienv = self.vm.attach_current_thread_as_daemon().unwrap();
+        let jnienv = self.vm.attach_current_thread_as_daemon()?;
         let name_str = jnienv.new_string(name)?;
         let data_str = jnienv.new_string(data)?;
         let description_str = jnienv.new_string(description)?;
@@ -272,7 +272,7 @@ impl PlayGamesServicesPlugin {
     where
         S: AsRef<str>,
     {
-        let jnienv = self.vm.attach_current_thread_as_daemon().unwrap();
+        let jnienv = self.vm.attach_current_thread_as_daemon()?;
         let name_str = jnienv.new_string(name)?;
         self.singleton
             .call_method(&jnienv, "loadSnapshot", &[name_str.into()])?;
@@ -281,7 +281,7 @@ impl PlayGamesServicesPlugin {
     }
 
     pub fn load_player_info(&self) -> Result<()> {
-        let jnienv = self.vm.attach_current_thread_as_daemon().unwrap();
+        let jnienv = self.vm.attach_current_thread_as_daemon()?;
         self.singleton.call_method(&jnienv, "loadPlayerInfo", &[])?;
         jnienv.exception_check()?;
         Ok(())

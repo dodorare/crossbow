@@ -1,9 +1,9 @@
 # Crossbundle Tools
 
-![splash](https://github.com/dodorare/crossbow/blob/main/assets/splash.png?raw=true)
+![splash](https://github.com/dodorare/crossbow/blob/main/assets/crossbow/splash.png?raw=true)
 
 [![Crate Info](https://img.shields.io/crates/v/crossbundle-tools.svg)](https://crates.io/crates/crossbundle-tools)
-[![Documentation](https://img.shields.io/badge/docs.rs-crossbundle-tools-green)](https://docs.rs/crossbundle-tools/)
+[![Documentation](https://img.shields.io/badge/docs.rs-crossbundle_tools-green)](https://docs.rs/crossbundle-tools/)
 [![MIT/Apache 2.0](https://img.shields.io/badge/license-MIT%2FApache-blue.svg)](https://github.com/dodorare/crossbow#license)
 [![GitHub Stars](https://img.shields.io/github/stars/dodorare/crossbow.svg?style=social)](https://github.com/dodorare/crossbow/stargazers)
 

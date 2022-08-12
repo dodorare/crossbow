@@ -48,6 +48,7 @@ class CrossbowPluginRegistry private constructor(crossbow: Crossbow) {
 
     private fun loadPlugins(crossbow: Crossbow) {
         try {
+            @Suppress("DEPRECATION")
             val activity = crossbow.activity
             val appInfo = activity
                 .packageManager
@@ -72,8 +73,9 @@ class CrossbowPluginRegistry private constructor(crossbow: Crossbow) {
                     if (!TextUtils.isEmpty(pluginHandleClassFullName)) {
                         try {
                             // Attempt to create the plugin init class via reflection.
+                            @Suppress("UNCHECKED_CAST")
                             val pluginClass = Class
-                                .forName(pluginHandleClassFullName) as Class<CrossbowPlugin>
+                                .forName(pluginHandleClassFullName!!) as Class<CrossbowPlugin>
                             val pluginConstructor = pluginClass
                                 .getConstructor(Crossbow::class.java)
                             val pluginHandle = pluginConstructor.newInstance(crossbow)
