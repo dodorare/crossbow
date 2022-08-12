@@ -1,12 +1,14 @@
 use image::{DynamicImage, GenericImageView, ImageFormat};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::env::current_dir;
 use std::fs::File;
 use std::path::{Path, PathBuf};
 
 use crate::error::*;
+use crate::types::Config;
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, Deserialize, Serialize)]
 pub struct ImageGeneration {
     /// The path to the source icon will be provided to generate mipmap resources
     pub icon_path: PathBuf,
@@ -15,8 +17,6 @@ pub struct ImageGeneration {
     pub output_path: Option<PathBuf>,
     /// Overwrite android resource directory
     pub force: bool,
-    /// By default uses .png format
-    pub image_format: Option<ImageFormat>,
 }
 
 impl ImageGeneration {
@@ -30,7 +30,7 @@ impl ImageGeneration {
 
     /// Generate mipmap resources from the icon. Width and height of the icon must be
     /// equal
-    pub fn gen_mipmap_res_from_icon(&self) -> Result<()> {
+    pub fn gen_mipmap_res_from_icon(&self, config: &Config) -> Result<()> {
         let image = image::open(&self.icon_path)?;
         let (width, height) = image.dimensions();
         if width != height {
@@ -41,7 +41,7 @@ impl ImageGeneration {
             let scaled = image.thumbnail(size, size);
             if let Some(ref res_dir) = self.output_path {
                 let res_dir = res_dir.join(&res);
-                write_image(&res_dir, name, size, scaled, self.force, self.image_format)?;
+                write_image(&res_dir, name, size, scaled, self.force, config)?;
             } else {
                 let current_dir = current_dir()?
                     .parent()
@@ -50,7 +50,7 @@ impl ImageGeneration {
                     .unwrap()
                     .to_owned();
                 let res_dir = current_dir.join(&res);
-                write_image(&res_dir, name, size, scaled, self.force, self.image_format)?;
+                write_image(&res_dir, name, size, scaled, self.force, config)?;
             }
         }
         Ok(())
@@ -64,7 +64,7 @@ fn write_image(
     size: u32,
     scaled: DynamicImage,
     overwrite: bool,
-    image_format: Option<ImageFormat>,
+    config: &Config,
 ) -> Result<()> {
     let mipmap_dirs = &res_dir
         .join("android")
@@ -79,12 +79,11 @@ fn write_image(
         std::fs::create_dir_all(&mipmap_dirs)?;
     }
     let mut output = File::create(mipmap_dirs.join("ic_launcher.png"))?;
-    if let Some(format) = image_format {
-        scaled.write_to(&mut output, format)?;
-    } else {
-        scaled.write_to(&mut output, ImageFormat::Png)?;
-    }
-    println!("Generated for {} with {}x{} size", name, size, size);
+    scaled.write_to(&mut output, ImageFormat::Png)?;
+    config.status_message(
+        "Generating mipmap resource",
+        format!("{} with {}x{}", name, size, size,),
+    )?;
     Ok(())
 }
 
@@ -124,6 +123,8 @@ impl ToString for MipmapDpi {
 
 #[cfg(test)]
 mod tests {
+    use crate::types::Shell;
+
     use super::*;
     #[test]
     fn test_icon_gen() {
@@ -139,14 +140,14 @@ mod tests {
             .join("images")
             .join("icon.png");
         let force = false;
-        let image_format = ImageFormat::Png;
         let image_generation = ImageGeneration {
             icon_path,
             output_path: Some(res_dir_path.clone()),
             force,
-            image_format: Some(image_format),
         };
-        image_generation.gen_mipmap_res_from_icon().unwrap();
+        let shell = Shell::new();
+        let config = Config::new(shell, res_dir_path.clone());
+        image_generation.gen_mipmap_res_from_icon(&config).unwrap();
         assert!(res_dir_path
             .join("assets")
             .join("res")

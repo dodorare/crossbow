@@ -72,6 +72,12 @@ assets = "assets"
 debug_build_targets = ["aarch64-linux-android"]
 release_build_targets = ["aarch64-linux-android"]
 
+# Android mipmap resources generation. Use `force` flag to overwrite assets/res/android directory
+[package.metadata.android.mipmap_res]
+icon_path = "../../assets/images/icon.png"
+force = true 
+output_path = "../../assets"
+
 # Complete support of ALL AndroidManifest.xml attributes
 [package.metadata.android.manifest]
 package = "com.example.ExampleProject"
@@ -185,6 +191,9 @@ OPTIONS:
         `<dep-name>/<feature-name>` syntax. This flag may be specified multiple times, which
         enables all specified features
 
+    -g, --gen-mipmap <GEN_MIPMAP>
+            Generate mipmap resources from icon
+            
     -h, --help
         Print help information
 

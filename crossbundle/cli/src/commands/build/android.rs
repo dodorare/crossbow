@@ -1,5 +1,5 @@
 use super::{BuildContext, SharedBuildCommand};
-use crate::error::Result;
+use crate::error::*;
 use android_manifest::AndroidManifest;
 use android_tools::java_tools::{JarSigner, Key};
 use clap::Parser;
@@ -108,7 +108,7 @@ impl AndroidBuildCommand {
         )?;
 
         config.status_message("Reading", "AndroidManifest.xml")?;
-        self.get_mipmap_resources(&context)?;
+        self.get_mipmap_resources(context, config)?;
         let manifest = Self::get_android_manifest(context, AndroidStrategy::GradleApk)?;
         config.status_message("Generating", "AndroidManifest.xml")?;
         save_android_manifest(&gradle_project_path, &manifest)?;
@@ -197,7 +197,7 @@ impl AndroidBuildCommand {
         }
 
         config.status_message("Reading", "AndroidManifest.xml")?;
-        self.get_mipmap_resources(&context)?;
+        self.get_mipmap_resources(context, config)?;
         let manifest = Self::get_android_manifest(context, AndroidStrategy::NativeApk)?;
         config.status_message("Generating", "AndroidManifest.xml")?;
         let manifest_path = save_android_manifest(&native_build_dir, &manifest)?;
@@ -281,7 +281,7 @@ impl AndroidBuildCommand {
         }
 
         config.status_message("Reading", "AndroidManifest.xml")?;
-        self.get_mipmap_resources(&context)?;
+        self.get_mipmap_resources(context, config)?;
         let manifest = Self::get_android_manifest(context, AndroidStrategy::NativeAab)?;
         config.status_message("Generating", "AndroidManifest.xml")?;
         let manifest_path = save_android_manifest(&native_build_dir, &manifest)?;
@@ -512,21 +512,27 @@ impl AndroidBuildCommand {
     }
 
     /// Generate mipmap resources from the specified icon
-    pub fn get_mipmap_resources(&self, context: &BuildContext) -> Result<()> {
+    pub fn get_mipmap_resources(&self, context: &BuildContext, config: &Config) -> Result<()> {
         if let Some(icon) = &self.gen_mipmap {
+            ImageGeneration::new(icon.to_owned()).gen_mipmap_res_from_icon(config)?;
+        } else if context.config.android.mipmap_res.is_some() {
             ImageGeneration::new(
                 context
                     .config
                     .android
-                    .icon_path
+                    .mipmap_res
                     .as_ref()
-                    .unwrap_or(icon)
+                    .and_then(|mipmap_res| Some(mipmap_res.icon_path.clone()))
+                    .unwrap_or_default()
                     .to_owned(),
             )
-            .gen_mipmap_res_from_icon()?;
-        }
+            .gen_mipmap_res_from_icon(config)?;
+        } else {
+            return Ok(());
+        };
         Ok(())
     }
+
     /// Get android build targets from cargo manifest
     pub fn android_build_targets(
         context: &BuildContext,
@@ -552,7 +558,7 @@ impl AndroidBuildCommand {
         strategy: AndroidStrategy,
     ) -> Result<AndroidManifest> {
         if let Some(manifest_path) = &context.config.android.manifest_path {
-            return Ok(read_android_manifest(manifest_path)?);
+            return core::result::Result::Ok(read_android_manifest(manifest_path)?);
         }
         let mut manifest = if let Some(manifest) = &context.config.android.manifest {
             manifest.clone()
