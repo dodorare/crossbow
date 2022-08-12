@@ -39,7 +39,7 @@ impl ImageGeneration {
         for (name, size) in scale_down() {
             let scaled = image.thumbnail(size, size);
             if let Some(ref res_dir) = self.output_path {
-                write_image(&res_dir, name, size, scaled, self.force, config)?;
+                write_image(res_dir, name, size, scaled, self.force, config)?;
             } else {
                 let current_dir = current_dir()?
                     .parent()
@@ -63,12 +63,10 @@ fn write_image(
     overwrite: bool,
     config: &Config,
 ) -> Result<()> {
-    let mipmap_dirs = &res_dir
+    let mipmap_dirs = res_dir
         .join("assets")
         .join("res")
         .join("android")
-        // TODO: How to storage generated res?
-        .join("generated_res")
         .join(format!("mipmap-{}", name));
     if mipmap_dirs.exists() {
         if overwrite {

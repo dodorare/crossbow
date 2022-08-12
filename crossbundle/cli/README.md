@@ -76,7 +76,7 @@ release_build_targets = ["aarch64-linux-android"]
 [package.metadata.android.mipmap_res]
 icon_path = "../../assets/images/icon.png"
 force = true 
-output_path = "../../assets"
+output_path = "<path/to/storage>"
 
 # Complete support of ALL AndroidManifest.xml attributes
 [package.metadata.android.manifest]
