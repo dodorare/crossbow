@@ -522,9 +522,8 @@ impl AndroidBuildCommand {
                     .android
                     .mipmap_res
                     .as_ref()
-                    .and_then(|mipmap_res| Some(mipmap_res.icon_path.clone()))
-                    .unwrap_or_default()
-                    .to_owned(),
+                    .map(|mipmap_res| mipmap_res.icon_path.clone())
+                    .unwrap_or_default(),
             )
             .gen_mipmap_res_from_icon(config)?;
         } else {
