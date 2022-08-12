@@ -36,11 +36,9 @@ impl ImageGeneration {
         if width != height {
             return Err(Error::WidthAndHeightDifSizes);
         }
-        let res = Path::new("assets").join("res");
         for (name, size) in scale_down() {
             let scaled = image.thumbnail(size, size);
             if let Some(ref res_dir) = self.output_path {
-                let res_dir = res_dir.join(&res);
                 write_image(&res_dir, name, size, scaled, self.force, config)?;
             } else {
                 let current_dir = current_dir()?
@@ -49,8 +47,7 @@ impl ImageGeneration {
                     .parent()
                     .unwrap()
                     .to_owned();
-                let res_dir = current_dir.join(&res);
-                write_image(&res_dir, name, size, scaled, self.force, config)?;
+                write_image(&current_dir, name, size, scaled, self.force, config)?;
             }
         }
         Ok(())
@@ -67,15 +64,19 @@ fn write_image(
     config: &Config,
 ) -> Result<()> {
     let mipmap_dirs = &res_dir
+        .join("assets")
+        .join("res")
         .join("android")
-        .join(format!("mipmap-{}", name))
-        .to_owned();
+        // TODO: How to storage generated res?
+        .join("generated_res")
+        .join(format!("mipmap-{}", name));
     if mipmap_dirs.exists() {
+        if overwrite {
+            std::fs::remove_dir(&mipmap_dirs)?;
+            std::fs::create_dir_all(&mipmap_dirs)?;
+        }
         return Ok(());
     } else if !mipmap_dirs.exists() {
-        std::fs::create_dir_all(&mipmap_dirs)?;
-    } else if overwrite {
-        std::fs::remove_dir(&res_dir.join("android"))?;
         std::fs::create_dir_all(&mipmap_dirs)?;
     }
     let mut output = File::create(mipmap_dirs.join("ic_launcher.png"))?;
