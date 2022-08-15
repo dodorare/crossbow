@@ -19,19 +19,40 @@ Take these steps to add Android-related environment variables:
 - Add `ANDROID_SDK_ROOT` variable with value `<path_to_sdk>\sdk`.<br/>(ex. `C:\Users\username\AppData\Local\android\sdk`)
 - Add `ANDROID_NDK_ROOT` variable with value `<path_to_sdk>\sdk\ndk\<version>`.<br/>(ex. `C:\Users\username\AppData\Local\Android\Sdk\ndk\23.1.7779620`)
 
+Or you can install via command line
+
+```sh
+SETX ANDROID_SDK_ROOT "path_to_sdk\sdk" /M
+SETX ANDROID_NDK_ROOT "path_to_sdk\sdk\ndk\version" /M
+```
+
 Crossbow default build process requires installed Gradle on your PC. You can download it [here](https://services.gradle.org/distributions/). Set to environment variable.
 
 - Add `GRADLE_HOME` variable with value `<path_to_gradle>`.
+
+```sh
+SETX GRADLE_HOME "path_to_gradle" /M
+```
 
 If you will build application with emulator you should add this to environment variables:
 
 - Add `<path_to_sdk>\sdk\tools\bin` to `PATH` variable.
 - Add `<path_to_sdk>\sdk\emulator` to `PATH` variable.
 
+```sh
+SETX "<path_to_sdk>\sdk\tools\bin" %PATH%
+``` 
+
 Also, we need to make sure we have a [java runtime environment](https://www.oracle.com/java/technologies/downloads/) (JRE) or [Java developer kit](https://www.oracle.com/java/technologies/downloads/) (JDK) installed. We need a key tool utility from there. <br/>
 To make sure it's present type this command: `keytool -h`
 
 - If command above fails, add `<path_to_jre>\bin` to `PATH` environment variable.<br/>(ex. `C:\Program Files\Android\Android Studio\jre\bin`) <br/>(ex. `C:\Program Files\java\jdk\bin`)
+
+Or you can install via command line
+
+```sh
+SETX JAVA_HOME "path_to_jdk" /M
+```
 
 
 You have to close and reopen any existing console windows for these changes to take effect.

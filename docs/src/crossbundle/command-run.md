@@ -11,12 +11,6 @@ crossbundle run android
 crossbundle run android --export-path=./gen/
 ```
 
-To find out available commands specify the -h flag.
-
-```sh
-crossbundle run android -h
-```
-
 By default run directory is `target/android/<project_name>/gradle`. But you can specify your own build directory via `--export-path=<OUT_PATH>` flag.
 
 To find out available commands specify the -h flag.
