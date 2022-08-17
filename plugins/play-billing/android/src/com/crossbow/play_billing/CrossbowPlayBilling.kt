@@ -29,7 +29,7 @@ import java.util.HashMap
 import java.util.Arrays
 import java.util.ArrayList
 
-class CrossbowPlayBilling(crossbow: Crossbow?) : CrossbowPlugin(crossbow!!),
+class CrossbowPlayBilling(crossbow: Crossbow) : CrossbowPlugin(crossbow),
     PurchasesUpdatedListener, BillingClientStateListener, PriceChangeConfirmationListener {
     private val billingClient: BillingClient
     private val skuDetailsCache = HashMap<String, SkuDetails>()
@@ -49,7 +49,7 @@ class CrossbowPlayBilling(crossbow: Crossbow?) : CrossbowPlugin(crossbow!!),
     }
 
     override val pluginName: String
-        get() = "CrossbowPlayBilling"
+        get() = javaClass.simpleName
 
     override val pluginSignals: Set<SignalInfo>
         get() {

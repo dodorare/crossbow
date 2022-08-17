@@ -1,12 +1,12 @@
 [package]
-name = "play-games-services"
+name = "play-core"
 version = "0.2.0"
 edition = "2021"
 authors = ["DodoRare Team <support@dodorare.com>"]
-description = "Google Play Games Services Plugin for Crossbow"
+description = "Google Play Core Plugin for Crossbow"
 repository = "https://github.com/dodorare/crossbow"
 license = "MIT OR Apache-2.0"
-keywords = ["crossbow", "google", "games", "services", "android"]
+keywords = ["crossbow", "google", "core", "android"]
 readme = "README.md"
 exclude = ["android/"]
 
