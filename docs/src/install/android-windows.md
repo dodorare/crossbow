@@ -40,15 +40,14 @@ If you will build application with emulator you should add this to environment v
 - Add `<path_to_sdk>\sdk\emulator` to `PATH` variable.
 
 ```sh
-SETX "<path_to_sdk>\sdk\tools\bin" %PATH%
+SETX "<path_to_sdk>\sdk\tools\bin" ~PATH~
+SETX "<path_to_sdk>\sdk\emulator" ~PATH~
 ``` 
 
 Also, we need to make sure we have a [java runtime environment](https://www.oracle.com/java/technologies/downloads/) (JRE) or [Java developer kit](https://www.oracle.com/java/technologies/downloads/) (JDK) installed. We need a key tool utility from there. <br/>
 To make sure it's present type this command: `keytool -h`
 
 - If command above fails, add `<path_to_jre>\bin` to `PATH` environment variable.<br/>(ex. `C:\Program Files\Android\Android Studio\jre\bin`) <br/>(ex. `C:\Program Files\java\jdk\bin`)
-
-Or you can install via command line
 
 ```sh
 SETX JAVA_HOME "path_to_jdk" /M
@@ -62,6 +61,10 @@ You have to close and reopen any existing console windows for these changes to t
 If you haven't already done so, download bundletool from the [`GitHub repository`](https://github.com/google/bundletool/releases).
 
 - Add `BUNDLETOOL_PATH` variable with value `<path_to_bundletool>`.
+
+```sh
+SETX BUNDLETOOL_PATH "path_to_bundletool" /M
+```
 
 ## Set up your Android device
 

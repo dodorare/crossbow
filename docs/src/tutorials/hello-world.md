@@ -32,7 +32,7 @@ authors = ["Example <example@example.com>"]
 edition = "2021"
 
 [dependencies]
-crossbundle = "*"
+crossbow = "*"
 
 [package.metadata.android]
 icon = "ic_launcher"
