@@ -5,7 +5,9 @@ vulnerability = "deny"
 unmaintained = "deny"
 yanked = "deny"
 notice = "deny"
-ignore = []
+# Only needed because of https://github.com/netvl/xml-rs.
+# TODO: Remove this when repository will be maintained again.
+ignore = ["RUSTSEC-2022-0048"]
 
 [licenses]
 unlicensed = "deny"
