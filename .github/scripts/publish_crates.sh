@@ -9,8 +9,9 @@ crates=(
     ./crossbundle/tools
     ./crossbundle/cli
     ./plugins/admob-android
-    ./plugins/play-games-services
     ./plugins/play-billing
+    ./plugins/play-core
+    ./plugins/play-games-services
 )
 for crate in "${crates[@]}"
 do

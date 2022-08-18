@@ -1,0 +1,77 @@
+buildscript {
+    apply from: "config.gradle"
+    repositories {
+        google()
+        mavenCentral()
+        mavenCrossbowGithub()
+    }
+    dependencies {
+        classpath libraries.androidGradlePlugin
+        classpath libraries.kotlinGradlePlugin
+    }
+}
+
+apply plugin: "com.android.library"
+apply plugin: "org.jetbrains.kotlin.android"
+apply from: "config.gradle"
+apply from: "publish.gradle"
+
+repositories {
+    google()
+    mavenCentral()
+    mavenCrossbowGithub()
+}
+
+dependencies {
+    implementation libraries.kotlinStdLib
+    implementation libraries.androidxAppcompat
+    implementation "com.google.android.play:app-update-ktx:2.0.0"
+
+    if (rootProject.findProject(":crossbow:lib")) {
+        implementation project(":crossbow:lib")
+    } else if(getCustomBuildMode()) {
+        // Custom build mode. In this scenario this project is the only one around and the Crossbow
+        // library is available through the pre-generated crossbow-lib.*.aar android archive files.
+        debugImplementation fileTree(dir: "../libs/debug", include: ["*.jar", "*.aar"])
+        releaseImplementation fileTree(dir: "../libs/release", include: ["*.jar", "*.aar"])
+    } else {
+        implementation libraries.crossbowLibrary
+    }
+}
+
+android {
+    compileSdkVersion versions.compileSdk
+    buildToolsVersion versions.buildTools
+
+    compileOptions {
+        sourceCompatibility versions.javaVersion
+        targetCompatibility versions.javaVersion
+    }
+
+    kotlinOptions {
+        jvmTarget = versions.javaVersion
+    }
+
+    defaultConfig {
+        versionCode 1
+        versionName "1.0"
+        minSdkVersion versions.minSdk
+        targetSdkVersion versions.targetSdk
+
+        missingDimensionStrategy "products", "template"
+    }
+
+    lintOptions {
+        abortOnError false
+        disable "MissingTranslation", "UnusedResources"
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile "AndroidManifest.xml"
+            java.srcDirs = ["src"]
+            assets.srcDirs = ["assets"]
+            res.srcDirs = ["res"]
+        }
+    }
+}
