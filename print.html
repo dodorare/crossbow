@@ -567,24 +567,20 @@ authors = [&quot;Example &lt;example@nice.com&gt;&quot;]
 edition = &quot;2021&quot;
 
 [dependencies]
-crossbow = &quot;0.1.0&quot;
+crossbow = &quot;0.2.0&quot;
+
+[package.metadata]
+app_name = &quot;Game&quot;
+assets = [&quot;assets&quot;]
+icon = &quot;path/to/icon.png&quot;
 
 [package.metadata.android]
-app_name = &quot;Game&quot;
-target_sdk_version = 30
-icon = &quot;ic_launcher&quot;
-
 release_build_targets = [&quot;aarch64-linux-android&quot;]
-assets = &quot;assets&quot;
-res = &quot;res/android&quot;
+resources = [&quot;res/android&quot;]
 
 [package.metadata.apple]
-app_name = &quot;Game&quot;
-icon = &quot;ic_launcher&quot;
-
 release_build_targets = [&quot;aarch64-apple-ios&quot;, &quot;x86_64-apple-ios&quot;]
-assets = &quot;assets&quot;
-res = &quot;res/apple&quot;
+resources = [&quot;res/apple&quot;]
 </code></pre>
 <h3 id="Сonfiguration-through-separate-files"><a class="header" href="#Сonfiguration-through-separate-files">Сonfiguration through separate files</a></h3>
 <p>But sometimes you need to configure something more complex. For such cases, a more suitable way is to use separate <code>AndroidManifest.xml</code> or/and <code>Info.plist</code> files.</p>
@@ -742,13 +738,9 @@ edition = &quot;2021&quot;
 [dependencies]
 crossbundle = &quot;*&quot;
 
-[package.metadata.android]
-icon = &quot;ic_launcher&quot;
-res = &quot;res/android&quot;
-
-[package.metadata.apple]
-icon = &quot;ic_launcher&quot;
-res = &quot;res/apple&quot;
+[package.metadata]
+app_name = &quot;My Project&quot;
+icon = &quot;path/to/icon.png&quot;
 </code></pre>
 <pre><pre class="playground"><code class="language-rust edition2021">// main.rs
 
