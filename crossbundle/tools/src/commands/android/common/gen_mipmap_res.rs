@@ -27,7 +27,7 @@ impl ImageGeneration {
         for (name, size) in get_icon_sizes() {
             let scaled = image.thumbnail(size, size);
             let img = Self::round_image(&scaled, size);
-            // TODO: Add shadow
+            // TODO: Add shadow. See this: https://github.com/romannurik/AndroidAssetStudio
             self.write_image(&name, img)?;
         }
         Ok(())

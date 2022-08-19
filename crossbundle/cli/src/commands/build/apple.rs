@@ -119,7 +119,7 @@ impl IosBuildCommand {
 
         config.status("Preparing resources and assets")?;
         let (assets, resources) =
-            Self::prepare_assets_and_resources(&context.config, &apple_target_dir)?;
+            Self::prepare_assets_and_resources(&context.config, apple_target_dir)?;
 
         let app_path = apple::gen_apple_app_folder(apple_target_dir, name, assets, resources)?;
         config.status("Copying binary to app folder")?;
