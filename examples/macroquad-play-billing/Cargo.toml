@@ -19,7 +19,7 @@ app_name = "Play Billing"
 [package.metadata.android]
 app_wrapper = "sokol"
 release_build_targets = ["aarch64-linux-android"]
-res = "../../assets/res/android"
+resources = ["../../assets/res/android"]
 
 [[package.metadata.android.plugins_local_projects]]
 include = ":crossbow"

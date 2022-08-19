@@ -28,6 +28,7 @@ which = "4.2"
 tempfile = "3.3"
 zip = "0.5"
 zip-extensions = "0.6.1"
+image = { version = "0.24.3", default-features = false, features = ["png", "jpeg"] }
 
 itertools = "0.10"
 cargo = "0.63.1"

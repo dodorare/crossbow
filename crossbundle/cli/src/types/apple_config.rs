@@ -12,11 +12,17 @@ pub struct AppleConfig {
     /// **Important:** If this field specified - `info_plist` property will be ignored.
     pub info_plist_path: Option<PathBuf>,
     /// Apple `resources` directory path relatively to project path.
-    pub res: Option<PathBuf>,
+    ///
+    /// If specified more than one - all resources will be placed into one directory.
+    #[serde(default)]
+    pub resources: Vec<PathBuf>,
     /// Custom Apple `assets` directory path relatively to project path.
     ///
+    /// If specified more than one - all assets will be placed into one directory.
+    ///
     /// **Important:** This property has higher priority than global property.
-    pub assets: Option<PathBuf>,
+    #[serde(default)]
+    pub assets: Vec<PathBuf>,
     /// Apple debug build targets.
     #[serde(default)]
     pub debug_build_targets: Vec<IosTarget>,
