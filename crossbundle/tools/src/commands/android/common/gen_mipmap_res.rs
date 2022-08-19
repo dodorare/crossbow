@@ -1,5 +1,5 @@
 use crate::error::*;
-use image::{DynamicImage, GenericImageView, ImageFormat};
+use image::{DynamicImage, GenericImageView, ImageFormat, Rgba};
 use serde::{Deserialize, Serialize};
 use std::{fs::File, path::PathBuf};
 
@@ -21,14 +21,30 @@ impl ImageGeneration {
     pub fn gen_mipmap_res_from_icon(&self) -> Result<()> {
         let image = image::open(&self.icon_path)?;
         let (width, height) = image.dimensions();
-        if width != height {
+        if width != height || height % 2 != 0 {
             return Err(Error::WidthAndHeightDifSizes);
         }
         for (name, size) in get_icon_sizes() {
             let scaled = image.thumbnail(size, size);
-            self.write_image(&name, scaled)?;
+            let img = Self::round_image(&scaled, size);
+            // TODO: Add shadow
+            self.write_image(&name, img)?;
         }
         Ok(())
+    }
+
+    fn round_image(scaled: &DynamicImage, size: u32) -> DynamicImage {
+        let border = size as f64 / 25.0;
+        let radius = size as f64 / 2.0;
+        let cxy = size as f64 / 2.0 - 1.0;
+        let mut img = scaled.to_rgba8();
+        for pix in img.clone().enumerate_pixels() {
+            let s = (pix.0 as f64 - cxy).hypot(pix.1 as f64 - cxy);
+            if s > radius - border {
+                img.put_pixel(pix.0, pix.1, Rgba([0, 0, 0, 0]));
+            }
+        }
+        img.into()
     }
 
     /// Check res directory and then create mipmap resource if it's empty
