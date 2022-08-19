@@ -23,9 +23,6 @@ pub struct AndroidConfig {
     ///
     /// **Important:** This property has higher priority than global property.
     pub assets: Option<PathBuf>,
-    /// Android mipmap resources generation.
-    #[serde(default)]
-    pub mipmap_res: Option<ImageGeneration>,
     /// Android debug build targets.
     #[serde(default)]
     pub debug_build_targets: Vec<AndroidTarget>,

@@ -51,11 +51,13 @@ See [installation documentation](https://crossbow.dodorare.com/install/index.htm
 ## Cargo.toml Metadata syntax
 
 ```toml
-[[package.metadata.android]]
+[[package.metadata]]
 # Cross-platform user-friendly application name for your app.
 app_name = "Example"
 # Cross-platform assets directory path relatively to project path.
 assets = "assets"
+# Cross-platform icon path to generate icons for Android and iOS.
+icon = "../../assets/images/icon.png"
 
 [[package.metadata.android]]
 # Android application wrapper: supports ndk-glue and sokol
@@ -71,12 +73,6 @@ assets = "assets"
 # Android targets to build on debug or release.
 debug_build_targets = ["aarch64-linux-android"]
 release_build_targets = ["aarch64-linux-android"]
-
-# Android mipmap resources generation. Use `force` flag to overwrite assets/res/android directory
-[package.metadata.android.mipmap_res]
-icon_path = "../../assets/images/icon.png"
-force = true 
-output_path = "<path/to/storage>"
 
 # Complete support of ALL AndroidManifest.xml attributes
 [package.metadata.android.manifest]
@@ -109,22 +105,12 @@ authorities = "org.khronos.openxr.runtime_broker;org.khronos.openxr.system_runti
 # This will be made optional if/when cargo-apk migrates to aapt2.
 name = "org.khronos.openxr"
 
-# See https://developer.android.com/guide/topics/manifest/uses-feature-element
-#
-# Note: there can be multiple .uses_feature entries.
-[[package.metadata.android.manifest.features]]
-name = "android.hardware.vulkan.level"
-required = true
-version = 1
-
 # See https://developer.android.com/guide/topics/manifest/meta-data-element
 [[package.metadata.android.manifest.application.meta_data]]
 name = "com.oculus.vr.focusaware"
 value = "true"
 
 [package.metadata.apple]
-# The user-friendly application name for your app. Displayed in the applications menu
-app_name = "Example"
 # Apple targets to build on debug or release.
 debug_build_targets = ["aarch64-apple-ios"]
 release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
@@ -191,9 +177,6 @@ OPTIONS:
         `<dep-name>/<feature-name>` syntax. This flag may be specified multiple times, which
         enables all specified features
 
-    -g, --gen-mipmap <GEN_MIPMAP>
-            Generate mipmap resources from icon
-            
     -h, --help
         Print help information
 

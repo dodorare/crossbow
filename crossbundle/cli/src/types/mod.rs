@@ -31,8 +31,10 @@ pub struct CrossbowMetadata {
     /// Info.plist properties.
     #[serde(default)]
     pub permissions: Vec<Permission>,
-    // TODO: Add `icon` field and icon generation.
-    // pub icon: Option<PathBuf>,
+    /// Cross-platform icon for Android and Apple.
+    ///
+    /// All necessary icons will be automatically generated for Android and iOS.
+    pub icon: Option<PathBuf>,
     #[cfg(feature = "android")]
     #[serde(default)]
     pub android: AndroidConfig,

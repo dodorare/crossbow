@@ -11,15 +11,14 @@ anyhow = "1.0"
 macroquad = "0.3.7"
 
 [package.metadata]
-app_wrapper = "sokol"
 app_name = "Macroquad 3D"
 assets = "../../assets"
+icon = "../../assets/images/icon.png"
 
 [package.metadata.android]
+app_wrapper = "sokol"
 manifest_path = "res/AndroidManifest.xml"
 release_build_targets = ["aarch64-linux-android"]
-res = "../../assets/res/android"
 
 [package.metadata.apple]
 release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
-res = "../../assets/res/apple"

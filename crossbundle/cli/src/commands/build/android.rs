@@ -35,9 +35,6 @@ pub struct AndroidBuildCommand {
     /// Signing key alias.
     #[clap(long)]
     pub sign_key_alias: Option<String>,
-    /// Generate mipmap resources from icon.
-    #[clap(long, short)]
-    pub gen_mipmap: Option<PathBuf>,
 }
 
 impl AndroidBuildCommand {
@@ -108,10 +105,11 @@ impl AndroidBuildCommand {
         )?;
 
         config.status_message("Reading", "AndroidManifest.xml")?;
-        self.get_mipmap_resources(context, config)?;
         let manifest = Self::get_android_manifest(context, AndroidStrategy::GradleApk)?;
         config.status_message("Generating", "AndroidManifest.xml")?;
         save_android_manifest(&gradle_project_path, &manifest)?;
+        config.status("Trying to generate mipmap icons from config")?;
+        self.gen_mipmap_icons(context, gradle_project_path.join("res"))?;
 
         let lib_name = "crossbow_android";
         self.build_rust_lib(config, context, lib_name, Some(android_build_dir))?;
@@ -197,10 +195,11 @@ impl AndroidBuildCommand {
         }
 
         config.status_message("Reading", "AndroidManifest.xml")?;
-        self.get_mipmap_resources(context, config)?;
         let manifest = Self::get_android_manifest(context, AndroidStrategy::NativeApk)?;
         config.status_message("Generating", "AndroidManifest.xml")?;
         let manifest_path = save_android_manifest(&native_build_dir, &manifest)?;
+        config.status("Trying to generate mipmap icons from config")?;
+        self.gen_mipmap_icons(context, native_build_dir.join("res"))?;
 
         config.status_message("Compiling", "lib")?;
         let target_sdk_version = Self::target_sdk_version(&manifest, &sdk);
@@ -281,10 +280,11 @@ impl AndroidBuildCommand {
         }
 
         config.status_message("Reading", "AndroidManifest.xml")?;
-        self.get_mipmap_resources(context, config)?;
         let manifest = Self::get_android_manifest(context, AndroidStrategy::NativeAab)?;
         config.status_message("Generating", "AndroidManifest.xml")?;
         let manifest_path = save_android_manifest(&native_build_dir, &manifest)?;
+        config.status("Trying to generate mipmap icons from config")?;
+        self.gen_mipmap_icons(context, native_build_dir.join("res"))?;
 
         config.status_message("Compiling", "lib")?;
         let target_sdk_version = Self::target_sdk_version(&manifest, &sdk);
@@ -512,23 +512,16 @@ impl AndroidBuildCommand {
     }
 
     /// Generate mipmap resources from the specified icon
-    pub fn get_mipmap_resources(&self, context: &BuildContext, config: &Config) -> Result<()> {
-        if let Some(icon) = &self.gen_mipmap {
-            ImageGeneration::new(icon.to_owned()).gen_mipmap_res_from_icon(config)?;
-        } else if context.config.android.mipmap_res.is_some() {
-            ImageGeneration::new(
-                context
-                    .config
-                    .android
-                    .mipmap_res
-                    .as_ref()
-                    .map(|mipmap_res| mipmap_res.icon_path.clone())
-                    .unwrap_or_default(),
-            )
-            .gen_mipmap_res_from_icon(config)?;
-        } else {
-            return Ok(());
-        };
+    pub fn gen_mipmap_icons(&self, context: &BuildContext, output_path: PathBuf) -> Result<()> {
+        if let Some(icon) = &context.config.icon {
+            ImageGeneration {
+                icon_path: icon.to_owned(),
+                out_icon_name: "ic_launcher.png".to_owned(),
+                output_path,
+                force: true,
+            }
+            .gen_mipmap_res_from_icon()?;
+        }
         Ok(())
     }
 
