@@ -34,13 +34,9 @@ edition = "2021"
 [dependencies]
 crossbundle = "*"
 
-[package.metadata.android]
-icon = "ic_launcher"
-res = "res/android"
-
-[package.metadata.apple]
-icon = "ic_launcher"
-res = "res/apple"
+[package.metadata]
+app_name = "My Project"
+icon = "path/to/icon.png"
 ```
 
 ```rust

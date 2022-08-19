@@ -55,7 +55,7 @@ See [installation documentation](https://crossbow.dodorare.com/install/index.htm
 # Cross-platform user-friendly application name for your app.
 app_name = "Example"
 # Cross-platform assets directory path relatively to project path.
-assets = "assets"
+assets = ["assets"]
 # Cross-platform icon path to generate icons for Android and iOS.
 icon = "../../assets/images/icon.png"
 
@@ -67,9 +67,9 @@ app_name = "Example"
 # Path to AndroidManifest.xml file
 manifest_path = "path/to/AndroidManifest.xml"
 # Android resources directory path relatively to project path.
-res = "res/android"
+resources = ["res/android"]
 # Android assets directory path relatively to project path.
-assets = "assets"
+assets = ["assets"]
 # Android targets to build on debug or release.
 debug_build_targets = ["aarch64-linux-android"]
 release_build_targets = ["aarch64-linux-android"]
@@ -115,7 +115,7 @@ value = "true"
 debug_build_targets = ["aarch64-apple-ios"]
 release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
 # Apple resources directory path relatively to project path.
-res = "res/apple"
+resources = ["res/apple"]
 ```
 
 ## CLI options and flags

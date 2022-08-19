@@ -1,8 +1,11 @@
 use super::{BuildContext, SharedBuildCommand};
-use crate::error::*;
+use crate::{error::*, types::CrossbowMetadata};
 use apple_bundle::prelude::InfoPlist;
 use clap::Parser;
-use crossbundle_tools::{commands::apple, types::*};
+use crossbundle_tools::{
+    commands::{apple, combine_folders},
+    types::*,
+};
 use std::path::{Path, PathBuf};
 
 #[derive(Parser, Clone, Debug)]
@@ -106,31 +109,24 @@ impl IosBuildCommand {
         )?;
         let out_dir = context.target_dir.join(rust_triple).join(&profile);
         let bin_path = out_dir.join(&name);
+
         config.status("Generating app folder")?;
         let apple_target_dir = &context
             .target_dir
             .join("apple")
             .join(rust_triple)
             .join(&profile);
-        let app_path = apple::gen_apple_app_folder(
-            apple_target_dir,
-            name,
-            context
-                .config
-                .get_apple_assets()
-                .as_ref()
-                .map(|r| project_path.join(r)),
-            context
-                .config
-                .apple
-                .res
-                .as_ref()
-                .map(|r| project_path.join(r)),
-        )?;
+
+        config.status("Preparing resources and assets")?;
+        let (assets, resources) =
+            Self::prepare_assets_and_resources(&context.config, &apple_target_dir)?;
+
+        let app_path = apple::gen_apple_app_folder(apple_target_dir, name, assets, resources)?;
         config.status("Copying binary to app folder")?;
         std::fs::copy(&bin_path, &app_path.join(&name)).unwrap();
         config.status_message("Generating", "Info.plist")?;
         apple::save_info_plist(&app_path, properties, false).unwrap();
+
         if self.identity.is_some() {
             config.status("Starting code signing process")?;
             apple::copy_profile(
@@ -154,6 +150,7 @@ impl IosBuildCommand {
             apple::codesign(&app_path, true, self.identity.clone(), Some(xcent_path))?;
             config.status("Code signing process finished")?;
         }
+
         config.status("Generating ipa file")?;
         apple::gen_apple_ipa(apple_target_dir, &app_path, name)?;
         config.status("Build finished successfully")?;
@@ -198,5 +195,34 @@ impl IosBuildCommand {
             permission.update_info_plist(&mut info_plist);
         });
         Ok(info_plist)
+    }
+
+    /// Prepare assets and resources for the application.
+    pub fn prepare_assets_and_resources(
+        config: &CrossbowMetadata,
+        out_dir: &Path,
+    ) -> Result<(Option<PathBuf>, Option<PathBuf>)> {
+        let res = config.get_apple_resources();
+        let gen_resources = if res.is_empty() && config.icon.is_none() {
+            None
+        } else {
+            let path = out_dir.join("gen_resources");
+            std::fs::remove_dir_all(&path).ok();
+            combine_folders(res, &path)?;
+
+            // TODO: Generate icons
+            Some(path)
+        };
+
+        let assets = config.get_apple_assets();
+        let gen_assets = if !res.is_empty() {
+            let path = out_dir.join("gen_assets");
+            std::fs::remove_dir_all(&path).ok();
+            combine_folders(assets, &path)?;
+            Some(path)
+        } else {
+            None
+        };
+        Ok((gen_assets, gen_resources))
     }
 }

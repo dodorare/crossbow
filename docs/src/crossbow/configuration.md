@@ -14,24 +14,20 @@ authors = ["Example <example@nice.com>"]
 edition = "2021"
 
 [dependencies]
-crossbow = "0.1.0"
+crossbow = "0.2.0"
+
+[package.metadata]
+app_name = "Game"
+assets = ["assets"]
+icon = "path/to/icon.png"
 
 [package.metadata.android]
-app_name = "Game"
-target_sdk_version = 30
-icon = "ic_launcher"
-
 release_build_targets = ["aarch64-linux-android"]
-assets = "assets"
-res = "res/android"
+resources = ["res/android"]
 
 [package.metadata.apple]
-app_name = "Game"
-icon = "ic_launcher"
-
 release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
-assets = "assets"
-res = "res/apple"
+resources = ["res/apple"]
 ```
 
 ### Сonfiguration through separate files

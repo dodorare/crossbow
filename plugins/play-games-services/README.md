@@ -51,7 +51,7 @@ Create you resources directory and import it by adding the following in your `Ca
 
 ```toml
 [package.metadata.android]
-res = "./res/android"
+resources = ["./res/android"]
 ```
 
 Then create file `./res/android/values/games-ids.xml` in your resources directory with the following content:

@@ -12,7 +12,7 @@ macroquad = "0.3.7"
 
 [package.metadata]
 app_name = "Macroquad 3D"
-assets = "../../assets"
+assets = ["../../assets"]
 icon = "../../assets/images/icon.png"
 
 [package.metadata.android]

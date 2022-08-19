@@ -1,9 +1,13 @@
 use super::{BuildContext, SharedBuildCommand};
-use crate::error::*;
+use crate::{error::*, types::CrossbowMetadata};
 use android_manifest::AndroidManifest;
 use android_tools::java_tools::{JarSigner, Key};
 use clap::Parser;
-use crossbundle_tools::{commands::android::*, error::CommandExt, types::*};
+use crossbundle_tools::{
+    commands::{android::*, combine_folders},
+    error::CommandExt,
+    types::*,
+};
 use std::path::{Path, PathBuf};
 
 /// Specifies flags and options needed to build application
@@ -96,11 +100,15 @@ impl AndroidBuildCommand {
             std::env::set_var("ANDROID_SDK_ROOT", sdk.sdk_path());
         }
 
+        config.status("Preparing resources and assets")?;
+        let (assets, resources) =
+            Self::prepare_assets_and_resources(&context.config, &android_build_dir)?;
+
         config.status("Generating gradle project")?;
         let gradle_project_path = gen_gradle_project(
             &android_build_dir,
-            &context.config.get_android_assets(),
-            &context.config.android.res,
+            &assets,
+            &resources,
             &context.config.android.plugins,
         )?;
 
@@ -108,8 +116,6 @@ impl AndroidBuildCommand {
         let manifest = Self::get_android_manifest(context, AndroidStrategy::GradleApk)?;
         config.status_message("Generating", "AndroidManifest.xml")?;
         save_android_manifest(&gradle_project_path, &manifest)?;
-        config.status("Trying to generate mipmap icons from config")?;
-        self.gen_mipmap_icons(context, gradle_project_path.join("res"))?;
 
         let lib_name = "crossbow_android";
         self.build_rust_lib(config, context, lib_name, Some(android_build_dir))?;
@@ -198,8 +204,9 @@ impl AndroidBuildCommand {
         let manifest = Self::get_android_manifest(context, AndroidStrategy::NativeApk)?;
         config.status_message("Generating", "AndroidManifest.xml")?;
         let manifest_path = save_android_manifest(&native_build_dir, &manifest)?;
-        config.status("Trying to generate mipmap icons from config")?;
-        self.gen_mipmap_icons(context, native_build_dir.join("res"))?;
+        config.status("Preparing resources and assets")?;
+        let (assets, resources) =
+            Self::prepare_assets_and_resources(&context.config, &android_build_dir)?;
 
         config.status_message("Compiling", "lib")?;
         let target_sdk_version = Self::target_sdk_version(&manifest, &sdk);
@@ -222,8 +229,8 @@ impl AndroidBuildCommand {
             &project_path,
             &native_build_dir,
             &manifest_path,
-            &context.config.get_android_assets(),
-            &context.config.android.res,
+            &assets,
+            &resources,
             &package_name,
             target_sdk_version,
         )?;
@@ -283,8 +290,9 @@ impl AndroidBuildCommand {
         let manifest = Self::get_android_manifest(context, AndroidStrategy::NativeAab)?;
         config.status_message("Generating", "AndroidManifest.xml")?;
         let manifest_path = save_android_manifest(&native_build_dir, &manifest)?;
-        config.status("Trying to generate mipmap icons from config")?;
-        self.gen_mipmap_icons(context, native_build_dir.join("res"))?;
+        config.status("Preparing resources and assets")?;
+        let (assets, resources) =
+            Self::prepare_assets_and_resources(&context.config, &android_build_dir)?;
 
         config.status_message("Compiling", "lib")?;
         let target_sdk_version = Self::target_sdk_version(&manifest, &sdk);
@@ -303,7 +311,7 @@ impl AndroidBuildCommand {
 
         config.status_message("Generating", "proto format APK file")?;
 
-        let compiled_res = if let Some(res) = &context.config.android.res {
+        let compiled_res = if let Some(res) = &resources {
             let compiled_res_path = native_build_dir.join("compiled_res");
             if !compiled_res_path.exists() {
                 std::fs::create_dir_all(&compiled_res_path)?;
@@ -322,7 +330,7 @@ impl AndroidBuildCommand {
         let mut aapt2_link =
             sdk.aapt2()?
                 .link_compiled_res(compiled_res, &apk_path, &manifest_path);
-        if let Some(assets) = &context.config.get_android_assets() {
+        if let Some(assets) = &assets {
             aapt2_link.assets(assets.clone())
         } else {
             &mut aapt2_link
@@ -511,20 +519,6 @@ impl AndroidBuildCommand {
             .unwrap()
     }
 
-    /// Generate mipmap resources from the specified icon
-    pub fn gen_mipmap_icons(&self, context: &BuildContext, output_path: PathBuf) -> Result<()> {
-        if let Some(icon) = &context.config.icon {
-            ImageGeneration {
-                icon_path: icon.to_owned(),
-                out_icon_name: "ic_launcher.png".to_owned(),
-                output_path,
-                force: true,
-            }
-            .gen_mipmap_res_from_icon()?;
-        }
-        Ok(())
-    }
-
     /// Get android build targets from cargo manifest
     pub fn android_build_targets(
         context: &BuildContext,
@@ -567,5 +561,45 @@ impl AndroidBuildCommand {
             permission.update_manifest(&mut manifest);
         });
         Ok(manifest)
+    }
+
+    /// Prepare assets and resources for the application.
+    ///
+    /// Also, this function will generate mipmap icon resources if specified in the
+    /// CrossbowMetadata config.
+    pub fn prepare_assets_and_resources(
+        config: &CrossbowMetadata,
+        out_dir: &Path,
+    ) -> Result<(Option<PathBuf>, Option<PathBuf>)> {
+        let res = config.get_android_resources();
+        let gen_resources = if res.is_empty() && config.icon.is_none() {
+            None
+        } else {
+            let path = out_dir.join("gen_resources");
+            std::fs::remove_dir_all(&path).ok();
+            combine_folders(res, &path)?;
+
+            if let Some(icon) = &config.icon {
+                ImageGeneration {
+                    icon_path: icon.to_owned(),
+                    out_icon_name: "ic_launcher.png".to_owned(),
+                    output_path: path.clone(),
+                    force: true,
+                }
+                .gen_mipmap_res_from_icon()?;
+            }
+            Some(path)
+        };
+
+        let assets = config.get_android_assets();
+        let gen_assets = if !res.is_empty() {
+            let path = out_dir.join("gen_assets");
+            std::fs::remove_dir_all(&path).ok();
+            combine_folders(assets, &path)?;
+            Some(path)
+        } else {
+            None
+        };
+        Ok((gen_assets, gen_resources))
     }
 }
