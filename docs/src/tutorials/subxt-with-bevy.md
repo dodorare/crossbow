@@ -7,7 +7,7 @@
 ```sh
 [dependencies]
 substrate-subxt = "0.21"
-bevy = "0.7.0"
+bevy = "0.8.0"
 ```
 
 ## Bevy explorer example

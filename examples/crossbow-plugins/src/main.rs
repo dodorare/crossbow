@@ -4,10 +4,16 @@ use macroquad::ui::{hash, root_ui, Skin};
 #[macroquad::main("Macroquad UI")]
 async fn main() -> anyhow::Result<()> {
     #[cfg(target_os = "android")]
-    let play_billing = {
+    let (play_games, play_billing) = {
         let crossbow = crossbow::android::CrossbowInstance::new();
+
         let play_billing: play_billing::PlayBillingPlugin = crossbow.get_plugin()?;
-        play_billing
+        let play_games: play_games_services::PlayGamesServicesPlugin = crossbow.get_plugin()?;
+
+        println!("Calling init()");
+        play_games.init(true)?;
+
+        (play_games, play_billing)
     };
 
     let skin = get_skin();
@@ -22,6 +28,9 @@ async fn main() -> anyhow::Result<()> {
 
         root_ui().push_skin(&window_skin);
         root_ui().window(hash!(), vec2(0.0, 50.0), vec2(1000.0, 1000.0), |ui| {
+            #[cfg(target_os = "android")]
+            ui.label(vec2(15.0, 0.0), "AdMob");
+
             ui.label(vec2(15.0, 0.0), "Play Games");
             #[cfg(target_os = "android")]
             ui.label(vec2(15.0, 50.0), &label);
@@ -44,6 +53,10 @@ async fn main() -> anyhow::Result<()> {
 
         #[cfg(target_os = "android")]
         match _btn_clicked {
+            "Sign In" => {
+                println!("Calling sign_in()");
+                play_games.sign_in()?;
+            }
             "Start Connection" => {
                 println!("Calling start_connection()");
                 play_billing.start_connection()?;
@@ -59,6 +72,20 @@ async fn main() -> anyhow::Result<()> {
         use crossbow::android::plugin::CrossbowPlugin;
         #[cfg(target_os = "android")]
         if let Ok(signal) = play_billing.get_receiver().try_recv() {
+            println!("Signal: {:?}", signal);
+            label = format!(
+                "{}:{}",
+                signal.signal_name,
+                signal
+                    .args
+                    .iter()
+                    .map(|x| x.to_string())
+                    .collect::<Vec<String>>()
+                    .concat()
+            );
+        }
+        #[cfg(target_os = "android")]
+        if let Ok(signal) = play_games.get_receiver().try_recv() {
             println!("Signal: {:?}", signal);
             label = format!(
                 "{}:{}",

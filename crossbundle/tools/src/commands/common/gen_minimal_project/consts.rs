@@ -21,7 +21,7 @@ edition = "2021"
 [dependencies]
 crossbow = { git = "https://github.com/dodorare/crossbow" }
 anyhow = "1.0"
-macroquad = "0.3.7"
+macroquad = "0.3"
 
 [package.metadata.android]
 app_wrapper = "sokol"
@@ -37,7 +37,7 @@ edition = "2021"
 [dependencies]
 crossbow = { git = "https://github.com/dodorare/crossbow" }
 anyhow = "1.0"
-macroquad = "0.3.7"
+macroquad = "0.3"
 
 [package.metadata.android]
 app_wrapper = "sokol"
