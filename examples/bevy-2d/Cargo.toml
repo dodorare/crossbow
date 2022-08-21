@@ -8,7 +8,7 @@ edition = "2021"
 crossbow = { version = "0.2.0", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
-bevy = { version = "0.8.0", features = ["mp3"] }
+bevy = { version = "0.8.0", default-features = false, features = ["bevy_winit", "render", "bevy_asset"] }
 
 [package.metadata]
 app_name = "Bevy 2D"

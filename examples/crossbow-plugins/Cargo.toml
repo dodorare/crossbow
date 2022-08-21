@@ -8,7 +8,7 @@ edition = "2021"
 crossbow = { version = "0.2.0", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
-macroquad = { version = "0.3", default-features = false }
+macroquad = "0.3"
 
 [target.'cfg(target_os = "android")'.dependencies]
 play-billing = { version = "0.2.0", path = "../../plugins/play-billing" }
@@ -16,6 +16,7 @@ play-games-services = { version = "0.2.0", path = "../../plugins/play-games-serv
 
 [package.metadata]
 app_name = "Crossbow Plugins"
+icon = "../../assets/images/icon.png"
 
 [package.metadata.android]
 app_wrapper = "sokol"

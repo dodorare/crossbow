@@ -5,7 +5,7 @@ fn main() {
     std::thread::sleep(std::time::Duration::from_secs(2));
     App::new()
         .add_plugins(DefaultPlugins)
-        .add_startup_system(audio)
+        // .add_startup_system(audio)
         .add_startup_system(icon)
         .run();
 }
@@ -18,7 +18,7 @@ fn icon(mut commands: Commands, asset_server: Res<AssetServer>) {
     });
 }
 
-fn audio(asset_server: Res<AssetServer>, audio: Res<Audio>) {
-    let music = asset_server.load("sounds/Windless-Slopes.mp3");
-    audio.play(music);
-}
+// fn audio(asset_server: Res<AssetServer>, audio: Res<Audio>) {
+//     let music = asset_server.load("sounds/Windless-Slopes.mp3");
+//     audio.play(music);
+// }

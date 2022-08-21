@@ -68,11 +68,15 @@ pub fn gen_gradle_project(
     options.content_only = true;
     // Copy resources to gradle folder if provided
     if let Some(resources_dir) = resources_dir {
-        fs_extra::dir::copy(resources_dir, &gradle_project_path.join("res"), &options)?;
+        let path = gradle_project_path.join("res");
+        std::fs::remove_dir_all(&path).ok();
+        fs_extra::dir::copy(resources_dir, &path, &options)?;
     }
     // Copy assets to gradle folder if provided
     if let Some(assets_dir) = assets_dir {
-        fs_extra::dir::copy(assets_dir, &gradle_project_path.join("assets"), &options)?;
+        let path = gradle_project_path.join("assets");
+        std::fs::remove_dir_all(&path).ok();
+        fs_extra::dir::copy(assets_dir, &path, &options)?;
     }
 
     Ok(gradle_project_path)
