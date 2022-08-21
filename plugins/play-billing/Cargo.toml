@@ -1,0 +1,14 @@
+[package]
+name = "play-billing"
+version = "0.2.0"
+edition = "2021"
+authors = ["DodoRare Team <support@dodorare.com>"]
+description = "Google Play Billing Plugin for Crossbow"
+repository = "https://github.com/dodorare/crossbow"
+license = "MIT OR Apache-2.0"
+keywords = ["crossbow", "google", "billing", "android"]
+readme = "README.md"
+exclude = ["android/"]
+
+[dependencies]
+crossbow-android = { path = "../../platform/android", version = "0.2.0" }

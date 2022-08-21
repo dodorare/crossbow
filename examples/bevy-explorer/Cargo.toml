@@ -1,11 +1,11 @@
 [package]
 name = "bevy-explorer"
-version = "0.1.8"
+version = "0.2.0"
 authors = ["DodoRare Team <support@dodorare.com>"]
 edition = "2021"
 
 [dependencies]
-crossbow = { version = "0.1.0", path = "../../" }
+crossbow = { version = "0.2.0", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
 subxt = "0.21"
@@ -16,12 +16,12 @@ jsonrpsee = { version = "0.10.1", features = ["async-client", "client-ws-transpo
 
 [package.metadata]
 app_name = "Bevy Explorer"
-assets = "../../assets"
+assets = ["../../assets"]
 
 [package.metadata.android]
 release_build_targets = ["aarch64-linux-android"]
-res = "../../assets/res/android"
+resources = ["../../assets/res/android"]
 
 [package.metadata.apple]
 release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
-res = "../../assets/res/apple"
+resources = ["../../assets/res/apple"]

@@ -18,11 +18,17 @@ pub struct AndroidConfig {
     /// **Important:** If this field specified - `manifest` property will be ignored.
     pub manifest_path: Option<PathBuf>,
     /// Android resources directory path relatively to project path.
-    pub res: Option<PathBuf>,
+    ///
+    /// If specified more than one - all resources will be placed into one directory.
+    #[serde(default)]
+    pub resources: Vec<PathBuf>,
     /// Custom Android assets directory path relatively to project path.
     ///
+    /// If specified more than one - all assets will be placed into one directory.
+    ///
     /// **Important:** This property has higher priority than global property.
-    pub assets: Option<PathBuf>,
+    #[serde(default)]
+    pub assets: Vec<PathBuf>,
     /// Android debug build targets.
     #[serde(default)]
     pub debug_build_targets: Vec<AndroidTarget>,

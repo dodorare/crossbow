@@ -13,7 +13,7 @@ object CrossbowLib {
     }
 
     /**
-     * Invoked on the main thread to initialize Godot native layer.
+     * Invoked on the main thread to initialize Crossbow native layer.
      */
     @JvmStatic
     external fun initialize(
@@ -23,7 +23,7 @@ object CrossbowLib {
     )
 
     /**
-     * Invoked on the main thread to clean up Godot native layer.
+     * Invoked on the main thread to clean up Crossbow native layer.
      * @see androidx.fragment.app.Fragment.onDestroy
      */
     @JvmStatic

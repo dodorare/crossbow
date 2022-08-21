@@ -1,6 +1,6 @@
 # Crossbundle CLI
 
-![splash](https://github.com/dodorare/crossbow/blob/main/assets/splash.png?raw=true)
+![splash](https://github.com/dodorare/crossbow/blob/main/assets/crossbow/splash.png?raw=true)
 
 [![Crate Info](https://img.shields.io/crates/v/crossbundle.svg)](https://crates.io/crates/crossbundle)
 [![Documentation](https://img.shields.io/badge/docs.rs-crossbundle-green)](https://docs.rs/crossbundle/)
@@ -51,11 +51,13 @@ See [installation documentation](https://crossbow.dodorare.com/install/index.htm
 ## Cargo.toml Metadata syntax
 
 ```toml
-[[package.metadata.android]]
+[[package.metadata]]
 # Cross-platform user-friendly application name for your app.
 app_name = "Example"
 # Cross-platform assets directory path relatively to project path.
-assets = "assets"
+assets = ["assets"]
+# Cross-platform icon path to generate icons for Android and iOS.
+icon = "../../assets/images/icon.png"
 
 [[package.metadata.android]]
 # Android application wrapper: supports ndk-glue and sokol
@@ -65,9 +67,9 @@ app_name = "Example"
 # Path to AndroidManifest.xml file
 manifest_path = "path/to/AndroidManifest.xml"
 # Android resources directory path relatively to project path.
-res = "res/android"
+resources = ["res/android"]
 # Android assets directory path relatively to project path.
-assets = "assets"
+assets = ["assets"]
 # Android targets to build on debug or release.
 debug_build_targets = ["aarch64-linux-android"]
 release_build_targets = ["aarch64-linux-android"]
@@ -103,27 +105,17 @@ authorities = "org.khronos.openxr.runtime_broker;org.khronos.openxr.system_runti
 # This will be made optional if/when cargo-apk migrates to aapt2.
 name = "org.khronos.openxr"
 
-# See https://developer.android.com/guide/topics/manifest/uses-feature-element
-#
-# Note: there can be multiple .uses_feature entries.
-[[package.metadata.android.manifest.features]]
-name = "android.hardware.vulkan.level"
-required = true
-version = 1
-
 # See https://developer.android.com/guide/topics/manifest/meta-data-element
 [[package.metadata.android.manifest.application.meta_data]]
 name = "com.oculus.vr.focusaware"
 value = "true"
 
 [package.metadata.apple]
-# The user-friendly application name for your app. Displayed in the applications menu
-app_name = "Example"
 # Apple targets to build on debug or release.
 debug_build_targets = ["aarch64-apple-ios"]
 release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
 # Apple resources directory path relatively to project path.
-res = "res/apple"
+resources = ["res/apple"]
 ```
 
 ## CLI options and flags

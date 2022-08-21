@@ -1,6 +1,6 @@
 [package]
 name = "crossbundle-tools"
-version = "0.1.8"
+version = "0.2.0"
 edition = "2021"
 authors = ["DodoRare Team <support@dodorare.com>"]
 description = "Build and publish apps for Android/iOS"
@@ -10,6 +10,7 @@ keywords = ["android", "ios"]
 readme = "README.md"
 
 [dependencies]
+crossbow-android = { version = "0.2.0", path = "../../platform/android", default-features = false, features = ["embed"] }
 # Apple crates
 apple-bundle = { version = "0.1.4", optional = true }
 simctl = { version = "0.1.1", package = "creator-simctl", optional = true }
@@ -27,11 +28,11 @@ which = "4.2"
 tempfile = "3.3"
 zip = "0.5"
 zip-extensions = "0.6.1"
+image = { version = "0.24.3", default-features = false, features = ["png", "jpeg"] }
 
 itertools = "0.10"
 cargo = "0.63.1"
 cargo-util = "0.2.0"
-rust-embed = { version = "6.4.0", features = ["include-exclude"] }
 
 thiserror = "1.0"
 anyhow = "1.0"

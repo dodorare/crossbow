@@ -1,4 +1,4 @@
-use crate::error::Error;
+use crate::error::*;
 use cargo::{
     core::{EitherManifest, Manifest, SourceId},
     util::toml::read_manifest,
@@ -7,7 +7,7 @@ use cargo::{
 use std::path::Path;
 
 /// Read manifest files and deserialize it
-pub fn parse_manifest(manifest_path: &Path) -> crate::error::Result<Manifest> {
+pub fn parse_manifest(manifest_path: &Path) -> Result<Manifest> {
     let source_id = SourceId::for_path(manifest_path)?;
     let cargo_config = Config::default()?;
     let either_manifest = read_manifest(manifest_path, source_id, &cargo_config)

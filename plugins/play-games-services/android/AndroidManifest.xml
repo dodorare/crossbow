@@ -1,0 +1,7 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.crossbow.play_games_services">
+    <application>
+        <meta-data
+            android:name="com.crossbow.plugin.v1.CrossbowPlayGamesServices"
+            android:value="com.crossbow.play_games_services.CrossbowPlayGamesServices"/>
+    </application>
+</manifest>

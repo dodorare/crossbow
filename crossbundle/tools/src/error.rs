@@ -16,6 +16,10 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum AndroidError {
     /// Android NDK is not found
     AndroidNdkNotFound,
+    /// Failed to read source.properties
+    FailedToReadSourceProperties,
+    /// Invalid source.properties: {0}
+    InvalidSourceProperties(String),
     /// Gradle Dependency project dir not found: {0}
     GradleDependencyProjectNotFound(PathBuf),
     /// Gradle Dependency project doesn't contain build.gradle: {0}
@@ -95,6 +99,10 @@ pub enum Error {
         path: PathBuf,
         cause: std::io::Error,
     },
+    /// Width and height of the icon have different sizes. Choose another image
+    WidthAndHeightDifSizes,
+    /// Icons already exist. Use overwrite flag
+    IconsAlreadyExist,
     /// Failed to find the manifest in path: {0}
     FailedToFindManifest(PathBuf),
     /// Invalid profile: {0}
@@ -122,6 +130,8 @@ pub enum Error {
     /// Android error: {0:?}
     #[cfg(feature = "android")]
     Android(#[from] AndroidError),
+    /// Image crate error: {0:?}
+    ImageError(#[from] image::ImageError),
     /// Apple error: {0:?}
     #[cfg(feature = "apple")]
     Apple(#[from] AppleError),
