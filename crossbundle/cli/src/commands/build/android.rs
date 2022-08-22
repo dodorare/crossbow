@@ -110,7 +110,7 @@ impl AndroidBuildCommand {
             manifest_rf.and_then(|m| m.version_code).unwrap_or(1),
             &manifest_rf
                 .and_then(|m| m.version_name.clone())
-                .unwrap_or("0.1".to_owned()),
+                .unwrap_or_else(|| "0.1".to_owned()),
             &android_build_dir,
             &assets,
             &resources,

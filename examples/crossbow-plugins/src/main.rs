@@ -10,8 +10,10 @@ async fn main() -> anyhow::Result<()> {
         let play_billing: play_billing::PlayBillingPlugin = crossbow.get_plugin()?;
         let play_games: play_games_services::PlayGamesServicesPlugin = crossbow.get_plugin()?;
 
-        println!("Calling init()");
+        println!("Calling play_games.init()");
         play_games.init(true)?;
+        println!("Calling play_billing.start_connection()");
+        play_billing.start_connection()?;
 
         (play_games, play_billing)
     };
@@ -40,9 +42,16 @@ async fn main() -> anyhow::Result<()> {
             }
 
             #[cfg(target_os = "android")]
-            let btn_text = "Purchase";
+            let btn_text = "Query";
             #[cfg(target_os = "android")]
             if ui.button(vec2(-15.0, 150.0), btn_text) {
+                _btn_clicked = btn_text;
+            }
+
+            #[cfg(target_os = "android")]
+            let btn_text = "Purchase";
+            #[cfg(target_os = "android")]
+            if ui.button(vec2(-15.0, 200.0), btn_text) {
                 _btn_clicked = btn_text;
             }
         });
@@ -54,9 +63,10 @@ async fn main() -> anyhow::Result<()> {
                 println!("Calling sign_in()");
                 play_games.sign_in()?;
             }
-            "Start Connection" => {
-                println!("Calling start_connection()");
-                play_billing.start_connection()?;
+            "Start Connection" => {}
+            "Query" => {
+                println!("Calling query_purchases(_)");
+                play_billing.query_purchases("inapp")?;
             }
             "Purchase" => {
                 println!("Calling purchase(_)");
