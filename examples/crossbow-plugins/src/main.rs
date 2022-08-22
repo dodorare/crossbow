@@ -1,21 +1,29 @@
 use macroquad::prelude::*;
 use macroquad::ui::{hash, root_ui, Skin};
 
+#[cfg(target_os = "android")]
+struct AppPlugins {
+    billing: play_billing::PlayBillingPlugin,
+    games_services: play_games_services::PlayGamesServicesPlugin,
+}
+
 #[macroquad::main("Macroquad UI")]
 async fn main() -> anyhow::Result<()> {
     #[cfg(target_os = "android")]
-    let (play_games, play_billing) = {
+    let app_plugins = {
         let crossbow = crossbow::android::CrossbowInstance::new();
 
-        let play_billing: play_billing::PlayBillingPlugin = crossbow.get_plugin()?;
-        let play_games: play_games_services::PlayGamesServicesPlugin = crossbow.get_plugin()?;
+        let app_plugins = AppPlugins {
+            billing: crossbow.get_plugin()?,
+            games_services: crossbow.get_plugin()?,
+        };
 
-        println!("Calling play_games.init()");
-        play_games.init(true)?;
-        println!("Calling play_billing.start_connection()");
-        play_billing.start_connection()?;
+        println!("Calling games_services.init()");
+        app_plugins.games_services.init(true)?;
+        println!("Calling billing.start_connection()");
+        app_plugins.billing.start_connection()?;
 
-        (play_games, play_billing)
+        app_plugins
     };
 
     let skin = get_skin();
@@ -61,53 +69,63 @@ async fn main() -> anyhow::Result<()> {
         match _btn_clicked {
             "Sign In" => {
                 println!("Calling sign_in()");
-                play_games.sign_in()?;
+                app_plugins.games_services.sign_in()?;
             }
             "Start Connection" => {}
             "Query" => {
                 println!("Calling query_purchases(_)");
-                play_billing.query_purchases("inapp")?;
+                app_plugins.billing.query_purchases("inapp")?;
             }
             "Purchase" => {
                 println!("Calling purchase(_)");
-                play_billing.purchase("id")?;
+                app_plugins.billing.purchase("id")?;
             }
             _ => {}
         }
-
         #[cfg(target_os = "android")]
-        use crossbow::android::plugin::CrossbowPlugin;
-        #[cfg(target_os = "android")]
-        if let Ok(signal) = play_billing.get_receiver().try_recv() {
-            println!("Signal: {:?}", signal);
-            label = format!(
-                "{}:{}",
-                signal.signal_name,
-                signal
-                    .args
-                    .iter()
-                    .map(|x| x.to_string())
-                    .collect::<Vec<String>>()
-                    .concat()
-            );
-        }
-        #[cfg(target_os = "android")]
-        if let Ok(signal) = play_games.get_receiver().try_recv() {
-            println!("Signal: {:?}", signal);
-            label = format!(
-                "{}:{}",
-                signal.signal_name,
-                signal
-                    .args
-                    .iter()
-                    .map(|x| x.to_string())
-                    .collect::<Vec<String>>()
-                    .concat()
-            );
-        }
+        handle_signals(&mut label, &app_plugins).await?;
 
         next_frame().await;
     }
+}
+
+#[cfg(target_os = "android")]
+async fn handle_signals(label: &mut String, app_plugins: &AppPlugins) -> anyhow::Result<()> {
+    use crossbow::android::plugin::CrossbowPlugin;
+    if let Ok(signal) = app_plugins.billing.get_receiver().try_recv() {
+        handle_signal(label, signal)?;
+    }
+    if let Ok(signal) = app_plugins.games_services.get_receiver().try_recv() {
+        handle_signal(label, signal)?;
+    }
+    Ok(())
+}
+
+#[cfg(target_os = "android")]
+fn handle_signal(
+    label: &mut String,
+    signal: crossbow::android::plugin::Signal,
+) -> anyhow::Result<()> {
+    println!("Signal: {:?}", signal);
+    *label = format!(
+        "{}:{}",
+        signal.name,
+        signal
+            .args
+            .iter()
+            .map(|x| x.to_string())
+            .collect::<Vec<String>>()
+            .concat()
+    );
+
+    match signal.name.as_str() {
+        "query_purchases_response" => {
+            let res = signal.args[0].clone().into_map().unwrap();
+            println!("res: {:?}", res);
+        }
+        &_ => {}
+    }
+    Ok(())
 }
 
 fn get_skin() -> Skin {

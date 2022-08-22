@@ -89,7 +89,7 @@ async fn main() -> anyhow::Result<()> {
             println!("Signal: {:?}", signal);
             label = format!(
                 "{}:{}",
-                signal.signal_name,
+                signal.name,
                 signal
                     .args
                     .iter()
