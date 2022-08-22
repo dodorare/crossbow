@@ -76,7 +76,7 @@ fn test_aapt2_link() {
 
     // Link files and generates apk file
     let apk_path = tempdir.join("test.apk");
-    let target_sdk_version = 30;
+    let target_sdk_version = 31;
     let mut aapt2_link =
         sdk.aapt2()
             .unwrap()

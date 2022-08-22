@@ -89,7 +89,7 @@ name = "android.permission.INTERNET"
 # See https://developer.android.com/guide/topics/manifest/uses-permission-sdk-23-element
 [[package.metadata.android.manifest.uses_permission_sdk_23]]
 name = "android.permission.WRITE_EXTERNAL_STORAGE"
-max_sdk_version = 30
+max_sdk_version = 31
 
 # See https://developer.android.com/guide/topics/manifest/service-element
 [[package.metadata.android.manifest.service]]

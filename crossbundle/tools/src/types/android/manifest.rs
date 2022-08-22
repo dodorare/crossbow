@@ -22,7 +22,7 @@ pub fn update_android_manifest_with_default(
     if manifest.uses_sdk.is_none() {
         manifest.uses_sdk = Some(UsesSdk {
             min_sdk_version: Some(19),
-            target_sdk_version: Some(30),
+            target_sdk_version: Some(31),
             max_sdk_version: None,
         });
     }
@@ -53,6 +53,9 @@ pub fn update_android_manifest_with_default(
         }
         if activity.resizeable_activity.is_none() {
             activity.resizeable_activity = Some(true);
+        }
+        if activity.exported.is_none() {
+            activity.exported = Some(true);
         }
         if !activity
             .meta_data

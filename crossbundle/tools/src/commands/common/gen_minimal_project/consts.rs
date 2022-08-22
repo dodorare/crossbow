@@ -41,7 +41,7 @@ macroquad = "=0.3.7"
 
 [package.metadata.android]
 app_wrapper = "quad"
-target_sdk_version = 30
+target_sdk_version = 31
 
 [[package.metadata.android.plugins_local_projects]]
 include = ":crossbow"
@@ -61,7 +61,7 @@ release_build_targets = ["aarch64-linux-android"]
 package = "com.crossbow.example"
 [package.metadata.android.manifest.uses_sdk]
 min_sdk_version = 19
-target_sdk_version = 30
+target_sdk_version = 31
 
 [[package.metadata.android.manifest.uses_feature]]
 name = "android.hardware.vulkan.level"

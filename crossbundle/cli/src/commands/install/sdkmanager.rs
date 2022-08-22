@@ -7,7 +7,7 @@ use std::path::Path;
 #[derive(Parser, Clone, Debug, Default)]
 pub struct SdkManagerInstallCommand {
     /// Install all preferred tools for correct crossbundle work. It will install
-    /// build-tools;31.0.0, ndk;23.1.7779620 and platforms;android-30
+    /// build-tools;31.0.0, ndk;23.1.7779620 and platforms;android-31
     #[clap(long, short)]
     preferred_tools: bool,
     /// List installed and available packages. Use the channel option to include a package
@@ -213,7 +213,7 @@ impl SdkManagerInstallCommand {
             sdkmanager
                 .arg("build-tools;31.0.0")
                 .arg("ndk;23.1.7779620")
-                .arg("platforms;android-30");
+                .arg("platforms;android-31");
         }
         if let Some(channel) = &self.channel {
             sdkmanager.arg(format!("--channel={}", channel));
