@@ -119,11 +119,11 @@ impl AndroidNdk {
     /// Path to Clang
     pub fn clang(&self, target: AndroidTarget, platform: u32) -> Result<(PathBuf, PathBuf)> {
         #[cfg(target_os = "windows")]
-        let ext = ".cmd";
+        let ext = "cmd";
         #[cfg(not(target_os = "windows"))]
         let ext = "";
         #[cfg(target_os = "windows")]
-        let ext_new = ".exe";
+        let ext_new = "exe";
         #[cfg(not(target_os = "windows"))]
         let ext_new = "";
         let bin_name = format!("{}{}-clang", target.ndk_llvm_triple(), platform);
