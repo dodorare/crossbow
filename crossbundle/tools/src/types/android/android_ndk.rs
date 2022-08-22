@@ -122,11 +122,15 @@ impl AndroidNdk {
         let ext = ".cmd";
         #[cfg(not(target_os = "windows"))]
         let ext = "";
+        #[cfg(target_os = "windows")]
+        let ext_new = ".exe";
+        #[cfg(not(target_os = "windows"))]
+        let ext_new = "";
         let bin_name = format!("{}{}-clang", target.ndk_llvm_triple(), platform);
         let bin_path = self.toolchain_dir()?.join("bin");
         let mut clang = bin_path.join(&bin_name).with_extension(ext);
         if !clang.exists() {
-            clang = bin_path.join("clang");
+            clang = bin_path.join("clang").with_extension(ext_new);
         }
         if !clang.exists() {
             return Err(Error::PathNotFound(clang));
@@ -135,7 +139,7 @@ impl AndroidNdk {
             .join(format!("{}++", &bin_name))
             .with_extension(ext);
         if !clang_pp.exists() {
-            clang_pp = bin_path.join("clang++");
+            clang_pp = bin_path.join("clang++").with_extension(ext_new);
         }
         if !clang_pp.exists() {
             return Err(Error::PathNotFound(clang_pp));
