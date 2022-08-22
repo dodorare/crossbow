@@ -51,3 +51,6 @@ value = "@string/app_id"
 [[package.metadata.android.manifest.application.meta_data]]
 name = "com.google.android.gms.version"
 value = "@integer/google_play_services_version"
+[[package.metadata.android.manifest.application.meta_data]]
+name = "com.google.android.gms.ads.APPLICATION_ID"
+value = "ca-app-pub-3940256099942544~3347511713"

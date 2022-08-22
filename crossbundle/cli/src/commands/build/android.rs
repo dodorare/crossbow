@@ -560,6 +560,12 @@ impl AndroidBuildCommand {
         context.config.permissions.iter().for_each(|permission| {
             permission.update_manifest(&mut manifest);
         });
+        if context.config.icon.is_some() {
+            manifest.application.icon = Some(android_manifest::MipmapOrDrawableResource::mipmap(
+                "ic_launcher",
+                None,
+            ));
+        }
         Ok(manifest)
     }
 

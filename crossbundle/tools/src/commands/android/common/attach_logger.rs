@@ -30,7 +30,7 @@ pub fn attach_logger_only_app(sdk: &AndroidSdk) -> Result<()> {
     let pid = String::from_utf8_lossy(&res).to_string();
 
     let mut adb = logcat_cmd(sdk)?;
-    adb.args(["--pid", &pid.trim()]);
+    adb.arg("--pid").arg(pid.trim());
     adb.spawn()?.wait()?;
     Ok(())
 }
