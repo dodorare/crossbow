@@ -8,7 +8,7 @@ use crossbundle_tools::{
 
 #[test]
 /// Use macroquad minimal project in a temporary directory to test gradle project
-/// generation. It is working likewise the command below.
+/// generation. It is working like the command below.
 /// ```sh
 /// crossbundle build android
 /// ```
@@ -16,7 +16,7 @@ fn test_build_gradle() {
     let tempdir = tempfile::tempdir().unwrap();
     let project_path = tempdir.path();
     let macroquad_project = true;
-    gen_minimal_project(project_path, macroquad_project, true).unwrap();
+    gen_minimal_project(project_path, macroquad_project).unwrap();
 
     let target_dir = std::path::PathBuf::from(project_path).join("target");
     std::fs::create_dir_all(&target_dir).unwrap();
