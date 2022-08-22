@@ -105,7 +105,12 @@ impl AndroidBuildCommand {
             Self::prepare_assets_and_resources(&context.config, &android_build_dir)?;
 
         config.status("Generating gradle project")?;
+        let manifest_rf = context.config.android.manifest.as_ref();
         let gradle_project_path = gen_gradle_project(
+            manifest_rf.and_then(|m| m.version_code).unwrap_or(1),
+            &manifest_rf
+                .and_then(|m| m.version_name.clone())
+                .unwrap_or("0.1".to_owned()),
             &android_build_dir,
             &assets,
             &resources,

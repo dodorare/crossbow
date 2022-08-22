@@ -32,6 +32,8 @@ pub struct GradleDependencyProject {
 }
 
 pub fn gen_gradle_project(
+    version_code: u32,
+    version_name: &str,
     android_build_dir: &Path,
     assets_dir: &Option<PathBuf>,
     resources_dir: &Option<PathBuf>,
@@ -54,7 +56,11 @@ pub fn gen_gradle_project(
     }
 
     let mut gradle_properties = File::create(gradle_project_path.join("gradle.properties"))?;
-    write!(gradle_properties, "{}", get_gradle_properties(plugins)?)?;
+    write!(
+        gradle_properties,
+        "{}",
+        get_gradle_properties(version_code, version_name, plugins)?
+    )?;
 
     let mut settings_gradle = File::create(gradle_project_path.join("settings.gradle"))?;
     write!(
@@ -88,8 +94,14 @@ android.enableJetifier=true
 android.nonTransitiveRClass=true
 "#;
 
-fn get_gradle_properties(plugins: &AndroidGradlePlugins) -> Result<String> {
+fn get_gradle_properties(
+    version_code: u32,
+    version_name: &str,
+    plugins: &AndroidGradlePlugins,
+) -> Result<String> {
     let mut result = DEFAULT_GRADLE_PROPERTIES.to_string();
+    result = format!("{}export_version_code={}\n", result, version_code);
+    result = format!("{}export_version_name={}\n", result, version_name);
     if !plugins.maven_repos.is_empty() {
         result = format!(
             "{}plugins_maven_repos={}\n",
@@ -197,13 +209,13 @@ mod tests {
             local_projects: vec![],
         };
         assert_eq!(
-            get_gradle_properties(&plugins).unwrap(),
+            get_gradle_properties(1, "1.0", &plugins).unwrap(),
             DEFAULT_GRADLE_PROPERTIES
         );
 
         plugins.local.push(PathBuf::from("../../MyPlugin.aar"));
         assert_eq!(
-            get_gradle_properties(&plugins).unwrap(),
+            get_gradle_properties(1, "1.0", &plugins).unwrap(),
             format!(
                 "{}{}",
                 DEFAULT_GRADLE_PROPERTIES, "plugins_local_binaries=../../MyPlugin.aar\n"
