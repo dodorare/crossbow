@@ -28,10 +28,7 @@ async fn main() -> anyhow::Result<()> {
 
         root_ui().push_skin(&window_skin);
         root_ui().window(hash!(), vec2(0.0, 50.0), vec2(1000.0, 1000.0), |ui| {
-            #[cfg(target_os = "android")]
-            ui.label(vec2(15.0, 0.0), "AdMob");
-
-            ui.label(vec2(15.0, 0.0), "Play Games");
+            ui.label(vec2(15.0, 0.0), "Crossbow Plugins");
             #[cfg(target_os = "android")]
             ui.label(vec2(15.0, 50.0), &label);
 

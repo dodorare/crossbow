@@ -26,6 +26,9 @@ crossbow-android = { path = "platform/android", version = "0.2.0", optional = tr
 [target.'cfg(target_os = "ios")'.dependencies]
 crossbow-ios = { path = "platform/ios", version = "0.2.0", optional = true }
 
+[patch.crates-io]
+miniquad = { git = "https://github.com/not-fl3/miniquad", rev = "8d3935b0157a3a5b8624e3dc318bed28aef9552a" }
+
 [features]
 default = ["android", "ios"]
 android = ["crossbow-android"]

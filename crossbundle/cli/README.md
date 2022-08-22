@@ -35,7 +35,7 @@ Supported game engines:
 | Name | Description | Status |
 | ---- | ----------- | ------ |
 | [Bevy](https://github.com/bevyengine/bevy) | Default build method. Injects [ndk-glue](https://github.com/rust-windowing/android-ndk-rs/tree/master/ndk-glue) into generated tmp `lib.rs` file. | 🆗 |
-| [Macroquad](https://github.com/not-fl3/macroquad) | Supported via `app_wrapper = "sokol"` inside `Cargo.toml` metadata. Also, can work as [cargo-quad-apk](https://github.com/not-fl3/cargo-quad-apk) but with all `crossbundle` features. | ✅ |
+| [Macroquad](https://github.com/not-fl3/macroquad) | Supported via `app_wrapper = "quad"` inside `Cargo.toml` metadata. Also, can work as [cargo-quad-apk](https://github.com/not-fl3/cargo-quad-apk) but with all `crossbundle` features. | ✅ |
 | **placeholder** | Don't find your game engine here? Open an issue! We are happy to add support for new engines. | 🛠 |
 
 ✅ = Works and tested — 🆗 = Works but may contain bugs — 🛠 = Under development
@@ -60,8 +60,8 @@ assets = ["assets"]
 icon = "../../assets/images/icon.png"
 
 [[package.metadata.android]]
-# Android application wrapper: supports ndk-glue and sokol
-app_wrapper = "sokol"
+# Android application wrapper: supports ndk-glue and quad
+app_wrapper = "quad"
 # The user-friendly application name for your app. Displayed in the applications menu
 app_name = "Example"
 # Path to AndroidManifest.xml file

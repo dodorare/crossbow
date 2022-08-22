@@ -8,7 +8,7 @@ edition = "2021"
 crossbow = { version = "0.2.0", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
-macroquad = "0.3"
+macroquad = "=0.3.7"
 
 [target.'cfg(target_os = "android")'.dependencies]
 admob-android = { version = "0.2.0", path = "../../plugins/admob-android" }
@@ -18,7 +18,7 @@ app_name = "Permissions"
 permissions = ["camera", "microphone", "photos", "storage-read"]
 
 [package.metadata.android]
-app_wrapper = "sokol"
+app_wrapper = "quad"
 release_build_targets = ["aarch64-linux-android"]
 resources = ["../../assets/res/android"]
 

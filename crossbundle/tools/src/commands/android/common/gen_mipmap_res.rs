@@ -55,8 +55,7 @@ impl ImageGeneration {
                 std::fs::remove_dir_all(&mipmap_dirs).ok();
                 std::fs::create_dir_all(&mipmap_dirs)?;
             }
-            return Ok(());
-        } else if !mipmap_dirs.exists() {
+        } else {
             std::fs::create_dir_all(&mipmap_dirs)?;
         }
         let mut output = File::create(mipmap_dirs.join(&self.out_icon_name))?;

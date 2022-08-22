@@ -90,7 +90,7 @@ fn add_quad_libs() {
     let profile = Profile::Release;
     let target_sdk_version = 30;
     let quad_lib_name = format!("lib{}.so", quad_package_name.replace('-', "_"));
-    let app_wrapper_for_quad = AppWrapper::Sokol;
+    let app_wrapper_for_quad = AppWrapper::Quad;
 
     // Compile rust code for android with bevy engine
     rust_compile(

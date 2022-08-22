@@ -8,7 +8,7 @@ edition = "2021"
 crossbow = { version = "0.2.0", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
-macroquad = "0.3"
+macroquad = "=0.3.7"
 
 [package.metadata]
 app_name = "Macroquad 3D"
@@ -16,7 +16,7 @@ assets = ["../../assets"]
 icon = "../../assets/images/icon.png"
 
 [package.metadata.android]
-app_wrapper = "sokol"
+app_wrapper = "quad"
 manifest_path = "res/AndroidManifest.xml"
 release_build_targets = ["aarch64-linux-android"]
 

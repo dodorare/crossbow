@@ -21,10 +21,10 @@ edition = "2021"
 [dependencies]
 crossbow = { git = "https://github.com/dodorare/crossbow" }
 anyhow = "1.0"
-macroquad = "0.3"
+macroquad = "=0.3.7"
 
 [package.metadata.android]
-app_wrapper = "sokol"
+app_wrapper = "quad"
 "#;
 
 pub const MINIMAL_MQ_GRADLE_CARGO_TOML_VALUE: &str = r#"
@@ -37,10 +37,10 @@ edition = "2021"
 [dependencies]
 crossbow = { git = "https://github.com/dodorare/crossbow" }
 anyhow = "1.0"
-macroquad = "0.3"
+macroquad = "=0.3.7"
 
 [package.metadata.android]
-app_wrapper = "sokol"
+app_wrapper = "quad"
 target_sdk_version = 30
 
 [[package.metadata.android.plugins_local_projects]]
