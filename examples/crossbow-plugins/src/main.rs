@@ -50,7 +50,7 @@ async fn main() -> anyhow::Result<()> {
             }
 
             #[cfg(target_os = "android")]
-            let btn_text = "Query";
+            let btn_text = "Query SKU";
             #[cfg(target_os = "android")]
             if ui.button(vec2(-15.0, 150.0), btn_text) {
                 _btn_clicked = btn_text;
@@ -60,6 +60,13 @@ async fn main() -> anyhow::Result<()> {
             let btn_text = "Purchase";
             #[cfg(target_os = "android")]
             if ui.button(vec2(-15.0, 200.0), btn_text) {
+                _btn_clicked = btn_text;
+            }
+
+            #[cfg(target_os = "android")]
+            let btn_text = "Query";
+            #[cfg(target_os = "android")]
+            if ui.button(vec2(-15.0, 250.0), btn_text) {
                 _btn_clicked = btn_text;
             }
         });
@@ -72,13 +79,20 @@ async fn main() -> anyhow::Result<()> {
                 app_plugins.games_services.sign_in()?;
             }
             "Start Connection" => {}
+            "Query SKU" => {
+                println!("Calling query_sku_details(_)");
+                app_plugins
+                    .billing
+                    .query_sku_details(&["crossbow_item_1", "item_2"], "inapp")?;
+            }
             "Query" => {
                 println!("Calling query_purchases(_)");
                 app_plugins.billing.query_purchases("inapp")?;
             }
             "Purchase" => {
                 println!("Calling purchase(_)");
-                app_plugins.billing.purchase("id")?;
+                let res = app_plugins.billing.purchase("crossbow_item_1")?;
+                println!("purchase: {:?}", res);
             }
             _ => {}
         }
@@ -122,6 +136,8 @@ fn handle_signal(
         "query_purchases_response" => {
             let res = signal.args[0].clone().into_map().unwrap();
             println!("res: {:?}", res);
+            println!("status: {:?}", res.get("status"));
+            println!("purchases: {:?}", res.get("purchases"));
         }
         &_ => {}
     }

@@ -155,6 +155,9 @@ impl JniRustType {
 
     // TODO: Test this function. It's not tested yet and possibly can fall with errors.
     pub fn from_jobject(env: &JNIEnv, obj: JObject) -> Result<Self> {
+        if obj.is_null() {
+            return Ok(Self::Void);
+        }
         let class = env.get_object_class(obj)?;
         let name = get_class_name(env, class)?;
 
