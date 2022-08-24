@@ -32,6 +32,7 @@ pub struct GradleDependencyProject {
 }
 
 pub fn gen_gradle_project(
+    package_name: &str,
     version_code: u32,
     version_name: &str,
     android_build_dir: &Path,
@@ -59,7 +60,7 @@ pub fn gen_gradle_project(
     write!(
         gradle_properties,
         "{}",
-        get_gradle_properties(version_code, version_name, plugins)?
+        get_gradle_properties(package_name, version_code, version_name, plugins)?
     )?;
 
     let mut settings_gradle = File::create(gradle_project_path.join("settings.gradle"))?;
@@ -95,11 +96,13 @@ android.nonTransitiveRClass=true
 "#;
 
 fn get_gradle_properties(
+    package_name: &str,
     version_code: u32,
     version_name: &str,
     plugins: &AndroidGradlePlugins,
 ) -> Result<String> {
     let mut result = DEFAULT_GRADLE_PROPERTIES.to_string();
+    result = format!("{}export_package_name={}\n", result, package_name);
     result = format!("{}export_version_code={}\n", result, version_code);
     result = format!("{}export_version_name={}\n", result, version_name);
     if !plugins.maven_repos.is_empty() {
@@ -209,13 +212,13 @@ mod tests {
             local_projects: vec![],
         };
         assert_eq!(
-            get_gradle_properties(1, "1.0", &plugins).unwrap(),
+            get_gradle_properties("com.crossbow.test", 1, "1.0", &plugins).unwrap(),
             DEFAULT_GRADLE_PROPERTIES
         );
 
         plugins.local.push(PathBuf::from("../../MyPlugin.aar"));
         assert_eq!(
-            get_gradle_properties(1, "1.0", &plugins).unwrap(),
+            get_gradle_properties("com.crossbow.test", 1, "1.0", &plugins).unwrap(),
             format!(
                 "{}{}",
                 DEFAULT_GRADLE_PROPERTIES, "plugins_local_binaries=../../MyPlugin.aar\n"

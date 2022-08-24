@@ -5,6 +5,7 @@ use macroquad::ui::{hash, root_ui, Skin};
 struct AppPlugins {
     billing: play_billing::PlayBillingPlugin,
     games_services: play_games_services::PlayGamesServicesPlugin,
+    core: play_core::PlayCorePlugin,
 }
 
 #[macroquad::main("Macroquad UI")]
@@ -16,12 +17,15 @@ async fn main() -> anyhow::Result<()> {
         let app_plugins = AppPlugins {
             billing: crossbow.get_plugin()?,
             games_services: crossbow.get_plugin()?,
+            core: crossbow.get_plugin()?,
         };
 
         println!("Calling games_services.init()");
         app_plugins.games_services.init(true)?;
         println!("Calling billing.start_connection()");
         app_plugins.billing.start_connection()?;
+        println!("Calling billing.start_connection()");
+        app_plugins.core.check_update()?;
 
         app_plugins
     };
@@ -43,7 +47,7 @@ async fn main() -> anyhow::Result<()> {
             ui.label(vec2(15.0, 50.0), &label);
 
             #[cfg(target_os = "android")]
-            let btn_text = "Start Connection";
+            let btn_text = "Sign in";
             #[cfg(target_os = "android")]
             if ui.button(vec2(-15.0, 100.0), btn_text) {
                 _btn_clicked = btn_text;
@@ -110,6 +114,9 @@ async fn handle_signals(label: &mut String, app_plugins: &AppPlugins) -> anyhow:
         handle_signal(label, signal)?;
     }
     if let Ok(signal) = app_plugins.games_services.get_receiver().try_recv() {
+        handle_signal(label, signal)?;
+    }
+    if let Ok(signal) = app_plugins.core.get_receiver().try_recv() {
         handle_signal(label, signal)?;
     }
     Ok(())

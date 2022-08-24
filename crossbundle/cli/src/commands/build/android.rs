@@ -103,13 +103,16 @@ impl AndroidBuildCommand {
         config.status("Preparing resources and assets")?;
         let (assets, resources) =
             Self::prepare_assets_and_resources(&context.config, &android_build_dir)?;
+        config.status_message("Reading", "AndroidManifest.xml")?;
+        let manifest = Self::get_android_manifest(context, AndroidStrategy::GradleApk)?;
 
         config.status("Generating gradle project")?;
-        let manifest_rf = context.config.android.manifest.as_ref();
         let gradle_project_path = gen_gradle_project(
-            manifest_rf.and_then(|m| m.version_code).unwrap_or(1),
-            &manifest_rf
-                .and_then(|m| m.version_name.clone())
+            &manifest.package,
+            manifest.version_code.unwrap_or(1),
+            &manifest
+                .version_name
+                .clone()
                 .unwrap_or_else(|| "0.1".to_owned()),
             &android_build_dir,
             &assets,
@@ -117,8 +120,6 @@ impl AndroidBuildCommand {
             &context.config.android.plugins,
         )?;
 
-        config.status_message("Reading", "AndroidManifest.xml")?;
-        let manifest = Self::get_android_manifest(context, AndroidStrategy::GradleApk)?;
         config.status_message("Generating", "AndroidManifest.xml")?;
         save_android_manifest(&gradle_project_path, &manifest)?;
 
