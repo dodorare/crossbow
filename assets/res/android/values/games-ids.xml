@@ -2,7 +2,7 @@
 <!--Google Play game services IDs. Save this file as res/values/games-ids.xml in your project.-->
 <resources>
     <!--app_id-->
-    <string name="app_id" translatable="false">303975230100</string>
+    <string name="app_id" translatable="false">1029425073255</string>
     <!--package_name-->
     <string name="package_name" translatable="false">com.crossbow.examples.plugins</string>
 </resources>

@@ -68,7 +68,7 @@ async fn main() -> anyhow::Result<()> {
             }
 
             #[cfg(target_os = "android")]
-            let btn_text = "Query";
+            let btn_text = "Query Purchases";
             #[cfg(target_os = "android")]
             if ui.button(vec2(-15.0, 250.0), btn_text) {
                 _btn_clicked = btn_text;
@@ -78,7 +78,7 @@ async fn main() -> anyhow::Result<()> {
 
         #[cfg(target_os = "android")]
         match _btn_clicked {
-            "Sign In" => {
+            "Sign in" => {
                 println!("Calling sign_in()");
                 app_plugins.games_services.sign_in()?;
             }
@@ -87,15 +87,15 @@ async fn main() -> anyhow::Result<()> {
                 println!("Calling query_sku_details(_)");
                 app_plugins
                     .billing
-                    .query_sku_details(&["crossbow_item_1", "item_2"], "inapp")?;
+                    .query_sku_details(&["item_2", "crossbow_item_1"], "inapp")?;
             }
-            "Query" => {
+            "Query Purchases" => {
                 println!("Calling query_purchases(_)");
                 app_plugins.billing.query_purchases("inapp")?;
             }
             "Purchase" => {
                 println!("Calling purchase(_)");
-                let res = app_plugins.billing.purchase("crossbow_item_1")?;
+                let res = app_plugins.billing.purchase("item_2")?;
                 println!("purchase: {:?}", res);
             }
             _ => {}
