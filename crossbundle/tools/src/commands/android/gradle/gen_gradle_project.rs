@@ -89,11 +89,18 @@ pub fn gen_gradle_project(
     Ok(gradle_project_path)
 }
 
-const DEFAULT_GRADLE_PROPERTIES: &str = r#"org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+fn get_default_gradle_props(package_name: &str, version_code: u32, version_name: &str) -> String {
+    let mut res = r#"org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
 android.useAndroidX=true
 android.enableJetifier=true
 android.nonTransitiveRClass=true
-"#;
+"#
+    .to_owned();
+    res = format!("{}export_package_name={}\n", res, package_name);
+    res = format!("{}export_version_code={}\n", res, version_code);
+    res = format!("{}export_version_name={}\n", res, version_name);
+    res
+}
 
 fn get_gradle_properties(
     package_name: &str,
@@ -101,10 +108,7 @@ fn get_gradle_properties(
     version_name: &str,
     plugins: &AndroidGradlePlugins,
 ) -> Result<String> {
-    let mut result = DEFAULT_GRADLE_PROPERTIES.to_string();
-    result = format!("{}export_package_name={}\n", result, package_name);
-    result = format!("{}export_version_code={}\n", result, version_code);
-    result = format!("{}export_version_name={}\n", result, version_name);
+    let mut result = get_default_gradle_props(package_name, version_code, version_name).to_owned();
     if !plugins.maven_repos.is_empty() {
         result = format!(
             "{}plugins_maven_repos={}\n",
@@ -213,7 +217,7 @@ mod tests {
         };
         assert_eq!(
             get_gradle_properties("com.crossbow.test", 1, "1.0", &plugins).unwrap(),
-            DEFAULT_GRADLE_PROPERTIES
+            get_default_gradle_props("com.crossbow.test", 1, "1.0"),
         );
 
         plugins.local.push(PathBuf::from("../../MyPlugin.aar"));
@@ -221,7 +225,8 @@ mod tests {
             get_gradle_properties("com.crossbow.test", 1, "1.0", &plugins).unwrap(),
             format!(
                 "{}{}",
-                DEFAULT_GRADLE_PROPERTIES, "plugins_local_binaries=../../MyPlugin.aar\n"
+                get_default_gradle_props("com.crossbow.test", 1, "1.0"),
+                "plugins_local_binaries=../../MyPlugin.aar\n"
             )
         );
     }
