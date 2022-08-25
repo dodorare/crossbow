@@ -1,5 +1,5 @@
 ext.versions = [
-    crossbowLibrary    : "0.2.0",
+    crossbowLibrary    : "0.2.1",
     androidGradlePlugin: "7.0.0",
     compileSdk         : 31,
     minSdk             : 19,

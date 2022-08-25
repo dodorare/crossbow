@@ -14,7 +14,7 @@ authors = ["Example <example@nice.com>"]
 edition = "2021"
 
 [dependencies]
-crossbow = "0.2.0"
+crossbow = "0.2.1"
 
 [package.metadata]
 app_name = "Game"
