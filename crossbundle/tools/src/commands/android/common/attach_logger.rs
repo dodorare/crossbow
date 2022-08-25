@@ -35,14 +35,14 @@ pub fn attach_logger_only_app(sdk: &AndroidSdk) -> Result<()> {
     Ok(())
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
 
-    #[test]
-    fn test_attach_logger_only_app() -> Result<()> {
-        let sdk = AndroidSdk::from_env()?;
-        attach_logger_only_app(&sdk)?;
-        Ok(())
-    }
-}
+//     #[test]
+//     fn test_attach_logger_only_app() -> Result<()> {
+//         let sdk = AndroidSdk::from_env()?;
+//         attach_logger_only_app(&sdk)?;
+//         Ok(())
+//     }
+// }
