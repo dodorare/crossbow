@@ -13,8 +13,7 @@ fn test_cargo_metadata() {
     let tempdir = tempfile::tempdir().unwrap();
     let project_path = tempdir.path();
     let macroquad_project = true;
-    let minimal_cargo_toml = false;
-    gen_minimal_project(project_path, macroquad_project, minimal_cargo_toml).unwrap();
+    gen_minimal_project(project_path, macroquad_project).unwrap();
 
     let target_dir = std::path::PathBuf::from(project_path).join("target");
     std::fs::create_dir_all(&target_dir).unwrap();
@@ -41,7 +40,7 @@ fn test_cargo_metadata() {
     let expected_manifest = r#"<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.crossbow.example" android:versionCode="1" android:versionName="0.1.0">
   <application android:hasCode="false" android:label="Crossbow" android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen">
-    <activity android:name="android.app.NativeActivity" android:resizeableActivity="true">
+    <activity android:name="android.app.NativeActivity" exported="true" android:resizeableActivity="true">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
@@ -49,7 +48,7 @@ fn test_cargo_metadata() {
       <meta-data android:name="android.app.lib_name" android:value="example" />
     </activity>
   </application>
-  <uses-sdk android:minSdkVersion="19" android:targetSdkVersion="30" />
+  <uses-sdk android:minSdkVersion="19" android:targetSdkVersion="31" />
 </manifest>
 "#;
     let expected_manifest = from_str(expected_manifest).unwrap();

@@ -119,16 +119,28 @@ impl AndroidNdk {
     /// Path to Clang
     pub fn clang(&self, target: AndroidTarget, platform: u32) -> Result<(PathBuf, PathBuf)> {
         #[cfg(target_os = "windows")]
-        let ext = ".cmd";
+        let ext = "cmd";
         #[cfg(not(target_os = "windows"))]
         let ext = "";
+        #[cfg(target_os = "windows")]
+        let ext_new = "exe";
+        #[cfg(not(target_os = "windows"))]
+        let ext_new = "";
         let bin_name = format!("{}{}-clang", target.ndk_llvm_triple(), platform);
         let bin_path = self.toolchain_dir()?.join("bin");
-        let clang = bin_path.join(format!("{}{}", &bin_name, ext));
+        let mut clang = bin_path.join(&bin_name).with_extension(ext);
+        if !clang.exists() {
+            clang = bin_path.join("clang").with_extension(ext_new);
+        }
         if !clang.exists() {
             return Err(Error::PathNotFound(clang));
         }
-        let clang_pp = bin_path.join(format!("{}++{}", &bin_name, ext));
+        let mut clang_pp = bin_path
+            .join(format!("{}++", &bin_name))
+            .with_extension(ext);
+        if !clang_pp.exists() {
+            clang_pp = bin_path.join("clang++").with_extension(ext_new);
+        }
         if !clang_pp.exists() {
             return Err(Error::PathNotFound(clang_pp));
         }

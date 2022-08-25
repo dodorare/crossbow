@@ -138,4 +138,4 @@ jobs:
       - name: Run all tests
         run: |
           export BUNDLETOOL_PATH="$HOME/bundletool.jar"
-          cargo test --all
+          cargo test --all --no-fail-fast

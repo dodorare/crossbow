@@ -64,7 +64,8 @@ impl AndroidRunCommand {
         )?;
         if self.log {
             config.status("Attaching logger")?;
-            attach_logger_only_rust(&sdk)?;
+            std::thread::sleep(std::time::Duration::from_secs(2));
+            attach_logger_only_app(&sdk)?;
         }
         config.status("Run finished successfully")?;
         Ok(())
@@ -83,7 +84,8 @@ impl AndroidRunCommand {
         )?;
         if self.log {
             config.status("Attaching logger")?;
-            attach_logger_only_rust(&sdk)?;
+            std::thread::sleep(std::time::Duration::from_secs(2));
+            attach_logger_only_app(&sdk)?;
         }
         config.status("Run finished successfully")?;
         Ok(())
@@ -104,7 +106,8 @@ impl AndroidRunCommand {
         start_app(&sdk, "com.crossbow.game", ".CrossbowApp")?;
         if self.log {
             config.status("Attaching logger")?;
-            attach_logger_only_rust(&sdk)?;
+            std::thread::sleep(std::time::Duration::from_secs(2));
+            attach_logger_only_app(&sdk)?;
         }
         config.status("Run finished successfully")?;
         Ok(())

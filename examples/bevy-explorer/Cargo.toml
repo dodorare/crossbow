@@ -1,16 +1,16 @@
 [package]
 name = "bevy-explorer"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["DodoRare Team <support@dodorare.com>"]
 edition = "2021"
 
 [dependencies]
-crossbow = { version = "0.2.0", path = "../../" }
+crossbow = { version = "0.2.1", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
 subxt = "0.21"
 tokio = { version = "1.17", features = ["sync", "macros", "rt-multi-thread"] }
-bevy = { version = "0.7.0", features = ["mp3"] }
+bevy = { version = "0.8.0", default-features = false, features = ["bevy_winit", "render", "bevy_asset"] }
 codec = { package = "parity-scale-codec", version = "3.0.0", default-features = false, features = ["derive", "full", "bit-vec"] }
 jsonrpsee = { version = "0.10.1", features = ["async-client", "client-ws-transport"] }
 

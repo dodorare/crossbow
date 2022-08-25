@@ -97,7 +97,7 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
             let mut new_args = cmd.get_args().cloned().collect::<Vec<_>>();
 
             let extra_code = match self.app_wrapper {
-                AppWrapper::Sokol => consts::SOKOL_EXTRA_CODE,
+                AppWrapper::Quad => consts::QUAD_EXTRA_CODE,
                 AppWrapper::NdkGlue => consts::NDK_GLUE_EXTRA_CODE,
             };
 
@@ -109,10 +109,10 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
                     return Ok(());
                 };
 
-            // Generate tmp_file with bevy or quad extra code depending on either sokol or ndk glue
+            // Generate tmp_file with bevy or quad extra code depending on either quad or ndk glue
             // dependency
             let tmp_file = match self.app_wrapper {
-                AppWrapper::Sokol => gen_tmp_lib_file::generate_lib_file(&path, extra_code)?,
+                AppWrapper::Quad => gen_tmp_lib_file::generate_lib_file(&path, extra_code)?,
                 AppWrapper::NdkGlue => gen_tmp_lib_file::generate_lib_file(&path, extra_code)?,
             };
 
@@ -173,7 +173,7 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
             if build_tag > 7272597 {
                 let error_msg = anyhow::Error::msg("Failed to write content into libgcc.a file");
                 let mut args = match self.app_wrapper {
-                    AppWrapper::Sokol => {
+                    AppWrapper::Quad => {
                         new_ndk_quad_args(tool_root, &self.build_target, self.target_sdk_version)
                             .map_err(|_| error_msg)?
                     }
@@ -183,7 +183,7 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
                 cmd.args_replace(&new_args);
                 cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
                     .map(drop)?;
-            } else if self.app_wrapper == AppWrapper::Sokol {
+            } else if self.app_wrapper == AppWrapper::Quad {
                 // Set linker arguments using in ndk =< 22
                 let mut linker_args =
                     add_clinker_args(&self.ndk, &self.build_target, self.target_sdk_version)?;

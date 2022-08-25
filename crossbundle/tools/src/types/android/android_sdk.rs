@@ -117,15 +117,7 @@ impl AndroidSdk {
 
     /// Default platforms
     pub fn default_platform(&self) -> u32 {
-        // Currently, Android SDK 33, 32 and 31 not supported as they
-        // miss <build_target>-32-clang<.cmd> linker. Try to use
-        // older versions of android SDK.
-        self.platforms()
-            .iter()
-            .cloned()
-            .filter(|x| x.ne(&33u32) && x.ne(&32u32) && x.ne(&31u32))
-            .max()
-            .unwrap()
+        self.platforms().iter().max().cloned().unwrap()
     }
 
     /// Platforms directory path

@@ -52,11 +52,10 @@ impl ImageGeneration {
         let mipmap_dirs = self.output_path.join(format!("mipmap-{}", mipmap_name));
         if mipmap_dirs.exists() {
             if self.force {
-                std::fs::remove_dir(&mipmap_dirs)?;
+                std::fs::remove_dir_all(&mipmap_dirs).ok();
                 std::fs::create_dir_all(&mipmap_dirs)?;
             }
-            return Ok(());
-        } else if !mipmap_dirs.exists() {
+        } else {
             std::fs::create_dir_all(&mipmap_dirs)?;
         }
         let mut output = File::create(mipmap_dirs.join(&self.out_icon_name))?;

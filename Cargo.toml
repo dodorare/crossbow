@@ -1,6 +1,6 @@
 [package]
 name = "crossbow"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 authors = ["DodoRare Team <support@dodorare.com>"]
 description = "Cross-Platform build tools and toolkit for games"
@@ -21,14 +21,12 @@ apple-bundle = { version = "0.1.4", optional = true }
 
 [target.'cfg(target_os = "android")'.dependencies]
 ndk-glue = "0.7.0"
-crossbow-android = { path = "platform/android", version = "0.2.0", optional = true }
+crossbow-android = { path = "platform/android", version = "0.2.1", optional = true }
 
 [target.'cfg(target_os = "ios")'.dependencies]
-crossbow-ios = { path = "platform/ios", version = "0.2.0", optional = true }
+crossbow-ios = { path = "platform/ios", version = "0.2.1", optional = true }
 
 [patch.crates-io]
-winit = { git = "https://github.com/rust-windowing/winit", rev = "f93f2c158bf527ed56ab2b6f5272214f0c1d9f7d" }
-bevy = { git = "https://github.com/dodorare/bevy", rev = "d51104020004d34db1aa3a9a5795834d7814ae55" }
 miniquad = { git = "https://github.com/not-fl3/miniquad", rev = "d67ffe6950cf73df307e2d23aaa4726f14399985" }
 
 [features]
