@@ -108,7 +108,7 @@ fn get_gradle_properties(
     version_name: &str,
     plugins: &AndroidGradlePlugins,
 ) -> Result<String> {
-    let mut result = get_default_gradle_props(package_name, version_code, version_name).to_owned();
+    let mut result = get_default_gradle_props(package_name, version_code, version_name);
     if !plugins.maven_repos.is_empty() {
         result = format!(
             "{}plugins_maven_repos={}\n",
