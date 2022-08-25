@@ -2,15 +2,13 @@
 
 ## Сonfiguration through metadata
 
-The easiest way to configure a project is with metadata. Here's an example:
+The easiest way to configure a project is with metadata. Here's an example of `Cargo.toml`:
 
 ```toml
-# Cargo.toml
-
 [package]
 name = "game"
 version = "0.1.0"
-authors = ["Example <example@nice.com>"]
+authors = ["Example <example@example.com>"]
 edition = "2021"
 
 [dependencies]
