@@ -189,10 +189,10 @@ To make sure it's present type this command: <code>keytool -h</code></p>
 </ol>
 <h2 id="set-up-the-android-emulator"><a class="header" href="#set-up-the-android-emulator">Set up the Android emulator</a></h2>
 <p>To prepare to run and test your Crossbow app on the Android emulator, follow these steps if you want to install it from the console:</p>
-<pre><code class="language-sh"># Run following command to install System Image for Android SDK 30
-crossbundle install sdk-manager --install &quot;system-images;android-30;google_apis;x86_64&quot;
+<pre><code class="language-sh"># Run following command to install System Image for Android SDK 31
+crossbundle install sdk-manager --install &quot;system-images;android-31;google_apis;x86_64&quot;
 # Run this command to create a new emulator
-avdmanager create avd -n Phone -k &quot;system-images;android-30;google_apis;x86_64&quot;
+avdmanager create avd -n Phone -k &quot;system-images;android-31;google_apis;x86_64&quot;
 # And finally run this command to start the emulator
 emulator -avd=Phone
 </code></pre>
