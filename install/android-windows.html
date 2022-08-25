@@ -164,22 +164,39 @@
 <li>Add <code>ANDROID_SDK_ROOT</code> variable with value <code>&lt;path_to_sdk&gt;\sdk</code>.<br/>(ex. <code>C:\Users\username\AppData\Local\android\sdk</code>)</li>
 <li>Add <code>ANDROID_NDK_ROOT</code> variable with value <code>&lt;path_to_sdk&gt;\sdk\ndk\&lt;version&gt;</code>.<br/>(ex. <code>C:\Users\username\AppData\Local\Android\Sdk\ndk\23.1.7779620</code>)</li>
 </ul>
+<p>Or you can install via command line</p>
+<pre><code class="language-sh">SETX ANDROID_SDK_ROOT &quot;path_to_sdk\sdk&quot; /M
+SETX ANDROID_NDK_ROOT &quot;path_to_sdk\sdk\ndk\version&quot; /M
+</code></pre>
+<p>Crossbow default build process requires installed Gradle on your PC. You can download it <a href="https://services.gradle.org/distributions/">here</a>. Set to environment variable.</p>
+<ul>
+<li>Add <code>GRADLE_HOME</code> variable with value <code>&lt;path_to_gradle&gt;</code>.</li>
+</ul>
+<pre><code class="language-sh">SETX GRADLE_HOME &quot;path_to_gradle&quot; /M
+</code></pre>
 <p>If you will build application with emulator you should add this to environment variables:</p>
 <ul>
 <li>Add <code>&lt;path_to_sdk&gt;\sdk\tools\bin</code> to <code>PATH</code> variable.</li>
 <li>Add <code>&lt;path_to_sdk&gt;\sdk\emulator</code> to <code>PATH</code> variable.</li>
 </ul>
+<pre><code class="language-sh">SETX &quot;&lt;path_to_sdk&gt;\sdk\tools\bin&quot; ~PATH~
+SETX &quot;&lt;path_to_sdk&gt;\sdk\emulator&quot; ~PATH~
+</code></pre>
 <p>Also, we need to make sure we have a <a href="https://www.oracle.com/java/technologies/downloads/">java runtime environment</a> (JRE) or <a href="https://www.oracle.com/java/technologies/downloads/">Java developer kit</a> (JDK) installed. We need a key tool utility from there. <br/>
 To make sure it's present type this command: <code>keytool -h</code></p>
 <ul>
 <li>If command above fails, add <code>&lt;path_to_jre&gt;\bin</code> to <code>PATH</code> environment variable.<br/>(ex. <code>C:\Program Files\Android\Android Studio\jre\bin</code>) <br/>(ex. <code>C:\Program Files\java\jdk\bin</code>)</li>
 </ul>
+<pre><code class="language-sh">SETX JAVA_HOME &quot;path_to_jdk&quot; /M
+</code></pre>
 <p>You have to close and reopen any existing console windows for these changes to take effect.</p>
 <h3 id="if-you-want-to-generate-aab-android-app-bundle-u-will-need-to-install-bundletool"><a class="header" href="#if-you-want-to-generate-aab-android-app-bundle-u-will-need-to-install-bundletool">If you want to generate AAB (Android App Bundle) u will need to install Bundletool</a></h3>
 <p>If you haven't already done so, download bundletool from the <a href="https://github.com/google/bundletool/releases"><code>GitHub repository</code></a>.</p>
 <ul>
 <li>Add <code>BUNDLETOOL_PATH</code> variable with value <code>&lt;path_to_bundletool&gt;</code>.</li>
 </ul>
+<pre><code class="language-sh">SETX BUNDLETOOL_PATH &quot;path_to_bundletool&quot; /M
+</code></pre>
 <h2 id="set-up-your-android-device"><a class="header" href="#set-up-your-android-device">Set up your Android device</a></h2>
 <p>To prepare to run your <code>Crossbow</code> app on an Android device, you need an Android device running Android 4.1 (API level 16) or higher.</p>
 <ol>

@@ -164,7 +164,7 @@ authors = [&quot;Example &lt;example@example.com&gt;&quot;]
 edition = &quot;2021&quot;
 
 [dependencies]
-crossbundle = &quot;*&quot;
+crossbow = &quot;*&quot;
 
 [package.metadata]
 app_name = &quot;My Project&quot;
@@ -179,8 +179,6 @@ fn main() {
 <h2 id="build-an-application"><a class="header" href="#build-an-application">Build an application</a></h2>
 <p>Let's build and run our first <code>crossbundle</code> application. Android commands below will generate gradle project and install apk on your device.</p>
 <pre><code class="language-sh"># cd project-name
-crossbundle run android
-# or (if your project uses macroquad)
 crossbundle run android
 # or
 crossbundle run ios

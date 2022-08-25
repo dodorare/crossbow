@@ -170,6 +170,9 @@ export ANDROID_NDK_ROOT=$HOME/Android/Sdk/ndk/23.1.7779620
 <pre><code class="language-sh">export PATH=&lt;path_to_sdk&gt;\sdk\emulator:$PATH
 export PATH=&lt;path_to_sdk&gt;\sdk\tools\bin:$PATH
 </code></pre>
+<p>Crossbow default build process requires installed Gradle on your PC. You can download it <a href="https://services.gradle.org/distributions/">here</a>. Set to environment variable.</p>
+<pre><code class="language-sh">export GRADLE_HOME=&lt;path_to_gradle&gt;
+</code></pre>
 <p>Also, we need to make sure we have a java runtime environment (JRE) installed. We need a key tool utility from there. <br/>
 To make sure it's present type this command: <code>ls /usr/lib/jvm/default/bin/ | grep keytool</code></p>
 <p><em>But please be aware that your path may vary.</em> The above path is for arch-based Linux.</p>
@@ -181,9 +184,8 @@ Examples:</p>
 </ul>
 <h3 id="if-you-want-to-generate-aab-android-app-bundle-u-will-need-to-install-bundletool"><a class="header" href="#if-you-want-to-generate-aab-android-app-bundle-u-will-need-to-install-bundletool">If you want to generate AAB (Android App Bundle) u will need to install Bundletool</a></h3>
 <p>If you haven't already done so, download bundletool from the <a href="https://github.com/google/bundletool/releases"><code>GitHub repository</code></a>.</p>
-<ul>
-<li>Add <code>BUNDLETOOL_PATH</code> variable with value <code>&lt;path_to_bundletool&gt;</code>.</li>
-</ul>
+<pre><code class="language-sh">export BUNDLETOOL_PATH=&lt;path_to_bundletool&gt;
+</code></pre>
 <h2 id="set-up-your-android-device"><a class="header" href="#set-up-your-android-device">Set up your Android device</a></h2>
 <p>To prepare to run your <code>Crossbow</code> app on an Android device, you need an Android device running Android 4.1 (API level 16) or higher.</p>
 <ol>

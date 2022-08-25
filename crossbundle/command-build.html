@@ -143,7 +143,7 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="crossbow-gradle"><a class="header" href="#crossbow-gradle">Crossbow gradle</a></h1>
-<p>Crossbow default build process requires installed Gradle on your PC. You can download it <a href="https://gradle.org/">here</a>. Don't forget to install <code>GRADLE_HOME</code> environment variable.</p>
+<p>Crossbow default build process requires installed Gradle on your PC.</p>
 <p>To create a project go to the example you want to build and use the command below. The command belongs to macroquad engine examples building:</p>
 <pre><code class="language-sh">crossbundle build android
 
@@ -154,6 +154,14 @@ crossbundle build android --export-path=./gen/
 <pre><code class="language-sh">gradle installDebug
 </code></pre>
 <p>Also you can replace <code>build</code> with <code>run</code> subcommand to build and run APK on your device (it uses <code>installDebug</code> command under the hood). To see how to set android emulator check install recommendations for <a href="./install-linux-android.html">linux-android</a>, <a href="./install-macos-android.html">macos-android</a>, <a href="./install-windows-android.html">windows-android</a>.</p>
+<p>If you don't want to use gradle you can specify it in strategy native-apk:</p>
+<pre><code class="language-sh">crossbundle build android -s=native-apk
+# or do you need AAB:
+crossbundle build android -s=native-aab
+</code></pre>
+<p>To find out available commands specify the -h flag.</p>
+<pre><code class="language-sh">crossbundle build android -h
+</code></pre>
 
                     </main>
 

@@ -143,7 +143,22 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="run-command"><a class="header" href="#run-command">Run Command</a></h1>
-<p>TODO: Write documentation.</p>
+<p>Crossbow default run process requires installed Gradle on your PC.</p>
+<p>To create a project go to the example you want to build and use the command below. The command belongs to macroquad engine examples building:</p>
+<pre><code class="language-sh">crossbundle run android
+
+# To specify custom export gradle directory
+crossbundle run android --export-path=./gen/
+</code></pre>
+<p>By default run directory is <code>target/android/&lt;project_name&gt;/gradle</code>. But you can specify your own build directory via <code>--export-path=&lt;OUT_PATH&gt;</code> flag.</p>
+<p>If you don't want to use gradle you can specify it in strategy native-apk:</p>
+<pre><code class="language-sh">crossbundle run android -s=native-apk
+# or do you need AAB:
+crossbundle run android -s=native-aab
+</code></pre>
+<p>To find out available commands specify the -h flag.</p>
+<pre><code class="language-sh">crossbundle run android -h
+</code></pre>
 
                     </main>
 

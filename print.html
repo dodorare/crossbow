@@ -211,22 +211,39 @@
 <li>Add <code>ANDROID_SDK_ROOT</code> variable with value <code>&lt;path_to_sdk&gt;\sdk</code>.<br/>(ex. <code>C:\Users\username\AppData\Local\android\sdk</code>)</li>
 <li>Add <code>ANDROID_NDK_ROOT</code> variable with value <code>&lt;path_to_sdk&gt;\sdk\ndk\&lt;version&gt;</code>.<br/>(ex. <code>C:\Users\username\AppData\Local\Android\Sdk\ndk\23.1.7779620</code>)</li>
 </ul>
+<p>Or you can install via command line</p>
+<pre><code class="language-sh">SETX ANDROID_SDK_ROOT &quot;path_to_sdk\sdk&quot; /M
+SETX ANDROID_NDK_ROOT &quot;path_to_sdk\sdk\ndk\version&quot; /M
+</code></pre>
+<p>Crossbow default build process requires installed Gradle on your PC. You can download it <a href="https://services.gradle.org/distributions/">here</a>. Set to environment variable.</p>
+<ul>
+<li>Add <code>GRADLE_HOME</code> variable with value <code>&lt;path_to_gradle&gt;</code>.</li>
+</ul>
+<pre><code class="language-sh">SETX GRADLE_HOME &quot;path_to_gradle&quot; /M
+</code></pre>
 <p>If you will build application with emulator you should add this to environment variables:</p>
 <ul>
 <li>Add <code>&lt;path_to_sdk&gt;\sdk\tools\bin</code> to <code>PATH</code> variable.</li>
 <li>Add <code>&lt;path_to_sdk&gt;\sdk\emulator</code> to <code>PATH</code> variable.</li>
 </ul>
+<pre><code class="language-sh">SETX &quot;&lt;path_to_sdk&gt;\sdk\tools\bin&quot; ~PATH~
+SETX &quot;&lt;path_to_sdk&gt;\sdk\emulator&quot; ~PATH~
+</code></pre>
 <p>Also, we need to make sure we have a <a href="https://www.oracle.com/java/technologies/downloads/">java runtime environment</a> (JRE) or <a href="https://www.oracle.com/java/technologies/downloads/">Java developer kit</a> (JDK) installed. We need a key tool utility from there. <br/>
 To make sure it's present type this command: <code>keytool -h</code></p>
 <ul>
 <li>If command above fails, add <code>&lt;path_to_jre&gt;\bin</code> to <code>PATH</code> environment variable.<br/>(ex. <code>C:\Program Files\Android\Android Studio\jre\bin</code>) <br/>(ex. <code>C:\Program Files\java\jdk\bin</code>)</li>
 </ul>
+<pre><code class="language-sh">SETX JAVA_HOME &quot;path_to_jdk&quot; /M
+</code></pre>
 <p>You have to close and reopen any existing console windows for these changes to take effect.</p>
 <h3 id="if-you-want-to-generate-aab-android-app-bundle-u-will-need-to-install-bundletool"><a class="header" href="#if-you-want-to-generate-aab-android-app-bundle-u-will-need-to-install-bundletool">If you want to generate AAB (Android App Bundle) u will need to install Bundletool</a></h3>
 <p>If you haven't already done so, download bundletool from the <a href="https://github.com/google/bundletool/releases"><code>GitHub repository</code></a>.</p>
 <ul>
 <li>Add <code>BUNDLETOOL_PATH</code> variable with value <code>&lt;path_to_bundletool&gt;</code>.</li>
 </ul>
+<pre><code class="language-sh">SETX BUNDLETOOL_PATH &quot;path_to_bundletool&quot; /M
+</code></pre>
 <h2 id="set-up-your-android-device"><a class="header" href="#set-up-your-android-device">Set up your Android device</a></h2>
 <p>To prepare to run your <code>Crossbow</code> app on an Android device, you need an Android device running Android 4.1 (API level 16) or higher.</p>
 <ol>
@@ -287,6 +304,9 @@ export ANDROID_NDK_ROOT=$HOME/Android/Sdk/ndk/23.1.7779620
 <pre><code class="language-sh">export PATH=&lt;path_to_sdk&gt;\sdk\emulator:$PATH
 export PATH=&lt;path_to_sdk&gt;\sdk\tools\bin:$PATH
 </code></pre>
+<p>Crossbow default build process requires installed Gradle on your PC. You can download it <a href="https://services.gradle.org/distributions/">here</a>. Set to environment variable.</p>
+<pre><code class="language-sh">export GRADLE_HOME=&lt;path_to_gradle&gt;
+</code></pre>
 <p>Also, we need to make sure we have a java runtime environment (JRE) installed. We need a key tool utility from there. <br/>
 To make sure it's present type this command: <code>ls /usr/lib/jvm/default/bin/ | grep keytool</code></p>
 <p><em>But please be aware that your path may vary.</em> The above path is for arch-based Linux.</p>
@@ -298,9 +318,8 @@ Examples:</p>
 </ul>
 <h3 id="if-you-want-to-generate-aab-android-app-bundle-u-will-need-to-install-bundletool-1"><a class="header" href="#if-you-want-to-generate-aab-android-app-bundle-u-will-need-to-install-bundletool-1">If you want to generate AAB (Android App Bundle) u will need to install Bundletool</a></h3>
 <p>If you haven't already done so, download bundletool from the <a href="https://github.com/google/bundletool/releases"><code>GitHub repository</code></a>.</p>
-<ul>
-<li>Add <code>BUNDLETOOL_PATH</code> variable with value <code>&lt;path_to_bundletool&gt;</code>.</li>
-</ul>
+<pre><code class="language-sh">export BUNDLETOOL_PATH=&lt;path_to_bundletool&gt;
+</code></pre>
 <h2 id="set-up-your-android-device-1"><a class="header" href="#set-up-your-android-device-1">Set up your Android device</a></h2>
 <p>To prepare to run your <code>Crossbow</code> app on an Android device, you need an Android device running Android 4.1 (API level 16) or higher.</p>
 <ol>
@@ -363,6 +382,9 @@ export ANDROID_NDK_ROOT=$ANDROID_SDK_ROOT/ndk/23.1.7779620
 <p>If u will build application with emulator u should add this environment variables:</p>
 <pre><code class="language-sh">export PATH=&lt;path_to_sdk&gt;\sdk\emulator:$PATH
 export PATH=&lt;path_to_sdk&gt;\sdk\tools\bin:$PATH
+</code></pre>
+<p>Crossbow default build process requires installed Gradle on your PC. You can download it <a href="https://services.gradle.org/distributions/">here</a>. Set to environment variable.</p>
+<pre><code class="language-sh">export GRADLE_HOME=&lt;path_to_gradle&gt;
 </code></pre>
 <p>Also, we need to make sure we have a java runtime environment (JRE) installed. We will need a key tool utility from there. <br/>
 To make sure it's present type this command: <code>ls /usr/lib/jvm/default/bin/ | grep keytool</code> or add to your <code>PATH</code> env var.</p>
@@ -540,7 +562,7 @@ Note: Android studio install cmdline tools into <code>$SDK_ROOT/cmdline-tools/&l
 </code></pre>
 <p>The command will download bundletool from <a href="https://github.com/google/bundletool/releases"><code>GitHub repository</code></a> and save it into <code>$HOME</code>. Notice, that you should install <a href="https://www.oracle.com/java/technologies/downloads/">Java JDK</a> to open bundletool jar file.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="crossbow-gradle"><a class="header" href="#crossbow-gradle">Crossbow gradle</a></h1>
-<p>Crossbow default build process requires installed Gradle on your PC. You can download it <a href="https://gradle.org/">here</a>. Don't forget to install <code>GRADLE_HOME</code> environment variable.</p>
+<p>Crossbow default build process requires installed Gradle on your PC.</p>
 <p>To create a project go to the example you want to build and use the command below. The command belongs to macroquad engine examples building:</p>
 <pre><code class="language-sh">crossbundle build android
 
@@ -551,19 +573,40 @@ crossbundle build android --export-path=./gen/
 <pre><code class="language-sh">gradle installDebug
 </code></pre>
 <p>Also you can replace <code>build</code> with <code>run</code> subcommand to build and run APK on your device (it uses <code>installDebug</code> command under the hood). To see how to set android emulator check install recommendations for <a href="crossbundle/./install-linux-android.html">linux-android</a>, <a href="crossbundle/./install-macos-android.html">macos-android</a>, <a href="crossbundle/./install-windows-android.html">windows-android</a>.</p>
+<p>If you don't want to use gradle you can specify it in strategy native-apk:</p>
+<pre><code class="language-sh">crossbundle build android -s=native-apk
+# or do you need AAB:
+crossbundle build android -s=native-aab
+</code></pre>
+<p>To find out available commands specify the -h flag.</p>
+<pre><code class="language-sh">crossbundle build android -h
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="run-command"><a class="header" href="#run-command">Run Command</a></h1>
-<p>TODO: Write documentation.</p>
+<p>Crossbow default run process requires installed Gradle on your PC.</p>
+<p>To create a project go to the example you want to build and use the command below. The command belongs to macroquad engine examples building:</p>
+<pre><code class="language-sh">crossbundle run android
+
+# To specify custom export gradle directory
+crossbundle run android --export-path=./gen/
+</code></pre>
+<p>By default run directory is <code>target/android/&lt;project_name&gt;/gradle</code>. But you can specify your own build directory via <code>--export-path=&lt;OUT_PATH&gt;</code> flag.</p>
+<p>If you don't want to use gradle you can specify it in strategy native-apk:</p>
+<pre><code class="language-sh">crossbundle run android -s=native-apk
+# or do you need AAB:
+crossbundle run android -s=native-aab
+</code></pre>
+<p>To find out available commands specify the -h flag.</p>
+<pre><code class="language-sh">crossbundle run android -h
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="overview-1"><a class="header" href="#overview-1">Overview</a></h1>
 <p>In this category, you will learn how to use the <code>crossbow</code> crate.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="project-configuration"><a class="header" href="#project-configuration">Project configuration</a></h1>
 <h2 id="Сonfiguration-through-metadata"><a class="header" href="#Сonfiguration-through-metadata">Сonfiguration through metadata</a></h2>
-<p>The easiest way to configure a project is with metadata. Here's an example:</p>
-<pre><code class="language-toml"># Cargo.toml
-
-[package]
+<p>The easiest way to configure a project is with metadata. Here's an example of <code>Cargo.toml</code>:</p>
+<pre><code class="language-toml">[package]
 name = &quot;game&quot;
 version = &quot;0.1.0&quot;
-authors = [&quot;Example &lt;example@nice.com&gt;&quot;]
+authors = [&quot;Example &lt;example@example.com&gt;&quot;]
 edition = &quot;2021&quot;
 
 [dependencies]
@@ -736,7 +779,7 @@ authors = [&quot;Example &lt;example@example.com&gt;&quot;]
 edition = &quot;2021&quot;
 
 [dependencies]
-crossbundle = &quot;*&quot;
+crossbow = &quot;*&quot;
 
 [package.metadata]
 app_name = &quot;My Project&quot;
@@ -751,8 +794,6 @@ fn main() {
 <h2 id="build-an-application"><a class="header" href="#build-an-application">Build an application</a></h2>
 <p>Let's build and run our first <code>crossbundle</code> application. Android commands below will generate gradle project and install apk on your device.</p>
 <pre><code class="language-sh"># cd project-name
-crossbundle run android
-# or (if your project uses macroquad)
 crossbundle run android
 # or
 crossbundle run ios
