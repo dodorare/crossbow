@@ -15,7 +15,7 @@ fn test_build_apks() {
     // Assigns configuratin to generate aab
     let sdk = AndroidSdk::from_env().unwrap();
     let package_name = "test";
-    let target_sdk_version = 30;
+    let target_sdk_version = 31;
     assert!(build_dir.exists());
 
     // Generates mininmal unsigned aab
@@ -73,7 +73,7 @@ fn build_bundle_test() {
     // Assigns configuratin to generate aab
     let sdk = AndroidSdk::from_env().unwrap();
     let package_name = "test";
-    let target_sdk_version = 30;
+    let target_sdk_version = 31;
 
     // Generates mininmal unsigned aab
     let aab_path =

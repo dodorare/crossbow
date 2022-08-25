@@ -19,7 +19,7 @@ pub struct JniSingleton {
 
 #[derive(Clone, Debug)]
 pub struct Signal {
-    pub signal_name: String,
+    pub name: String,
     pub args: Vec<JniRustType>,
 }
 

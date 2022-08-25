@@ -59,7 +59,7 @@ fn get_minimal_info_plist(name: &str) -> InfoPlist {
 fn test_apple_full() {
     let tempdir = tempfile::tempdir().unwrap();
     let dir = tempdir.path();
-    let name = gen_minimal_project(dir, false, true).unwrap();
+    let name = gen_minimal_project(dir, false).unwrap();
 
     // Create target dir
     let target_dir = dir.join("target");

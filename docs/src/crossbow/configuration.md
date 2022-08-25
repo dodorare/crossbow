@@ -14,7 +14,7 @@ authors = ["Example <example@nice.com>"]
 edition = "2021"
 
 [dependencies]
-crossbow = "0.2.0"
+crossbow = "0.2.1"
 
 [package.metadata]
 app_name = "Game"
@@ -53,7 +53,7 @@ and then place `AndroidManifest.xml` or/and `Info.plist` near `Cargo.toml`
     android:versionCode="1"
     android:versionName="1.0">
     <uses-sdk android:minSdkVersion="16"
-        android:targetSdkVersion="30" />
+        android:targetSdkVersion="31" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>

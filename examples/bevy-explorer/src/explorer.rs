@@ -158,7 +158,7 @@ pub fn explorer_text_updater(
 
 pub fn explorer_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
     let font_handle: Handle<Font> = asset_server.load("fonts/FiraSans-Bold.ttf");
-    commands.spawn_bundle(UiCameraBundle::default());
+    commands.spawn_bundle(Camera2dBundle::default());
     // Root node (padding)
     commands
         .spawn_bundle(NodeBundle {
@@ -211,55 +211,51 @@ pub fn explorer_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
                         })
                         .with_children(|parent| {
                             parent.spawn_bundle(TextBundle {
-                                text: Text::with_section(
+                                text: Text::from_section(
                                     "Best block",
                                     TextStyle {
                                         font: font_handle.clone(),
                                         font_size: TEXT_FONT_SIZE / 1.5,
                                         color: Color::rgb(0.9, 0.9, 0.9),
                                     },
-                                    Default::default(),
                                 ),
                                 ..Default::default()
                             });
                             parent
                                 .spawn_bundle(TextBundle {
-                                    text: Text::with_section(
+                                    text: Text::from_section(
                                         "Number: ",
                                         TextStyle {
                                             font: font_handle.clone(),
                                             font_size: TEXT_FONT_SIZE,
                                             color: Color::rgb(0.9, 0.9, 0.9),
                                         },
-                                        Default::default(),
                                     ),
                                     ..Default::default()
                                 })
                                 .insert(Block::Best(BlockTexts::Number));
                             parent
                                 .spawn_bundle(TextBundle {
-                                    text: Text::with_section(
+                                    text: Text::from_section(
                                         "Hash: ",
                                         TextStyle {
                                             font: font_handle.clone(),
                                             font_size: TEXT_FONT_SIZE,
                                             color: Color::rgb(0.9, 0.9, 0.9),
                                         },
-                                        Default::default(),
                                     ),
                                     ..Default::default()
                                 })
                                 .insert(Block::Best(BlockTexts::Hash));
                             parent
                                 .spawn_bundle(TextBundle {
-                                    text: Text::with_section(
+                                    text: Text::from_section(
                                         "Parent: ",
                                         TextStyle {
                                             font: font_handle.clone(),
                                             font_size: TEXT_FONT_SIZE,
                                             color: Color::rgb(0.9, 0.9, 0.9),
                                         },
-                                        Default::default(),
                                     ),
                                     ..Default::default()
                                 })
@@ -285,55 +281,51 @@ pub fn explorer_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
                         })
                         .with_children(|parent| {
                             parent.spawn_bundle(TextBundle {
-                                text: Text::with_section(
+                                text: Text::from_section(
                                     "Finalized block",
                                     TextStyle {
                                         font: font_handle.clone(),
                                         font_size: TEXT_FONT_SIZE / 1.5,
                                         color: Color::rgb(0.9, 0.9, 0.9),
                                     },
-                                    Default::default(),
                                 ),
                                 ..Default::default()
                             });
                             parent
                                 .spawn_bundle(TextBundle {
-                                    text: Text::with_section(
+                                    text: Text::from_section(
                                         "Number: ",
                                         TextStyle {
                                             font: font_handle.clone(),
                                             font_size: TEXT_FONT_SIZE,
                                             color: Color::rgb(0.9, 0.9, 0.9),
                                         },
-                                        Default::default(),
                                     ),
                                     ..Default::default()
                                 })
                                 .insert(Block::Finalized(BlockTexts::Number));
                             parent
                                 .spawn_bundle(TextBundle {
-                                    text: Text::with_section(
+                                    text: Text::from_section(
                                         "Hash: ",
                                         TextStyle {
                                             font: font_handle.clone(),
                                             font_size: TEXT_FONT_SIZE,
                                             color: Color::rgb(0.9, 0.9, 0.9),
                                         },
-                                        Default::default(),
                                     ),
                                     ..Default::default()
                                 })
                                 .insert(Block::Finalized(BlockTexts::Hash));
                             parent
                                 .spawn_bundle(TextBundle {
-                                    text: Text::with_section(
+                                    text: Text::from_section(
                                         "Parent: ",
                                         TextStyle {
                                             font: font_handle.clone(),
                                             font_size: TEXT_FONT_SIZE,
                                             color: Color::rgb(0.9, 0.9, 0.9),
                                         },
-                                        Default::default(),
                                     ),
                                     ..Default::default()
                                 })

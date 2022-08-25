@@ -17,16 +17,16 @@ Just add Rust dependencies like this:
 
 ```toml
 [dependencies]
-crossbow = "0.2.0"
+crossbow = "0.2.1"
 [target.'cfg(target_os = "android")'.dependencies]
-play-billing = "0.2.0"
+play-billing = "0.2.1"
 ```
 
 And finally, add this to your Crossbow Android configuration:
 
 ```toml
 [package.metadata.android]
-plugins_remote = ["com.crossbow.play_billing:play_billing:0.2.0"]
+plugins_remote = ["com.crossbow.play_billing:play_billing:0.2.1"]
 ```
 
 > That's it, now you can start using Play Billing!

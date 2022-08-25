@@ -25,106 +25,106 @@ pub enum JniRustType {
 
 impl JniRustType {
     /// Try to unwrap to Void.
-    pub fn void(self) -> Result<()> {
+    pub fn into_void(self) -> Option<()> {
         match self {
-            Self::Void => Ok(()),
-            _ => Err(AndroidError::WrongJniRustType),
+            Self::Void => Some(()),
+            _ => None,
         }
     }
 
     /// Try to unwrap to Boolean.
-    pub fn bool(self) -> Result<bool> {
+    pub fn into_bool(self) -> Option<bool> {
         match self {
-            Self::Boolean(val) => Ok(val),
-            _ => Err(AndroidError::WrongJniRustType),
+            Self::Boolean(val) => Some(val),
+            _ => None,
         }
     }
 
     /// Try to unwrap to String.
-    pub fn string(self) -> Result<String> {
+    pub fn into_string(self) -> Option<String> {
         match self {
-            Self::String(val) => Ok(val),
-            _ => Err(AndroidError::WrongJniRustType),
+            Self::String(val) => Some(val),
+            _ => None,
         }
     }
 
     /// Try to unwrap to StringArray.
-    pub fn string_array(self) -> Result<Vec<String>> {
+    pub fn into_string_array(self) -> Option<Vec<String>> {
         match self {
-            Self::StringArray(val) => Ok(val),
-            _ => Err(AndroidError::WrongJniRustType),
+            Self::StringArray(val) => Some(val),
+            _ => None,
         }
     }
 
     /// Try to unwrap to Int.
-    pub fn int(self) -> Result<i64> {
+    pub fn into_int(self) -> Option<i64> {
         match self {
-            Self::Int(val) => Ok(val),
-            _ => Err(AndroidError::WrongJniRustType),
+            Self::Int(val) => Some(val),
+            _ => None,
         }
     }
 
     /// Try to unwrap to IntArray.
-    pub fn int_array(self) -> Result<Vec<i64>> {
+    pub fn into_int_array(self) -> Option<Vec<i64>> {
         match self {
-            Self::IntArray(val) => Ok(val),
-            _ => Err(AndroidError::WrongJniRustType),
+            Self::IntArray(val) => Some(val),
+            _ => None,
         }
     }
 
     /// Try to unwrap to ByteArray.
-    pub fn byte_array(self) -> Result<Vec<u8>> {
+    pub fn into_byte_array(self) -> Option<Vec<u8>> {
         match self {
-            Self::ByteArray(val) => Ok(val),
-            _ => Err(AndroidError::WrongJniRustType),
+            Self::ByteArray(val) => Some(val),
+            _ => None,
         }
     }
 
     /// Try to unwrap to Float.
-    pub fn float(self) -> Result<f32> {
+    pub fn into_float(self) -> Option<f32> {
         match self {
-            Self::Float(val) => Ok(val),
-            _ => Err(AndroidError::WrongJniRustType),
+            Self::Float(val) => Some(val),
+            _ => None,
         }
     }
 
     /// Try to unwrap to Double.
-    pub fn double(self) -> Result<f64> {
+    pub fn into_double(self) -> Option<f64> {
         match self {
-            Self::Double(val) => Ok(val),
-            _ => Err(AndroidError::WrongJniRustType),
+            Self::Double(val) => Some(val),
+            _ => None,
         }
     }
 
     /// Try to unwrap to FloatArray.
-    pub fn float_array(self) -> Result<Vec<f32>> {
+    pub fn into_float_array(self) -> Option<Vec<f32>> {
         match self {
-            Self::FloatArray(val) => Ok(val),
-            _ => Err(AndroidError::WrongJniRustType),
+            Self::FloatArray(val) => Some(val),
+            _ => None,
         }
     }
 
     /// Try to unwrap to DoubleArray.
-    pub fn double_array(self) -> Result<Vec<f64>> {
+    pub fn into_double_array(self) -> Option<Vec<f64>> {
         match self {
-            Self::DoubleArray(val) => Ok(val),
-            _ => Err(AndroidError::WrongJniRustType),
+            Self::DoubleArray(val) => Some(val),
+            _ => None,
         }
     }
 
     /// Try to unwrap to ObjectArray.
-    pub fn object_array(self) -> Result<Vec<Self>> {
+    pub fn into_object_array(self) -> Option<Vec<Self>> {
         match self {
-            Self::ObjectArray(val) => Ok(val),
-            _ => Err(AndroidError::WrongJniRustType),
+            Self::ObjectArray(val) => Some(val),
+            _ => None,
         }
     }
 
     /// Try to unwrap to Map.
-    pub fn map(self) -> Result<HashMap<String, Self>> {
+    pub fn into_map(self) -> Option<HashMap<String, Self>> {
         match self {
-            Self::Map(val) => Ok(val),
-            _ => Err(AndroidError::WrongJniRustType),
+            Self::Map(val) => Some(val),
+            _ => None,
         }
     }
 
@@ -155,6 +155,9 @@ impl JniRustType {
 
     // TODO: Test this function. It's not tested yet and possibly can fall with errors.
     pub fn from_jobject(env: &JNIEnv, obj: JObject) -> Result<Self> {
+        if obj.is_null() {
+            return Ok(Self::Void);
+        }
         let class = env.get_object_class(obj)?;
         let name = get_class_name(env, class)?;
 
@@ -261,7 +264,9 @@ impl JniRustType {
                 let get_keys = env.get_method_id(class, "get_keys", "()[Ljava/lang/String;")?;
                 let arr =
                     env.call_method_unchecked(obj, get_keys, JavaType::Object("".to_owned()), &[])?;
-                let keys = Self::from_jobject(env, arr.l()?)?.string_array()?;
+                let keys = Self::from_jobject(env, arr.l()?)?
+                    .into_string_array()
+                    .ok_or(AndroidError::WrongJniRustType)?;
 
                 let get_values = env.get_method_id(class, "get_values", "()[Ljava/lang/Object;")?;
                 let arr = env.call_method_unchecked(
@@ -273,7 +278,9 @@ impl JniRustType {
                 let vals = Self::from_jobject(env, arr.l()?)?;
 
                 let mut map = HashMap::new();
-                let values = vals.object_array()?;
+                let values = vals
+                    .into_object_array()
+                    .ok_or(AndroidError::WrongJniRustType)?;
                 map.extend(keys.into_iter().zip(values.into_iter()));
                 Self::Map(map)
             }

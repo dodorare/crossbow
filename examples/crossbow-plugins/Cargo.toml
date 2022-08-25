@@ -1,23 +1,26 @@
 [package]
-name = "macroquad-play-games"
-version = "0.2.0"
+name = "crossbow-plugins"
+version = "0.2.1"
 authors = ["DodoRare Team <support@dodorare.com>"]
 edition = "2021"
 
 [dependencies]
-crossbow = { version = "0.2.0", path = "../../" }
+crossbow = { version = "0.2.1", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
-macroquad = "0.3.7"
+macroquad = "=0.3.7"
 
 [target.'cfg(target_os = "android")'.dependencies]
-play-games-services = { version = "0.2.0", path = "../../plugins/play-games-services" }
+play-core = { version = "0.2.1", path = "../../plugins/play-core" }
+play-billing = { version = "0.2.1", path = "../../plugins/play-billing" }
+play-games-services = { version = "0.2.1", path = "../../plugins/play-games-services" }
 
 [package.metadata]
-app_name = "Play Games"
+app_name = "Crossbow Plugins"
+icon = "../../assets/images/icon.png"
 
 [package.metadata.android]
-app_wrapper = "sokol"
+app_wrapper = "quad"
 release_build_targets = ["aarch64-linux-android"]
 resources = ["../../assets/res/android"]
 
@@ -28,20 +31,29 @@ project_dir = "../../platform/android/java"
 [[package.metadata.android.plugins_local_projects]]
 include = ":crossbow:lib"
 [[package.metadata.android.plugins_local_projects]]
+include = ":play_billing"
+project_dir = "../../plugins/play-billing/android"
+[[package.metadata.android.plugins_local_projects]]
 include = ":play_games_services"
 project_dir = "../../plugins/play-games-services/android"
+[[package.metadata.android.plugins_local_projects]]
+include = ":play_core"
+project_dir = "../../plugins/play-core/android"
 
 [package.metadata.android.manifest]
-package = "com.crossbow.example.play_games"
+package = "com.crossbow.example.plugins"
+version_code = 4
+version_name = "0.0.4"
 [package.metadata.android.manifest.uses_sdk]
 min_sdk_version = 19
-target_sdk_version = 30
-[package.metadata.android.manifest.application]
-icon = "@mipmap/ic_launcher"
-round_icon = "@mipmap/ic_launcher"
+target_sdk_version = 31
 [[package.metadata.android.manifest.application.meta_data]]
 name = "com.google.android.gms.games.APP_ID"
 value = "@string/app_id"
 [[package.metadata.android.manifest.application.meta_data]]
 name = "com.google.android.gms.version"
 value = "@integer/google_play_services_version"
+[[package.metadata.android.manifest.uses_permission]]
+name = "com.google.android.gms.permission.AD_ID"
+[[package.metadata.android.manifest.uses_permission]]
+name = "com.android.vending.BILLING"

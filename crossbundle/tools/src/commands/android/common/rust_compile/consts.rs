@@ -27,7 +27,7 @@ unsafe extern "C" fn ANativeActivity_onCreate(
 }
 "#;
 
-pub const SOKOL_EXTRA_CODE: &str = r##"
+pub const QUAD_EXTRA_CODE: &str = r##"
 mod cargo_apk_glue_code {
     extern "C" {
         pub fn sapp_ANativeActivity_onCreate(

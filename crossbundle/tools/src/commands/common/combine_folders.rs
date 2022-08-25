@@ -17,6 +17,5 @@ pub fn combine_folders(folder_paths: &[PathBuf], output: &Path) -> Result<()> {
     for folder_path in folder_paths {
         copy_dir(dunce::simplified(folder_path), output, &options)?;
     }
-
     Ok(())
 }

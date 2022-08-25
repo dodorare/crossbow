@@ -32,6 +32,9 @@ pub struct GradleDependencyProject {
 }
 
 pub fn gen_gradle_project(
+    package_name: &str,
+    version_code: u32,
+    version_name: &str,
     android_build_dir: &Path,
     assets_dir: &Option<PathBuf>,
     resources_dir: &Option<PathBuf>,
@@ -54,7 +57,11 @@ pub fn gen_gradle_project(
     }
 
     let mut gradle_properties = File::create(gradle_project_path.join("gradle.properties"))?;
-    write!(gradle_properties, "{}", get_gradle_properties(plugins)?)?;
+    write!(
+        gradle_properties,
+        "{}",
+        get_gradle_properties(package_name, version_code, version_name, plugins)?
+    )?;
 
     let mut settings_gradle = File::create(gradle_project_path.join("settings.gradle"))?;
     write!(
@@ -68,24 +75,40 @@ pub fn gen_gradle_project(
     options.content_only = true;
     // Copy resources to gradle folder if provided
     if let Some(resources_dir) = resources_dir {
-        fs_extra::dir::copy(resources_dir, &gradle_project_path.join("res"), &options)?;
+        let path = gradle_project_path.join("res");
+        std::fs::remove_dir_all(&path).ok();
+        fs_extra::dir::copy(resources_dir, &path, &options)?;
     }
     // Copy assets to gradle folder if provided
     if let Some(assets_dir) = assets_dir {
-        fs_extra::dir::copy(assets_dir, &gradle_project_path.join("assets"), &options)?;
+        let path = gradle_project_path.join("assets");
+        std::fs::remove_dir_all(&path).ok();
+        fs_extra::dir::copy(assets_dir, &path, &options)?;
     }
 
     Ok(gradle_project_path)
 }
 
-const DEFAULT_GRADLE_PROPERTIES: &str = r#"org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+fn get_default_gradle_props(package_name: &str, version_code: u32, version_name: &str) -> String {
+    let mut res = r#"org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
 android.useAndroidX=true
 android.enableJetifier=true
 android.nonTransitiveRClass=true
-"#;
+"#
+    .to_owned();
+    res = format!("{}export_package_name={}\n", res, package_name);
+    res = format!("{}export_version_code={}\n", res, version_code);
+    res = format!("{}export_version_name={}\n", res, version_name);
+    res
+}
 
-fn get_gradle_properties(plugins: &AndroidGradlePlugins) -> Result<String> {
-    let mut result = DEFAULT_GRADLE_PROPERTIES.to_string();
+fn get_gradle_properties(
+    package_name: &str,
+    version_code: u32,
+    version_name: &str,
+    plugins: &AndroidGradlePlugins,
+) -> Result<String> {
+    let mut result = get_default_gradle_props(package_name, version_code, version_name);
     if !plugins.maven_repos.is_empty() {
         result = format!(
             "{}plugins_maven_repos={}\n",
@@ -193,16 +216,17 @@ mod tests {
             local_projects: vec![],
         };
         assert_eq!(
-            get_gradle_properties(&plugins).unwrap(),
-            DEFAULT_GRADLE_PROPERTIES
+            get_gradle_properties("com.crossbow.test", 1, "1.0", &plugins).unwrap(),
+            get_default_gradle_props("com.crossbow.test", 1, "1.0"),
         );
 
         plugins.local.push(PathBuf::from("../../MyPlugin.aar"));
         assert_eq!(
-            get_gradle_properties(&plugins).unwrap(),
+            get_gradle_properties("com.crossbow.test", 1, "1.0", &plugins).unwrap(),
             format!(
                 "{}{}",
-                DEFAULT_GRADLE_PROPERTIES, "plugins_local_binaries=../../MyPlugin.aar\n"
+                get_default_gradle_props("com.crossbow.test", 1, "1.0"),
+                "plugins_local_binaries=../../MyPlugin.aar\n"
             )
         );
     }

@@ -2,7 +2,7 @@
 
 mod explorer;
 
-use bevy::{core::FixedTimestep, prelude::*};
+use bevy::{prelude::*, time::FixedTimestep};
 use explorer::*;
 
 fn main() {

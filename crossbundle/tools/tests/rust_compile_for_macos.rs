@@ -9,7 +9,7 @@ use crossbundle_tools::{
 fn test_compile_apple() {
     let tempdir = tempfile::tempdir().unwrap();
     let dir = tempdir.path();
-    let name = gen_minimal_project(dir, false, true).unwrap();
+    let name = gen_minimal_project(dir, false).unwrap();
 
     compile_rust_for_ios(
         Target::Bin(name),

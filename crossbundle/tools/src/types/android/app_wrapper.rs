@@ -7,8 +7,8 @@ pub enum AppWrapper {
     #[default]
     #[serde(rename = "ndk-glue")]
     NdkGlue,
-    #[serde(rename = "sokol")]
-    Sokol,
+    #[serde(rename = "quad")]
+    Quad,
 }
 
 impl std::str::FromStr for AppWrapper {
@@ -17,7 +17,7 @@ impl std::str::FromStr for AppWrapper {
     fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
         match s {
             "ndk-glue" => Ok(Self::NdkGlue),
-            "sokol" => Ok(Self::Sokol),
+            "quad" => Ok(Self::Quad),
             _ => Err(AndroidError::InvalidAppWrapper(s.to_owned())),
         }
     }

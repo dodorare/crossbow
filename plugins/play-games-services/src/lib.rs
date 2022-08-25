@@ -21,7 +21,7 @@ impl CrossbowPlugin for PlayGamesServicesPlugin {
     }
 
     fn get_plugin_name() -> &'static str {
-        "PlayGamesServices"
+        "CrossbowPlayGamesServices"
     }
 
     fn get_receiver(&self) -> &Receiver<Signal> {
