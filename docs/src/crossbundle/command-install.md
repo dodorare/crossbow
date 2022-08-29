@@ -30,19 +30,19 @@ The [sdkmanager](https://developer.android.com/studio/command-line/sdkmanager) i
 To install packages use the command below. We prefer to use --preferred-tools flag to install minimal required tools needed for crossbundle correct working. This command will setup build-tools, android-ndk and android platforms: 
 
 ```sh
-crossbundle install sdk-manager --preferred-tools
+crossbundle install sdkmanager --preferred-tools
 ```
 
 Also you can install packages manually. To see all available tools use the -h flag. List installed and available packages:
 
 ```sh
-crossbundle install sdk-manager --list
+crossbundle install sdkmanager --list
 ```
 
 And then enter the command.
 
 ```sh
-crossbundle install sdk-manager --install "build-tools;31.0.0" "ndk;23.1.7779620" "platforms;android-31"
+crossbundle install sdkmanager --install "build-tools;31.0.0" "ndk;23.1.7779620" "platforms;android-31"
 ```
 
 The command will install packages into `$HOME\AppData\Local\Android\Sdk\` for Windows, `$HOME/Library/Android/sdk/` for macOS, and `$HOME/Android/sdk/` for Linux.

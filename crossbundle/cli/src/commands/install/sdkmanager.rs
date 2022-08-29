@@ -9,49 +9,49 @@ pub struct SdkManagerInstallCommand {
     /// Install all preferred tools for correct crossbundle work. It will install
     /// build-tools;31.0.0, ndk;23.1.7779620 and platforms;android-31
     #[clap(long, short)]
-    preferred_tools: bool,
+    pub preferred_tools: bool,
     /// List installed and available packages. Use the channel option to include a package
     /// from a channel up to and including channel_id. For example, specify the canary
     /// channel to list packages from all channels
     #[clap(long, short)]
-    list: bool,
+    pub list: bool,
     /// Install package. To see all available packages use --list.
-    /// Example: crossbundle install sdk-manager "ndk;23.1.7779620"
+    /// Example: crossbundle install sdkmanager "ndk;23.1.7779620"
     #[clap(long, short, multiple_values = true)]
-    install: Option<Vec<String>>,
+    pub install: Option<Vec<String>>,
     /// Android package that needs to be uninstalled
     #[clap(long)]
-    uninstall: Option<String>,
+    pub uninstall: Option<String>,
     /// Update all installed packages
     #[clap(long)]
-    update: bool,
+    pub update: bool,
     /// Use the specified SDK path instead of the SDK containing this tool
     #[clap(long, short)]
-    sdk_root: Option<std::path::PathBuf>,
+    pub sdk_root: Option<std::path::PathBuf>,
     /// Include packages in channels up to and including channel_id. Available channels
     /// are: 0 (Stable), 1 (Beta), 2 (Dev), and 3 (Canary)
     #[clap(long, short)]
-    channel: Option<u32>,
+    pub channel: Option<u32>,
     /// Include obsolete packages in the package listing or package updates. For use with
     /// --list and --update only
     #[clap(long)]
-    include_obsolete: bool,
+    pub include_obsolete: bool,
     /// Force all connections to use HTTP rather than HTTPS
     #[clap(long, short)]
-    no_https: bool,
+    pub no_https: bool,
     /// Verbose output mode. Errors, warnings and informational messages are printed
     #[clap(long, short)]
-    verbose: bool,
+    pub verbose: bool,
     /// Connect via a proxy of the given type: either http for high level protocols such
     /// as HTTP or FTP, or socks for a SOCKS (V4 or V5) proxy
     #[clap(long)]
-    proxy: Option<String>,
+    pub proxy: Option<String>,
     /// IP or DNS address of the proxy to use
     #[clap(long)]
-    proxy_host: Option<String>,
+    pub proxy_host: Option<String>,
     /// Proxy port number to connect to
     #[clap(long)]
-    proxy_port: Option<String>,
+    pub proxy_port: Option<String>,
 }
 
 impl SdkManagerInstallCommand {
@@ -71,7 +71,7 @@ impl SdkManagerInstallCommand {
     }
 
     /// Install package. To see all available packages use --list.
-    /// Example: crossbundle install sdk-manager "ndk;23.1.7779620"
+    /// Example: crossbundle install sdkmanager "ndk;23.1.7779620"
     pub fn install(&mut self, install: Vec<String>) -> &mut Self {
         self.install = Some(install);
         self

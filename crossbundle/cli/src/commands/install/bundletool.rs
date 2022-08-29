@@ -11,14 +11,14 @@ pub struct BundletoolInstallCommand {
     /// Required. Version of download bundletool. For example:
     /// --version 1.8.2
     #[clap(long, short, default_value = "1.8.2")]
-    version: String,
+    pub version: String,
     /// Path to install bundletool. By default bundletool will be downloaded and saved in
     /// home directory
     #[clap(long, short)]
-    path: Option<PathBuf>,
+    pub path: Option<PathBuf>,
     /// Force install bundletool even if found.
     #[clap(long, short)]
-    force: bool,
+    pub force: bool,
 }
 
 impl BundletoolInstallCommand {

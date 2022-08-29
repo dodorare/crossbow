@@ -20,7 +20,6 @@ pub enum Commands {
     /// with `crossbundle`
     New(new::NewCommand),
     /// Installs bundletool and Android Studio's sdkmanager
-    #[clap(subcommand)]
     Install(install::InstallCommand),
 }
 

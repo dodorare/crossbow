@@ -67,7 +67,7 @@ To prepare to run and test your Crossbow app on the Android emulator, follow the
 
 ```sh
 # Run following command to install System Image for Android SDK 31
-crossbundle install sdk-manager --install "system-images;android-31;google_apis;x86_64"
+crossbundle install sdkmanager --install "system-images;android-31;google_apis;x86_64"
 # Run this command to create a new emulator
 avdmanager create avd -n Phone -k "system-images;android-31;google_apis;x86_64"
 # And finally run this command to start the emulator

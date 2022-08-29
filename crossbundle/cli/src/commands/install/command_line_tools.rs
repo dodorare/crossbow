@@ -1,6 +1,7 @@
 use super::*;
+use android_tools::sdk_install_path;
 use clap::Parser;
-use crossbundle_tools::{commands::android::*, types::AndroidSdk, types::Config};
+use crossbundle_tools::{commands::android::*, types::Config};
 use std::path::{Path, PathBuf};
 
 #[cfg(target_os = "windows")]
@@ -44,9 +45,6 @@ impl CommandLineToolsInstallCommand {
         )?;
         self.download_and_save_file(command_line_tools_download_url, &file_path)?;
 
-        let sdk = AndroidSdk::from_env()?;
-        let sdk_path = sdk.sdk_path();
-
         if let Some(path) = &self.install_path {
             config.status_message(
                 "Extracting zip archive contents into",
@@ -54,6 +52,7 @@ impl CommandLineToolsInstallCommand {
             )?;
             extract_archive(&file_path, path)?;
         } else {
+            let sdk_path = sdk_install_path()?;
             config.status_message(
                 "Extracting zip archive contents into",
                 &sdk_path.to_str().unwrap(),
@@ -61,7 +60,7 @@ impl CommandLineToolsInstallCommand {
             extract_archive(&file_path, Path::new(&sdk_path))?;
         }
 
-        config.status("Deleting zip archive was left after installation")?;
+        config.status("Deleting zip archive thaw was left after installation")?;
         remove(vec![file_path])?;
         Ok(())
     }
@@ -78,8 +77,9 @@ impl CommandLineToolsInstallCommand {
         download_url: PathBuf,
         file_path: &Path,
     ) -> crate::error::Result<()> {
-        for sdkmanager in std::fs::read_dir(file_path.parent().unwrap())? {
-            let zip_path = sdkmanager?.path();
+        remove(vec![file_path.to_path_buf()])?;
+        for dir in std::fs::read_dir(file_path.parent().unwrap())? {
+            let zip_path = dir?.path();
             if zip_path.ends_with(self.file_name()) {
                 return Ok(());
             }
