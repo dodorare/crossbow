@@ -254,7 +254,7 @@ To make sure it's present type this command: <code>keytool -h</code></p>
 <h2 id="set-up-the-android-emulator"><a class="header" href="#set-up-the-android-emulator">Set up the Android emulator</a></h2>
 <p>To prepare to run and test your Crossbow app on the Android emulator, follow these steps if you want to install it from the console:</p>
 <pre><code class="language-sh"># Run following command to install System Image for Android SDK 31
-crossbundle install sdk-manager --install &quot;system-images;android-31;google_apis;x86_64&quot;
+crossbundle install sdkmanager --install &quot;system-images;android-31;google_apis;x86_64&quot;
 # Run this command to create a new emulator
 avdmanager create avd -n Phone -k &quot;system-images;android-31;google_apis;x86_64&quot;
 # And finally run this command to start the emulator
@@ -329,7 +329,7 @@ Examples:</p>
 <h2 id="set-up-the-android-emulator-1"><a class="header" href="#set-up-the-android-emulator-1">Set up the Android emulator</a></h2>
 <p>To prepare to run and test your Crossbow app on the Android emulator, follow these steps if you want to install it from the console:</p>
 <pre><code class="language-sh"># Run following command to install System Image for Android SDK 31
-crossbundle install sdk-manager --install &quot;system-images;android-31;google_apis;x86_64&quot;
+crossbundle install sdkmanager --install &quot;system-images;android-31;google_apis;x86_64&quot;
 # Run this command to create a new emulator
 avdmanager create avd -n Phone -k &quot;system-images;android-31;google_apis;x86_64&quot;
 # And finally run this command to start the emulator
@@ -401,7 +401,7 @@ To make sure it's present type this command: <code>ls /usr/lib/jvm/default/bin/ 
 <h2 id="set-up-the-android-emulator-2"><a class="header" href="#set-up-the-android-emulator-2">Set up the Android emulator</a></h2>
 <p>To prepare to run and test your Crossbow app on the Android emulator, follow these steps if you want to install it from the console:</p>
 <pre><code class="language-sh"># Run following command to install System Image for Android SDK 31
-crossbundle install sdk-manager --install &quot;system-images;android-31;google_apis;x86_64&quot;
+crossbundle install sdkmanager --install &quot;system-images;android-31;google_apis;x86_64&quot;
 # Run this command to create a new emulator
 avdmanager create avd -n Phone -k &quot;system-images;android-31;google_apis;x86_64&quot;
 # And finally run this command to start the emulator
@@ -545,13 +545,13 @@ Note: Android studio install cmdline tools into <code>$SDK_ROOT/cmdline-tools/&l
 <h3 id="install-packages"><a class="header" href="#install-packages">Install packages</a></h3>
 <p>The <a href="https://developer.android.com/studio/command-line/sdkmanager">sdkmanager</a> is a command-line tool that allows you to view, install, update, and uninstall packages for the Android SDK.</p>
 <p>To install packages use the command below. We prefer to use --preferred-tools flag to install minimal required tools needed for crossbundle correct working. This command will setup build-tools, android-ndk and android platforms: </p>
-<pre><code class="language-sh">crossbundle install sdk-manager --preferred-tools
+<pre><code class="language-sh">crossbundle install sdkmanager --preferred-tools
 </code></pre>
 <p>Also you can install packages manually. To see all available tools use the -h flag. List installed and available packages:</p>
-<pre><code class="language-sh">crossbundle install sdk-manager --list
+<pre><code class="language-sh">crossbundle install sdkmanager --list
 </code></pre>
 <p>And then enter the command.</p>
-<pre><code class="language-sh">crossbundle install sdk-manager --install &quot;build-tools;31.0.0&quot; &quot;ndk;23.1.7779620&quot; &quot;platforms;android-31&quot;
+<pre><code class="language-sh">crossbundle install sdkmanager --install &quot;build-tools;31.0.0&quot; &quot;ndk;23.1.7779620&quot; &quot;platforms;android-31&quot;
 </code></pre>
 <p>The command will install packages into <code>$HOME\AppData\Local\Android\Sdk\</code> for Windows, <code>$HOME/Library/Android/sdk/</code> for macOS, and <code>$HOME/Android/sdk/</code> for Linux.</p>
 <h2 id="install-tools-to-aab-correct-building"><a class="header" href="#install-tools-to-aab-correct-building">Install tools to AAB correct building</a></h2>
