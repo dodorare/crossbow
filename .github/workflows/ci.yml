@@ -50,7 +50,7 @@ jobs:
         crossbundle install --preferred
     - name: Build APK
       run: |
-        cd examples/macroquad-3d
+        cd examples/macroquad-permissions
         setx ANDROID_SDK_ROOT "$HOME/AppData/Local/Android/Sdk" /M
         setx ANDROID_NDK_ROOT "$HOME/AppData/Local/Android/Sdk/ndk/23.1.7779620" /M
         crossbundle build android --release
