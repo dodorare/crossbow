@@ -40,7 +40,7 @@ jobs:
         rustup upgrade
         rustup target add aarch64-linux-android x86_64-linux-android
     - name: Install Crossbundle
-        run: |
+      run: |
         cargo install --path=./crossbundle/cli
         crossbundle install --preferred
     - name: Build APK
