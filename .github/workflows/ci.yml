@@ -43,12 +43,17 @@ jobs:
       run: |
         cargo install --path=./crossbundle/cli
         crossbundle install --preferred
+    - name: Install gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          distribution: temurin
+          gradle-version: 7.4
     - name: Build APK
       run: |
         cd examples/macroquad-3d
         setx ANDROID_SDK_ROOT "$HOME/AppData/Local/Android/Sdk" /M
         setx ANDROID_NDK_ROOT "$HOME/AppData/Local/Android/Sdk/ndk/23.1.7779620" /M
-        crossbundle build android -s=native-apk --release
+        crossbundle build android --release
 
   apple-build-macos:
     name: Build Apple example on macOS latest
