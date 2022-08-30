@@ -35,7 +35,6 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@master
-    - uses: actions-rs/toolchain@v1
     - name: Install Android targets and upgrade rust
       run: |
         rustup upgrade
