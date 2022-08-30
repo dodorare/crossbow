@@ -44,11 +44,12 @@ jobs:
       run: |
         cargo install --path=./crossbundle/cli
         crossbundle install --preferred
-    - name: Build APK
+    - name: Install Gradle
       uses: gradle/gradle-build-action@v2
       with:
         distribution: temurin
         gradle-version: 7.4
+    - name: Build APK
       run: |
         cd examples/macroquad-3d
         setx ANDROID_SDK_ROOT "$HOME/AppData/Local/Android/Sdk" /M
