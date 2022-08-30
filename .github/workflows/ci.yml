@@ -39,15 +39,15 @@ jobs:
       run: |
         rustup upgrade
         rustup target add aarch64-linux-android x86_64-linux-android
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
+      with:
+        distribution: adopt
+        java-version: 11
     - name: Install Crossbundle
       run: |
         cargo install --path=./crossbundle/cli
         crossbundle install --preferred
-    - name: Install Gradle
-      uses: gradle/gradle-build-action@v2
-      with:
-        distribution: temurin
-        gradle-version: 7.4
     - name: Build APK
       run: |
         cd examples/macroquad-3d
