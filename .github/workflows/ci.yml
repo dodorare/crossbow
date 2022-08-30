@@ -47,7 +47,7 @@ jobs:
       run: |
         cd examples/macroquad-3d
         export ANDROID_SDK_ROOT="$HOME/AppData/Local/Android/Sdk"
-        export ANDROID_NDK_ROOT=$HOME/AppData/Local/Android/Sdk/ndk/23.1.7779620"
+        export ANDROID_NDK_ROOT=$HOME/AppData/Local/Android/Sdk/ndk/23.1.7779620 "
         crossbundle build android -s=native-apk --release
 
   apple-build-macos:
