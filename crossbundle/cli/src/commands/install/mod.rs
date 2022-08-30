@@ -48,7 +48,11 @@ impl InstallCommand {
             #[cfg(feature = "android")]
             CommandLineToolsInstallCommand::default().install(config)?;
             #[cfg(feature = "android")]
-            BundletoolInstallCommand::default().install(config)?;
+            BundletoolInstallCommand {
+                version: String::from("1.8.2"),
+                ..Default::default()
+            }
+            .install(config)?;
             #[cfg(feature = "android")]
             SdkManagerInstallCommand {
                 preferred_tools: true,
