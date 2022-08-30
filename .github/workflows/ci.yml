@@ -35,6 +35,7 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@master
+    - uses: actions-rs/toolchain@v1
     - name: Install Android targets and upgrade rust
       run: |
         rustup upgrade
@@ -43,12 +44,11 @@ jobs:
       run: |
         cargo install --path=./crossbundle/cli
         crossbundle install --preferred
-    - name: Install gradle
-        uses: gradle/gradle-build-action@v2
+    - name: Build APK
+      uses: gradle/gradle-build-action@v2
         with:
           distribution: temurin
           gradle-version: 7.4
-    - name: Build APK
       run: |
         cd examples/macroquad-3d
         setx ANDROID_SDK_ROOT "$HOME/AppData/Local/Android/Sdk" /M

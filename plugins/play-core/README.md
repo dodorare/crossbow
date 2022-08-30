@@ -17,16 +17,16 @@ Just add Rust dependencies like this:
 
 ```toml
 [dependencies]
-crossbow = "0.2.1"
+crossbow = "0.2.2"
 [target.'cfg(target_os = "android")'.dependencies]
-play-core = "0.2.1"
+play-core = "0.2.2"
 ```
 
 And finally, add this to your Crossbow Android configuration:
 
 ```toml
 [package.metadata.android]
-plugins_remote = ["com.crossbow.play_core:play_core:0.2.1"]
+plugins_remote = ["com.crossbow.play_core:play_core:0.2.2"]
 ```
 
 > That's it, now you can start using Play Core!
