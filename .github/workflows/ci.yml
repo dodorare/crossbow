@@ -30,6 +30,24 @@ jobs:
         export ANDROID_NDK_ROOT=$ANDROID_NDK_LATEST_HOME
         crossbundle build android -s=native-apk --release
 
+  android-build-windows:
+    name: Build Android example on Windows latest
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Install Android targets and upgrade rust
+      run: |
+        rustup upgrade
+        rustup target add aarch64-linux-android x86_64-linux-android
+    - name: Install Crossbundle
+        run: |
+        cargo install --path=./crossbundle/cli
+        crossbundle install --preferred
+    - name: Build APK
+      run: |
+        cd examples/macroquad-3d
+        crossbundle build android -s=native-apk --release
+
   apple-build-macos:
     name: Build Apple example on macOS latest
     runs-on: macos-latest
