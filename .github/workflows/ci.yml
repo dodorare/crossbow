@@ -46,9 +46,9 @@ jobs:
         crossbundle install --preferred
     - name: Build APK
       uses: gradle/gradle-build-action@v2
-        with:
-          distribution: temurin
-          gradle-version: 7.4
+      with:
+        distribution: temurin
+        gradle-version: 7.4
       run: |
         cd examples/macroquad-3d
         setx ANDROID_SDK_ROOT "$HOME/AppData/Local/Android/Sdk" /M
