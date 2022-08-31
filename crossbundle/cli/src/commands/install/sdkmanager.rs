@@ -1,7 +1,7 @@
 use clap::Parser;
 use crossbundle_tools::{
     error::{CommandExt, Result},
-    types::Config,
+    types::{Config, android_sdk_path},
     EXECUTABLE_SUFFIX_BAT,
 };
 use std::path::Path;
@@ -164,7 +164,7 @@ impl SdkManagerInstallCommand {
 
     /// Run sdkmanager command with specified flags and options
     pub fn run(&self, _config: &Config) -> Result<()> {
-        let sdk_path = android_tools::sdk_install_path()?;
+        let sdk_path = android_sdk_path()?;
         // Android Studio installs cmdline-tools into
         // $ANDROID_SDK_ROOT/cmdline-tools/<version>/bin. Crossbundle install command
         // ignores <version> directory so we need convert cmd-line-tools path to Option<T> to
