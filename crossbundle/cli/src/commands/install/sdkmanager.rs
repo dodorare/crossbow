@@ -1,6 +1,8 @@
 use clap::Parser;
 use crossbundle_tools::{
-    error::CommandExt, types::AndroidSdk, types::Config, EXECUTABLE_SUFFIX_BAT,
+    error::{CommandExt, Result},
+    types::{android_sdk_path, Config},
+    EXECUTABLE_SUFFIX_BAT,
 };
 use std::path::Path;
 
@@ -161,9 +163,8 @@ impl SdkManagerInstallCommand {
     }
 
     /// Run sdkmanager command with specified flags and options
-    pub fn run(&self, _config: &Config) -> crate::error::Result<()> {
-        let sdk = AndroidSdk::from_env()?;
-        let sdk_path = sdk.sdk_path();
+    pub fn run(&self, _config: &Config) -> Result<()> {
+        let sdk_path = android_sdk_path()?;
         // Android Studio installs cmdline-tools into
         // $ANDROID_SDK_ROOT/cmdline-tools/<version>/bin. Crossbundle install command
         // ignores <version> directory so we need convert cmd-line-tools path to Option<T> to
@@ -186,11 +187,7 @@ impl SdkManagerInstallCommand {
         Ok(())
     }
 
-    pub fn sdkmanager_command(
-        &self,
-        sdkmanager_path: &Path,
-        sdk_root: &Path,
-    ) -> crate::error::Result<()> {
+    pub fn sdkmanager_command(&self, sdkmanager_path: &Path, sdk_root: &Path) -> Result<()> {
         let mut sdkmanager = std::process::Command::new(sdkmanager_path);
         if let Some(sdk_root) = &self.sdk_root {
             sdkmanager.arg(sdk_root);

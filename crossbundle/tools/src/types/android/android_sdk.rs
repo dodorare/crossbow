@@ -16,17 +16,7 @@ pub struct AndroidSdk {
 impl AndroidSdk {
     /// Using environment variables tools
     pub fn from_env() -> Result<Self> {
-        let sdk_path = {
-            let sdk_path = std::env::var("ANDROID_SDK_ROOT")
-                .ok()
-                .or_else(|| std::env::var("ANDROID_SDK_PATH").ok())
-                .or_else(|| std::env::var("ANDROID_HOME").ok());
-            if let Some(sdk_path) = sdk_path {
-                PathBuf::from(sdk_path)
-            } else {
-                android_tools::sdk_install_path()?
-            }
-        };
+        let sdk_path = android_sdk_path()?;
         let build_deps_path = sdk_path.join("build-tools");
         let build_deps_version = std::fs::read_dir(&build_deps_path)
             .map_err(|_| Error::PathNotFound(build_deps_path.clone()))?
@@ -137,4 +127,20 @@ impl AndroidSdk {
         }
         Ok(android_jar)
     }
+}
+
+/// Get path to android sdk
+pub fn android_sdk_path() -> Result<PathBuf> {
+    let sdk_path = {
+        let sdk_path = std::env::var("ANDROID_SDK_ROOT")
+            .ok()
+            .or_else(|| std::env::var("ANDROID_SDK_PATH").ok())
+            .or_else(|| std::env::var("ANDROID_HOME").ok());
+        if let Some(sdk_path) = sdk_path {
+            PathBuf::from(sdk_path)
+        } else {
+            android_tools::sdk_install_path()?
+        }
+    };
+    Ok(sdk_path)
 }

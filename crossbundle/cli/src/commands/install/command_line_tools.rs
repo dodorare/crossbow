@@ -1,4 +1,5 @@
 use super::*;
+use crate::error::Result;
 use android_tools::sdk_install_path;
 use clap::Parser;
 use crossbundle_tools::{commands::android::*, types::Config};
@@ -26,7 +27,11 @@ pub struct CommandLineToolsInstallCommand {
 impl CommandLineToolsInstallCommand {
     /// Download command line tools zip archive and extract it in specified sdk root
     /// directory
-    pub fn install(&self, config: &Config) -> crate::error::Result<()> {
+    pub fn install(&self, config: &Config) -> Result<()> {
+        let cmdline_tools_path = android_tools::sdk_install_path()?.join("cmdline-tools");
+        if cmdline_tools_path.exists() {
+            return Ok(());
+        }
         if self.force {
             remove(vec![default_file_path(self.file_name())?])?;
         }
@@ -60,7 +65,7 @@ impl CommandLineToolsInstallCommand {
             extract_archive(&file_path, Path::new(&sdk_path))?;
         }
 
-        config.status("Deleting zip archive thaw was left after installation")?;
+        config.status("Deleting zip archive that was left after installation")?;
         remove(vec![file_path])?;
         Ok(())
     }
@@ -72,11 +77,7 @@ impl CommandLineToolsInstallCommand {
 
     /// Check home directory for zip file. If it doesn't exists download zip file and save
     /// it in the directory
-    pub fn download_and_save_file(
-        &self,
-        download_url: PathBuf,
-        file_path: &Path,
-    ) -> crate::error::Result<()> {
+    pub fn download_and_save_file(&self, download_url: PathBuf, file_path: &Path) -> Result<()> {
         remove(vec![file_path.to_path_buf()])?;
         for dir in std::fs::read_dir(file_path.parent().unwrap())? {
             let zip_path = dir?.path();

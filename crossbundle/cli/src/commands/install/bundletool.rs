@@ -1,4 +1,5 @@
 use super::*;
+use crate::error::Result;
 use clap::Parser;
 use crossbundle_tools::types::Config;
 use std::path::PathBuf;
@@ -23,7 +24,7 @@ pub struct BundletoolInstallCommand {
 
 impl BundletoolInstallCommand {
     /// Download and install bundletool to provided or default path
-    pub fn install(&self, config: &Config) -> crate::error::Result<()> {
+    pub fn install(&self, config: &Config) -> Result<()> {
         let home_dir = default_file_path(self.file_name())?
             .parent()
             .unwrap()
@@ -32,7 +33,7 @@ impl BundletoolInstallCommand {
             for bundletool in std::fs::read_dir(&home_dir)? {
                 let installed_bundletool = bundletool?.path();
                 if installed_bundletool.ends_with(self.file_name()) {
-                    config.status("You have installed budletool on your system already. Use `--force` command to overwrite.")?;
+                    config.status("You have installed bundletool on your system already. Use `--force` command to overwrite.")?;
                     return Ok(());
                 }
             }
