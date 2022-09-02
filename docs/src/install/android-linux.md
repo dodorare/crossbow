@@ -2,7 +2,7 @@
 
 ## Install necessary packages
 
-1. Use [crossbundle install command](https://github.com/dodorare/crossbow/blob/main/docs/crossbundle-install-command.md) or download and install [Android Studio](https://developer.android.com/studio).
+1. Use [crossbundle install command](/docs/src/crossbundle/command-install.md) or download and install [Android Studio](https://developer.android.com/studio).
 2. Start Android Studio, and go through the `Android Studio Setup Wizard` with the `Custom` option and install the following (or install them in `SDK Manager`):
    - Android SDK
    - NDK (Side by side)
@@ -50,10 +50,17 @@ Examples:
 
 ### If you want to generate AAB (Android App Bundle) u will need to install Bundletool
 
-If you haven't already done so, download bundletool from the [`GitHub repository`](https://github.com/google/bundletool/releases).
+If you haven't already done so, download bundletool from the [`GitHub repository`](https://github.com/google/bundletool/releases) or use [crossbundle install](/docs/src/crossbundle/command-install.md).
 
 ```sh
 export BUNDLETOOL_PATH=<path_to_bundletool>
+```
+## Install necessary rustup targets
+
+Run the following command:
+
+```sh
+rustup target add armv7-linux-androideabi aarch64-linux-android i686-linux-android x86_64-linux-android
 ```
 
 ## Set up your Android device
@@ -70,7 +77,7 @@ To prepare to run and test your Crossbow app on the Android emulator, follow the
 ```sh
 # Run following command to install System Image for Android SDK 31
 crossbundle install sdkmanager --install "system-images;android-31;google_apis;x86_64"
-# Run this command to create a new emulator
+# Run this command to create a new Pnone emulator
 avdmanager create avd -n Phone -k "system-images;android-31;google_apis;x86_64"
 # And finally run this command to start the emulator
 emulator -avd=Phone
@@ -86,14 +93,14 @@ If you want to install it from the GUI, follow these instructions:
 6. Verify the AVD configuration is correct, and select **Finish**. (For details on the above steps, see [`Managing AVDs`](https://developer.android.com/studio/run/managing-avds))
 7. In Android Virtual Device Manager, click Run in the toolbar. The emulator starts up and displays the default canvas for your selected OS version and device.
 
-## Install necessary rustup targets
-
-Run the following command:
-
-```sh
-rustup target add armv7-linux-androideabi aarch64-linux-android i686-linux-android x86_64-linux-android
-```
-
 ## Next step
 
-[`Hello World! application`](https://github.com/dodorare/crossbow/wiki/Hello-World!) with Crossbow
+See [hello-world](/docs/src/tutorials/hello-world.md) to configure your project
+
+After previous steps you can use crossbundle to build gradle project or native APK/AAB. Go to the links:  
+
+- [Crossbundle build command](crossbundle/command-build.md)
+- [Crossbundle run command](/docs/src/crossbundle/command-run.md)
+- [Crossbundle install command](/docs/src/crossbundle/command-install.md)
+- [Crossbundle new command](/docs/src/crossbundle/command-new.md)
+

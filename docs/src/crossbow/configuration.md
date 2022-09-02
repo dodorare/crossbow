@@ -15,16 +15,73 @@ edition = "2021"
 crossbow = "0.2.2"
 
 [package.metadata]
+# The user-friendly application name for your app. Displayed in the applications menu
 app_name = "Game"
+# Android assets directory path relatively to project path
 assets = ["assets"]
+# Path to icon with `.png` format that will be provided to generate mipmap resources
 icon = "path/to/icon.png"
 
 [package.metadata.android]
+# Android application wrapper: supports ndk-glue and sokol. Now ndk-glue used by bevy engine and sokol used by macroquad 
+app_wrapper = "quad"
+# Android targets to build on debug or release.
+debug_build_targets = ["aarch64-linux-android"]
 release_build_targets = ["aarch64-linux-android"]
+# Android resources directory path relatively to project path
 resources = ["res/android"]
+
+# Complete support of all AndroidManifest.xml attributes
+[package.metadata.android.manifest]
+package = "com.example.ExampleProject"
+
+# Adds a uses-permission element to the AndroidManifest.xml.
+# Note that android_version 23 and higher, Android requires the application to request permissions at runtime
+[[package.metadata.android.manifest.uses_permission]]
+name = "android.permission.INTERNET"
+# Specifies that an app wants a particular permission, but only if the app is installed on a device running
+# Android 6.0 (API level 23) or higher. If the device is running API level 22 or lower, the app does not have the specified permission.
+
+# See https://developer.android.com/guide/topics/manifest/uses-permission-sdk-23-element
+[[package.metadata.android.manifest.uses_permission_sdk_23]]
+name = "android.permission.WRITE_EXTERNAL_STORAGE"
+max_sdk_version = 30
+
+# See https://developer.android.com/guide/topics/manifest/service-element
+[[package.metadata.android.manifest.service]]
+name = "UpdateService"
+intent_filter = []
+meta_data = []
+
+# See https://developer.android.com/guide/topics/manifest/queries-element#provider
+[[package.metadata.android.manifest.queries.provider]]
+authorities = "org.khronos.openxr.runtime_broker;org.khronos.openxr.system_runtime_broker"
+# Note: The `name` attribute is normally not required for a queries provider, but is non-optional
+# as a workaround for aapt throwing errors about missing `android:name` attribute.
+# This will be made optional if/when cargo-apk migrates to aapt2.
+name = "org.khronos.openxr"
+
+# See https://developer.android.com/guide/topics/manifest/uses-feature-element
+#
+# Note: there can be multiple .uses_feature entries.
+[[package.metadata.android.manifest.features]]
+name = "android.hardware.vulkan.level"
+required = true
+version = 1
+
+# See https://developer.android.com/guide/topics/manifest/meta-data-element
+[[package.metadata.android.manifest.application.meta_data]]
+name = "com.oculus.vr.focusaware"
+value = "true"
 
 [package.metadata.apple]
 release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
+# The user-friendly application name for your app. Displayed in the applications menu
+app_name = "Example"
+# Apple targets to build on debug or release.
+debug_build_targets = ["aarch64-apple-ios"]
+release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"].
+# Apple resources directory path relatively to project path.
 resources = ["res/apple"]
 ```
 

@@ -2,21 +2,7 @@
 
 ## Generate a project
 
-`crossbundle` uses [`cargo-generate`](https://github.com/cargo-generate/cargo-generate) to generate a new project. This means that you need to install it before we proceed.
-
-```sh
-cargo install cargo-generate
-```
-
-Then you can create a new project:
-
-```sh
-crossbundle new project-name
-# crossbundle new project-name --template bevy
-# crossbundle new project-name --template quad
-```
-
-All supported templates you can watch [`here`](https://github.com/dodorare/crossbundle-templates) (each branch = template).
+Generate new project with [crossbundle new command](/docs/src/crossbundle/command-new.md)!
 
 ## Project overview
 
@@ -49,7 +35,7 @@ fn main() {
 
 ## Build an application
 
-Let's build and run our first `crossbundle` application. Android commands below will generate gradle project and install apk on your device.
+Let's build and run our first `crossbundle` application. Android commands below will generate gradle project and install apk on your device. See [crossbundle run command](/docs/src/crossbundle/command-run.md) for additional information.
 
 ```sh
 # cd project-name

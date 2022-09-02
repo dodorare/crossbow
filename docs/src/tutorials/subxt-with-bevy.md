@@ -1,6 +1,6 @@
 # Using subxt with bevy engine
 
-1. You need to install crossbundle if you haven't already. See [documention](https://github.com/dodorare/crossbow/tree/main/docs) to install it and configure your project.
+1. You need to install crossbundle if you haven't already. See [documention](/docs/src/install/README.md) to install it and configure your project.
 
 2. Specify substrate-subxt and bevy in your Cargo.toml. We prefer to use versions below:
 
@@ -12,7 +12,7 @@ bevy = "0.8.0"
 
 ## Bevy explorer example
 
-To learn how to use subxt with bevy engine, you can go to the [examples/bevy-explorer](https://github.com/dodorare/crossbow/tree/main/examples/bevy-explorer) or install bevy explorer template. Follow next steps:
+To learn how to use subxt with bevy engine, you can go to the [examples/bevy-explorer](/examples/bevy-explorer/) or install bevy explorer template. Follow next steps:
 
 1. Install cargo-generate:
 
