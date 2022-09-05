@@ -107,15 +107,15 @@ impl IosBuildCommand {
             self.shared.no_default_features,
             &[],
         )?;
-        let out_dir = context.target_dir.join(rust_triple).join(&profile);
-        let bin_path = out_dir.join(&name);
+        let out_dir = context.target_dir.join(rust_triple).join(profile);
+        let bin_path = out_dir.join(name);
 
         config.status("Generating app folder")?;
         let apple_target_dir = &context
             .target_dir
             .join("apple")
             .join(rust_triple)
-            .join(&profile);
+            .join(profile);
 
         config.status("Preparing resources and assets")?;
         let (assets, resources) =
@@ -123,7 +123,7 @@ impl IosBuildCommand {
 
         let app_path = apple::gen_apple_app_folder(apple_target_dir, name, assets, resources)?;
         config.status("Copying binary to app folder")?;
-        std::fs::copy(&bin_path, &app_path.join(&name)).unwrap();
+        std::fs::copy(&bin_path, &app_path.join(name)).unwrap();
         config.status_message("Generating", "Info.plist")?;
         apple::save_info_plist(&app_path, properties, false).unwrap();
 
@@ -145,7 +145,7 @@ impl IosBuildCommand {
                 false,
             )?;
             config.status("Signing the binary")?;
-            apple::codesign(&app_path.join(&name), true, self.identity.clone(), None)?;
+            apple::codesign(&app_path.join(name), true, self.identity.clone(), None)?;
             config.status("Signing the bundle itself")?;
             apple::codesign(&app_path, true, self.identity.clone(), Some(xcent_path))?;
             config.status("Code signing process finished")?;

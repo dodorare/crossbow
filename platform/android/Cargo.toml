@@ -1,6 +1,6 @@
 [package]
 name = "crossbow-android"
-version = "0.2.2"
+version = "0.2.3"
 edition = "2021"
 authors = ["DodoRare Team <support@dodorare.com>"]
 description = "Cross-Platform build tools and toolkit for games"
