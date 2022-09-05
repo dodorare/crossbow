@@ -19,7 +19,7 @@ pub fn find_package_cargo_manifest_path(current_dir: &Path) -> Result<PathBuf> {
 fn find_cargo_manifest_path(current_dir: &Path, workspace: bool) -> Result<PathBuf> {
     let mut cargo = Command::new("cargo");
     cargo.current_dir(current_dir);
-    cargo.args(&["locate-project", "--message-format", "plain"]);
+    cargo.args(["locate-project", "--message-format", "plain"]);
     if workspace {
         cargo.arg("--workspace");
     }

@@ -63,12 +63,12 @@ fn aapt_add_lib(
     if !lib_path.exists() {
         return Err(Error::PathNotFound(lib_path.to_owned()));
     }
-    std::fs::create_dir_all(&out_dir)?;
+    std::fs::create_dir_all(out_dir)?;
     let file_name = lib_path.file_name().unwrap();
-    std::fs::copy(lib_path, &out_dir.join(&file_name))?;
+    std::fs::copy(lib_path, &out_dir.join(file_name))?;
     let native_lib_path = apk_path.parent().unwrap().join("lib").join(abi);
     std::fs::create_dir_all(&native_lib_path)?;
-    std::fs::copy(lib_path, &native_lib_path.join(&file_name))?;
+    std::fs::copy(lib_path, &native_lib_path.join(file_name))?;
     // `aapt a[dd] [-v] file.{zip,jar,apk} file1 [file2 ...]`
     // Add specified files to Zip-compatible archive
     let mut aapt = sdk.build_tool(bin!("aapt"), Some(apk_path.parent().unwrap()))?;

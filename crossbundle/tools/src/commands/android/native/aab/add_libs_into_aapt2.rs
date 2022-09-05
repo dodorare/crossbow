@@ -47,7 +47,7 @@ pub fn add_libs_into_aapt2(
     let out_dir = build_dir.join("lib").join(abi);
     let project_dir = target_dir
         .join("android")
-        .join(&package_name)
+        .join(package_name)
         .join("libs")
         .join(profile)
         .join(abi);
@@ -62,14 +62,14 @@ pub fn add_lib_aapt2(lib_path: &Path, out_dir: &Path, project_dir: &Path) -> Res
     if !lib_path.exists() {
         return Err(Error::PathNotFound(lib_path.to_owned()));
     }
-    std::fs::create_dir_all(&out_dir)?;
+    std::fs::create_dir_all(out_dir)?;
     if !project_dir.exists() {
-        std::fs::create_dir_all(&project_dir)?;
+        std::fs::create_dir_all(project_dir)?;
     }
     let filename = lib_path.file_name().unwrap();
     let mut options = fs_extra::file::CopyOptions::new();
     options.overwrite = true;
-    fs_extra::file::copy(&lib_path, out_dir.join(&filename), &options)?;
-    fs_extra::file::copy(&lib_path, project_dir.join(&filename), &options)?;
+    fs_extra::file::copy(lib_path, out_dir.join(filename), &options)?;
+    fs_extra::file::copy(lib_path, project_dir.join(filename), &options)?;
     Ok(())
 }

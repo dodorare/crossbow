@@ -18,7 +18,7 @@ pub fn run_and_debug(
         cmd.arg("--justlaunch");
     }
     if let Some(id) = id {
-        cmd.args(&["--id", id]);
+        cmd.args(["--id", id]);
     }
     cmd.arg("--bundle");
     cmd.arg(app_path);

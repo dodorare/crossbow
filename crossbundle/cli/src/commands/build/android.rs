@@ -497,7 +497,7 @@ impl AndroidBuildCommand {
                 context.config.android.app_wrapper,
             )?;
 
-            let out_dir = target_dir.join(build_target.rust_triple()).join(&profile);
+            let out_dir = target_dir.join(build_target.rust_triple()).join(profile);
             let compiled_lib = out_dir.join(lib_name);
             libs.push((compiled_lib, build_target));
         }

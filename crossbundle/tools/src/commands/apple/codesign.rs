@@ -30,13 +30,13 @@ pub fn codesign(
         cmd.arg("--force");
     }
     if let Some(sign_identity) = sign_identity {
-        cmd.args(&["--sign", &sign_identity]);
+        cmd.args(["--sign", &sign_identity]);
     } else {
-        cmd.args(&["--sign", "-"]);
+        cmd.args(["--sign", "-"]);
     }
     cmd.arg("--timestamp=none");
     if let Some(entitlements) = entitlements {
-        cmd.args(&["--entitlements", entitlements.to_str().unwrap()]);
+        cmd.args(["--entitlements", entitlements.to_str().unwrap()]);
     }
     cmd.arg(item_path);
     let output = cmd.output()?;
