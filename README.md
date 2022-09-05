@@ -52,10 +52,10 @@ Crossbow Plugins:
 
 | Name | Description | Status |
 | ---- | ----------- | ------ |
-| [admob-android](./crossbow/admob-android) | [Google AdMob](https://developers.google.com/admob/android/quick-start) Plugin for Android. | 🆗 |
-| [play-games-services](./crossbow/play-games-services) | [Google Play Games Services](https://developers.google.com/games/services/) Plugin for Android. | 🆗 |
-| [play-billing](./crossbow/play-billing) | [Google Play Billing](https://developer.android.com/google/play/billing) Plugin for Android. | 🆗 |
-| [play-core](./crossbow/play-core) | [Google Play Core](https://developer.android.com/guide/playcore) Plugin for Android. | 📝 |
+| [admob-android](./plugins/admob-android) | [Google AdMob](https://developers.google.com/admob/android/quick-start) Plugin for Android. | 🆗 |
+| [play-games-services](./plugins/play-games-services) | [Google Play Games Services](https://developers.google.com/games/services/) Plugin for Android. | 🆗 |
+| [play-billing](./plugins/play-billing) | [Google Play Billing](https://developer.android.com/google/play/billing) Plugin for Android. | 🆗 |
+| [play-core](./plugins/play-core) | [Google Play Core](https://developer.android.com/guide/playcore) Plugin for Android. | 📝 |
 
 Helper crates:
 

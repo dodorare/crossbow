@@ -23,15 +23,20 @@ docker pull ghcr.io/dodorare/crossbundle:latest
 
 Run the following command at the root of `crossbow` project:
 
+> For unix systems (Bash):
 ```sh
-# For unix systems:
 docker run --rm -it -v "$(pwd)/:/src" -w /src/examples/macroquad-permissions ghcr.io/dodorare/crossbundle build android --release
-# For Windows:
+```
+
+> For Windows (PowerShell):
+```sh
 docker run --rm -it -v "${pwd}/:/src" -w /src/examples/macroquad-permissions ghcr.io/dodorare/crossbundle build android --release
 ```
 
 Install APK on connected Android phone via USB:
 
+Follow the link to find out how to set up your device or [android emulator](./android-emulator.md)      
+   
 ```sh
 adb install ./target/android/macroquad-permissions/gradle/build/outputs/apk/release/gradle-release-unsigned.apk
 ```

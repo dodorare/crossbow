@@ -2,7 +2,7 @@
 
 ## Generate a project
 
-Generate new project with [crossbundle new command](/docs/src/crossbundle/command-new.md)!
+Generate new project with [crossbundle new command](../crossbundle/command-new.md)!
 
 ## Project overview
 
