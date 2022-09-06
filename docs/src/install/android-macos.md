@@ -50,7 +50,7 @@ To make sure it's present type this command: `ls /usr/lib/jvm/default/bin/ | gre
 
 ## Set up your Android device
 
-Follow the link to find out how to set up your device or [android emulator](./android-emulator.md)         
+Follow the link to find out how to set up your device or [android emulator](./set-up-android-device.md)         
 
 ## Next step
 

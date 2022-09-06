@@ -35,7 +35,7 @@ docker run --rm -it -v "${pwd}/:/src" -w /src/examples/macroquad-permissions ghc
 
 Install APK on connected Android phone via USB:
 
-Follow the link to find out how to set up your device or [android emulator](./android-emulator.md)      
+Follow the link to find out how to set up your device or [android emulator](./set-up-android-device.md)      
    
 ```sh
 adb install ./target/android/macroquad-permissions/gradle/build/outputs/apk/release/gradle-release-unsigned.apk

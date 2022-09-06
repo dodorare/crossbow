@@ -30,7 +30,7 @@ crossbundle new example --template=bevy-explorer
 
 ## Installing application on the device
 
-You can deploy the application on your device or [android emulator](../install/android-emulator.md) with commands below. At first, you should go to example directory. Use it:
+You can deploy the application on your device or [android emulator](../install/set-up-android-device.md) with commands below. At first, you should go to example directory. Use it:
 
 Bash:
 

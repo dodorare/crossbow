@@ -46,7 +46,7 @@ SETX BUNDLETOOL_PATH "C:\Users\Username\bundletool-all-1.8.2.jar" /M
 
 ## Set up your Android device
 
-Follow the link to find out how to set up your device or [android emulator](./android-emulator.md)         
+Follow the link to find out how to set up your device or [android emulator](./set-up-android-device.md)         
 
 ## Next step
 
