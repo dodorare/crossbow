@@ -20,20 +20,19 @@ rustup target add armv7-linux-androideabi aarch64-linux-android i686-linux-andro
 
 ## Add environment variables
 
-Take these steps to add Android-related environment variables:
-
 From the Start search bar, enter `env` and select **Edit environment variables for your account**.
 
 | Building strategy | Key  | Value       | Description |
 | ----------------- | ---- | ----------- | ------------|
-| Gradle project, native APK/AAB| ANDROID_SDK_ROOT | <path_to_sdk>\Sdk |  Can be replaced with ANDROID_SDK_PATH and ANDROID_HOME. You might not install this env var if you used [crossbundle install](../crossbundle/command-install.md) to set up required packages. |
+| Gradle project, native APK/AAB| ANDROID_SDK_ROOT | <path_to_sdk>\Sdk |  Can be replaced with ANDROID_SDK_PATH and ANDROID_HOME. You might not install this env var if you used [crossbundle install](../crossbundle/command-install.md) to set up required packages |
+|                               |                  |                   |  or just want to build native APK or native AAB |
 | Native APK/AAB        | ANDROID_NDK_ROOT | <path_to_sdk>\Sdk\ndk\<version> | Can be replaced with ANDROID_NDK_PATH and NDK_HOME. You might not install this env var if you used [crossbundle install](../crossbundle/command-install.md) to set up required packages |
 | Gradle project, native AAB| JAVA_HOME | <path_to_jdk>\bin | Also, we need to make sure we have a [java runtime environment](https://www.oracle.com/java/technologies/downloads/) (JRE)   |
 |                           |           |                   | or [Java developer kit](https://www.oracle.com/java/technologies/downloads/) (JDK) installed. We need jarsigner utility from there |
 | Gradle project | GRADLE_HOME | <path_to_gradle> | Crossbow default build process requires installed Gradle on your PC. You can download it [here](https://services.gradle.org/distributions/) |
 | Native AAB | BUNDLETOOL_PATH | <path_to_bundletool> | Download bundletool from the [`GitHub repository`](https://github.com/google/bundletool/releases) or use [crossbundle install](../crossbundle/command-install.md) |
 
-Or you can install it via command line. Arguments were provided for example
+Or you can install required env via command line accordingly table above. Arguments were provided for example
 
 ```sh
 SETX ANDROID_SDK_ROOT "C:\Users\Username\AppData\Local\Android\Sdk" /M
