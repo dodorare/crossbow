@@ -4,7 +4,7 @@
 
 2. Specify substrate-subxt and bevy in your Cargo.toml. We prefer to use versions below:
 
-```sh
+```toml
 [dependencies]
 substrate-subxt = "0.21"
 bevy = "0.8.0"
