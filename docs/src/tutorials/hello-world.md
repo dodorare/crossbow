@@ -28,7 +28,7 @@ app_name = "My Project"
 icon = "path/to/icon.png"
 ```
 
-> We decided to refuse from lib.rs file for a more convenient project configuration so we need only `main.rs` to deploy our code 
+> We decided to refuse from lib.rs file for a more convenient project configuration. We need only `main.rs` to deploy our code 
 ```rust
 // main.rs
 
