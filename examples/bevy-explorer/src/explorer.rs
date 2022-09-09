@@ -28,7 +28,7 @@ impl ExplorerStateChannel {
     }
 }
 
-pub fn explorer_startup(channel: Res<ExplorerStateChannel>, mut commands: Commands) {
+pub fn explorer_startup(channel: Res<ExplorerStateChannel>) {
     let thread_pool = AsyncComputeTaskPool::get();
     let tx = channel.tx.clone();
 

@@ -22,6 +22,20 @@ assets = ["../../assets"]
 release_build_targets = ["aarch64-linux-android"]
 resources = ["../../assets/res/android"]
 
+[[package.metadata.android.plugins_local_projects]]
+include = ":crossbow"
+dont_implement = true
+project_dir = "../../platform/android/java"
+[[package.metadata.android.plugins_local_projects]]
+include = ":crossbow:lib"
+[package.metadata.android.manifest]
+package = "com.crossbow.example.permissions"
+[[package.metadata.android.manifest.uses_permission]]
+name = "android.permission.INTERNET"
+[package.metadata.android.manifest.uses_sdk]
+min_sdk_version = 19
+target_sdk_version = 31
+
 [package.metadata.apple]
 release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
 resources = ["../../assets/res/apple"]
