@@ -159,7 +159,13 @@ pub fn explorer_text_updater(
 }
 
 pub fn explorer_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let font_handle: Handle<Font> = asset_server.load("fonts/FiraSans-Bold.ttf");
+    let font_path = std::path::PathBuf::from("assets")
+        .join("fonts")
+        .join("FiraSans-Bold.ttf");
+    let manifest_dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let assets_path = manifest_dir.parent().unwrap().parent().unwrap();
+    println!("assets {}", assets_path.display());
+    let font_handle: Handle<Font> = asset_server.load(assets_path.join(font_path));
     commands.spawn_bundle(Camera2dBundle::default());
     // Root node (padding)
     commands
