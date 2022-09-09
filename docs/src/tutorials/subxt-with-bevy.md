@@ -2,13 +2,15 @@
 
 1. You need to install crossbundle if you haven't already. See [documention](../install/README.md) to install it and configure your project.
 
-2. Specify substrate-subxt and bevy in your Cargo.toml. We prefer to use versions below:
+2. Specify `subxt` crate and `bevy` in your Cargo.toml. We prefer to use versions below:
 
 ```toml
 [dependencies]
-substrate-subxt = "0.21"
-bevy = "0.8.0"
+subxt = "0.23"
+bevy = "0.8.1"
 ```
+
+> You might need additional dependencies to write your code. See [examples/bevy-explorer/cargo.toml](/examples/bevy-explorer/Cargo.toml)
 
 ## Bevy explorer example
 
