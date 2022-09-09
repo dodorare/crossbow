@@ -335,7 +335,8 @@ pub fn explorer_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
         });
 }
 
-/// Workaround. Failed to get assets on windows from the .load() method through the relative path to asset
+/// Workaround. Failed to get assets on windows from the .load() method through the
+/// relative path to asset
 fn get_assets_path(asset_server: Res<AssetServer>) -> Handle<Font> {
     let font_path = std::path::PathBuf::from("assets")
         .join("fonts")
