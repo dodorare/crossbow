@@ -6,7 +6,7 @@ use subxt::{
 };
 use tokio::sync::mpsc;
 
-#[subxt::subxt(runtime_metadata_path = "res/metadata.scale")]
+#[subxt::subxt(runtime_metadata_path = "res/polkadot_metadata.scale")]
 pub mod bevy_explorer {}
 
 #[cfg(not(target_os = "android"))]
@@ -28,14 +28,16 @@ impl ExplorerStateChannel {
     }
 }
 
-pub fn explorer_startup(task_pool: Res<AsyncComputeTaskPool>, channel: Res<ExplorerStateChannel>) {
+pub fn explorer_startup(channel: Res<ExplorerStateChannel>, mut commands: Commands) {
+    let thread_pool = AsyncComputeTaskPool::get();
     let tx = channel.tx.clone();
+
     #[cfg(target_os = "android")]
     let certificate = CertificateStore::WebPki;
     #[cfg(not(target_os = "android"))]
     let certificate = CertificateStore::Native;
 
-    task_pool
+    thread_pool
         .spawn(async move {
             let rt = tokio::runtime::Runtime::new().unwrap();
             rt.block_on(async {
@@ -77,7 +79,7 @@ pub fn explorer_startup(task_pool: Res<AsyncComputeTaskPool>, channel: Res<Explo
                         finalized_block_parent_hash: finalized.parent_hash.to_string(),
                     })
                     .await
-                    .unwrap();
+                    .ok();
                 }
             });
         })
