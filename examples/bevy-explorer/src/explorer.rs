@@ -159,13 +159,10 @@ pub fn explorer_text_updater(
 }
 
 pub fn explorer_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let font_path = std::path::PathBuf::from("assets")
-        .join("fonts")
-        .join("FiraSans-Bold.ttf");
-    let manifest_dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    let assets_path = manifest_dir.parent().unwrap().parent().unwrap();
-    println!("assets {}", assets_path.display());
-    let font_handle: Handle<Font> = asset_server.load(assets_path.join(font_path));
+    #[cfg(target_os = "windows")]
+    let font_handle: Handle<Font> = get_assets_path(asset_server).unwrap();
+    #[cfg(not(target_os = "windows"))]
+    let font_handle: Handle<Font> = asset_server.load("fonts/FiraSans-Bold.ttf");
     commands.spawn_bundle(Camera2dBundle::default());
     // Root node (padding)
     commands
@@ -341,4 +338,15 @@ pub fn explorer_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
                         });
                 });
         });
+}
+
+/// Workaround. Failed to get assets on windows from the .load() method through the relative path to asset
+fn get_assets_path(asset_server: Res<AssetServer>) -> Result<Handle<Font>, anyhow::Error> {
+    let font_path = std::path::PathBuf::from("assets")
+        .join("fonts")
+        .join("FiraSans-Bold.ttf");
+    let manifest_dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let assets_path = manifest_dir.parent().unwrap().parent().unwrap();
+    let font_handle: Handle<Font> = asset_server.load(assets_path.join(font_path));
+    Ok(font_handle)
 }
