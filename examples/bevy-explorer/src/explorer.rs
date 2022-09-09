@@ -2,7 +2,7 @@ use bevy::{prelude::*, tasks::AsyncComputeTaskPool};
 use jsonrpsee::core::client::CertificateStore;
 use subxt::{
     rpc::{RpcClientBuilder, Uri, WsTransportClientBuilder},
-    ClientBuilder, DefaultConfig, SubstrateExtrinsicParams,
+    OnlineClient, PolkadotConfig,
 };
 use tokio::sync::mpsc;
 
@@ -48,18 +48,13 @@ pub fn explorer_startup(channel: Res<ExplorerStateChannel>) {
                     .build(url)
                     .await
                     .unwrap();
-                let rpc_client = RpcClientBuilder::default().build(sender, receiver);
+                let rpc_client = RpcClientBuilder::default().build_with_tokio(sender, receiver);
 
-                let api = ClientBuilder::new()
-                    .set_client(rpc_client)
-                    .build()
+                let api = OnlineClient::<PolkadotConfig>::from_rpc_client(rpc_client)
                     .await
-                    .unwrap()
-                    .to_runtime_api::<bevy_explorer::RuntimeApi<
-                        DefaultConfig,
-                        SubstrateExtrinsicParams<DefaultConfig>,
-                    >>();
-                let client = api.client.rpc();
+                    .unwrap();
+
+                let client = api.rpc();
                 loop {
                     let (block_hash, finalized_head) =
                         tokio::try_join!(client.block_hash(None), client.finalized_head()).unwrap();
@@ -160,7 +155,7 @@ pub fn explorer_text_updater(
 
 pub fn explorer_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
     #[cfg(target_os = "windows")]
-    let font_handle: Handle<Font> = get_assets_path(asset_server).unwrap();
+    let font_handle: Handle<Font> = get_assets_path(asset_server);
     #[cfg(not(target_os = "windows"))]
     let font_handle: Handle<Font> = asset_server.load("fonts/FiraSans-Bold.ttf");
     commands.spawn_bundle(Camera2dBundle::default());
@@ -341,12 +336,12 @@ pub fn explorer_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
 }
 
 /// Workaround. Failed to get assets on windows from the .load() method through the relative path to asset
-fn get_assets_path(asset_server: Res<AssetServer>) -> Result<Handle<Font>, anyhow::Error> {
+fn get_assets_path(asset_server: Res<AssetServer>) -> Handle<Font> {
     let font_path = std::path::PathBuf::from("assets")
         .join("fonts")
         .join("FiraSans-Bold.ttf");
     let manifest_dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let assets_path = manifest_dir.parent().unwrap().parent().unwrap();
     let font_handle: Handle<Font> = asset_server.load(assets_path.join(font_path));
-    Ok(font_handle)
+    font_handle
 }
