@@ -2,25 +2,14 @@
 
 ## Generate a project
 
-`crossbundle` uses [`cargo-generate`](https://github.com/cargo-generate/cargo-generate) to generate a new project. This means that you need to install it before we proceed.
-
-```sh
-cargo install cargo-generate
-```
-
-Then you can create a new project:
-
-```sh
-crossbundle new project-name
-# crossbundle new project-name --template bevy
-# crossbundle new project-name --template quad
-```
-
-All supported templates you can watch [`here`](https://github.com/dodorare/crossbundle-templates) (each branch = template).
+Generate new project with [crossbundle new command](../crossbundle/command-new.md)!
 
 ## Project overview
 
 The project has been created. Now let's see what the project consists of.
+
+The code below is belong to the native crossbow project with pure rust without [android plugins](../crossbow/android-plugins.md). 
+To see all possibilities of `cargo.toml` see [crossbow configutarion tutorial](../crossbow/configuration.md)
 
 ```toml
 # Cargo.toml
@@ -39,6 +28,7 @@ app_name = "My Project"
 icon = "path/to/icon.png"
 ```
 
+> We decided to refuse from lib.rs file for a more convenient project configuration. We need only `main.rs` to deploy our code 
 ```rust
 // main.rs
 
@@ -49,21 +39,18 @@ fn main() {
 
 ## Build an application
 
-Let's build and run our first `crossbundle` application. Android commands below will generate gradle project and install apk on your device.
+Let's build and run our first `crossbundle` application. Android commands below will generate gradle project and install apk on your device. See [crossbundle run command](/docs/src/crossbundle/command-run.md) for additional information.
 
+> cd project-name. To attach a logger when application deploys on your device use `--log` flag. 
 ```sh
-# cd project-name
-crossbundle run android
-# or
-crossbundle run ios
+crossbundle run android --log
+```
+
+> or
+```sh
+crossbundle run ios --log
 ```
 
 If you want to build the application for android as native AAB - add `-s=native-aab` flag or add `-s=native-apk` to build native APK.
 
-When the application deploys on your device, you can attach a logger.
-
-```sh
-crossbundle log android
-```
-
-and you will see the message: `"Hello, project-name!"`
+You will see the message: `"Hello, project-name!"`

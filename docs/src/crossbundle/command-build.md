@@ -1,4 +1,6 @@
-# Crossbow gradle
+# Crossbundle build command
+
+## Crossbundle build gradle
 
 Crossbow default build process requires installed Gradle on your PC.
 
@@ -18,6 +20,8 @@ gradle installDebug
 ```
 
 Also you can replace `build` with `run` subcommand to build and run APK on your device (it uses `installDebug` command under the hood). To see how to set android emulator check install recommendations for [linux-android](./install-linux-android.md), [macos-android](./install-macos-android.md), [windows-android](./install-windows-android.md).
+
+## Crossbundle build native AAB/APK
 
 If you don't want to use gradle you can specify it in strategy native-apk:
 
