@@ -158,12 +158,18 @@ cd ./crossbow/
 <pre><code class="language-sh">docker pull ghcr.io/dodorare/crossbundle:latest
 </code></pre>
 <p>Run the following command at the root of <code>crossbow</code> project:</p>
-<pre><code class="language-sh"># For unix systems:
-docker run --rm -it -v &quot;$(pwd)/:/src&quot; -w /src/examples/macroquad-permissions ghcr.io/dodorare/crossbundle build android --release
-# For Windows:
-docker run --rm -it -v &quot;${pwd}/:/src&quot; -w /src/examples/macroquad-permissions ghcr.io/dodorare/crossbundle build android --release
+<blockquote>
+<p>For unix systems (Bash):</p>
+</blockquote>
+<pre><code class="language-sh">docker run --rm -it -v &quot;$(pwd)/:/src&quot; -w /src/examples/macroquad-permissions ghcr.io/dodorare/crossbundle build android --release
+</code></pre>
+<blockquote>
+<p>For Windows (PowerShell):</p>
+</blockquote>
+<pre><code class="language-sh">docker run --rm -it -v &quot;${pwd}/:/src&quot; -w /src/examples/macroquad-permissions ghcr.io/dodorare/crossbundle build android --release
 </code></pre>
 <p>Install APK on connected Android phone via USB:</p>
+<p>Follow the link to find out how to set up your device or <a href="./set-up-android-device.html">android emulator</a></p>
 <pre><code class="language-sh">adb install ./target/android/macroquad-permissions/gradle/build/outputs/apk/release/gradle-release-unsigned.apk
 </code></pre>
 <p>Or transfer APK file to your phone with any application.</p>

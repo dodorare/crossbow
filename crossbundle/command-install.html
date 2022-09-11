@@ -142,11 +142,17 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="setup-packages-with-crossbundle-install"><a class="header" href="#setup-packages-with-crossbundle-install">Setup packages with crossbundle install</a></h1>
-<p>Use <code>crossbundle</code> install command to install necessary packages. To find out available commands specify the -h flag.</p>
+                        <h1 id="crossbundle-install-command"><a class="header" href="#crossbundle-install-command">Crossbundle install command</a></h1>
+<h2 id="setup-packages"><a class="header" href="#setup-packages">Setup packages</a></h2>
+<p>Use <code>crossbundle</code> install command to install necessary packages. To find out available commands specify the <code>-h</code> flag. The <code>-h</code> flag can be used in all subcommands crossbundle install offers.</p>
 <pre><code class="language-sh">crossbundle install -h
+crossbundle install command-line-tools -h
 </code></pre>
-<h2 id="install-tools-to-apk-correct-building"><a class="header" href="#install-tools-to-apk-correct-building">Install tools to APK correct building</a></h2>
+<h2 id="install-tools-to-apk-building"><a class="header" href="#install-tools-to-apk-building">Install tools to APK building</a></h2>
+<p>We offer to use our command to fast installation all required packages.</p>
+<pre><code class="language-sh">crossbundle install --preferred
+</code></pre>
+<p>This command will setup command line tools, Android platforms, build-tools, Android NDK and bundletool for AAB correct working. To provide custom installation read the article below. </p>
 <h3 id="install-command-line-tools"><a class="header" href="#install-command-line-tools">Install command-line tools</a></h3>
 <p>If you do not need Android Studio, you can download the basic Android <a href="https://developer.android.com/studio/command-line">command line tools</a> below. You can use the included <a href="https://developer.android.com/studio/command-line/sdkmanager">sdkmanager</a> to download other SDK packages.</p>
 <p>These tools are included in Android Studio.</p>
@@ -157,9 +163,6 @@
 Note: Android studio install cmdline tools into <code>$SDK_ROOT/cmdline-tools/&lt;version&gt;/bin</code>.</p>
 <h3 id="install-packages"><a class="header" href="#install-packages">Install packages</a></h3>
 <p>The <a href="https://developer.android.com/studio/command-line/sdkmanager">sdkmanager</a> is a command-line tool that allows you to view, install, update, and uninstall packages for the Android SDK.</p>
-<p>To install packages use the command below. We prefer to use --preferred-tools flag to install minimal required tools needed for crossbundle correct working. This command will setup build-tools, android-ndk and android platforms: </p>
-<pre><code class="language-sh">crossbundle install sdkmanager --preferred-tools
-</code></pre>
 <p>Also you can install packages manually. To see all available tools use the -h flag. List installed and available packages:</p>
 <pre><code class="language-sh">crossbundle install sdkmanager --list
 </code></pre>
@@ -167,9 +170,7 @@ Note: Android studio install cmdline tools into <code>$SDK_ROOT/cmdline-tools/&l
 <pre><code class="language-sh">crossbundle install sdkmanager --install &quot;build-tools;31.0.0&quot; &quot;ndk;23.1.7779620&quot; &quot;platforms;android-31&quot;
 </code></pre>
 <p>The command will install packages into <code>$HOME\AppData\Local\Android\Sdk\</code> for Windows, <code>$HOME/Library/Android/sdk/</code> for macOS, and <code>$HOME/Android/sdk/</code> for Linux.</p>
-<h2 id="install-tools-to-aab-correct-building"><a class="header" href="#install-tools-to-aab-correct-building">Install tools to AAB correct building</a></h2>
-<p>For correct AAB building install <a href="https://developer.android.com/studio/command-line/bundletool">bundletool</a> and tools above.</p>
-<h3 id="install-bundletool"><a class="header" href="#install-bundletool">Install bundletool</a></h3>
+<h2 id="install-bundletool-to-aab-building"><a class="header" href="#install-bundletool-to-aab-building">Install bundletool to AAB building</a></h2>
 <p>To install <a href="https://developer.android.com/studio/command-line/bundletool">bundletool</a> use command below. To see all available options use the -h flag.</p>
 <pre><code class="language-sh">crossbundle install bundletool
 </code></pre>

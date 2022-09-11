@@ -145,18 +145,21 @@
                         <h1 id="using-subxt-with-bevy-engine"><a class="header" href="#using-subxt-with-bevy-engine">Using subxt with bevy engine</a></h1>
 <ol>
 <li>
-<p>You need to install crossbundle if you haven't already. See <a href="https://github.com/dodorare/crossbow/tree/main/docs">documention</a> to install it and configure your project.</p>
+<p>You need to install crossbundle if you haven't already. See <a href="../install/README.html">documention</a> to install it and configure your project.</p>
 </li>
 <li>
-<p>Specify substrate-subxt and bevy in your Cargo.toml. We prefer to use versions below:</p>
+<p>Specify <code>subxt</code> crate and <code>bevy</code> in your Cargo.toml. We prefer to use versions below:</p>
 </li>
 </ol>
-<pre><code class="language-sh">[dependencies]
-substrate-subxt = &quot;0.21&quot;
+<pre><code class="language-toml">[dependencies]
+subxt = &quot;0.23&quot;
 bevy = &quot;0.8.1&quot;
 </code></pre>
+<blockquote>
+<p>You might need additional dependencies to write your code. See <a href="/examples/bevy-explorer/Cargo.toml">examples/bevy-explorer/cargo.toml</a></p>
+</blockquote>
 <h2 id="bevy-explorer-example"><a class="header" href="#bevy-explorer-example">Bevy explorer example</a></h2>
-<p>To learn how to use subxt with bevy engine, you can go to the <a href="https://github.com/dodorare/crossbow/tree/main/examples/bevy-explorer">examples/bevy-explorer</a> or install bevy explorer template. Follow next steps:</p>
+<p>To learn how to use subxt with bevy engine, you can go to the <a href="/examples/bevy-explorer/">examples/bevy-explorer</a> or install bevy explorer template. Follow next steps:</p>
 <ol>
 <li>Install cargo-generate:</li>
 </ol>
@@ -171,18 +174,26 @@ bevy = &quot;0.8.1&quot;
 <li>After previous steps, now you can install the application on the device.</li>
 </ol>
 <h2 id="installing-application-on-the-device"><a class="header" href="#installing-application-on-the-device">Installing application on the device</a></h2>
-<p>You can deploy the application on your device with commands below. At first, you should go to example directory. Use it:</p>
+<p>You can deploy the application on your device or <a href="../install/set-up-android-device.html">android emulator</a> with commands below. At first, you should go to example directory. Use it:</p>
 <p>Bash:</p>
-<pre><code class="language-sh"># If the template was installed
-cd example
-# If bevy-explorer example will be used
-cd example/bevy-explorer
+<blockquote>
+<p>If the template was installed</p>
+</blockquote>
+<pre><code class="language-sh">cd example
+</code></pre>
+<blockquote>
+<p>If bevy-explorer example will be used</p>
+</blockquote>
+<pre><code class="language-sh">cd example/bevy-explorer
 </code></pre>
 <p>By default <code>crossbundle build android</code> command will generate gradle project and install apk on your device. To build native <code>.apk</code> and <code>.aab</code> see commands below.
 To build native APK and run it on the device using the command. If you want to build an application replaces <code>run</code> with <code>build</code>.</p>
 <pre><code class="language-sh">crossbundle run android -s=native-apk
-# or
-crossbundle run ios
+</code></pre>
+<blockquote>
+<p>or </p>
+</blockquote>
+<pre><code class="language-sh">crossbundle run ios
 </code></pre>
 <p>To build native AAB and run it on the device using the command. If you want to build an application replaces <code>run</code> with <code>build</code>.</p>
 <pre><code class="language-sh">crossbundle run android -s=native-aab

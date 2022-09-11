@@ -145,7 +145,7 @@
                         <h1 id="setup-android-environment-on-linux"><a class="header" href="#setup-android-environment-on-linux">Setup Android Environment on Linux</a></h1>
 <h2 id="install-necessary-packages"><a class="header" href="#install-necessary-packages">Install necessary packages</a></h2>
 <ol>
-<li>Use <a href="https://github.com/dodorare/crossbow/blob/main/docs/crossbundle-install-command.md">crossbundle install command</a> or download and install <a href="https://developer.android.com/studio">Android Studio</a>.</li>
+<li>Use <a href="../crossbundle/command-install.html">crossbundle install command</a> or download and install <a href="https://developer.android.com/studio">Android Studio</a>.</li>
 <li>Start Android Studio, and go through the <code>Android Studio Setup Wizard</code> with the <code>Custom</code> option and install the following (or install them in <code>SDK Manager</code>):
 <ul>
 <li>Android SDK</li>
@@ -156,22 +156,25 @@
 </ul>
 </li>
 </ol>
+<h2 id="install-necessary-rustup-targets"><a class="header" href="#install-necessary-rustup-targets">Install necessary rustup targets</a></h2>
+<p>Run the following command:</p>
+<pre><code class="language-sh">rustup target add armv7-linux-androideabi aarch64-linux-android i686-linux-android x86_64-linux-android
+</code></pre>
 <h2 id="add-environment-variables"><a class="header" href="#add-environment-variables">Add environment variables</a></h2>
-<p>Take these steps to add Android-related environment variables:</p>
-<ul>
-<li>From the Start search bar, enter ‘env’ and select <strong>Edit environment variables for your account</strong>.</li>
-<li>Add <code>ANDROID_SDK_ROOT</code>||<code>ANDROID_SDK_PATH</code>||<code>ANDROID_HOME</code> and <code>ANDROID_NDK_ROOT</code>||<code>ANDROID_NDK_PATH</code>||<code>NDK_HOME</code>to environment variables.</li>
-</ul>
+<p>From the Start search bar, enter <code>env</code> and select <strong>Edit environment variables for your account</strong>.</p>
+<div class="table-wrapper"><table><thead><tr><th>Building strategy</th><th>Key</th><th>Value</th><th>Description</th></tr></thead><tbody>
+<tr><td>Gradle project, native APK/AAB</td><td>ANDROID_SDK_ROOT</td><td>&lt;path_to_sdk&gt;\Sdk</td><td>Can be replaced with ANDROID_SDK_PATH and ANDROID_HOME. You might not install this env var if you used <a href="../crossbundle/command-install.html">crossbundle install</a> to set up required packages</td></tr>
+<tr><td></td><td></td><td></td><td>or just want to build native APK or native AAB</td></tr>
+<tr><td>Native APK/AAB</td><td>ANDROID_NDK_ROOT</td><td>&lt;path_to_sdk&gt;\Sdk\ndk&lt;version&gt;</td><td>Can be replaced with ANDROID_NDK_PATH and NDK_HOME. You might not install this env var if you used <a href="../crossbundle/command-install.html">crossbundle install</a> to set up required packages</td></tr>
+<tr><td>Gradle project</td><td>GRADLE_HOME</td><td>&lt;path_to_gradle&gt;</td><td>Crossbow default build process requires installed Gradle on your PC. You can download it <a href="https://services.gradle.org/distributions/">here</a></td></tr>
+<tr><td>Native AAB</td><td>BUNDLETOOL_PATH</td><td>&lt;path_to_bundletool&gt;</td><td>Download bundletool from the <a href="https://github.com/google/bundletool/releases"><code>GitHub repository</code></a> or use <a href="../crossbundle/command-install.html">crossbundle install</a></td></tr>
+</tbody></table>
+</div>
 <p>For that edit <strong>~/.bash_profile</strong> or <strong>~/.bashrc</strong> files so they contain those lines:</p>
 <pre><code class="language-sh">export ANDROID_SDK_ROOT=$HOME/Android/Sdk
 export ANDROID_NDK_ROOT=$HOME/Android/Sdk/ndk/23.1.7779620
-</code></pre>
-<p>If u will build application with emulator u should add this environment variables:</p>
-<pre><code class="language-sh">export PATH=&lt;path_to_sdk&gt;\sdk\emulator:$PATH
-export PATH=&lt;path_to_sdk&gt;\sdk\tools\bin:$PATH
-</code></pre>
-<p>Crossbow default build process requires installed Gradle on your PC. You can download it <a href="https://services.gradle.org/distributions/">here</a>. Set to environment variable.</p>
-<pre><code class="language-sh">export GRADLE_HOME=&lt;path_to_gradle&gt;
+export GRADLE_HOME=&lt;path_to_gradle&gt;
+export BUNDLETOOL_PATH=&lt;path_to_bundletool&gt;
 </code></pre>
 <p>Also, we need to make sure we have a java runtime environment (JRE) installed. We need a key tool utility from there. <br/>
 To make sure it's present type this command: <code>ls /usr/lib/jvm/default/bin/ | grep keytool</code></p>
@@ -182,41 +185,17 @@ Examples:</p>
 <li>Ubuntu: <code>sudo apt install default-jdk</code></li>
 <li>Manjaro (Arch): <code>sudo pacman -S jre11-openjdk-headless jre11-openjdk jdk11-openjdk openjdk11-doc openjdk11-src</code></li>
 </ul>
-<h3 id="if-you-want-to-generate-aab-android-app-bundle-u-will-need-to-install-bundletool"><a class="header" href="#if-you-want-to-generate-aab-android-app-bundle-u-will-need-to-install-bundletool">If you want to generate AAB (Android App Bundle) u will need to install Bundletool</a></h3>
-<p>If you haven't already done so, download bundletool from the <a href="https://github.com/google/bundletool/releases"><code>GitHub repository</code></a>.</p>
-<pre><code class="language-sh">export BUNDLETOOL_PATH=&lt;path_to_bundletool&gt;
-</code></pre>
 <h2 id="set-up-your-android-device"><a class="header" href="#set-up-your-android-device">Set up your Android device</a></h2>
-<p>To prepare to run your <code>Crossbow</code> app on an Android device, you need an Android device running Android 4.1 (API level 16) or higher.</p>
-<ol>
-<li>Enable <strong>Developer options</strong> and <strong>USB debugging</strong> on your device. Detailed instructions are available in the <a href="https://developer.android.com/studio/debug/dev-options">Android documentation</a>.</li>
-<li>Using a USB cable, plug your phone into your computer. If prompted on your device, authorize your computer to access your device.</li>
-</ol>
-<h2 id="set-up-the-android-emulator"><a class="header" href="#set-up-the-android-emulator">Set up the Android emulator</a></h2>
-<p>To prepare to run and test your Crossbow app on the Android emulator, follow these steps if you want to install it from the console:</p>
-<pre><code class="language-sh"># Run following command to install System Image for Android SDK 31
-crossbundle install sdkmanager --install &quot;system-images;android-31;google_apis;x86_64&quot;
-# Run this command to create a new emulator
-avdmanager create avd -n Phone -k &quot;system-images;android-31;google_apis;x86_64&quot;
-# And finally run this command to start the emulator
-emulator -avd=Phone
-</code></pre>
-<p>If you want to install it from the GUI, follow these instructions:</p>
-<ol>
-<li>Enable <a href="https://developer.android.com/studio/run/emulator-acceleration"><code>VM acceleration</code></a> on your machine.</li>
-<li>Launch <strong>Android Studio</strong>, click the <strong>AVD Manager</strong> icon, and select <strong>Create Virtual Device</strong>.</li>
-<li>Choose a device definition and select <strong>Next</strong>.</li>
-<li>Select one or more system images for the Android versions you want to emulate, and select <strong>Next</strong>. An x86 or x86_64 image is recommended.</li>
-<li>Under Emulated Performance, select <strong>Hardware - GLES 2.0</strong> to enable <a href="https://developer.android.com/studio/run/emulator-acceleration"><code>hardware acceleration</code></a>.</li>
-<li>Verify the AVD configuration is correct, and select <strong>Finish</strong>. (For details on the above steps, see <a href="https://developer.android.com/studio/run/managing-avds"><code>Managing AVDs</code></a>)</li>
-<li>In Android Virtual Device Manager, click Run in the toolbar. The emulator starts up and displays the default canvas for your selected OS version and device.</li>
-</ol>
-<h2 id="install-necessary-rustup-targets"><a class="header" href="#install-necessary-rustup-targets">Install necessary rustup targets</a></h2>
-<p>Run the following command:</p>
-<pre><code class="language-sh">rustup target add armv7-linux-androideabi aarch64-linux-android i686-linux-android x86_64-linux-android
-</code></pre>
+<p>Follow the link to find out how to set up your device or <a href="./set-up-android-device.html">android emulator</a></p>
 <h2 id="next-step"><a class="header" href="#next-step">Next step</a></h2>
-<p><a href="https://github.com/dodorare/crossbow/wiki/Hello-World!"><code>Hello World! application</code></a> with Crossbow</p>
+<p>See <a href="../tutorials/hello-world.html">hello-world</a> to configure your project</p>
+<p>After previous steps you can use crossbundle to build gradle project or native APK/AAB. Go to the links:</p>
+<ul>
+<li><a href="../crossbundle/command-build.html">Crossbundle build command</a></li>
+<li><a href="../crossbundle/command-run.html">Crossbundle run command</a></li>
+<li><a href="../crossbundle/command-install.html">Crossbundle install command</a></li>
+<li><a href="../crossbundle/command-new.html">Crossbundle new command</a></li>
+</ul>
 
                     </main>
 
