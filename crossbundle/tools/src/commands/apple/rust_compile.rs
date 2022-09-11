@@ -19,8 +19,8 @@ pub fn compile_rust_for_ios(
     let mut cargo = Command::new("cargo");
     cargo.arg("rustc");
     match &target {
-        Target::Bin(name) => cargo.args(&["--bin", name]),
-        Target::Example(name) => cargo.args(&["--example", name]),
+        Target::Bin(name) => cargo.args(["--bin", name]),
+        Target::Example(name) => cargo.args(["--example", name]),
         Target::Lib => cargo.arg("--lib"),
     };
     cargo.current_dir(project_path);
@@ -28,7 +28,7 @@ pub fn compile_rust_for_ios(
         cargo.arg("--release");
     };
     for feature in features.iter() {
-        cargo.args(&["--feature", feature]);
+        cargo.args(["--feature", feature]);
     }
     if all_features {
         cargo.arg("--all-features");
@@ -37,13 +37,13 @@ pub fn compile_rust_for_ios(
         cargo.arg("--no-default-features");
     };
     let triple = build_target.rust_triple();
-    cargo.args(&["--target", triple]);
+    cargo.args(["--target", triple]);
     if !crate_types.is_empty() {
         // Creates a comma-separated string
         let crate_types: String =
             itertools::Itertools::intersperse(crate_types.iter().map(|v| v.as_ref()), ",")
                 .collect();
-        cargo.args(&["--", "--crate-type", &crate_types]);
+        cargo.args(["--", "--crate-type", &crate_types]);
     };
     cargo.output_err(true)?;
     Ok(())

@@ -1,14 +1,14 @@
 [package]
 name = "bevy-2d"
-version = "0.2.2"
+version = "0.2.3"
 authors = ["DodoRare Team <support@dodorare.com>"]
 edition = "2021"
 
 [dependencies]
-crossbow = { version = "0.2.2", path = "../../" }
+crossbow = { version = "0.2.3", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
-bevy = { version = "0.8.0", default-features = false, features = ["bevy_winit", "render", "bevy_asset"] }
+bevy = { version = "0.8.1", default-features = false, features = ["bevy_winit", "render", "bevy_asset"] }
 
 [package.metadata]
 app_name = "Bevy 2D"

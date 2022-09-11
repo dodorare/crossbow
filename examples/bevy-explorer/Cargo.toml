@@ -1,18 +1,18 @@
 [package]
 name = "bevy-explorer"
-version = "0.2.2"
+version = "0.2.3"
 authors = ["DodoRare Team <support@dodorare.com>"]
 edition = "2021"
 
 [dependencies]
-crossbow = { version = "0.2.2", path = "../../" }
+crossbow = { version = "0.2.3", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
-subxt = "0.21"
+subxt = "0.23.0"
 tokio = { version = "1.17", features = ["sync", "macros", "rt-multi-thread"] }
-bevy = { version = "0.8.0", default-features = false, features = ["bevy_winit", "render", "bevy_asset"] }
+bevy = { version = "0.8.1", default-features = false, features = ["bevy_winit", "render", "bevy_asset"] }
 codec = { package = "parity-scale-codec", version = "3.0.0", default-features = false, features = ["derive", "full", "bit-vec"] }
-jsonrpsee = { version = "0.10.1", features = ["async-client", "client-ws-transport"] }
+jsonrpsee = { version = "0.15.1", features = ["async-client", "client-ws-transport"] }
 
 [package.metadata]
 app_name = "Bevy Explorer"
@@ -21,6 +21,24 @@ assets = ["../../assets"]
 [package.metadata.android]
 release_build_targets = ["aarch64-linux-android"]
 resources = ["../../assets/res/android"]
+
+[[package.metadata.android.plugins_local_projects]]
+include = ":crossbow"
+dont_implement = true
+project_dir = "../../platform/android/java"
+
+[[package.metadata.android.plugins_local_projects]]
+include = ":crossbow:lib"
+
+[package.metadata.android.manifest]
+package = "com.crossbow.example.permissions"
+
+[[package.metadata.android.manifest.uses_permission]]
+name = "android.permission.INTERNET"
+
+[package.metadata.android.manifest.uses_sdk]
+min_sdk_version = 19
+target_sdk_version = 31
 
 [package.metadata.apple]
 release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]

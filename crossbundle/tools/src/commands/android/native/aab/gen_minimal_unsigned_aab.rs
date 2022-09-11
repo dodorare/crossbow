@@ -23,7 +23,7 @@ pub fn gen_minimal_unsigned_aab(
     let manifest_path = save_android_manifest(aab_build_dir, &manifest)?;
     let apk_path = aab_build_dir.join(format!("{}_module.apk", package_name));
     if !aab_build_dir.exists() {
-        std::fs::create_dir_all(&aab_build_dir)?;
+        std::fs::create_dir_all(aab_build_dir)?;
     }
 
     let mut aapt2_link = sdk

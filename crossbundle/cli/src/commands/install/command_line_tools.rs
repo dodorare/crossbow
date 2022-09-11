@@ -46,7 +46,7 @@ impl CommandLineToolsInstallCommand {
 
         config.status_message(
             format!("Downloading {} into", self.file_name()),
-            &file_path.parent().unwrap().to_str().unwrap(),
+            file_path.parent().unwrap().to_str().unwrap(),
         )?;
         self.download_and_save_file(command_line_tools_download_url, &file_path)?;
 
@@ -60,7 +60,7 @@ impl CommandLineToolsInstallCommand {
             let sdk_path = sdk_install_path()?;
             config.status_message(
                 "Extracting zip archive contents into",
-                &sdk_path.to_str().unwrap(),
+                sdk_path.to_str().unwrap(),
             )?;
             extract_archive(&file_path, Path::new(&sdk_path))?;
         }
