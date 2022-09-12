@@ -144,7 +144,8 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
             }
 
             // Create output directory inside the build target directory
-            std::fs::create_dir_all(&self.build_target_dir)
+            let build_path = self.build_target_dir.join("build");
+            std::fs::create_dir_all(&build_path)
                 .map_err(|_| anyhow::Error::msg("Failed to create build target directory"))?;
 
             // Change crate-type from bin to cdylib
@@ -159,54 +160,172 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
                 }
             }
 
-            // Workaround from https://github.com/rust-windowing/android-ndk-rs/issues/149:
-            // Rust (1.56 as of writing) still requires libgcc during linking, but this does
-            // not ship with the NDK anymore since NDK r23 beta 3.
-            // See https://github.com/rust-lang/rust/pull/85806 for a discussion on why libgcc
-            // is still required even after replacing it with libunwind in the source.
-            // XXX: Add an upper-bound on the Rust version whenever this is not necessary anymore.
-            let mut cmd = cmd.clone();
-            let build_tag = self.ndk.build_tag();
-            let tool_root = self.ndk.toolchain_dir().map_err(|_| {
-                anyhow::Error::msg("Failed to get access to the toolchain directory")
-            })?;
-            if build_tag > 7272597 {
-                let error_msg = anyhow::Error::msg("Failed to write content into libgcc.a file");
-                let mut args = match self.app_wrapper {
-                    AppWrapper::Quad => {
-                        new_ndk_quad_args(tool_root, &self.build_target, self.target_sdk_version)
-                            .map_err(|_| error_msg)?
-                    }
-                    AppWrapper::NdkGlue => linker_args(&tool_root).map_err(|_| error_msg)?,
-                };
-                new_args.append(&mut args);
-                cmd.args_replace(&new_args);
-                cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
-                    .map(drop)?;
-            } else if self.app_wrapper == AppWrapper::Quad {
-                // Set linker arguments using in ndk =< 22
-                let mut linker_args =
-                    add_clinker_args(&self.ndk, &self.build_target, self.target_sdk_version)?;
-                new_args.append(&mut linker_args);
+            if self.ndk.build_tag() > 7272597 {
+                // Determine paths
+                let tool_root = self.ndk.toolchain_dir().map_err(|_| {
+                    anyhow::Error::msg("Failed to get access to the toolchain directory")
+                })?;
+
+                // NDK r23 renamed <ndk_llvm_triple>-ld to ld
+                let linker_path = tool_root.join("bin").join("ld");
+
+                let sysroot = tool_root.join("sysroot");
+                let version_independent_libraries_path = sysroot
+                    .join("usr")
+                    .join("lib")
+                    .join(&self.build_target.ndk_triple());
+                let version_specific_libraries_path = self
+                    .ndk
+                    .version_specific_libraries_path(self.target_sdk_version, &self.build_target)?;
+                // Add linker arguments
+                // Specify linker
+                new_args.push(build_arg("-Clinker=", linker_path));
+
+                // Set linker flavor
+                new_args.push("-Clinker-flavor=ld".into());
+
+                // Set system root
+                new_args.push(build_arg("-Clink-arg=--sysroot=", sysroot));
+
+                // Add version specific libraries directory to search path
+                new_args.push(build_arg("-Clink-arg=-L", &version_specific_libraries_path));
+
+                // Add version independent libraries directory to search path
+                new_args.push(build_arg(
+                    "-Clink-arg=-L",
+                    &version_independent_libraries_path,
+                ));
+
+                // Add path containing libgcc.a and libunwind.a for linker to search.
+                // See https://github.com/rust-lang/rust/pull/85806 for discussion on libgcc.
+                // The workaround to get to NDK r23 or newer is to create a libgcc.a file with
+                // the contents of 'INPUT(-lunwind)' to link in libunwind.a instead of libgcc.a
+                let libgcc_dir = build_path.join("_libgcc_");
+                std::fs::create_dir_all(&libgcc_dir)?;
+                let libgcc = libgcc_dir.join("libgcc.a");
+                std::fs::write(&libgcc, "INPUT(-lunwind)")?;
+                new_args.push(build_arg("-Clink-arg=-L", libgcc_dir));
+                let libunwind_dir = self.ndk.find_libunwind_dir(&self.build_target)?;
+                new_args.push(build_arg("-Clink-arg=-L", libunwind_dir));
 
                 // Strip symbols for release builds
                 if !self.nostrip && self.profile == Profile::Release {
                     new_args.push("-Clink-arg=-strip-all".into());
                 }
 
-                // Create new command
-                let mut cmd = cmd.clone();
-                cmd.args_replace(&new_args);
+                // Require position independent code
+                new_args.push("-Crelocation-model=pic".into());
+            } else {
+                // Determine paths to linker and libgcc using in ndk =< 22
+                let tool_root = self.ndk.toolchain_dir().unwrap();
+                let linker_path = tool_root
+                    .join("bin")
+                    .join(format!("{}-ld.gold", self.build_target.ndk_triple()));
+                let gcc_lib_path = tool_root
+                    .join("lib/gcc")
+                    .join(self.build_target.ndk_triple())
+                    .join("4.9.x");
+                let sysroot = tool_root.join("sysroot");
+                let version_independent_libraries_path = sysroot
+                    .join("usr")
+                    .join("lib")
+                    .join(self.build_target.ndk_triple());
+                let version_specific_libraries_path =
+                    AndroidNdk::find_ndk_path(self.target_sdk_version, |platform| {
+                        version_independent_libraries_path.join(platform.to_string())
+                    })
+                    .map_err(|_| anyhow::Error::msg("Android SDK not found"))?;
 
-                // Execute the command
-                cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
-                    .map(drop)?;
-            } else if self.app_wrapper == AppWrapper::NdkGlue {
-                cmd.args_replace(&new_args);
+                // Add linker arguments
+                // Specify linker
+                new_args.push(build_arg("-Clinker=", linker_path));
 
-                cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
-                    .map(drop)?;
+                // Set linker flavor
+                new_args.push("-Clinker-flavor=ld".into());
+
+                // Set system root
+                new_args.push(build_arg("-Clink-arg=--sysroot=", sysroot));
+
+                // Add version specific libraries directory to search path
+                new_args.push(build_arg("-Clink-arg=-L", &version_specific_libraries_path));
+
+                // Add version independent libraries directory to search path
+                new_args.push(build_arg(
+                    "-Clink-arg=-L",
+                    &version_independent_libraries_path,
+                ));
+
+                // Add path to folder containing libgcc.a to search path
+                new_args.push(build_arg("-Clink-arg=-L", gcc_lib_path));
+
+                // Strip symbols for release builds
+                if !self.nostrip && self.profile == Profile::Release {
+                    new_args.push("-Clink-arg=-strip-all".into());
+                }
+
+                // Require position independent code
+                new_args.push("-Crelocation-model=pic".into());
             }
+            // Create new command
+            let mut cmd = cmd.clone();
+            cmd.args_replace(&new_args);
+
+            //
+            // Execute the command
+            //
+            cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
+                .map(drop)?;
+            // // Workaround from https://github.com/rust-windowing/android-ndk-rs/issues/149:
+            // // Rust (1.56 as of writing) still requires libgcc during linking, but this does
+            // // not ship with the NDK anymore since NDK r23 beta 3.
+            // // See https://github.com/rust-lang/rust/pull/85806 for a discussion on why libgcc
+            // // is still required even after replacing it with libunwind in the source.
+            // // XXX: Add an upper-bound on the Rust version whenever this is not necessary anymore.
+            // let mut cmd = cmd.clone();
+            // let build_tag = self.ndk.build_tag();
+            // let tool_root = self.ndk.toolchain_dir().map_err(|_| {
+            //     anyhow::Error::msg("Failed to get access to the toolchain directory")
+            // })?;
+            // let error_msg = anyhow::Error::msg("Failed to write content into libgcc.a file");
+            // if build_tag > 7272597 {
+            //     let mut args = match self.app_wrapper {
+            //         AppWrapper::Quad => {
+            //             new_ndk_quad_args(tool_root, &self.build_target, self.target_sdk_version)
+            //                 .map_err(|_| error_msg)?
+            //         }
+            //         AppWrapper::NdkGlue => linker_args(&tool_root).map_err(|_| error_msg)?,
+            //     };
+            //     new_args.append(&mut args);
+            //     cmd.args_replace(&new_args);
+            //     cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
+            //         .map(drop)?;
+            // } else if self.app_wrapper == AppWrapper::Quad {
+            //     // Set linker arguments using in ndk =< 22
+            //     let mut linker_args =
+            //         add_clinker_args(&self.ndk, &self.build_target, self.target_sdk_version)?;
+            //     new_args.append(&mut linker_args);
+
+            //     // Strip symbols for release builds
+            //     if !self.nostrip && self.profile == Profile::Release {
+            //         new_args.push("-Clink-arg=-strip-all".into());
+            //     }
+
+            //     // Create new command
+            //     let mut cmd = cmd.clone();
+            //     cmd.args_replace(&new_args);
+
+            //     // Execute the command
+            //     cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
+            //         .map(drop)?;
+            // } else if self.app_wrapper == AppWrapper::NdkGlue {
+            //     println!("I am here");
+            //     let mut args = linker_args(&tool_root).map_err(|_| error_msg)?;
+            //     new_args.append(&mut args);
+            //     cmd.args_replace(&new_args);
+
+            //     cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
+            //         .map(drop)?;
+            // }
         } else if mode == cargo::core::compiler::CompileMode::Test {
             // This occurs when --all-targets is specified
             return Err(anyhow::Error::msg(format!(

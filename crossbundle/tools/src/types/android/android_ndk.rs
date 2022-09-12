@@ -79,7 +79,7 @@ impl AndroidNdk {
         &self.ndk_path
     }
 
-    /// Operating system type
+    /// Returns the path to the LLVM toolchain provided by the NDK
     pub fn toolchain_dir(&self) -> Result<PathBuf> {
         let host_os = std::env::var("HOST").ok();
         let host_contains = |s| host_os.as_ref().map(|h| h.contains(s)).unwrap_or(false);
@@ -116,7 +116,7 @@ impl AndroidNdk {
         Ok(toolchain_dir)
     }
 
-    /// Path to Clang
+    /// Returns path to clang executable/script that should be used to build the target
     pub fn clang(&self, target: AndroidTarget, platform: u32) -> Result<(PathBuf, PathBuf)> {
         #[cfg(target_os = "windows")]
         let ext = "cmd";
@@ -147,7 +147,7 @@ impl AndroidNdk {
         Ok((clang, clang_pp))
     }
 
-    /// Path to bin
+    /// Path to GNU binutils
     pub fn toolchain_bin(&self, name: &str, build_target: AndroidTarget) -> Result<PathBuf> {
         #[cfg(target_os = "windows")]
         let ext = ".exe";
@@ -340,5 +340,30 @@ impl AndroidNdk {
             )));
         }
         Ok(version_specific_libraries_path)
+    }
+
+    // Returns dir to libunwind.a for the correct architecture
+    // e.g. ...llvm/prebuilt/linux-x86_64/lib64/clang/14.0.6/lib/linux/i386
+    pub fn find_libunwind_dir(&self, build_target: &AndroidTarget) -> cargo::CargoResult<PathBuf> {
+        let libunwind_dir = self.tool_root()?.join("lib64").join("clang");
+        let clang_ver = libunwind_dir
+            .read_dir()?
+            .next()
+            .expect("Should be at least one clang version")?
+            .file_name();
+        let libunwind_dir = libunwind_dir
+            .join(clang_ver)
+            .join("lib")
+            .join("linux")
+            .join(build_target.clang_arch());
+
+        if libunwind_dir.join("libunwind.a").exists() {
+            Ok(libunwind_dir)
+        } else {
+            Err(anyhow::format_err!(
+                "Unable to find libunwind.a at `{}`",
+                libunwind_dir.to_string_lossy()
+            ))
+        }
     }
 }

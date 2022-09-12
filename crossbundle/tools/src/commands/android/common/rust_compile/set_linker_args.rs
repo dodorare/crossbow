@@ -31,7 +31,7 @@ pub fn add_clinker_args(
 }
 
 /// Helper function to build arguments composed of concatenating two strings
-fn build_arg(start: &str, end: impl AsRef<std::ffi::OsStr>) -> std::ffi::OsString {
+pub fn build_arg(start: &str, end: impl AsRef<std::ffi::OsStr>) -> std::ffi::OsString {
     let mut new_arg = std::ffi::OsString::new();
     new_arg.push(start);
     new_arg.push(end.as_ref());
