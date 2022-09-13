@@ -1,5 +1,5 @@
 use crate::error::*;
-use crate::types::AndroidTarget;
+use crate::types::{AndroidTarget, IntoRustTriple};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
@@ -257,13 +257,29 @@ impl AndroidNdk {
     }
 
     /// Return path to linker
-    pub fn linker_path(&self, build_target: &AndroidTarget) -> cargo::CargoResult<PathBuf> {
+    pub fn linker_path(
+        &self,
+        build_target: &AndroidTarget,
+        target_sdk_version: u32,
+    ) -> cargo::CargoResult<PathBuf> {
         let linker = bin!("ld.gold");
-        let linker_path = self
+        let mut linker_path = self
             .tool_root()?
             .join(build_target.ndk_triple())
             .join("bin")
             .join(linker);
+        if !linker_path.exists() {
+            #[cfg(target_os = "windows")]
+            let ext = ".cmd";
+            #[cfg(not(target_os = "windows"))]
+            let ext = "";
+            linker_path = self.tool_root()?.join("bin").join(format!(
+                "{}{}-clang{}",
+                build_target.rust_triple(),
+                target_sdk_version,
+                ext,
+            ))
+        }
         if !linker_path.exists() {
             return Err(anyhow::Error::msg(format!(
                 "The path to the {} not found",
@@ -304,21 +320,21 @@ impl AndroidNdk {
     }
 
     /// Return path to sysroot library
-    pub fn sysroot_lib_dir(&self, build_target: &AndroidTarget) -> Result<PathBuf> {
+    pub fn sysroot_lib_dir(&self, build_target: &AndroidTarget) -> cargo::CargoResult<PathBuf> {
         let sysroot_lib_dir = self
-            .toolchain_dir()?
+            .tool_root()?
             .join(self.sysroot()?)
             .join("usr")
             .join("lib")
             .join(build_target.ndk_triple());
         if !sysroot_lib_dir.exists() {
-            return Err(Error::PathNotFound(sysroot_lib_dir));
+            return Err(anyhow::Error::msg("The path to tool root not found"));
         }
         Ok(sysroot_lib_dir)
     }
 
     /// Return path to version specific libraries
-    pub fn version_specific_libraries_path(
+    pub fn ver_specific_lib_path(
         &self,
         target_sdk_version: u32,
         build_target: &AndroidTarget,

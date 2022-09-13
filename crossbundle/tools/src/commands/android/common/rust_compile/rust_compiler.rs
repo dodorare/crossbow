@@ -160,41 +160,40 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
                 }
             }
 
+            // Determine paths to linker and libgcc using in ndk =< 22
+            println!(" sdk version {}", self.target_sdk_version);
+            let mut cmd = cmd.clone();
+            let linker_path = self
+                .ndk
+                .linker_path(&self.build_target, self.target_sdk_version)?;
             if self.ndk.build_tag() > 7272597 {
-                // Determine paths
-                let tool_root = self.ndk.toolchain_dir().map_err(|_| {
-                    anyhow::Error::msg("Failed to get access to the toolchain directory")
-                })?;
-
-                // NDK r23 renamed <ndk_llvm_triple>-ld to ld
-                let linker_path = tool_root.join("bin").join("ld");
-
-                let sysroot = tool_root.join("sysroot");
-                let version_independent_libraries_path = sysroot
-                    .join("usr")
-                    .join("lib")
-                    .join(&self.build_target.ndk_triple());
-                let version_specific_libraries_path = self
-                    .ndk
-                    .version_specific_libraries_path(self.target_sdk_version, &self.build_target)?;
+                // let error_msg = anyhow::Error::msg("Failed to write content into libgcc.a file");
+                // let mut args = match self.app_wrapper {
+                //     AppWrapper::Quad => {
+                //         new_ndk_quad_args(tool_root, &self.build_target, self.target_sdk_version)
+                //             .map_err(|_| error_msg)?
+                //     }
+                //     AppWrapper::NdkGlue => linker_args(&tool_root).map_err(|_| error_msg)?,
+                // };
+                // new_args.append(&mut args);
+                // cmd.args_replace(&new_args);
+                // cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
+                //     .map(drop)?;
                 // Add linker arguments
                 // Specify linker
                 new_args.push(build_arg("-Clinker=", linker_path));
 
                 // Set linker flavor
-                new_args.push("-Clinker-flavor=ld".into());
+                // new_args.push("-Clinker-flavor=ld".into());
 
-                // Set system root
-                new_args.push(build_arg("-Clink-arg=--sysroot=", sysroot));
+                // // Set system root
+                // new_args.push(build_arg("-Clink-arg=--sysroot=", sysroot));
 
-                // Add version specific libraries directory to search path
-                new_args.push(build_arg("-Clink-arg=-L", &version_specific_libraries_path));
+                // // Add version specific libraries directory to search path
+                // new_args.push(build_arg("-Clink-arg=-L", &version_specific_libraries_path));
 
-                // Add version independent libraries directory to search path
-                new_args.push(build_arg(
-                    "-Clink-arg=-L",
-                    &version_independent_libraries_path,
-                ));
+                // // Add version independent libraries directory to search path
+                // new_args.push(build_arg("-Clink-arg=-L", &sysroot_lib_dir));
 
                 // Add path containing libgcc.a and libunwind.a for linker to search.
                 // See https://github.com/rust-lang/rust/pull/85806 for discussion on libgcc.
@@ -208,19 +207,66 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
                 let libunwind_dir = self.ndk.find_libunwind_dir(&self.build_target)?;
                 new_args.push(build_arg("-Clink-arg=-L", libunwind_dir));
 
+                // let link_dir = self.ndk.tool_root()?.join("libgcc");
+
+                // std::fs::create_dir_all(&link_dir)?;
+                // std::fs::write(link_dir.join("libgcc.a"), "INPUT(-lunwind)")?;
+                // new_args.push(build_arg("-L", link_dir));
                 // Strip symbols for release builds
-                if !self.nostrip && self.profile == Profile::Release {
-                    new_args.push("-Clink-arg=-strip-all".into());
-                }
+                // if !self.nostrip && self.profile == Profile::Release {
+                //     new_args.push("-Clink-arg=-strip-all".into());
+                // }
+
+                // // Require position independent code
+                // new_args.push("-Crelocation-model=pic".into());
+            } else {
+                // let mut args = match self.app_wrapper {
+                //     AppWrapper::Quad => {
+                //         add_clinker_args(&self.ndk, &self.build_target, self.target_sdk_version)?
+                //     }
+                //     AppWrapper::NdkGlue => linker_args(&tool_root, linker_path).map_err(|_| {
+                //         anyhow::Error::msg("Failed to write content into libgcc.a file")
+                //     })?,
+                // };
+                // new_args.append(&mut args);
+                // new_args.push(build_arg("-Clinker=", linker_path));
+
+                // // Set linker flavor
+                // new_args.push("-Clinker-flavor=ld".into());
+
+                // // Set system root
+                // new_args.push(build_arg("-Clink-arg=--sysroot=", sysroot));
+
+                // // Add version specific libraries directory to search path
+                // new_args.push(build_arg("-Clink-arg=-L", &version_specific_libraries_path));
+
+                // // Add version independent libraries directory to search path
+                // new_args.push(build_arg("-Clink-arg=-L", &sysroot_lib_dir));
+
+                // let link_dir = self.ndk.tool_root()?.join("libgcc");
+
+                // std::fs::create_dir_all(&link_dir)?;
+                // std::fs::write(link_dir.join("libgcc.a"), "INPUT(-lunwind)")?;
+                // new_args.push(build_arg("-L", link_dir));
+                // Add path containing libgcc.a and libunwind.a for linker to search.
+                // See https://github.com/rust-lang/rust/pull/85806 for discussion on libgcc.
+                // The workaround to get to NDK r23 or newer is to create a libgcc.a file with
+                // the contents of 'INPUT(-lunwind)' to link in libunwind.a instead of libgcc.a
+                // let libgcc_dir = build_path.join("_libgcc_");
+                // std::fs::create_dir_all(&libgcc_dir)?;
+                // let libgcc = libgcc_dir.join("libgcc.a");
+                // std::fs::write(&libgcc, "INPUT(-lunwind)")?;
+                // new_args.push(build_arg("-Clink-arg=-L", libgcc_dir));
+                // let libunwind_dir = self.ndk.find_libunwind_dir(&self.build_target)?;
+                // new_args.push(build_arg("-Clink-arg=-L", libunwind_dir));
 
                 // Require position independent code
-                new_args.push("-Crelocation-model=pic".into());
-            } else {
+                // new_args.push("-Crelocation-model=pic".into());
                 // Determine paths to linker and libgcc using in ndk =< 22
                 let tool_root = self.ndk.toolchain_dir().unwrap();
-                let linker_path = tool_root
-                    .join("bin")
-                    .join(format!("{}-ld.gold", self.build_target.ndk_triple()));
+                // let linker_path = tool_root
+                //     .join("bin")
+                //     .join(format!("{}-ld.gold", self.build_target.ndk_triple()));
                 let gcc_lib_path = tool_root
                     .join("lib/gcc")
                     .join(self.build_target.ndk_triple())
@@ -301,8 +347,7 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
             //         .map(drop)?;
             // } else if self.app_wrapper == AppWrapper::Quad {
             //     // Set linker arguments using in ndk =< 22
-            //     let mut linker_args =
-            //         add_clinker_args(&self.ndk, &self.build_target, self.target_sdk_version)?;
+            //
             //     new_args.append(&mut linker_args);
 
             //     // Strip symbols for release builds
