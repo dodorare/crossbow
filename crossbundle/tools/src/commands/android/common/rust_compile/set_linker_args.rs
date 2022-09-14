@@ -41,13 +41,18 @@ pub fn search_for_libgcc_and_libunwind(
     build_target: &AndroidTarget,
     build_path: std::path::PathBuf,
     ndk: &AndroidNdk,
+    target_sdk_version: u32,
 ) -> cargo::CargoResult<Vec<std::ffi::OsString>> {
     let mut new_args = Vec::new();
+    let linker_path = ndk.linker_path(&build_target, target_sdk_version)?;
+    new_args.push(build_arg("-Clinker=", linker_path));
+
     let libgcc_dir = build_path.join("_libgcc_");
     std::fs::create_dir_all(&libgcc_dir)?;
     let libgcc = libgcc_dir.join("libgcc.a");
     std::fs::write(&libgcc, "INPUT(-lunwind)")?;
     new_args.push(build_arg("-Clink-arg=-L", libgcc_dir));
+
     let libunwind_dir = ndk.find_libunwind_dir(&build_target)?;
     new_args.push(build_arg("-Clink-arg=-L", libunwind_dir));
     Ok(new_args)
