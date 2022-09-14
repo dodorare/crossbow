@@ -183,6 +183,9 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
                 // Specify linker
                 new_args.push(build_arg("-Clinker=", linker_path));
 
+                let mut args =
+                    search_for_libgcc_and_libunwind(&self.build_target, build_path, &self.ndk)?;
+                new_args.append(&mut args);
                 // Set linker flavor
                 // new_args.push("-Clinker-flavor=ld".into());
 
@@ -194,18 +197,6 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
 
                 // // Add version independent libraries directory to search path
                 // new_args.push(build_arg("-Clink-arg=-L", &sysroot_lib_dir));
-
-                // Add path containing libgcc.a and libunwind.a for linker to search.
-                // See https://github.com/rust-lang/rust/pull/85806 for discussion on libgcc.
-                // The workaround to get to NDK r23 or newer is to create a libgcc.a file with
-                // the contents of 'INPUT(-lunwind)' to link in libunwind.a instead of libgcc.a
-                let libgcc_dir = build_path.join("_libgcc_");
-                std::fs::create_dir_all(&libgcc_dir)?;
-                let libgcc = libgcc_dir.join("libgcc.a");
-                std::fs::write(&libgcc, "INPUT(-lunwind)")?;
-                new_args.push(build_arg("-Clink-arg=-L", libgcc_dir));
-                let libunwind_dir = self.ndk.find_libunwind_dir(&self.build_target)?;
-                new_args.push(build_arg("-Clink-arg=-L", libunwind_dir));
 
                 // let link_dir = self.ndk.tool_root()?.join("libgcc");
 
@@ -220,6 +211,9 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
                 // // Require position independent code
                 // new_args.push("-Crelocation-model=pic".into());
             } else {
+                let mut args =
+                    add_clinker_args(&self.ndk, &self.build_target, self.target_sdk_version)?;
+                new_args.append(&mut args);
                 // let mut args = match self.app_wrapper {
                 //     AppWrapper::Quad => {
                 //         add_clinker_args(&self.ndk, &self.build_target, self.target_sdk_version)?
@@ -263,54 +257,51 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
                 // Require position independent code
                 // new_args.push("-Crelocation-model=pic".into());
                 // Determine paths to linker and libgcc using in ndk =< 22
-                let tool_root = self.ndk.toolchain_dir().unwrap();
-                // let linker_path = tool_root
-                //     .join("bin")
-                //     .join(format!("{}-ld.gold", self.build_target.ndk_triple()));
-                let gcc_lib_path = tool_root
-                    .join("lib/gcc")
-                    .join(self.build_target.ndk_triple())
-                    .join("4.9.x");
-                let sysroot = tool_root.join("sysroot");
-                let version_independent_libraries_path = sysroot
-                    .join("usr")
-                    .join("lib")
-                    .join(self.build_target.ndk_triple());
-                let version_specific_libraries_path =
-                    AndroidNdk::find_ndk_path(self.target_sdk_version, |platform| {
-                        version_independent_libraries_path.join(platform.to_string())
-                    })
-                    .map_err(|_| anyhow::Error::msg("Android SDK not found"))?;
+                // let tool_root = self.ndk.toolchain_dir().unwrap();
+                // let gcc_lib_path = tool_root
+                //     .join("lib/gcc")
+                //     .join(self.build_target.ndk_triple())
+                //     .join("4.9.x");
+                // let sysroot = tool_root.join("sysroot");
+                // let version_independent_libraries_path = sysroot
+                //     .join("usr")
+                //     .join("lib")
+                //     .join(self.build_target.ndk_triple());
+                // let version_specific_libraries_path =
+                //     AndroidNdk::find_ndk_path(self.target_sdk_version, |platform| {
+                //         version_independent_libraries_path.join(platform.to_string())
+                //     })
+                //     .map_err(|_| anyhow::Error::msg("Android SDK not found"))?;
 
-                // Add linker arguments
-                // Specify linker
-                new_args.push(build_arg("-Clinker=", linker_path));
+                // // Add linker arguments
+                // // Specify linker
+                // new_args.push(build_arg("-Clinker=", linker_path));
 
-                // Set linker flavor
-                new_args.push("-Clinker-flavor=ld".into());
+                // // Set linker flavor
+                // new_args.push("-Clinker-flavor=ld".into());
 
-                // Set system root
-                new_args.push(build_arg("-Clink-arg=--sysroot=", sysroot));
+                // // Set system root
+                // new_args.push(build_arg("-Clink-arg=--sysroot=", sysroot));
 
-                // Add version specific libraries directory to search path
-                new_args.push(build_arg("-Clink-arg=-L", &version_specific_libraries_path));
+                // // Add version specific libraries directory to search path
+                // new_args.push(build_arg("-Clink-arg=-L", &version_specific_libraries_path));
 
-                // Add version independent libraries directory to search path
-                new_args.push(build_arg(
-                    "-Clink-arg=-L",
-                    &version_independent_libraries_path,
-                ));
+                // // Add version independent libraries directory to search path
+                // new_args.push(build_arg(
+                //     "-Clink-arg=-L",
+                //     &version_independent_libraries_path,
+                // ));
 
-                // Add path to folder containing libgcc.a to search path
-                new_args.push(build_arg("-Clink-arg=-L", gcc_lib_path));
+                // // Add path to folder containing libgcc.a to search path
+                // new_args.push(build_arg("-Clink-arg=-L", gcc_lib_path));
 
-                // Strip symbols for release builds
-                if !self.nostrip && self.profile == Profile::Release {
-                    new_args.push("-Clink-arg=-strip-all".into());
-                }
+                // // Strip symbols for release builds
+                // if !self.nostrip && self.profile == Profile::Release {
+                //     new_args.push("-Clink-arg=-strip-all".into());
+                // }
 
-                // Require position independent code
-                new_args.push("-Crelocation-model=pic".into());
+                // // Require position independent code
+                // new_args.push("-Crelocation-model=pic".into());
             }
             // Create new command
             let mut cmd = cmd.clone();
