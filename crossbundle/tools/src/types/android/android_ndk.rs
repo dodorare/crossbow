@@ -252,7 +252,7 @@ impl AndroidNdk {
     pub fn tool_root(&self) -> cargo::CargoResult<PathBuf> {
         let tool_root = self
             .toolchain_dir()
-            .map_err(|_| anyhow::Error::msg("The path to tool root not found"))?;
+            .map_err(|_| anyhow::Error::msg("The path to toolchain directory not found"))?;
         Ok(tool_root)
     }
 
@@ -328,7 +328,7 @@ impl AndroidNdk {
             .join("lib")
             .join(build_target.ndk_triple());
         if !sysroot_lib_dir.exists() {
-            return Err(anyhow::Error::msg("The path to tool root not found"));
+            return Err(anyhow::Error::msg("The path to the tool root not found"));
         }
         Ok(sysroot_lib_dir)
     }
@@ -358,8 +358,7 @@ impl AndroidNdk {
         Ok(version_specific_libraries_path)
     }
 
-    // Returns dir to libunwind.a for the correct architecture
-    // e.g. ...llvm/prebuilt/linux-x86_64/lib64/clang/14.0.6/lib/linux/i386
+    /// Returns dir to libunwind.a for the correct architecture
     pub fn find_libunwind_dir(&self, build_target: &AndroidTarget) -> cargo::CargoResult<PathBuf> {
         let libunwind_dir = self.tool_root()?.join("lib64").join("clang");
         let clang_ver = libunwind_dir

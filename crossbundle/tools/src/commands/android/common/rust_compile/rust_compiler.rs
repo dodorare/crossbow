@@ -155,9 +155,7 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
                     }
                 }
             }
-
-            let cmd = cmd.clone();
-
+            let mut cmd = cmd.clone();
             // Workaround from https://github.com/rust-windowing/android-ndk-rs/issues/149:
             // Rust (1.56 as of writing) still requires libgcc during linking, but this does
             // not ship with the NDK anymore since NDK r23 beta 3.
@@ -178,7 +176,7 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
                 new_args.append(&mut args);
             }
             // Create new command
-            let mut cmd = cmd.clone();
+
             cmd.args_replace(&new_args);
 
             cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
