@@ -6,6 +6,7 @@ edition = "2021"
 
 [dependencies]
 crossbow = { version = "0.2.3", path = "../../" }
+# crossbundle-tools = { path = "../../crossbundle/tools", version = "0.2.3", default-features = false }
 log = "0.4"
 anyhow = "1.0"
 subxt = "0.23.0"
