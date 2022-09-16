@@ -2,6 +2,12 @@ use macroquad::prelude::*;
 
 #[macroquad::main("Macroquad 3D")]
 async fn main() -> anyhow::Result<()> {
+    #[cfg(not(target_os = "android"))]
+    let image = get_assets_from_path();
+    #[cfg(not(target_os = "android"))]
+    let rust_logo = load_texture(&image).await?;
+
+    #[cfg(target_os = "android")]
     let rust_logo = load_texture("images/rust.png").await?;
 
     loop {
@@ -35,4 +41,14 @@ async fn main() -> anyhow::Result<()> {
 
         next_frame().await
     }
+}
+
+// Workaround. Failed to get assets on windows from the macroquad .load_texture() method through the
+// relative path to asset
+fn get_assets_from_path() -> String {
+    let manifest_dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let assets_dir = manifest_dir.parent().unwrap().parent().unwrap();
+    let image_path = std::path::PathBuf::from("assets").join("images/rust.png");
+    let image = assets_dir.join(image_path).to_str().unwrap().to_owned();
+    image
 }

@@ -1,7 +1,6 @@
-use std::path::PathBuf;
-
 use bevy::{prelude::*, tasks::AsyncComputeTaskPool};
 use jsonrpsee::core::client::CertificateStore;
+use std::path::PathBuf;
 use subxt::{
     rpc::{RpcClientBuilder, Uri, WsTransportClientBuilder},
     OnlineClient, PolkadotConfig,
@@ -157,9 +156,9 @@ pub fn explorer_text_updater(
 }
 
 pub fn explorer_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
-    #[cfg(target_os = "windows")]
+    #[cfg(not(target_os = "android"))]
     let font_handle: Handle<Font> = asset_server.load(get_assets_path(PathBuf::from(FONT)));
-    #[cfg(not(target_os = "windows"))]
+    #[cfg(target_os = "android")]
     let font_handle: Handle<Font> = asset_server.load(FONT);
     commands.spawn_bundle(Camera2dBundle::default());
     // Root node (padding)
@@ -338,12 +337,12 @@ pub fn explorer_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
         });
 }
 
-/// Workaround. Failed to get assets on windows from the .load() method through the
+/// Workaround. Failed to get assets on windows from the bevy_assets .load() method through the
 /// relative path to asset
-fn get_assets_path(relative_path: PathBuf) -> PathBuf {
+pub fn get_assets_path(relative_path: PathBuf) -> PathBuf {
     let font_path = std::path::PathBuf::from("assets").join(relative_path);
     let manifest_dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let assets_dir = manifest_dir.parent().unwrap().parent().unwrap();
-    let assets_path = assets_dir.join(font_path);
-    assets_path
+    let font = assets_dir.join(font_path);
+    font
 }
