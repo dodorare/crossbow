@@ -43,8 +43,8 @@ async fn main() -> anyhow::Result<()> {
     }
 }
 
-// Workaround. Failed to get assets on windows from the macroquad .load_texture() method through the
-// relative path to asset
+// Workaround. Failed to get assets on windows from the macroquad .load_texture() method
+// through the relative path to asset
 fn get_assets_from_path() -> String {
     let manifest_dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let assets_dir = manifest_dir.parent().unwrap().parent().unwrap();

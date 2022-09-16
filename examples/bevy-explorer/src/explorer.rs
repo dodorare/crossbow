@@ -337,8 +337,8 @@ pub fn explorer_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
         });
 }
 
-/// Workaround. Failed to get assets on windows from the bevy_assets .load() method through the
-/// relative path to asset
+/// Workaround. Failed to get assets on windows from the bevy_assets .load() method
+/// through the relative path to asset
 pub fn get_assets_path(relative_path: PathBuf) -> PathBuf {
     let font_path = std::path::PathBuf::from("assets").join(relative_path);
     let manifest_dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
