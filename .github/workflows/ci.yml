@@ -91,6 +91,9 @@ jobs:
     - name: Build Apple app
       run: |
         cd ~/example/
+        # Try to fix error
+        rustup toolchain remove stable
+        rustup toolchain install stable
         crossbundle build android -s=native-apk --release
 
   build-example-in-docker:
