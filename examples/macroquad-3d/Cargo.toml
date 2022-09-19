@@ -19,6 +19,8 @@ icon = "../../assets/images/icon.png"
 app_wrapper = "quad"
 manifest_path = "res/AndroidManifest.xml"
 release_build_targets = ["aarch64-linux-android"]
+resources = ["../../assets/res/android"]
 
 [package.metadata.apple]
 release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
+resources = ["../../assets/res/apple"]
