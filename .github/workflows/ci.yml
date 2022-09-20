@@ -94,6 +94,7 @@ jobs:
         # Try to fix error
         rustup toolchain remove stable
         rustup toolchain install stable
+        rustup target add aarch64-linux-android x86_64-linux-android
         crossbundle build android -s=native-apk --release
 
   build-example-in-docker:
