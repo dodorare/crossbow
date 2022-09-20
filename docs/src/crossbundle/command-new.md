@@ -29,8 +29,8 @@ To resolve this add your project name to members table of crossbow `Cargo.toml`:
 ```toml
 [workspace]
 members = [
-    "..."
+    "...",
     "example/",
-    "..."
+    "...",
 ]
 ```
