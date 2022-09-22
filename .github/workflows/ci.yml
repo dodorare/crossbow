@@ -83,17 +83,16 @@ jobs:
     - name: Install Crossbundle
       run: |
         brew install openssl@1.1 cmake
-        rustup upgrade
         cargo install cargo-generate
         cargo install --path=./crossbundle/cli
     - name: Generate project
       run: |
         cd ~
-        crossbundle new example --template=quad
+        crossbundle new example --template=quad-permissions
     - name: Build Apple app
       run: |
         cd ~/example/
-        crossbundle build android -s=native-apk --release
+        crossbundle build android --release
 
   build-example-in-docker:
     name: Build Crossbundle Example from Docker

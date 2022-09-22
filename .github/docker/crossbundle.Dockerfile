@@ -1,6 +1,10 @@
 FROM androidsdk/android-31
 LABEL org.opencontainers.image.source https://github.com/dodorare/crossbow
 
+# Workaround. Reinstall rustup to avoid problems with compile 
+RUN rustup uninstall stable && rustup update nightly && rustup update stable
+RUN rustup target add aarch64-linux-android x86_64-linux-android 
+
 RUN apt update -yq && apt upgrade -yq \
     && apt install -yq curl unzip wget cmake build-essential pkg-config libssl-dev libssl1.1
 
@@ -32,9 +36,5 @@ RUN mkdir -p /src
 WORKDIR /src
 COPY . .
 RUN cd crossbundle/cli && cargo install --path=. && rm -rf /src/*
-
-# Workaround. Reinstall rustup to avoid problems with compile 
-RUN rustup uninstall stable && rustup update nightly && rustup update stable
-RUN rustup target add aarch64-linux-android x86_64-linux-android 
 
 ENTRYPOINT ["crossbundle"]
