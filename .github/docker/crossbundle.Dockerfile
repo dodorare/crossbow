@@ -33,4 +33,8 @@ WORKDIR /src
 COPY . .
 RUN cd crossbundle/cli && cargo install --path=. && rm -rf /src/*
 
+# Workaround. Reinstall rustup to avoid problems with compile 
+RUN rustup uninstall stable && rustup update nightly && rustup update stable
+RUN rustup target add aarch64-linux-android x86_64-linux-android 
+
 ENTRYPOINT ["crossbundle"]

@@ -92,8 +92,7 @@ jobs:
       run: |
         cd ~/example/
         # Try to fix error
-        rustup toolchain remove stable
-        rustup toolchain install stable
+        rustup uninstall stable && rustup update nightly && rustup update stable
         rustup target add aarch64-linux-android x86_64-linux-android
         crossbundle build android -s=native-apk --release
 
