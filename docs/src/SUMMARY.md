@@ -10,6 +10,7 @@
     - [Android on macOS](install/android-macos.md)
     - [Android with Docker](install/docker.md)
     - [iOS on macOS](install/ios-macos.md)
+    - [Set up device](install/set-up-android-device.md)
 
 # Components
 
@@ -17,6 +18,7 @@
     - [Install Command](crossbundle/command-install.md)
     - [Build Command](crossbundle/command-build.md)
     - [Run Command](crossbundle/command-run.md)
+    - [New Command](crossbundle/command-new.md)
 
 - [Crossbow](crossbow/README.md)
     - [Configuration](crossbow/configuration.md)
