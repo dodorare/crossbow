@@ -8,13 +8,13 @@
 | 4. | Support Cross-platform permissions | Provide a single cross-platform permission API that works with any [iOS](https://developer.apple.com/design/human-interface-guidelines/ios/app-architecture/accessing-user-data/), [Android](https://developer.android.com/games/develop/permissions), etc application that can be accessed from shared code no matter how the user interface is created. | ✅ |
 | 5. | Simple installation | Simple installation with environment variables, libs, etc. Make installation of Android SDK, NDK, tools more robust. | ✅ |
 | 6. | Support iOS Plugins | Add support of iOS plugins to help add additional functionality provided by the Apple platforms and ecosystem (like Ads, Auth, In-app purchases, etc.). Something similar to [Godot iOS plugins](https://docs.godotengine.org/en/stable/tutorials/platform/ios/ios_plugin.html). | 🛠 |
-| 7. | Sign in with Google | Add support of [Google Sign In](https://developers.google.com/games/services/common/concepts/sign-in) inside any application. | 🛠 |
+| 7. | Sign in with Google | Add support of [Google Sign In](https://developers.google.com/games/services/common/concepts/sign-in) inside any application. | ✅ |
 | 8. | Sign in with Apple | Add support of [Apple Sign In](https://github.com/lupidan/apple-signin-unity) inside any application. | 📝 |
 | 9. | Better support for Apple xcrun, xcode proj | Add better support and rust wrappers for Apple xcode tools, xcrun. Make cool xcode project generation library. | 📝 |
 | 10. | Apple Game Center | Add [Apple Game Center](https://developer.apple.com/documentation/gamekit) support. | 📝 |
-| 11. | Android In-App purchases & Google Play Billing | Add support for [Google Play Billing](https://github.com/godotengine/godot-google-play-billing). Make it possible to buy items from your application. | 🛠 |
+| 11. | Android In-App purchases & Google Play Billing | Add support for [Google Play Billing](https://github.com/godotengine/godot-google-play-billing). Make it possible to buy items from your application. | ✅ |
 | 12. | Support Apple In-App purchases | Support Apple [StoreKit](https://developer.apple.com/documentation/storekit/in-app_purchase). Make it possible to buy items from your application. | 📝 |
-| 13. | Support Android In-App updates | Add support for [Android In-App updates](https://developer.android.com/guide/playcore/in-app-updates). | 🛠 |
+| 13. | Support Android In-App updates | Add support for [Android In-App updates](https://developer.android.com/guide/playcore/in-app-updates). | ✅ |
 
 ✅ = Works and tested — 🆗 = Works but may contain bugs — 🛠 = Under development — 📝 = Planned
 
