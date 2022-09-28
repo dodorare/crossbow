@@ -78,7 +78,7 @@ jobs:
     - uses: actions/checkout@master
     - name: Install Android targets
       run: |
-        rustup uninstall stable && rustup install stable 1.24.0
+        rustup uninstall stable && rustup install stable 1.64.0
         rustup target add aarch64-linux-android x86_64-linux-android
     - name: Install Crossbundle
       run: |
