@@ -77,9 +77,7 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Install Android targets
-      run: |
-        rustup uninstall stable && rustup install stable 1.64.0
-        rustup target add aarch64-linux-android x86_64-linux-android
+      run: rustup target add aarch64-linux-android x86_64-linux-android
     - name: Install Crossbundle
       run: |
         brew install openssl@1.1 cmake
@@ -88,11 +86,11 @@ jobs:
     - name: Generate project
       run: |
         cd ~
-        crossbundle new example --template=quad-permissions
+        crossbundle new example --template=quad
     - name: Build Apple app
       run: |
         cd ~/example/
-        crossbundle build android --release
+        crossbundle build android -s=native-apk --release
 
   build-example-in-docker:
     name: Build Crossbundle Example from Docker
