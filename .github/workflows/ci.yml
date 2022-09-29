@@ -82,7 +82,11 @@ jobs:
       run: |
         brew install openssl@1.1 cmake
         cargo install cargo-generate
-        cargo clean 
+
+        # Workaround for "detected conflict" error:
+        rustup toolchain remove stable-x86_64-apple-darwin
+        rustup install stable-x86_64-apple-darwin
+
         cargo install --path=./crossbundle/cli
     - name: Generate project
       run: |
