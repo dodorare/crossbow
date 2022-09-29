@@ -25,7 +25,7 @@ clap = { version = "3.2", features = ["derive"] }
 serde = { version = "1.0", features = ["derive"] }
 
 anyhow = "1.0"
-thiserror = "1.0"
+thiserror = "1.0.37"
 colored = "2.0"
 displaydoc = "0.2"
 pretty_env_logger = "0.4"
