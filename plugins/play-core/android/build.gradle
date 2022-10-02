@@ -53,7 +53,7 @@ android {
     }
 
     defaultConfig {
-        Version 1
+        versionCode 1
         versionName "1.0"
         minSdkVersion versions.minSdk
         targetSdkVersion versions.targetSdk
