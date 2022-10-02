@@ -2,6 +2,7 @@ pub mod build;
 pub mod install;
 pub mod new;
 pub mod run;
+pub mod update;
 
 use crate::error::Result;
 use clap::Parser;
@@ -21,6 +22,7 @@ pub enum Commands {
     New(new::NewCommand),
     /// Installs bundletool and Android Studio's sdkmanager
     Install(install::InstallCommand),
+    Update(update::UpdateCommand),
 }
 
 impl Commands {
@@ -30,6 +32,7 @@ impl Commands {
             Commands::Run(cmd) => cmd.handle_command(config),
             Commands::New(cmd) => cmd.handle_command(config),
             Commands::Install(cmd) => cmd.handle_command(config),
+            Commands::Update(cmd) => cmd.handle_command(config),
         }
     }
 }

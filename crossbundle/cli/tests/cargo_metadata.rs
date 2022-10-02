@@ -38,7 +38,7 @@ fn test_cargo_metadata() {
         AndroidBuildCommand::get_android_manifest(&context, AndroidStrategy::NativeApk).unwrap();
 
     let expected_manifest = r#"<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.crossbow.example" android:versionCode="1" android:versionName="0.1.0">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.crossbow.example" android:Version="1" android:versionName="0.1.0">
   <application android:hasCode="false" android:label="Crossbow" android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen">
     <activity android:name="android.app.NativeActivity" exported="true" android:resizeableActivity="true">
       <intent-filter>

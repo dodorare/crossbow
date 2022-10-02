@@ -43,13 +43,13 @@ ext.getExportPackageName = { ->
     return appId
 }
 
-ext.getExportVersionCode = { ->
-    String versionCode = project.hasProperty("export_version_code") ? project.property("export_version_code") : ""
-    if (versionCode == null || versionCode.isEmpty()) {
-        versionCode = "1"
+ext.getExportVersion = { ->
+    String Version = project.hasProperty("export_version_code") ? project.property("export_version_code") : ""
+    if (Version == null || Version.isEmpty()) {
+        Version = "1"
     }
     try {
-        return Integer.parseInt(versionCode)
+        return Integer.parseInt(Version)
     } catch (NumberFormatException ignored) {
         return 1
     }
