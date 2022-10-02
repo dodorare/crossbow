@@ -42,7 +42,7 @@ pub enum Error {
         path: std::path::PathBuf,
         cause: std::io::Error,
     },
-    /// Invalid semver while parsing version 
+    /// Invalid semver while parsing version
     InvalidSemver,
 }
 

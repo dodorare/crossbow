@@ -2,7 +2,6 @@
 //!
 //! Checks if the currently running version is the most up to date version and
 //! if not, it will print a notification message.
-//!
 
 use crate::error::*;
 use crossbundle_tools::types::{Config, Version};
