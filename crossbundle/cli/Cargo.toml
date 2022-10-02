@@ -32,7 +32,6 @@ pretty_env_logger = "0.4"
 log = "0.4"
 
 fs_extra = "1.2"
-lenient_semver = "0.4.2"
 dirs = "4.0"
 dunce = "1.0"
 ureq = { version = "2.5", features = ["tls"] }
