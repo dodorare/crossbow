@@ -8,8 +8,11 @@ use crossbundle_tools::types::Config;
 #[derive(Parser, Clone, Debug)]
 pub struct UpdateCommand {
     #[clap(long)]
+    /// Check the crossbundle package version used by the user and compare it with the
+    /// version in `crates.io`
     pub check: bool,
     #[clap(long)]
+    /// TODO
     pub update: bool,
 }
 

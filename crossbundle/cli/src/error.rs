@@ -42,8 +42,6 @@ pub enum Error {
         path: std::path::PathBuf,
         cause: std::io::Error,
     },
-    /// Invalid semver while parsing version
-    InvalidSemver,
 }
 
 // TODO: Fix this. Is there a better casting for it?
