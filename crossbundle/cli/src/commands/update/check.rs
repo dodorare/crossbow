@@ -73,7 +73,7 @@ fn is_newer(old_string: &str, new_string: &str, default_result: bool) -> bool {
     if let Ok(old_values) = old_version {
         let new_version = Version::from_semver(new_string);
         if let Ok(new_values) = new_version {
-            version_comparison(new_values)
+            version_comparison(new_values, old_values)
         } else {
             default_result
         }
@@ -83,7 +83,7 @@ fn is_newer(old_string: &str, new_string: &str, default_result: bool) -> bool {
 }
 
 /// Comparison to check whether the version is newer or not
-fn version_comparison(new_values: Version) {
+fn version_comparison(new_values: Version, old_values: Version) -> bool {
     if new_values.major > old_values.major {
         true
     } else if new_values.major == old_values.major {
