@@ -40,14 +40,14 @@ fn print_new_version_available(latest_version: &str, config: &Config) -> Result<
 fn print_latest_version_using(version_string: &str, config: &Config) -> Result<()> {
     config.status_message(
         "You are using latest version of crossbundle project",
-        &version_string,
+        version_string,
     )?;
     Ok(())
 }
 
 /// Parse the crossbundle project version used by the user and compare it with the latest
 /// available version. Return true if the user has the latest version
-pub fn is_same(version1: &str, version2: &str, default_result: bool) -> bool {
+fn is_same(version1: &str, version2: &str, default_result: bool) -> bool {
     let version1 = Version::from_semver(version1);
     match version1 {
         Ok(values1) => {
@@ -68,32 +68,32 @@ pub fn is_same(version1: &str, version2: &str, default_result: bool) -> bool {
 
 /// Parse the crossbundle project version used by the user and compare it with the latest
 /// available version
-pub fn is_newer(old_string: &str, new_string: &str, default_result: bool) -> bool {
+fn is_newer(old_string: &str, new_string: &str, default_result: bool) -> bool {
     let old_version = Version::from_semver(old_string);
-
-    match old_version {
-        Ok(old_values) => {
-            let new_version = Version::from_semver(new_string);
-
-            match new_version {
-                Ok(new_values) => {
-                    if new_values.major > old_values.major {
-                        true
-                    } else if new_values.major == old_values.major {
-                        if new_values.minor > old_values.minor {
-                            true
-                        } else {
-                            new_values.minor == old_values.minor
-                                && new_values.patch > old_values.patch
-                        }
-                    } else {
-                        false
-                    }
-                }
-                _ => default_result,
-            }
+    if let Ok(old_values) = old_version {
+        let new_version = Version::from_semver(new_string);
+        if let Ok(new_values) = new_version {
+            version_comparison(new_values)
+        } else {
+            default_result
         }
-        _ => default_result,
+    } else {
+        default_result
+    }
+}
+
+/// Comparison to check whether the version is newer or not
+fn version_comparison(new_values: Version) {
+    if new_values.major > old_values.major {
+        true
+    } else if new_values.major == old_values.major {
+        if new_values.minor > old_values.minor {
+            true
+        } else {
+            new_values.minor == old_values.minor && new_values.patch > old_values.patch
+        }
+    } else {
+        false
     }
 }
 
