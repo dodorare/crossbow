@@ -1,5 +1,6 @@
 use bevy::{prelude::*, tasks::AsyncComputeTaskPool};
 use jsonrpsee::core::client::CertificateStore;
+use std::path::PathBuf;
 use subxt::{
     rpc::{RpcClientBuilder, Uri, WsTransportClientBuilder},
     OnlineClient, PolkadotConfig,
@@ -15,6 +16,7 @@ pub const TEXT_FONT_SIZE: f32 = 30.0;
 pub const TEXT_FONT_SIZE: f32 = 30.0;
 pub const URL: &str = "wss://rpc.polkadot.io:443";
 pub const BUFFER: usize = 1;
+pub const FONT: &str = "fonts/FiraSans-Bold.ttf";
 
 pub struct ExplorerStateChannel {
     pub tx: mpsc::Sender<ExplorerState>,
@@ -154,10 +156,10 @@ pub fn explorer_text_updater(
 }
 
 pub fn explorer_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
-    #[cfg(target_os = "windows")]
-    let font_handle: Handle<Font> = get_assets_path(asset_server);
-    #[cfg(not(target_os = "windows"))]
-    let font_handle: Handle<Font> = asset_server.load("fonts/FiraSans-Bold.ttf");
+    #[cfg(not(target_os = "android"))]
+    let font_handle: Handle<Font> = asset_server.load(get_assets_path(PathBuf::from(FONT)));
+    #[cfg(target_os = "android")]
+    let font_handle: Handle<Font> = asset_server.load(FONT);
     commands.spawn_bundle(Camera2dBundle::default());
     // Root node (padding)
     commands
@@ -335,14 +337,12 @@ pub fn explorer_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
         });
 }
 
-/// Workaround. Failed to get assets on windows from the .load() method through the
-/// relative path to asset
-fn get_assets_path(asset_server: Res<AssetServer>) -> Handle<Font> {
-    let font_path = std::path::PathBuf::from("assets")
-        .join("fonts")
-        .join("FiraSans-Bold.ttf");
+/// Workaround. Failed to get assets on windows from the bevy_assets .load() method
+/// through the relative path to asset
+pub fn get_assets_path(relative_path: PathBuf) -> PathBuf {
+    let font_path = std::path::PathBuf::from("assets").join(relative_path);
     let manifest_dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    let assets_path = manifest_dir.parent().unwrap().parent().unwrap();
-    let font_handle: Handle<Font> = asset_server.load(assets_path.join(font_path));
-    font_handle
+    let assets_dir = manifest_dir.parent().unwrap().parent().unwrap();
+    let font = assets_dir.join(font_path);
+    font
 }

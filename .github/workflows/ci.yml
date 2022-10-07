@@ -74,6 +74,7 @@ jobs:
   test-crossbundle-new:
     name: Generate and Build from template on macOS latest
     runs-on: macos-latest
+    if: false
     steps:
     - uses: actions/checkout@master
     - name: Install Android targets

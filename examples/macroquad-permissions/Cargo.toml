@@ -16,6 +16,7 @@ admob-android = { version = "0.2.3", path = "../../plugins/admob-android" }
 [package.metadata]
 app_name = "Permissions"
 permissions = ["camera", "microphone", "photos", "storage-read"]
+icon = "../../assets/images/icon.png"
 
 [package.metadata.android]
 app_wrapper = "quad"
