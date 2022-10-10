@@ -7,22 +7,17 @@ pub fn add_clinker_args(
     target_sdk_version: u32,
 ) -> cargo::CargoResult<Vec<std::ffi::OsString>> {
     let linker_args = vec![
-        build_arg("-Clinker=", ndk.linker_path(build_target)?),
+        build_arg(
+            "-Clinker=",
+            ndk.linker_path(build_target, target_sdk_version)?,
+        ),
         "-Clinker-flavor=ld".into(),
         build_arg("-Clink-arg=--sysroot=", ndk.sysroot()?),
         build_arg(
             "-Clink-arg=-L",
-            ndk.version_specific_libraries_path(target_sdk_version, build_target)?,
+            ndk.ver_specific_lib_path(target_sdk_version, build_target)?,
         ),
-        build_arg(
-            "-Clink-arg=-L",
-            ndk.sysroot_lib_dir(build_target).map_err(|_| {
-                anyhow::Error::msg(format!(
-                    "Failed to get access to the {:?}",
-                    ndk.sysroot_lib_dir(build_target)
-                ))
-            })?,
-        ),
+        build_arg("-Clink-arg=-L", ndk.sysroot_lib_dir(build_target)?),
         build_arg("-Clink-arg=-L", ndk.gcc_lib_path(build_target)?),
         "-Crelocation-model=pic".into(),
     ];
@@ -31,45 +26,34 @@ pub fn add_clinker_args(
 }
 
 /// Helper function to build arguments composed of concatenating two strings
-fn build_arg(start: &str, end: impl AsRef<std::ffi::OsStr>) -> std::ffi::OsString {
+pub fn build_arg(start: &str, end: impl AsRef<std::ffi::OsStr>) -> std::ffi::OsString {
     let mut new_arg = std::ffi::OsString::new();
     new_arg.push(start);
     new_arg.push(end.as_ref());
     new_arg
 }
 
-/// Replace cmd with new arguments. For more information see the [`Target Selection`]
-///
-/// [Target Selection]: https://android.googlesource.com/platform/ndk/+/master/docs/BuildSystemMaintainers.md#target-selection
-pub fn new_ndk_quad_args(
-    tool_root: std::path::PathBuf,
+/// Add path containing libgcc.a and libunwind.a for linker to search.
+/// See https://github.com/rust-lang/rust/pull/85806 for discussion on libgcc.
+/// The workaround to get to NDK r23 or newer is to create a libgcc.a file with
+/// the contents of 'INPUT(-lunwind)' to link in libunwind.a instead of libgcc.a
+pub fn search_for_libgcc_and_libunwind(
     build_target: &AndroidTarget,
+    build_path: std::path::PathBuf,
+    ndk: &AndroidNdk,
     target_sdk_version: u32,
-) -> crate::error::Result<Vec<std::ffi::OsString>> {
-    let mut new_args = super::linker_args(&tool_root)?;
-    #[cfg(target_os = "windows")]
-    let ext = ".cmd";
-    #[cfg(not(target_os = "windows"))]
-    let ext = "";
-    let linker_path = tool_root.join("bin").join(format!(
-        "{}{}-clang{}",
-        build_target.rust_triple(),
-        target_sdk_version,
-        ext,
-    ));
-    new_args.push(build_arg("-Clinker=", linker_path));
-    Ok(new_args)
-}
-
-/// Replace libgcc file with unwind. libgcc was removed in ndk versions >=23.
-/// This is workaround for gcc not found issue.
-pub fn linker_args(tool_root: &std::path::Path) -> crate::error::Result<Vec<std::ffi::OsString>> {
+) -> cargo::CargoResult<Vec<std::ffi::OsString>> {
     let mut new_args = Vec::new();
-    let link_dir = tool_root.join("libgcc");
+    let linker_path = ndk.linker_path(build_target, target_sdk_version)?;
+    new_args.push(build_arg("-Clinker=", linker_path));
 
-    std::fs::create_dir_all(&link_dir)?;
-    std::fs::write(link_dir.join("libgcc.a"), "INPUT(-lunwind)")?;
-    new_args.push(build_arg("-L", link_dir));
+    let libgcc_dir = build_path.join("_libgcc_");
+    std::fs::create_dir_all(&libgcc_dir)?;
+    let libgcc = libgcc_dir.join("libgcc.a");
+    std::fs::write(&libgcc, "INPUT(-lunwind)")?;
+    new_args.push(build_arg("-Clink-arg=-L", libgcc_dir));
 
+    let libunwind_dir = ndk.find_libunwind_dir(build_target)?;
+    new_args.push(build_arg("-Clink-arg=-L", libunwind_dir));
     Ok(new_args)
 }

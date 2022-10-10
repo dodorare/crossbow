@@ -1,5 +1,5 @@
 use crate::error::*;
-use crate::types::AndroidTarget;
+use crate::types::{AndroidTarget, IntoRustTriple};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
@@ -79,7 +79,7 @@ impl AndroidNdk {
         &self.ndk_path
     }
 
-    /// Operating system type
+    /// Returns the path to the LLVM toolchain provided by the NDK
     pub fn toolchain_dir(&self) -> Result<PathBuf> {
         let host_os = std::env::var("HOST").ok();
         let host_contains = |s| host_os.as_ref().map(|h| h.contains(s)).unwrap_or(false);
@@ -116,7 +116,7 @@ impl AndroidNdk {
         Ok(toolchain_dir)
     }
 
-    /// Path to Clang
+    /// Returns path to clang executable/script that should be used to build the target
     pub fn clang(&self, target: AndroidTarget, platform: u32) -> Result<(PathBuf, PathBuf)> {
         #[cfg(target_os = "windows")]
         let ext = "cmd";
@@ -147,7 +147,7 @@ impl AndroidNdk {
         Ok((clang, clang_pp))
     }
 
-    /// Path to bin
+    /// Path to GNU binutils
     pub fn toolchain_bin(&self, name: &str, build_target: AndroidTarget) -> Result<PathBuf> {
         #[cfg(target_os = "windows")]
         let ext = ".exe";
@@ -252,18 +252,34 @@ impl AndroidNdk {
     pub fn tool_root(&self) -> cargo::CargoResult<PathBuf> {
         let tool_root = self
             .toolchain_dir()
-            .map_err(|_| anyhow::Error::msg("The path to tool root not found"))?;
+            .map_err(|_| anyhow::Error::msg("The path to toolchain directory not found"))?;
         Ok(tool_root)
     }
 
     /// Return path to linker
-    pub fn linker_path(&self, build_target: &AndroidTarget) -> cargo::CargoResult<PathBuf> {
+    pub fn linker_path(
+        &self,
+        build_target: &AndroidTarget,
+        target_sdk_version: u32,
+    ) -> cargo::CargoResult<PathBuf> {
         let linker = bin!("ld.gold");
-        let linker_path = self
+        let mut linker_path = self
             .tool_root()?
             .join(build_target.ndk_triple())
             .join("bin")
             .join(linker);
+        if !linker_path.exists() {
+            #[cfg(target_os = "windows")]
+            let ext = ".cmd";
+            #[cfg(not(target_os = "windows"))]
+            let ext = "";
+            linker_path = self.tool_root()?.join("bin").join(format!(
+                "{}{}-clang{}",
+                build_target.rust_triple(),
+                target_sdk_version,
+                ext,
+            ))
+        }
         if !linker_path.exists() {
             return Err(anyhow::Error::msg(format!(
                 "The path to the {} not found",
@@ -304,21 +320,21 @@ impl AndroidNdk {
     }
 
     /// Return path to sysroot library
-    pub fn sysroot_lib_dir(&self, build_target: &AndroidTarget) -> Result<PathBuf> {
+    pub fn sysroot_lib_dir(&self, build_target: &AndroidTarget) -> cargo::CargoResult<PathBuf> {
         let sysroot_lib_dir = self
-            .toolchain_dir()?
+            .tool_root()?
             .join(self.sysroot()?)
             .join("usr")
             .join("lib")
             .join(build_target.ndk_triple());
         if !sysroot_lib_dir.exists() {
-            return Err(Error::PathNotFound(sysroot_lib_dir));
+            return Err(anyhow::Error::msg("The path to the tool root not found"));
         }
         Ok(sysroot_lib_dir)
     }
 
     /// Return path to version specific libraries
-    pub fn version_specific_libraries_path(
+    pub fn ver_specific_lib_path(
         &self,
         target_sdk_version: u32,
         build_target: &AndroidTarget,
@@ -340,5 +356,29 @@ impl AndroidNdk {
             )));
         }
         Ok(version_specific_libraries_path)
+    }
+
+    /// Returns dir to libunwind.a for the correct architecture
+    pub fn find_libunwind_dir(&self, build_target: &AndroidTarget) -> cargo::CargoResult<PathBuf> {
+        let libunwind_dir = self.tool_root()?.join("lib64").join("clang");
+        let clang_ver = libunwind_dir
+            .read_dir()?
+            .next()
+            .expect("Should be at least one clang version")?
+            .file_name();
+        let libunwind_dir = libunwind_dir
+            .join(clang_ver)
+            .join("lib")
+            .join("linux")
+            .join(build_target.clang_arch());
+
+        if libunwind_dir.join("libunwind.a").exists() {
+            Ok(libunwind_dir)
+        } else {
+            Err(anyhow::format_err!(
+                "Unable to find libunwind.a at `{}`",
+                libunwind_dir.to_string_lossy()
+            ))
+        }
     }
 }

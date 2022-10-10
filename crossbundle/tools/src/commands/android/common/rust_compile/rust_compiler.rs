@@ -59,8 +59,6 @@ pub fn rust_compile(
             build_target_dir,
             build_target,
             ndk: ndk.clone(),
-            profile,
-            nostrip: false,
             app_wrapper,
         });
 
@@ -75,8 +73,6 @@ struct SharedLibraryExecutor {
     build_target_dir: std::path::PathBuf,
     build_target: AndroidTarget,
     ndk: AndroidNdk,
-    profile: Profile,
-    nostrip: bool,
     app_wrapper: AppWrapper,
 }
 
@@ -144,7 +140,8 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
             }
 
             // Create output directory inside the build target directory
-            std::fs::create_dir_all(&self.build_target_dir)
+            let build_path = self.build_target_dir.join("build");
+            std::fs::create_dir_all(&build_path)
                 .map_err(|_| anyhow::Error::msg("Failed to create build target directory"))?;
 
             // Change crate-type from bin to cdylib
@@ -158,55 +155,32 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
                     }
                 }
             }
-
+            let mut cmd = cmd.clone();
             // Workaround from https://github.com/rust-windowing/android-ndk-rs/issues/149:
             // Rust (1.56 as of writing) still requires libgcc during linking, but this does
             // not ship with the NDK anymore since NDK r23 beta 3.
             // See https://github.com/rust-lang/rust/pull/85806 for a discussion on why libgcc
             // is still required even after replacing it with libunwind in the source.
             // XXX: Add an upper-bound on the Rust version whenever this is not necessary anymore.
-            let mut cmd = cmd.clone();
-            let build_tag = self.ndk.build_tag();
-            let tool_root = self.ndk.toolchain_dir().map_err(|_| {
-                anyhow::Error::msg("Failed to get access to the toolchain directory")
-            })?;
-            if build_tag > 7272597 {
-                let error_msg = anyhow::Error::msg("Failed to write content into libgcc.a file");
-                let mut args = match self.app_wrapper {
-                    AppWrapper::Quad => {
-                        new_ndk_quad_args(tool_root, &self.build_target, self.target_sdk_version)
-                            .map_err(|_| error_msg)?
-                    }
-                    AppWrapper::NdkGlue => linker_args(&tool_root).map_err(|_| error_msg)?,
-                };
+            if self.ndk.build_tag() > 7272597 {
+                let mut args = search_for_libgcc_and_libunwind(
+                    &self.build_target,
+                    build_path,
+                    &self.ndk,
+                    self.target_sdk_version,
+                )?;
                 new_args.append(&mut args);
-                cmd.args_replace(&new_args);
-                cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
-                    .map(drop)?;
-            } else if self.app_wrapper == AppWrapper::Quad {
-                // Set linker arguments using in ndk =< 22
-                let mut linker_args =
+            } else {
+                let mut args =
                     add_clinker_args(&self.ndk, &self.build_target, self.target_sdk_version)?;
-                new_args.append(&mut linker_args);
-
-                // Strip symbols for release builds
-                if !self.nostrip && self.profile == Profile::Release {
-                    new_args.push("-Clink-arg=-strip-all".into());
-                }
-
-                // Create new command
-                let mut cmd = cmd.clone();
-                cmd.args_replace(&new_args);
-
-                // Execute the command
-                cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
-                    .map(drop)?;
-            } else if self.app_wrapper == AppWrapper::NdkGlue {
-                cmd.args_replace(&new_args);
-
-                cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
-                    .map(drop)?;
+                new_args.append(&mut args);
             }
+            // Create new command
+
+            cmd.args_replace(&new_args);
+
+            cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
+                .map(drop)?;
         } else if mode == cargo::core::compiler::CompileMode::Test {
             // This occurs when --all-targets is specified
             return Err(anyhow::Error::msg(format!(

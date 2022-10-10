@@ -60,6 +60,16 @@ impl AndroidTarget {
             _ => Err(AndroidError::UnsupportedTarget.into()),
         }
     }
+
+    // Returns just the architecture component for clang
+    pub fn clang_arch(self) -> &'static str {
+        match self {
+            Self::Armv7 => "arm",
+            Self::Aarch64 => "aarch64",
+            Self::I686 => "i386",
+            Self::X8664 => "x86_64",
+        }
+    }
 }
 
 impl Default for AndroidTarget {

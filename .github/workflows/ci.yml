@@ -78,11 +78,14 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Install Android targets
-      run: rustup target add aarch64-linux-android x86_64-linux-android
+      run: |
+        # Workaround for "detected conflict" error:
+        rustup toolchain remove stable-x86_64-apple-darwin
+        rustup install stable-x86_64-apple-darwin
+        rustup target add aarch64-linux-android x86_64-linux-android
     - name: Install Crossbundle
       run: |
         brew install openssl@1.1 cmake
-        rustup upgrade
         cargo install cargo-generate
         cargo install --path=./crossbundle/cli
     - name: Generate project
