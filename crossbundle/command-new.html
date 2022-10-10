@@ -152,6 +152,18 @@
 # crossbundle new project-name --template quad
 </code></pre>
 <p>All supported templates you can watch <a href="https://github.com/dodorare/crossbundle-templates"><code>here</code></a> (each branch = template).</p>
+<h1 id="troubleshooting"><a class="header" href="#troubleshooting">Troubleshooting</a></h1>
+<p>You can face the problem with <code>Cargo.toml</code> parsing for the generated project:</p>
+<pre><code class="language-sh">Crossbundle Tools error: FailedToFindCargoManifest(&quot;...&quot;)
+</code></pre>
+<p>To resolve this add your project name to members table of crossbow <code>Cargo.toml</code>: </p>
+<pre><code class="language-toml">[workspace]
+members = [
+    &quot;...&quot;,
+    &quot;example/&quot;,
+    &quot;...&quot;,
+]
+</code></pre>
 
                     </main>
 
