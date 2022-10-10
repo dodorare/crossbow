@@ -11,7 +11,7 @@ readme = "README.md"
 include = ["src/", "java/app/"]
 
 [dependencies]
-thiserror = "1.0.37"
+thiserror = "1.0"
 displaydoc = "0.2"
 anyhow = "1.0"
 
