@@ -87,10 +87,9 @@ fn version_comparison(new_values: Version, old_values: Version) -> bool {
     if new_values.major > old_values.major {
         true
     } else if new_values.major == old_values.major {
-        if new_values.minor > old_values.minor {
-            true
-        } else {
-            new_values.minor == old_values.minor && new_values.patch > old_values.patch
+        match new_values.major > old_values.major {
+            true => new_values.minor > old_values.minor,
+            _ => new_values.minor == old_values.minor && new_values.patch > old_values.patch,
         }
     } else {
         false

@@ -4,6 +4,10 @@ LABEL org.opencontainers.image.source https://github.com/dodorare/crossbow
 RUN apt update -yq && apt upgrade -yq \
     && apt install -yq curl unzip wget cmake build-essential pkg-config libssl-dev libssl1.1
 
+# Workaround. Reinstall rustup to avoid problems with compile 
+RUN rustup uninstall stable && rustup update nightly && rustup update stable
+RUN rustup target add aarch64-linux-android x86_64-linux-android 
+
 # Install Android NDK
 RUN ulimit -c unlimited
 RUN yes | ${ANDROID_SDK_ROOT}/cmdline-tools/tools/bin/sdkmanager "ndk;23.1.7779620"
@@ -25,8 +29,6 @@ ENV PATH=$GRADLE_HOME:${PATH}
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH=/root/.cargo/bin:${PATH}
 
-# # Install rustup targets for android
-RUN rustup target add aarch64-linux-android x86_64-linux-android
 # Install crossbundle cli
 RUN mkdir -p /src
 WORKDIR /src
