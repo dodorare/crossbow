@@ -26,7 +26,6 @@ RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH=/root/.cargo/bin:${PATH}
 
 # Install rustup targets for android
-RUN rustup uninstall stable && rustup update nightly && rustup update stable
 RUN rustup target add aarch64-linux-android x86_64-linux-android
 
 # Install crossbundle cli
