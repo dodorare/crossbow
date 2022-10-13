@@ -6,7 +6,6 @@ RUN apt update -yq && apt upgrade -yq \
 
 # Workaround. Reinstall rustup to avoid problems with compile 
 RUN rustup uninstall stable && rustup update nightly && rustup update stable
-RUN rustup target add aarch64-linux-android x86_64-linux-android 
 
 # Install Android NDK
 RUN ulimit -c unlimited
@@ -25,6 +24,9 @@ RUN wget https://services.gradle.org/distributions/gradle-7.4-all.zip \
     && chown -R root:root ${ANDROID_SDK_ROOT}/gradle
 ENV GRADLE_HOME=${ANDROID_SDK_ROOT}/gradle/bin
 ENV PATH=$GRADLE_HOME:${PATH}
+
+# # Install rustup targets for android
+RUN rustup target add aarch64-linux-android x86_64-linux-android
 
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH=/root/.cargo/bin:${PATH}
