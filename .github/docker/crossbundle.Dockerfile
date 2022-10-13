@@ -25,6 +25,9 @@ RUN wget https://services.gradle.org/distributions/gradle-7.4-all.zip \
 ENV GRADLE_HOME=${ANDROID_SDK_ROOT}/gradle/bin
 ENV PATH=$GRADLE_HOME:${PATH}
 
+# # Install rustup targets for android
+RUN rustup target add aarch64-linux-android x86_64-linux-android
+
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH=/root/.cargo/bin:${PATH}
 
