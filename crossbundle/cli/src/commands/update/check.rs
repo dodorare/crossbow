@@ -84,15 +84,12 @@ fn is_newer(old_string: &str, new_string: &str, default_result: bool) -> bool {
 
 /// Comparison to check whether the version is newer or not
 fn version_comparison(new_values: Version, old_values: Version) -> bool {
-    if new_values.major > old_values.major {
-        true
-    } else if new_values.major == old_values.major {
-        match new_values.major > old_values.major {
+    match new_values.major == old_values.major {
+        true => match new_values.major > old_values.major {
             true => new_values.minor > old_values.minor,
             _ => new_values.minor == old_values.minor && new_values.patch > old_values.patch,
-        }
-    } else {
-        false
+        },
+        false => new_values.major > old_values.major,
     }
 }
 
