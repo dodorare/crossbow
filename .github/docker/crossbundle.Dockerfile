@@ -1,4 +1,4 @@
-FROM androidsdk/android-31
+FROM androidsdk/android-30
 LABEL org.opencontainers.image.source https://github.com/dodorare/crossbow
 
 RUN apt update -yq && apt upgrade -yq \
