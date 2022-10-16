@@ -62,6 +62,9 @@ pub struct SharedBuildCommand {
     /// Directory for generated artifact and intermediate files
     #[clap(long)]
     pub target_dir: Option<PathBuf>,
+    /// Check crossbundle version used by the user then compare it with crossbundle version found in `crates.io` and update it if a new version is found.
+    #[clap(long)]
+    pub update: bool,
 }
 
 impl SharedBuildCommand {

@@ -42,6 +42,8 @@ pub enum Error {
         path: std::path::PathBuf,
         cause: std::io::Error,
     },
+    /// SelfUpdateError: {0:?}
+    SelfUpdateError(#[from] self_update::errors::Error),
 }
 
 // TODO: Fix this. Is there a better casting for it?

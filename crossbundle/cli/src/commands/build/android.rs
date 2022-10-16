@@ -39,9 +39,6 @@ pub struct AndroidBuildCommand {
     /// Signing key alias.
     #[clap(long)]
     pub sign_key_alias: Option<String>,
-    /// Check crossbundle version used by the user then compare it with crossbundle version found in `crates-io` and update it if a new version is found.
-    #[clap(long)]
-    pub update: bool,
 }
 
 impl AndroidBuildCommand {
@@ -59,12 +56,12 @@ impl AndroidBuildCommand {
         }
         match &self.strategy {
             AndroidStrategy::NativeApk => {
-                if self.update {
+                if self.shared.update {
                     if !crate::update::check::check(config)? {
                         self.execute_apk(config, &context)?;
                         return Ok(());
                     } else {
-                        crate::update::self_update::self_update(&config).unwrap();
+                        crate::update::self_update::self_update(&config)?;
                         self.execute_apk(config, &context)?;
                     }
                 }
@@ -74,7 +71,7 @@ impl AndroidBuildCommand {
                     self.execute_aab(config, &context)?;
                     return Ok(());
                 } else {
-                    crate::update::self_update::self_update(&config).unwrap();
+                    crate::update::self_update::self_update(&config)?;
                     self.execute_aab(config, &context)?;
                 }
             }
@@ -83,7 +80,7 @@ impl AndroidBuildCommand {
                     self.install_gradle_project(config, &context)?;
                     return Ok(());
                 } else {
-                    crate::update::self_update::self_update(&config).unwrap();
+                    crate::update::self_update::self_update(&config)?;
                     self.install_gradle_project(config, &context)?;
                 }
             }

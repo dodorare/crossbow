@@ -1,7 +1,8 @@
-use crate::cargo_crate_version;
+use crate::{cargo_crate_version, error::*};
 use crossbundle_tools::types::Config;
 
-pub(crate) fn self_update(config: &Config) -> Result<bool, Box<dyn ::std::error::Error>> {
+/// Self-update crossbundle project and output update status
+pub(crate) fn self_update(config: &Config) -> Result<bool> {
     let status = self_update::backends::github::Update::configure()
         .repo_owner("dodorare")
         .repo_name("crossbow")

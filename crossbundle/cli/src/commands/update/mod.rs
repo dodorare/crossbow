@@ -13,7 +13,7 @@ pub struct UpdateCommand {
     /// version in `crates.io`
     pub check: bool,
     #[clap(long)]
-    /// Update crossbunlde if new version was found in `crates.io`
+    /// Update crossbunlde if a new version was found in `crates.io`
     pub update: bool,
 }
 
@@ -23,7 +23,7 @@ impl UpdateCommand {
             check(config)?;
         }
         if self.update {
-            self_update(config).unwrap();
+            self_update(config)?;
         }
         Ok(())
     }
