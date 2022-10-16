@@ -39,6 +39,9 @@ pub struct AndroidBuildCommand {
     /// Signing key alias.
     #[clap(long)]
     pub sign_key_alias: Option<String>,
+    /// Check crossbundle version used by the user then compare it with crossbundle version found in `crates-io` and update it if a new version is found.
+    #[clap(long)]
+    pub update: bool,
 }
 
 impl AndroidBuildCommand {
@@ -56,21 +59,33 @@ impl AndroidBuildCommand {
         }
         match &self.strategy {
             AndroidStrategy::NativeApk => {
-                self.execute_apk(config, &context)?;
+                if self.update {
+                    if !crate::update::check::check(config)? {
+                        self.execute_apk(config, &context)?;
+                        return Ok(());
+                    } else {
+                        crate::update::self_update::self_update(&config).unwrap();
+                        self.execute_apk(config, &context)?;
+                    }
+                }
             }
             AndroidStrategy::NativeAab => {
-                self.execute_aab(config, &context)?;
+                if !crate::update::check::check(config)? {
+                    self.execute_aab(config, &context)?;
+                    return Ok(());
+                } else {
+                    crate::update::self_update::self_update(&config).unwrap();
+                    self.execute_aab(config, &context)?;
+                }
             }
             AndroidStrategy::GradleApk => {
-                let (_, _, gradle_project_path) =
-                    self.build_gradle(config, &context, &self.export_path)?;
-                config.status("Building Gradle project")?;
-                let mut gradle = gradle_init()?;
-                gradle
-                    .arg("build")
-                    .arg("-p")
-                    .arg(dunce::simplified(&gradle_project_path));
-                gradle.output_err(true)?;
+                if !crate::update::check::check(config)? {
+                    self.install_gradle_project(config, &context)?;
+                    return Ok(());
+                } else {
+                    crate::update::self_update::self_update(&config).unwrap();
+                    self.install_gradle_project(config, &context)?;
+                }
             }
         }
         Ok(())
@@ -613,5 +628,17 @@ impl AndroidBuildCommand {
             None
         };
         Ok((gen_assets, gen_resources))
+    }
+
+    fn install_gradle_project(&self, config: &Config, context: &BuildContext) -> Result<()> {
+        let (_, _, gradle_project_path) = self.build_gradle(config, &context, &self.export_path)?;
+        config.status("Building Gradle project")?;
+        let mut gradle = gradle_init()?;
+        gradle
+            .arg("build")
+            .arg("-p")
+            .arg(dunce::simplified(&gradle_project_path));
+        gradle.output_err(true)?;
+        Ok(())
     }
 }

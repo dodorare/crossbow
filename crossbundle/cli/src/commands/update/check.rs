@@ -5,17 +5,19 @@ static VERSION: &str = env!("CARGO_PKG_VERSION");
 
 /// Check current the version of crossbundle package and warn the user if a new version is
 /// available
-pub fn check(config: &Config) -> Result<()> {
+pub fn check(config: &Config) -> Result<bool> {
     let latest = get_latest_version();
 
     if let Some(value) = latest {
         if is_newer_found(&value) {
             print_new_version_available(&value, config)?;
+            return Ok(true);
         } else if is_same_found(&value) {
             print_latest_version_using(&value, config)?;
+            return Ok(false);
         }
     }
-    Ok(())
+    Ok(true)
 }
 
 /// Helper function. Check crossbundle project and return true if a new version found  

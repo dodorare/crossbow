@@ -1,7 +1,8 @@
-mod check;
+pub mod check;
+pub mod self_update;
 
 use crate::error::Result;
-use crate::update::check::check;
+use crate::update::{check::check, self_update::self_update};
 use clap::Parser;
 use crossbundle_tools::types::Config;
 
@@ -12,7 +13,7 @@ pub struct UpdateCommand {
     /// version in `crates.io`
     pub check: bool,
     #[clap(long)]
-    /// TODO
+    /// Update crossbunlde if new version was found in `crates.io`
     pub update: bool,
 }
 
@@ -20,6 +21,9 @@ impl UpdateCommand {
     pub fn handle_command(&self, config: &Config) -> Result<()> {
         if self.check {
             check(config)?;
+        }
+        if self.update {
+            self_update(config).unwrap();
         }
         Ok(())
     }
