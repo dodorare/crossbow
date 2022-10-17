@@ -13,7 +13,7 @@ pub struct UpdateCommand {
     /// version in `crates.io`
     pub check: bool,
     #[clap(long)]
-    /// Update crossbunlde if a new version was found in `crates.io`
+    /// Update crossbundle if a new version was found in `crates.io`
     pub update: bool,
 }
 

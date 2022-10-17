@@ -41,7 +41,7 @@ fn print_new_version_available(latest_version: &str, config: &Config) -> Result<
 /// Print message if user uses latest version of crossbundle project
 fn print_latest_version_using(version_string: &str, config: &Config) -> Result<()> {
     config.status_message(
-        "You are using latest version of crossbundle project",
+        "You are using the latest version of crossbundle project",
         version_string,
     )?;
     Ok(())
