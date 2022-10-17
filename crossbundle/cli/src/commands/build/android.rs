@@ -61,7 +61,7 @@ impl AndroidBuildCommand {
                         self.execute_apk(config, &context)?;
                         return Ok(());
                     } else {
-                        crate::update::self_update::self_update(&config)?;
+                        crate::update::self_update::self_update(config)?;
                         self.execute_apk(config, &context)?;
                     }
                 }
@@ -71,7 +71,7 @@ impl AndroidBuildCommand {
                     self.execute_aab(config, &context)?;
                     return Ok(());
                 } else {
-                    crate::update::self_update::self_update(&config)?;
+                    crate::update::self_update::self_update(config)?;
                     self.execute_aab(config, &context)?;
                 }
             }
@@ -80,7 +80,7 @@ impl AndroidBuildCommand {
                     self.build_gradle_project(config, &context)?;
                     return Ok(());
                 } else {
-                    crate::update::self_update::self_update(&config)?;
+                    crate::update::self_update::self_update(config)?;
                     self.build_gradle_project(config, &context)?;
                 }
             }

@@ -49,7 +49,7 @@ impl IosBuildCommand {
                     self.execute(config, &context)?;
                     return Ok(());
                 } else {
-                    crate::update::self_update::self_update(&config)?;
+                    crate::update::self_update::self_update(config)?;
                     self.execute(config, &context)?;
                 }
             }
