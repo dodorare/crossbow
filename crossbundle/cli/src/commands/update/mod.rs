@@ -11,16 +11,17 @@ pub struct UpdateCommand {
     /// version in `crates.io`
     pub check: bool,
     #[clap(long)]
-    /// Update crossbundle if a new version was found in `crates.io`
-    pub update: bool,
+    /// Force to update crossbundle on a new version was found in `crates.io`
+    pub force: bool,
 }
 
 impl UpdateCommand {
     pub fn handle_command(&self, config: &Config) -> Result<()> {
+        let check_result = check::check_new_version(config)?;
         if self.check {
-            check::check(config)?;
+            return Ok(());
         }
-        if self.update {
+        if self.force || check_result {
             self_update(config)?;
         }
         Ok(())

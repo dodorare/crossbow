@@ -5,7 +5,7 @@ static VERSION: &str = env!("CARGO_PKG_VERSION");
 
 /// Check current the version of crossbundle package and warn the user if a new version is
 /// available
-pub fn check(config: &Config) -> Result<bool> {
+pub fn check_new_version(config: &Config) -> Result<bool> {
     let latest = get_latest_version();
 
     if let Some(value) = latest {

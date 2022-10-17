@@ -28,7 +28,12 @@ pub enum Commands {
 
 impl Commands {
     pub fn handle_command(&self, config: &Config) -> Result<()> {
-        crate::update::check::check(config)?;
+        match self {
+            Commands::Update(_) => {}
+            _ => {
+                crate::update::check::check_new_version(config)?;
+            }
+        }
         match self {
             Commands::Build(cmd) => cmd.handle_command(config),
             Commands::Run(cmd) => cmd.handle_command(config),
