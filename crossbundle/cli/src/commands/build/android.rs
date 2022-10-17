@@ -627,7 +627,7 @@ impl AndroidBuildCommand {
         Ok((gen_assets, gen_resources))
     }
 
-    /// Generating and build gradle project 
+    /// Generating and build gradle project
     fn build_gradle_project(&self, config: &Config, context: &BuildContext) -> Result<()> {
         let (_, _, gradle_project_path) = self.build_gradle(config, &context, &self.export_path)?;
         config.status("Building Gradle project")?;
