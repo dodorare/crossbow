@@ -45,13 +45,7 @@ impl IosBuildCommand {
         let context = BuildContext::new(config, self.shared.target_dir.clone())?;
         match &self.strategy {
             IosStrategy::NativeIpa => {
-                if !crate::update::check::check(config)? {
-                    self.execute(config, &context)?;
-                    return Ok(());
-                } else {
-                    crate::update::self_update::self_update(config)?;
-                    self.execute(config, &context)?;
-                }
+                self.execute(config, &context)?;
             }
         };
         Ok(())

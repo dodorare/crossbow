@@ -56,33 +56,21 @@ impl AndroidBuildCommand {
         }
         match &self.strategy {
             AndroidStrategy::NativeApk => {
-                if self.shared.update {
-                    if !crate::update::check::check(config)? {
-                        self.execute_apk(config, &context)?;
-                        return Ok(());
-                    } else {
-                        crate::update::self_update::self_update(config)?;
-                        self.execute_apk(config, &context)?;
-                    }
-                }
+                self.execute_apk(config, &context)?;
             }
             AndroidStrategy::NativeAab => {
-                if !crate::update::check::check(config)? {
-                    self.execute_aab(config, &context)?;
-                    return Ok(());
-                } else {
-                    crate::update::self_update::self_update(config)?;
-                    self.execute_aab(config, &context)?;
-                }
+                self.execute_aab(config, &context)?;
             }
             AndroidStrategy::GradleApk => {
-                if !crate::update::check::check(config)? {
-                    self.build_gradle_project(config, &context)?;
-                    return Ok(());
-                } else {
-                    crate::update::self_update::self_update(config)?;
-                    self.build_gradle_project(config, &context)?;
-                }
+                let (_, _, gradle_project_path) =
+                    self.build_gradle(config, &context, &self.export_path)?;
+                config.status("Building Gradle project")?;
+                let mut gradle = gradle_init()?;
+                gradle
+                    .arg("build")
+                    .arg("-p")
+                    .arg(dunce::simplified(&gradle_project_path));
+                gradle.output_err(true)?;
             }
         }
         Ok(())
@@ -625,18 +613,5 @@ impl AndroidBuildCommand {
             None
         };
         Ok((gen_assets, gen_resources))
-    }
-
-    /// Generating and build gradle project
-    fn build_gradle_project(&self, config: &Config, context: &BuildContext) -> Result<()> {
-        let (_, _, gradle_project_path) = self.build_gradle(config, context, &self.export_path)?;
-        config.status("Building Gradle project")?;
-        let mut gradle = gradle_init()?;
-        gradle
-            .arg("build")
-            .arg("-p")
-            .arg(dunce::simplified(&gradle_project_path));
-        gradle.output_err(true)?;
-        Ok(())
     }
 }

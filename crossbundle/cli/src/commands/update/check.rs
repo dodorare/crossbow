@@ -20,21 +20,23 @@ pub fn check(config: &Config) -> Result<bool> {
     Ok(true)
 }
 
-/// Helper function. Check crossbundle project and return true if a new version found  
+/// Helper function. Check crossbundle project and return true if a new version found
 pub fn is_newer_found(version_string: &str) -> bool {
     is_newer(VERSION, version_string, false)
 }
 
-/// Helper function. Check crossbundle project and return true if latest version found  
+/// Helper function. Check crossbundle project and return true if latest version found
 pub fn is_same_found(version_string: &str) -> bool {
     is_same(VERSION, version_string, false)
 }
 
 /// Print message if crossbundle project can update
 fn print_new_version_available(latest_version: &str, config: &Config) -> Result<()> {
-    config.status("NEW CROSSBUNDLE VERSION FOUND!!!")?;
-    config.status_message("Current version", VERSION)?;
-    config.status_message("latest", latest_version)?;
+    config.shell().warn("NEW CROSSBUNDLE VERSION FOUND!")?;
+    config.shell().warn(format!(
+        "Current version: {}, Latest: {}",
+        VERSION, latest_version
+    ))?;
     Ok(())
 }
 

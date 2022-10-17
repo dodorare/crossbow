@@ -22,11 +22,13 @@ pub enum Commands {
     New(new::NewCommand),
     /// Installs bundletool and Android Studio's sdkmanager
     Install(install::InstallCommand),
+    /// Updates or checks for new version of Crossbundle
     Update(update::UpdateCommand),
 }
 
 impl Commands {
     pub fn handle_command(&self, config: &Config) -> Result<()> {
+        crate::update::check::check(config)?;
         match self {
             Commands::Build(cmd) => cmd.handle_command(config),
             Commands::Run(cmd) => cmd.handle_command(config),
