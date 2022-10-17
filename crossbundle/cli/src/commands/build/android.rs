@@ -77,11 +77,11 @@ impl AndroidBuildCommand {
             }
             AndroidStrategy::GradleApk => {
                 if !crate::update::check::check(config)? {
-                    self.install_gradle_project(config, &context)?;
+                    self.build_gradle_project(config, &context)?;
                     return Ok(());
                 } else {
                     crate::update::self_update::self_update(&config)?;
-                    self.install_gradle_project(config, &context)?;
+                    self.build_gradle_project(config, &context)?;
                 }
             }
         }
@@ -627,7 +627,8 @@ impl AndroidBuildCommand {
         Ok((gen_assets, gen_resources))
     }
 
-    fn install_gradle_project(&self, config: &Config, context: &BuildContext) -> Result<()> {
+    /// Generating and build gradle project 
+    fn build_gradle_project(&self, config: &Config, context: &BuildContext) -> Result<()> {
         let (_, _, gradle_project_path) = self.build_gradle(config, &context, &self.export_path)?;
         config.status("Building Gradle project")?;
         let mut gradle = gradle_init()?;

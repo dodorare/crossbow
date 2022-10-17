@@ -103,7 +103,7 @@ android {
 
         // Feel free to modify the application id to your own.
         applicationId getExportPackageName()
-        versionCode getExportversionCode()
+        versionCode getExportVersionCode()
         versionName getExportVersionName()
         minSdkVersion getExportMinSdkVersion()
         targetSdkVersion getExportTargetSdkVersion()
