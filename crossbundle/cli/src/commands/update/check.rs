@@ -31,7 +31,7 @@ pub fn is_same_found(version_string: &str) -> bool {
 }
 
 /// Print message if crossbundle project can update
-fn print_new_version_available(latest_version: &str, config: &Config) -> Result<()> {
+pub fn print_new_version_available(latest_version: &str, config: &Config) -> Result<()> {
     config.shell().warn("NEW CROSSBUNDLE VERSION FOUND!")?;
     config.shell().warn(format!(
         "Current version: {}, Latest: {}",
@@ -41,7 +41,7 @@ fn print_new_version_available(latest_version: &str, config: &Config) -> Result<
 }
 
 /// Print message if user uses latest version of crossbundle project
-fn print_latest_version_using(version_string: &str, config: &Config) -> Result<()> {
+pub fn print_latest_version_using(version_string: &str, config: &Config) -> Result<()> {
     config.status_message(
         "You are using the latest version of crossbundle project",
         version_string,
@@ -77,7 +77,15 @@ fn is_newer(old_string: &str, new_string: &str, default_result: bool) -> bool {
     if let Ok(old_values) = old_version {
         let new_version = Version::from_semver(new_string);
         if let Ok(new_values) = new_version {
-            version_comparison(new_values, old_values)
+            if new_values.major == old_values.major {
+                if new_values.minor > old_values.minor {
+                    true
+                } else {
+                    new_values.minor == old_values.minor && new_values.patch > old_values.patch
+                }
+            } else {
+                version_comparison(new_values, old_values)
+            }
         } else {
             default_result
         }
@@ -88,12 +96,23 @@ fn is_newer(old_string: &str, new_string: &str, default_result: bool) -> bool {
 
 /// Comparison to check whether the version is newer or not
 fn version_comparison(new_values: Version, old_values: Version) -> bool {
-    match new_values.major == old_values.major {
-        true => match new_values.major > old_values.major {
-            true => new_values.minor > old_values.minor,
-            _ => new_values.minor == old_values.minor && new_values.patch > old_values.patch,
-        },
-        false => new_values.major > old_values.major,
+    // match new_values.major > old_values.major {
+    //     true => match new_values.major == old_values.major {
+    //         true => new_values.minor > old_values.minor,
+    //         _ => new_values.minor == old_values.minor && new_values.patch > old_values.patch,
+    //     },
+    //     false => new_values.major < old_values.major,
+    // }
+    if new_values.major > old_values.major {
+        true
+    // } else if new_values.major == old_values.major {
+    //     if new_values.minor > old_values.minor {
+    //         true
+    //     } else {
+    //         new_values.minor == old_values.minor && new_values.patch > old_values.patch
+    //     }
+    } else {
+        false
     }
 }
 

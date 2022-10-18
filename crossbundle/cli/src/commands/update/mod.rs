@@ -29,7 +29,7 @@ impl UpdateCommand {
 }
 
 /// Self-update crossbundle project and output update status
-pub(crate) fn self_update(config: &Config) -> Result<()> {
+pub fn self_update(config: &Config) -> Result<()> {
     config.status("Running `cargo install crossbundle --force` command")?;
     let mut cargo_cmd = std::process::Command::new("cargo");
     cargo_cmd.arg("install").arg("crossbundle").arg("--force");

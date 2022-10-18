@@ -10,11 +10,5 @@ crossbundle update --check
 If the version found in `crates.io` is newer than used now you can enter the command below:
 
 ```sh
-crossbundle update --update
-```
-
-You also can just specify `--update` flag with [crossbundle build](command-build.md) or [crossbundle run](command-run.md). For example:
-
-```sh
-crossbundle build android --update
+crossbundle update --force
 ```
