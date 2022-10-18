@@ -19,6 +19,7 @@
     - [Build Command](crossbundle/command-build.md)
     - [Run Command](crossbundle/command-run.md)
     - [New Command](crossbundle/command-new.md)
+    - [Update command](crossbundle/command-update.md)
 
 - [Crossbow](crossbow/README.md)
     - [Configuration](crossbow/configuration.md)

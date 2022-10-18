@@ -2,6 +2,7 @@ pub mod build;
 pub mod install;
 pub mod new;
 pub mod run;
+pub mod update;
 
 use crate::error::Result;
 use clap::Parser;
@@ -21,15 +22,24 @@ pub enum Commands {
     New(new::NewCommand),
     /// Installs bundletool and Android Studio's sdkmanager
     Install(install::InstallCommand),
+    /// Updates or checks for new version of Crossbundle
+    Update(update::UpdateCommand),
 }
 
 impl Commands {
     pub fn handle_command(&self, config: &Config) -> Result<()> {
         match self {
+            Commands::Update(_) => {}
+            _ => {
+                crate::update::check::check_new_version(config)?;
+            }
+        }
+        match self {
             Commands::Build(cmd) => cmd.handle_command(config),
             Commands::Run(cmd) => cmd.handle_command(config),
             Commands::New(cmd) => cmd.handle_command(config),
             Commands::Install(cmd) => cmd.handle_command(config),
+            Commands::Update(cmd) => cmd.handle_command(config),
         }
     }
 }

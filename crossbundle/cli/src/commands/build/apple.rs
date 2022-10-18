@@ -44,7 +44,9 @@ impl IosBuildCommand {
     pub fn run(&self, config: &Config) -> Result<()> {
         let context = BuildContext::new(config, self.shared.target_dir.clone())?;
         match &self.strategy {
-            IosStrategy::NativeIpa => self.execute(config, &context)?,
+            IosStrategy::NativeIpa => {
+                self.execute(config, &context)?;
+            }
         };
         Ok(())
     }

@@ -1,13 +1,13 @@
 use crate::error::{AndroidError, Result};
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub struct VersionCode {
-    major: u8,
-    minor: u8,
-    patch: u8,
+pub struct Version {
+    pub major: u8,
+    pub minor: u8,
+    pub patch: u8,
 }
 
-impl VersionCode {
+impl Version {
     pub fn new(major: u8, minor: u8, patch: u8) -> Self {
         Self {
             major,
@@ -16,6 +16,7 @@ impl VersionCode {
         }
     }
 
+    /// Create `Version` by parsing from string representation
     pub fn from_semver(version: &str) -> Result<Self> {
         let mut iter = version.split(|c1| ['.', '-', '+'].iter().any(|c2| c1 == *c2));
         let mut p = || {

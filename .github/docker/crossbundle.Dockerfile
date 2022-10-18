@@ -24,9 +24,11 @@ ENV PATH=$GRADLE_HOME:${PATH}
 
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH=/root/.cargo/bin:${PATH}
+RUN rustup uninstall stable && rustup update nightly && rustup update stable
 
 # Install rustup targets for android
 RUN rustup target add aarch64-linux-android x86_64-linux-android
+
 # Install crossbundle cli
 RUN mkdir -p /src
 WORKDIR /src
