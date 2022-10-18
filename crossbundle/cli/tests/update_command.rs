@@ -6,7 +6,8 @@ use crossbundle_lib::commands::update::check::{
 use crossbundle_tools::types::{Config, Shell, Version};
 
 #[test]
-/// Simulate a situation where a new version of crossbundle was released and note the user about that
+/// Simulate a situation where a new version of crossbundle was released and note the user
+/// about that
 fn test_new_version_released() {
     let target_dir = current_dir().unwrap();
     let shell = Shell::new();
@@ -31,7 +32,8 @@ fn test_new_version_released() {
 }
 
 #[test]
-/// Simulate a situation where the user is using the latest available version of crossbundle project and note the user about that
+/// Simulate a situation where the user is using the latest available version of
+/// crossbundle project and note the user about that
 fn test_latest_version_is_using() {
     let target_dir = current_dir().unwrap();
     let shell = Shell::new();
