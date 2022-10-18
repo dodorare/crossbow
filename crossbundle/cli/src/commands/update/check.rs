@@ -84,7 +84,6 @@ fn is_newer(old_string: &str, new_string: &str, default_result: bool) -> bool {
                     new_values.minor == old_values.minor && new_values.patch > old_values.patch
                 }
             } else {
-                // version_comparison(new_values, old_values)
                 new_values.major > old_values.major
             }
         } else {
@@ -94,15 +93,6 @@ fn is_newer(old_string: &str, new_string: &str, default_result: bool) -> bool {
         default_result
     }
 }
-
-// /// Comparison to check whether the version is newer or not
-// fn version_comparison(new_values: Version, old_values: Version) -> bool {
-//     if new_values.major > old_values.major {
-//         true
-//     } else {
-//         false
-//     }
-// }
 
 /// Initialize `cargo search` tool and search crossbundle project in crates.io
 fn get_latest_version() -> Option<String> {
