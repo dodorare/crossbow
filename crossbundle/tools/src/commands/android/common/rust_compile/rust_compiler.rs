@@ -164,7 +164,7 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
             // XXX: Add an upper-bound on the Rust version whenever this is not necessary anymore.
             if self.ndk.build_tag() > 7272597 {
                 let mut args = search_for_libgcc_and_libunwind(
-                    &self.build_target,
+                    self.build_target,
                     build_path,
                     &self.ndk,
                     self.target_sdk_version,
@@ -200,7 +200,7 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
                 }
             }
             let mut cmd = cmd.clone();
-            cmd.args_replace(&new_args);
+            let cmd = cmd.args_replace(&new_args);
             cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
                 .map(drop)?
         } else {
@@ -209,11 +209,4 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
         }
         Ok(())
     }
-}
-
-/// Helper function that allows to return environment argument with specified tool
-pub fn cargo_env_target_cfg(tool: &str, target: &str) -> String {
-    let utarget = target.replace('-', "_");
-    let env = format!("CARGO_TARGET_{}_{}", &utarget, tool);
-    env.to_uppercase()
 }

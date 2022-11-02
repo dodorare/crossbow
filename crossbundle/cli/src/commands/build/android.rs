@@ -3,6 +3,7 @@ use crate::{error::*, types::CrossbowMetadata};
 use android_manifest::AndroidManifest;
 use android_tools::java_tools::{JarSigner, Key};
 use clap::Parser;
+
 use crossbundle_tools::{
     commands::{android::*, combine_folders},
     error::CommandExt,
@@ -21,24 +22,27 @@ pub struct AndroidBuildCommand {
     #[clap(long, short, multiple_values = true)]
     pub target: Vec<AndroidTarget>,
     /// Build strategy specifies what and how to build Android application: with help of
-    /// Gradle, or with our native approach.
+    /// Gradle, or with our native approach
     #[clap(long, short, default_value = "gradle-apk")]
     pub strategy: AndroidStrategy,
     /// Only compile rust code as a dynamic library. By default: "crossbow-android"
     #[clap(long, default_missing_value = "crossbow_android")]
     pub lib: Option<String>,
-    /// Path to export Gradle project. By default exports to `target/android/` folder.
+    /// Path to export Gradle project. By default exports to `target/android/` folder
     #[clap(long)]
     pub export_path: Option<PathBuf>,
-    /// Path to the signing key.
+    /// Path to the signing key
     #[clap(long, requires_all = &["sign-key-pass", "sign-key-alias"])]
     pub sign_key_path: Option<PathBuf>,
-    /// Signing key password.
+    /// Signing key password
     #[clap(long)]
     pub sign_key_pass: Option<String>,
-    /// Signing key alias.
+    /// Signing key alias
     #[clap(long)]
     pub sign_key_alias: Option<String>,
+    /// Native compile for bevy projects without cargo Executor trait invocations
+    #[clap(long, short)]
+    pub native_compile: bool,
 }
 
 impl AndroidBuildCommand {
@@ -143,7 +147,8 @@ impl AndroidBuildCommand {
     ) -> Result<()> {
         let profile = self.shared.profile();
         let example = self.shared.example.as_ref();
-        let (project_path, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
+        let (project_path, target_dir, package_name) =
+            Self::needed_project_dirs(example, context)?;
         config.status_message("Starting lib build process", &package_name)?;
         let (sdk, ndk) = Self::android_toolchain()?;
 
@@ -195,7 +200,8 @@ impl AndroidBuildCommand {
     ) -> Result<(AndroidManifest, AndroidSdk, PathBuf)> {
         let profile = self.shared.profile();
         let example = self.shared.example.as_ref();
-        let (project_path, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
+        let (project_path, target_dir, package_name) =
+            Self::needed_project_dirs(example, context)?;
         config.status_message("Starting apk build process", &package_name)?;
         let (sdk, ndk) = Self::android_toolchain()?;
 
@@ -281,7 +287,8 @@ impl AndroidBuildCommand {
     ) -> Result<(AndroidManifest, AndroidSdk, PathBuf, String, Key)> {
         let profile = self.shared.profile();
         let example = self.shared.example.as_ref();
-        let (project_path, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
+        let (project_path, target_dir, package_name) =
+            Self::needed_project_dirs(example, context)?;
         config.status_message("Starting aab build process", &package_name)?;
         let (sdk, ndk) = Self::android_toolchain()?;
 
@@ -413,7 +420,7 @@ impl AndroidBuildCommand {
     ) -> Result<(PathBuf, PathBuf, String)> {
         let project_path: PathBuf = context.project_path.clone();
         let target_dir: PathBuf = context.target_dir.clone();
-        let (_target, package_name) = if let Some(example) = example {
+        let (_, package_name) = if let Some(example) = example {
             (Target::Example(example.clone()), example.clone())
         } else {
             (Target::Lib, context.package_name())
@@ -484,18 +491,21 @@ impl AndroidBuildCommand {
 
             config.status_message("Compiling for architecture", rust_triple)?;
             // Compile rust code for android depending on application wrapper
-            rust_compile(
-                ndk,
-                build_target,
-                project_path,
-                profile,
-                self.shared.features.clone(),
-                self.shared.all_features,
-                self.shared.no_default_features,
-                target_sdk_version,
-                &lib_name,
-                context.config.android.app_wrapper,
-            )?;
+            match self.native_compile {
+                true => native_rust_compile(build_target, target_dir, target_sdk_version, ndk)?,
+                false => rust_compile(
+                    ndk,
+                    build_target,
+                    project_path,
+                    profile,
+                    self.shared.features.clone(),
+                    self.shared.all_features,
+                    self.shared.no_default_features,
+                    target_sdk_version,
+                    &lib_name,
+                    context.config.android.app_wrapper,
+                )?,
+            }
 
             let out_dir = target_dir.join(build_target.rust_triple()).join(profile);
             let compiled_lib = out_dir.join(lib_name);
