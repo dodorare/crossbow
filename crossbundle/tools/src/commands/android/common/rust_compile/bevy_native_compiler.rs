@@ -65,7 +65,7 @@ pub fn bevy_native_compile(
         let link_dir = target_dir.join("link-libraries");
         std::fs::create_dir_all(&link_dir).map_err(|_| Error::PathNotFound(link_dir.clone()))?;
         let libgcc = link_dir.join("libgcc.a");
-        std::fs::write(&libgcc, "INPUT(-lunwind)")
+        std::fs::write(libgcc, "INPUT(-lunwind)")
             .map_err(|_| Error::PathNotFound(link_dir.clone()))?;
 
         // cdylibs in transitive dependencies still get built and also need this

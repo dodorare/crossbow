@@ -488,7 +488,7 @@ impl AndroidBuildCommand {
             let rust_triple = build_target.rust_triple();
 
             config.status_message("Compiling for architecture", rust_triple)?;
-            // Compile rust code for android depending on application wrapper
+            // Compile rust code for android depending on application wrapper and `--bevy-compile` flag
             match self.bevy_compile {
                 true => bevy_native_compile(build_target, target_dir, target_sdk_version, ndk)?,
                 false => rust_compile(

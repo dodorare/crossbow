@@ -57,7 +57,7 @@ pub fn search_for_libgcc_and_libunwind(
     let libgcc_dir = build_path.join("_libgcc_");
     std::fs::create_dir_all(&libgcc_dir)?;
     let libgcc = libgcc_dir.join("libgcc.a");
-    std::fs::write(&libgcc, "INPUT(-lunwind)")?;
+    std::fs::write(libgcc, "INPUT(-lunwind)")?;
     new_args.push(build_arg("-Clink-arg=-L", libgcc_dir));
 
     let libunwind_dir = ndk.find_libunwind_dir(&build_target)?;

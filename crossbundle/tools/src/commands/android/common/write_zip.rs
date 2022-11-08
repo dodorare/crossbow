@@ -20,7 +20,7 @@ pub fn zip_dirs_to_write(source_path: &Path) -> fs_extra::error::Result<()> {
         }
         let mut options = fs_extra::file::CopyOptions::new();
         options.overwrite = true;
-        fs_extra::file::move_file(&path, &manifest_path.join("AndroidManifest.xml"), &options)?;
+        fs_extra::file::move_file(&path, manifest_path.join("AndroidManifest.xml"), &options)?;
     }
     Ok(())
 }
