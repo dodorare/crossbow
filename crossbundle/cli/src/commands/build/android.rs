@@ -186,7 +186,7 @@ impl AndroidBuildCommand {
                 std::fs::create_dir_all(&out_dir)?;
             }
             let file_name = compiled_lib.file_name().unwrap().to_owned();
-            std::fs::copy(compiled_lib, &out_dir.join(&file_name))?;
+            std::fs::copy(compiled_lib, out_dir.join(file_name))?;
         }
         Ok(())
     }
@@ -406,7 +406,7 @@ impl AndroidBuildCommand {
         let aab_output_path = outputs_build_dir.join(output_aab);
         let mut options = fs_extra::file::CopyOptions::new();
         options.overwrite = true;
-        fs_extra::file::move_file(&signed_aab, &outputs_build_dir.join(output_aab), &options)?;
+        fs_extra::file::move_file(&signed_aab, outputs_build_dir.join(output_aab), &options)?;
         config.status("Build finished successfully")?;
         Ok((manifest, sdk, aab_output_path, package_name, key))
     }
