@@ -55,7 +55,7 @@ Note: Our examples using only main.rs as bin and as lib file so we need to set p
 
 ```toml
 [dependencies]
-crossbundle-derive = { path = "./../../crossbundle/derive", version = "0.2.3" }
+crossbundle-derive = { path = "./../../crossbundle/derive", version = "0.2.4" }
 ```
 
 3. Put crossbundle derive macro above main function to init Android Native Activity.

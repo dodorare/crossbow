@@ -12,7 +12,7 @@ authors = ["Example <example@example.com>"]
 edition = "2021"
 
 [dependencies]
-crossbow = "0.2.3"
+crossbow = "0.2.4"
 
 [package.metadata]
 # The user-friendly application name for your app. Displayed in the applications menu

@@ -26,9 +26,9 @@ Add Rust dependencies like this:
 
 ```toml
 [dependencies]
-crossbow = "0.2.3"
+crossbow = "0.2.4"
 [target.'cfg(target_os = "android")'.dependencies]
-play-core = "0.2.3"
+play-core = "0.2.4"
 ```
 
 And finally, add this to your Crossbow Android configuration:

@@ -1,19 +1,19 @@
 [package]
 name = "crossbow-plugins"
-version = "0.2.3"
+version = "0.2.4"
 authors = ["DodoRare Team <support@dodorare.com>"]
 edition = "2021"
 
 [dependencies]
-crossbow = { version = "0.2.3", path = "../../" }
+crossbow = { version = "0.2.4", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
 macroquad = "=0.3.7"
 
 [target.'cfg(target_os = "android")'.dependencies]
-play-core = { version = "0.2.3", path = "../../plugins/play-core" }
-play-billing = { version = "0.2.3", path = "../../plugins/play-billing" }
-play-games-services = { version = "0.2.3", path = "../../plugins/play-games-services" }
+play-core = { version = "0.2.4", path = "../../plugins/play-core" }
+play-billing = { version = "0.2.4", path = "../../plugins/play-billing" }
+play-games-services = { version = "0.2.4", path = "../../plugins/play-games-services" }
 
 [package.metadata]
 app_name = "Crossbow Plugins"
