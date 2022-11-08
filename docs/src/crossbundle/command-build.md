@@ -39,7 +39,7 @@ crossbundle build android -h
 
 ## Crossbundle build native AAB/APK with `--bevy-compile` flag for bevy projects
 
-Alternative build opportunity avoid using cargo Executor trait. For correct build and app working process need to provide several steps: 
+Alternative build opportunity that allows to avoid using cargo Executor trait. For correct building and app working process need to provide several steps: 
 
 1. Add lib section to `Cargo.toml` with cdylib crate type:
 
@@ -49,7 +49,7 @@ crate-type = ["cdylib"]
 path = "src/main.rs"
 ```
 
-Note: Our examples using only main.rs as bin and as lib file so we need to set path to lib. You can create lib.rs file and set only crate-type  
+Note: Our examples using only main.rs as bin and as lib file so we need to set path to lib. You can create lib.rs file and set only crate type  
 
 2. Add crossbundle derive crate to `Cargo.toml` to dependencies section: 
 
