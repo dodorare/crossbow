@@ -1,7 +1,11 @@
 use crate::{commands::android::cargo_env_target_cfg, error::*, types::*};
 use std::path::Path;
 
-pub fn native_rust_compile(
+/// Use cargo inner features to build bevy project to avoid cargo Executor trait using.
+/// Required to add `[lib]` section in `Cargo.toml` with cdylib crate-type. For correct
+/// app working in runtime use crossbundle derive macro. For more information see
+/// crossbundle build command docs.
+pub fn bevy_native_compile(
     build_target: AndroidTarget,
     target_dir: &Path,
     target_sdk_version: u32,
@@ -69,15 +73,17 @@ pub fn native_rust_compile(
         // forwarded to the final compiler invocation rendering our workaround ineffective.
         // The cargo page documenting this discrepancy (https://doc.rust-lang.org/cargo/commands/cargo-rustc.html)
         // suggests to resort to RUSTFLAGS.
-        // Note that `rustflags` will never be empty because of an unconditional `.push_str` above,
-        // so we can safely start with appending \x1f here.
+        // Note that `rustflags` will never be empty because of an unconditional `.push_str`
+        // above, so we can safely start with appending \x1f here.
         rustflags.push_str("\x1f-L\x1f");
         rustflags.push_str(link_dir.to_str().expect("Target dir must be valid UTF-8"));
     }
     cargo.env("CARGO_ENCODED_RUSTFLAGS", rustflags);
+
     cargo.arg("rustc");
     cargo.arg("--lib");
     cargo.arg("--target").arg(triple);
+
     cargo.output_err(true)?;
 
     Ok(())

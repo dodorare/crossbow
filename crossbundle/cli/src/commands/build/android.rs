@@ -42,7 +42,7 @@ pub struct AndroidBuildCommand {
     pub sign_key_alias: Option<String>,
     /// Native compile for bevy projects without cargo Executor trait invocations
     #[clap(long, short)]
-    pub native_compile: bool,
+    pub bevy_compile: bool,
 }
 
 impl AndroidBuildCommand {
@@ -147,8 +147,7 @@ impl AndroidBuildCommand {
     ) -> Result<()> {
         let profile = self.shared.profile();
         let example = self.shared.example.as_ref();
-        let (project_path, target_dir, package_name) =
-            Self::needed_project_dirs(example, context)?;
+        let (project_path, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
         config.status_message("Starting lib build process", &package_name)?;
         let (sdk, ndk) = Self::android_toolchain()?;
 
@@ -200,9 +199,9 @@ impl AndroidBuildCommand {
     ) -> Result<(AndroidManifest, AndroidSdk, PathBuf)> {
         let profile = self.shared.profile();
         let example = self.shared.example.as_ref();
-        let (project_path, target_dir, package_name) =
-            Self::needed_project_dirs(example, context)?;
+        let (project_path, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
         config.status_message("Starting apk build process", &package_name)?;
+
         let (sdk, ndk) = Self::android_toolchain()?;
 
         let android_build_dir = target_dir.join("android").join(&package_name);
@@ -287,8 +286,7 @@ impl AndroidBuildCommand {
     ) -> Result<(AndroidManifest, AndroidSdk, PathBuf, String, Key)> {
         let profile = self.shared.profile();
         let example = self.shared.example.as_ref();
-        let (project_path, target_dir, package_name) =
-            Self::needed_project_dirs(example, context)?;
+        let (project_path, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
         config.status_message("Starting aab build process", &package_name)?;
         let (sdk, ndk) = Self::android_toolchain()?;
 
@@ -491,8 +489,8 @@ impl AndroidBuildCommand {
 
             config.status_message("Compiling for architecture", rust_triple)?;
             // Compile rust code for android depending on application wrapper
-            match self.native_compile {
-                true => native_rust_compile(build_target, target_dir, target_sdk_version, ndk)?,
+            match self.bevy_compile {
+                true => bevy_native_compile(build_target, target_dir, target_sdk_version, ndk)?,
                 false => rust_compile(
                     ndk,
                     build_target,

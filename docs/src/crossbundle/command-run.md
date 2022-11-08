@@ -30,3 +30,16 @@ To find out available commands specify the -h flag.
 ```sh
 crossbundle run android -h
 ```
+
+## Crossbundle run native AAB/APK with `--bevy-compile` flag for bevy projects
+
+Run your APK or AAB on device with the command below. The command build project with `--bevy-compile` flag. 
+See [crossbundle build command](command-build.md) to find out how to configure your project to compile it `--bevy-compile` flag.
+
+After configuration you can use the command below: 
+
+```sh
+crossbundle run android -s=native-apk --bevy-compile
+# or do you need AAB:
+crossbundle run android -s=native-aab --bevy-compile
+```

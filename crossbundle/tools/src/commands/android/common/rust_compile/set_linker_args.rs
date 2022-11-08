@@ -40,7 +40,6 @@ pub fn cargo_env_target_cfg(tool: &str, target: &str) -> String {
     env.to_uppercase()
 }
 
-
 /// Add path containing libgcc.a and libunwind.a for linker to search.
 /// See https://github.com/rust-lang/rust/pull/85806 for discussion on libgcc.
 /// The workaround to get to NDK r23 or newer is to create a libgcc.a file with
