@@ -36,7 +36,7 @@ ext.mavenCrossbowGithub = {
         credentials {
             // Use this open machine user token because repo requires authentication
             username = "token"
-            password = "\u0067hp_YQdtzsNYrpQM3lmZPOXYHpC5GXiord4Qodew"
+            password = "\u0067hp_b3LYIUiG4xGTdm6C0ypvWLkKtoif160KSei1"
         }
     }
 }
