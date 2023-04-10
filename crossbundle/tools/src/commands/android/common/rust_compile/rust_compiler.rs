@@ -19,10 +19,10 @@ pub fn rust_compile(
     // Set environment variables needed for use with the cc crate
     let (clang, clang_pp) = ndk.clang(build_target, target_sdk_version)?;
     std::env::set_var(format!("CC_{}", rust_triple), &clang);
-    std::env::set_var(format!("CXX_{}", rust_triple), &clang_pp);
+    std::env::set_var(format!("CXX_{}", rust_triple), clang_pp);
     std::env::set_var(cargo_env_target_cfg("LINKER", rust_triple), &clang);
     let ar = ndk.toolchain_bin("ar", build_target)?;
-    std::env::set_var(format!("AR_{}", rust_triple), &ar);
+    std::env::set_var(format!("AR_{}", rust_triple), ar);
 
     let cargo_config = cargo::util::Config::default()?;
     let workspace = cargo::core::Workspace::new(&project_path.join("Cargo.toml"), &cargo_config)?;
@@ -164,7 +164,7 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
             // XXX: Add an upper-bound on the Rust version whenever this is not necessary anymore.
             if self.ndk.build_tag() > 7272597 {
                 let mut args = search_for_libgcc_and_libunwind(
-                    &self.build_target,
+                    self.build_target,
                     build_path,
                     &self.ndk,
                     self.target_sdk_version,
@@ -209,11 +209,4 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
         }
         Ok(())
     }
-}
-
-/// Helper function that allows to return environment argument with specified tool
-pub fn cargo_env_target_cfg(tool: &str, target: &str) -> String {
-    let utarget = target.replace('-', "_");
-    let env = format!("CARGO_TARGET_{}_{}", &utarget, tool);
-    env.to_uppercase()
 }

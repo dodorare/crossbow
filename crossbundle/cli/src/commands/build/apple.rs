@@ -125,7 +125,7 @@ impl IosBuildCommand {
 
         let app_path = apple::gen_apple_app_folder(apple_target_dir, name, assets, resources)?;
         config.status("Copying binary to app folder")?;
-        std::fs::copy(&bin_path, &app_path.join(name)).unwrap();
+        std::fs::copy(bin_path, app_path.join(name)).unwrap();
         config.status_message("Generating", "Info.plist")?;
         apple::save_info_plist(&app_path, properties, false).unwrap();
 

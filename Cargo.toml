@@ -1,6 +1,6 @@
 [package]
 name = "crossbow"
-version = "0.2.3"
+version = "0.2.4"
 edition = "2021"
 authors = ["DodoRare Team <support@dodorare.com>"]
 description = "Cross-Platform build tools and toolkit for games"
@@ -21,10 +21,10 @@ apple-bundle = { version = "0.1.4", optional = true }
 
 [target.'cfg(target_os = "android")'.dependencies]
 ndk-glue = "0.7.0"
-crossbow-android = { path = "platform/android", version = "0.2.3", optional = true }
+crossbow-android = { path = "platform/android", version = "0.2.4", optional = true }
 
 [target.'cfg(target_os = "ios")'.dependencies]
-crossbow-ios = { path = "platform/ios", version = "0.2.3", optional = true }
+crossbow-ios = { path = "platform/ios", version = "0.2.4", optional = true }
 
 [patch.crates-io]
 bevy = { git = "https://github.com/dodorare/bevy", rev = "732fc8c585ebd3a622153771a8c51ace93024a04" }

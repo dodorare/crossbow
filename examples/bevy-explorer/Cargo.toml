@@ -1,11 +1,11 @@
 [package]
 name = "bevy-explorer"
-version = "0.2.3"
+version = "0.2.4"
 authors = ["DodoRare Team <support@dodorare.com>"]
 edition = "2021"
 
 [dependencies]
-crossbow = { version = "0.2.3", path = "../../" }
+crossbow = { version = "0.2.4", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
 subxt = "0.23.0"
