@@ -7,7 +7,7 @@ use zip_extensions::write::ZipWriterExtensions;
 pub fn zip_write(source_path: &Path, archive_file: &Path) -> zip::result::ZipResult<()> {
     let file = std::fs::File::create(archive_file)?;
     let mut zip = ZipWriter::new(file);
-    zip.add_directory(&source_path.to_path_buf(),FileOptions::default())?;
+    zip.add_directory(source_path.to_str().unwrap(),FileOptions::default())?;
     Ok(())
 }
 
