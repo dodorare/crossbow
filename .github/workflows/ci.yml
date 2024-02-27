@@ -116,17 +116,17 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: nightly
+          toolchain: stable
           components: rustfmt, clippy
           override: true
       - name: Check the format
         run: |
           cd crossbundle/cli/
-          cargo +nightly fmt --all -- --check
+          cargo fmt --all -- --check
       - name: Run clippy
         run: |
           cd crossbundle/cli/
-          cargo clippy --all-targets --all-features -- -D warnings -A clippy::unnecessary-unwrap -A clippy::too-many-arguments
+          cargo clippy --all-targets --all-features -- -D warnings -A clippy::unnecessary-unwrap -A clippy::too-many-arguments -A clippy::result_large_err
       - name: Check for deadlinks
         run: |
           cargo install cargo-deadlinks

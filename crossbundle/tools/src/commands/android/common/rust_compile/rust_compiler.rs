@@ -19,10 +19,10 @@ pub fn rust_compile(
     // Set environment variables needed for use with the cc crate
     let (clang, clang_pp) = ndk.clang(build_target, target_sdk_version)?;
     std::env::set_var(format!("CC_{}", rust_triple), &clang);
-    std::env::set_var(format!("CXX_{}", rust_triple), &clang_pp);
+    std::env::set_var(format!("CXX_{}", rust_triple), clang_pp);
     std::env::set_var(cargo_env_target_cfg("LINKER", rust_triple), &clang);
     let ar = ndk.toolchain_bin("ar", build_target)?;
-    std::env::set_var(format!("AR_{}", rust_triple), &ar);
+    std::env::set_var(format!("AR_{}", rust_triple), ar);
 
     let cargo_config = cargo::util::Config::default()?;
     let workspace = cargo::core::Workspace::new(&project_path.join("Cargo.toml"), &cargo_config)?;

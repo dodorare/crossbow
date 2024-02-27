@@ -31,7 +31,7 @@ fn test_cargo_metadata() {
     let example = android_build_command.shared.example.as_ref();
     let (_, _, package_name) = AndroidBuildCommand::needed_project_dirs(example, &context).unwrap();
     config
-        .status_message("Starting apk build process", &package_name)
+        .status_message("Starting apk build process", package_name)
         .unwrap();
 
     let android_manifest =

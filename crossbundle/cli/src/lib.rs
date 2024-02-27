@@ -5,7 +5,7 @@ pub mod commands;
 pub mod error;
 pub mod types;
 
-use clap::Parser;
+use clap::{ArgAction, Parser};
 use colored::Colorize;
 use commands::*;
 use crossbundle_tools::types::{Config, Shell, Verbosity};
@@ -18,7 +18,7 @@ pub struct Opts {
     #[clap(short, long)]
     pub current_dir: Option<PathBuf>,
     /// A level of verbosity, and can be used multiple times
-    #[clap(short, long, parse(from_occurrences))]
+    #[clap(short, long, action = ArgAction::Count)]
     pub verbose: u32,
     /// No output printed to stdout
     #[clap(short, long)]

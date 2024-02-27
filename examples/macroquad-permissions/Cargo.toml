@@ -8,7 +8,7 @@ edition = "2021"
 crossbow = { version = "0.2.3", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
-macroquad = "=0.3.7"
+macroquad = "0.4.5"
 
 [target.'cfg(target_os = "android")'.dependencies]
 admob-android = { version = "0.2.3", path = "../../plugins/admob-android" }

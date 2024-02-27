@@ -12,7 +12,7 @@ pub fn generate_lib_file(path: &Path, extra_code: &'static str) -> CargoResult<N
         original_src_filepath
             .file_stem()
             .map(|s| s.to_string_lossy().into_owned())
-            .unwrap_or_else(String::new)
+            .unwrap_or_default()
     );
 
     // Create the temporary file

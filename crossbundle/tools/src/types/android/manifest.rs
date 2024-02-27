@@ -27,7 +27,8 @@ pub fn update_android_manifest_with_default(
         });
     }
     if manifest.application.has_code.is_none() {
-        manifest.application.has_code = Some(strategy == AndroidStrategy::GradleApk);
+        manifest.application.has_code =
+            VarOrBool::Bool(strategy == AndroidStrategy::GradleApk).into();
     }
     if manifest.application.label.is_none() {
         manifest.application.label = Some(StringResourceOrString::string(
@@ -44,7 +45,7 @@ pub fn update_android_manifest_with_default(
         manifest.application.activity = vec![Activity::default()];
     }
     if manifest.application.activity.len() == 1 {
-        let mut activity = manifest.application.activity.get_mut(0).unwrap();
+        let activity = manifest.application.activity.get_mut(0).unwrap();
         if activity.name.is_empty() {
             activity.name = match strategy == AndroidStrategy::GradleApk {
                 true => "com.crossbow.game.CrossbowApp".to_string(),
@@ -52,10 +53,10 @@ pub fn update_android_manifest_with_default(
             };
         }
         if activity.resizeable_activity.is_none() {
-            activity.resizeable_activity = Some(true);
+            activity.resizeable_activity = VarOrBool::Bool(true).into();
         }
         if activity.exported.is_none() {
-            activity.exported = Some(true);
+            activity.exported = VarOrBool::Bool(true).into();
         }
         if !activity
             .meta_data

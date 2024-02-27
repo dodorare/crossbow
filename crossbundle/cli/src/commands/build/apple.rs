@@ -1,7 +1,7 @@
 use super::{BuildContext, SharedBuildCommand};
 use crate::{error::*, types::CrossbowMetadata};
 use apple_bundle::prelude::InfoPlist;
-use clap::Parser;
+use clap::{ArgAction, Parser};
 use crossbundle_tools::{
     commands::{apple, combine_folders},
     types::*,
@@ -18,7 +18,7 @@ pub struct IosBuildCommand {
     /// Build for the given apple architecture.
     /// Supported targets are: `aarch64-apple-ios`, `aarch64-apple-ios-sim`,
     /// `armv7-apple-ios`, `armv7s-apple-ios`, `i386-apple-ios`, `x86_64-apple-ios`
-    #[clap(long, short, multiple_values = true)]
+    #[clap(long, short, action = ArgAction::Append)]
     pub target: Vec<IosTarget>,
     /// Build strategy specifies what and how to build iOS application: with help of
     /// XCode, or with our native approach.
@@ -125,7 +125,7 @@ impl IosBuildCommand {
 
         let app_path = apple::gen_apple_app_folder(apple_target_dir, name, assets, resources)?;
         config.status("Copying binary to app folder")?;
-        std::fs::copy(&bin_path, &app_path.join(name)).unwrap();
+        std::fs::copy(bin_path, app_path.join(name)).unwrap();
         config.status_message("Generating", "Info.plist")?;
         apple::save_info_plist(&app_path, properties, false).unwrap();
 
@@ -163,10 +163,10 @@ impl IosBuildCommand {
     pub fn apple_build_targets(
         context: &BuildContext,
         profile: Profile,
-        build_targets: &Vec<IosTarget>,
+        build_targets: &[IosTarget],
     ) -> Vec<IosTarget> {
         if !build_targets.is_empty() {
-            return build_targets.clone();
+            return build_targets.into();
         }
         if profile == Profile::Debug && !context.config.apple.debug_build_targets.is_empty() {
             return context.config.apple.debug_build_targets.clone();

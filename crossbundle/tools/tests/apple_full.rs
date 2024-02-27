@@ -86,11 +86,11 @@ fn test_apple_full() {
     let out_dir = dir
         .join("target")
         .join(build_target.rust_triple())
-        .join(&profile);
+        .join(profile);
 
     // Copy binary to app folder
     let bin_path = out_dir.join(&name);
-    std::fs::copy(&bin_path, &app_dir.join(&name)).unwrap();
+    std::fs::copy(bin_path, app_dir.join(&name)).unwrap();
 
     // Generate Info.plist
     let properties = get_minimal_info_plist(&name);
