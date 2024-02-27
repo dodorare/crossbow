@@ -1,4 +1,4 @@
-use clap::Parser;
+use clap::{ArgAction, Parser};
 use crossbundle_tools::{
     error::{CommandExt, Result},
     types::{android_sdk_path, Config},
@@ -19,7 +19,7 @@ pub struct SdkManagerInstallCommand {
     pub list: bool,
     /// Install package. To see all available packages use --list.
     /// Example: crossbundle install sdkmanager "ndk;23.1.7779620"
-    #[clap(long, short, multiple_values = true)]
+    #[clap(long, short, action = ArgAction::Append)]
     pub install: Option<Vec<String>>,
     /// Android package that needs to be uninstalled
     #[clap(long)]

@@ -1,12 +1,11 @@
 use std::path::Path;
-use zip::ZipWriter;
-use zip_extensions::write::ZipWriterExtensions;
+use zip::{write::FileOptions, ZipWriter};
 
 /// Writing files into archive
 pub fn zip_write(source_path: &Path, archive_file: &Path) -> zip::result::ZipResult<()> {
     let file = std::fs::File::create(archive_file)?;
     let mut zip = ZipWriter::new(file);
-    zip.create_from_directory(&source_path.to_path_buf())?;
+    zip.add_directory(source_path.to_str().unwrap(), FileOptions::default())?;
     Ok(())
 }
 

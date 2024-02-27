@@ -2,7 +2,7 @@ use super::{BuildContext, SharedBuildCommand};
 use crate::{error::*, types::CrossbowMetadata};
 use android_manifest::AndroidManifest;
 use android_tools::java_tools::{JarSigner, Key};
-use clap::Parser;
+use clap::{ArgAction, Parser};
 use crossbundle_tools::{
     commands::{android::*, combine_folders},
     error::CommandExt,
@@ -18,7 +18,7 @@ pub struct AndroidBuildCommand {
     /// Build for the given android architecture.
     /// Supported targets are: `armv7-linux-androideabi`, `aarch64-linux-android`,
     /// `i686-linux-android`, `x86_64-linux-android`
-    #[clap(long, short, multiple_values = true)]
+    #[clap(long, short, action = ArgAction::Append)]
     pub target: Vec<AndroidTarget>,
     /// Build strategy specifies what and how to build Android application: with help of
     /// Gradle, or with our native approach.

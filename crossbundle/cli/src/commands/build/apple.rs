@@ -1,7 +1,7 @@
 use super::{BuildContext, SharedBuildCommand};
 use crate::{error::*, types::CrossbowMetadata};
 use apple_bundle::prelude::InfoPlist;
-use clap::Parser;
+use clap::{ArgAction, Parser};
 use crossbundle_tools::{
     commands::{apple, combine_folders},
     types::*,
@@ -18,7 +18,7 @@ pub struct IosBuildCommand {
     /// Build for the given apple architecture.
     /// Supported targets are: `aarch64-apple-ios`, `aarch64-apple-ios-sim`,
     /// `armv7-apple-ios`, `armv7s-apple-ios`, `i386-apple-ios`, `x86_64-apple-ios`
-    #[clap(long, short, multiple_values = true)]
+    #[clap(long, short, action = ArgAction::Append)]
     pub target: Vec<IosTarget>,
     /// Build strategy specifies what and how to build iOS application: with help of
     /// XCode, or with our native approach.
