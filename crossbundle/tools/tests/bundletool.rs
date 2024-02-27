@@ -114,7 +114,7 @@ fn build_bundle_test() {
 
     // Replaces unsigned aab with signed aab
     let signed_aab = build_dir.join(format!("{}_signed.aab", package_name));
-    std::fs::rename(&aab_path, &signed_aab).unwrap();
+    std::fs::rename(&aab_path, signed_aab).unwrap();
 
     // Defines apk path from build directory
     for apk in std::fs::read_dir(build_dir).unwrap() {

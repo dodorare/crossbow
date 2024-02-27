@@ -401,7 +401,7 @@ impl AndroidBuildCommand {
         let aab_output_path = outputs_build_dir.join(output_aab);
         let mut options = fs_extra::file::CopyOptions::new();
         options.overwrite = true;
-        fs_extra::file::move_file(&signed_aab, &outputs_build_dir.join(output_aab), &options)?;
+        fs_extra::file::move_file(&signed_aab, outputs_build_dir.join(output_aab), &options)?;
         config.status("Build finished successfully")?;
         Ok((manifest, sdk, aab_output_path, package_name, key))
     }
@@ -529,10 +529,10 @@ impl AndroidBuildCommand {
     pub fn android_build_targets(
         context: &BuildContext,
         profile: Profile,
-        build_targets: &Vec<AndroidTarget>,
+        build_targets: &[AndroidTarget],
     ) -> Vec<AndroidTarget> {
         if !build_targets.is_empty() {
-            return build_targets.clone();
+            return build_targets.into();
         };
         if profile == Profile::Debug && !context.config.android.debug_build_targets.is_empty() {
             return context.config.android.debug_build_targets.clone();

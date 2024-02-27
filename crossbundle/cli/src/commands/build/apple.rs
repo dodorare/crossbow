@@ -125,7 +125,7 @@ impl IosBuildCommand {
 
         let app_path = apple::gen_apple_app_folder(apple_target_dir, name, assets, resources)?;
         config.status("Copying binary to app folder")?;
-        std::fs::copy(&bin_path, &app_path.join(name)).unwrap();
+        std::fs::copy(bin_path, app_path.join(name)).unwrap();
         config.status_message("Generating", "Info.plist")?;
         apple::save_info_plist(&app_path, properties, false).unwrap();
 
@@ -163,10 +163,10 @@ impl IosBuildCommand {
     pub fn apple_build_targets(
         context: &BuildContext,
         profile: Profile,
-        build_targets: &Vec<IosTarget>,
+        build_targets: &[IosTarget],
     ) -> Vec<IosTarget> {
         if !build_targets.is_empty() {
-            return build_targets.clone();
+            return build_targets.into();
         }
         if profile == Profile::Debug && !context.config.apple.debug_build_targets.is_empty() {
             return context.config.apple.debug_build_targets.clone();

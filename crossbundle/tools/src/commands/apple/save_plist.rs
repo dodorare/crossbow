@@ -106,7 +106,7 @@ mod tests {
         };
         save_info_plist(dir.path(), &properties, false).unwrap();
         let file_path = dir.path().join("Info.plist");
-        let result = std::fs::read_to_string(&file_path).unwrap();
+        let result = std::fs::read_to_string(file_path).unwrap();
         assert_eq!(result, PLIST_TEST_EXAMPLE.replace("    ", "\t"));
         // TODO: Fix this. Should be equivalent
         // let got_props: InfoPlist = plist::from_file(&file_path).unwrap();
