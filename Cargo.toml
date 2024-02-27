@@ -26,9 +26,9 @@ crossbow-android = { path = "platform/android", version = "0.2.3", optional = tr
 [target.'cfg(target_os = "ios")'.dependencies]
 crossbow-ios = { path = "platform/ios", version = "0.2.3", optional = true }
 
-[patch.crates-io]
-bevy = { git = "https://github.com/dodorare/bevy", rev = "732fc8c585ebd3a622153771a8c51ace93024a04" }
-miniquad = { git = "https://github.com/not-fl3/miniquad", rev = "d67ffe6950cf73df307e2d23aaa4726f14399985" }
+# [patch.crates-io]
+# bevy = { git = "https://github.com/dodorare/bevy", rev = "732fc8c585ebd3a622153771a8c51ace93024a04" }
+# miniquad = { git = "https://github.com/not-fl3/miniquad", rev = "d67ffe6950cf73df307e2d23aaa4726f14399985" }
 
 [features]
 default = ["android", "ios"]
