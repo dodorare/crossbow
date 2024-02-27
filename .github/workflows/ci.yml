@@ -122,7 +122,7 @@ jobs:
       - name: Check the format
         run: |
           cd crossbundle/cli/
-          cargo +nightly fmt --all -- --check
+          cargo fmt --all -- --check
       - name: Run clippy
         run: |
           cd crossbundle/cli/
