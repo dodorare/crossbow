@@ -36,10 +36,10 @@ Or you can install required env via command line accordingly table above. Argume
 
 ```sh
 SETX ANDROID_SDK_ROOT "C:\Users\Username\AppData\Local\Android\Sdk" /M
-SETX ANDROID_NDK_ROOT "C:\Users\Username\AppData\Local\Android\Sdk\ndk\23.1.7779620" /M
-SETX JAVA_HOME "C:\Program Files\Java\jdk-11.0.15+10" /M
-SETX GRADLE_HOME "C:\Gradle\gradle-7.4.2" /M
-SETX BUNDLETOOL_PATH "C:\Users\Username\bundletool-all-1.8.2.jar" /M
+SETX ANDROID_NDK_ROOT "C:\Users\Username\AppData\Local\Android\Sdk\ndk\27.3.13750724" /M
+SETX JAVA_HOME "C:\Program Files\Java\jdk-17" /M
+SETX GRADLE_HOME "C:\Gradle\gradle-7.4" /M
+SETX BUNDLETOOL_PATH "C:\Users\Username\bundletool-all-1.18.3.jar" /M
 ```
 
 > You have to close and reopen any existing console windows for these changes to take effect.

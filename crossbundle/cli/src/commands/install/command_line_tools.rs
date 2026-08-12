@@ -7,8 +7,10 @@ use std::path::{Path, PathBuf};
 
 #[cfg(target_os = "windows")]
 const OS_TAG: &str = "win";
-#[cfg(target_os = "macos")]
-const OS_TAG: &str = "mac";
+#[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+const OS_TAG: &str = "mac_arm64";
+#[cfg(all(target_os = "macos", not(target_arch = "aarch64")))]
+const OS_TAG: &str = "mac_x86_64";
 #[cfg(target_os = "linux")]
 const OS_TAG: &str = "linux";
 
@@ -72,7 +74,7 @@ impl CommandLineToolsInstallCommand {
 
     /// Return command line tools zip archive for defined operating system
     fn file_name(&self) -> String {
-        format!("commandlinetools-{}-8512546_latest.zip", OS_TAG)
+        format!("commandlinetools-{}-15859902_latest.zip", OS_TAG)
     }
 
     /// Check home directory for zip file. If it doesn't exists download zip file and save

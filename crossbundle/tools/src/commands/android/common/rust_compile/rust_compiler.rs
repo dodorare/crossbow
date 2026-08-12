@@ -1,5 +1,6 @@
 use super::*;
 use crate::{error::*, types::*};
+use anyhow::Context as _;
 
 pub fn rust_compile(
     ndk: &AndroidNdk,
@@ -13,6 +14,8 @@ pub fn rust_compile(
     lib_name: &str,
     app_wrapper: AppWrapper,
 ) -> Result<()> {
+    configure_rustc()?;
+
     // Specify path to workspace
     let rust_triple = build_target.rust_triple();
 
@@ -180,6 +183,7 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
             cmd.args_replace(&new_args);
 
             cmd.exec_with_streaming(on_stdout_line, on_stderr_line, false)
+                .with_context(|| format!("failed to execute Android compiler command: {cmd}"))
                 .map(drop)?;
         } else if mode == cargo::core::compiler::CompileMode::Test {
             // This occurs when --all-targets is specified
@@ -214,6 +218,62 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
 /// Helper function that allows to return environment argument with specified tool
 pub fn cargo_env_target_cfg(tool: &str, target: &str) -> String {
     let utarget = target.replace('-', "_");
-    let env = format!("CARGO_TARGET_{}_{}", &utarget, tool);
+    let env = format!("CARGO_TARGET_{}_{}", utarget, tool);
     env.to_uppercase()
+}
+
+/// Ensure embedded Cargo always invokes the compiler selected when Crossbundle starts.
+///
+/// Cargo normally resolves the compiler to an absolute path. The embedded executor can instead
+/// receive the `rustup` shim as plain `rustc`; when Cargo runs that command from a dependency's
+/// directory, a dependency-local `rust-toolchain.toml` can unexpectedly switch toolchains.
+fn configure_rustc() -> Result<()> {
+    if std::env::var_os("RUSTC").is_none() {
+        std::env::set_var("RUSTC", active_rustc_path()?);
+    }
+    Ok(())
+}
+
+fn active_rustc_path() -> Result<std::path::PathBuf> {
+    let mut command = std::process::Command::new("rustc");
+    command.args(["--print", "sysroot"]);
+    let output = command.output_err(false)?;
+    let sysroot = String::from_utf8_lossy(&output.stdout).trim().to_owned();
+    let rustc = std::path::PathBuf::from(sysroot)
+        .join("bin")
+        .join(bin!("rustc"));
+    if !rustc.is_file() {
+        return Err(Error::PathNotFound(rustc));
+    }
+    Ok(rustc)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::active_rustc_path;
+    use std::process::Command;
+
+    #[test]
+    fn resolved_rustc_ignores_dependency_toolchain_override() {
+        let rustc = active_rustc_path().unwrap();
+        assert!(rustc.is_absolute());
+
+        let dependency_dir = tempfile::tempdir().unwrap();
+        std::fs::write(
+            dependency_dir.path().join("rust-toolchain.toml"),
+            "[toolchain]\nchannel = \"crossbundle-must-not-use-this-toolchain\"\n",
+        )
+        .unwrap();
+
+        let output = Command::new(rustc)
+            .arg("--version")
+            .current_dir(dependency_dir.path())
+            .output()
+            .unwrap();
+        assert!(
+            output.status.success(),
+            "absolute rustc unexpectedly honored a dependency-local toolchain override: {}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
 }

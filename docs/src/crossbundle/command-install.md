@@ -47,7 +47,7 @@ crossbundle install sdkmanager --list
 And then enter the command.
 
 ```sh
-crossbundle install sdkmanager --install "build-tools;31.0.0" "ndk;23.1.7779620" "platforms;android-31"
+crossbundle install sdkmanager --install "build-tools;30.0.3" "ndk;27.3.13750724" "platforms;android-31"
 ```
 
 The command will install packages into `$HOME\AppData\Local\Android\Sdk\` for Windows, `$HOME/Library/Android/sdk/` for macOS, and `$HOME/Android/sdk/` for Linux.

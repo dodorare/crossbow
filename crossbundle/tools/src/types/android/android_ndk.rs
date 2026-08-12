@@ -135,9 +135,7 @@ impl AndroidNdk {
         if !clang.exists() {
             return Err(Error::PathNotFound(clang));
         }
-        let mut clang_pp = bin_path
-            .join(format!("{}++", &bin_name))
-            .with_extension(ext);
+        let mut clang_pp = bin_path.join(format!("{}++", bin_name)).with_extension(ext);
         if !clang_pp.exists() {
             clang_pp = bin_path.join("clang++").with_extension(ext_new);
         }
@@ -360,25 +358,64 @@ impl AndroidNdk {
 
     /// Returns dir to libunwind.a for the correct architecture
     pub fn find_libunwind_dir(&self, build_target: &AndroidTarget) -> cargo::CargoResult<PathBuf> {
-        let libunwind_dir = self.tool_root()?.join("lib64").join("clang");
-        let clang_ver = libunwind_dir
-            .read_dir()?
-            .next()
-            .expect("Should be at least one clang version")?
-            .file_name();
-        let libunwind_dir = libunwind_dir
-            .join(clang_ver)
-            .join("lib")
-            .join("linux")
-            .join(build_target.clang_arch());
+        find_libunwind_dir(self.tool_root()?, build_target.clang_arch())
+    }
+}
 
-        if libunwind_dir.join("libunwind.a").exists() {
-            Ok(libunwind_dir)
-        } else {
-            Err(anyhow::format_err!(
-                "Unable to find libunwind.a at `{}`",
-                libunwind_dir.to_string_lossy()
-            ))
+/// Locate the Clang runtime library directory across old and current NDK layouts.
+fn find_libunwind_dir(
+    tool_root: impl AsRef<Path>,
+    clang_arch: &str,
+) -> cargo::CargoResult<PathBuf> {
+    let tool_root = tool_root.as_ref();
+    for clang_root in [tool_root.join("lib/clang"), tool_root.join("lib64/clang")] {
+        let entries = match clang_root.read_dir() {
+            Ok(entries) => entries,
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => continue,
+            Err(error) => return Err(error.into()),
+        };
+
+        for entry in entries {
+            let libunwind_dir = entry?.path().join("lib").join("linux").join(clang_arch);
+            if libunwind_dir.join("libunwind.a").is_file() {
+                return Ok(libunwind_dir);
+            }
         }
+    }
+
+    Err(anyhow::format_err!(
+        "Unable to find libunwind.a for `{clang_arch}` under `{}`",
+        tool_root.to_string_lossy()
+    ))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::find_libunwind_dir;
+
+    #[test]
+    fn finds_libunwind_in_current_ndk_layout() {
+        let tool_root = tempfile::tempdir().unwrap();
+        let expected = tool_root.path().join("lib/clang/18/lib/linux/aarch64");
+        std::fs::create_dir_all(&expected).unwrap();
+        std::fs::write(expected.join("libunwind.a"), []).unwrap();
+
+        assert_eq!(
+            find_libunwind_dir(tool_root.path(), "aarch64").unwrap(),
+            expected
+        );
+    }
+
+    #[test]
+    fn still_finds_libunwind_in_legacy_ndk_layout() {
+        let tool_root = tempfile::tempdir().unwrap();
+        let expected = tool_root.path().join("lib64/clang/14.0.7/lib/linux/x86_64");
+        std::fs::create_dir_all(&expected).unwrap();
+        std::fs::write(expected.join("libunwind.a"), []).unwrap();
+
+        assert_eq!(
+            find_libunwind_dir(tool_root.path(), "x86_64").unwrap(),
+            expected
+        );
     }
 }

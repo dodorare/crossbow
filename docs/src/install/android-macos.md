@@ -40,7 +40,7 @@ For that edit **~/.bash_profile**/**~/.bashrc** or **~/.zshrc** files so they co
 
 ```sh
 export ANDROID_SDK_ROOT=$HOME/android/sdk
-export ANDROID_NDK_ROOT=$ANDROID_SDK_ROOT/ndk/23.1.7779620
+export ANDROID_NDK_ROOT=$ANDROID_SDK_ROOT/ndk/27.3.13750724
 export GRADLE_HOME=<path_to_gradle>
 export BUNDLETOOL_PATH=<path_to_bundletool>
 ```
@@ -62,5 +62,4 @@ After previous steps you can use crossbundle to build gradle project or native A
 - [Crossbundle run command](../crossbundle/command-run.md)
 - [Crossbundle install command](../crossbundle/command-install.md)
 - [Crossbundle new command](../crossbundle/command-new.md)
-
 

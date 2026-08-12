@@ -28,7 +28,7 @@ pub struct InstallCommand {
 #[derive(Parser, Clone, Debug)]
 pub enum InstallCommandSubcommand {
     /// Install bundletool. You can specify version of bundletool. By default, we have
-    /// 1.8.2 bundletool version in usage
+    /// 1.18.3 bundletool version in usage
     #[cfg(feature = "android")]
     Bundletool(BundletoolInstallCommand),
     /// Download the basic Android command line tools below. You can use the included
@@ -49,7 +49,7 @@ impl InstallCommand {
             CommandLineToolsInstallCommand::default().install(config)?;
             #[cfg(feature = "android")]
             BundletoolInstallCommand {
-                version: String::from("1.8.2"),
+                version: String::from("1.18.3"),
                 ..Default::default()
             }
             .install(config)?;
