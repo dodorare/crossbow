@@ -1,50 +1,64 @@
 <!DOCTYPE HTML>
-<html lang="en" class="sidebar-visible no-js light">
+<html lang="en" class="light sidebar-visible" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>crossbow</title>
-        <meta name="robots" content="noindex" />
+        <meta name="robots" content="noindex">
 
 
         <!-- Custom HTML head -->
-        
-        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+
         <meta name="description" content="Official Crossbow documentation">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="theme-color" content="#ffffff" />
+        <meta name="theme-color" content="#ffffff">
 
-        <link rel="icon" href="favicon.svg">
-        <link rel="shortcut icon" href="favicon.png">
-        <link rel="stylesheet" href="css/variables.css">
-        <link rel="stylesheet" href="css/general.css">
-        <link rel="stylesheet" href="css/chrome.css">
-        <link rel="stylesheet" href="css/print.css" media="print">
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-e96d0476.css">
+        <link rel="stylesheet" href="css/chrome-d279d366.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
 
         <!-- Fonts -->
-        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
-        <link rel="stylesheet" href="fonts/fonts.css">
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" href="highlight.css">
-        <link rel="stylesheet" href="tomorrow-night.css">
-        <link rel="stylesheet" href="ayu-highlight.css">
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
 
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex-5b60d72f.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-5d1879bc.js"></script>
     </head>
     <body>
-        <!-- Provide site root to javascript -->
-        <script type="text/javascript">
-            var path_to_root = "";
-            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
-        </script>
-
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
-        <script type="text/javascript">
+        <script>
             try {
-                var theme = localStorage.getItem('mdbook-theme');
-                var sidebar = localStorage.getItem('mdbook-sidebar');
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
 
                 if (theme.startsWith('"') && theme.endsWith('"')) {
                     localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
@@ -57,57 +71,70 @@
         </script>
 
         <!-- Set the theme before any content is loaded, prevents flash -->
-        <script type="text/javascript">
-            var theme;
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
-            var html = document.querySelector('html');
-            html.classList.remove('no-js')
+            const html = document.documentElement;
             html.classList.remove('light')
             html.classList.add(theme);
-            html.classList.add('js');
+            html.classList.add("js");
         </script>
 
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
         <!-- Hide / unhide sidebar before it is displayed -->
-        <script type="text/javascript">
-            var html = document.querySelector('html');
-            var sidebar = 'hidden';
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
             }
-            html.classList.remove('sidebar-visible');
-            html.classList.add("sidebar-" + sidebar);
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
         </script>
 
-        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="introduction.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">Getting Started</li><li class="chapter-item expanded "><a href="install/index.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="install/android-windows.html"><strong aria-hidden="true">1.1.</strong> Android on Windows</a></li><li class="chapter-item expanded "><a href="install/android-linux.html"><strong aria-hidden="true">1.2.</strong> Android on Linux</a></li><li class="chapter-item expanded "><a href="install/android-macos.html"><strong aria-hidden="true">1.3.</strong> Android on macOS</a></li><li class="chapter-item expanded "><a href="install/docker.html"><strong aria-hidden="true">1.4.</strong> Android with Docker</a></li><li class="chapter-item expanded "><a href="install/ios-macos.html"><strong aria-hidden="true">1.5.</strong> iOS on macOS</a></li><li class="chapter-item expanded "><a href="install/set-up-android-device.html"><strong aria-hidden="true">1.6.</strong> Set up device</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Components</li><li class="chapter-item expanded "><a href="crossbundle/index.html"><strong aria-hidden="true">2.</strong> Crossbundle</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="crossbundle/command-install.html"><strong aria-hidden="true">2.1.</strong> Install Command</a></li><li class="chapter-item expanded "><a href="crossbundle/command-build.html"><strong aria-hidden="true">2.2.</strong> Build Command</a></li><li class="chapter-item expanded "><a href="crossbundle/command-run.html"><strong aria-hidden="true">2.3.</strong> Run Command</a></li><li class="chapter-item expanded "><a href="crossbundle/command-new.html"><strong aria-hidden="true">2.4.</strong> New Command</a></li><li class="chapter-item expanded "><a href="crossbundle/command-update.html"><strong aria-hidden="true">2.5.</strong> Update command</a></li></ol></li><li class="chapter-item expanded "><a href="crossbow/index.html"><strong aria-hidden="true">3.</strong> Crossbow</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="crossbow/configuration.html"><strong aria-hidden="true">3.1.</strong> Configuration</a></li><li class="chapter-item expanded "><a href="crossbow/permissions.html"><strong aria-hidden="true">3.2.</strong> Permissions</a></li><li class="chapter-item expanded "><a href="crossbow/android-plugins.html"><strong aria-hidden="true">3.3.</strong> Android Plugins</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Tutorials</li><li class="chapter-item expanded "><a href="tutorials/index.html"><strong aria-hidden="true">4.</strong> Examples</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="tutorials/hello-world.html"><strong aria-hidden="true">4.1.</strong> Hello World</a></li><li class="chapter-item expanded "><a href="tutorials/in-app-updates.html"><strong aria-hidden="true">4.2.</strong> In-app updates tutorial</a></li><li class="chapter-item expanded "><a href="tutorials/play-billing.html"><strong aria-hidden="true">4.3.</strong> Google Play Billing tutorial</a></li><li class="chapter-item expanded "><a href="tutorials/fastlane.html"><strong aria-hidden="true">4.4.</strong> Fastlane</a></li><li class="chapter-item expanded "><a href="tutorials/subxt-with-bevy.html"><strong aria-hidden="true">4.5.</strong> Subxt with Bevy</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Other</li><li class="chapter-item expanded "><a href="contributing/index.html"><strong aria-hidden="true">5.</strong> Contributing</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="contributing/contribute-code.html"><strong aria-hidden="true">5.1.</strong> Contribute Code</a></li><li class="chapter-item expanded "><a href="contributing/contribute-docs.html"><strong aria-hidden="true">5.2.</strong> Contribute Docs</a></li><li class="chapter-item expanded "><a href="contributing/testing-guide.html"><strong aria-hidden="true">5.3.</strong> Testing Guide</a></li><li class="chapter-item expanded "><a href="contributing/contributors.html"><strong aria-hidden="true">5.4.</strong> Contributors</a></li></ol></li><li class="chapter-item expanded "><a href="roadmap.html"><strong aria-hidden="true">6.</strong> Roadmap</a></li><li class="chapter-item expanded "><a href="special-thanks.html"><strong aria-hidden="true">7.</strong> Special Thanks</a></li></ol>
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
             </div>
-            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
 
-        <div id="page-wrapper" class="page-wrapper">
+        <div id="mdbook-page-wrapper" class="page-wrapper">
 
             <div class="page">
-                                <div id="menu-bar-hover-placeholder"></div>
-                <div id="menu-bar" class="menu-bar sticky bordered">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
                     <div class="left-buttons">
-                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
-                            <i class="fa fa-bars"></i>
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
                         </button>
-                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
-                            <i class="fa fa-paint-brush"></i>
-                        </button>
-                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
-                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
-                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
-                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
-                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
                         </ul>
-                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
-                            <i class="fa fa-search"></i>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
                         </button>
                     </div>
 
@@ -115,63 +142,69 @@
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
-                            <i id="print-button" class="fa fa-print"></i>
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
                         </a>
 
                     </div>
                 </div>
 
-                <div id="search-wrapper" class="hidden">
-                    <form id="searchbar-outer" class="searchbar-outer">
-                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
                     </form>
-                    <div id="searchresults-outer" class="searchresults-outer hidden">
-                        <div id="searchresults-header" class="searchresults-header"></div>
-                        <ul id="searchresults">
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
                         </ul>
                     </div>
                 </div>
 
                 <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
-                <script type="text/javascript">
-                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
-                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
-                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
                         link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
                     });
                 </script>
 
-                <div id="content" class="content">
+                <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
-<p><img src="https://github.com/dodorare/crossbow/blob/main/assets/crossbow/splash.png?raw=true" alt="splash" /></p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="https://github.com/dodorare/crossbow/blob/main/assets/crossbow/splash.png?raw=true" alt="splash"><span class="img-wrapper"><img src="https://github.com/dodorare/crossbow/blob/main/assets/crossbow/splash.png?raw=true" alt="splash"></span></label></p>
 <h2 id="what-is-crossbow"><a class="header" href="#what-is-crossbow">What is Crossbow?</a></h2>
 <p>The <code>crossbow</code> project aims to provide a complete toolkit for cross-platform game development in <em>Rust</em> - from project creation to publishing. In addition, the project simplifies the creation, packaging, and signing of <strong>Android</strong> and <strong>iOS</strong> applications. We want to make most of our tools - engine agnostic to help rust game developers integrate them into their engines or games.</p>
 <h2 id="why-crossbow"><a class="header" href="#why-crossbow">Why Crossbow?</a></h2>
 <blockquote>
 <p>There are already <a href="https://github.com/rust-windowing/android-ndk-rs/tree/master/cargo-apk">cargo-apk</a>, <a href="https://github.com/BrainiumLLC/cargo-mobile">cargo-mobile</a>, <a href="https://gitlab.com/kornelski/cargo-xcode">cargo-xcode</a>, etc. - why do I need another packaging tool?</p>
 </blockquote>
-<p>Project <code>crossbow</code> is not only a packaging tool for <strong>Android</strong> and <strong>iOS</strong> - it's cross-platform build tools and toolkit for Rust! With <code>crossbundle</code> you can create native <strong>.apk/.aab</strong> without any <em>Java</em> or setup <em>Gradle</em> project with fancy <strong>Crossbow Android plugins</strong> (<strong>iOS</strong> in near future); with <code>crossbundle-tools</code> you can customize and create new commands; with <code>crossbow-android</code> you can write your own Android plugins in <em>Java/Kotlin</em>.</p>
+<p>Project <code>crossbow</code> is not only a packaging tool for <strong>Android</strong> and <strong>iOS</strong> - it’s cross-platform build tools and toolkit for Rust! With <code>crossbundle</code> you can create native <strong>.apk/.aab</strong> without any <em>Java</em> or setup <em>Gradle</em> project with fancy <strong>Crossbow Android plugins</strong> (<strong>iOS</strong> in near future); with <code>crossbundle-tools</code> you can customize and create new commands; with <code>crossbow-android</code> you can write your own Android plugins in <em>Java/Kotlin</em>.</p>
 <p>A lot of functionality was inspired by <a href="https://github.com/godotengine/godot">Godot</a>, <a href="https://dotnet.microsoft.com/en-us/apps/xamarin">Xamarin</a>, and <a href="https://github.com/rust-windowing/android-ndk-rs/tree/master/cargo-apk">cargo-apk</a>.</p>
 <h2 id="design-goals"><a class="header" href="#design-goals">Design Goals</a></h2>
 <ul>
 <li><strong>Customizable</strong>: Create new commands with available tools.</li>
 <li><strong>Simple</strong>: Easy to install and start hacking but also pretty flexible for strong devs.</li>
-<li><strong>Capable</strong>: It's possible to build plain <strong>.apk/.aab</strong> or <strong>.app/.ipa</strong>; or with help of <em>Gradle/XCode</em>.</li>
-<li><strong>Rust</strong>: Don't leave your <em>Rust</em> code - <strong>everything</strong> can be configured from <code>Cargo.toml</code>.</li>
+<li><strong>Capable</strong>: It’s possible to build plain <strong>.apk/.aab</strong> or <strong>.app/.ipa</strong>; or with help of <em>Gradle/XCode</em>.</li>
+<li><strong>Rust</strong>: Don’t leave your <em>Rust</em> code - <strong>everything</strong> can be configured from <code>Cargo.toml</code>.</li>
 <li><strong>Plugins</strong>: Godot-like plugins for <strong>Android</strong> (and <strong>iOS</strong> in future) with <em>Rust</em> wrapper!</li>
 </ul>
 <h2 id="next-steps"><a class="header" href="#next-steps">Next steps</a></h2>
 <p>As the next steps we recommend you to install and setup <code>crossbundle</code> to be able to build, test, and run your project!</p>
 <p>See <a href="install/README.html">Getting Started</a> for more information.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="installation"><a class="header" href="#installation">Installation</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="installation"><a class="header" href="#installation">Installation</a></h1>
 <h2 id="rust-setup"><a class="header" href="#rust-setup">Rust Setup</a></h2>
 <p>All <code>crossbow</code> crates are written in Rust. This means that before we begin, we need to set up our Rust development environment.</p>
 <h3 id="installing-rust"><a class="header" href="#installing-rust">Installing Rust</a></h3>
 <p>Install Rust by following the <a href="https://www.rust-lang.org/learn/get-started">Rust Getting Started Guide</a>.</p>
 <p>Once this is done, you should have the <code>rustc</code> compiler and the <code>cargo</code> build system installed in your path.</p>
 <h3 id="rust-learning-resources"><a class="header" href="#rust-learning-resources">Rust Learning Resources</a></h3>
-<p>The goal of this book is to learn <code>crossbow</code>, so it won't serve as a full Rust education. If you would like to learn more about the Rust language, check out the following resources:</p>
+<p>The goal of this book is to learn <code>crossbow</code>, so it won’t serve as a full Rust education. If you would like to learn more about the Rust language, check out the following resources:</p>
 <ul>
 <li><a href="https://doc.rust-lang.org/book/">The Rust Book</a>: the best place to learn Rust from scratch.</li>
 <li><a href="https://doc.rust-lang.org/rust-by-example/">Rust by Example</a>: learn Rust by working through live coding examples.</li>
@@ -183,16 +216,17 @@
 <h2 id="next-steps-1"><a class="header" href="#next-steps-1">Next steps</a></h2>
 <p>To complete the installation of all requirements, read the documentation corresponding to your platform:</p>
 <ul>
-<li><a href="install/android-windows.html">Android on Windows</a></li>
-<li><a href="install/android-linux.html">Android on Linux</a></li>
-<li><a href="install/android-macos.html">Android on macOS</a></li>
-<li><a href="install/docker.html">Android with Docker</a></li>
-<li><a href="install/ios-macos.html">iOS on macOS</a></li>
+<li><a href="#android-setup-on-windows">Android on Windows</a></li>
+<li><a href="#setup-android-environment-on-linux">Android on Linux</a></li>
+<li><a href="#android-setup-on-macos">Android on macOS</a></li>
+<li><a href="#android-setup-on-docker">Android with Docker</a></li>
+<li><a href="#ios-setup-on-macos">iOS on macOS</a></li>
 </ul>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="android-setup-on-windows"><a class="header" href="#android-setup-on-windows">Android setup on Windows</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="android-setup-on-windows"><a class="header" href="#android-setup-on-windows">Android setup on Windows</a></h1>
 <h2 id="install-necessary-packages"><a class="header" href="#install-necessary-packages">Install necessary packages</a></h2>
 <ol>
-<li>Use <a href="install/../crossbundle/command-install.html">crossbundle install command</a> or download and install <a href="https://developer.android.com/studio">Android Studio</a>.</li>
+<li>Use <a href="#crossbundle-install-command">crossbundle install command</a> or download and install <a href="https://developer.android.com/studio">Android Studio</a>.</li>
 <li>Start Android Studio, and go through the <code>Android Studio Setup Wizard</code> with the <code>Custom</code> option and install the following (or install them in <code>SDK Manager</code>):
 <ul>
 <li>Android SDK</li>
@@ -209,41 +243,48 @@
 </code></pre>
 <h2 id="add-environment-variables"><a class="header" href="#add-environment-variables">Add environment variables</a></h2>
 <p>From the Start search bar, enter <code>env</code> and select <strong>Edit environment variables for your account</strong>.</p>
-<div class="table-wrapper"><table><thead><tr><th>Building strategy</th><th>Key</th><th>Value</th><th>Description</th></tr></thead><tbody>
-<tr><td>Gradle project, native APK/AAB</td><td>ANDROID_SDK_ROOT</td><td>&lt;path_to_sdk&gt;\Sdk</td><td>Can be replaced with ANDROID_SDK_PATH and ANDROID_HOME. You might not install this env var if you used <a href="install/../crossbundle/command-install.html">crossbundle install</a> to set up required packages</td></tr>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Building strategy</th><th>Key</th><th>Value</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td>Gradle project, native APK/AAB</td><td>ANDROID_SDK_ROOT</td><td>&lt;path_to_sdk&gt;\Sdk</td><td>Can be replaced with ANDROID_SDK_PATH and ANDROID_HOME. You might not install this env var if you used <a href="#crossbundle-install-command">crossbundle install</a> to set up required packages</td></tr>
 <tr><td></td><td></td><td></td><td>or just want to build native APK or native AAB</td></tr>
-<tr><td>Native APK/AAB</td><td>ANDROID_NDK_ROOT</td><td>&lt;path_to_sdk&gt;\Sdk\ndk&lt;version&gt;</td><td>Can be replaced with ANDROID_NDK_PATH and NDK_HOME. You might not install this env var if you used <a href="install/../crossbundle/command-install.html">crossbundle install</a> to set up required packages</td></tr>
+<tr><td>Native APK/AAB</td><td>ANDROID_NDK_ROOT</td><td>&lt;path_to_sdk&gt;\Sdk\ndk&lt;version&gt;</td><td>Can be replaced with ANDROID_NDK_PATH and NDK_HOME. You might not install this env var if you used <a href="#crossbundle-install-command">crossbundle install</a> to set up required packages</td></tr>
 <tr><td>Gradle project, native APK/AAB</td><td>JAVA_HOME</td><td>&lt;path_to_jdk&gt;\bin</td><td>Also, we need to make sure we have a <a href="https://www.oracle.com/java/technologies/downloads/">java runtime environment</a> (JRE)</td></tr>
 <tr><td></td><td></td><td></td><td>or <a href="https://www.oracle.com/java/technologies/downloads/">Java developer kit</a> (JDK) installed. We need jarsigner utility from there</td></tr>
 <tr><td>Gradle project</td><td>GRADLE_HOME</td><td>&lt;path_to_gradle&gt;</td><td>Crossbow default build process requires installed Gradle on your PC. You can download it <a href="https://services.gradle.org/distributions/">here</a></td></tr>
-<tr><td>Native AAB</td><td>BUNDLETOOL_PATH</td><td>&lt;path_to_bundletool&gt;</td><td>Download bundletool from the <a href="https://github.com/google/bundletool/releases"><code>GitHub repository</code></a> or use <a href="install/../crossbundle/command-install.html">crossbundle install</a></td></tr>
-</tbody></table>
+<tr><td>Native AAB</td><td>BUNDLETOOL_PATH</td><td>&lt;path_to_bundletool&gt;</td><td>Download bundletool from the <a href="https://github.com/google/bundletool/releases"><code>GitHub repository</code></a> or use <a href="#crossbundle-install-command">crossbundle install</a></td></tr>
+</tbody>
+</table>
 </div>
 <p>Or you can install required env via command line accordingly table above. Arguments were provided for example</p>
-<pre><code class="language-sh">SETX ANDROID_SDK_ROOT &quot;C:\Users\Username\AppData\Local\Android\Sdk&quot; /M
-SETX ANDROID_NDK_ROOT &quot;C:\Users\Username\AppData\Local\Android\Sdk\ndk\23.1.7779620&quot; /M
-SETX JAVA_HOME &quot;C:\Program Files\Java\jdk-11.0.15+10&quot; /M
-SETX GRADLE_HOME &quot;C:\Gradle\gradle-7.4.2&quot; /M
-SETX BUNDLETOOL_PATH &quot;C:\Users\Username\bundletool-all-1.8.2.jar&quot; /M
+<pre><code class="language-sh">SETX ANDROID_SDK_ROOT "C:\Users\Username\AppData\Local\Android\Sdk" /M
+SETX ANDROID_NDK_ROOT "C:\Users\Username\AppData\Local\Android\Sdk\ndk\23.1.7779620" /M
+SETX JAVA_HOME "C:\Program Files\Java\jdk-11.0.15+10" /M
+SETX GRADLE_HOME "C:\Gradle\gradle-7.4.2" /M
+SETX BUNDLETOOL_PATH "C:\Users\Username\bundletool-all-1.8.2.jar" /M
 </code></pre>
 <blockquote>
 <p>You have to close and reopen any existing console windows for these changes to take effect.</p>
 </blockquote>
 <h2 id="set-up-your-android-device"><a class="header" href="#set-up-your-android-device">Set up your Android device</a></h2>
-<p>Follow the link to find out how to set up your device or <a href="install/./set-up-android-device.html">android emulator</a></p>
+<p>Follow the link to find out how to set up your device or <a href="#set-up-your-android-device-3">android emulator</a></p>
 <h2 id="next-step"><a class="header" href="#next-step">Next step</a></h2>
-<p>See <a href="install/../tutorials/hello-world.html">hello-world</a> to configure your project</p>
+<p>See <a href="#hello-world-example">hello-world</a> to configure your project</p>
 <p>After previous steps you can use crossbundle to build gradle project or native APK/AAB. Go to the links:</p>
 <ul>
-<li><a href="install/../crossbundle/command-build.html">Crossbundle build command</a></li>
-<li><a href="install/../crossbundle/command-run.html">Crossbundle run command</a></li>
-<li><a href="install/../crossbundle/command-install.html">Crossbundle install command</a></li>
-<li><a href="install/../crossbundle/command-new.html">Crossbundle new command</a></li>
+<li><a href="#crossbundle-build-command">Crossbundle build command</a></li>
+<li><a href="#crossbundle-run-command">Crossbundle run command</a></li>
+<li><a href="#crossbundle-install-command">Crossbundle install command</a></li>
+<li><a href="#crossbundle-new-command">Crossbundle new command</a></li>
 </ul>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="setup-android-environment-on-linux"><a class="header" href="#setup-android-environment-on-linux">Setup Android Environment on Linux</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="setup-android-environment-on-linux"><a class="header" href="#setup-android-environment-on-linux">Setup Android Environment on Linux</a></h1>
 <h2 id="install-necessary-packages-1"><a class="header" href="#install-necessary-packages-1">Install necessary packages</a></h2>
 <ol>
-<li>Use <a href="install/../crossbundle/command-install.html">crossbundle install command</a> or download and install <a href="https://developer.android.com/studio">Android Studio</a>.</li>
+<li>Use <a href="#crossbundle-install-command">crossbundle install command</a> or download and install <a href="https://developer.android.com/studio">Android Studio</a>.</li>
 <li>Start Android Studio, and go through the <code>Android Studio Setup Wizard</code> with the <code>Custom</code> option and install the following (or install them in <code>SDK Manager</code>):
 <ul>
 <li>Android SDK</li>
@@ -260,13 +301,19 @@ SETX BUNDLETOOL_PATH &quot;C:\Users\Username\bundletool-all-1.8.2.jar&quot; /M
 </code></pre>
 <h2 id="add-environment-variables-1"><a class="header" href="#add-environment-variables-1">Add environment variables</a></h2>
 <p>From the Start search bar, enter <code>env</code> and select <strong>Edit environment variables for your account</strong>.</p>
-<div class="table-wrapper"><table><thead><tr><th>Building strategy</th><th>Key</th><th>Value</th><th>Description</th></tr></thead><tbody>
-<tr><td>Gradle project, native APK/AAB</td><td>ANDROID_SDK_ROOT</td><td>&lt;path_to_sdk&gt;\Sdk</td><td>Can be replaced with ANDROID_SDK_PATH and ANDROID_HOME. You might not install this env var if you used <a href="install/../crossbundle/command-install.html">crossbundle install</a> to set up required packages</td></tr>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Building strategy</th><th>Key</th><th>Value</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td>Gradle project, native APK/AAB</td><td>ANDROID_SDK_ROOT</td><td>&lt;path_to_sdk&gt;\Sdk</td><td>Can be replaced with ANDROID_SDK_PATH and ANDROID_HOME. You might not install this env var if you used <a href="#crossbundle-install-command">crossbundle install</a> to set up required packages</td></tr>
 <tr><td></td><td></td><td></td><td>or just want to build native APK or native AAB</td></tr>
-<tr><td>Native APK/AAB</td><td>ANDROID_NDK_ROOT</td><td>&lt;path_to_sdk&gt;\Sdk\ndk&lt;version&gt;</td><td>Can be replaced with ANDROID_NDK_PATH and NDK_HOME. You might not install this env var if you used <a href="install/../crossbundle/command-install.html">crossbundle install</a> to set up required packages</td></tr>
+<tr><td>Native APK/AAB</td><td>ANDROID_NDK_ROOT</td><td>&lt;path_to_sdk&gt;\Sdk\ndk&lt;version&gt;</td><td>Can be replaced with ANDROID_NDK_PATH and NDK_HOME. You might not install this env var if you used <a href="#crossbundle-install-command">crossbundle install</a> to set up required packages</td></tr>
 <tr><td>Gradle project</td><td>GRADLE_HOME</td><td>&lt;path_to_gradle&gt;</td><td>Crossbow default build process requires installed Gradle on your PC. You can download it <a href="https://services.gradle.org/distributions/">here</a></td></tr>
-<tr><td>Native AAB</td><td>BUNDLETOOL_PATH</td><td>&lt;path_to_bundletool&gt;</td><td>Download bundletool from the <a href="https://github.com/google/bundletool/releases"><code>GitHub repository</code></a> or use <a href="install/../crossbundle/command-install.html">crossbundle install</a></td></tr>
-</tbody></table>
+<tr><td>Native AAB</td><td>BUNDLETOOL_PATH</td><td>&lt;path_to_bundletool&gt;</td><td>Download bundletool from the <a href="https://github.com/google/bundletool/releases"><code>GitHub repository</code></a> or use <a href="#crossbundle-install-command">crossbundle install</a></td></tr>
+</tbody>
+</table>
 </div>
 <p>For that edit <strong>~/.bash_profile</strong> or <strong>~/.bashrc</strong> files so they contain those lines:</p>
 <pre><code class="language-sh">export ANDROID_SDK_ROOT=$HOME/Android/Sdk
@@ -274,8 +321,8 @@ export ANDROID_NDK_ROOT=$HOME/Android/Sdk/ndk/23.1.7779620
 export GRADLE_HOME=&lt;path_to_gradle&gt;
 export BUNDLETOOL_PATH=&lt;path_to_bundletool&gt;
 </code></pre>
-<p>Also, we need to make sure we have a java runtime environment (JRE) installed. We need a key tool utility from there. <br/>
-To make sure it's present type this command: <code>ls /usr/lib/jvm/default/bin/ | grep keytool</code></p>
+<p>Also, we need to make sure we have a java runtime environment (JRE) installed. We need a key tool utility from there. <br />
+To make sure it’s present type this command: <code>ls /usr/lib/jvm/default/bin/ | grep keytool</code></p>
 <p><em>But please be aware that your path may vary.</em> The above path is for arch-based Linux.</p>
 <p>If not, install JRE accordingly to your operating system:
 Examples:</p>
@@ -284,20 +331,21 @@ Examples:</p>
 <li>Manjaro (Arch): <code>sudo pacman -S jre11-openjdk-headless jre11-openjdk jdk11-openjdk openjdk11-doc openjdk11-src</code></li>
 </ul>
 <h2 id="set-up-your-android-device-1"><a class="header" href="#set-up-your-android-device-1">Set up your Android device</a></h2>
-<p>Follow the link to find out how to set up your device or <a href="install/./set-up-android-device.html">android emulator</a></p>
+<p>Follow the link to find out how to set up your device or <a href="#set-up-your-android-device-3">android emulator</a></p>
 <h2 id="next-step-1"><a class="header" href="#next-step-1">Next step</a></h2>
-<p>See <a href="install/../tutorials/hello-world.html">hello-world</a> to configure your project</p>
+<p>See <a href="#hello-world-example">hello-world</a> to configure your project</p>
 <p>After previous steps you can use crossbundle to build gradle project or native APK/AAB. Go to the links:</p>
 <ul>
-<li><a href="install/../crossbundle/command-build.html">Crossbundle build command</a></li>
-<li><a href="install/../crossbundle/command-run.html">Crossbundle run command</a></li>
-<li><a href="install/../crossbundle/command-install.html">Crossbundle install command</a></li>
-<li><a href="install/../crossbundle/command-new.html">Crossbundle new command</a></li>
+<li><a href="#crossbundle-build-command">Crossbundle build command</a></li>
+<li><a href="#crossbundle-run-command">Crossbundle run command</a></li>
+<li><a href="#crossbundle-install-command">Crossbundle install command</a></li>
+<li><a href="#crossbundle-new-command">Crossbundle new command</a></li>
 </ul>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="android-setup-on-macos"><a class="header" href="#android-setup-on-macos">Android setup on MacOS</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="android-setup-on-macos"><a class="header" href="#android-setup-on-macos">Android setup on MacOS</a></h1>
 <h2 id="install-necessary-packages-2"><a class="header" href="#install-necessary-packages-2">Install necessary packages</a></h2>
 <ol>
-<li>Use <a href="install/../crossbundle/command-install.html">crossbundle install command</a> or download and install <a href="https://developer.android.com/studio">Android Studio</a>.</li>
+<li>Use <a href="#crossbundle-install-command">crossbundle install command</a> or download and install <a href="https://developer.android.com/studio">Android Studio</a>.</li>
 <li>Start Android Studio, and go through the <code>Android Studio Setup Wizard</code> with the <code>Custom</code> option and install the following (or install them in <code>SDK Manager</code>):
 <ul>
 <li>Android SDK</li>
@@ -318,13 +366,19 @@ brew install --cask adoptopenjdk8
 </code></pre>
 <h2 id="add-environment-variables-2"><a class="header" href="#add-environment-variables-2">Add environment variables</a></h2>
 <p>From the Start search bar, enter ‘env’ and select <strong>Edit environment variables for your account</strong>.</p>
-<div class="table-wrapper"><table><thead><tr><th>Building strategy</th><th>Key</th><th>Value</th><th>Description</th></tr></thead><tbody>
-<tr><td>Gradle project, native APK/AAB</td><td>ANDROID_SDK_ROOT</td><td>&lt;path_to_sdk&gt;\Sdk</td><td>Can be replaced with ANDROID_SDK_PATH and ANDROID_HOME. You might not install this env var if you used <a href="install/../crossbundle/command-install.html">crossbundle install</a> to set up required packages</td></tr>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Building strategy</th><th>Key</th><th>Value</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td>Gradle project, native APK/AAB</td><td>ANDROID_SDK_ROOT</td><td>&lt;path_to_sdk&gt;\Sdk</td><td>Can be replaced with ANDROID_SDK_PATH and ANDROID_HOME. You might not install this env var if you used <a href="#crossbundle-install-command">crossbundle install</a> to set up required packages</td></tr>
 <tr><td></td><td></td><td></td><td>or just want to build native APK or native AAB</td></tr>
-<tr><td>Native APK/AAB</td><td>ANDROID_NDK_ROOT</td><td>&lt;path_to_sdk&gt;\Sdk\ndk&lt;version&gt;</td><td>Can be replaced with ANDROID_NDK_PATH and NDK_HOME. You might not install this env var if you used <a href="install/../crossbundle/command-install.html">crossbundle install</a> to set up required packages</td></tr>
+<tr><td>Native APK/AAB</td><td>ANDROID_NDK_ROOT</td><td>&lt;path_to_sdk&gt;\Sdk\ndk&lt;version&gt;</td><td>Can be replaced with ANDROID_NDK_PATH and NDK_HOME. You might not install this env var if you used <a href="#crossbundle-install-command">crossbundle install</a> to set up required packages</td></tr>
 <tr><td>Gradle project</td><td>GRADLE_HOME</td><td>&lt;path_to_gradle&gt;</td><td>Crossbow default build process requires installed Gradle on your PC. You can download it <a href="https://services.gradle.org/distributions/">here</a></td></tr>
-<tr><td>Native AAB</td><td>BUNDLETOOL_PATH</td><td>&lt;path_to_bundletool&gt;</td><td>Download bundletool from the <a href="https://github.com/google/bundletool/releases"><code>GitHub repository</code></a> or use <a href="install/../crossbundle/command-install.html">crossbundle install</a></td></tr>
-</tbody></table>
+<tr><td>Native AAB</td><td>BUNDLETOOL_PATH</td><td>&lt;path_to_bundletool&gt;</td><td>Download bundletool from the <a href="https://github.com/google/bundletool/releases"><code>GitHub repository</code></a> or use <a href="#crossbundle-install-command">crossbundle install</a></td></tr>
+</tbody>
+</table>
 </div>
 <p>For that edit <strong>~/.bash_profile</strong>/<strong>~/.bashrc</strong> or <strong>~/.zshrc</strong> files so they contain those lines:</p>
 <pre><code class="language-sh">export ANDROID_SDK_ROOT=$HOME/android/sdk
@@ -332,20 +386,21 @@ export ANDROID_NDK_ROOT=$ANDROID_SDK_ROOT/ndk/23.1.7779620
 export GRADLE_HOME=&lt;path_to_gradle&gt;
 export BUNDLETOOL_PATH=&lt;path_to_bundletool&gt;
 </code></pre>
-<p>Also, we need to make sure we have a java runtime environment (JRE) installed. We will need a key tool utility from there. <br/>
-To make sure it's present type this command: <code>ls /usr/lib/jvm/default/bin/ | grep keytool</code> or add to your <code>PATH</code> env var.</p>
+<p>Also, we need to make sure we have a java runtime environment (JRE) installed. We will need a key tool utility from there. <br />
+To make sure it’s present type this command: <code>ls /usr/lib/jvm/default/bin/ | grep keytool</code> or add to your <code>PATH</code> env var.</p>
 <h2 id="set-up-your-android-device-2"><a class="header" href="#set-up-your-android-device-2">Set up your Android device</a></h2>
-<p>Follow the link to find out how to set up your device or <a href="install/./set-up-android-device.html">android emulator</a></p>
+<p>Follow the link to find out how to set up your device or <a href="#set-up-your-android-device-3">android emulator</a></p>
 <h2 id="next-step-2"><a class="header" href="#next-step-2">Next step</a></h2>
-<p>See <a href="install/../tutorials/hello-world.html">hello-world</a> to configure your project</p>
+<p>See <a href="#hello-world-example">hello-world</a> to configure your project</p>
 <p>After previous steps you can use crossbundle to build gradle project or native APK/AAB. Go to the links:</p>
 <ul>
-<li><a href="install/../crossbundle/command-build.html">Crossbundle build command</a></li>
-<li><a href="install/../crossbundle/command-run.html">Crossbundle run command</a></li>
-<li><a href="install/../crossbundle/command-install.html">Crossbundle install command</a></li>
-<li><a href="install/../crossbundle/command-new.html">Crossbundle new command</a></li>
+<li><a href="#crossbundle-build-command">Crossbundle build command</a></li>
+<li><a href="#crossbundle-run-command">Crossbundle run command</a></li>
+<li><a href="#crossbundle-install-command">Crossbundle install command</a></li>
+<li><a href="#crossbundle-new-command">Crossbundle new command</a></li>
 </ul>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="android-setup-on-docker"><a class="header" href="#android-setup-on-docker">Android setup on Docker</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="android-setup-on-docker"><a class="header" href="#android-setup-on-docker">Android setup on Docker</a></h1>
 <h2 id="build-android-with-docker"><a class="header" href="#build-android-with-docker">Build Android with Docker</a></h2>
 <p>Pre-requirements:</p>
 <ul>
@@ -364,22 +419,23 @@ cd ./crossbow/
 <blockquote>
 <p>For unix systems (Bash):</p>
 </blockquote>
-<pre><code class="language-sh">docker run --rm -it -v &quot;$(pwd)/:/src&quot; -w /src/examples/macroquad-permissions ghcr.io/dodorare/crossbundle build android --release
+<pre><code class="language-sh">docker run --rm -it -v "$(pwd)/:/src" -w /src/examples/macroquad-permissions ghcr.io/dodorare/crossbundle build android --release
 </code></pre>
 <blockquote>
 <p>For Windows (PowerShell):</p>
 </blockquote>
-<pre><code class="language-sh">docker run --rm -it -v &quot;${pwd}/:/src&quot; -w /src/examples/macroquad-permissions ghcr.io/dodorare/crossbundle build android --release
+<pre><code class="language-sh">docker run --rm -it -v "${pwd}/:/src" -w /src/examples/macroquad-permissions ghcr.io/dodorare/crossbundle build android --release
 </code></pre>
 <p>Install APK on connected Android phone via USB:</p>
-<p>Follow the link to find out how to set up your device or <a href="install/./set-up-android-device.html">android emulator</a></p>
+<p>Follow the link to find out how to set up your device or <a href="#set-up-your-android-device-3">android emulator</a></p>
 <pre><code class="language-sh">adb install ./target/android/macroquad-permissions/gradle/build/outputs/apk/release/gradle-release-unsigned.apk
 </code></pre>
 <p>Or transfer APK file to your phone with any application.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="ios-setup-on-macos"><a class="header" href="#ios-setup-on-macos">iOS setup on MacOS</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="ios-setup-on-macos"><a class="header" href="#ios-setup-on-macos">iOS setup on MacOS</a></h1>
 <h2 id="setup-on-macos"><a class="header" href="#setup-on-macos">Setup on macOS</a></h2>
 <p>Install <code>brew</code>:</p>
-<pre><code class="language-sh">/bin/bash -c &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)&quot;
+<pre><code class="language-sh">/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 </code></pre>
 <p>Install <code>rust</code> with <code>default</code> option:</p>
 <pre><code class="language-sh">curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
@@ -400,7 +456,7 @@ rustup target add armv7-apple-ios armv7s-apple-ios i386-apple-ios
 <pre><code class="language-sh">brew install ios-deploy
 </code></pre>
 <p>Install <code>Xcode</code> from <a href="https://apps.apple.com/us/app/xcode/id497799835">App Store</a>.</p>
-<p><img alt="Xcode installation" src="https://i.imgur.com/2RhOz1t.png" width="400px"></img></p>
+<p><img alt="Xcode installation" src="https://i.imgur.com/2RhOz1t.png" width="400px"></p>
 <p>Install the necessary <code>Xcode tools</code> using <code>Xcode</code>:</p>
 <ol>
 <li>Start <code>Xcode</code>.</li>
@@ -418,7 +474,7 @@ rustup target add armv7-apple-ios armv7s-apple-ios i386-apple-ios
 <li>Close by clicking <code>Done</code> and click on <code>Download Manual Profiles</code>.
 iOS setup on MacOS</li>
 </ol>
-<p><img alt="Xcode Sign in" src="https://i.imgur.com/soD5gab.png" width="400px"></img></p>
+<p><img alt="Xcode Sign in" src="https://i.imgur.com/soD5gab.png" width="400px"></p>
 <p>Install <code>crossbundle</code>:</p>
 <pre><code class="language-sh">cargo install --git=https://github.com/dodorare/crossbow crossbundle
 </code></pre>
@@ -440,7 +496,7 @@ with the same <code>bundle_identifier</code> as your app. Then you will find a <
 in the <code>~/Library/MobileDevice/Provisioning\ Profiles</code> folder (e.x: aec73e2f-c2f9-4e3b-9393-be19cc52fea3.mobileprovision).</p>
 <p>With command <code>security find-identity -p codesigning -v</code> - you will get a similar result:</p>
 <pre><code class="language-sh">$ security find-identity -p codesigning -v
-  1) AF96DABFC5DEE81E339ED8755DA8D1E48A87CBFE &quot;Apple Development: &lt;your-email&gt;@gmail.com (TRGW43YM8W)&quot;
+  1) AF96DABFC5DEE81E339ED8755DA8D1E48A87CBFE "Apple Development: &lt;your-email&gt;@gmail.com (TRGW43YM8W)"
      1 valid identities found
 </code></pre>
 <p>The <code>AF96DABFC5DEE81E339ED8755DA8D1E48A87CBFE</code> value is our sign Identity. Save it for later use.</p>
@@ -455,7 +511,8 @@ MIIFtTCCBJ2...&lt;rest-of-private-key&gt;
 <pre><code class="language-sh">crossbundle run ios --release --device --profile-name=aec73e2f-c2f9-4e3b-9393-be19cc52fea3.mobileprovision --team-identifier=AS9UV719T7 --identity=AF96DABFC5DEE81E339ED8755DA8D1E48A87CBFE
 </code></pre>
 <p>Now replace test data (<code>aec73e2f-c2f9-4e3b-9393-be19cc52fea3.mobileprovision</code>, <code>AS9UV719T7</code>, <code>AF96DABFC5DEE81E339ED8755DA8D1E48A87CBFE</code>) - with your own and run command. If everything worked well - you will see new app on your device.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="set-up-your-android-device-3"><a class="header" href="#set-up-your-android-device-3">Set up your Android device</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="set-up-your-android-device-3"><a class="header" href="#set-up-your-android-device-3">Set up your Android device</a></h1>
 <p>To prepare to run your <code>Crossbow</code> app on an Android device, you need an Android device running Android 4.1 (API level 16) or higher.</p>
 <ol>
 <li>Enable <strong>Developer options</strong> and <strong>USB debugging</strong> on your device. Detailed instructions are available in the <a href="https://developer.android.com/studio/debug/dev-options">Android documentation</a>.</li>
@@ -464,9 +521,9 @@ MIIFtTCCBJ2...&lt;rest-of-private-key&gt;
 <h2 id="set-up-the-android-emulator"><a class="header" href="#set-up-the-android-emulator">Set up the Android emulator</a></h2>
 <p>To prepare to run and test your Crossbow app on the Android emulator, follow these steps if you want to install it from the console:</p>
 <pre><code class="language-sh"># Run following command to install System Image for Android SDK 31
-crossbundle install sdkmanager --install &quot;system-images;android-31;google_apis;x86_64&quot;
+crossbundle install sdkmanager --install "system-images;android-31;google_apis;x86_64"
 # Run this command to create a new Pnone emulator
-avdmanager create avd -n Phone -k &quot;system-images;android-31;google_apis;x86_64&quot;
+avdmanager create avd -n Phone -k "system-images;android-31;google_apis;x86_64"
 # And finally run this command to start the emulator
 emulator -avd=Phone
 </code></pre>
@@ -495,19 +552,21 @@ export PATH=&lt;path_to_sdk&gt;\sdk\tools\bin:$PATH
 <li>Add <code>&lt;path_to_sdk&gt;\sdk\tools\bin</code> to <code>PATH</code> variable.</li>
 <li>Add <code>&lt;path_to_sdk&gt;\sdk\emulator</code> to <code>PATH</code> variable.</li>
 </ul>
-<pre><code class="language-sh">SETX &quot;&lt;path_to_sdk&gt;\sdk\tools\bin&quot; ~PATH~
-SETX &quot;&lt;path_to_sdk&gt;\sdk\emulator&quot; ~PATH~
+<pre><code class="language-sh">SETX "&lt;path_to_sdk&gt;\sdk\tools\bin" ~PATH~
+SETX "&lt;path_to_sdk&gt;\sdk\emulator" ~PATH~
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="overview"><a class="header" href="#overview">Overview</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="overview"><a class="header" href="#overview">Overview</a></h1>
 <p>In this category, you will learn how to use the <code>crossbundle</code> tool.</p>
 <ul>
-<li><a href="crossbundle/command-build.html">Crossbundle build command</a></li>
-<li><a href="crossbundle/command-run.html">Crossbundle run command</a></li>
-<li><a href="crossbundle/command-install.html">Crossbundle install command</a></li>
-<li><a href="crossbundle/command-new.html">Crossbundle new command</a></li>
-<li><a href="crossbundle/command-update.html">Crossbundle update command</a></li>
+<li><a href="#crossbundle-build-command">Crossbundle build command</a></li>
+<li><a href="#crossbundle-run-command">Crossbundle run command</a></li>
+<li><a href="#crossbundle-install-command">Crossbundle install command</a></li>
+<li><a href="#crossbundle-new-command">Crossbundle new command</a></li>
+<li><a href="#crossbundle-update-command">Crossbundle update command</a></li>
 </ul>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="crossbundle-install-command"><a class="header" href="#crossbundle-install-command">Crossbundle install command</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="crossbundle-install-command"><a class="header" href="#crossbundle-install-command">Crossbundle install command</a></h1>
 <h2 id="setup-packages"><a class="header" href="#setup-packages">Setup packages</a></h2>
 <p>Use <code>crossbundle</code> install command to install necessary packages. To find out available commands specify the <code>-h</code> flag. The <code>-h</code> flag can be used in all subcommands crossbundle install offers.</p>
 <pre><code class="language-sh">crossbundle install -h
@@ -517,7 +576,7 @@ crossbundle install command-line-tools -h
 <p>We offer to use our command to fast installation all required packages.</p>
 <pre><code class="language-sh">crossbundle install --preferred
 </code></pre>
-<p>This command will setup command line tools, Android platforms, build-tools, Android NDK and bundletool for AAB correct working. To provide custom installation read the article below. </p>
+<p>This command will setup command line tools, Android platforms, build-tools, Android NDK and bundletool for AAB correct working. To provide custom installation read the article below.</p>
 <h3 id="install-command-line-tools"><a class="header" href="#install-command-line-tools">Install command-line tools</a></h3>
 <p>If you do not need Android Studio, you can download the basic Android <a href="https://developer.android.com/studio/command-line">command line tools</a> below. You can use the included <a href="https://developer.android.com/studio/command-line/sdkmanager">sdkmanager</a> to download other SDK packages.</p>
 <p>These tools are included in Android Studio.</p>
@@ -532,7 +591,7 @@ Note: Android studio install cmdline tools into <code>$SDK_ROOT/cmdline-tools/&l
 <pre><code class="language-sh">crossbundle install sdkmanager --list
 </code></pre>
 <p>And then enter the command.</p>
-<pre><code class="language-sh">crossbundle install sdkmanager --install &quot;build-tools;31.0.0&quot; &quot;ndk;23.1.7779620&quot; &quot;platforms;android-31&quot;
+<pre><code class="language-sh">crossbundle install sdkmanager --install "build-tools;31.0.0" "ndk;23.1.7779620" "platforms;android-31"
 </code></pre>
 <p>The command will install packages into <code>$HOME\AppData\Local\Android\Sdk\</code> for Windows, <code>$HOME/Library/Android/sdk/</code> for macOS, and <code>$HOME/Android/sdk/</code> for Linux.</p>
 <h2 id="install-bundletool-to-aab-building"><a class="header" href="#install-bundletool-to-aab-building">Install bundletool to AAB building</a></h2>
@@ -540,7 +599,8 @@ Note: Android studio install cmdline tools into <code>$SDK_ROOT/cmdline-tools/&l
 <pre><code class="language-sh">crossbundle install bundletool
 </code></pre>
 <p>The command will download bundletool from <a href="https://github.com/google/bundletool/releases"><code>GitHub repository</code></a> and save it into <code>$HOME</code>. Notice, that you should install <a href="https://www.oracle.com/java/technologies/downloads/">Java JDK</a> to open bundletool jar file.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="crossbundle-build-command"><a class="header" href="#crossbundle-build-command">Crossbundle build command</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="crossbundle-build-command"><a class="header" href="#crossbundle-build-command">Crossbundle build command</a></h1>
 <h2 id="crossbundle-build-gradle"><a class="header" href="#crossbundle-build-gradle">Crossbundle build gradle</a></h2>
 <p>Crossbow default build process requires installed Gradle on your PC.</p>
 <p>To create a project go to the example you want to build and use the command below. The command belongs to macroquad engine examples building:</p>
@@ -552,9 +612,9 @@ crossbundle build android --export-path=./gen/
 <p>By default build directory is <code>target/android/&lt;project_name&gt;/gradle</code>. But you can specify your own build directory via <code>--export-path=&lt;OUT_PATH&gt;</code> flag. Go to the directory where Gradle project was built and use command below to manually install APK on the device.</p>
 <pre><code class="language-sh">gradle installDebug
 </code></pre>
-<p>Also you can replace <code>build</code> with <code>run</code> subcommand to build and run APK on your device (it uses <code>installDebug</code> command under the hood). To see how to set android emulator check install recommendations for <a href="crossbundle/./install-linux-android.html">linux-android</a>, <a href="crossbundle/./install-macos-android.html">macos-android</a>, <a href="crossbundle/./install-windows-android.html">windows-android</a>.</p>
+<p>Also you can replace <code>build</code> with <code>run</code> subcommand to build and run APK on your device (it uses <code>installDebug</code> command under the hood). To see how to set android emulator check install recommendations for <a href="crossbundle/install-linux-android.html">linux-android</a>, <a href="crossbundle/install-macos-android.html">macos-android</a>, <a href="crossbundle/install-windows-android.html">windows-android</a>.</p>
 <h2 id="crossbundle-build-native-aabapk"><a class="header" href="#crossbundle-build-native-aabapk">Crossbundle build native AAB/APK</a></h2>
-<p>If you don't want to use gradle you can specify it in strategy native-apk:</p>
+<p>If you don’t want to use gradle you can specify it in strategy native-apk:</p>
 <pre><code class="language-sh">crossbundle build android -s=native-apk
 # or do you need AAB:
 crossbundle build android -s=native-aab
@@ -562,7 +622,8 @@ crossbundle build android -s=native-aab
 <p>To find out available commands specify the -h flag.</p>
 <pre><code class="language-sh">crossbundle build android -h
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="crossbundle-run-command"><a class="header" href="#crossbundle-run-command">Crossbundle run command</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="crossbundle-run-command"><a class="header" href="#crossbundle-run-command">Crossbundle run command</a></h1>
 <h2 id="crossbundle-run-gradle"><a class="header" href="#crossbundle-run-gradle">Crossbundle run gradle</a></h2>
 <p>Crossbow default run process requires installed Gradle on your PC.</p>
 <p>To create a project go to the example you want to build and use the command below. The command belongs to macroquad engine examples building:</p>
@@ -573,7 +634,7 @@ crossbundle run android --export-path=./gen/
 </code></pre>
 <p>By default run directory is <code>target/android/&lt;project_name&gt;/gradle</code>. But you can specify your own build directory via <code>--export-path=&lt;OUT_PATH&gt;</code> flag.</p>
 <h2 id="crossbundle-run-native-aabapk"><a class="header" href="#crossbundle-run-native-aabapk">Crossbundle run native AAB/APK</a></h2>
-<p>If you don't want to use gradle you can specify it in strategy native-apk:</p>
+<p>If you don’t want to use gradle you can specify it in strategy native-apk:</p>
 <pre><code class="language-sh">crossbundle run android -s=native-apk
 # or do you need AAB:
 crossbundle run android -s=native-aab
@@ -581,7 +642,8 @@ crossbundle run android -s=native-aab
 <p>To find out available commands specify the -h flag.</p>
 <pre><code class="language-sh">crossbundle run android -h
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="crossbundle-new-command"><a class="header" href="#crossbundle-new-command">Crossbundle new command</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="crossbundle-new-command"><a class="header" href="#crossbundle-new-command">Crossbundle new command</a></h1>
 <p><code>crossbundle</code> uses <a href="https://github.com/cargo-generate/cargo-generate"><code>cargo-generate</code></a> to generate a new project. This means that you need to install it before we proceed.</p>
 <pre><code class="language-sh">cargo install cargo-generate
 </code></pre>
@@ -593,17 +655,18 @@ crossbundle run android -s=native-aab
 <p>All supported templates you can watch <a href="https://github.com/dodorare/crossbundle-templates"><code>here</code></a> (each branch = template).</p>
 <h1 id="troubleshooting"><a class="header" href="#troubleshooting">Troubleshooting</a></h1>
 <p>You can face the problem with <code>Cargo.toml</code> parsing for the generated project:</p>
-<pre><code class="language-sh">Crossbundle Tools error: FailedToFindCargoManifest(&quot;...&quot;)
+<pre><code class="language-sh">Crossbundle Tools error: FailedToFindCargoManifest("...")
 </code></pre>
-<p>To resolve this add your project name to members table of crossbow <code>Cargo.toml</code>: </p>
+<p>To resolve this add your project name to members table of crossbow <code>Cargo.toml</code>:</p>
 <pre><code class="language-toml">[workspace]
 members = [
-    &quot;...&quot;,
-    &quot;example/&quot;,
-    &quot;...&quot;,
+    "...",
+    "example/",
+    "...",
 ]
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="crossbundle-update-command"><a class="header" href="#crossbundle-update-command">Crossbundle update command</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="crossbundle-update-command"><a class="header" href="#crossbundle-update-command">Crossbundle update command</a></h1>
 <p>Crossbundle has an inner command that allows to check the version used by the user and compare it with the version in <code>crates.io</code>.
 To check the latest version of crossbundle project in <code>crates.io</code> use:</p>
 <pre><code class="language-sh">crossbundle update --check
@@ -611,176 +674,178 @@ To check the latest version of crossbundle project in <code>crates.io</code> use
 <p>If the version found in <code>crates.io</code> is newer than used now you can enter the command below:</p>
 <pre><code class="language-sh">crossbundle update --force
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="overview-1"><a class="header" href="#overview-1">Overview</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="overview-1"><a class="header" href="#overview-1">Overview</a></h1>
 <p>In this category, you will learn how to use the <code>crossbow</code> crate.</p>
 <ul>
-<li><a href="crossbow/./configuration.html">Project configuration</a></li>
-<li><a href="crossbow/./android-plugins.html">Android plugins</a></li>
-<li><a href="crossbow/./permissions.html">Permissions</a></li>
+<li><a href="#project-configuration">Project configuration</a></li>
+<li><a href="#crossbow-android-plugins">Android plugins</a></li>
+<li><a href="#crossbow-permissions">Permissions</a></li>
 </ul>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="project-configuration"><a class="header" href="#project-configuration">Project configuration</a></h1>
-<h2 id="Сonfiguration-through-metadata"><a class="header" href="#Сonfiguration-through-metadata">Сonfiguration through metadata</a></h2>
-<p>The easiest way to configure a project is with metadata. Here's an example of <code>Cargo.toml</code>:</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="project-configuration"><a class="header" href="#project-configuration">Project configuration</a></h1>
+<h2 id="сonfiguration-through-metadata"><a class="header" href="#сonfiguration-through-metadata">Сonfiguration through metadata</a></h2>
+<p>The easiest way to configure a project is with metadata. Here’s an example of <code>Cargo.toml</code>:</p>
 <pre><code class="language-toml">[package]
-name = &quot;game&quot;
-version = &quot;0.1.0&quot;
-authors = [&quot;Example &lt;example@example.com&gt;&quot;]
-edition = &quot;2021&quot;
+name = "game"
+version = "0.1.0"
+authors = ["Example &lt;example@example.com&gt;"]
+edition = "2021"
 
 [dependencies]
-crossbow = &quot;0.2.3&quot;
+crossbow = "0.2.3"
 
 [package.metadata]
 # The user-friendly application name for your app. Displayed in the applications menu
-app_name = &quot;Game&quot;
+app_name = "Game"
 # Android assets directory path relatively to project path
-assets = [&quot;assets&quot;]
+assets = ["assets"]
 # Path to icon with `.png` format that will be provided to generate mipmap resources
-icon = &quot;path/to/icon.png&quot;
+icon = "path/to/icon.png"
 
 [package.metadata.android]
 # Android application wrapper: supports ndk-glue and sokol. Now ndk-glue used by bevy engine and sokol used by macroquad 
-app_wrapper = &quot;quad&quot;
+app_wrapper = "quad"
 # Android targets to build on debug or release.
-debug_build_targets = [&quot;aarch64-linux-android&quot;]
-release_build_targets = [&quot;aarch64-linux-android&quot;]
+debug_build_targets = ["aarch64-linux-android"]
+release_build_targets = ["aarch64-linux-android"]
 # Android resources directory path relatively to project path
-resources = [&quot;res/android&quot;]
+resources = ["res/android"]
 
 # Complete support of all AndroidManifest.xml attributes
 [package.metadata.android.manifest]
-package = &quot;com.example.ExampleProject&quot;
+package = "com.example.ExampleProject"
 
 # Adds a uses-permission element to the AndroidManifest.xml.
 # Note that android_version 23 and higher, Android requires the application to request permissions at runtime
 [[package.metadata.android.manifest.uses_permission]]
-name = &quot;android.permission.INTERNET&quot;
+name = "android.permission.INTERNET"
 # Specifies that an app wants a particular permission, but only if the app is installed on a device running
 # Android 6.0 (API level 23) or higher. If the device is running API level 22 or lower, the app does not have the specified permission.
 
 # See https://developer.android.com/guide/topics/manifest/uses-permission-sdk-23-element
 [[package.metadata.android.manifest.uses_permission_sdk_23]]
-name = &quot;android.permission.WRITE_EXTERNAL_STORAGE&quot;
+name = "android.permission.WRITE_EXTERNAL_STORAGE"
 max_sdk_version = 30
 
 # See https://developer.android.com/guide/topics/manifest/service-element
 [[package.metadata.android.manifest.service]]
-name = &quot;UpdateService&quot;
+name = "UpdateService"
 intent_filter = []
 meta_data = []
 
 # See https://developer.android.com/guide/topics/manifest/queries-element#provider
 [[package.metadata.android.manifest.queries.provider]]
-authorities = &quot;org.khronos.openxr.runtime_broker;org.khronos.openxr.system_runtime_broker&quot;
+authorities = "org.khronos.openxr.runtime_broker;org.khronos.openxr.system_runtime_broker"
 # Note: The `name` attribute is normally not required for a queries provider, but is non-optional
 # as a workaround for aapt throwing errors about missing `android:name` attribute.
 # This will be made optional if/when cargo-apk migrates to aapt2.
-name = &quot;org.khronos.openxr&quot;
+name = "org.khronos.openxr"
 
 # See https://developer.android.com/guide/topics/manifest/uses-feature-element
 #
 # Note: there can be multiple .uses_feature entries.
 [[package.metadata.android.manifest.features]]
-name = &quot;android.hardware.vulkan.level&quot;
+name = "android.hardware.vulkan.level"
 required = true
 version = 1
 
 # See https://developer.android.com/guide/topics/manifest/meta-data-element
 [[package.metadata.android.manifest.application.meta_data]]
-name = &quot;com.oculus.vr.focusaware&quot;
-value = &quot;true&quot;
+name = "com.oculus.vr.focusaware"
+value = "true"
 
 [package.metadata.apple]
-release_build_targets = [&quot;aarch64-apple-ios&quot;, &quot;x86_64-apple-ios&quot;]
+release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
 # The user-friendly application name for your app. Displayed in the applications menu
-app_name = &quot;Example&quot;
+app_name = "Example"
 # Apple targets to build on debug or release.
-debug_build_targets = [&quot;aarch64-apple-ios&quot;]
-release_build_targets = [&quot;aarch64-apple-ios&quot;, &quot;x86_64-apple-ios&quot;].
+debug_build_targets = ["aarch64-apple-ios"]
+release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"].
 # Apple resources directory path relatively to project path.
-resources = [&quot;res/apple&quot;]
+resources = ["res/apple"]
 </code></pre>
-<h3 id="Сonfiguration-through-separate-files"><a class="header" href="#Сonfiguration-through-separate-files">Сonfiguration through separate files</a></h3>
+<h3 id="сonfiguration-through-separate-files"><a class="header" href="#сonfiguration-through-separate-files">Сonfiguration through separate files</a></h3>
 <p>But sometimes you need to configure something more complex. For such cases, a more suitable way is to use separate <code>AndroidManifest.xml</code> or/and <code>Info.plist</code> files.</p>
 <p>To enable this feature, you just need to add this to your <code>Cargo.toml</code>:</p>
 <pre><code class="language-toml">[package.metadata.android]
-manifest_path = &quot;/path/to/file&quot;
+manifest_path = "/path/to/file"
 
 [package.metadata.apple]
-info_plist_path = &quot;/path/to/file&quot;
+info_plist_path = "/path/to/file"
 </code></pre>
 <p>and then place <code>AndroidManifest.xml</code> or/and <code>Info.plist</code> near <code>Cargo.toml</code></p>
-<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
-&lt;manifest xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
-    package=&quot;com.rust.game&quot;
-    android:versionCode=&quot;1&quot;
-    android:versionName=&quot;1.0&quot;&gt;
-    &lt;uses-sdk android:minSdkVersion=&quot;16&quot;
-        android:targetSdkVersion=&quot;31&quot; /&gt;
-    &lt;uses-permission android:name=&quot;android.permission.ACCESS_WIFI_STATE&quot;/&gt;
-    &lt;uses-permission android:name=&quot;android.permission.ACCESS_FINE_LOCATION&quot;/&gt;
-    &lt;uses-permission android:name=&quot;android.permission.ACCESS_COARSE_LOCATION&quot;/&gt;
-    &lt;uses-permission android:name=&quot;android.permission.ACCESS_NETWORK_STATE&quot; /&gt;
-    &lt;application android:allowBackup=&quot;true&quot;
-        android:hasCode=&quot;false&quot;
-        android:icon=&quot;@mipmap/ic_launcher&quot;
-        android:label=&quot;Game&quot;
-        android:theme=&quot;@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen&quot;&gt;
-        &lt;activity android:name=&quot;com.rust.game.MainActivity&quot;
-            android:label=&quot;Game&quot;
-            android:configChanges=&quot;orientation|keyboardHidden|screenSize&quot;&gt;
+<pre><code class="language-xml">&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.rust.game"
+    android:versionCode="1"
+    android:versionName="1.0"&gt;
+    &lt;uses-sdk android:minSdkVersion="16"
+        android:targetSdkVersion="31" /&gt;
+    &lt;uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/&gt;
+    &lt;uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/&gt;
+    &lt;uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/&gt;
+    &lt;uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /&gt;
+    &lt;application android:allowBackup="true"
+        android:hasCode="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="Game"
+        android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen"&gt;
+        &lt;activity android:name="com.rust.game.MainActivity"
+            android:label="Game"
+            android:configChanges="orientation|keyboardHidden|screenSize"&gt;
             &lt;intent-filter&gt;
-                &lt;action android:name=&quot;android.intent.action.MAIN&quot; /&gt;
-                &lt;category android:name=&quot;android.intent.category.LAUNCHER&quot; /&gt;
+                &lt;action android:name="android.intent.action.MAIN" /&gt;
+                &lt;category android:name="android.intent.category.LAUNCHER" /&gt;
             &lt;/intent-filter&gt;
         &lt;/activity&gt;
     &lt;/application&gt;
 &lt;/manifest&gt;
 </code></pre>
-<p>That's it, this config file will be used for your mobile application.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="crossbow-permissions"><a class="header" href="#crossbow-permissions">Crossbow permissions</a></h1>
+<p>That’s it, this config file will be used for your mobile application.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="crossbow-permissions"><a class="header" href="#crossbow-permissions">Crossbow permissions</a></h1>
 <p>To request permissions with Crossbow you will need to add <code>crossbow</code> dependency to your Cargo.toml file. And add permissions to <code>AndroidManifest.xml</code> or <code>Info.plist</code>:</p>
 <pre><code class="language-toml"># This one:
 [package.metadata]
-permissions = [&quot;camera&quot;, &quot;microphone&quot;, &quot;photos&quot;, &quot;storage-read&quot;]
+permissions = ["camera", "microphone", "photos", "storage-read"]
 
 # Will make the same as this one:
 [[package.metadata.android.manifest.uses_permission]]
-name = &quot;android.permission.READ_EXTERNAL_STORAGE&quot;
+name = "android.permission.READ_EXTERNAL_STORAGE"
 [[package.metadata.android.manifest.uses_permission]]
-name = &quot;android.permission.CAMERA&quot;
+name = "android.permission.CAMERA"
 [[package.metadata.android.manifest.uses_permission]]
-name = &quot;android.permission.RECORD_AUDIO&quot;
+name = "android.permission.RECORD_AUDIO"
 
 [package.metadata.apple.info_plist]
-NSCameraUsageDescription = &quot;This app needs access to your phone's camera.&quot;
-NSMicrophoneUsageDescription = &quot;This app needs access to your phone's microphone.&quot;
-NSPhotoLibraryUsageDescription = &quot;This app needs access to your phone's photo library.&quot;
+NSCameraUsageDescription = "This app needs access to your phone's camera."
+NSMicrophoneUsageDescription = "This app needs access to your phone's microphone."
+NSPhotoLibraryUsageDescription = "This app needs access to your phone's photo library."
 </code></pre>
-<p>Then invoke <code>request_async</code> function. This function checks the permission status in the application and will request permission if it's not granted yet:</p>
-<pre><pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
+<p>Then invoke <code>request_async</code> function. This function checks the permission status in the application and will request permission if it’s not granted yet:</p>
+<pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use crossbow::Permission;
 let res = Permission::Camera.request_async().await?;
 match res {
-    Permission::Unknown =&gt; println!(&quot;Permission is in an unknown state&quot;),
-    Permission::Denied =&gt; println!(&quot;Denied by user&quot;),
-    Permission::Disabled =&gt; println!(&quot;Feature is disabled on device.&quot;),
-    Permission::Granted =&gt; println!(&quot;Granted by user.&quot;),
-    Permission::Restricted =&gt; println!(&quot;Restricted (only iOS).&quot;),
+    Permission::Unknown =&gt; println!("Permission is in an unknown state"),
+    Permission::Denied =&gt; println!("Denied by user"),
+    Permission::Disabled =&gt; println!("Feature is disabled on device."),
+    Permission::Granted =&gt; println!("Granted by user."),
+    Permission::Restricted =&gt; println!("Restricted (only iOS)."),
 }
-<span class="boring">}
-</span></code></pre></pre>
+<span class="boring">}</span></code></pre>
 <p>Also, remember to set permissions in through <code>Cargo.toml</code> or <code>Info.plist</code>/<code>AndroidManifest.xml</code> files. List of required permissions for Cross-Platform Permission you can find in <code>Permission</code> enum.</p>
 <p>See usage <a href="https://github.com/dodorare/crossbow/blob/main/examples/macroquad-permissions/src/main.rs">example</a>.</p>
-<p>Also, it's possible to request more permissions with this API:</p>
-<pre><code>#[cfg(target_os = &quot;android&quot;)]
+<p>Also, it’s possible to request more permissions with this API:</p>
+<pre><code>#[cfg(target_os = "android")]
 crossbow::android::permission::*;
 let res = request_permission(&amp;AndroidPermission::ReadCalendar).await?;
 
 // or this for iOS:
 
-#[cfg(target_os = &quot;ios&quot;)]
+#[cfg(target_os = "ios")]
 crossbow::ios::permission::*;
 let res = request_permission(&amp;IosPermission::CaptureDevice(MediaType::Audio)).await;
 </code></pre>
@@ -793,7 +858,8 @@ adb shell pm list permissions
 adb shell pm grant &lt;app package&gt; &lt;permission name&gt;
 adb shell pm revoke &lt;app package&gt; &lt;permission name&gt;
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="crossbow-android-plugins"><a class="header" href="#crossbow-android-plugins">Crossbow Android Plugins</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="crossbow-android-plugins"><a class="header" href="#crossbow-android-plugins">Crossbow Android Plugins</a></h1>
 <p>To write new Crossbow Android plugin - we recommend to clone this repository and use <code>crossbow-admob</code> as template for your plugin.</p>
 <p>To do so, run these commands:</p>
 <pre><code class="language-sh">git clone https://github.com/dodorare/crossbow
@@ -809,8 +875,8 @@ cd ./my-awesome-plugin
 <h2 id="testing-locally"><a class="header" href="#testing-locally">Testing locally</a></h2>
 <p>To import your plugin into your game with Crossbow you can add following in <strong>Cargo.toml</strong>:</p>
 <pre><code class="language-toml">[[package.metadata.android.plugins_local_projects]]
-include = &quot;:my-awesome-plugin&quot;
-project_dir = &quot;../my-awesome-plugin/android&quot;
+include = ":my-awesome-plugin"
+project_dir = "../my-awesome-plugin/android"
 </code></pre>
 <p>It will try to find your plugin by the specified path relative to your <strong>Cargo.toml</strong>.</p>
 <h2 id="publishing-to-github-maven-repository"><a class="header" href="#publishing-to-github-maven-repository">Publishing to Github Maven repository</a></h2>
@@ -823,50 +889,51 @@ project_dir = &quot;../my-awesome-plugin/android&quot;
 <h2 id="using-published-plugin"><a class="header" href="#using-published-plugin">Using Published plugin</a></h2>
 <p>After successfully publishing your plugin you can use it in your game. To do so you will want to import it in <strong>Cargo.toml</strong>:</p>
 <pre><code class="language-toml">[dependencies]
-my_awesome_plugin = &quot;0.1.0&quot;
+my_awesome_plugin = "0.1.0"
 
 [[package.metadata.android]]
-plugins_remote = [&quot;com.crossbow.awesome:my_awesome_plugin:0.1.0&quot;]
+plugins_remote = ["com.crossbow.awesome:my_awesome_plugin:0.1.0"]
 </code></pre>
-<p>That's it, now you can use your plugin in your game!</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="overview-2"><a class="header" href="#overview-2">Overview</a></h1>
+<p>That’s it, now you can use your plugin in your game!</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="overview-2"><a class="header" href="#overview-2">Overview</a></h1>
 <p>In this category, you will learn how to use the <code>crossbundle</code> tool and <code>crossbow</code> crate by examples and tutorials.</p>
-<p>To get started - open <a href="tutorials/hello-world.html">Hello World example</a> to see minimal project setup.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="hello-world-example"><a class="header" href="#hello-world-example">Hello world example</a></h1>
+<p>To get started - open <a href="#hello-world-example">Hello World example</a> to see minimal project setup.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="hello-world-example"><a class="header" href="#hello-world-example">Hello world example</a></h1>
 <h2 id="generate-a-project"><a class="header" href="#generate-a-project">Generate a project</a></h2>
-<p>Generate new project with <a href="tutorials/../crossbundle/command-new.html">crossbundle new command</a>!</p>
+<p>Generate new project with <a href="#crossbundle-new-command">crossbundle new command</a>!</p>
 <h2 id="project-overview"><a class="header" href="#project-overview">Project overview</a></h2>
-<p>The project has been created. Now let's see what the project consists of.</p>
-<p>The code below is belong to the native crossbow project with pure rust without <a href="tutorials/../crossbow/android-plugins.html">android plugins</a>. 
-To see all possibilities of <code>cargo.toml</code> see <a href="tutorials/../crossbow/configuration.html">crossbow configutarion tutorial</a></p>
+<p>The project has been created. Now let’s see what the project consists of.</p>
+<p>The code below is belong to the native crossbow project with pure rust without <a href="#crossbow-android-plugins">android plugins</a>.
+To see all possibilities of <code>cargo.toml</code> see <a href="#project-configuration">crossbow configutarion tutorial</a></p>
 <pre><code class="language-toml"># Cargo.toml
 
 [package]
-name = &quot;project-name&quot;
-version = &quot;0.1.0&quot;
-authors = [&quot;Example &lt;example@example.com&gt;&quot;]
-edition = &quot;2021&quot;
+name = "project-name"
+version = "0.1.0"
+authors = ["Example &lt;example@example.com&gt;"]
+edition = "2021"
 
 [dependencies]
-crossbow = &quot;*&quot;
+crossbow = "*"
 
 [package.metadata]
-app_name = &quot;My Project&quot;
-icon = &quot;path/to/icon.png&quot;
+app_name = "My Project"
+icon = "path/to/icon.png"
 </code></pre>
 <blockquote>
-<p>We decided to refuse from lib.rs file for a more convenient project configuration. We need only <code>main.rs</code> to deploy our code </p>
+<p>We decided to refuse from lib.rs file for a more convenient project configuration. We need only <code>main.rs</code> to deploy our code</p>
 </blockquote>
-<pre><pre class="playground"><code class="language-rust edition2021">// main.rs
+<pre class="playground"><code class="language-rust edition2021">// main.rs
 
 fn main() {
-    println!(&quot;Hello, project-name!&quot;);
-}
-</code></pre></pre>
+    println!("Hello, project-name!");
+}</code></pre>
 <h2 id="build-an-application"><a class="header" href="#build-an-application">Build an application</a></h2>
-<p>Let's build and run our first <code>crossbundle</code> application. Android commands below will generate gradle project and install apk on your device. See <a href="tutorials//docs/src/crossbundle/command-run.html">crossbundle run command</a> for additional information.</p>
+<p>Let’s build and run our first <code>crossbundle</code> application. Android commands below will generate gradle project and install apk on your device. See <a href="/docs/src/crossbundle/command-run.html">crossbundle run command</a> for additional information.</p>
 <blockquote>
-<p>cd project-name. To attach a logger when application deploys on your device use <code>--log</code> flag. </p>
+<p>cd project-name. To attach a logger when application deploys on your device use <code>--log</code> flag.</p>
 </blockquote>
 <pre><code class="language-sh">crossbundle run android --log
 </code></pre>
@@ -876,10 +943,11 @@ fn main() {
 <pre><code class="language-sh">crossbundle run ios --log
 </code></pre>
 <p>If you want to build the application for android as native AAB - add <code>-s=native-aab</code> flag or add <code>-s=native-apk</code> to build native APK.</p>
-<p>You will see the message: <code>&quot;Hello, project-name!&quot;</code></p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="in-app-updates-tutorial"><a class="header" href="#in-app-updates-tutorial">In-app updates tutorial</a></h1>
+<p>You will see the message: <code>"Hello, project-name!"</code></p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="in-app-updates-tutorial"><a class="header" href="#in-app-updates-tutorial">In-app updates tutorial</a></h1>
 <blockquote>
-<p><strong>Important:</strong> First of all you need to install crossbundle if you haven't already. See <a href="tutorials//docs/src/install/README.html">documention</a> to install it.</p>
+<p><strong>Important:</strong> First of all you need to install crossbundle if you haven’t already. See <a href="/docs/src/install/README.html">documention</a> to install it.</p>
 </blockquote>
 <h2 id="generate-a-project-1"><a class="header" href="#generate-a-project-1">Generate a project</a></h2>
 <p><code>crossbundle</code> uses <a href="https://github.com/cargo-generate/cargo-generate"><code>cargo-generate</code></a> to generate a new project. This means that you need to install it before we proceed.</p>
@@ -895,46 +963,43 @@ fn main() {
 </blockquote>
 <p>Add Rust dependencies like this:</p>
 <pre><code class="language-toml">[dependencies]
-crossbow = &quot;0.2.3&quot;
-[target.'cfg(target_os = &quot;android&quot;)'.dependencies]
-play-core = &quot;0.2.3&quot;
+crossbow = "0.2.3"
+[target.'cfg(target_os = "android")'.dependencies]
+play-core = "0.2.3"
 </code></pre>
 <p>And finally, add this to your Crossbow Android configuration:</p>
 <pre><code class="language-toml">[package.metadata.android]
-plugins_remote = [&quot;com.crossbow.play_core:play_core:0.2.3&quot;]
+plugins_remote = ["com.crossbow.play_core:play_core:0.2.3"]
 </code></pre>
 <blockquote>
-<p>That's it, now you can start using Play Core!</p>
+<p>That’s it, now you can start using Play Core!</p>
 </blockquote>
 <h2 id="usage"><a class="header" href="#usage">Usage</a></h2>
 <p>First step is plugin initialization. In your rust project, you will need to initialize <code>Crossbow</code> instance and then get <strong>Android</strong> plugin:</p>
-<pre><pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
-</span>#![cfg(target_os = &quot;android&quot;)]
+<pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
+</span>#![cfg(target_os = "android")]
 
 <span class="boring">fn main() {
 </span>use crossbow::android::*;
 let crossbow = CrossbowInstance::new();
 let play_core: play_core::PlayCorePlugin = crossbow.get_plugin()?;
-<span class="boring">}
-</span></code></pre></pre>
+<span class="boring">}</span></code></pre>
 <p>After plugin initialization you can use supported features. For example to start connection and query purchases you can use:</p>
-<pre><pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
+<pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>play_core.check_update()?;
 play_core.in_progress_update()?;
-<span class="boring">}
-</span></code></pre></pre>
+<span class="boring">}</span></code></pre>
 <p>To read signals that plugin returns:</p>
-<pre><pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
+<pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>if let Ok(signal) = play_core.get_receiver().recv().await {
-    println!(&quot;Signal: {:?}&quot;, signal);
+    println!("Signal: {:?}", signal);
 }
-<span class="boring">}
-</span></code></pre></pre>
+<span class="boring">}</span></code></pre>
 <p>Complete documentation of plugin you can find <a href="https://docs.rs/play-core/">here</a>.</p>
 <h2 id="build-an-application-1"><a class="header" href="#build-an-application-1">Build an application</a></h2>
-<p>Let's build and run this application. Android command below will generate gradle project and install apk on your device. See <a href="tutorials//docs/src/crossbundle/command-run.html">crossbundle run command</a> for additional information.</p>
+<p>Let’s build and run this application. Android command below will generate gradle project and install apk on your device. See <a href="/docs/src/crossbundle/command-run.html">crossbundle run command</a> for additional information.</p>
 <pre><code class="language-sh">crossbundle run android
 </code></pre>
 <p>But to be able to test In-app updates - you will need to publish your application to Play Store as Internal testing or any other (Closed testing or Production, etc.).</p>
@@ -965,9 +1030,10 @@ MYAPP_UPLOAD_STORE_PASSWORD=123456
 MYAPP_UPLOAD_KEY_PASSWORD=123456
 </code></pre>
 <p>You can read more <a href="https://reactnative.dev/docs/signed-apk-android">here</a>, and <a href="https://developer.android.com/studio/publish">here</a>.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="google-play-billing-tutorial"><a class="header" href="#google-play-billing-tutorial">Google Play Billing tutorial</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="google-play-billing-tutorial"><a class="header" href="#google-play-billing-tutorial">Google Play Billing tutorial</a></h1>
 <blockquote>
-<p><strong>Important:</strong> First of all you need to install crossbundle if you haven't already. See <a href="tutorials//docs/src/install/README.html">documention</a> to install it.</p>
+<p><strong>Important:</strong> First of all you need to install crossbundle if you haven’t already. See <a href="/docs/src/install/README.html">documention</a> to install it.</p>
 </blockquote>
 <h2 id="generate-a-project-2"><a class="header" href="#generate-a-project-2">Generate a project</a></h2>
 <p><code>crossbundle</code> uses <a href="https://github.com/cargo-generate/cargo-generate"><code>cargo-generate</code></a> to generate a new project. This means that you need to install it before we proceed.</p>
@@ -983,49 +1049,46 @@ MYAPP_UPLOAD_KEY_PASSWORD=123456
 </blockquote>
 <p>Just add Rust dependencies like this:</p>
 <pre><code class="language-toml">[dependencies]
-crossbow = &quot;0.2.3&quot;
-[target.'cfg(target_os = &quot;android&quot;)'.dependencies]
-play-billing = &quot;0.2.3&quot;
+crossbow = "0.2.3"
+[target.'cfg(target_os = "android")'.dependencies]
+play-billing = "0.2.3"
 </code></pre>
 <p>And finally, add this to your Crossbow Android configuration:</p>
 <pre><code class="language-toml">[package.metadata.android]
-plugins_remote = [&quot;com.crossbow.play_billing:play_billing:0.2.3&quot;]
+plugins_remote = ["com.crossbow.play_billing:play_billing:0.2.3"]
 </code></pre>
 <blockquote>
-<p>That's it, now you can start using Play Billing!</p>
+<p>That’s it, now you can start using Play Billing!</p>
 </blockquote>
 <h2 id="usage-1"><a class="header" href="#usage-1">Usage</a></h2>
 <p>First step is plugin initialization. In your rust project, you will need to initialize <code>Crossbow</code> instance and then get <strong>Android</strong> plugin:</p>
-<pre><pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
-</span>#![cfg(target_os = &quot;android&quot;)]
+<pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
+</span>#![cfg(target_os = "android")]
 
 <span class="boring">fn main() {
 </span>use crossbow::android::*;
 let crossbow = CrossbowInstance::new();
 let play_billing: play_billing::PlayBillingPlugin = crossbow.get_plugin()?;
-<span class="boring">}
-</span></code></pre></pre>
+<span class="boring">}</span></code></pre>
 <p>After plugin initialization you can use supported features. For example to start connection and query purchases you can use:</p>
-<pre><pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
+<pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>play_billing.start_connection()?;
-play_billing.query_purchases(&quot;YOUR_TYPE&quot;)?;
-<span class="boring">}
-</span></code></pre></pre>
+play_billing.query_purchases("YOUR_TYPE")?;
+<span class="boring">}</span></code></pre>
 <p>To read signals:</p>
-<pre><pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
+<pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>if let Ok(signal) = play_billing.get_receiver().recv().await {
-    println!(&quot;Signal: {:?}&quot;, signal);
+    println!("Signal: {:?}", signal);
 }
-<span class="boring">}
-</span></code></pre></pre>
+<span class="boring">}</span></code></pre>
 <p>Complete documentation you can find <a href="https://docs.rs/play-billing/">here</a>.</p>
 <h2 id="build-an-application-2"><a class="header" href="#build-an-application-2">Build an application</a></h2>
 <blockquote>
 <p><strong>Important:</strong> Read officialtutorial on how to test Google Play Billing for more information <a href="https://developer.android.com/google/play/billing/test">here</a>.</p>
 </blockquote>
-<p>Let's build and run this application. Android command below will generate gradle project and install apk on your device. See <a href="tutorials//docs/src/crossbundle/command-run.html">crossbundle run command</a> for additional information.</p>
+<p>Let’s build and run this application. Android command below will generate gradle project and install apk on your device. See <a href="/docs/src/crossbundle/command-run.html">crossbundle run command</a> for additional information.</p>
 <pre><code class="language-sh">crossbundle run android
 </code></pre>
 <p>But to be able to test In-app purchases - you will need to add Products in Google Play Console. And then build and sign your app with your generated keystore.</p>
@@ -1056,7 +1119,8 @@ MYAPP_UPLOAD_STORE_PASSWORD=123456
 MYAPP_UPLOAD_KEY_PASSWORD=123456
 </code></pre>
 <p>You can read more <a href="https://reactnative.dev/docs/signed-apk-android">here</a>, and <a href="https://developer.android.com/studio/publish">here</a>.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="fastlane-automation-for-android"><a class="header" href="#fastlane-automation-for-android">Fastlane automation for Android</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="fastlane-automation-for-android"><a class="header" href="#fastlane-automation-for-android">Fastlane automation for Android</a></h1>
 <p>We want to make you work less on the hard stuff behind the automation of publishing Rust mobile apps so we prepared some best practices on how you can automate the boring stuff with our <a href="https://github.com/creator-rs/fastlane-plugin">creator Fastlane plugin</a>. You can read more about <code>Fastlane</code> <a href="https://fastlane.tools/">here</a>.</p>
 <h2 id="setup"><a class="header" href="#setup">Setup</a></h2>
 <p>First of all, we would suggest you pass through our <code>crossbow</code> basic tutorials for <a href="https://github.com/dodorare/crossbow/wiki/Android-setup-on-Windows">Android</a> or/and <a href="https://github.com/dodorare/crossbow/wiki/iOS-setup-on-MacOS">iOS</a>.</p>
@@ -1071,9 +1135,9 @@ MYAPP_UPLOAD_KEY_PASSWORD=123456
 <h2 id="setup-for-play-market"><a class="header" href="#setup-for-play-market">Setup for Play Market</a></h2>
 <ol>
 <li>Open <a href="https://play.google.com/console">Google Play Console</a> (you will need a developer account for this).</li>
-<li>Click on the button &quot;Create app&quot; <img src="https://i.imgur.com/2IYrMqV.png" alt="Create app" /> and specify your application data in the form.</li>
+<li>Click on the button “Create app” <label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="https://i.imgur.com/2IYrMqV.png" alt="Create app"><span class="img-wrapper"><img src="https://i.imgur.com/2IYrMqV.png" alt="Create app"></span></label> and specify your application data in the form.</li>
 <li>Generate signing key through Android Studio as shown in <a href="https://developer.android.com/studio/publish/app-signing#sign-apk">this official tutorial</a>.</li>
-<li>Generate a &quot;Play Store Json Key&quot; for Fastlane as shown <a href="https://docs.fastlane.tools/actions/upload_to_play_store/#setup">here</a>.</li>
+<li>Generate a “Play Store Json Key” for Fastlane as shown <a href="https://docs.fastlane.tools/actions/upload_to_play_store/#setup">here</a>.</li>
 <li>Configure corresponding variables in <code>fastlane/Fastfile</code> file.</li>
 </ol>
 <!---
@@ -1084,28 +1148,29 @@ MYAPP_UPLOAD_KEY_PASSWORD=123456
 <p>To run our Fastlane pipeline just call <code>fastlane android</code> or <code>fastlane ios</code> at the root of the project.</p>
 <p>Please note, Fastlane will ask you to log in on the first run to configure the setup.</p>
 <h2 id="see-results"><a class="header" href="#see-results">See results</a></h2>
-<p>After the successful finish of publishing as an internal testing draft, you should see your release on the <code>Google Play Console</code>. Find section &quot;Testing&quot; and click on the &quot;Internal testing&quot;. You will see something like this:</p>
-<p><img src="https://i.imgur.com/2DTnidE.png" alt="Internal testing" /></p>
-<p>Feel free to add some other lanes to fill your needs, here's the <a href="http://docs.fastlane.tools/actions/">full list</a> of them.</p>
+<p>After the successful finish of publishing as an internal testing draft, you should see your release on the <code>Google Play Console</code>. Find section “Testing” and click on the “Internal testing”. You will see something like this:</p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="https://i.imgur.com/2DTnidE.png" alt="Internal testing"><span class="img-wrapper"><img src="https://i.imgur.com/2DTnidE.png" alt="Internal testing"></span></label></p>
+<p>Feel free to add some other lanes to fill your needs, here’s the <a href="http://docs.fastlane.tools/actions/">full list</a> of them.</p>
 <p>If you found a bug or issue - you can find or create an issue in <a href="https://github.com/dodorare/crossbow">this</a> repository.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="using-subxt-with-bevy-engine"><a class="header" href="#using-subxt-with-bevy-engine">Using subxt with bevy engine</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="using-subxt-with-bevy-engine"><a class="header" href="#using-subxt-with-bevy-engine">Using subxt with bevy engine</a></h1>
 <ol>
 <li>
-<p>You need to install crossbundle if you haven't already. See <a href="tutorials/../install/README.html">documention</a> to install it and configure your project.</p>
+<p>You need to install crossbundle if you haven’t already. See <a href="install/README.html">documention</a> to install it and configure your project.</p>
 </li>
 <li>
 <p>Specify <code>subxt</code> crate and <code>bevy</code> in your Cargo.toml. We prefer to use versions below:</p>
 </li>
 </ol>
 <pre><code class="language-toml">[dependencies]
-subxt = &quot;0.23&quot;
-bevy = &quot;0.8.1&quot;
+subxt = "0.23"
+bevy = "0.8.1"
 </code></pre>
 <blockquote>
-<p>You might need additional dependencies to write your code. See <a href="tutorials//examples/bevy-explorer/Cargo.toml">examples/bevy-explorer/cargo.toml</a></p>
+<p>You might need additional dependencies to write your code. See <a href="/examples/bevy-explorer/Cargo.toml">examples/bevy-explorer/cargo.toml</a></p>
 </blockquote>
 <h2 id="bevy-explorer-example"><a class="header" href="#bevy-explorer-example">Bevy explorer example</a></h2>
-<p>To learn how to use subxt with bevy engine, you can go to the <a href="tutorials//examples/bevy-explorer/">examples/bevy-explorer</a> or install bevy explorer template. Follow next steps:</p>
+<p>To learn how to use subxt with bevy engine, you can go to the <a href="/examples/bevy-explorer">examples/bevy-explorer</a> or install bevy explorer template. Follow next steps:</p>
 <ol>
 <li>Install cargo-generate:</li>
 </ol>
@@ -1120,7 +1185,7 @@ bevy = &quot;0.8.1&quot;
 <li>After previous steps, now you can install the application on the device.</li>
 </ol>
 <h2 id="installing-application-on-the-device"><a class="header" href="#installing-application-on-the-device">Installing application on the device</a></h2>
-<p>You can deploy the application on your device or <a href="tutorials/../install/set-up-android-device.html">android emulator</a> with commands below. At first, you should go to example directory. Use it:</p>
+<p>You can deploy the application on your device or <a href="#set-up-your-android-device-3">android emulator</a> with commands below. At first, you should go to example directory. Use it:</p>
 <p>Bash:</p>
 <blockquote>
 <p>If the template was installed</p>
@@ -1137,29 +1202,31 @@ To build native APK and run it on the device using the command. If you want to b
 <pre><code class="language-sh">crossbundle run android -s=native-apk
 </code></pre>
 <blockquote>
-<p>or </p>
+<p>or</p>
 </blockquote>
 <pre><code class="language-sh">crossbundle run ios
 </code></pre>
 <p>To build native AAB and run it on the device using the command. If you want to build an application replaces <code>run</code> with <code>build</code>.</p>
 <pre><code class="language-sh">crossbundle run android -s=native-aab
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="contributing"><a class="header" href="#contributing">Contributing</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="contributing"><a class="header" href="#contributing">Contributing</a></h1>
 <p>If you want to help us build an awesome Cross-Platform future for Rust Games, please reach out! We need all the help we can get:</p>
 <ul>
-<li>If you are a software developer and you want to help out, check out the <a href="contributing/contribute-code.html">Contributing Code</a> section.</li>
-<li>If you are good at writing or teaching, consider <a href="contributing/contribute-docs.html">Contributing to our Docs</a>.</li>
+<li>If you are a software developer and you want to help out, check out the <a href="#how-to-contribute-code">Contributing Code</a> section.</li>
+<li>If you are good at writing or teaching, consider <a href="#how-to-contribute-docs">Contributing to our Docs</a>.</li>
 </ul>
-<p>Also, read <a href="contributing/testing-guide.html">testing guide</a> to run tests in <code>crossbow</code>.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="how-to-contribute-code"><a class="header" href="#how-to-contribute-code">How to Contribute Code</a></h1>
-<p>Would you like to contribute code to Crossbow? Here's how!</p>
+<p>Also, read <a href="#testing-guide">testing guide</a> to run tests in <code>crossbow</code>.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="how-to-contribute-code"><a class="header" href="#how-to-contribute-code">How to Contribute Code</a></h1>
+<p>Would you like to contribute code to Crossbow? Here’s how!</p>
 <ol>
-<li>Fork the <a href="https://github.com/dodorare/crossbow">dodorare/crossbow</a> repository on GitHub, you'll need to create a GitHub account if you don't have one already.*</li>
+<li>Fork the <a href="https://github.com/dodorare/crossbow">dodorare/crossbow</a> repository on GitHub, you’ll need to create a GitHub account if you don’t have one already.*</li>
 <li>Make your changes in a local clone of your fork.</li>
 <li>For a higher chance of CI passing the first time, consider run these commands from the root of your local clone:
 <ol>
-<li><code>cargo fmt --all -- --check</code> (remove --check to let the command fix found problems)</li>
-<li><code>cargo clippy --all-targets --all-features -- -D warnings -A clippy::unnecessary-unwrap -A clippy::too-many-arguments</code></li>
+<li><code>cargo fmt --all -- --check</code> (remove –check to let the command fix found problems)</li>
+<li><code>cargo clippy --all-targets --all-features -- -D warnings -A clippy::unnecessary-unwrap -A clippy::too-many-arguments -A clippy::result_large_err</code></li>
 <li><code>cargo test --all-targets --workspace</code></li>
 </ol>
 </li>
@@ -1170,28 +1237,31 @@ To build native APK and run it on the device using the command. If you want to b
 <blockquote>
 <p>The same steps apply for any other repository in the organization that you would like to contribute to.</p>
 </blockquote>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="how-to-contribute-docs"><a class="header" href="#how-to-contribute-docs">How to Contribute Docs</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="how-to-contribute-docs"><a class="header" href="#how-to-contribute-docs">How to Contribute Docs</a></h1>
 <h2 id="crossbow-documentation"><a class="header" href="#crossbow-documentation">Crossbow Documentation</a></h2>
 <p>If you want to contribute to this documentation, please see the <a href="contributing/contributing/docs.html">Contributing</a> section.</p>
 <ol>
-<li>Fork the <a href="https://github.com/dodorare/crossbow">dodorare/crossbow</a> repository on GitHub, you'll need to create a GitHub account if you don't have one already.*</li>
+<li>Fork the <a href="https://github.com/dodorare/crossbow">dodorare/crossbow</a> repository on GitHub, you’ll need to create a GitHub account if you don’t have one already.*</li>
 <li>Install <a href="https://rust-lang.github.io/mdBook/guide/installation.html">mdBook</a>.</li>
-<li>In the &quot;docs/&quot; directory, run <code>mdbook serve --open</code> and make your changes in a local clone of your fork.</li>
+<li>In the “docs/” directory, run <code>mdbook serve --open</code> and make your changes in a local clone of your fork.</li>
 <li>Push your changes to your fork and open a <a href="https://github.com/dodorare/crossbow/compare">Pull Request</a>.</li>
 <li>Respond to any CI failures or review feedback.</li>
 </ol>
 <!-- Remember to follow Crossbow's Code of Conduct, and thanks for contributing! -->
-<p>That's all, big thanks for contributing!</p>
+<p>That’s all, big thanks for contributing!</p>
 <blockquote>
 <p>The same steps apply for any other repository in the organization that you would like to contribute to.</p>
 </blockquote>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="testing-guide"><a class="header" href="#testing-guide">Testing guide</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="testing-guide"><a class="header" href="#testing-guide">Testing guide</a></h1>
 <h2 id="how-to-run-tests-in-crossbow"><a class="header" href="#how-to-run-tests-in-crossbow">How to run tests in crossbow</a></h2>
-<p>In <code>crossbow</code>, we have unit tests, integration tests, and examples. To run tests, you will need to set up an <strong>Android</strong> and <strong>Apple</strong> environment (you can find more information in <a href="contributing/../install/README.html">installation category</a>).</p>
+<p>In <code>crossbow</code>, we have unit tests, integration tests, and examples. To run tests, you will need to set up an <strong>Android</strong> and <strong>Apple</strong> environment (you can find more information in <a href="install/README.html">installation category</a>).</p>
 <p>If you want to run tests for our <code>crossbundle</code> crate, you can make it by the following steps: download this repository, proceed to the <code>crossbundle/tools</code> directory, and run <code>cargo test</code>. It will run all tests for the <code>crossbundle-tools</code> crate that is primarily used by <code>crossbundle</code>.</p>
 <h2 id="in-case-of-issues"><a class="header" href="#in-case-of-issues">In case of issues</a></h2>
 <p>Feel free to open <a href="https://github.com/dodorare/crossbow/issues/new/choose">Github Issues</a> - we will be happy to fix or review them.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="contributors"><a class="header" href="#contributors">Contributors</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="contributors"><a class="header" href="#contributors">Contributors</a></h1>
 <p>Here is a list of the contributors who have helped improving <code>Crossbow</code>. Big shout-out to them!</p>
 <ul>
 <li>David (<a href="https://github.com/enfipy">enfipy</a>) - Project Lead</li>
@@ -1200,8 +1270,14 @@ To build native APK and run it on the device using the command. If you want to b
 <li>Adil (<a href="https://github.com/Adoka3710">Adoka3710</a>)</li>
 <li>Rodrigo (<a href="https://github.com/rodrigocam">rodrigocam</a>)</li>
 </ul>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="development-roadmap"><a class="header" href="#development-roadmap">Development Roadmap</a></h1>
-<div class="table-wrapper"><table><thead><tr><th style="text-align: right">Number</th><th>Title</th><th>Specification</th><th>Status</th></tr></thead><tbody>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="development-roadmap"><a class="header" href="#development-roadmap">Development Roadmap</a></h1>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th style="text-align: right">Number</th><th>Title</th><th>Specification</th><th>Status</th></tr>
+</thead>
+<tbody>
 <tr><td style="text-align: right">1.</td><td>Support AAB</td><td>Add support of generation AAB file. <a href="https://developer.android.com/guide/app-bundle">Android App Bundle</a> is a publishing format that includes all your app’s compiled code and resources.</td><td>✅</td></tr>
 <tr><td style="text-align: right">2.</td><td>Support Macroquad engine</td><td>Add support of <a href="https://macroquad.rs/">Macroquad</a> engine. We will change our crossbundle command-line tool to support Android and iOS building of Macroquad.</td><td>✅</td></tr>
 <tr><td style="text-align: right">3.</td><td>Support Android Plugins</td><td>Add support of Android plugins to help add additional functionality provided by the Android platform and ecosystem (like Ads, Auth, In-app purchases, etc.). Something similar to <a href="https://docs.godotengine.org/en/stable/tutorials/plugins/android/android_plugin.html">Godot Android plugins</a>.</td><td>✅</td></tr>
@@ -1215,7 +1291,8 @@ To build native APK and run it on the device using the command. If you want to b
 <tr><td style="text-align: right">11.</td><td>Android In-App purchases &amp; Google Play Billing</td><td>Add support for <a href="https://github.com/godotengine/godot-google-play-billing">Google Play Billing</a>. Make it possible to buy items from your application.</td><td>✅</td></tr>
 <tr><td style="text-align: right">12.</td><td>Support Apple In-App purchases</td><td>Support Apple <a href="https://developer.apple.com/documentation/storekit/in-app_purchase">StoreKit</a>. Make it possible to buy items from your application.</td><td>📝</td></tr>
 <tr><td style="text-align: right">13.</td><td>Support Android In-App updates</td><td>Add support for <a href="https://developer.android.com/guide/playcore/in-app-updates">Android In-App updates</a>.</td><td>✅</td></tr>
-</tbody></table>
+</tbody>
+</table>
 </div>
 <p>✅ = Works and tested — 🆗 = Works but may contain bugs — 🛠 = Under development — 📝 = Planned</p>
 <h2 id="useful-links"><a class="header" href="#useful-links">Useful links</a></h2>
@@ -1235,7 +1312,8 @@ To build native APK and run it on the device using the command. If you want to b
 <li>https://docs.microsoft.com/en-gb/xamarin/essentials</li>
 <li>https://docs.microsoft.com/en-us/xamarin/essentials/permissions</li>
 </ul>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="special-thanks"><a class="header" href="#special-thanks">Special Thanks</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="special-thanks"><a class="header" href="#special-thanks">Special Thanks</a></h1>
 <p>This project initially funded by <a href="https://github.com/w3f/Grants-Program/blob/master/applications/crossbow.md">Web3 Foundation Grants Program</a>. Big shout-out to them!</p>
 <p>If you want to support this project - contact us on our corporate email: <a href="mailto:support@dodorare.com">support@dodorare.com</a>.</p>
 
@@ -1256,29 +1334,36 @@ To build native APK and run it on the device using the command. If you want to b
 
         </div>
 
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
 
 
 
-        <script type="text/javascript">
+        <script>
             window.playground_copyable = true;
         </script>
 
 
-        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
 
-        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
-        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-609e4cb8.js"></script>
 
         <!-- Custom JS scripts -->
 
-        <script type="text/javascript">
+        <script>
         window.addEventListener('load', function() {
             window.setTimeout(window.print, 100);
         });
         </script>
 
+
+    </div>
     </body>
 </html>
