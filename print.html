@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-5b60d72f.js";
+            window.path_to_searchindex_js = "searchindex-8d57a101.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-5d1879bc.js"></script>
+        <script src="toc-68696ddf.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -1152,63 +1152,6 @@ MYAPP_UPLOAD_KEY_PASSWORD=123456
 <p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="https://i.imgur.com/2DTnidE.png" alt="Internal testing"><span class="img-wrapper"><img src="https://i.imgur.com/2DTnidE.png" alt="Internal testing"></span></label></p>
 <p>Feel free to add some other lanes to fill your needs, here’s the <a href="http://docs.fastlane.tools/actions/">full list</a> of them.</p>
 <p>If you found a bug or issue - you can find or create an issue in <a href="https://github.com/dodorare/crossbow">this</a> repository.</p>
-<div style="break-before: page; page-break-before: always;"></div>
-<h1 id="using-subxt-with-bevy-engine"><a class="header" href="#using-subxt-with-bevy-engine">Using subxt with bevy engine</a></h1>
-<ol>
-<li>
-<p>You need to install crossbundle if you haven’t already. See <a href="install/README.html">documention</a> to install it and configure your project.</p>
-</li>
-<li>
-<p>Specify <code>subxt</code> crate and <code>bevy</code> in your Cargo.toml. We prefer to use versions below:</p>
-</li>
-</ol>
-<pre><code class="language-toml">[dependencies]
-subxt = "0.23"
-bevy = "0.8.1"
-</code></pre>
-<blockquote>
-<p>You might need additional dependencies to write your code. See <a href="/examples/bevy-explorer/Cargo.toml">examples/bevy-explorer/cargo.toml</a></p>
-</blockquote>
-<h2 id="bevy-explorer-example"><a class="header" href="#bevy-explorer-example">Bevy explorer example</a></h2>
-<p>To learn how to use subxt with bevy engine, you can go to the <a href="/examples/bevy-explorer">examples/bevy-explorer</a> or install bevy explorer template. Follow next steps:</p>
-<ol>
-<li>Install cargo-generate:</li>
-</ol>
-<pre><code class="language-sh">cargo install cargo-generate
-</code></pre>
-<ol start="2">
-<li>Install bevy-explorer template:</li>
-</ol>
-<pre><code class="language-sh">crossbundle new example --template=bevy-explorer
-</code></pre>
-<ol start="3">
-<li>After previous steps, now you can install the application on the device.</li>
-</ol>
-<h2 id="installing-application-on-the-device"><a class="header" href="#installing-application-on-the-device">Installing application on the device</a></h2>
-<p>You can deploy the application on your device or <a href="#set-up-your-android-device-3">android emulator</a> with commands below. At first, you should go to example directory. Use it:</p>
-<p>Bash:</p>
-<blockquote>
-<p>If the template was installed</p>
-</blockquote>
-<pre><code class="language-sh">cd example
-</code></pre>
-<blockquote>
-<p>If bevy-explorer example will be used</p>
-</blockquote>
-<pre><code class="language-sh">cd example/bevy-explorer
-</code></pre>
-<p>By default <code>crossbundle build android</code> command will generate gradle project and install apk on your device. To build native <code>.apk</code> and <code>.aab</code> see commands below.
-To build native APK and run it on the device using the command. If you want to build an application replaces <code>run</code> with <code>build</code>.</p>
-<pre><code class="language-sh">crossbundle run android -s=native-apk
-</code></pre>
-<blockquote>
-<p>or</p>
-</blockquote>
-<pre><code class="language-sh">crossbundle run ios
-</code></pre>
-<p>To build native AAB and run it on the device using the command. If you want to build an application replaces <code>run</code> with <code>build</code>.</p>
-<pre><code class="language-sh">crossbundle run android -s=native-aab
-</code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="contributing"><a class="header" href="#contributing">Contributing</a></h1>
 <p>If you want to help us build an awesome Cross-Platform future for Rust Games, please reach out! We need all the help we can get:</p>
