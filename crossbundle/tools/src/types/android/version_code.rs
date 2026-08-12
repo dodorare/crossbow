@@ -18,7 +18,7 @@ impl Version {
 
     /// Create `Version` by parsing from string representation
     pub fn from_semver(version: &str) -> Result<Self> {
-        let mut iter = version.split(|c1| ['.', '-', '+'].iter().any(|c2| c1 == *c2));
+        let mut iter = version.split(|c| ['.', '-', '+'].contains(&c));
         let mut p = || {
             iter.next()
                 .ok_or(AndroidError::InvalidSemver)?

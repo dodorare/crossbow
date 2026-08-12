@@ -8,11 +8,10 @@ edition = "2021"
 crossbow = { version = "0.2.3", path = "../../" }
 log = "0.4"
 anyhow = "1.0"
-subxt = "0.23.0"
-tokio = { version = "1.17", features = ["sync", "macros", "rt-multi-thread"] }
-bevy = { version = "0.8.1", default-features = false, features = ["bevy_winit", "render", "bevy_asset"] }
-codec = { package = "parity-scale-codec", version = "3.0.0", default-features = false, features = ["derive", "full", "bit-vec"] }
-jsonrpsee = { version = "0.15.1", features = ["async-client", "client-ws-transport"] }
+subxt = "0.50.3"
+tokio = { version = "1.53", features = ["sync", "macros", "rt-multi-thread"] }
+bevy = { version = "0.19.0", default-features = false, features = ["ui"] }
+codec = { package = "parity-scale-codec", version = "3.7.5", default-features = false, features = ["derive", "full", "bit-vec"] }
 
 [package.metadata]
 app_name = "Bevy Explorer"

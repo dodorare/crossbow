@@ -119,7 +119,7 @@ pub enum Error {
     /// Failed to find cargo manifest: {0}
     FailedToFindCargoManifest(String),
     /// Failed to choose shell string color.
-    /// Argument for --color must be auto, always, or never, but found `{}`
+    /// Argument for --color must be auto, always, or never, but found `{0}`
     FailedToChooseShellStringColor(String),
     /// IO error: {0:?}
     Io(#[from] std::io::Error),

@@ -26,10 +26,15 @@ async fn main() -> anyhow::Result<()> {
         draw_cube_wires(vec3(0., 1., 6.), vec3(2., 2., 2.), DARKBLUE);
         draw_cube_wires(vec3(2., 1., 2.), vec3(2., 2., 2.), YELLOW);
 
-        draw_plane(vec3(-8., 0., -8.), vec2(5., 5.), rust_logo, WHITE);
+        draw_plane(vec3(-8., 0., -8.), vec2(5., 5.), Some(&rust_logo), WHITE);
 
-        draw_cube(vec3(-5., 1., -2.), vec3(2., 2., 2.), rust_logo, WHITE);
-        draw_cube(vec3(-5., 1., 2.), vec3(2., 2., 2.), rust_logo, WHITE);
+        draw_cube(
+            vec3(-5., 1., -2.),
+            vec3(2., 2., 2.),
+            Some(&rust_logo),
+            WHITE,
+        );
+        draw_cube(vec3(-5., 1., 2.), vec3(2., 2., 2.), Some(&rust_logo), WHITE);
         draw_cube(vec3(2., 0., -2.), vec3(0.4, 0.4, 0.4), None, BLACK);
 
         draw_sphere(vec3(-8., 0., 0.), 1., None, BLUE);
@@ -45,6 +50,7 @@ async fn main() -> anyhow::Result<()> {
 
 // Workaround. Failed to get assets on windows from the macroquad .load_texture() method
 // through the relative path to asset
+#[cfg(not(target_os = "android"))]
 fn get_assets_from_path() -> String {
     let manifest_dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let assets_dir = manifest_dir.parent().unwrap().parent().unwrap();

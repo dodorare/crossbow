@@ -2,16 +2,17 @@ use super::JniRustType;
 use async_channel::Receiver;
 use jni::{
     errors::*,
-    objects::{GlobalRef, JClass, JObject, JValue},
-    signature::{JavaType, TypeSignature},
-    JNIEnv,
+    objects::{Global, JObject, JValue, JValueOwned},
+    signature::{JavaType, RuntimeMethodSignature},
+    strings::JNIString,
+    Env,
 };
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 
 #[derive(Clone)]
 pub struct JniSingleton {
     name: String,
-    instance: GlobalRef,
+    instance: Arc<Global<JObject<'static>>>,
     methods: HashMap<String, JniSingletonMethod>,
     signals: HashMap<String, Vec<JavaType>>,
     receiver: Receiver<Signal>,
@@ -25,22 +26,21 @@ pub struct Signal {
 
 #[derive(Clone)]
 pub struct JniSingletonMethod {
-    class: GlobalRef,
-    signature: TypeSignature,
+    signature: RuntimeMethodSignature,
 }
 
 impl JniSingleton {
-    pub fn new(name: &str, instance: GlobalRef, receiver: Receiver<Signal>) -> Self {
+    pub fn new(name: &str, instance: Global<JObject<'static>>, receiver: Receiver<Signal>) -> Self {
         Self {
             name: name.to_string(),
-            instance,
+            instance: Arc::new(instance),
             methods: HashMap::new(),
             signals: HashMap::new(),
             receiver,
         }
     }
 
-    pub fn get_instance(&self) -> JObject {
+    pub fn get_instance(&self) -> &JObject<'_> {
         self.instance.as_obj()
     }
 
@@ -60,21 +60,21 @@ impl JniSingleton {
         &self.methods
     }
 
-    pub(crate) fn add_method(&mut self, name: &str, class: GlobalRef, signature: TypeSignature) {
+    pub(crate) fn add_method(&mut self, name: &str, signature: RuntimeMethodSignature) {
         self.methods
-            .insert(name.to_owned(), JniSingletonMethod { class, signature });
+            .insert(name.to_owned(), JniSingletonMethod { signature });
     }
 
     pub(crate) fn add_signal_info(&mut self, name: &str, args: Vec<JavaType>) {
         self.signals.insert(name.to_owned(), args);
     }
 
-    pub fn call_method<'a>(
-        &'a self,
-        env: &'a JNIEnv,
+    pub fn call_method<'local>(
+        &self,
+        env: &mut Env<'local>,
         name: &str,
-        args: &[JValue],
-    ) -> Result<JValue<'a>> {
+        args: &[JValue<'_>],
+    ) -> Result<JValueOwned<'local>> {
         let method = match self.get_method(name) {
             Some(method) => method,
             None => Err(Error::MethodNotFound {
@@ -82,16 +82,12 @@ impl JniSingleton {
                 sig: "".to_owned(),
             })?,
         };
-        let class: JClass = method.class.as_obj().into();
-        let method_id = env.get_method_id(class, name, method.signature.to_string())?;
-
-        let result = env.call_method_unchecked(
+        let result = env.call_method(
             self.get_instance(),
-            method_id,
-            method.signature.ret.clone(),
+            JNIString::new(name),
+            method.signature.method_signature(),
             args,
         )?;
-        env.exception_check()?;
         Ok(result)
     }
 }

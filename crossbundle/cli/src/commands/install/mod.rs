@@ -80,17 +80,16 @@ impl InstallCommand {
 pub fn download_to_file(download_url: &str, file_path: &std::path::Path) -> Result<()> {
     let response = ureq::get(download_url)
         .call()
-        .map_err(Error::DownloadFailed)?;
+        .map_err(|e| Error::DownloadFailed(Box::from(e)))?;
     let mut out =
         std::fs::File::create(file_path).map_err(|cause| Error::JarFileCreationFailed {
             path: file_path.to_path_buf(),
             cause,
         })?;
-    std::io::copy(&mut response.into_reader(), &mut out).map_err(|cause| {
-        Error::CopyToFileFailed {
-            path: file_path.to_path_buf(),
-            cause,
-        }
+    let mut reader = response.into_body().into_reader();
+    std::io::copy(&mut reader, &mut out).map_err(|cause| Error::CopyToFileFailed {
+        path: file_path.to_path_buf(),
+        cause,
     })?;
     Ok(())
 }

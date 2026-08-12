@@ -31,7 +31,7 @@ pub enum Error {
     /// Home dir not found
     HomeDirNotFound,
     /// Failed to download jar file: {0:?}
-    DownloadFailed(ureq::Error),
+    DownloadFailed(Box<ureq::Error>),
     /// Failed to create jar file in specified path `{path}` cause of `{cause}`
     JarFileCreationFailed {
         path: std::path::PathBuf,

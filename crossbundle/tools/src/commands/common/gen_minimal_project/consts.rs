@@ -21,10 +21,7 @@ edition = "2021"
 [dependencies]
 crossbow = { git = "https://github.com/dodorare/crossbow" }
 anyhow = "1.0"
-macroquad = "=0.3.7"
-
-[patch.crates-io]
-miniquad = { git = "https://github.com/not-fl3/miniquad", rev = "d67ffe6950cf73df307e2d23aaa4726f14399985" }
+macroquad = "0.4.5"
 
 [package.metadata.android]
 app_wrapper = "quad"

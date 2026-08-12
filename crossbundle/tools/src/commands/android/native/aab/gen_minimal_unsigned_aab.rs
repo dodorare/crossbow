@@ -10,7 +10,7 @@ pub fn gen_minimal_unsigned_aab(
     aab_build_dir: &Path,
 ) -> Result<PathBuf> {
     let mut manifest = AndroidManifest {
-        package: "com.crossbow.minimal".to_owned(),
+        package: Some("com.crossbow.minimal".to_owned()),
         ..Default::default()
     };
     update_android_manifest_with_default(
@@ -41,8 +41,11 @@ pub fn gen_minimal_unsigned_aab(
 
     let gen_zip_modules = super::gen_zip_modules(aab_build_dir, package_name, &extracted_apk_path)?;
 
-    let aab_path =
-        super::gen_aab_from_modules(package_name, &[gen_zip_modules.clone()], aab_build_dir)?;
+    let aab_path = super::gen_aab_from_modules(
+        package_name,
+        std::slice::from_ref(&gen_zip_modules),
+        aab_build_dir,
+    )?;
 
     remove(vec![gen_zip_modules, extracted_apk_path])?;
     Ok(aab_path)

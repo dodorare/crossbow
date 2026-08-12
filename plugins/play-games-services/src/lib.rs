@@ -1,4 +1,8 @@
-use crossbow_android::{error::*, jni::JavaVM, plugin::*};
+use crossbow_android::{
+    error::*,
+    jni::{objects::JObjectArray, objects::JString, JavaVM},
+    plugin::*,
+};
 use std::sync::Arc;
 
 // TODO: Add better handling errors:
@@ -30,199 +34,166 @@ impl CrossbowPlugin for PlayGamesServicesPlugin {
 }
 
 impl PlayGamesServicesPlugin {
+    fn call_void(&self, method: &str) -> Result<()> {
+        self.vm.attach_current_thread(|env| {
+            self.singleton.call_method(env, method, &[])?;
+            Ok(())
+        })
+    }
+
+    fn call_bool(&self, method: &str) -> Result<bool> {
+        self.vm.attach_current_thread(|env| {
+            let value = self.singleton.call_method(env, method, &[])?;
+            Ok(value.z()?)
+        })
+    }
+
+    fn call_with_bool(&self, method: &str, value: bool) -> Result<()> {
+        self.vm.attach_current_thread(|env| {
+            self.singleton.call_method(env, method, &[value.into()])?;
+            Ok(())
+        })
+    }
+
+    fn call_with_string<S>(&self, method: &str, value: S) -> Result<()>
+    where
+        S: AsRef<str>,
+    {
+        self.vm.attach_current_thread(|env| {
+            let value = JString::from_str(env, value)?;
+            self.singleton
+                .call_method(env, method, &[(&value).into()])?;
+            Ok(())
+        })
+    }
+
+    fn call_with_string_int<S>(&self, method: &str, value: S, number: i32) -> Result<()>
+    where
+        S: AsRef<str>,
+    {
+        self.vm.attach_current_thread(|env| {
+            let value = JString::from_str(env, value)?;
+            self.singleton
+                .call_method(env, method, &[(&value).into(), number.into()])?;
+            Ok(())
+        })
+    }
+
     pub fn init(&self, enable_popups: bool) -> Result<()> {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        self.singleton
-            .call_method(&jnienv, "init", &[enable_popups.into()])?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.call_with_bool("init", enable_popups)
     }
 
     pub fn init_with_saved_games<S>(&self, enable_popups: bool, save_game_name: S) -> Result<()>
     where
         S: AsRef<str>,
     {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        let save_game_name_str = jnienv.new_string(save_game_name)?;
-        self.singleton.call_method(
-            &jnienv,
-            "initWithSavedGames",
-            &[enable_popups.into(), save_game_name_str.into()],
-        )?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.vm.attach_current_thread(|env| {
+            let save_game_name = JString::from_str(env, save_game_name)?;
+            self.singleton.call_method(
+                env,
+                "initWithSavedGames",
+                &[enable_popups.into(), (&save_game_name).into()],
+            )?;
+            Ok(())
+        })
     }
 
     pub fn sign_in(&self) -> Result<()> {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        self.singleton.call_method(&jnienv, "signIn", &[])?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.call_void("signIn")
     }
 
     pub fn sign_out(&self) -> Result<()> {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        self.singleton.call_method(&jnienv, "signOut", &[])?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.call_void("signOut")
     }
 
     pub fn is_signed_in(&self) -> Result<bool> {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        let val = self.singleton.call_method(&jnienv, "isSignedIn", &[])?;
-        Ok(val.z()?)
+        self.call_bool("isSignedIn")
     }
 
     pub fn show_achievements(&self) -> Result<()> {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        self.singleton
-            .call_method(&jnienv, "showAchievements", &[])?;
-        Ok(())
+        self.call_void("showAchievements")
     }
 
     pub fn unlock_achievement<S>(&self, achievement_name: S) -> Result<()>
     where
         S: AsRef<str>,
     {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        let achievement_name_str = jnienv.new_string(achievement_name)?;
-        self.singleton
-            .call_method(&jnienv, "unlockAchievement", &[achievement_name_str.into()])?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.call_with_string("unlockAchievement", achievement_name)
     }
 
     pub fn reveal_achievement<S>(&self, achievement_name: S) -> Result<()>
     where
         S: AsRef<str>,
     {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        let achievement_name_str = jnienv.new_string(achievement_name)?;
-        self.singleton
-            .call_method(&jnienv, "revealAchievement", &[achievement_name_str.into()])?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.call_with_string("revealAchievement", achievement_name)
     }
 
     pub fn increment_achievement<S>(&self, achievement_name: S, step: i32) -> Result<()>
     where
         S: AsRef<str>,
     {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        let achievement_name_str = jnienv.new_string(achievement_name)?;
-        self.singleton.call_method(
-            &jnienv,
-            "incrementAchievement",
-            &[achievement_name_str.into(), step.into()],
-        )?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.call_with_string_int("incrementAchievement", achievement_name, step)
     }
 
     pub fn set_achievement_steps<S>(&self, achievement_name: S, steps: i32) -> Result<()>
     where
         S: AsRef<str>,
     {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        let achievement_name_str = jnienv.new_string(achievement_name)?;
-        self.singleton.call_method(
-            &jnienv,
-            "setAchievementSteps",
-            &[achievement_name_str.into(), steps.into()],
-        )?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.call_with_string_int("setAchievementSteps", achievement_name, steps)
     }
 
     pub fn load_achievement_info(&self, force_reload: bool) -> Result<()> {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        self.singleton
-            .call_method(&jnienv, "loadAchievementInfo", &[force_reload.into()])?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.call_with_bool("loadAchievementInfo", force_reload)
     }
 
     pub fn show_leader_board<S>(&self, leader_board_id: S) -> Result<()>
     where
         S: AsRef<str>,
     {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        let leader_board_id_str = jnienv.new_string(leader_board_id)?;
-        self.singleton
-            .call_method(&jnienv, "showLeaderBoard", &[leader_board_id_str.into()])?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.call_with_string("showLeaderBoard", leader_board_id)
     }
 
     pub fn show_all_leader_boards(&self) -> Result<()> {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        self.singleton
-            .call_method(&jnienv, "showAllLeaderBoards", &[])?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.call_void("showAllLeaderBoards")
     }
 
     pub fn submit_leader_board_score<S>(&self, leader_board_id: S, score: i32) -> Result<()>
     where
         S: AsRef<str>,
     {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        let leader_board_id_str = jnienv.new_string(leader_board_id)?;
-        self.singleton.call_method(
-            &jnienv,
-            "submitLeaderBoardScore",
-            &[leader_board_id_str.into(), score.into()],
-        )?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.call_with_string_int("submitLeaderBoardScore", leader_board_id, score)
     }
 
     pub fn submit_event<S>(&self, event_id: S, increment_by: i32) -> Result<()>
     where
         S: AsRef<str>,
     {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        let event_id_str = jnienv.new_string(event_id)?;
-        self.singleton.call_method(
-            &jnienv,
-            "submitEvent",
-            &[event_id_str.into(), increment_by.into()],
-        )?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.call_with_string_int("submitEvent", event_id, increment_by)
     }
 
     pub fn load_events(&self) -> Result<()> {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        self.singleton.call_method(&jnienv, "loadEvents", &[])?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.call_void("loadEvents")
     }
 
     pub fn load_events_by_id<S>(&self, ids: &[S]) -> Result<()>
     where
         S: AsRef<str>,
     {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        let empty_str = jnienv.new_string("")?;
-        let string_array =
-            jnienv.new_object_array(ids.len() as i32, "java/lang/String", empty_str)?;
-        for (index, id) in ids.iter().enumerate() {
-            let id_str = jnienv.new_string(id)?;
-            jnienv.set_object_array_element(string_array, index as i32, id_str)?;
-        }
-        self.singleton
-            .call_method(&jnienv, "loadEventsById", &[string_array.into()])?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.vm.attach_current_thread(|env| {
+            let empty = JString::from_str(env, "")?;
+            let string_array = JObjectArray::<JString>::new(env, ids.len(), &empty)?;
+            for (index, id) in ids.iter().enumerate() {
+                let id = JString::from_str(env, id)?;
+                string_array.set_element(env, index, &id)?;
+            }
+            self.singleton
+                .call_method(env, "loadEventsById", &[(&string_array).into()])?;
+            Ok(())
+        })
     }
 
     pub fn load_player_stats(&self, force_refresh: bool) -> Result<()> {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        self.singleton
-            .call_method(&jnienv, "loadPlayerStats", &[force_refresh.into()])?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.call_with_bool("loadPlayerStats", force_refresh)
     }
 
     pub fn show_saved_games<S>(
@@ -235,55 +206,47 @@ impl PlayGamesServicesPlugin {
     where
         S: AsRef<str>,
     {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        let title_str = jnienv.new_string(title)?;
-        self.singleton.call_method(
-            &jnienv,
-            "showSavedGames",
-            &[
-                title_str.into(),
-                allow_add_btn.into(),
-                allow_delete_btn.into(),
-                max_number_of_saved_games_to_show.into(),
-            ],
-        )?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.vm.attach_current_thread(|env| {
+            let title = JString::from_str(env, title)?;
+            self.singleton.call_method(
+                env,
+                "showSavedGames",
+                &[
+                    (&title).into(),
+                    allow_add_btn.into(),
+                    allow_delete_btn.into(),
+                    max_number_of_saved_games_to_show.into(),
+                ],
+            )?;
+            Ok(())
+        })
     }
 
     pub fn save_snapshot<S>(&self, name: S, data: S, description: S) -> Result<()>
     where
         S: AsRef<str>,
     {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        let name_str = jnienv.new_string(name)?;
-        let data_str = jnienv.new_string(data)?;
-        let description_str = jnienv.new_string(description)?;
-        self.singleton.call_method(
-            &jnienv,
-            "saveSnapshot",
-            &[name_str.into(), data_str.into(), description_str.into()],
-        )?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.vm.attach_current_thread(|env| {
+            let name = JString::from_str(env, name)?;
+            let data = JString::from_str(env, data)?;
+            let description = JString::from_str(env, description)?;
+            self.singleton.call_method(
+                env,
+                "saveSnapshot",
+                &[(&name).into(), (&data).into(), (&description).into()],
+            )?;
+            Ok(())
+        })
     }
 
     pub fn load_snapshot<S>(&self, name: S) -> Result<()>
     where
         S: AsRef<str>,
     {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        let name_str = jnienv.new_string(name)?;
-        self.singleton
-            .call_method(&jnienv, "loadSnapshot", &[name_str.into()])?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.call_with_string("loadSnapshot", name)
     }
 
     pub fn load_player_info(&self) -> Result<()> {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        self.singleton.call_method(&jnienv, "loadPlayerInfo", &[])?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.call_void("loadPlayerInfo")
     }
 }

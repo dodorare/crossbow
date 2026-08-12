@@ -1,31 +1,23 @@
 use crate::error::*;
 use jni::{
+    jni_sig, jni_str,
     objects::{JClass, JString},
-    signature::JavaType,
-    strings::JavaStr,
-    JNIEnv,
+    Env,
 };
 
-pub fn jstring_to_string(env: &JNIEnv, jstring: JString) -> Result<String> {
-    Ok(JavaStr::from_env(env, jstring)?.into())
+pub fn jstring_to_string(env: &Env, jstring: &JString) -> Result<String> {
+    Ok(jstring.try_to_string(env)?)
 }
 
 /// Calls java.lang.Class.getName() and returns ClassName with is_array bool.
-pub fn get_class_name(env: &JNIEnv, cls: JClass) -> Result<String> {
-    let cclass = env.find_class("java/lang/Class")?;
-    let get_name = env.get_method_id(cclass, "getName", "()Ljava/lang/String;")?;
-    let cls_name =
-        env.call_method_unchecked(cls, get_name, JavaType::Object("".to_owned()), &[])?;
-
-    // let is_array_mid = env.get_method_id(cclass, "isArray", "()Z")?;
-    // let is_arr = env.call_method_unchecked(
-    //     cls,
-    //     is_array_mid,
-    //     JavaType::Primitive(Primitive::Boolean),
-    //     &[],
-    // )?;
-    // let is_array = is_arr.z()?;
-
-    let name = jstring_to_string(env, cls_name.l()?.into())?;
+pub fn get_class_name(env: &mut Env, cls: &JClass) -> Result<String> {
+    let cls_name = env.call_method(
+        cls,
+        jni_str!("getName"),
+        jni_sig!("()Ljava/lang/String;"),
+        &[],
+    )?;
+    let cls_name = env.cast_local::<JString>(cls_name.l()?)?;
+    let name = jstring_to_string(env, &cls_name)?;
     Ok(name)
 }

@@ -1,54 +1,74 @@
 use crate::crossbow::*;
 use jni::{
+    errors::ThrowRuntimeExAndDefault,
     objects::{JClass, JObject, JString},
     sys::jboolean,
-    JNIEnv,
+    EnvUnowned,
 };
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "C" fn Java_com_crossbow_library_CrossbowLib_initialize(
-    env: JNIEnv,
-    _class: JClass,
-    activity: JObject,
-    crossbow_instance: JObject,
-    asset_manager: JObject,
+pub extern "system" fn Java_com_crossbow_library_CrossbowLib_initialize<'local>(
+    mut env: EnvUnowned<'local>,
+    _class: JClass<'local>,
+    activity: JObject<'local>,
+    crossbow_instance: JObject<'local>,
+    asset_manager: JObject<'local>,
 ) {
-    CrossbowInstance::crossbow_on_initialize(env, activity, crossbow_instance, asset_manager)
-        .unwrap();
+    env.with_env(|env| {
+        CrossbowInstance::crossbow_on_initialize(env, &activity, &crossbow_instance, &asset_manager)
+    })
+    .resolve::<ThrowRuntimeExAndDefault>();
 }
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "C" fn Java_com_crossbow_library_CrossbowLib_onBackPressed(env: JNIEnv, _class: JClass) {
-    CrossbowInstance::crossbow_on_back_pressed(env).unwrap();
+pub extern "system" fn Java_com_crossbow_library_CrossbowLib_onBackPressed<'local>(
+    mut env: EnvUnowned<'local>,
+    _class: JClass<'local>,
+) {
+    env.with_env(CrossbowInstance::crossbow_on_back_pressed)
+        .resolve::<ThrowRuntimeExAndDefault>();
 }
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "C" fn Java_com_crossbow_library_CrossbowLib_onDestroy(env: JNIEnv, _class: JClass) {
-    CrossbowInstance::crossbow_on_destroy(env).unwrap();
+pub extern "system" fn Java_com_crossbow_library_CrossbowLib_onDestroy<'local>(
+    mut env: EnvUnowned<'local>,
+    _class: JClass<'local>,
+) {
+    env.with_env(CrossbowInstance::crossbow_on_destroy)
+        .resolve::<ThrowRuntimeExAndDefault>();
 }
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "C" fn Java_com_crossbow_library_CrossbowLib_focusIn(env: JNIEnv, _class: JClass) {
-    CrossbowInstance::crossbow_on_focus_in(env).unwrap();
+pub extern "system" fn Java_com_crossbow_library_CrossbowLib_focusIn<'local>(
+    mut env: EnvUnowned<'local>,
+    _class: JClass<'local>,
+) {
+    env.with_env(CrossbowInstance::crossbow_on_focus_in)
+        .resolve::<ThrowRuntimeExAndDefault>();
 }
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "C" fn Java_com_crossbow_library_CrossbowLib_focusOut(env: JNIEnv, _class: JClass) {
-    CrossbowInstance::crossbow_on_focus_out(env).unwrap();
+pub extern "system" fn Java_com_crossbow_library_CrossbowLib_focusOut<'local>(
+    mut env: EnvUnowned<'local>,
+    _class: JClass<'local>,
+) {
+    env.with_env(CrossbowInstance::crossbow_on_focus_out)
+        .resolve::<ThrowRuntimeExAndDefault>();
 }
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "C" fn Java_com_crossbow_library_CrossbowLib_requestPermissionResult(
-    env: JNIEnv,
-    _class: JClass,
-    permission: JString,
+pub extern "system" fn Java_com_crossbow_library_CrossbowLib_requestPermissionResult<'local>(
+    mut env: EnvUnowned<'local>,
+    _class: JClass<'local>,
+    permission: JString<'local>,
     result: jboolean,
 ) {
-    CrossbowInstance::on_request_permission_result(env, permission, result).unwrap();
+    env.with_env(|env| CrossbowInstance::on_request_permission_result(env, &permission, result))
+        .resolve::<ThrowRuntimeExAndDefault>();
 }

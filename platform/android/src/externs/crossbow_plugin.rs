@@ -1,53 +1,65 @@
 use crate::plugin::*;
 use jni::{
-    objects::{JClass, JObject, JString},
-    sys::jobjectArray,
-    JNIEnv,
+    errors::ThrowRuntimeExAndDefault,
+    objects::{JClass, JObject, JObjectArray, JString},
+    EnvUnowned,
 };
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "C" fn Java_com_crossbow_library_plugin_CrossbowPlugin_nativeRegisterSingleton(
-    env: JNIEnv,
-    _class: JClass,
-    name: JString,
-    obj: JObject,
+pub extern "system" fn Java_com_crossbow_library_plugin_CrossbowPlugin_nativeRegisterSingleton<
+    'local,
+>(
+    mut env: EnvUnowned<'local>,
+    _class: JClass<'local>,
+    name: JString<'local>,
+    obj: JObject<'local>,
 ) {
-    on_native_register_singleton(env, name, obj).unwrap();
+    env.with_env(|env| on_native_register_singleton(env, &name, &obj))
+        .resolve::<ThrowRuntimeExAndDefault>();
 }
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "C" fn Java_com_crossbow_library_plugin_CrossbowPlugin_nativeRegisterMethod(
-    env: JNIEnv,
-    _class: JClass,
-    sname: JString,
-    name: JString,
-    sig: JString,
+pub extern "system" fn Java_com_crossbow_library_plugin_CrossbowPlugin_nativeRegisterMethod<
+    'local,
+>(
+    mut env: EnvUnowned<'local>,
+    _class: JClass<'local>,
+    sname: JString<'local>,
+    name: JString<'local>,
+    sig: JString<'local>,
 ) {
-    on_native_register_method(env, sname, name, sig).unwrap();
+    env.with_env(|env| on_native_register_method(env, &sname, &name, &sig))
+        .resolve::<ThrowRuntimeExAndDefault>();
 }
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "C" fn Java_com_crossbow_library_plugin_CrossbowPlugin_nativeRegisterSignal(
-    env: JNIEnv,
-    _class: JClass,
-    plugin_name: JString,
-    signal_name: JString,
-    signal_param_types: jobjectArray,
+pub extern "system" fn Java_com_crossbow_library_plugin_CrossbowPlugin_nativeRegisterSignal<
+    'local,
+>(
+    mut env: EnvUnowned<'local>,
+    _class: JClass<'local>,
+    plugin_name: JString<'local>,
+    signal_name: JString<'local>,
+    signal_param_types: JObjectArray<'local, JString<'local>>,
 ) {
-    on_native_register_signal(env, plugin_name, signal_name, signal_param_types).unwrap();
+    env.with_env(|env| {
+        on_native_register_signal(env, &plugin_name, &signal_name, &signal_param_types)
+    })
+    .resolve::<ThrowRuntimeExAndDefault>();
 }
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "C" fn Java_com_crossbow_library_plugin_CrossbowPlugin_nativeEmitSignal(
-    env: JNIEnv,
-    _class: JClass,
-    plugin_name: JString,
-    signal_name: JString,
-    signal_params: jobjectArray,
+pub extern "system" fn Java_com_crossbow_library_plugin_CrossbowPlugin_nativeEmitSignal<'local>(
+    mut env: EnvUnowned<'local>,
+    _class: JClass<'local>,
+    plugin_name: JString<'local>,
+    signal_name: JString<'local>,
+    signal_params: JObjectArray<'local>,
 ) {
-    on_native_emit_signal(env, plugin_name, signal_name, signal_params).unwrap();
+    env.with_env(|env| on_native_emit_signal(env, &plugin_name, &signal_name, &signal_params))
+        .resolve::<ThrowRuntimeExAndDefault>();
 }

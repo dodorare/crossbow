@@ -6,7 +6,7 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         // .add_startup_system(audio)
-        .add_startup_system(icon)
+        .add_systems(Startup, icon)
         .run();
 }
 
@@ -16,11 +16,8 @@ fn icon(mut commands: Commands, asset_server: Res<AssetServer>) {
     #[cfg(target_os = "android")]
     let image_path = std::path::PathBuf::from("images").join("icon.png");
     let asset: Handle<Image> = asset_server.load(image_path);
-    commands.spawn_bundle(Camera2dBundle::default());
-    commands.spawn_bundle(SpriteBundle {
-        texture: asset,
-        ..Default::default()
-    });
+    commands.spawn(Camera2d);
+    commands.spawn(Sprite::from_image(asset));
 }
 
 // fn audio(asset_server: Res<AssetServer>, audio: Res<Audio>) {
