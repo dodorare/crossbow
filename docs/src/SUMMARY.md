@@ -33,7 +33,6 @@
     - [In-app updates tutorial](tutorials/in-app-updates.md)
     - [Google Play Billing tutorial](tutorials/play-billing.md)
     - [Fastlane](tutorials/fastlane.md)
-    - [Subxt with Bevy](tutorials/subxt-with-bevy.md)
 
 # Other
 
