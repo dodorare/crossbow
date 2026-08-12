@@ -85,16 +85,16 @@ pub enum MipmapDpi {
     Ldpi,
 }
 
-impl ToString for MipmapDpi {
-    fn to_string(&self) -> String {
-        match self {
-            Self::Xxxhdpi => "xxxhdpi".to_string(),
-            Self::Xxhdpi => "xxhdpi".to_string(),
-            Self::Xhdpi => "xhdpi".to_string(),
-            Self::Hdpi => "hdpi".to_string(),
-            Self::Mdpi => "mdpi".to_string(),
-            Self::Ldpi => "ldpi".to_string(),
-        }
+impl std::fmt::Display for MipmapDpi {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            Self::Xxxhdpi => "xxxhdpi",
+            Self::Xxhdpi => "xxhdpi",
+            Self::Xhdpi => "xhdpi",
+            Self::Hdpi => "hdpi",
+            Self::Mdpi => "mdpi",
+            Self::Ldpi => "ldpi",
+        })
     }
 }
 

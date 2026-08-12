@@ -44,9 +44,10 @@ jobs:
       with:
         distribution: adopt
         java-version: 11
-    - name: Install Crossbundle
+    - name: Install Crossbundle from Git checkout
       run: |
-        cargo install --path=./crossbundle/cli
+        $repo = (Resolve-Path .).Path.Replace('\', '/')
+        cargo install --git "file:///$repo" crossbundle
         crossbundle install --preferred
     - name: Build APK
       run: |

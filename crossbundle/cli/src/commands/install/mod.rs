@@ -86,11 +86,10 @@ pub fn download_to_file(download_url: &str, file_path: &std::path::Path) -> Resu
             path: file_path.to_path_buf(),
             cause,
         })?;
-    std::io::copy(&mut response.into_reader(), &mut out).map_err(|cause| {
-        Error::CopyToFileFailed {
-            path: file_path.to_path_buf(),
-            cause,
-        }
+    let mut reader = response.into_body().into_reader();
+    std::io::copy(&mut reader, &mut out).map_err(|cause| Error::CopyToFileFailed {
+        path: file_path.to_path_buf(),
+        cause,
     })?;
     Ok(())
 }

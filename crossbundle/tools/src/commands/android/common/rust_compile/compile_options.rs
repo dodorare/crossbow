@@ -2,9 +2,8 @@ use crate::error::*;
 use crate::types::*;
 use cargo::{
     core::{
-        compiler::{CompileKind, CompileMode, CompileTarget},
+        compiler::{CompileKind, CompileTarget, UserIntent},
         resolver::CliFeatures,
-        shell::Verbosity,
         Workspace,
     },
     ops::CompileOptions,
@@ -24,16 +23,12 @@ pub fn compile_options(
     profile: Profile,
 ) -> Result<CompileOptions> {
     // Configure compilation options so that we will build the desired build_target
-    let config = workspace.config();
-
-    // Avoid too much log info
-    config.shell().set_verbosity(Verbosity::Normal);
-
-    let mut opts = CompileOptions::new(config, CompileMode::Build)?;
+    let mut opts = CompileOptions::new(workspace.gctx(), UserIntent::Build)?;
 
     // Set the compilation target
     opts.build_config.requested_kinds = vec![CompileKind::Target(CompileTarget::new(
         build_target.rust_triple(),
+        false,
     )?)];
 
     // Set features options

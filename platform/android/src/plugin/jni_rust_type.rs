@@ -1,8 +1,8 @@
 use crate::{error::*, utils::*};
 use jni::{
-    objects::{JObject, JValue},
-    signature::{JavaType, Primitive},
-    JNIEnv,
+    jni_sig, jni_str,
+    objects::{JByteArray, JDoubleArray, JFloatArray, JIntArray, JObject, JObjectArray, JString},
+    Env,
 };
 use std::{collections::HashMap, fmt::Display};
 
@@ -154,125 +154,95 @@ impl JniRustType {
     }
 
     // TODO: Test this function. It's not tested yet and possibly can fall with errors.
-    pub fn from_jobject(env: &JNIEnv, obj: JObject) -> Result<Self> {
+    pub fn from_jobject<'local>(env: &mut Env<'local>, obj: JObject<'local>) -> Result<Self> {
         if obj.is_null() {
             return Ok(Self::Void);
         }
-        let class = env.get_object_class(obj)?;
-        let name = get_class_name(env, class)?;
+        let class = env.get_object_class(&obj)?;
+        let name = get_class_name(env, &class)?;
 
         let result = match name.as_str() {
             "V" => Self::Void,
             "java.lang.String" => {
-                let val = jstring_to_string(env, obj.into())?;
+                let string = env.cast_local::<JString>(obj)?;
+                let val = jstring_to_string(env, &string)?;
                 Self::String(val)
             }
             "[Ljava.lang.String;" => {
-                let count = env.get_array_length(obj.into_inner())?;
-                let mut arr = Vec::new();
+                let array = env.cast_local::<JObjectArray<JString>>(obj)?;
+                let count = array.len(env)?;
+                let mut arr = Vec::with_capacity(count);
                 for i in 0..count {
-                    let val = env.get_object_array_element(obj.into_inner(), i)?;
-                    arr.push(jstring_to_string(env, val.into())?);
+                    let val = array.get_element(env, i)?;
+                    arr.push(jstring_to_string(env, &val)?);
                 }
                 Self::StringArray(arr)
             }
             "java.lang.Boolean" => {
-                let bool_value = env.get_method_id(class, "booleanValue", "()Z")?;
-                let val = env.call_method_unchecked(
-                    obj,
-                    bool_value,
-                    JavaType::Primitive(Primitive::Boolean),
-                    &[],
-                )?;
+                let val = env.call_method(&obj, jni_str!("booleanValue"), jni_sig!("()Z"), &[])?;
                 Self::Boolean(val.z()?)
             }
             "java.lang.Integer" | "java.lang.Long" => {
-                let nclass = env.find_class("java/lang/Number")?;
-                let long_value = env.get_method_id(nclass, "longValue", "()J")?;
-                let val = env.call_method_unchecked(
-                    obj,
-                    long_value,
-                    JavaType::Primitive(Primitive::Long),
-                    &[],
-                )?;
+                let val = env.call_method(&obj, jni_str!("longValue"), jni_sig!("()J"), &[])?;
                 Self::Int(val.j()?)
             }
             "[I" => {
-                let count = env.get_array_length(obj.into_inner())?;
-                let mut integers = Vec::new();
-                for i in 0..count {
-                    let val = env.get_object_array_element(obj.into_inner(), i)?;
-                    integers.push(JValue::from(val).j()?);
-                }
-                Self::IntArray(integers)
+                let array = env.cast_local::<JIntArray>(obj)?;
+                let mut values = vec![0; array.len(env)?];
+                array.get_region(env, 0, &mut values)?;
+                Self::IntArray(values.into_iter().map(i64::from).collect())
             }
             "[B" => {
-                let arr = env.convert_byte_array(obj.into_inner())?;
+                let array = env.cast_local::<JByteArray>(obj)?;
+                let arr = env.convert_byte_array(&array)?;
                 Self::ByteArray(arr)
             }
             "java.lang.Float" => {
-                let nclass = env.find_class("java/lang/Number")?;
-                let long_value = env.get_method_id(nclass, "floatValue", "()F")?;
-                let res = env.call_method_unchecked(
-                    obj,
-                    long_value,
-                    JavaType::Primitive(Primitive::Float),
-                    &[],
-                )?;
+                let res = env.call_method(&obj, jni_str!("floatValue"), jni_sig!("()F"), &[])?;
                 Self::Float(res.f()?)
             }
             "java.lang.Double" => {
-                let nclass = env.find_class("java/lang/Number")?;
-                let long_value = env.get_method_id(nclass, "doubleValue", "()D")?;
-                let res = env.call_method_unchecked(
-                    obj,
-                    long_value,
-                    JavaType::Primitive(Primitive::Double),
-                    &[],
-                )?;
+                let res = env.call_method(&obj, jni_str!("doubleValue"), jni_sig!("()D"), &[])?;
                 Self::Double(res.d()?)
             }
             "[D" => {
-                let count = env.get_array_length(obj.into_inner())?;
-                let mut arr = Vec::new();
-                for i in 0..count {
-                    let val = env.get_object_array_element(obj.into_inner(), i)?;
-                    arr.push(JValue::from(val).d()?);
-                }
-                Self::DoubleArray(arr)
+                let array = env.cast_local::<JDoubleArray>(obj)?;
+                let mut values = vec![0.0; array.len(env)?];
+                array.get_region(env, 0, &mut values)?;
+                Self::DoubleArray(values)
             }
             "[F" => {
-                let count = env.get_array_length(obj.into_inner())?;
-                let mut arr = Vec::new();
-                for i in 0..count {
-                    let val = env.get_object_array_element(obj.into_inner(), i)?;
-                    arr.push(JValue::from(val).f()?);
-                }
-                Self::FloatArray(arr)
+                let array = env.cast_local::<JFloatArray>(obj)?;
+                let mut values = vec![0.0; array.len(env)?];
+                array.get_region(env, 0, &mut values)?;
+                Self::FloatArray(values)
             }
             "[Ljava.lang.Object;" => {
-                let count = env.get_array_length(obj.into_inner())?;
-                let mut arr = Vec::new();
+                let array = env.cast_local::<JObjectArray>(obj)?;
+                let count = array.len(env)?;
+                let mut arr = Vec::with_capacity(count);
                 for i in 0..count {
-                    let val = env.get_object_array_element(obj.into_inner(), i)?;
+                    let val = array.get_element(env, i)?;
                     let inner = Self::from_jobject(env, val)?;
                     arr.push(inner);
                 }
                 Self::ObjectArray(arr)
             }
             "java.util.HashMap" | "com.crossbow.library.Dictionary" => {
-                let get_keys = env.get_method_id(class, "get_keys", "()[Ljava/lang/String;")?;
-                let arr =
-                    env.call_method_unchecked(obj, get_keys, JavaType::Object("".to_owned()), &[])?;
+                let arr = env.call_method(
+                    &obj,
+                    jni_str!("get_keys"),
+                    jni_sig!("()[Ljava/lang/String;"),
+                    &[],
+                )?;
                 let keys = Self::from_jobject(env, arr.l()?)?
                     .into_string_array()
                     .ok_or(AndroidError::WrongJniRustType)?;
 
-                let get_values = env.get_method_id(class, "get_values", "()[Ljava/lang/Object;")?;
-                let arr = env.call_method_unchecked(
-                    obj,
-                    get_values,
-                    JavaType::Object("".to_owned()),
+                let arr = env.call_method(
+                    &obj,
+                    jni_str!("get_values"),
+                    jni_sig!("()[Ljava/lang/Object;"),
                     &[],
                 )?;
                 let vals = Self::from_jobject(env, arr.l()?)?;
@@ -281,7 +251,7 @@ impl JniRustType {
                 let values = vals
                     .into_object_array()
                     .ok_or(AndroidError::WrongJniRustType)?;
-                map.extend(keys.into_iter().zip(values.into_iter()));
+                map.extend(keys.into_iter().zip(values));
                 Self::Map(map)
             }
             _ => {

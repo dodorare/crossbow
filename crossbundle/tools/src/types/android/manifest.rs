@@ -10,8 +10,8 @@ pub fn update_android_manifest_with_default(
     package_name: &str,
     strategy: super::AndroidStrategy,
 ) {
-    if manifest.package.is_empty() {
-        manifest.package = format!("com.crossbow.{}", package_name.replace('-', "_"));
+    if manifest.package.as_ref().is_none_or(String::is_empty) {
+        manifest.package = Some(format!("com.crossbow.{}", package_name.replace('-', "_")));
     }
     if manifest.version_name.is_none() {
         manifest.version_name = Some("0.1.0".to_owned());

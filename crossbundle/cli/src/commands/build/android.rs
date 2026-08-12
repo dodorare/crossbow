@@ -105,10 +105,14 @@ impl AndroidBuildCommand {
             Self::prepare_assets_and_resources(&context.config, &android_build_dir)?;
         config.status_message("Reading", "AndroidManifest.xml")?;
         let manifest = Self::get_android_manifest(context, AndroidStrategy::GradleApk)?;
+        let manifest_package = manifest
+            .package
+            .as_deref()
+            .ok_or_else(|| anyhow::anyhow!("Android manifest package is missing"))?;
 
         config.status("Generating gradle project")?;
         let gradle_project_path = gen_gradle_project(
-            &manifest.package,
+            manifest_package,
             manifest.version_code.unwrap_or(1),
             &manifest
                 .version_name
@@ -182,7 +186,7 @@ impl AndroidBuildCommand {
                 std::fs::create_dir_all(&out_dir)?;
             }
             let file_name = compiled_lib.file_name().unwrap().to_owned();
-            std::fs::copy(compiled_lib, &out_dir.join(&file_name))?;
+            std::fs::copy(compiled_lib, out_dir.join(&file_name))?;
         }
         Ok(())
     }

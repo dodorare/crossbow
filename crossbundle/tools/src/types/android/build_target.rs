@@ -7,11 +7,12 @@ use serde::{Deserialize, Serialize};
 /// Android Target.
 ///
 /// More details: https://doc.rust-lang.org/nightly/rustc/platform-support.html
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq, Deserialize, Serialize)]
 pub enum AndroidTarget {
     #[serde(rename = "armv7-linux-androideabi")]
     Armv7,
     #[serde(rename = "aarch64-linux-android")]
+    #[default]
     Aarch64,
     #[serde(rename = "i686-linux-android")]
     I686,
@@ -69,12 +70,6 @@ impl AndroidTarget {
             Self::I686 => "i386",
             Self::X8664 => "x86_64",
         }
-    }
-}
-
-impl Default for AndroidTarget {
-    fn default() -> Self {
-        Self::Aarch64
     }
 }
 

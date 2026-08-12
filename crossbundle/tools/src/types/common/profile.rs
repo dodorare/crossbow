@@ -1,8 +1,9 @@
 use crate::error::Error;
 use std::{path::Path, str::FromStr};
 
-#[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
+#[derive(Copy, Clone, Debug, Default, Eq, Hash, PartialEq)]
 pub enum Profile {
+    #[default]
     Debug,
     Release,
 }
@@ -34,17 +35,11 @@ impl FromStr for Profile {
     }
 }
 
-impl ToString for Profile {
-    fn to_string(&self) -> String {
-        match self {
-            Self::Debug => "debug".to_string(),
-            Self::Release => "release".to_string(),
-        }
-    }
-}
-
-impl Default for Profile {
-    fn default() -> Self {
-        Self::Debug
+impl std::fmt::Display for Profile {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            Self::Debug => "debug",
+            Self::Release => "release",
+        })
     }
 }

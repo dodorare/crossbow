@@ -60,7 +60,7 @@ fn test_aapt2_link() {
 
     // Generates minimal android manifest
     let mut android_manifest = android_manifest::AndroidManifest {
-        package: "com.crossbow.example".to_owned(),
+        package: Some("com.crossbow.example".to_owned()),
         ..Default::default()
     };
     update_android_manifest_with_default(

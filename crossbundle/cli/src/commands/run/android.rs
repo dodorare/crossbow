@@ -57,11 +57,11 @@ impl AndroidRunCommand {
         config.status("Installing APKs file")?;
         InstallApks::new(&apks_path).run()?;
         config.status("Starting APK file")?;
-        start_app(
-            &sdk,
-            &android_manifest.package,
-            "android.app.NativeActivity",
-        )?;
+        let package = android_manifest
+            .package
+            .as_deref()
+            .ok_or_else(|| anyhow::anyhow!("Android manifest package is missing"))?;
+        start_app(&sdk, package, "android.app.NativeActivity")?;
         if self.log {
             config.status("Attaching logger")?;
             std::thread::sleep(std::time::Duration::from_secs(2));
@@ -77,11 +77,11 @@ impl AndroidRunCommand {
         config.status("Installing APK file")?;
         install_apk(&sdk, &apk_path)?;
         config.status("Starting APK file")?;
-        start_app(
-            &sdk,
-            &android_manifest.package,
-            "android.app.NativeActivity",
-        )?;
+        let package = android_manifest
+            .package
+            .as_deref()
+            .ok_or_else(|| anyhow::anyhow!("Android manifest package is missing"))?;
+        start_app(&sdk, package, "android.app.NativeActivity")?;
         if self.log {
             config.status("Attaching logger")?;
             std::thread::sleep(std::time::Duration::from_secs(2));

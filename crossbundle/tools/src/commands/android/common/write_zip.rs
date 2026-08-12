@@ -1,11 +1,13 @@
 use std::path::Path;
-use zip::{write::FileOptions, ZipWriter};
+use zip::ZipWriter;
+use zip_extensions::deflate::zip_writer_extensions::ZipWriterExtensions;
 
 /// Writing files into archive
 pub fn zip_write(source_path: &Path, archive_file: &Path) -> zip::result::ZipResult<()> {
     let file = std::fs::File::create(archive_file)?;
     let mut zip = ZipWriter::new(file);
-    zip.add_directory(source_path.to_str().unwrap(), FileOptions::default())?;
+    zip.create_from_directory(&source_path.to_path_buf())?;
+    zip.finish()?;
     Ok(())
 }
 
@@ -22,4 +24,48 @@ pub fn zip_dirs_to_write(source_path: &Path) -> fs_extra::error::Result<()> {
         fs_extra::file::move_file(&path, manifest_path.join("AndroidManifest.xml"), &options)?;
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Read;
+
+    #[test]
+    fn zip_write_archives_directory_contents() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let source_dir = temp_dir.path().join("module");
+        let manifest_dir = source_dir.join("manifest");
+        let library_dir = source_dir.join("lib").join("arm64-v8a");
+        std::fs::create_dir_all(&manifest_dir).unwrap();
+        std::fs::create_dir_all(&library_dir).unwrap();
+        std::fs::write(
+            manifest_dir.join("AndroidManifest.xml"),
+            b"<manifest package=\"com.crossbow.test\" />",
+        )
+        .unwrap();
+        std::fs::write(library_dir.join("libcrossbow.so"), b"native-library").unwrap();
+
+        let archive_path = temp_dir.path().join("module.zip");
+        zip_write(&source_dir, &archive_path).unwrap();
+
+        let archive_file = std::fs::File::open(archive_path).unwrap();
+        let mut archive = zip::ZipArchive::new(archive_file).unwrap();
+
+        let mut manifest = String::new();
+        archive
+            .by_name("manifest/AndroidManifest.xml")
+            .unwrap()
+            .read_to_string(&mut manifest)
+            .unwrap();
+        assert_eq!(manifest, "<manifest package=\"com.crossbow.test\" />");
+
+        let mut library = Vec::new();
+        archive
+            .by_name("lib/arm64-v8a/libcrossbow.so")
+            .unwrap()
+            .read_to_end(&mut library)
+            .unwrap();
+        assert_eq!(library, b"native-library");
+    }
 }

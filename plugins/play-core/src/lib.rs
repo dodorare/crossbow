@@ -28,17 +28,16 @@ impl CrossbowPlugin for PlayCorePlugin {
 
 impl PlayCorePlugin {
     pub fn check_update(&self) -> Result<()> {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        self.singleton.call_method(&jnienv, "checkUpdate", &[])?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.vm.attach_current_thread(|env| {
+            self.singleton.call_method(env, "checkUpdate", &[])?;
+            Ok(())
+        })
     }
 
     pub fn in_progress_update(&self) -> Result<()> {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        self.singleton
-            .call_method(&jnienv, "inProgressUpdate", &[])?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.vm.attach_current_thread(|env| {
+            self.singleton.call_method(env, "inProgressUpdate", &[])?;
+            Ok(())
+        })
     }
 }

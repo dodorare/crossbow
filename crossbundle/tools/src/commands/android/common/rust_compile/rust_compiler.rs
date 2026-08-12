@@ -24,8 +24,8 @@ pub fn rust_compile(
     let ar = ndk.toolchain_bin("ar", build_target)?;
     std::env::set_var(format!("AR_{}", rust_triple), ar);
 
-    let cargo_config = cargo::util::Config::default()?;
-    let workspace = cargo::core::Workspace::new(&project_path.join("Cargo.toml"), &cargo_config)?;
+    let cargo_context = cargo::util::GlobalContext::default()?;
+    let workspace = cargo::core::Workspace::new(&project_path.join("Cargo.toml"), &cargo_context)?;
 
     // Define directory to build project
     let build_target_dir = workspace

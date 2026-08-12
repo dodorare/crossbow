@@ -1,348 +1,170 @@
 use bevy::{prelude::*, tasks::AsyncComputeTaskPool};
-use jsonrpsee::core::client::CertificateStore;
-use std::path::PathBuf;
-use subxt::{
-    rpc::{RpcClientBuilder, Uri, WsTransportClientBuilder},
-    OnlineClient, PolkadotConfig,
-};
+use subxt::{OnlineClient, PolkadotConfig};
 use tokio::sync::mpsc;
 
-#[subxt::subxt(runtime_metadata_path = "res/polkadot_metadata.scale")]
-pub mod bevy_explorer {}
+pub const TEXT_FONT_SIZE: f32 = 24.0;
+pub const URL: &str = "wss://rpc.polkadot.io";
 
-#[cfg(not(target_os = "android"))]
-pub const TEXT_FONT_SIZE: f32 = 30.0;
-#[cfg(target_os = "android")]
-pub const TEXT_FONT_SIZE: f32 = 30.0;
-pub const URL: &str = "wss://rpc.polkadot.io:443";
-pub const BUFFER: usize = 1;
-pub const FONT: &str = "fonts/FiraSans-Bold.ttf";
-
+#[derive(Resource)]
 pub struct ExplorerStateChannel {
-    pub tx: mpsc::Sender<ExplorerState>,
-    pub rx: mpsc::Receiver<ExplorerState>,
+    tx: mpsc::Sender<ExplorerState>,
+    rx: mpsc::Receiver<ExplorerState>,
 }
 
 impl ExplorerStateChannel {
     pub fn new() -> Self {
-        let (tx, rx) = mpsc::channel(BUFFER);
+        let (tx, rx) = mpsc::channel(1);
         Self { tx, rx }
     }
 }
 
 pub fn explorer_startup(channel: Res<ExplorerStateChannel>) {
-    let thread_pool = AsyncComputeTaskPool::get();
     let tx = channel.tx.clone();
-
-    #[cfg(target_os = "android")]
-    let certificate = CertificateStore::WebPki;
-    #[cfg(not(target_os = "android"))]
-    let certificate = CertificateStore::Native;
-
-    thread_pool
+    AsyncComputeTaskPool::get()
         .spawn(async move {
-            let rt = tokio::runtime::Runtime::new().unwrap();
-            rt.block_on(async {
-                info!("Connecting to Substrate Node");
-                let url: Uri = URL.parse().unwrap();
-                let (sender, receiver) = WsTransportClientBuilder::default()
-                    .certificate_store(certificate)
-                    .build(url)
-                    .await
-                    .unwrap();
-                let rpc_client = RpcClientBuilder::default().build_with_tokio(sender, receiver);
-
-                let api = OnlineClient::<PolkadotConfig>::from_rpc_client(rpc_client)
-                    .await
-                    .unwrap();
-
-                let client = api.rpc();
-                loop {
-                    let (block_hash, finalized_head) =
-                        tokio::try_join!(client.block_hash(None), client.finalized_head()).unwrap();
-                    let (best, finalized) = tokio::try_join!(
-                        client.header(block_hash),
-                        client.header(Some(finalized_head))
-                    )
-                    .unwrap();
-                    let best = best.unwrap();
-                    let finalized = finalized.unwrap();
-                    tx.send(ExplorerState {
-                        best_block_number: best.number,
-                        best_block_hash: best.hash().to_string(),
-                        best_block_parent_hash: best.parent_hash.to_string(),
-                        finalized_block_number: finalized.number,
-                        finalized_block_hash: finalized.hash().to_string(),
-                        finalized_block_parent_hash: finalized.parent_hash.to_string(),
-                    })
-                    .await
-                    .ok();
+            let runtime = tokio::runtime::Runtime::new().expect("create Tokio runtime");
+            runtime.block_on(async move {
+                if let Err(error) = stream_blocks(tx).await {
+                    error!("Polkadot block stream stopped: {error:#}");
                 }
             });
         })
         .detach();
 }
 
+async fn stream_blocks(tx: mpsc::Sender<ExplorerState>) -> anyhow::Result<()> {
+    info!("Connecting to {URL}");
+    let api = OnlineClient::<PolkadotConfig>::from_url(URL).await?;
+    let mut best_blocks = api.stream_best_blocks().await?;
+    let mut finalized_blocks = api.stream_blocks().await?;
+    let mut state = ExplorerState::default();
+
+    loop {
+        tokio::select! {
+            block = best_blocks.next() => {
+                let block = block.ok_or_else(|| anyhow::anyhow!("best-block stream ended"))??;
+                state.best = BlockState {
+                    number: block.number(),
+                    hash: block.hash().to_string(),
+                    parent_hash: block.header().parent_hash.to_string(),
+                };
+            }
+            block = finalized_blocks.next() => {
+                let block = block.ok_or_else(|| anyhow::anyhow!("finalized-block stream ended"))??;
+                state.finalized = BlockState {
+                    number: block.number(),
+                    hash: block.hash().to_string(),
+                    parent_hash: block.header().parent_hash.to_string(),
+                };
+            }
+        }
+
+        // The UI only needs the most recent snapshot; skipping a full buffer is intentional.
+        let _ = tx.try_send(state.clone());
+    }
+}
+
 #[derive(Debug, Default, Clone)]
-pub struct ExplorerState {
-    // Best block
-    best_block_number: u32,
-    best_block_hash: String,
-    best_block_parent_hash: String,
-    // Finalized block
-    finalized_block_number: u32,
-    finalized_block_hash: String,
-    finalized_block_parent_hash: String,
+struct ExplorerState {
+    best: BlockState,
+    finalized: BlockState,
 }
 
-#[derive(Debug, Copy, Clone, Component, Reflect)]
-#[reflect(Component)]
-pub enum Block {
-    Best(BlockTexts),
-    Finalized(BlockTexts),
+#[derive(Debug, Default, Clone)]
+struct BlockState {
+    number: u64,
+    hash: String,
+    parent_hash: String,
 }
 
-impl Default for Block {
-    fn default() -> Self {
-        Self::Best(BlockTexts::Number)
-    }
-}
-
-#[derive(Debug, Copy, Clone, Component, Reflect)]
-#[reflect(Component)]
-pub enum BlockTexts {
-    Number,
-    Hash,
-    Parent,
-}
-
-impl Default for BlockTexts {
-    fn default() -> Self {
-        Self::Number
-    }
+#[derive(Debug, Copy, Clone, Component)]
+pub enum BlockText {
+    BestNumber,
+    BestHash,
+    BestParent,
+    FinalizedNumber,
+    FinalizedHash,
+    FinalizedParent,
 }
 
 pub fn explorer_text_updater(
     mut channel: ResMut<ExplorerStateChannel>,
-    mut interaction_query: Query<(&mut Text, &Block), (With<Block>,)>,
+    mut texts: Query<(&mut Text, &BlockText)>,
 ) {
-    let state = channel.rx.blocking_recv().unwrap();
-    for (mut text, block) in interaction_query.iter_mut() {
-        match block {
-            Block::Best(texts) => match texts {
-                BlockTexts::Number => {
-                    text.sections[0].value = format!("Number: {}", state.best_block_number)
-                }
-                BlockTexts::Hash => {
-                    text.sections[0].value = format!("Hash: {}", state.best_block_hash)
-                }
-                BlockTexts::Parent => {
-                    text.sections[0].value = format!("Parent: {}", state.best_block_parent_hash)
-                }
-            },
-            Block::Finalized(texts) => match texts {
-                BlockTexts::Number => {
-                    text.sections[0].value = format!("Number: {}", state.finalized_block_number)
-                }
-                BlockTexts::Hash => {
-                    text.sections[0].value = format!("Hash: {}", state.finalized_block_hash)
-                }
-                BlockTexts::Parent => {
-                    text.sections[0].value = format!("Parent: {}", state.best_block_parent_hash)
-                }
-            },
+    let Ok(state) = channel.rx.try_recv() else {
+        return;
+    };
+
+    for (mut text, field) in &mut texts {
+        text.0 = match field {
+            BlockText::BestNumber => format!("Number: {}", state.best.number),
+            BlockText::BestHash => format!("Hash: {}", state.best.hash),
+            BlockText::BestParent => format!("Parent: {}", state.best.parent_hash),
+            BlockText::FinalizedNumber => format!("Number: {}", state.finalized.number),
+            BlockText::FinalizedHash => format!("Hash: {}", state.finalized.hash),
+            BlockText::FinalizedParent => format!("Parent: {}", state.finalized.parent_hash),
         };
     }
 }
 
-pub fn explorer_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
-    #[cfg(not(target_os = "android"))]
-    let font_handle: Handle<Font> = asset_server.load(get_assets_path(PathBuf::from(FONT)));
-    #[cfg(target_os = "android")]
-    let font_handle: Handle<Font> = asset_server.load(FONT);
-    commands.spawn_bundle(Camera2dBundle::default());
-    // Root node (padding)
+pub fn explorer_ui(mut commands: Commands) {
+    commands.spawn(Camera2d);
     commands
-        .spawn_bundle(NodeBundle {
-            style: Style {
-                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
-                #[cfg(not(target_os = "ios"))]
-                padding: UiRect {
-                    left: Val::Percent(6.0),
-                    right: Val::Percent(6.0),
-                    top: Val::Percent(6.0),
-                    bottom: Val::Percent(18.0),
-                },
-                #[cfg(target_os = "ios")]
-                padding: UiRect {
-                    top: Val::Percent(6.0),
-                    ..Default::default()
-                },
-                flex_direction: FlexDirection::ColumnReverse,
-                ..Default::default()
-            },
-            color: Color::NONE.into(),
-            ..Default::default()
+        .spawn(Node {
+            width: percent(100),
+            height: percent(100),
+            padding: UiRect::all(percent(6)),
+            flex_direction: FlexDirection::Column,
+            row_gap: px(24),
+            ..default()
         })
-        .with_children(|parent| {
-            // Explorer node
-            parent
-                .spawn_bundle(NodeBundle {
-                    style: Style {
-                        size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
-                        flex_direction: FlexDirection::ColumnReverse,
-                        align_items: AlignItems::FlexStart,
-                        ..Default::default()
-                    },
-                    color: Color::NONE.into(),
-                    ..Default::default()
-                })
-                .with_children(|parent| {
-                    // Best block
-                    parent
-                        .spawn_bundle(NodeBundle {
-                            style: Style {
-                                size: Size::new(Val::Percent(100.0), Val::Auto),
-                                padding: UiRect::all(Val::Percent(3.0)),
-                                flex_direction: FlexDirection::ColumnReverse,
-                                align_items: AlignItems::FlexStart,
-                                ..Default::default()
-                            },
-                            color: Color::rgba(0.15, 0.15, 0.15, 0.9).into(),
-                            ..Default::default()
-                        })
-                        .with_children(|parent| {
-                            parent.spawn_bundle(TextBundle {
-                                text: Text::from_section(
-                                    "Best block",
-                                    TextStyle {
-                                        font: font_handle.clone(),
-                                        font_size: TEXT_FONT_SIZE / 1.5,
-                                        color: Color::rgb(0.9, 0.9, 0.9),
-                                    },
-                                ),
-                                ..Default::default()
-                            });
-                            parent
-                                .spawn_bundle(TextBundle {
-                                    text: Text::from_section(
-                                        "Number: ",
-                                        TextStyle {
-                                            font: font_handle.clone(),
-                                            font_size: TEXT_FONT_SIZE,
-                                            color: Color::rgb(0.9, 0.9, 0.9),
-                                        },
-                                    ),
-                                    ..Default::default()
-                                })
-                                .insert(Block::Best(BlockTexts::Number));
-                            parent
-                                .spawn_bundle(TextBundle {
-                                    text: Text::from_section(
-                                        "Hash: ",
-                                        TextStyle {
-                                            font: font_handle.clone(),
-                                            font_size: TEXT_FONT_SIZE,
-                                            color: Color::rgb(0.9, 0.9, 0.9),
-                                        },
-                                    ),
-                                    ..Default::default()
-                                })
-                                .insert(Block::Best(BlockTexts::Hash));
-                            parent
-                                .spawn_bundle(TextBundle {
-                                    text: Text::from_section(
-                                        "Parent: ",
-                                        TextStyle {
-                                            font: font_handle.clone(),
-                                            font_size: TEXT_FONT_SIZE,
-                                            color: Color::rgb(0.9, 0.9, 0.9),
-                                        },
-                                    ),
-                                    ..Default::default()
-                                })
-                                .insert(Block::Best(BlockTexts::Parent));
-                        });
-
-                    // Finalized block
-                    parent
-                        .spawn_bundle(NodeBundle {
-                            style: Style {
-                                size: Size::new(Val::Percent(100.0), Val::Auto),
-                                margin: UiRect {
-                                    top: Val::Percent(4.0),
-                                    ..Default::default()
-                                },
-                                padding: UiRect::all(Val::Percent(3.0)),
-                                flex_direction: FlexDirection::ColumnReverse,
-                                align_items: AlignItems::FlexStart,
-                                ..Default::default()
-                            },
-                            color: Color::rgba(0.15, 0.15, 0.15, 0.9).into(),
-                            ..Default::default()
-                        })
-                        .with_children(|parent| {
-                            parent.spawn_bundle(TextBundle {
-                                text: Text::from_section(
-                                    "Finalized block",
-                                    TextStyle {
-                                        font: font_handle.clone(),
-                                        font_size: TEXT_FONT_SIZE / 1.5,
-                                        color: Color::rgb(0.9, 0.9, 0.9),
-                                    },
-                                ),
-                                ..Default::default()
-                            });
-                            parent
-                                .spawn_bundle(TextBundle {
-                                    text: Text::from_section(
-                                        "Number: ",
-                                        TextStyle {
-                                            font: font_handle.clone(),
-                                            font_size: TEXT_FONT_SIZE,
-                                            color: Color::rgb(0.9, 0.9, 0.9),
-                                        },
-                                    ),
-                                    ..Default::default()
-                                })
-                                .insert(Block::Finalized(BlockTexts::Number));
-                            parent
-                                .spawn_bundle(TextBundle {
-                                    text: Text::from_section(
-                                        "Hash: ",
-                                        TextStyle {
-                                            font: font_handle.clone(),
-                                            font_size: TEXT_FONT_SIZE,
-                                            color: Color::rgb(0.9, 0.9, 0.9),
-                                        },
-                                    ),
-                                    ..Default::default()
-                                })
-                                .insert(Block::Finalized(BlockTexts::Hash));
-                            parent
-                                .spawn_bundle(TextBundle {
-                                    text: Text::from_section(
-                                        "Parent: ",
-                                        TextStyle {
-                                            font: font_handle.clone(),
-                                            font_size: TEXT_FONT_SIZE,
-                                            color: Color::rgb(0.9, 0.9, 0.9),
-                                        },
-                                    ),
-                                    ..Default::default()
-                                })
-                                .insert(Block::Finalized(BlockTexts::Parent));
-                        });
-                });
+        .with_children(|root| {
+            spawn_block_panel(
+                root,
+                "Best block",
+                [
+                    BlockText::BestNumber,
+                    BlockText::BestHash,
+                    BlockText::BestParent,
+                ],
+            );
+            spawn_block_panel(
+                root,
+                "Finalized block",
+                [
+                    BlockText::FinalizedNumber,
+                    BlockText::FinalizedHash,
+                    BlockText::FinalizedParent,
+                ],
+            );
         });
 }
 
-/// Workaround. Failed to get assets on windows from the bevy_assets .load() method
-/// through the relative path to asset
-pub fn get_assets_path(relative_path: PathBuf) -> PathBuf {
-    let font_path = std::path::PathBuf::from("assets").join(relative_path);
-    let manifest_dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    let assets_dir = manifest_dir.parent().unwrap().parent().unwrap();
-    let font = assets_dir.join(font_path);
-    font
+fn spawn_block_panel(parent: &mut ChildSpawnerCommands, title: &str, fields: [BlockText; 3]) {
+    parent
+        .spawn((
+            Node {
+                width: percent(100),
+                padding: UiRect::all(px(20)),
+                flex_direction: FlexDirection::Column,
+                row_gap: px(10),
+                ..default()
+            },
+            BackgroundColor(Color::srgba(0.15, 0.15, 0.15, 0.9)),
+        ))
+        .with_children(|panel| {
+            panel.spawn((
+                Text::new(title),
+                TextFont::from_font_size(TEXT_FONT_SIZE * 1.25),
+                TextColor(Color::WHITE),
+            ));
+            for (label, field) in ["Number: ", "Hash: ", "Parent: "].into_iter().zip(fields) {
+                panel.spawn((
+                    Text::new(label),
+                    TextFont::from_font_size(TEXT_FONT_SIZE),
+                    TextColor(Color::srgb(0.9, 0.9, 0.9)),
+                    field,
+                ));
+            }
+        });
 }

@@ -1,4 +1,8 @@
-use crossbow_android::{error::*, jni::JavaVM, plugin::*};
+use crossbow_android::{
+    error::*,
+    jni::{objects::JString, JavaVM},
+    plugin::*,
+};
 use std::sync::Arc;
 
 pub struct AdMobPlugin {
@@ -27,6 +31,27 @@ impl CrossbowPlugin for AdMobPlugin {
 }
 
 impl AdMobPlugin {
+    fn call_void(&self, method: &str) -> Result<()> {
+        self.vm.attach_current_thread(|env| {
+            self.singleton.call_method(env, method, &[])?;
+            Ok(())
+        })
+    }
+
+    fn call_bool(&self, method: &str) -> Result<bool> {
+        self.vm.attach_current_thread(|env| {
+            let value = self.singleton.call_method(env, method, &[])?;
+            Ok(value.z()?)
+        })
+    }
+
+    fn call_int(&self, method: &str) -> Result<i32> {
+        self.vm.attach_current_thread(|env| {
+            let value = self.singleton.call_method(env, method, &[])?;
+            Ok(value.i()?)
+        })
+    }
+
     // TODO: Make async API
     // pub async fn initialize_async<S>(
     //     &self,
@@ -61,69 +86,49 @@ impl AdMobPlugin {
     where
         S: AsRef<str>,
     {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        let g_str = jnienv.new_string(max_ad_content_rating)?;
-        self.singleton.call_method(
-            &jnienv,
-            "initialize",
-            &[
-                is_for_child_directed_treatment.into(),
-                g_str.into(),
-                is_real.into(),
-                is_test_europe_user_consent.into(),
-            ],
-        )?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.vm.attach_current_thread(|env| {
+            let rating = JString::from_str(env, max_ad_content_rating)?;
+            self.singleton.call_method(
+                env,
+                "initialize",
+                &[
+                    is_for_child_directed_treatment.into(),
+                    (&rating).into(),
+                    is_real.into(),
+                    is_test_europe_user_consent.into(),
+                ],
+            )?;
+            Ok(())
+        })
     }
 
     pub fn is_initialized(&self) -> Result<bool> {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        let val = self
-            .singleton
-            .call_method(&jnienv, "getIsInitialized", &[])?;
-        Ok(val.z()?)
+        self.call_bool("getIsInitialized")
     }
 
     pub fn load_interstitial(&self, ad_id: &str) -> Result<()> {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        let ad_id = jnienv.new_string(ad_id.to_string())?;
-        self.singleton
-            .call_method(&jnienv, "loadInterstitial", &[ad_id.into()])?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.vm.attach_current_thread(|env| {
+            let ad_id = JString::from_str(env, ad_id)?;
+            self.singleton
+                .call_method(env, "loadInterstitial", &[(&ad_id).into()])?;
+            Ok(())
+        })
     }
 
     pub fn is_interstitial_loaded(&self) -> Result<bool> {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        let val = self
-            .singleton
-            .call_method(&jnienv, "getIsInterstitialLoaded", &[])?;
-        Ok(val.z()?)
+        self.call_bool("getIsInterstitialLoaded")
     }
 
     pub fn show_interstitial(&self) -> Result<()> {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        self.singleton
-            .call_method(&jnienv, "showInterstitial", &[])?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.call_void("showInterstitial")
     }
 
     pub fn request_user_consent(&self) -> Result<()> {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        self.singleton
-            .call_method(&jnienv, "requestUserConsent", &[])?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.call_void("requestUserConsent")
     }
 
     pub fn reset_consent_state(&self) -> Result<()> {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        self.singleton
-            .call_method(&jnienv, "resetConsentState", &[])?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.call_void("resetConsentState")
     }
 
     pub fn load_banner<S>(
@@ -137,136 +142,94 @@ impl AdMobPlugin {
     where
         S: AsRef<str>,
     {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        let ad_unit_id = jnienv.new_string(ad_unit_id)?;
-        let size = jnienv.new_string(size.to_string())?;
-        self.singleton.call_method(
-            &jnienv,
-            "loadBanner",
-            &[
-                ad_unit_id.into(),
-                position.into(),
-                size.into(),
-                show_instantly.into(),
-                respect_safe_area.into(),
-            ],
-        )?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.vm.attach_current_thread(|env| {
+            let ad_unit_id = JString::from_str(env, ad_unit_id)?;
+            let size = JString::from_str(env, size.to_string())?;
+            self.singleton.call_method(
+                env,
+                "loadBanner",
+                &[
+                    (&ad_unit_id).into(),
+                    position.into(),
+                    (&size).into(),
+                    show_instantly.into(),
+                    respect_safe_area.into(),
+                ],
+            )?;
+            Ok(())
+        })
     }
 
     pub fn is_banner_loaded(&self) -> Result<bool> {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        let val = self
-            .singleton
-            .call_method(&jnienv, "getIsBannerLoaded", &[])?;
-        Ok(val.z()?)
+        self.call_bool("getIsBannerLoaded")
     }
 
     pub fn destroy_banner(&self) -> Result<()> {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        self.singleton.call_method(&jnienv, "destroyBanner", &[])?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.call_void("destroyBanner")
     }
 
     pub fn show_banner(&self) -> Result<()> {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        self.singleton.call_method(&jnienv, "showBanner", &[])?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.call_void("showBanner")
     }
 
     pub fn hide_banner(&self) -> Result<()> {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        self.singleton.call_method(&jnienv, "hideBanner", &[])?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.call_void("hideBanner")
     }
 
     pub fn banner_width(&self) -> Result<i32> {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        let val = self.singleton.call_method(&jnienv, "getBannerWidth", &[])?;
-        Ok(val.i()?)
+        self.call_int("getBannerWidth")
     }
 
     pub fn banner_height(&self) -> Result<i32> {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        let val = self
-            .singleton
-            .call_method(&jnienv, "getBannerHeight", &[])?;
-        Ok(val.i()?)
+        self.call_int("getBannerHeight")
     }
 
     pub fn banner_width_in_pixels(&self) -> Result<i32> {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        let val = self
-            .singleton
-            .call_method(&jnienv, "getBannerWidthInPixels", &[])?;
-        Ok(val.i()?)
+        self.call_int("getBannerWidthInPixels")
     }
 
     pub fn banner_height_in_pixels(&self) -> Result<i32> {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        let val = self
-            .singleton
-            .call_method(&jnienv, "getBannerHeightInPixels", &[])?;
-        Ok(val.i()?)
+        self.call_int("getBannerHeightInPixels")
     }
 
     pub fn load_rewarded<S>(&self, ad_unit_id: S) -> Result<()>
     where
         S: AsRef<str>,
     {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        let ad_unit_id = jnienv.new_string(ad_unit_id)?;
-        self.singleton
-            .call_method(&jnienv, "loadRewarded", &[ad_unit_id.into()])?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.vm.attach_current_thread(|env| {
+            let ad_unit_id = JString::from_str(env, ad_unit_id)?;
+            self.singleton
+                .call_method(env, "loadRewarded", &[(&ad_unit_id).into()])?;
+            Ok(())
+        })
     }
 
     pub fn is_rewarded_loaded(&self) -> Result<bool> {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        let val = self
-            .singleton
-            .call_method(&jnienv, "getIsRewardedLoaded", &[])?;
-        Ok(val.z()?)
+        self.call_bool("getIsRewardedLoaded")
     }
 
     pub fn show_rewarded(&self) -> Result<()> {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        self.singleton.call_method(&jnienv, "showRewarded", &[])?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.call_void("showRewarded")
     }
 
     pub fn load_rewarded_interstitial<S>(&self, ad_unit_id: S) -> Result<()>
     where
         S: AsRef<str>,
     {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        let ad_unit_id = jnienv.new_string(ad_unit_id)?;
-        self.singleton
-            .call_method(&jnienv, "loadRewardedInterstitial", &[ad_unit_id.into()])?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.vm.attach_current_thread(|env| {
+            let ad_unit_id = JString::from_str(env, ad_unit_id)?;
+            self.singleton
+                .call_method(env, "loadRewardedInterstitial", &[(&ad_unit_id).into()])?;
+            Ok(())
+        })
     }
 
     pub fn is_rewarded_interstitial_loaded(&self) -> Result<bool> {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        let val = self
-            .singleton
-            .call_method(&jnienv, "getIsRewardedInterstitialLoaded", &[])?;
-        Ok(val.z()?)
+        self.call_bool("getIsRewardedInterstitialLoaded")
     }
 
     pub fn show_rewarded_interstitial(&self) -> Result<()> {
-        let jnienv = self.vm.attach_current_thread_as_daemon()?;
-        self.singleton
-            .call_method(&jnienv, "showRewardedInterstitial", &[])?;
-        jnienv.exception_check()?;
-        Ok(())
+        self.call_void("showRewardedInterstitial")
     }
 }
 
@@ -282,16 +245,16 @@ pub enum BannerSize {
     SmartBanner,
 }
 
-impl ToString for BannerSize {
-    fn to_string(&self) -> String {
-        match self {
-            Self::Banner => "BANNER".to_string(),
-            Self::LargeBanner => "LARGE_BANNER".to_string(),
-            Self::MediumRectangle => "MEDIUM_RECTANGLE".to_string(),
-            Self::FullBanner => "FULL_BANNER".to_string(),
-            Self::Leaderboard => "LEADERBOARD".to_string(),
-            Self::Adaptive => "ADAPTIVE".to_string(),
-            Self::SmartBanner => "SMART_BANNER".to_string(),
-        }
+impl std::fmt::Display for BannerSize {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            Self::Banner => "BANNER",
+            Self::LargeBanner => "LARGE_BANNER",
+            Self::MediumRectangle => "MEDIUM_RECTANGLE",
+            Self::FullBanner => "FULL_BANNER",
+            Self::Leaderboard => "LEADERBOARD",
+            Self::Adaptive => "ADAPTIVE",
+            Self::SmartBanner => "SMART_BANNER",
+        })
     }
 }
