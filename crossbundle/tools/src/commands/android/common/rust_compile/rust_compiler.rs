@@ -242,7 +242,7 @@ fn configure_cargo(
     linker: &std::ffi::OsStr,
     build_script_env: &[(String, std::ffi::OsString)],
 ) -> Result<()> {
-    let mut overrides = Vec::with_capacity(build_script_env.len() + 2);
+    let mut overrides = Vec::with_capacity(build_script_env.len() * 2 + 2);
     if std::env::var_os("RUSTC").is_none() {
         overrides.push(config_value(
             "build.rustc",
@@ -254,12 +254,13 @@ fn configure_cargo(
         &format!("target.{rust_triple}.linker"),
         linker,
     ));
-    overrides.extend(build_script_env.iter().map(|(name, value)| {
-        format!(
-            "env.{name} = {{ value = {}, force = true }}",
-            toml_string(value)
-        )
-    }));
+    for (name, value) in build_script_env {
+        // Cargo's `--config` parser does not accept inline tables, so provide the two
+        // fields as dotted keys. `force` preserves the old process-environment behavior:
+        // Crossbundle's selected NDK tools take precedence over inherited host values.
+        overrides.push(format!("env.{name}.value = {}", toml_string(value)));
+        overrides.push(format!("env.{name}.force = true"));
+    }
 
     cargo_context.configure(0, false, None, false, false, false, &None, &[], &overrides)?;
     Ok(())
@@ -289,8 +290,24 @@ fn active_rustc_path() -> Result<std::path::PathBuf> {
 
 #[cfg(test)]
 mod tests {
-    use super::active_rustc_path;
+    use super::{active_rustc_path, configure_cargo};
+    use std::ffi::{OsStr, OsString};
     use std::process::Command;
+
+    #[test]
+    fn cargo_accepts_build_script_environment_overrides() {
+        let mut context = cargo::util::GlobalContext::default().unwrap();
+        configure_cargo(
+            &mut context,
+            "aarch64-linux-android",
+            OsStr::new("/android/clang"),
+            &[(
+                "CC_aarch64-linux-android".to_owned(),
+                OsString::from("/android/clang"),
+            )],
+        )
+        .unwrap();
+    }
 
     #[test]
     fn resolved_rustc_ignores_dependency_toolchain_override() {

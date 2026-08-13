@@ -90,7 +90,7 @@ jobs:
           --locked --no-fail-fast
       - name: Save the generated lockfile
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: latest-compatible-Cargo.lock
           path: Cargo.lock
