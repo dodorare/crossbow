@@ -188,12 +188,15 @@ impl SdkManagerInstallCommand {
     }
 
     pub fn sdkmanager_command(&self, sdkmanager_path: &Path, sdk_root: &Path) -> Result<()> {
+        self.sdkmanager_process(sdkmanager_path, sdk_root)
+            .output_err(true)?;
+        Ok(())
+    }
+
+    fn sdkmanager_process(&self, sdkmanager_path: &Path, sdk_root: &Path) -> std::process::Command {
         let mut sdkmanager = std::process::Command::new(sdkmanager_path);
-        if let Some(sdk_root) = &self.sdk_root {
-            sdkmanager.arg(sdk_root);
-        } else {
-            sdkmanager.arg(format!("--sdk_root={}", sdk_root.to_str().unwrap()));
-        }
+        let sdk_root = self.sdk_root.as_deref().unwrap_or(sdk_root);
+        sdkmanager.arg(format!("--sdk_root={}", sdk_root.to_string_lossy()));
         if let Some(install) = &self.install {
             sdkmanager.args(install);
         }
@@ -234,7 +237,26 @@ impl SdkManagerInstallCommand {
         if let Some(port_number) = &self.proxy_port {
             sdkmanager.arg(format!("--proxy_port={}", port_number));
         }
-        sdkmanager.output_err(true)?;
-        Ok(())
+        sdkmanager
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn sdk_root_is_passed_as_named_option() {
+        let command = SdkManagerInstallCommand {
+            sdk_root: Some("custom-sdk".into()),
+            ..Default::default()
+        }
+        .sdkmanager_process(Path::new("sdkmanager"), Path::new("fallback-sdk"));
+
+        let args = command
+            .get_args()
+            .map(|arg| arg.to_string_lossy().into_owned())
+            .collect::<Vec<_>>();
+        assert_eq!(args, ["--sdk_root=custom-sdk"]);
     }
 }

@@ -61,15 +61,14 @@ impl InstallCommand {
             .run(config)?;
             return Ok(());
         }
-        if let Some(subcommand) = &self.subcommand {
-            #[cfg(feature = "android")]
-            match subcommand {
-                #[cfg(feature = "android")]
-                InstallCommandSubcommand::Bundletool(cmd) => cmd.install(config)?,
-                #[cfg(feature = "android")]
-                InstallCommandSubcommand::CommandLineTools(cmd) => cmd.install(config)?,
-                #[cfg(feature = "android")]
-                InstallCommandSubcommand::Sdkmanager(cmd) => cmd.run(config)?,
+        #[cfg(feature = "android")]
+        {
+            if let Some(subcommand) = &self.subcommand {
+                match subcommand {
+                    InstallCommandSubcommand::Bundletool(cmd) => cmd.install(config)?,
+                    InstallCommandSubcommand::CommandLineTools(cmd) => cmd.install(config)?,
+                    InstallCommandSubcommand::Sdkmanager(cmd) => cmd.run(config)?,
+                }
             }
         }
         Ok(())

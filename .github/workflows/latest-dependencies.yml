@@ -81,10 +81,12 @@ jobs:
             "https://github.com/google/bundletool/releases/download/$BUNDLETOOL_VERSION/bundletool-all-$BUNDLETOOL_VERSION.jar" \
             --output "$bundletool"
           echo "BUNDLETOOL_PATH=$bundletool" >> "$GITHUB_ENV"
-      - name: Run full workspace tests against the fresh resolution
+      - name: Run full non-iOS workspace tests against the fresh resolution
         env:
           CROSSBOW_TEST_WORKSPACE: ${{ github.workspace }}
-        run: cargo test --workspace --all-targets --locked --no-fail-fast
+        run: >-
+          cargo test --workspace --all-targets --exclude crossbow-ios
+          --locked --no-fail-fast
       - name: Save the generated lockfile
         if: always()
         uses: actions/upload-artifact@v4

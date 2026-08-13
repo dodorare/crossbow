@@ -1,4 +1,4 @@
-use crate::error::{AndroidError, Result};
+use crate::error::{Error, Result};
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct Version {
@@ -16,16 +16,20 @@ impl Version {
         }
     }
 
-    /// Create `Version` by parsing from string representation
+    /// Create `Version` by parsing from string representation.
     pub fn from_semver(version: &str) -> Result<Self> {
         let mut iter = version.split(|c| ['.', '-', '+'].contains(&c));
-        let mut p = || {
+        let mut parse_component = || {
             iter.next()
-                .ok_or(AndroidError::InvalidSemver)?
+                .ok_or(Error::InvalidSemver)?
                 .parse()
-                .map_err(|_| AndroidError::InvalidSemver)
+                .map_err(|_| Error::InvalidSemver)
         };
-        Ok(Self::new(p()?, p()?, p()?))
+        Ok(Self::new(
+            parse_component()?,
+            parse_component()?,
+            parse_component()?,
+        ))
     }
 
     pub fn to_code(&self, apk_id: u8) -> u32 {
