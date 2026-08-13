@@ -1,93 +1,91 @@
 package com.crossbow.play_billing
 
-import com.crossbow.library.Crossbow
-import com.crossbow.library.plugin.CrossbowPlugin
-import com.crossbow.library.Dictionary
-import com.crossbow.library.plugin.ExposedToCrossbow
-import com.crossbow.library.plugin.SignalInfo
-
-import com.android.billingclient.api.PurchasesUpdatedListener
-import com.android.billingclient.api.BillingClientStateListener
-import com.android.billingclient.api.PriceChangeConfirmationListener
-import com.android.billingclient.api.BillingClient
-import com.android.billingclient.api.SkuDetails
-import com.android.billingclient.api.BillingResult
+import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
-import com.android.billingclient.api.BillingFlowParams
-import com.android.billingclient.api.BillingFlowParams.SubscriptionUpdateParams
-import com.android.billingclient.api.PurchasesResponseListener
-import com.android.billingclient.api.SkuDetailsParams
-import com.android.billingclient.api.SkuDetailsResponseListener
-import com.android.billingclient.api.AcknowledgePurchaseParams
-import com.android.billingclient.api.AcknowledgePurchaseResponseListener
-import com.android.billingclient.api.ConsumeParams
-import com.android.billingclient.api.ConsumeResponseListener
-import com.android.billingclient.api.PriceChangeFlowParams
-
-import java.util.HashMap
-import java.util.Arrays
-import java.util.ArrayList
+import com.crossbow.library.Dictionary
 
 object CrossbowPlayBillingUtils {
     fun convertPurchaseToDictionary(purchase: Purchase): Dictionary {
-        val dictionary = Dictionary()
-        dictionary["original_json"] = purchase.originalJson
-        dictionary["order_id"] = purchase.orderId
-        dictionary["package_name"] = purchase.packageName
-        dictionary["purchase_state"] = purchase.purchaseState
-        dictionary["purchase_time"] = purchase.purchaseTime
-        dictionary["purchase_token"] = purchase.purchaseToken
-        dictionary["quantity"] = purchase.quantity
-        dictionary["signature"] = purchase.signature
-        // PBL V4 replaced getSku with getSkus to support multi-sku purchases,
-        // use the first entry for "sku" and generate an array for "skus"
-        val skus = purchase.skus
-        dictionary["sku"] = skus[0]
-        val skusArray = skus.toTypedArray()
-        dictionary["skus"] = skusArray
-        dictionary["is_acknowledged"] = purchase.isAcknowledged
-        dictionary["is_auto_renewing"] = purchase.isAutoRenewing
-        return dictionary
-    }
-
-    fun convertSkuDetailsToDictionary(details: SkuDetails): Dictionary {
-        val dictionary = Dictionary()
-        dictionary["sku"] = details.sku
-        dictionary["title"] = details.title
-        dictionary["description"] = details.description
-        dictionary["price"] = details.price
-        dictionary["price_currency_code"] = details.priceCurrencyCode
-        dictionary["price_amount_micros"] = details.priceAmountMicros
-        dictionary["free_trial_period"] = details.freeTrialPeriod
-        dictionary["icon_url"] = details.iconUrl
-        dictionary["introductory_price"] = details.introductoryPrice
-        dictionary["introductory_price_amount_micros"] = details.introductoryPriceAmountMicros
-        dictionary["introductory_price_cycles"] = details.introductoryPriceCycles
-        dictionary["introductory_price_period"] = details.introductoryPricePeriod
-        dictionary["original_price"] = details.originalPrice
-        dictionary["original_price_amount_micros"] = details.originalPriceAmountMicros
-        dictionary["subscription_period"] = details.subscriptionPeriod
-        dictionary["type"] = details.type
-        return dictionary
-    }
-
-    fun convertPurchaseListToDictionaryObjectArray(purchases: List<Purchase>): Array<Any?> {
-        val purchaseDictionaries = arrayOfNulls<Any>(purchases.size)
-        for (i in purchases.indices) {
-            purchaseDictionaries[i] = convertPurchaseToDictionary(purchases[i])
+        val products = purchase.products.toTypedArray()
+        return Dictionary().apply {
+            this["original_json"] = purchase.originalJson
+            this["order_id"] = purchase.orderId
+            this["package_name"] = purchase.packageName
+            this["purchase_state"] = purchase.purchaseState
+            this["purchase_time"] = purchase.purchaseTime
+            this["purchase_token"] = purchase.purchaseToken
+            this["quantity"] = purchase.quantity
+            this["signature"] = purchase.signature
+            this["product_id"] = products.firstOrNull()
+            this["products"] = products
+            // Preserve the Billing 4 field names for existing Rust applications.
+            this["sku"] = products.firstOrNull()
+            this["skus"] = products
+            this["is_acknowledged"] = purchase.isAcknowledged
+            this["is_auto_renewing"] = purchase.isAutoRenewing
+            this["is_suspended"] = purchase.isSuspended
         }
-        return purchaseDictionaries
     }
 
-    fun convertSkuDetailsListToDictionaryObjectArray(skuDetails: List<SkuDetails>?): Array<Any?> {
-        val skuDetailsDictionaries = arrayOfNulls<Any>(
-            skuDetails!!.size
-        )
-        for (i in skuDetails.indices) {
-            skuDetailsDictionaries[i] = convertSkuDetailsToDictionary(
-                skuDetails[i]
-            )
+    fun convertProductDetailsToDictionary(details: ProductDetails): Dictionary {
+        val oneTimeOffers = details.oneTimePurchaseOfferDetailsList.orEmpty().map { offer ->
+            Dictionary().apply {
+                this["formatted_price"] = offer.formattedPrice
+                this["price_currency_code"] = offer.priceCurrencyCode
+                this["price_amount_micros"] = offer.priceAmountMicros
+                this["offer_id"] = offer.offerId
+                this["offer_token"] = offer.offerToken
+                this["purchase_option_id"] = offer.purchaseOptionId
+                this["offer_tags"] = offer.offerTags.orEmpty().toTypedArray()
+            }
         }
-        return skuDetailsDictionaries
+        val subscriptionOffers = details.subscriptionOfferDetails.orEmpty().map { offer ->
+            val pricingPhases = offer.pricingPhases.pricingPhaseList.map { phase ->
+                Dictionary().apply {
+                    this["billing_cycle_count"] = phase.billingCycleCount
+                    this["recurrence_mode"] = phase.recurrenceMode
+                    this["price_amount_micros"] = phase.priceAmountMicros
+                    this["billing_period"] = phase.billingPeriod
+                    this["formatted_price"] = phase.formattedPrice
+                    this["price_currency_code"] = phase.priceCurrencyCode
+                }
+            }
+            Dictionary().apply {
+                this["base_plan_id"] = offer.basePlanId
+                this["offer_id"] = offer.offerId
+                this["offer_token"] = offer.offerToken
+                this["offer_tags"] = offer.offerTags.toTypedArray()
+                this["pricing_phases"] = pricingPhases.toTypedArray()
+            }
+        }
+        val legacyPrice = oneTimeOffers.firstOrNull()
+            ?: subscriptionOffers.firstOrNull()?.get("pricing_phases")
+                ?.let { it as? Array<*> }
+                ?.firstOrNull() as? Dictionary
+
+        return Dictionary().apply {
+            this["product_id"] = details.productId
+            this["product_type"] = details.productType
+            this["name"] = details.name
+            this["title"] = details.title
+            this["description"] = details.description
+            this["one_time_purchase_offer_details"] = oneTimeOffers.toTypedArray()
+            this["subscription_offer_details"] = subscriptionOffers.toTypedArray()
+            // Preserve the most useful Billing 4 fields during the public API transition.
+            this["sku"] = details.productId
+            this["type"] = details.productType
+            this["price"] = legacyPrice?.get("formatted_price")
+            this["price_currency_code"] = legacyPrice?.get("price_currency_code")
+            this["price_amount_micros"] = legacyPrice?.get("price_amount_micros")
+        }
     }
+
+    fun convertPurchaseListToDictionaryObjectArray(purchases: List<Purchase>): Array<Any?> =
+        purchases.map { convertPurchaseToDictionary(it) as Any? }.toTypedArray()
+
+    fun convertProductDetailsListToDictionaryObjectArray(
+        productDetails: List<ProductDetails>,
+    ): Array<Any?> = productDetails
+        .map { convertProductDetailsToDictionary(it) as Any? }
+        .toTypedArray()
 }

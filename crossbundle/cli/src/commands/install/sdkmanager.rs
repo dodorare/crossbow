@@ -9,7 +9,7 @@ use std::path::Path;
 #[derive(Parser, Clone, Debug, Default)]
 pub struct SdkManagerInstallCommand {
     /// Install all preferred tools for correct crossbundle work. It will install
-    /// build-tools;30.0.3, ndk;27.3.13750724, platforms;android-31 and platform-tools
+    /// build-tools;36.0.0, ndk;28.2.13676358, platforms;android-36 and platform-tools
     #[clap(long, short)]
     pub preferred_tools: bool,
     /// List installed and available packages. Use the channel option to include a package
@@ -18,7 +18,7 @@ pub struct SdkManagerInstallCommand {
     #[clap(long, short)]
     pub list: bool,
     /// Install package. To see all available packages use --list.
-    /// Example: crossbundle install sdkmanager "ndk;27.3.13750724"
+    /// Example: crossbundle install sdkmanager "ndk;28.2.13676358"
     #[clap(long, short, action = ArgAction::Append)]
     pub install: Option<Vec<String>>,
     /// Android package that needs to be uninstalled
@@ -73,7 +73,7 @@ impl SdkManagerInstallCommand {
     }
 
     /// Install package. To see all available packages use --list.
-    /// Example: crossbundle install sdkmanager "ndk;27.3.13750724"
+    /// Example: crossbundle install sdkmanager "ndk;28.2.13676358"
     pub fn install(&mut self, install: Vec<String>) -> &mut Self {
         self.install = Some(install);
         self
@@ -211,9 +211,9 @@ impl SdkManagerInstallCommand {
         }
         if self.preferred_tools {
             sdkmanager
-                .arg("build-tools;30.0.3")
-                .arg("ndk;27.3.13750724")
-                .arg("platforms;android-31")
+                .arg("build-tools;36.0.0")
+                .arg("ndk;28.2.13676358")
+                .arg("platforms;android-36")
                 .arg("platform-tools");
         }
         if let Some(channel) = &self.channel {

@@ -48,7 +48,7 @@ fn test_cargo_metadata() {
       <meta-data android:name="android.app.lib_name" android:value="example" />
     </activity>
   </application>
-  <uses-sdk android:minSdkVersion="19" android:targetSdkVersion="31" />
+  <uses-sdk android:minSdkVersion="23" android:targetSdkVersion="36" />
 </manifest>
 "#;
     let expected_manifest = from_str(expected_manifest).unwrap();

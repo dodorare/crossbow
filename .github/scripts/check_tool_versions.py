@@ -24,6 +24,13 @@ class Check:
 
 def main() -> int:
     versions = tomllib.loads((ROOT / ".github/tool-versions.toml").read_text())
+    android_configs = (
+        "platform/android/java/app/config.gradle",
+        "plugins/admob-android/android/config.gradle",
+        "plugins/play-billing/android/config.gradle",
+        "plugins/play-core/android/config.gradle",
+        "plugins/play-games-services/android/config.gradle",
+    )
     checks = [
         Check("rust-toolchain.toml", r'^channel = "([^"]+)"$', versions["rust"], "Rust"),
         Check(".github/docker/crossbundle.Dockerfile", r"^ARG RUST_VERSION=(\S+)$", versions["rust"], "Rust"),
@@ -32,8 +39,17 @@ def main() -> int:
         Check(".github/workflows/ci.yml", r"^  ANDROID_API_LEVEL: '([^']+)'$", versions["android_api_level"], "Android API"),
         Check(".github/workflows/latest-dependencies.yml", r"^  ANDROID_API_LEVEL: '([^']+)'$", versions["android_api_level"], "Android API"),
         Check(".github/docker/crossbundle.Dockerfile", r"^ARG ANDROID_API_LEVEL=(\S+)$", versions["android_api_level"], "Android API"),
-        Check("platform/android/java/app/config.gradle", r"^    compileSdk\s+: ([0-9]+),$", versions["android_api_level"], "Android API"),
-        Check("platform/android/java/app/config.gradle", r"^    targetSdk\s+: ([0-9]+),$", versions["android_api_level"], "Android API"),
+        *[Check(path, r"^    compileSdk\s+: ([0-9]+),$", versions["android_api_level"], "Android API") for path in android_configs],
+        *[Check(path, r"^    targetSdk\s+: ([0-9]+),$", versions["android_api_level"], "Android API") for path in android_configs],
+        *[Check(path, r"^    minSdk\s+: ([0-9]+),$", versions["android_min_sdk"], "Android minimum SDK") for path in android_configs],
+        Check("crossbundle/tools/src/types/android/manifest.rs", r"DEFAULT_ANDROID_MIN_SDK: u32 = ([0-9]+)", versions["android_min_sdk"], "Android minimum SDK"),
+        Check("crossbundle/tools/src/types/android/manifest.rs", r"DEFAULT_ANDROID_TARGET_SDK: u32 = ([0-9]+)", versions["android_api_level"], "Android API"),
+        Check("examples/crossbow-plugins/Cargo.toml", r"min_sdk_version = ([0-9]+)", versions["android_min_sdk"], "Android minimum SDK"),
+        Check("examples/crossbow-plugins/Cargo.toml", r"target_sdk_version = ([0-9]+)", versions["android_api_level"], "Android API"),
+        Check("examples/macroquad-permissions/Cargo.toml", r"min_sdk_version = ([0-9]+)", versions["android_min_sdk"], "Android minimum SDK"),
+        Check("examples/macroquad-permissions/Cargo.toml", r"target_sdk_version = ([0-9]+)", versions["android_api_level"], "Android API"),
+        Check("examples/macroquad-3d/res/AndroidManifest.xml", r'android:minSdkVersion="([0-9]+)"', versions["android_min_sdk"], "Android minimum SDK"),
+        Check("examples/macroquad-3d/res/AndroidManifest.xml", r'android:targetSdkVersion="([0-9]+)"', versions["android_api_level"], "Android API"),
         Check("crossbundle/cli/src/commands/install/sdkmanager.rs", r'\.arg\("platforms;android-([0-9]+)"\)', versions["android_api_level"], "Android API"),
         Check("docs/src/crossbundle/command-install.md", r'"platforms;android-([0-9]+)"', versions["android_api_level"], "Android API"),
         Check("docs/src/install/set-up-android-device.md", r'"system-images;android-([0-9]+);', versions["android_api_level"], "Android API", all_matches=True),
@@ -43,7 +59,7 @@ def main() -> int:
         Check(".github/workflows/latest-dependencies.yml", r"^  ANDROID_BUILD_TOOLS_VERSION: '([^']+)'$", versions["android_build_tools"], "Android build tools"),
         Check(".github/docker/crossbundle.Dockerfile", r"^ARG ANDROID_BUILD_TOOLS_VERSION=(\S+)$", versions["android_build_tools"], "Android build tools"),
         Check("crossbundle/cli/src/commands/install/sdkmanager.rs", r'\.arg\("build-tools;([^";]+)"\)', versions["android_build_tools"], "Android build tools"),
-        Check("platform/android/java/app/config.gradle", r'^    buildTools\s+: "([^"]+)",$', versions["android_build_tools"], "Android build tools"),
+        *[Check(path, r'^    buildTools\s+: "([^"]+)",$', versions["android_build_tools"], "Android build tools") for path in android_configs],
         Check("docs/src/crossbundle/command-install.md", r'"build-tools;([^";]+)"', versions["android_build_tools"], "Android build tools"),
         Check(".github/workflows/ci.yml", r"^  ANDROID_NDK_VERSION: '([^']+)'$", versions["android_ndk"], "Android NDK"),
         Check(".github/workflows/latest-dependencies.yml", r"^  ANDROID_NDK_VERSION: '([^']+)'$", versions["android_ndk"], "Android NDK"),
@@ -64,6 +80,7 @@ def main() -> int:
         Check(".github/docker/crossbundle.Dockerfile", r"^ARG GRADLE_VERSION=(\S+)$", versions["gradle"], "Gradle"),
         Check("platform/android/java/gradle/wrapper/gradle-wrapper.properties", r"gradle-([0-9.]+)-bin\.zip", versions["gradle"], "Gradle"),
         Check("docs/src/install/android-windows.md", r"gradle-([0-9.]+)", versions["gradle"], "Gradle"),
+        Check("plugins/play-core/android/gradle/wrapper/gradle-wrapper.properties", r"gradle-([0-9.]+)-bin\.zip", versions["gradle"], "Gradle"),
         Check(".github/workflows/ci.yml", r"^          java-version: '?([0-9]+)'?$", versions["java_runtime"], "Java runtime", all_matches=True),
         Check(".github/workflows/latest-dependencies.yml", r"^          java-version: '?([0-9]+)'?$", versions["java_runtime"], "Java runtime", all_matches=True),
         Check(".github/workflows/publish.yml", r"^        java-version: '?([0-9]+)'?$", versions["java_runtime"], "Java runtime"),
@@ -72,7 +89,15 @@ def main() -> int:
         Check("docs/src/install/android-linux.md", r"jdk([0-9]+)-openjdk", versions["java_runtime"], "Java runtime"),
         Check("docs/src/install/android-macos.md", r"openjdk@([0-9]+)", versions["java_runtime"], "Java runtime"),
         Check("docs/src/install/android-windows.md", r"jdk-([0-9]+)", versions["java_runtime"], "Java runtime"),
-        Check("platform/android/java/app/config.gradle", r"^    javaVersion\s+: ([0-9]+),$", versions["java_bytecode"], "Java bytecode target"),
+        *[Check(path, r"^    javaVersion\s+: ([0-9]+),$", versions["java_bytecode"], "Java bytecode target") for path in android_configs],
+        *[Check(path, r'^    androidGradlePlugin: "([^"]+)",$', versions["android_gradle_plugin"], "Android Gradle plugin") for path in android_configs],
+        *[Check(path, r'^    appcompatVersion\s+: "([^"]+)",$', versions["androidx_appcompat"], "AndroidX AppCompat") for path in android_configs],
+        Check("platform/android/java/app/config.gradle", r'^    fragmentVersion\s+: "([^"]+)",$', versions["androidx_fragment"], "AndroidX Fragment"),
+        Check("plugins/play-billing/android/build.gradle", r'com\.android\.billingclient:billing:([0-9.]+)', versions["play_billing"], "Play Billing"),
+        Check("plugins/play-games-services/android/build.gradle", r'com\.google\.android\.gms:play-services-games-v2:([0-9.]+)', versions["play_games_services"], "Play Games Services"),
+        Check("plugins/play-core/android/build.gradle", r'com\.google\.android\.play:app-update-ktx:([0-9.]+)', versions["play_app_update"], "Play In-App Updates"),
+        Check("plugins/admob-android/android/build.gradle", r'com\.google\.android\.gms:play-services-ads-lite:([0-9.]+)', versions["google_mobile_ads"], "Google Mobile Ads"),
+        Check("plugins/admob-android/android/build.gradle", r'com\.google\.android\.ump:user-messaging-platform:([0-9.]+)', versions["user_messaging_platform"], "User Messaging Platform"),
     ]
 
     failures: list[str] = []

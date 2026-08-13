@@ -105,6 +105,16 @@ impl AndroidBuildCommand {
             .package
             .as_deref()
             .ok_or_else(|| anyhow::anyhow!("Android manifest package is missing"))?;
+        let uses_sdk = manifest
+            .uses_sdk
+            .as_ref()
+            .ok_or_else(|| anyhow::anyhow!("Android manifest uses-sdk configuration is missing"))?;
+        let min_sdk_version = uses_sdk
+            .min_sdk_version
+            .unwrap_or(DEFAULT_ANDROID_MIN_SDK);
+        let target_sdk_version = uses_sdk
+            .target_sdk_version
+            .unwrap_or(DEFAULT_ANDROID_TARGET_SDK);
 
         config.status("Generating gradle project")?;
         let gradle_project_path = gen_gradle_project(
@@ -114,6 +124,8 @@ impl AndroidBuildCommand {
                 .version_name
                 .clone()
                 .unwrap_or_else(|| "0.1".to_owned()),
+            min_sdk_version,
+            target_sdk_version,
             &android_build_dir,
             &assets,
             &resources,
@@ -121,7 +133,12 @@ impl AndroidBuildCommand {
         )?;
 
         config.status_message("Generating", "AndroidManifest.xml")?;
-        save_android_manifest(&gradle_project_path, &manifest)?;
+        let mut gradle_manifest = manifest.clone();
+        gradle_manifest.uses_sdk = None;
+        gradle_manifest.package = None;
+        gradle_manifest.version_code = None;
+        gradle_manifest.version_name = None;
+        save_android_manifest(&gradle_project_path, &gradle_manifest)?;
 
         let lib_name = "crossbow_android";
         self.build_rust_lib(config, context, lib_name, Some(android_build_dir))?;

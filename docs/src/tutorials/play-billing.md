@@ -56,8 +56,13 @@ After plugin initialization you can use supported features. For example to start
 
 ```rust
 play_billing.start_connection()?;
-play_billing.query_purchases("YOUR_TYPE")?;
+play_billing.query_product_details(&["YOUR_PRODUCT_ID"], "inapp")?;
+play_billing.query_purchases("inapp")?;
 ```
+
+Crossbow uses Play Billing Library 9. Subscription products expose base plans, pricing
+phases, and offer tokens through `product_details_query_completed`; pass the selected
+token to `purchase_with_offer`. Use `replace_subscription` for subscription changes.
 
 To read signals:
 

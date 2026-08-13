@@ -1,4 +1,4 @@
-# Crossbow Admob Plugin
+# Crossbow Play Games Services Plugin
 
 [![Crate Info](https://img.shields.io/crates/v/play-games-services.svg)](https://crates.io/crates/play-games-services)
 [![Documentation](https://img.shields.io/badge/docs.rs-play-games-services-green)](https://docs.rs/play-games-services/)
@@ -9,11 +9,16 @@
 
 This project is a Crossbow Plugin for [Google Play Games Services](https://developers.google.com/games/services) written in Rust and Kotlin.
 
+The Android implementation uses the Play Games Services v2 SDK and its automatic
+authentication flow.
+See Google's [v1 deprecation and v2 migration notice](https://developers.google.com/android/guides/releases#june_11_2026).
+
 ### Supported features:
 
 | Feature | Available |
 | ---- | ----------- |
-| Sign-in/Sign out | ✅ |
+| Sign-in | ✅ |
+| Programmatic sign-out | ❌ (not available in PGS v2) |
 | Achievements | 🆗 |
 | Leaderboards | 🆗 |
 | Events | 🆗 |
@@ -96,7 +101,8 @@ let play_games: play_games_services::PlayGamesServicesPlugin = crossbow.get_plug
 play_games.init(true)?;
 ```
 
-After plugin initialization you can use supported features. For example to SignIn user you can use:
+After plugin initialization you can request sign-in explicitly. PGS v2 also attempts
+automatic authentication during initialization:
 
 ```rust
 play_games.sign_in()?;
@@ -115,8 +121,9 @@ Complete documentation you can find [here](https://docs.rs/play-games-services/)
 ## Troubleshooting
 
 1. If you use **Android Emulator** - make sure that you use one that supports [Google Play Games Services](https://developers.google.com/games/services). See similar [StackOverflow question](https://stackoverflow.com/questions/34653347/using-google-play-games-services-in-emulator).
-2. If you keep getting `Error 12501` - make sure that fingerprint, package, and resources are configured correctly. See similar [StackOverflow question](https://stackoverflow.com/questions/62973082/android-google-play-games-signin-error-12501).
-3. If you keep getting `Error 4` - make sure that you sign your Application with correct Play Store key.
+2. If authentication fails, verify the package name, SHA fingerprint, Play Games app ID,
+   and linked Play Console configuration.
+3. Make sure that you sign your application with the certificate registered in Play Console.
 
 ## Thanks and inspiration
 

@@ -7,12 +7,10 @@ buildscript {
     }
     dependencies {
         classpath libraries.androidGradlePlugin
-        classpath libraries.kotlinGradlePlugin
     }
 }
 
 apply plugin: "com.android.library"
-apply plugin: "org.jetbrains.kotlin.android"
 apply from: "config.gradle"
 apply from: "publish.gradle"
 
@@ -23,11 +21,12 @@ repositories {
 }
 
 dependencies {
-    implementation libraries.kotlinStdLib
     implementation libraries.androidxAppcompat
-    implementation "com.android.billingclient:billing:4.0.0"
+    implementation "com.android.billingclient:billing:9.1.0"
 
-    if (rootProject.findProject(":crossbow:lib")) {
+    if (rootProject.findProject(":lib")) {
+        implementation project(":lib")
+    } else if (rootProject.findProject(":crossbow:lib")) {
         implementation project(":crossbow:lib")
     } else if(getCustomBuildMode()) {
         // Custom build mode. In this scenario this project is the only one around and the Crossbow
@@ -40,38 +39,33 @@ dependencies {
 }
 
 android {
-    compileSdkVersion versions.compileSdk
-    buildToolsVersion versions.buildTools
+    namespace = "com.crossbow.play_billing"
+    compileSdk = versions.compileSdk
+    buildToolsVersion = versions.buildTools
 
     compileOptions {
-        sourceCompatibility versions.javaVersion
-        targetCompatibility versions.javaVersion
-    }
-
-    kotlinOptions {
-        jvmTarget = versions.javaVersion
+        sourceCompatibility = JavaVersion.toVersion(versions.javaVersion)
+        targetCompatibility = JavaVersion.toVersion(versions.javaVersion)
     }
 
     defaultConfig {
-        versionCode 1
-        versionName "1.0"
-        minSdkVersion versions.minSdk
-        targetSdkVersion versions.targetSdk
+        minSdk = versions.minSdk
+        targetSdk = versions.targetSdk
 
         missingDimensionStrategy "products", "template"
     }
 
-    lintOptions {
-        abortOnError false
-        disable "MissingTranslation", "UnusedResources"
+    lint {
+        abortOnError = false
+        disable += ["MissingTranslation", "UnusedResources"]
     }
 
     sourceSets {
         main {
-            manifest.srcFile "AndroidManifest.xml"
-            java.srcDirs = ["src"]
-            assets.srcDirs = ["assets"]
-            res.srcDirs = ["res"]
+            manifest.srcFile("AndroidManifest.xml")
+            kotlin.directories.add("src")
+            assets.setSrcDirs(["assets"])
+            res.setSrcDirs(["res"])
         }
     }
 }

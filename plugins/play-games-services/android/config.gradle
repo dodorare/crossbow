@@ -1,19 +1,16 @@
 ext.versions = [
     crossbowLibrary    : "0.2.3",
-    androidGradlePlugin: "7.0.0",
-    compileSdk         : 31,
-    minSdk             : 19,
-    targetSdk          : 31,
-    buildTools         : "30.0.3",
-    kotlinVersion      : "1.6.21",
-    appcompatVersion   : "1.4.0",
-    javaVersion        : 11,
+    androidGradlePlugin: "9.3.1",
+    compileSdk         : 36,
+    minSdk             : 23,
+    targetSdk          : 36,
+    buildTools         : "36.0.0",
+    appcompatVersion   : "1.8.0",
+    javaVersion        : 17,
 ]
 
 ext.libraries = [
     androidGradlePlugin: "com.android.tools.build:gradle:$versions.androidGradlePlugin",
-    kotlinGradlePlugin : "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlinVersion",
-    kotlinStdLib       : "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlinVersion",
     androidxAppcompat  : "androidx.appcompat:appcompat:$versions.appcompatVersion",
     crossbowLibrary    : "com.crossbow.library:lib:$versions.crossbowLibrary"
 ]
@@ -34,9 +31,8 @@ ext.mavenCrossbowGithub = {
     repositories.maven {
         url = uri("https://maven.pkg.github.com/dodorare/crossbow")
         credentials {
-            // Use this open machine user token because repo requires authentication
-            username = "token"
-            password = "\u0067hp_b3LYIUiG4xGTdm6C0ypvWLkKtoif160KSei1"
+            username = findProperty("crossbow.github.username") ?: System.getenv("GITHUB_ACTOR") ?: System.getenv("USERNAME") ?: "token"
+            password = findProperty("crossbow.github.token") ?: System.getenv("GITHUB_TOKEN") ?: System.getenv("TOKEN") ?: ""
         }
     }
 }

@@ -64,7 +64,7 @@ mod tests {
         // Assigns configuration for aab generation
         let sdk = AndroidSdk::from_env().unwrap();
         let package_name = "minimal_unsigned_aab";
-        let target_sdk_version = 31;
+        let target_sdk_version = 36;
 
         // Generates minimal unsigned aab
         gen_minimal_unsigned_aab(sdk, package_name, target_sdk_version, aab_build_dir).unwrap();

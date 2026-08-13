@@ -102,6 +102,7 @@ impl PlayGamesServicesPlugin {
         self.call_void("signIn")
     }
 
+    #[deprecated(note = "Play Games Services v2 does not expose programmatic sign-out")]
     pub fn sign_out(&self) -> Result<()> {
         self.call_void("signOut")
     }

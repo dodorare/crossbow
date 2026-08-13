@@ -1,5 +1,10 @@
 # Project configuration
 
+Crossbow's Android baseline is API 36 with a minimum SDK of 23, AGP 9.3.1,
+Gradle 9.5.0, Java 17, and NDK 28.2. New Google Play submissions must target
+API 36 from August 31, 2026; see the official
+[target API requirements](https://developer.android.com/google/play/requirements/target-sdk).
+
 ## Сonfiguration through metadata
 
 The easiest way to configure a project is with metadata. Here's an example of `Cargo.toml`:
@@ -107,8 +112,8 @@ and then place `AndroidManifest.xml` or/and `Info.plist` near `Cargo.toml`
     package="com.rust.game"
     android:versionCode="1"
     android:versionName="1.0">
-    <uses-sdk android:minSdkVersion="16"
-        android:targetSdkVersion="31" />
+    <uses-sdk android:minSdkVersion="23"
+        android:targetSdkVersion="36" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>

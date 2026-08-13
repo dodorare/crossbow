@@ -3,3 +3,15 @@ rootProject.name = "crossbow"
 
 include ":lib"
 include ":app"
+
+if (gradle.startParameter.projectProperties["crossbow.includeLocalPlugins"] == "true") {
+    [
+        play_billing: "../../../plugins/play-billing/android",
+        play_games_services: "../../../plugins/play-games-services/android",
+        play_core: "../../../plugins/play-core/android",
+        admob: "../../../plugins/admob-android/android",
+    ].each { name, directory ->
+        include ":${name}"
+        project(":${name}").projectDir = file(directory)
+    }
+}

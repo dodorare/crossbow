@@ -54,7 +54,7 @@ async fn main() -> anyhow::Result<()> {
             }
 
             #[cfg(target_os = "android")]
-            let btn_text = "Query SKU";
+            let btn_text = "Query Product";
             #[cfg(target_os = "android")]
             if ui.button(vec2(-15.0, 150.0), btn_text) {
                 _btn_clicked = btn_text;
@@ -83,11 +83,11 @@ async fn main() -> anyhow::Result<()> {
                 app_plugins.games_services.sign_in()?;
             }
             "Start Connection" => {}
-            "Query SKU" => {
-                println!("Calling query_sku_details(_)");
+            "Query Product" => {
+                println!("Calling query_product_details(_)");
                 app_plugins
                     .billing
-                    .query_sku_details(&["item_2", "crossbow_item_1"], "inapp")?;
+                    .query_product_details(&["item_2", "crossbow_item_1"], "inapp")?;
             }
             "Query Purchases" => {
                 println!("Calling query_purchases(_)");
