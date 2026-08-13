@@ -60,6 +60,7 @@ def main() -> int:
         Check("docs/src/install/android-windows.md", r"bundletool-all-([0-9.]+)\.jar", versions["bundletool"], "bundletool"),
         Check(".github/workflows/ci.yml", r"^  GRADLE_VERSION: '([^']+)'$", versions["gradle"], "Gradle"),
         Check(".github/workflows/latest-dependencies.yml", r"^  GRADLE_VERSION: '([^']+)'$", versions["gradle"], "Gradle"),
+        Check(".github/workflows/publish.yml", r"^        gradle-version: '?([0-9.]+)'?$", versions["gradle"], "Gradle"),
         Check(".github/docker/crossbundle.Dockerfile", r"^ARG GRADLE_VERSION=(\S+)$", versions["gradle"], "Gradle"),
         Check("platform/android/java/gradle/wrapper/gradle-wrapper.properties", r"gradle-([0-9.]+)-bin\.zip", versions["gradle"], "Gradle"),
         Check("docs/src/install/android-windows.md", r"gradle-([0-9.]+)", versions["gradle"], "Gradle"),
