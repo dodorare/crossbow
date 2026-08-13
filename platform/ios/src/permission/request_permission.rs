@@ -10,7 +10,7 @@ where
     F: Fn(bool) + Send + Sync + 'static,
 {
     let block = RcBlock::new(move |success: Bool| handler(success.as_bool()));
-    let opt: Object = media.into();
+    let opt: ObjcObjectPtr = media.into();
     let _: () = unsafe {
         msg_send![
             class!(AVCaptureDevice),
@@ -39,9 +39,9 @@ where
 
 pub fn request_calendar_permission<F>(entity_type: &EntityType, handler: F)
 where
-    F: Fn(bool, Object) + Send + Sync + 'static,
+    F: Fn(bool, ObjcObjectPtr) + Send + Sync + 'static,
 {
-    let block = RcBlock::new(move |granted: Bool, error: Object| {
+    let block = RcBlock::new(move |granted: Bool, error: ObjcObjectPtr| {
         handler(granted.as_bool(), error);
     });
     let opt: usize = entity_type.into();
@@ -56,14 +56,14 @@ where
 
 pub fn request_address_book_permission<F>(handler: F)
 where
-    F: Fn(bool, Object) + Send + Sync + 'static,
+    F: Fn(bool, ObjcObjectPtr) + Send + Sync + 'static,
 {
-    let block = RcBlock::new(move |granted: Bool, error: Object| {
+    let block = RcBlock::new(move |granted: Bool, error: ObjcObjectPtr| {
         handler(granted.as_bool(), error);
     });
     let _: () = unsafe {
         // https://developer.apple.com/documentation/addressbook/1621991-abaddressbookcreatewithoptions
-        let address_book_ref: Object = msg_send![
+        let address_book_ref: ObjcObjectPtr = msg_send![
             class!(ABAddressBook),
             ABAddressBookCreateWithOptions: std::ptr::null_mut::<AnyObject>(),
             error: std::ptr::null_mut::<AnyObject>()
@@ -111,9 +111,9 @@ where
 
 pub fn request_motion_activity_permission<F>(handler: F)
 where
-    F: Fn(Object, Object) + Send + Sync + 'static,
+    F: Fn(ObjcObjectPtr, ObjcObjectPtr) + Send + Sync + 'static,
 {
-    let block = RcBlock::new(move |activities: Object, error: Object| {
+    let block = RcBlock::new(move |activities: ObjcObjectPtr, error: ObjcObjectPtr| {
         handler(activities, error);
     });
     let _: () = unsafe {

@@ -1,7 +1,9 @@
 use objc2::runtime::AnyObject;
 
-/// Untyped Objective-C object pointer used by the legacy permission APIs.
-pub type Object = *mut AnyObject;
+/// Borrowed Objective-C object pointer used by the legacy permission APIs.
+///
+/// These APIs do not transfer ownership, and callback error values may be null.
+pub type ObjcObjectPtr = *mut AnyObject;
 
 /// Type for iOS Permission.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -84,11 +86,11 @@ pub enum MediaType {
 
 #[link(name = "AVFoundation", kind = "framework")]
 unsafe extern "C" {
-    pub static AVMediaTypeVideo: Object;
-    pub static AVMediaTypeAudio: Object;
+    pub static AVMediaTypeVideo: ObjcObjectPtr;
+    pub static AVMediaTypeAudio: ObjcObjectPtr;
 }
 
-impl From<&MediaType> for Object {
+impl From<&MediaType> for ObjcObjectPtr {
     fn from(media_type: &MediaType) -> Self {
         match media_type {
             MediaType::Audio => unsafe { AVMediaTypeAudio },
