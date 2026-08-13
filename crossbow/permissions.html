@@ -195,7 +195,7 @@ NSMicrophoneUsageDescription = "This app needs access to your phone's microphone
 NSPhotoLibraryUsageDescription = "This app needs access to your phone's photo library."
 </code></pre>
 <p>Then invoke <code>request_async</code> function. This function checks the permission status in the application and will request permission if it's not granted yet:</p>
-<pre><pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
+<pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use crossbow::Permission;
 let res = Permission::Camera.request_async().await?;

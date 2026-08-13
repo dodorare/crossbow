@@ -206,7 +206,7 @@ plugins_remote = ["com.crossbow.play_billing:play_billing:0.2.3"]
 </blockquote>
 <h2 id="usage"><a class="header" href="#usage">Usage</a></h2>
 <p>First step is plugin initialization. In your rust project, you will need to initialize <code>Crossbow</code> instance and then get <strong>Android</strong> plugin:</p>
-<pre><pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
+<pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">#![allow(unused)]
 </span>#![cfg(target_os = "android")]
 
 <span class="boring">fn main() {
@@ -215,13 +215,13 @@ let crossbow = CrossbowInstance::new();
 let play_billing: play_billing::PlayBillingPlugin = crossbow.get_plugin()?;
 <span class="boring">}</span></code></pre></pre>
 <p>After plugin initialization you can use supported features. For example to start connection and query purchases you can use:</p>
-<pre><pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
+<pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>play_billing.start_connection()?;
 play_billing.query_purchases("YOUR_TYPE")?;
 <span class="boring">}</span></code></pre></pre>
 <p>To read signals:</p>
-<pre><pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
+<pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>if let Ok(signal) = play_billing.get_receiver().recv().await {
     println!("Signal: {:?}", signal);
