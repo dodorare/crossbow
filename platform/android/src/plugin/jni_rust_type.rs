@@ -1,8 +1,7 @@
 use crate::{error::*, utils::*};
 use jni::{
-    jni_sig, jni_str,
+    Env, jni_sig, jni_str,
     objects::{JByteArray, JDoubleArray, JFloatArray, JIntArray, JObject, JObjectArray, JString},
-    Env,
 };
 use std::{collections::HashMap, fmt::Display};
 

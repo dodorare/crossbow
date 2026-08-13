@@ -123,10 +123,12 @@ mod tests {
             force: false,
         };
         image_generation.gen_mipmap_res_from_icon().unwrap();
-        assert!(res_dir_path
-            .join("res")
-            .join("mipmap-hdpi")
-            .join("ic_launcher.png")
-            .exists())
+        assert!(
+            res_dir_path
+                .join("res")
+                .join("mipmap-hdpi")
+                .join("ic_launcher.png")
+                .exists()
+        )
     }
 }

@@ -1,11 +1,11 @@
 use super::JniRustType;
 use async_channel::Receiver;
 use jni::{
+    Env,
     errors::*,
     objects::{Global, JObject, JValue, JValueOwned},
     signature::{JavaType, RuntimeMethodSignature},
     strings::JNIString,
-    Env,
 };
 use std::{collections::HashMap, sync::Arc};
 

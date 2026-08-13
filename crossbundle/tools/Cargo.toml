@@ -1,7 +1,7 @@
 [package]
 name = "crossbundle-tools"
 version = "0.2.3"
-edition = "2021"
+edition.workspace = true
 authors = ["DodoRare Team <support@dodorare.com>"]
 description = "Build and publish apps for Android/iOS"
 repository = "https://github.com/dodorare/crossbow"
@@ -10,45 +10,45 @@ keywords = ["android", "ios"]
 readme = "README.md"
 
 [dependencies]
-crossbow-android = { version = "0.2.3", path = "../../platform/android", default-features = false, features = ["embed"] }
+crossbow-android = { workspace = true, default-features = false, features = ["embed"] }
 # Apple crates
-apple-bundle = { version = "0.2.1", optional = true }
-simctl = { version = "0.1.1", package = "creator-simctl", optional = true }
+apple-bundle = { workspace = true, optional = true }
+simctl = { workspace = true, optional = true }
 # Android crates
-android-manifest = { version = "0.3.0", optional = true }
-android-tools = { version = "0.2.11", optional = true }
+android-manifest = { workspace = true, optional = true }
+android-tools = { workspace = true, optional = true }
 
-serde = { version = "1.0", features = ["derive"] }
-serde_plain = "1.0"
+serde = { workspace = true, features = ["derive"] }
+serde_plain = { workspace = true }
 
-dunce = "1.0"
-fs_extra = "1.3"
-dirs = "6.0"
-which = "8.0"
-tempfile = "3.27"
-zip = { version = "8.6.0", default-features = false, features = ["deflate-flate2-zlib-rs"] }
-zip-extensions = { version = "0.14.1", default-features = false }
-image = { version = "0.25.10", default-features = false, features = ["png", "jpeg"] }
+dunce = { workspace = true }
+fs_extra = { workspace = true }
+dirs = { workspace = true }
+which = { workspace = true }
+tempfile = { workspace = true }
+zip = { workspace = true, default-features = false, features = ["deflate-flate2-zlib-rs"] }
+zip-extensions = { workspace = true, default-features = false }
+image = { workspace = true, default-features = false, features = ["png", "jpeg"] }
 
-itertools = "0.15"
-cargo = "0.98"
-cargo-util = "0.2"
+itertools = { workspace = true }
+cargo = { workspace = true }
+cargo-util = { workspace = true }
 
-thiserror = "2.0"
-anyhow = "1.0"
-displaydoc = "0.2"
-log = "0.4"
-termcolor = "1.4"
-atty = "0.2"
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+displaydoc = { workspace = true }
+log = { workspace = true }
+termcolor = { workspace = true }
+atty = { workspace = true }
 
 [target.'cfg(unix)'.dependencies]
-libc = "0.2"
+libc = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]
-fwdansi = "1.1"
+fwdansi = { workspace = true }
 
 [target.'cfg(windows)'.dependencies.winapi]
-version = "0.3"
+workspace = true
 features = [
   "basetsd",
   "handleapi",

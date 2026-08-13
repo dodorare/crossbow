@@ -1,4 +1,4 @@
-use crossbundle_tools::types::{apple_bundle::prelude::*, IosTarget};
+use crossbundle_tools::types::{IosTarget, apple_bundle::prelude::*};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 

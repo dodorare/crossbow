@@ -1,4 +1,4 @@
-use crate::commands::build::{apple::IosBuildCommand, BuildContext};
+use crate::commands::build::{BuildContext, apple::IosBuildCommand};
 use crate::error::*;
 use clap::Parser;
 use crossbundle_tools::{commands::apple, types::Config, types::*};

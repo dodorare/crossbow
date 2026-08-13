@@ -1,8 +1,8 @@
 use crate::error::*;
 use cargo::{
     core::{EitherManifest, Manifest, SourceId},
-    util::toml::read_manifest,
     util::GlobalContext,
+    util::toml::read_manifest,
 };
 use std::path::Path;
 

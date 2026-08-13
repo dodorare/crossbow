@@ -1,6 +1,6 @@
 use crossbow_android::{
     error::*,
-    jni::{objects::JString, JavaVM},
+    jni::{JavaVM, objects::JString},
     plugin::*,
 };
 use std::sync::Arc;

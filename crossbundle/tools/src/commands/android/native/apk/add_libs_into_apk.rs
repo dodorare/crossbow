@@ -183,12 +183,11 @@ pub fn get_libs_in_dir(dir: &Path) -> std::io::Result<Vec<String>> {
     if dir.is_dir() {
         for entry in std::fs::read_dir(dir)? {
             let entry = entry?;
-            if !entry.path().is_dir() {
-                if let Some(file_name) = entry.file_name().to_str() {
-                    if file_name.ends_with(".so") {
-                        libs.push(file_name.to_owned());
-                    }
-                }
+            if !entry.path().is_dir()
+                && let Some(file_name) = entry.file_name().to_str()
+                && file_name.ends_with(".so")
+            {
+                libs.push(file_name.to_owned());
             }
         }
     };

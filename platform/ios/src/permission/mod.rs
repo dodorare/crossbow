@@ -58,7 +58,7 @@ where
         }
         IosPermission::MotionActivityManager => {
             request_motion_activity_permission(move |activities, _error| {
-                if activities != cocoa_foundation::base::nil {
+                if !activities.is_null() {
                     handler(AuthorizationStatus::Authorized);
                 } else {
                     handler(AuthorizationStatus::Denied);

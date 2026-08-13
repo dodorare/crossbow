@@ -1,4 +1,4 @@
-use crate::commands::build::{android::AndroidBuildCommand, BuildContext};
+use crate::commands::build::{BuildContext, android::AndroidBuildCommand};
 use crate::error::*;
 use clap::Parser;
 use crossbundle_tools::{

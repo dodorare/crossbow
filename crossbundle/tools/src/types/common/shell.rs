@@ -466,7 +466,7 @@ mod imp {
     use winapi::um::wincon::*;
     use winapi::um::winnt::*;
 
-    pub(super) use super::{default_err_erase_line as err_erase_line, TtyWidth};
+    pub(super) use super::{TtyWidth, default_err_erase_line as err_erase_line};
 
     pub fn stderr_width() -> TtyWidth {
         unsafe {

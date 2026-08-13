@@ -1,6 +1,6 @@
 use crossbundle_tools::{
     commands::android::*,
-    types::{android_manifest::AndroidManifest, AndroidTarget, AppWrapper},
+    types::{AndroidTarget, AppWrapper, android_manifest::AndroidManifest},
 };
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;

@@ -5,4 +5,4 @@ authors = ["DodoRare Team <support@dodorare.com>"]
 language = "en"
 
 [rust]
-edition = "2021"
+edition = "2024"

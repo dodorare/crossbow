@@ -26,7 +26,7 @@ COPY . .
 RUN --mount=type=cache,id=crossbundle-registry,target=/root/.cargo/registry,sharing=locked \
     --mount=type=cache,id=crossbundle-target-${TARGETARCH},target=/build/target,sharing=locked \
     CARGO_TARGET_DIR=/build/target \
-    cargo install --path crossbundle/cli --locked --root /opt/crossbundle
+    cargo "+${RUST_VERSION}" install --path crossbundle/cli --locked --root /opt/crossbundle
 
 
 FROM ubuntu:24.04

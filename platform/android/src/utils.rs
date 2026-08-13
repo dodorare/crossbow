@@ -1,8 +1,7 @@
 use crate::error::*;
 use jni::{
-    jni_sig, jni_str,
+    Env, jni_sig, jni_str,
     objects::{JClass, JString},
-    Env,
 };
 
 pub fn jstring_to_string(env: &Env, jstring: &JString) -> Result<String> {

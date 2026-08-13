@@ -3,7 +3,7 @@ pub const MINIMAL_BEVY_CARGO_TOML_VALUE: &str = r#"
 name = "example"
 version = "0.1.0"
 authors = ["DodoRare Team <support@dodorare.com>"]
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 crossbow = { git = "https://github.com/dodorare/crossbow" }
@@ -16,7 +16,7 @@ pub const MINIMAL_MQ_CARGO_TOML_VALUE: &str = r#"
 name = "example"
 version = "0.1.0"
 authors = ["DodoRare Team <support@dodorare.com>"]
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 crossbow = { git = "https://github.com/dodorare/crossbow" }

@@ -62,11 +62,12 @@ impl AndroidBuildCommand {
                 self.execute_aab(config, &context)?;
             }
             AndroidStrategy::GradleApk => {
-                let (_, _, gradle_project_path) =
+                let (_, sdk, gradle_project_path) =
                     self.build_gradle(config, &context, &self.export_path)?;
                 config.status("Building Gradle project")?;
                 let mut gradle = gradle_init()?;
                 gradle
+                    .env("ANDROID_SDK_ROOT", sdk.sdk_path())
                     .arg("build")
                     .arg("-p")
                     .arg(dunce::simplified(&gradle_project_path));
@@ -94,11 +95,6 @@ impl AndroidBuildCommand {
         } else {
             target_dir.join("android").join(&package_name)
         };
-
-        // Set ANDROID_SDK_ROOT if there's no one
-        if std::env::var("ANDROID_SDK_ROOT").is_err() {
-            std::env::set_var("ANDROID_SDK_ROOT", sdk.sdk_path());
-        }
 
         config.status("Preparing resources and assets")?;
         let (assets, resources) =

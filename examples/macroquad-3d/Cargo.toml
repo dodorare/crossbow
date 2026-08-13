@@ -2,13 +2,13 @@
 name = "macroquad-3d"
 version = "0.2.3"
 authors = ["DodoRare Team <support@dodorare.com>"]
-edition = "2021"
+edition.workspace = true
 
 [dependencies]
-crossbow = { version = "0.2.3", path = "../../" }
-log = "0.4"
-anyhow = "1.0"
-macroquad = "0.4.16"
+crossbow = { workspace = true, default-features = true }
+log = { workspace = true }
+anyhow = { workspace = true }
+macroquad = { workspace = true }
 
 [package.metadata]
 app_name = "Macroquad 3D"

@@ -1,8 +1,8 @@
 use clap::{ArgAction, Parser};
 use crossbundle_tools::{
-    error::{CommandExt, Result},
-    types::{android_sdk_path, Config},
     EXECUTABLE_SUFFIX_BAT,
+    error::{CommandExt, Result},
+    types::{Config, android_sdk_path},
 };
 use std::path::Path;
 

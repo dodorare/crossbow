@@ -1,7 +1,7 @@
 [package]
 name = "crossbow-android"
 version = "0.2.3"
-edition = "2021"
+edition.workspace = true
 authors = ["DodoRare Team <support@dodorare.com>"]
 description = "Cross-Platform build tools and toolkit for games"
 repository = "https://github.com/dodorare/crossbow"
@@ -11,16 +11,16 @@ readme = "README.md"
 include = ["src/", "java/app/"]
 
 [dependencies]
-thiserror = "2.0"
-displaydoc = "0.2"
-anyhow = "1.0"
+thiserror = { workspace = true }
+displaydoc = { workspace = true }
+anyhow = { workspace = true }
 
-rust-embed = { version = "8.12.0", features = ["include-exclude"], optional = true }
+rust-embed = { workspace = true, features = ["include-exclude"], optional = true }
 
-jni = { version = "0.22", optional = true }
-ndk-context = { version = "0.1", optional = true }
-lazy_static = { version = "1.5", optional = true }
-async-channel = { version = "2.5", optional = true }
+jni = { workspace = true, optional = true }
+ndk-context = { workspace = true, optional = true }
+lazy_static = { workspace = true, optional = true }
+async-channel = { workspace = true, optional = true }
 
 [features]
 default = ["android"]
