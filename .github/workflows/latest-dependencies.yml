@@ -60,8 +60,9 @@ jobs:
             target
           key: ${{ runner.os }}-${{ runner.arch }}-latest-dependencies-${{ hashFiles('Cargo.lock') }}
           restore-keys: ${{ runner.os }}-${{ runner.arch }}-latest-dependencies-
-      - name: Check the complete workspace
-        run: cargo check --workspace --all-targets --locked
+      - name: Check the complete non-iOS workspace
+        run: >-
+          cargo check --workspace --all-targets --exclude crossbow-ios --locked
       - name: Install Rust Android targets
         run: rustup target add aarch64-linux-android x86_64-linux-android
       - name: Install Android SDK and NDK

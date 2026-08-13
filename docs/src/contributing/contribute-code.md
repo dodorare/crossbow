@@ -7,7 +7,7 @@ Would you like to contribute code to Crossbow? Here's how!
 3. For a higher chance of CI passing the first time, consider run these commands from the root of your local clone:
     1. `cargo fmt --all -- --check` (remove --check to let the command fix found problems)
     2. `cargo clippy --all-targets --all-features --locked -- -D warnings -A clippy::unnecessary-unwrap -A clippy::too-many-arguments -A clippy::result_large_err`
-    3. `cargo test --all-targets --workspace --locked`
+    3. `cargo test --all-targets --workspace --locked` on macOS, or add `--exclude crossbow-ios` on non-Apple hosts. The `crossbow-ios` package links Apple frameworks and is tested separately by macOS CI.
 4. Push your changes to your fork and open a Pull Request.
 5. Respond to any CI failures or review feedback.
 <!-- 6. Remember to follow Crossbow's Code of Conduct, and thanks for contributing! -->

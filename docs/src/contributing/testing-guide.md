@@ -12,7 +12,7 @@ Crossbow commits the workspace `Cargo.lock` because the workspace ships the `cro
 
 Dependabot checks for Cargo updates every week and opens pull requests that update the manifests and lockfile. Minor and patch updates are grouped; major updates remain separate so their compatibility can be reviewed independently.
 
-The `Latest compatible dependencies` workflow provides an additional early-warning check every week and on demand. It generates a new lockfile from the manifests, checks the complete workspace, and runs the Android test suites against that fresh resolution. This scheduled workflow does not replace or gate the reproducible checks run on pull requests.
+The `Latest compatible dependencies` workflow provides an additional early-warning check every week and on demand. It generates a new lockfile from the manifests and runs the complete non-iOS workspace test suite against that fresh resolution. Pull-request CI tests the iOS-only package and Apple feature set on macOS. The scheduled workflow does not replace or gate the reproducible checks run on pull requests.
 
 ## In case of issues
 
