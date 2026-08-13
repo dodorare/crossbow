@@ -122,8 +122,10 @@ impl AndroidBuildCommand {
                 .version_name
                 .clone()
                 .unwrap_or_else(|| "0.1".to_owned()),
-            min_sdk_version,
-            target_sdk_version,
+            AndroidSdkVersions {
+                min_sdk: min_sdk_version,
+                target_sdk: target_sdk_version,
+            },
             &android_build_dir,
             &assets,
             &resources,

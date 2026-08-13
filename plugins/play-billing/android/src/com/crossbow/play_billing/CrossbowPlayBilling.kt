@@ -133,7 +133,13 @@ class CrossbowPlayBilling(crossbow: Crossbow) : CrossbowPlugin(crossbow),
                 val selectedOfferToken = offerToken.ifEmpty {
                     details.subscriptionOfferDetails?.firstOrNull()?.offerToken.orEmpty()
                 }
-                if (selectedOfferToken.isNotEmpty()) setOfferToken(selectedOfferToken)
+                if (
+                    selectedOfferToken.isNotEmpty() &&
+                    replacementMode != BillingFlowParams.ProductDetailsParams
+                        .SubscriptionProductReplacementParams.ReplacementMode.KEEP_EXISTING
+                ) {
+                    setOfferToken(selectedOfferToken)
+                }
                 if (oldProductId.isNotEmpty() && replacementMode != 0) {
                     setSubscriptionProductReplacementParams(
                         BillingFlowParams.ProductDetailsParams.SubscriptionProductReplacementParams
@@ -150,14 +156,17 @@ class CrossbowPlayBilling(crossbow: Crossbow) : CrossbowPlugin(crossbow),
             .apply {
                 if (obfuscatedAccountId.isNotEmpty()) setObfuscatedAccountId(obfuscatedAccountId)
                 if (obfuscatedProfileId.isNotEmpty()) setObfuscatedProfileId(obfuscatedProfileId)
-                if (legacyOldToken.isNotEmpty() && replacementMode != 0) {
-                    @Suppress("DEPRECATION")
-                    setSubscriptionUpdateParams(
-                        BillingFlowParams.SubscriptionUpdateParams.newBuilder()
-                            .setOldPurchaseToken(legacyOldToken)
-                            .setSubscriptionReplacementMode(replacementMode)
-                            .build()
-                    )
+                if (legacyOldToken.isNotEmpty()) {
+                    val updateParams = BillingFlowParams.SubscriptionUpdateParams.newBuilder()
+                        .setOldPurchaseToken(legacyOldToken)
+                        .apply {
+                            if (oldProductId.isEmpty() && replacementMode != 0) {
+                                @Suppress("DEPRECATION")
+                                setSubscriptionReplacementMode(replacementMode)
+                            }
+                        }
+                        .build()
+                    setSubscriptionUpdateParams(updateParams)
                 }
             }
             .build()
@@ -306,12 +315,12 @@ class CrossbowPlayBilling(crossbow: Crossbow) : CrossbowPlugin(crossbow),
     fun purchaseWithOffer(productId: String, offerToken: String): Dictionary =
         purchaseInternal("", "", productId, offerToken, 0)
 
-    @Deprecated("Use replaceSubscription with the old product ID for Billing 9.")
+    @Deprecated("Use replaceSubscription with the old purchase token and product ID for Billing 9.")
     @ExposedToCrossbow
     fun updateSubscription(oldToken: String, productId: String, replacementMode: Int): Dictionary =
         purchaseInternal(oldToken, "", productId, "", replacementMode)
 
-    @Deprecated("Use replaceSubscription with the old product ID for Billing 9.")
+    @Deprecated("Use replaceSubscription with the old purchase token and product ID for Billing 9.")
     @ExposedToCrossbow
     fun updateSubscriptionWithOffer(
         oldToken: String,
@@ -322,12 +331,13 @@ class CrossbowPlayBilling(crossbow: Crossbow) : CrossbowPlugin(crossbow),
 
     @ExposedToCrossbow
     fun replaceSubscription(
+        oldPurchaseToken: String,
         oldProductId: String,
         newProductId: String,
         offerToken: String,
         replacementMode: Int,
     ): Dictionary = purchaseInternal(
-        "",
+        oldPurchaseToken,
         oldProductId,
         newProductId,
         offerToken,

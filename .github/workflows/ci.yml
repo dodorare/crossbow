@@ -11,6 +11,8 @@ on:
       - '**.toml'
       - 'Cargo.lock'
       - 'docs/**'
+      - 'platform/android/**'
+      - 'plugins/*/android/**'
   pull_request:
     paths:
       - '.github/docker/**'
@@ -20,6 +22,8 @@ on:
       - '**.toml'
       - 'Cargo.lock'
       - 'docs/**'
+      - 'platform/android/**'
+      - 'plugins/*/android/**'
 
 permissions:
   contents: read
@@ -55,7 +59,9 @@ jobs:
       - name: Check formatting
         run: cargo fmt --all -- --check
       - name: Check tool version consistency
-        run: python3 .github/scripts/check_tool_versions.py
+        run: |
+          python3 .github/scripts/test_check_tool_versions.py
+          python3 .github/scripts/check_tool_versions.py
       - name: Run Clippy
         working-directory: crossbundle/cli
         run: >-
@@ -139,6 +145,7 @@ jobs:
           :app:compileDebugKotlin
           :admob:compileDebugKotlin
           :play_billing:compileDebugKotlin
+          :play_billing:testDebugUnitTest
           :play_core:compileDebugKotlin
           :play_games_services:compileDebugKotlin
           --no-daemon

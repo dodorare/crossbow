@@ -13,6 +13,19 @@ The Android implementation uses the Play Games Services v2 SDK and its automatic
 authentication flow.
 See Google's [v1 deprecation and v2 migration notice](https://developers.google.com/android/guides/releases#june_11_2026).
 
+### Identity migration
+
+The `_on_sign_in_success` signal now contains a **Play Games Player ID**, not the
+Google account ID returned by Crossbow's old v1 integration. Treat this value as a
+secondary platform identifier for achievements, leaderboards, events, and saved games.
+Do not use it as the primary key for player progress, inventory, or currency.
+
+Before releasing this migration for a game that associated the old signal value with an
+in-game account, add an explicit account-linking migration. Google recommends a stable
+OpenID from Sign in with Google or an independent account system as the primary identity,
+with the Play Games Player ID retained only as a secondary association. See the
+[PGS identity migration overview](https://developer.android.com/games/pgs/migration_overview).
+
 ### Supported features:
 
 | Feature | Available |
@@ -107,6 +120,10 @@ automatic authentication during initialization:
 ```rust
 play_games.sign_in()?;
 ```
+
+Successful authentication emits `_on_sign_in_success` with the Play Games Player ID.
+Programmatic sign-out is unavailable in PGS v2; users manage the persistent platform
+profile through Android and Play Games settings.
 
 To read signals:
 

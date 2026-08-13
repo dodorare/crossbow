@@ -170,7 +170,7 @@ impl PlayBillingPlugin {
         })
     }
 
-    #[deprecated(note = "use replace_subscription with the old product ID")]
+    #[deprecated(note = "use replace_subscription with the old purchase token and product ID")]
     pub fn update_subscription<S>(
         &self,
         old_token: S,
@@ -196,7 +196,7 @@ impl PlayBillingPlugin {
         })
     }
 
-    #[deprecated(note = "use replace_subscription with the old product ID")]
+    #[deprecated(note = "use replace_subscription with the old purchase token and product ID")]
     pub fn update_subscription_with_offer<S>(
         &self,
         old_token: S,
@@ -225,8 +225,13 @@ impl PlayBillingPlugin {
         })
     }
 
+    /// Replaces a subscription using Billing 9's purchase- and product-level parameters.
+    ///
+    /// `old_purchase_token` must identify the existing subscription purchase, while
+    /// `old_product_id` identifies the item within that purchase which is being replaced.
     pub fn replace_subscription<S>(
         &self,
+        old_purchase_token: S,
         old_product_id: S,
         new_product_id: S,
         offer_token: S,
@@ -236,6 +241,7 @@ impl PlayBillingPlugin {
         S: AsRef<str>,
     {
         self.vm.attach_current_thread(|env| {
+            let old_purchase_token = JString::from_str(env, old_purchase_token)?;
             let old_product_id = JString::from_str(env, old_product_id)?;
             let new_product_id = JString::from_str(env, new_product_id)?;
             let offer_token = JString::from_str(env, offer_token)?;
@@ -243,6 +249,7 @@ impl PlayBillingPlugin {
                 env,
                 "replaceSubscription",
                 &[
+                    (&old_purchase_token).into(),
                     (&old_product_id).into(),
                     (&new_product_id).into(),
                     (&offer_token).into(),
@@ -281,5 +288,18 @@ impl PlayBillingPlugin {
             )?;
             Ok(())
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn subscription_replacement_requires_the_existing_purchase_token() {
+        type ReplaceSubscription =
+            fn(&PlayBillingPlugin, String, String, String, String, i32) -> Result<JniRustType>;
+
+        let _replace: ReplaceSubscription = PlayBillingPlugin::replace_subscription::<String>;
     }
 }

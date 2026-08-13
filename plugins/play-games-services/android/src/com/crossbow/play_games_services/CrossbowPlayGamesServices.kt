@@ -379,8 +379,8 @@ class CrossbowPlayGamesServices(crossbow: Crossbow) : CrossbowPlugin(crossbow), 
         emitSignal(SIGNAL_SAVED_GAME_CREATE_SNAPSHOT.name, currentSaveName)
     }
 
-    override fun onSignedInSuccessfully(accountId: String) {
-        emitSignal(SIGNAL_SIGN_IN_SUCCESSFUL.name, accountId)
+    override fun onSignedInSuccessfully(playerId: String) {
+        emitSignal(SIGNAL_SIGN_IN_SUCCESSFUL.name, playerId)
     }
 
     override fun onSignInFailed(statusCode: Int) {

@@ -23,6 +23,7 @@ repositories {
 dependencies {
     implementation libraries.androidxAppcompat
     implementation "com.android.billingclient:billing:9.1.0"
+    testImplementation "junit:junit:4.13.2"
 
     if (rootProject.findProject(":lib")) {
         implementation project(":lib")
@@ -67,5 +68,6 @@ android {
             assets.setSrcDirs(["assets"])
             res.setSrcDirs(["res"])
         }
+        test.kotlin.directories.add("test")
     }
 }

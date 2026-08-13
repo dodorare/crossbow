@@ -14,6 +14,11 @@ Dependabot checks for Cargo updates every week and opens pull requests that upda
 
 The `Latest compatible dependencies` workflow provides an additional early-warning check every week and on demand. It generates a new lockfile from the manifests and runs the complete non-iOS workspace test suite against that fresh resolution. Pull-request CI tests the iOS-only package and Apple feature set on macOS. The scheduled workflow does not replace or gate the reproducible checks run on pull requests.
 
+Android stack versions are canonical in `.github/tool-versions.toml`. After changing them,
+run `python3 .github/scripts/check_tool_versions.py --sync-android-gradle` to update the
+standalone Gradle projects, then run the script without arguments to verify every operative
+declaration.
+
 ## In case of issues
 
 Feel free to open [Github Issues](https://github.com/dodorare/crossbow/issues/new/choose) - we will be happy to fix or review them.

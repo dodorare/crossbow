@@ -62,7 +62,10 @@ play_billing.query_purchases("inapp")?;
 
 Crossbow uses Play Billing Library 9. Subscription products expose base plans, pricing
 phases, and offer tokens through `product_details_query_completed`; pass the selected
-token to `purchase_with_offer`. Use `replace_subscription` for subscription changes.
+token to `purchase_with_offer`. For subscription changes, call `replace_subscription`
+with the existing purchase token, old and new product IDs, selected offer token, and
+replacement mode. Billing 9 requires the existing purchase token even when product-level
+replacement parameters identify the old product.
 
 To read signals:
 

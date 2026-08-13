@@ -1,6 +1,6 @@
 # Set up your Android device
 
-To prepare to run your `Crossbow` app on an Android device, you need an Android device running Android 4.1 (API level 16) or higher.
+To prepare to run your `Crossbow` app on an Android device, you need an Android device running Android 6.0 (API level 23) or higher. This is a compatibility change from Crossbow's previous API 19 minimum.
 
 1. Enable **Developer options** and **USB debugging** on your device. Detailed instructions are available in the [Android documentation](https://developer.android.com/studio/debug/dev-options).
 2. Using a USB cable, plug your phone into your computer. If prompted on your device, authorize your computer to access your device.

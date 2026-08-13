@@ -58,10 +58,32 @@ object CrossbowPlayBillingUtils {
                 this["pricing_phases"] = pricingPhases.toTypedArray()
             }
         }
-        val legacyPrice = oneTimeOffers.firstOrNull()
-            ?: subscriptionOffers.firstOrNull()?.get("pricing_phases")
-                ?.let { it as? Array<*> }
-                ?.firstOrNull() as? Dictionary
+        val legacyOneTimeOffers = details.oneTimePurchaseOfferDetailsList.orEmpty().map { offer ->
+            LegacyPricingPhase(
+                offer.formattedPrice,
+                offer.priceCurrencyCode,
+                offer.priceAmountMicros,
+            )
+        }
+        val legacySubscriptionPhases = details.subscriptionOfferDetails
+            .orEmpty()
+            .firstOrNull()
+            ?.pricingPhases
+            ?.pricingPhaseList
+            .orEmpty()
+            .map { phase ->
+                LegacyPricingPhase(
+                    phase.formattedPrice,
+                    phase.priceCurrencyCode,
+                    phase.priceAmountMicros,
+                    phase.billingPeriod,
+                    phase.billingCycleCount,
+                )
+            }
+        val legacyFields = legacyProductDetailsFields(
+            legacyOneTimeOffers,
+            legacySubscriptionPhases,
+        )
 
         return Dictionary().apply {
             this["product_id"] = details.productId
@@ -74,9 +96,7 @@ object CrossbowPlayBillingUtils {
             // Preserve the most useful Billing 4 fields during the public API transition.
             this["sku"] = details.productId
             this["type"] = details.productType
-            this["price"] = legacyPrice?.get("formatted_price")
-            this["price_currency_code"] = legacyPrice?.get("price_currency_code")
-            this["price_amount_micros"] = legacyPrice?.get("price_amount_micros")
+            putAll(legacyFields)
         }
     }
 
@@ -88,4 +108,39 @@ object CrossbowPlayBillingUtils {
     ): Array<Any?> = productDetails
         .map { convertProductDetailsToDictionary(it) as Any? }
         .toTypedArray()
+}
+
+internal data class LegacyPricingPhase(
+    val formattedPrice: String,
+    val priceCurrencyCode: String,
+    val priceAmountMicros: Long,
+    val billingPeriod: String = "",
+    val billingCycleCount: Int = 0,
+)
+
+internal fun legacyProductDetailsFields(
+    oneTimeOffers: List<LegacyPricingPhase>,
+    subscriptionPhases: List<LegacyPricingPhase>,
+): Map<String, Any?> {
+    val regularPrice = oneTimeOffers.firstOrNull() ?: subscriptionPhases.lastOrNull()
+    val freeTrial = subscriptionPhases.firstOrNull { it.priceAmountMicros == 0L }
+    val introductoryPrice = subscriptionPhases
+        .dropLast(1)
+        .firstOrNull { it.priceAmountMicros > 0L }
+
+    return mapOf(
+        "price" to regularPrice?.formattedPrice.orEmpty(),
+        "price_currency_code" to regularPrice?.priceCurrencyCode.orEmpty(),
+        "price_amount_micros" to (regularPrice?.priceAmountMicros ?: 0L),
+        "free_trial_period" to freeTrial?.billingPeriod.orEmpty(),
+        "icon_url" to "",
+        "introductory_price" to introductoryPrice?.formattedPrice.orEmpty(),
+        "introductory_price_amount_micros" to
+            (introductoryPrice?.priceAmountMicros ?: 0L),
+        "introductory_price_cycles" to (introductoryPrice?.billingCycleCount ?: 0),
+        "introductory_price_period" to introductoryPrice?.billingPeriod.orEmpty(),
+        "original_price" to regularPrice?.formattedPrice.orEmpty(),
+        "original_price_amount_micros" to (regularPrice?.priceAmountMicros ?: 0L),
+        "subscription_period" to regularPrice?.billingPeriod.orEmpty(),
+    )
 }

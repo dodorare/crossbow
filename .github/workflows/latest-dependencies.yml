@@ -82,6 +82,7 @@ jobs:
           :app:compileDebugKotlin
           :admob:compileDebugKotlin
           :play_billing:compileDebugKotlin
+          :play_billing:testDebugUnitTest
           :play_core:compileDebugKotlin
           :play_games_services:compileDebugKotlin
           --no-daemon
