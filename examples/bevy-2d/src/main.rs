@@ -3,19 +3,24 @@ use bevy::prelude::*;
 fn main() {
     println!("Initialization.");
     std::thread::sleep(std::time::Duration::from_secs(2));
-    App::new()
-        .add_plugins(DefaultPlugins)
+    let mut app = App::new();
+
+    #[cfg(not(any(target_os = "android", target_os = "ios")))]
+    app.add_plugins(DefaultPlugins.set(AssetPlugin {
+        file_path: desktop_assets_path().to_string_lossy().into_owned(),
+        ..default()
+    }));
+    #[cfg(any(target_os = "android", target_os = "ios"))]
+    app.add_plugins(DefaultPlugins);
+
+    app
         // .add_startup_system(audio)
         .add_systems(Startup, icon)
         .run();
 }
 
 fn icon(mut commands: Commands, asset_server: Res<AssetServer>) {
-    #[cfg(not(target_os = "android"))]
-    let image_path = get_assets_path();
-    #[cfg(target_os = "android")]
-    let image_path = std::path::PathBuf::from("images").join("icon.png");
-    let asset: Handle<Image> = asset_server.load(image_path);
+    let asset: Handle<Image> = asset_server.load("images/icon.png");
     commands.spawn(Camera2d);
     commands.spawn(Sprite::from_image(asset));
 }
@@ -25,14 +30,13 @@ fn icon(mut commands: Commands, asset_server: Res<AssetServer>) {
 //     audio.play(music);
 // }
 
-/// Workaround. Failed to get assets on windows from the .load() method through the
-/// relative path to asset
-fn get_assets_path() -> std::path::PathBuf {
-    let font_path = std::path::PathBuf::from("assets")
-        .join("images")
-        .join("icon.png");
+#[cfg(not(any(target_os = "android", target_os = "ios")))]
+fn desktop_assets_path() -> std::path::PathBuf {
     let manifest_dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    let assets_path = manifest_dir.parent().unwrap().parent().unwrap();
-    let image_path = assets_path.join(font_path);
-    image_path
+    manifest_dir
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .join("assets")
 }
