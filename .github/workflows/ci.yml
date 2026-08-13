@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - '.github/docker/**'
+      - '.github/scripts/**'
       - '.github/workflows/**'
       - '**.rs'
       - '**.toml'
@@ -13,6 +14,7 @@ on:
   pull_request:
     paths:
       - '.github/docker/**'
+      - '.github/scripts/**'
       - '.github/workflows/**'
       - '**.rs'
       - '**.toml'
@@ -52,6 +54,8 @@ jobs:
           restore-keys: ${{ runner.os }}-${{ runner.arch }}-
       - name: Check formatting
         run: cargo fmt --all -- --check
+      - name: Check tool version consistency
+        run: python3 .github/scripts/check_tool_versions.py
       - name: Run Clippy
         working-directory: crossbundle/cli
         run: >-
@@ -75,15 +79,30 @@ jobs:
           key: ${{ runner.os }}-${{ runner.arch }}-${{ github.job }}-${{ hashFiles('Cargo.lock') }}
           restore-keys: ${{ runner.os }}-${{ runner.arch }}-
       - name: Install cargo-deadlinks
-        run: cargo install cargo-deadlinks --locked
-      - name: Check links
-        run: cargo deadlinks --check-http
+        run: cargo install cargo-deadlinks --version 0.8.1 --locked
+      - name: Check local Rustdoc links
+        env:
+          RUST_LOG: error
+        run: cargo deadlinks
 
   tests:
     name: Android tests
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v6
+      - name: Install Linux build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends \
+            g++ \
+            libasound2-dev \
+            libudev-dev \
+            libwayland-dev \
+            libx11-dev \
+            libxkbcommon-dev \
+            libxkbcommon-x11-0 \
+            pkg-config
       - name: Set up JDK 17
         uses: actions/setup-java@v5
         with:
@@ -120,12 +139,10 @@ jobs:
             "https://github.com/google/bundletool/releases/download/$BUNDLETOOL_VERSION/bundletool-all-$BUNDLETOOL_VERSION.jar" \
             --output "$bundletool"
           echo "BUNDLETOOL_PATH=$bundletool" >> "$GITHUB_ENV"
-      - name: Run all tests
+      - name: Run full workspace tests
         env:
           CROSSBOW_TEST_WORKSPACE: ${{ github.workspace }}
-        run: |
-          cargo test -p crossbundle --no-default-features --features android --locked --no-fail-fast
-          cargo test -p crossbundle-tools --no-default-features --features android --locked --no-fail-fast
+        run: cargo test --workspace --all-targets --locked --no-fail-fast
 
   apple-tests:
     name: Apple tests
@@ -190,7 +207,7 @@ jobs:
   android-build-windows:
     name: Build Android example on Windows
     runs-on: windows-latest
-    timeout-minutes: 35
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v6
       - name: Set up JDK 17
@@ -212,22 +229,27 @@ jobs:
           restore-keys: ${{ runner.os }}-${{ runner.arch }}-
       - name: Install Rust Android targets
         run: rustup target add aarch64-linux-android x86_64-linux-android
-      - name: Install Android SDK and NDK
-        shell: pwsh
-        run: |
-          $sdkmanager = Join-Path $env:ANDROID_SDK_ROOT 'cmdline-tools\latest\bin\sdkmanager.bat'
-          & $sdkmanager `
-            "platforms;android-$env:ANDROID_API_LEVEL" `
-            "build-tools;$env:ANDROID_BUILD_TOOLS_VERSION" `
-            "ndk;$env:ANDROID_NDK_VERSION" `
-            'platform-tools'
-          $ndk = Join-Path $env:ANDROID_SDK_ROOT "ndk\$env:ANDROID_NDK_VERSION"
-          "ANDROID_NDK_ROOT=$ndk" | Out-File -FilePath $env:GITHUB_ENV -Append
-      - name: Install Crossbundle from Git checkout
+      - name: Install Crossbundle and preferred Android tools
         shell: pwsh
         run: |
           $repo = (Resolve-Path .).Path.Replace('\', '/')
           cargo install --git "file:///$repo" crossbundle --locked
+
+          $hostSdk = $env:ANDROID_SDK_ROOT
+          $sdk = Join-Path $env:RUNNER_TEMP 'crossbundle-android-sdk'
+          New-Item -ItemType Directory -Path $sdk -Force | Out-Null
+          if (Test-Path (Join-Path $hostSdk 'licenses')) {
+            Copy-Item (Join-Path $hostSdk 'licenses') $sdk -Recurse
+          }
+
+          $env:ANDROID_SDK_ROOT = $sdk
+          $env:ANDROID_HOME = $sdk
+          crossbundle install --preferred
+
+          $ndk = Join-Path $sdk "ndk\$env:ANDROID_NDK_VERSION"
+          "ANDROID_SDK_ROOT=$sdk" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "ANDROID_HOME=$sdk" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "ANDROID_NDK_ROOT=$ndk" | Out-File -FilePath $env:GITHUB_ENV -Append
       - name: Build APK
         working-directory: examples/macroquad-permissions
         run: crossbundle build android --release

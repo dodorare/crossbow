@@ -8,7 +8,7 @@ If you want to run tests for our `crossbundle` crate, you can make it by the fol
 
 ## Dependency updates
 
-Crossbow commits the workspace `Cargo.lock` because the workspace ships the `crossbundle` executable. Required CI, release, and installation checks use `--locked` so that a commit is always tested with its reviewed dependency graph.
+Crossbow commits the workspace `Cargo.lock` because the workspace ships the `crossbundle` executable. Required CI, release, publishing, and installation checks use `--locked` so that a commit is always tested with its reviewed dependency graph.
 
 Dependabot checks for Cargo updates every week and opens pull requests that update the manifests and lockfile. Minor and patch updates are grouped; major updates remain separate so their compatibility can be reviewed independently.
 

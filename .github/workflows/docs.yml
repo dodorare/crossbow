@@ -11,10 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
       - name: Install and Build
         run: |
-          cargo install mdbook
+          cargo install mdbook --version 0.4.52 --locked
           cd docs/
           mdbook build -d book
       - name: Deploy

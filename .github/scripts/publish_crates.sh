@@ -17,7 +17,7 @@ for crate in "${crates[@]}"
 do
     echo "Publishing ${crate}"
     pushd $crate
-    cargo publish
+    cargo publish --locked
     sleep 40
     popd
 done

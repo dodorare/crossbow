@@ -33,9 +33,6 @@ image = { version = "0.25.10", default-features = false, features = ["png", "jpe
 itertools = "0.15"
 cargo = "0.98"
 cargo-util = "0.2"
-# Cargo 0.98 supports Rust 1.95, while kstring 2.0.3+ requires Rust 1.96.
-# Keep Cargo's Gix graph installable on the current stable toolchain.
-kstring = "=2.0.2"
 
 thiserror = "2.0"
 anyhow = "1.0"

@@ -1,9 +1,6 @@
 [advisories]
 unmaintained = "all"
 yanked = "deny"
-# Only needed because of https://github.com/netvl/xml-rs.
-# TODO: Remove this when repository will be maintained again.
-ignore = ["RUSTSEC-2022-0048"]
 
 [licenses]
 allow = [
