@@ -63,9 +63,15 @@ def main() -> int:
         Check(".github/docker/crossbundle.Dockerfile", r"^ARG GRADLE_VERSION=(\S+)$", versions["gradle"], "Gradle"),
         Check("platform/android/java/gradle/wrapper/gradle-wrapper.properties", r"gradle-([0-9.]+)-bin\.zip", versions["gradle"], "Gradle"),
         Check("docs/src/install/android-windows.md", r"gradle-([0-9.]+)", versions["gradle"], "Gradle"),
-        Check(".github/workflows/ci.yml", r"^          java-version: '([^']+)'$", versions["java"], "Java", all_matches=True),
-        Check(".github/workflows/latest-dependencies.yml", r"^          java-version: '([^']+)'$", versions["java"], "Java", all_matches=True),
-        Check("docs/src/install/android-windows.md", r"jdk-([0-9]+)", versions["java"], "Java"),
+        Check(".github/workflows/ci.yml", r"^          java-version: '?([0-9]+)'?$", versions["java_runtime"], "Java runtime", all_matches=True),
+        Check(".github/workflows/latest-dependencies.yml", r"^          java-version: '?([0-9]+)'?$", versions["java_runtime"], "Java runtime", all_matches=True),
+        Check(".github/workflows/publish.yml", r"^        java-version: '?([0-9]+)'?$", versions["java_runtime"], "Java runtime"),
+        Check(".github/docker/crossbundle.Dockerfile", r"^        openjdk-([0-9]+)-jdk-headless", versions["java_runtime"], "Java runtime"),
+        Check("docs/src/install/android-linux.md", r"openjdk-([0-9]+)-jdk", versions["java_runtime"], "Java runtime"),
+        Check("docs/src/install/android-linux.md", r"jdk([0-9]+)-openjdk", versions["java_runtime"], "Java runtime"),
+        Check("docs/src/install/android-macos.md", r"openjdk@([0-9]+)", versions["java_runtime"], "Java runtime"),
+        Check("docs/src/install/android-windows.md", r"jdk-([0-9]+)", versions["java_runtime"], "Java runtime"),
+        Check("platform/android/java/app/config.gradle", r"^    javaVersion\s+: ([0-9]+),$", versions["java_bytecode"], "Java bytecode target"),
     ]
 
     failures: list[str] = []

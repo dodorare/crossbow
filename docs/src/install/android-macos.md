@@ -9,11 +9,10 @@
    - Android SDK Command-line Tools
    - Android SDK Build-Tools
    - Android SDK Platform-tools
-3. Download and install java. Can be installed with `brew` through:
+3. Download and install JDK 17. It can be installed with Homebrew:
 
 ```sh
-brew tap adoptopenjdk/openjdk
-brew install --cask adoptopenjdk8
+brew install openjdk@17
 ```
 
 ## Install necessary rustup targets
@@ -62,4 +61,3 @@ After previous steps you can use crossbundle to build gradle project or native A
 - [Crossbundle run command](../crossbundle/command-run.md)
 - [Crossbundle install command](../crossbundle/command-install.md)
 - [Crossbundle new command](../crossbundle/command-new.md)
-

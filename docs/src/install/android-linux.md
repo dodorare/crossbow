@@ -47,8 +47,8 @@ _But please be aware that your path may vary._ The above path is for arch-based 
 If not, install JRE accordingly to your operating system:
 Examples:
 
-- Ubuntu: `sudo apt install default-jdk`
-- Manjaro (Arch): `sudo pacman -S jre11-openjdk-headless jre11-openjdk jdk11-openjdk openjdk11-doc openjdk11-src`
+- Ubuntu: `sudo apt install openjdk-17-jdk`
+- Manjaro (Arch): `sudo pacman -S jre17-openjdk-headless jre17-openjdk jdk17-openjdk openjdk17-doc openjdk17-src`
 
 ## Set up your Android device
 
@@ -64,4 +64,3 @@ After previous steps you can use crossbundle to build gradle project or native A
 - [Crossbundle run command](../crossbundle/command-run.md)
 - [Crossbundle install command](../crossbundle/command-install.md)
 - [Crossbundle new command](../crossbundle/command-new.md)
-
