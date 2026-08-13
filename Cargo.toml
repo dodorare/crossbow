@@ -83,7 +83,7 @@ apple-bundle = { workspace = true, optional = true }
 
 [target.'cfg(target_os = "android")'.dependencies]
 ndk-glue = { workspace = true }
-crossbow-android = { workspace = true, optional = true }
+crossbow-android = { workspace = true, default-features = true, optional = true }
 
 [target.'cfg(target_os = "ios")'.dependencies]
 crossbow-ios = { workspace = true, optional = true }
