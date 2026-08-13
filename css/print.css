@@ -1,18 +1,18 @@
 
-#mdbook-sidebar,
-#mdbook-menu-bar,
+#sidebar,
+#menu-bar,
 .nav-chapters,
 .mobile-nav-chapters {
     display: none;
 }
 
-#mdbook-page-wrapper.page-wrapper {
+#page-wrapper.page-wrapper {
     transform: none !important;
     margin-inline-start: 0px;
     overflow-y: initial;
 }
 
-#mdbook-content {
+#content {
     max-width: none;
     margin: 0;
     padding: 0;
