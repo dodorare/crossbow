@@ -1,0 +1,84 @@
+name: Latest compatible dependencies
+
+on:
+  schedule:
+    - cron: '17 3 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: latest-compatible-dependencies
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  ANDROID_API_LEVEL: '31'
+  ANDROID_BUILD_TOOLS_VERSION: '30.0.3'
+  ANDROID_NDK_VERSION: '27.3.13750724'
+  BUNDLETOOL_VERSION: '1.18.3'
+  GRADLE_VERSION: '7.4'
+
+jobs:
+  android-tests:
+    name: Test a fresh dependency resolution
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: ${{ env.GRADLE_VERSION }}
+      - name: Resolve latest compatible dependencies
+        run: |
+          mv Cargo.lock "$RUNNER_TEMP/Cargo.lock.committed"
+          cargo generate-lockfile
+      - uses: actions/cache@v5
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-${{ runner.arch }}-latest-dependencies-${{ hashFiles('Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-${{ runner.arch }}-latest-dependencies-
+      - name: Check the complete workspace
+        run: cargo check --workspace --all-targets --locked
+      - name: Install Rust Android targets
+        run: rustup target add aarch64-linux-android x86_64-linux-android
+      - name: Install Android SDK and NDK
+        run: |
+          sdkmanager="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$sdkmanager" --licenses >/dev/null || true
+          "$sdkmanager" \
+            "platforms;android-$ANDROID_API_LEVEL" \
+            "build-tools;$ANDROID_BUILD_TOOLS_VERSION" \
+            "ndk;$ANDROID_NDK_VERSION" \
+            "platform-tools"
+          echo "ANDROID_NDK_ROOT=$ANDROID_SDK_ROOT/ndk/$ANDROID_NDK_VERSION" >> "$GITHUB_ENV"
+      - name: Install bundletool
+        run: |
+          bundletool="$RUNNER_TEMP/bundletool.jar"
+          curl --fail --location --silent --show-error \
+            "https://github.com/google/bundletool/releases/download/$BUNDLETOOL_VERSION/bundletool-all-$BUNDLETOOL_VERSION.jar" \
+            --output "$bundletool"
+          echo "BUNDLETOOL_PATH=$bundletool" >> "$GITHUB_ENV"
+      - name: Run Android tests against the fresh resolution
+        env:
+          CROSSBOW_TEST_WORKSPACE: ${{ github.workspace }}
+        run: |
+          cargo test -p crossbundle --no-default-features --features android --locked --no-fail-fast
+          cargo test -p crossbundle-tools --no-default-features --features android --locked --no-fail-fast
+      - name: Save the generated lockfile
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: latest-compatible-Cargo.lock
+          path: Cargo.lock
+          retention-days: 7
