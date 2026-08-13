@@ -11,47 +11,51 @@ pub const HOST_TAG: &str = "linux-x86_64";
 pub const HOST_TAG: &str = "darwin-x86_64";
 
 pub const NDK_GLUE_EXTRA_CODE: &str = r#"
-#[no_mangle]
+#[unsafe(no_mangle)]
 #[cfg(target_os = "android")]
 unsafe extern "C" fn ANativeActivity_onCreate(
     activity: *mut std::os::raw::c_void,
     saved_state: *mut std::os::raw::c_void,
     saved_state_size: usize,
 ) {
-    crossbow::ndk_glue::init(
-        activity as _,
-        saved_state as _,
-        saved_state_size as _,
-        main,
-    );
+    unsafe {
+        crossbow::ndk_glue::init(
+            activity as _,
+            saved_state as _,
+            saved_state_size as _,
+            main,
+        );
+    }
 }
 "#;
 
 pub const QUAD_EXTRA_CODE: &str = r##"
 mod cargo_apk_glue_code {
-    extern "C" {
+    unsafe extern "C" {
         pub fn sapp_ANativeActivity_onCreate(
             activity: *mut std::ffi::c_void,
             saved_state: *mut std::ffi::c_void,
             saved_state_size: usize,
         );
     }
-    #[no_mangle]
+    #[unsafe(no_mangle)]
     pub unsafe extern "C" fn ANativeActivity_onCreate(
         activity: *mut std::ffi::c_void,
         saved_state: *mut std::ffi::c_void,
         saved_state_size: usize,
     ) {
-        crossbow::ndk_glue::init(
-            activity as _,
-            saved_state as _,
-            saved_state_size as _,
-            super::main,
-        );
-        // TODO: Fix initialization of the ndk_glue crate in sapp
-        sapp_ANativeActivity_onCreate(activity, saved_state, saved_state_size as _);
+        unsafe {
+            crossbow::ndk_glue::init(
+                activity as _,
+                saved_state as _,
+                saved_state_size as _,
+                super::main,
+            );
+            // TODO: Fix initialization of the ndk_glue crate in sapp
+            sapp_ANativeActivity_onCreate(activity, saved_state, saved_state_size as _);
+        }
     }
-    #[no_mangle]
+    #[unsafe(no_mangle)]
     pub unsafe extern "C" fn sokol_main() {
         let _ = super::main();
     }
@@ -59,6 +63,6 @@ mod cargo_apk_glue_code {
     #[link(name = "log")]
     #[link(name = "EGL")]
     #[link(name = "GLESv3")]
-    extern "C" {}
+    unsafe extern "C" {}
 }
 "##;
