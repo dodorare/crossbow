@@ -4,18 +4,15 @@ use crate::types::*;
 pub fn add_clinker_args(
     ndk: &AndroidNdk,
     build_target: &AndroidTarget,
-    target_sdk_version: u32,
+    min_sdk_version: u32,
 ) -> cargo::CargoResult<Vec<std::ffi::OsString>> {
     let linker_args = vec![
-        build_arg(
-            "-Clinker=",
-            ndk.linker_path(build_target, target_sdk_version)?,
-        ),
+        build_arg("-Clinker=", ndk.linker_path(build_target, min_sdk_version)?),
         "-Clinker-flavor=ld".into(),
         build_arg("-Clink-arg=--sysroot=", ndk.sysroot()?),
         build_arg(
             "-Clink-arg=-L",
-            ndk.ver_specific_lib_path(target_sdk_version, build_target)?,
+            ndk.ver_specific_lib_path(min_sdk_version, build_target)?,
         ),
         build_arg("-Clink-arg=-L", ndk.sysroot_lib_dir(build_target)?),
         build_arg("-Clink-arg=-L", ndk.gcc_lib_path(build_target)?),
@@ -41,10 +38,10 @@ pub fn search_for_libgcc_and_libunwind(
     build_target: &AndroidTarget,
     build_path: std::path::PathBuf,
     ndk: &AndroidNdk,
-    target_sdk_version: u32,
+    min_sdk_version: u32,
 ) -> cargo::CargoResult<Vec<std::ffi::OsString>> {
     let mut new_args = Vec::new();
-    let linker_path = ndk.linker_path(build_target, target_sdk_version)?;
+    let linker_path = ndk.linker_path(build_target, min_sdk_version)?;
     new_args.push(build_arg("-Clinker=", linker_path));
 
     let libgcc_dir = build_path.join("_libgcc_");

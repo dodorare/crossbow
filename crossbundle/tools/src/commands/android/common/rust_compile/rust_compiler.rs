@@ -10,7 +10,7 @@ pub fn rust_compile(
     features: Vec<String>,
     all_features: bool,
     no_default_features: bool,
-    target_sdk_version: u32,
+    min_sdk_version: u32,
     lib_name: &str,
     app_wrapper: AppWrapper,
 ) -> Result<()> {
@@ -20,7 +20,7 @@ pub fn rust_compile(
     // Configure the tools inherited by Cargo and its build-script subprocesses without
     // mutating the process-global environment. Environment mutation is unsafe in Rust 2024
     // because other threads may be reading it concurrently.
-    let (clang, clang_pp) = ndk.clang(build_target, target_sdk_version)?;
+    let (clang, clang_pp) = ndk.clang(build_target, min_sdk_version)?;
     let ar = ndk.toolchain_bin("ar", build_target)?;
 
     // Resolve the workspace before creating the configured Cargo context so the generated CMake
@@ -40,7 +40,7 @@ pub fn rust_compile(
     build_script_env.extend(cmake_env(
         build_target,
         ndk,
-        target_sdk_version,
+        min_sdk_version,
         &build_target_dir,
     )?);
 
@@ -68,7 +68,7 @@ pub fn rust_compile(
     // Create the executor
     let executor: std::sync::Arc<dyn cargo::core::compiler::Executor> =
         std::sync::Arc::new(SharedLibraryExecutor {
-            target_sdk_version,
+            min_sdk_version,
             build_target_dir,
             build_target,
             ndk: ndk.clone(),
@@ -82,7 +82,7 @@ pub fn rust_compile(
 
 /// Executor which builds binary and example targets as static libraries
 struct SharedLibraryExecutor {
-    target_sdk_version: u32,
+    min_sdk_version: u32,
     build_target_dir: std::path::PathBuf,
     build_target: AndroidTarget,
     ndk: AndroidNdk,
@@ -176,12 +176,12 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
                     &self.build_target,
                     build_path,
                     &self.ndk,
-                    self.target_sdk_version,
+                    self.min_sdk_version,
                 )?;
                 new_args.append(&mut args);
             } else {
                 let mut args =
-                    add_clinker_args(&self.ndk, &self.build_target, self.target_sdk_version)?;
+                    add_clinker_args(&self.ndk, &self.build_target, self.min_sdk_version)?;
                 new_args.append(&mut args);
             }
             // Create new command

@@ -258,7 +258,7 @@ impl AndroidNdk {
     pub fn linker_path(
         &self,
         build_target: &AndroidTarget,
-        target_sdk_version: u32,
+        min_sdk_version: u32,
     ) -> cargo::CargoResult<PathBuf> {
         let linker = bin!("ld.gold");
         let mut linker_path = self
@@ -274,7 +274,7 @@ impl AndroidNdk {
             linker_path = self.tool_root()?.join("bin").join(format!(
                 "{}{}-clang{}",
                 build_target.rust_triple(),
-                target_sdk_version,
+                min_sdk_version,
                 ext,
             ))
         }
@@ -334,10 +334,10 @@ impl AndroidNdk {
     /// Return path to version specific libraries
     pub fn ver_specific_lib_path(
         &self,
-        target_sdk_version: u32,
+        min_sdk_version: u32,
         build_target: &AndroidTarget,
     ) -> cargo::CargoResult<PathBuf> {
-        let version_specific_libraries_path = Self::find_ndk_path(target_sdk_version, |plarform| {
+        let version_specific_libraries_path = Self::find_ndk_path(min_sdk_version, |plarform| {
             self.sysroot_lib_dir(build_target)
                 .map_err(|_| {
                     self.sysroot_lib_dir(build_target).unwrap();

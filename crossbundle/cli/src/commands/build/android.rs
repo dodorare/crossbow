@@ -109,9 +109,7 @@ impl AndroidBuildCommand {
             .uses_sdk
             .as_ref()
             .ok_or_else(|| anyhow::anyhow!("Android manifest uses-sdk configuration is missing"))?;
-        let min_sdk_version = uses_sdk
-            .min_sdk_version
-            .unwrap_or(DEFAULT_ANDROID_MIN_SDK);
+        let min_sdk_version = uses_sdk.min_sdk_version.unwrap_or(DEFAULT_ANDROID_MIN_SDK);
         let target_sdk_version = uses_sdk
             .target_sdk_version
             .unwrap_or(DEFAULT_ANDROID_TARGET_SDK);
@@ -162,7 +160,7 @@ impl AndroidBuildCommand {
         let example = self.shared.example.as_ref();
         let (project_path, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
         config.status_message("Starting lib build process", &package_name)?;
-        let (sdk, ndk) = Self::android_toolchain()?;
+        let (_sdk, ndk) = Self::android_toolchain()?;
 
         let android_build_dir = if let Some(export_path) = export_path {
             export_path
@@ -174,7 +172,7 @@ impl AndroidBuildCommand {
         let manifest = Self::get_android_manifest(context, AndroidStrategy::NativeApk)?;
 
         config.status_message("Compiling", "lib")?;
-        let target_sdk_version = Self::target_sdk_version(&manifest, &sdk);
+        let min_sdk_version = Self::min_sdk_version(&manifest);
         let build_targets = Self::android_build_targets(context, profile, &self.target);
         let compiled_libs = self.build_target(
             context,
@@ -183,7 +181,7 @@ impl AndroidBuildCommand {
             &ndk,
             &project_path,
             profile,
-            target_sdk_version,
+            min_sdk_version,
             &target_dir,
             config,
         )?;
@@ -233,6 +231,7 @@ impl AndroidBuildCommand {
 
         config.status_message("Compiling", "lib")?;
         let target_sdk_version = Self::target_sdk_version(&manifest, &sdk);
+        let min_sdk_version = Self::min_sdk_version(&manifest);
         let build_targets = Self::android_build_targets(context, profile, &self.target);
         let compiled_libs = self.build_target(
             context,
@@ -241,7 +240,7 @@ impl AndroidBuildCommand {
             &ndk,
             &project_path,
             profile,
-            target_sdk_version,
+            min_sdk_version,
             &target_dir,
             config,
         )?;
@@ -319,6 +318,7 @@ impl AndroidBuildCommand {
 
         config.status_message("Compiling", "lib")?;
         let target_sdk_version = Self::target_sdk_version(&manifest, &sdk);
+        let min_sdk_version = Self::min_sdk_version(&manifest);
         let build_targets = Self::android_build_targets(context, profile, &self.target);
         let compiled_libs = self.build_target(
             context,
@@ -327,7 +327,7 @@ impl AndroidBuildCommand {
             &ndk,
             &project_path,
             profile,
-            target_sdk_version,
+            min_sdk_version,
             &target_dir,
             config,
         )?;
@@ -490,7 +490,7 @@ impl AndroidBuildCommand {
         ndk: &AndroidNdk,
         project_path: &Path,
         profile: Profile,
-        target_sdk_version: u32,
+        min_sdk_version: u32,
         target_dir: &Path,
         config: &Config,
     ) -> Result<Vec<(PathBuf, AndroidTarget)>> {
@@ -509,7 +509,7 @@ impl AndroidBuildCommand {
                 self.shared.features.clone(),
                 self.shared.all_features,
                 self.shared.no_default_features,
-                target_sdk_version,
+                min_sdk_version,
                 &lib_name,
                 context.config.android.app_wrapper,
             )?;
