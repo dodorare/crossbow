@@ -39,12 +39,12 @@ export GRADLE_HOME=<path_to_gradle>
 export BUNDLETOOL_PATH=<path_to_bundletool>
 ```
 
-Also, we need to make sure we have a java runtime environment (JRE) installed. We need a key tool utility from there. <br/>
+Also, install JDK 17, which provides the Java runtime and the `keytool` utility. <br/>
 To make sure it's present type this command: `ls /usr/lib/jvm/default/bin/ | grep keytool`
 
 _But please be aware that your path may vary._ The above path is for arch-based Linux.
 
-If not, install JRE accordingly to your operating system:
+If not, install JDK 17 according to your operating system:
 Examples:
 
 - Ubuntu: `sudo apt install openjdk-17-jdk`
