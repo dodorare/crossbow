@@ -1,38 +1,30 @@
 [advisories]
-db-path = "~/.cargo/advisory-db"
-db-urls = ["https://github.com/rustsec/advisory-db"]
-vulnerability = "deny"
-unmaintained = "deny"
+unmaintained = "all"
 yanked = "deny"
-notice = "deny"
-# Only needed because of https://github.com/netvl/xml-rs.
-# TODO: Remove this when repository will be maintained again.
-ignore = ["RUSTSEC-2022-0048"]
 
 [licenses]
-unlicensed = "deny"
-copyleft = "deny"
 allow = [
     "MIT",
     "Apache-2.0",
     "BSD-3-Clause",
 ]
 exceptions = [
-    { name = "unicode-ident", allow = ["Unicode-DFS-2016"] },
+    { crate = "unicode-ident", allow = ["Unicode-3.0"] },
 ]
-default = "deny"
-
-[[licenses.clarify]]
-name = "stretch"
-expression = "MIT"
-license-files = []
 
 [bans]
 multiple-versions = "deny"
 wildcards = "deny"
 highlight = "all"
 # Certain crates/versions that will be skipped when doing duplicate detection.
-skip = []
+skip = [
+    { crate = "bitflags@1.3.2", reason = "ndk 0.7 has not migrated to bitflags 2" },
+    { crate = "jni-sys@0.3.1", reason = "ndk 0.7 requires the compatibility JNI bindings" },
+    { crate = "syn@1.0.109", reason = "ndk 0.7 still uses Syn 1 procedural macros" },
+    { crate = "syn@2.0.119", reason = "Android manifest and JNI macros have not migrated to Syn 3" },
+    { crate = "thiserror@1.0.69", reason = "ndk 0.7 has not migrated to thiserror 2" },
+    { crate = "thiserror-impl@1.0.69", reason = "ndk 0.7 has not migrated to thiserror 2" },
+]
 
 [sources]
 unknown-registry = "deny"

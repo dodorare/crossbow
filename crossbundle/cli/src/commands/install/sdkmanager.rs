@@ -9,7 +9,7 @@ use std::path::Path;
 #[derive(Parser, Clone, Debug, Default)]
 pub struct SdkManagerInstallCommand {
     /// Install all preferred tools for correct crossbundle work. It will install
-    /// build-tools;31.0.0, ndk;23.1.7779620, platforms;android-31 and platform-tools
+    /// build-tools;30.0.3, ndk;27.3.13750724, platforms;android-31 and platform-tools
     #[clap(long, short)]
     pub preferred_tools: bool,
     /// List installed and available packages. Use the channel option to include a package
@@ -18,7 +18,7 @@ pub struct SdkManagerInstallCommand {
     #[clap(long, short)]
     pub list: bool,
     /// Install package. To see all available packages use --list.
-    /// Example: crossbundle install sdkmanager "ndk;23.1.7779620"
+    /// Example: crossbundle install sdkmanager "ndk;27.3.13750724"
     #[clap(long, short, action = ArgAction::Append)]
     pub install: Option<Vec<String>>,
     /// Android package that needs to be uninstalled
@@ -73,7 +73,7 @@ impl SdkManagerInstallCommand {
     }
 
     /// Install package. To see all available packages use --list.
-    /// Example: crossbundle install sdkmanager "ndk;23.1.7779620"
+    /// Example: crossbundle install sdkmanager "ndk;27.3.13750724"
     pub fn install(&mut self, install: Vec<String>) -> &mut Self {
         self.install = Some(install);
         self
@@ -188,12 +188,15 @@ impl SdkManagerInstallCommand {
     }
 
     pub fn sdkmanager_command(&self, sdkmanager_path: &Path, sdk_root: &Path) -> Result<()> {
+        self.sdkmanager_process(sdkmanager_path, sdk_root)
+            .output_err(true)?;
+        Ok(())
+    }
+
+    fn sdkmanager_process(&self, sdkmanager_path: &Path, sdk_root: &Path) -> std::process::Command {
         let mut sdkmanager = std::process::Command::new(sdkmanager_path);
-        if let Some(sdk_root) = &self.sdk_root {
-            sdkmanager.arg(sdk_root);
-        } else {
-            sdkmanager.arg(format!("--sdk_root={}", sdk_root.to_str().unwrap()));
-        }
+        let sdk_root = self.sdk_root.as_deref().unwrap_or(sdk_root);
+        sdkmanager.arg(format!("--sdk_root={}", sdk_root.to_string_lossy()));
         if let Some(install) = &self.install {
             sdkmanager.args(install);
         }
@@ -208,8 +211,8 @@ impl SdkManagerInstallCommand {
         }
         if self.preferred_tools {
             sdkmanager
-                .arg("build-tools;31.0.0")
-                .arg("ndk;23.1.7779620")
+                .arg("build-tools;30.0.3")
+                .arg("ndk;27.3.13750724")
                 .arg("platforms;android-31")
                 .arg("platform-tools");
         }
@@ -234,7 +237,26 @@ impl SdkManagerInstallCommand {
         if let Some(port_number) = &self.proxy_port {
             sdkmanager.arg(format!("--proxy_port={}", port_number));
         }
-        sdkmanager.output_err(true)?;
-        Ok(())
+        sdkmanager
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn sdk_root_is_passed_as_named_option() {
+        let command = SdkManagerInstallCommand {
+            sdk_root: Some("custom-sdk".into()),
+            ..Default::default()
+        }
+        .sdkmanager_process(Path::new("sdkmanager"), Path::new("fallback-sdk"));
+
+        let args = command
+            .get_args()
+            .map(|arg| arg.to_string_lossy().into_owned())
+            .collect::<Vec<_>>();
+        assert_eq!(args, ["--sdk_root=custom-sdk"]);
     }
 }

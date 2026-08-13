@@ -12,11 +12,13 @@ pub fn gen_minimal_project(out_dir: &std::path::Path, macroquad_project: bool) -
     // Create Cargo.toml file
     let file_path = out_dir.join("Cargo.toml");
     let mut file = File::create(file_path)?;
-    if macroquad_project {
-        file.write_all(MINIMAL_MQ_CARGO_TOML_VALUE.as_bytes())?;
+    let cargo_toml = if macroquad_project {
+        MINIMAL_MQ_CARGO_TOML_VALUE
     } else {
-        file.write_all(MINIMAL_BEVY_CARGO_TOML_VALUE.as_bytes())?;
-    }
+        MINIMAL_BEVY_CARGO_TOML_VALUE
+    };
+    let cargo_toml = use_test_workspace(cargo_toml)?;
+    file.write_all(cargo_toml.as_bytes())?;
     // Create src folder
     let src_path = out_dir.join("src");
     create_dir(&src_path)?;
@@ -32,6 +34,27 @@ pub fn gen_minimal_project(out_dir: &std::path::Path, macroquad_project: bool) -
     Ok("example".to_owned())
 }
 
+fn use_test_workspace(manifest: &str) -> Result<String> {
+    let workspace_root = std::env::var_os("CROSSBOW_TEST_WORKSPACE");
+    render_manifest(
+        manifest,
+        workspace_root.as_deref().map(std::path::Path::new),
+    )
+}
+
+fn render_manifest(manifest: &str, workspace_root: Option<&std::path::Path>) -> Result<String> {
+    let Some(workspace_root) = workspace_root else {
+        return Ok(manifest.to_owned());
+    };
+    let workspace_root = dunce::canonicalize(workspace_root)?
+        .to_string_lossy()
+        .replace('\\', "/");
+    Ok(manifest.replace(
+        "crossbow = { git = \"https://github.com/dodorare/crossbow\" }",
+        &format!("crossbow = {{ path = \"{}\" }}", workspace_root),
+    ))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -40,5 +63,21 @@ mod tests {
     fn test_command_run() {
         let dir = tempfile::tempdir().unwrap();
         gen_minimal_project(dir.path(), true).unwrap();
+        assert!(dir.path().join("Cargo.toml").is_file());
+    }
+
+    #[test]
+    fn default_manifest_uses_public_repository() {
+        let manifest = render_manifest(MINIMAL_MQ_CARGO_TOML_VALUE, None).unwrap();
+        assert!(manifest.contains("github.com/dodorare/crossbow"));
+    }
+
+    #[test]
+    fn test_workspace_replaces_remote_dependency() {
+        let workspace = tempfile::tempdir().unwrap();
+        let manifest =
+            render_manifest(MINIMAL_MQ_CARGO_TOML_VALUE, Some(workspace.path())).unwrap();
+        assert!(manifest.contains("crossbow = { path ="));
+        assert!(!manifest.contains("github.com/dodorare/crossbow"));
     }
 }

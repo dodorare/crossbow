@@ -1,66 +1,38 @@
 name: Dependencies
+
 on:
   pull_request:
     branches: [main]
     paths:
       - '**/Cargo.toml'
+      - 'Cargo.lock'
       - 'deny.toml'
+      - '.github/workflows/deps.yml'
   push:
     branches: [main]
     paths:
       - '**/Cargo.toml'
+      - 'Cargo.lock'
       - 'deny.toml'
+      - '.github/workflows/deps.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependencies-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   CARGO_TERM_COLOR: always
+
 jobs:
-  check-advisories:
+  policy:
+    name: Check dependency policy
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
+      - uses: actions/checkout@v6
       - name: Install cargo-deny
-        run: cargo install cargo-deny
-      - name: Check for security advisories and unmaintained crates
-        run: cargo deny check advisories
-
-  check-bans:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
-      - name: Install cargo-deny
-        run: cargo install cargo-deny
-      - name: Check for banned and duplicated dependencies
-        run: cargo deny check bans
-
-  check-licenses:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
-      - name: Install cargo-deny
-        run: cargo install cargo-deny
-      - name: Check for unauthorized licenses
-        run: cargo deny check licenses
-
-  check-sources:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
-      - name: Install cargo-deny
-        run: cargo install cargo-deny
-      - name: Checked for unauthorized crate sources
-        run: cargo deny check sources
+        run: cargo install cargo-deny --version 0.20.2 --locked
+      - name: Check advisories, bans, licenses, and sources
+        run: cargo deny check

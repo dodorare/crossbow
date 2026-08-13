@@ -28,7 +28,7 @@ pub struct InstallCommand {
 #[derive(Parser, Clone, Debug)]
 pub enum InstallCommandSubcommand {
     /// Install bundletool. You can specify version of bundletool. By default, we have
-    /// 1.8.2 bundletool version in usage
+    /// 1.18.3 bundletool version in usage
     #[cfg(feature = "android")]
     Bundletool(BundletoolInstallCommand),
     /// Download the basic Android command line tools below. You can use the included
@@ -49,7 +49,7 @@ impl InstallCommand {
             CommandLineToolsInstallCommand::default().install(config)?;
             #[cfg(feature = "android")]
             BundletoolInstallCommand {
-                version: String::from("1.8.2"),
+                version: String::from("1.18.3"),
                 ..Default::default()
             }
             .install(config)?;
@@ -61,15 +61,14 @@ impl InstallCommand {
             .run(config)?;
             return Ok(());
         }
-        if let Some(subcommand) = &self.subcommand {
-            #[cfg(feature = "android")]
-            match subcommand {
-                #[cfg(feature = "android")]
-                InstallCommandSubcommand::Bundletool(cmd) => cmd.install(config)?,
-                #[cfg(feature = "android")]
-                InstallCommandSubcommand::CommandLineTools(cmd) => cmd.install(config)?,
-                #[cfg(feature = "android")]
-                InstallCommandSubcommand::Sdkmanager(cmd) => cmd.run(config)?,
+        #[cfg(feature = "android")]
+        {
+            if let Some(subcommand) = &self.subcommand {
+                match subcommand {
+                    InstallCommandSubcommand::Bundletool(cmd) => cmd.install(config)?,
+                    InstallCommandSubcommand::CommandLineTools(cmd) => cmd.install(config)?,
+                    InstallCommandSubcommand::Sdkmanager(cmd) => cmd.run(config)?,
+                }
             }
         }
         Ok(())

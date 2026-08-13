@@ -19,7 +19,7 @@ pub struct Opts {
     pub current_dir: Option<PathBuf>,
     /// A level of verbosity, and can be used multiple times
     #[clap(short, long, action = ArgAction::Count)]
-    pub verbose: u32,
+    pub verbose: u8,
     /// No output printed to stdout
     #[clap(short, long)]
     pub quiet: bool,
@@ -76,5 +76,18 @@ fn handle_error_source(source: Option<&(dyn std::error::Error + 'static)>) {
     if let Some(error) = source {
         eprintln!("{}: {}", "caused by".red().bold(), error);
         handle_error_source(error.source());
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Opts;
+    use clap::Parser;
+
+    #[test]
+    fn parses_repeated_verbose_flags() {
+        let opts = Opts::try_parse_from(["crossbundle", "-vv", "update"]).unwrap();
+
+        assert_eq!(opts.verbose, 2);
     }
 }

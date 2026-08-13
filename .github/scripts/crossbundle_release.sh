@@ -9,7 +9,7 @@
 rustup target add $RELEASE_FLOW_TARGET
 
 cargo build --manifest-path crossbundle/cli/Cargo.toml \
---release --all-features --target $RELEASE_FLOW_TARGET
+--release --all-features --locked --target $RELEASE_FLOW_TARGET
 
 OUTPUT_NAME="crossbundle-${RELEASE_FLOW_TARGET}"
 

@@ -1,14 +1,18 @@
 use super::*;
 use crate::error::Result;
-use android_tools::sdk_install_path;
 use clap::Parser;
-use crossbundle_tools::{commands::android::*, types::Config};
+use crossbundle_tools::{
+    commands::android::*,
+    types::{android_sdk_path, Config},
+};
 use std::path::{Path, PathBuf};
 
 #[cfg(target_os = "windows")]
 const OS_TAG: &str = "win";
-#[cfg(target_os = "macos")]
-const OS_TAG: &str = "mac";
+#[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+const OS_TAG: &str = "mac_arm64";
+#[cfg(all(target_os = "macos", not(target_arch = "aarch64")))]
+const OS_TAG: &str = "mac_x86_64";
 #[cfg(target_os = "linux")]
 const OS_TAG: &str = "linux";
 
@@ -28,7 +32,11 @@ impl CommandLineToolsInstallCommand {
     /// Download command line tools zip archive and extract it in specified sdk root
     /// directory
     pub fn install(&self, config: &Config) -> Result<()> {
-        let cmdline_tools_path = android_tools::sdk_install_path()?.join("cmdline-tools");
+        let sdk_path = self
+            .install_path
+            .clone()
+            .map_or_else(android_sdk_path, Ok)?;
+        let cmdline_tools_path = sdk_path.join("cmdline-tools");
         if cmdline_tools_path.exists() {
             return Ok(());
         }
@@ -50,20 +58,11 @@ impl CommandLineToolsInstallCommand {
         )?;
         self.download_and_save_file(command_line_tools_download_url, &file_path)?;
 
-        if let Some(path) = &self.install_path {
-            config.status_message(
-                "Extracting zip archive contents into",
-                path.to_str().unwrap(),
-            )?;
-            extract_archive(&file_path, path)?;
-        } else {
-            let sdk_path = sdk_install_path()?;
-            config.status_message(
-                "Extracting zip archive contents into",
-                sdk_path.to_str().unwrap(),
-            )?;
-            extract_archive(&file_path, Path::new(&sdk_path))?;
-        }
+        config.status_message(
+            "Extracting zip archive contents into",
+            sdk_path.to_string_lossy(),
+        )?;
+        extract_archive(&file_path, Path::new(&sdk_path))?;
 
         config.status("Deleting zip archive that was left after installation")?;
         remove(vec![file_path])?;
@@ -72,7 +71,7 @@ impl CommandLineToolsInstallCommand {
 
     /// Return command line tools zip archive for defined operating system
     fn file_name(&self) -> String {
-        format!("commandlinetools-{}-8512546_latest.zip", OS_TAG)
+        format!("commandlinetools-{}-15859902_latest.zip", OS_TAG)
     }
 
     /// Check home directory for zip file. If it doesn't exists download zip file and save

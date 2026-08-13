@@ -107,6 +107,9 @@ pub enum Error {
     FailedToFindManifest(PathBuf),
     /// Invalid profile: {0}
     InvalidProfile(String),
+    /// Invalid semantic version
+    #[cfg(not(feature = "android"))]
+    InvalidSemver,
     /// GNU toolchain binary `{gnu_bin}` nor LLVM toolchain binary `{llvm_bin}` found in
     /// `{toolchain_path:?}`
     ToolchainBinaryNotFound {
