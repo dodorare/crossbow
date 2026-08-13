@@ -1,13 +1,13 @@
 use crate::types::*;
 use std::io::Write;
 
-/// Sets needed environment variables
-pub fn set_cmake_vars(
+/// Returns the environment variables needed by CMake build scripts.
+pub fn cmake_env(
     build_target: crate::types::AndroidTarget,
     ndk: &AndroidNdk,
     target_sdk_version: u32,
     build_target_dir: &std::path::Path,
-) -> cargo::CargoResult<()> {
+) -> cargo::CargoResult<Vec<(String, std::ffi::OsString)>> {
     // Return path to toolchain cmake file
     let cmake_toolchain_path = write_cmake_toolchain(
         target_sdk_version,
@@ -16,11 +16,20 @@ pub fn set_cmake_vars(
         build_target,
     )?;
 
-    // Set cmake environment variables
-    std::env::set_var("CMAKE_TOOLCHAIN_FILE", cmake_toolchain_path);
-    std::env::set_var("CMAKE_GENERATOR", r#"Unix Makefiles"#);
-    std::env::set_var("CMAKE_MAKE_PROGRAM", make_path(ndk.ndk_path()));
-    Ok(())
+    Ok(vec![
+        (
+            "CMAKE_TOOLCHAIN_FILE".to_owned(),
+            cmake_toolchain_path.into_os_string(),
+        ),
+        (
+            "CMAKE_GENERATOR".to_owned(),
+            std::ffi::OsString::from("Unix Makefiles"),
+        ),
+        (
+            "CMAKE_MAKE_PROGRAM".to_owned(),
+            make_path(ndk.ndk_path()).into_os_string(),
+        ),
+    ])
 }
 
 /// Returns path to NDK provided make

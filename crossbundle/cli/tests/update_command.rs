@@ -24,10 +24,10 @@ fn test_new_version_released() {
     assert!(!same_version);
 
     let latest = Some(version_string);
-    if let Some(value) = latest {
-        if is_newer_found(&value) {
-            print_new_version_available(&value, &config).unwrap();
-        }
+    if let Some(value) = latest
+        && is_newer_found(&value)
+    {
+        print_new_version_available(&value, &config).unwrap();
     }
 }
 
@@ -50,9 +50,9 @@ fn test_latest_version_is_using() {
     assert!(!newer_version);
 
     let latest = Some(version_string);
-    if let Some(value) = latest {
-        if is_same_found(&value) {
-            print_latest_version_using(&value, &config).unwrap();
-        }
+    if let Some(value) = latest
+        && is_same_found(&value)
+    {
+        print_latest_version_using(&value, &config).unwrap();
     }
 }

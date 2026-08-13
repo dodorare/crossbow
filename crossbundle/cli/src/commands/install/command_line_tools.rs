@@ -3,7 +3,7 @@ use crate::error::Result;
 use clap::Parser;
 use crossbundle_tools::{
     commands::android::*,
-    types::{android_sdk_path, Config},
+    types::{Config, android_sdk_path},
 };
 use std::path::{Path, PathBuf};
 

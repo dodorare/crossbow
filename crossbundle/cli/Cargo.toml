@@ -1,7 +1,7 @@
 [package]
 name = "crossbundle"
 version = "0.2.3"
-edition = "2021"
+edition.workspace = true
 authors = ["DodoRare Team <support@dodorare.com>"]
 description = "Build and publish apps for Android/iOS"
 repository = "https://github.com/dodorare/crossbow"
@@ -18,28 +18,28 @@ name = "crossbundle"
 path = "src/main.rs"
 
 [dependencies]
-crossbow = { path = "../../", version = "0.2.3", default-features = false, features = ["update-manifest"] }
-crossbundle-tools = { path = "../tools", version = "0.2.3", default-features = false }
-android-tools = { version = "0.2.11", optional = true }
-clap = { version = "4.6", features = ["derive"] }
-serde = { version = "1.0", features = ["derive"] }
+crossbow = { workspace = true, default-features = false, features = ["update-manifest"] }
+crossbundle-tools = { workspace = true, default-features = false }
+android-tools = { workspace = true, optional = true }
+clap = { workspace = true, features = ["derive"] }
+serde = { workspace = true, features = ["derive"] }
 
-anyhow = "1.0"
-thiserror = "2.0"
-colored = "3.1"
-displaydoc = "0.2"
-pretty_env_logger = "0.5"
-log = "0.4"
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+colored = { workspace = true }
+displaydoc = { workspace = true }
+pretty_env_logger = { workspace = true }
+log = { workspace = true }
 
-fs_extra = "1.3"
-dirs = "6.0"
-dunce = "1.0"
-ureq = "3.4"
-cargo = "0.98"
-cargo-util = "0.2"
+fs_extra = { workspace = true }
+dirs = { workspace = true }
+dunce = { workspace = true }
+ureq = { workspace = true }
+cargo = { workspace = true }
+cargo-util = { workspace = true }
 
 [dev-dependencies]
-tempfile = "3.27"
+tempfile = { workspace = true }
 
 [features]
 default = ["android", "apple"]

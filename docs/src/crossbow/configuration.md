@@ -9,7 +9,7 @@ The easiest way to configure a project is with metadata. Here's an example of `C
 name = "game"
 version = "0.1.0"
 authors = ["Example <example@example.com>"]
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 crossbow = "0.2.3"

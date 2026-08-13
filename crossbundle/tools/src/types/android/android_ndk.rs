@@ -43,18 +43,18 @@ impl AndroidNdk {
         let build_tag = build_tag
             .split('\n')
             .find_map(|line| {
-                if let Some((key, value)) = line.split_once('=') {
-                    if key.trim() == "Pkg.Revision" {
-                        // AOSP writes a constantly-incrementing build version to the patch field.
-                        // This number is incrementing across NDK releases.
-                        let mut parts = value.trim().split('.');
-                        let _major = parts.next().unwrap();
-                        let _minor = parts.next().unwrap();
-                        let patch = parts.next().unwrap();
-                        // Can have an optional `XXX-beta1`
-                        let patch = patch.split_once('-').map_or(patch, |(patch, _beta)| patch);
-                        return Some(patch.parse().expect("Failed to parse patch field"));
-                    }
+                if let Some((key, value)) = line.split_once('=')
+                    && key.trim() == "Pkg.Revision"
+                {
+                    // AOSP writes a constantly-incrementing build version to the patch field.
+                    // This number is incrementing across NDK releases.
+                    let mut parts = value.trim().split('.');
+                    let _major = parts.next().unwrap();
+                    let _minor = parts.next().unwrap();
+                    let patch = parts.next().unwrap();
+                    // Can have an optional `XXX-beta1`
+                    let patch = patch.split_once('-').map_or(patch, |(patch, _beta)| patch);
+                    return Some(patch.parse().expect("Failed to parse patch field"));
                 }
                 None
             })

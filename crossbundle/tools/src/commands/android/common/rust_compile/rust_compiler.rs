@@ -14,34 +14,44 @@ pub fn rust_compile(
     lib_name: &str,
     app_wrapper: AppWrapper,
 ) -> Result<()> {
-    configure_rustc()?;
-
     // Specify path to workspace
     let rust_triple = build_target.rust_triple();
 
-    // Set environment variables needed for use with the cc crate
+    // Configure the tools inherited by Cargo and its build-script subprocesses without
+    // mutating the process-global environment. Environment mutation is unsafe in Rust 2024
+    // because other threads may be reading it concurrently.
     let (clang, clang_pp) = ndk.clang(build_target, target_sdk_version)?;
-    std::env::set_var(format!("CC_{}", rust_triple), &clang);
-    std::env::set_var(format!("CXX_{}", rust_triple), clang_pp);
-    std::env::set_var(cargo_env_target_cfg("LINKER", rust_triple), &clang);
     let ar = ndk.toolchain_bin("ar", build_target)?;
-    std::env::set_var(format!("AR_{}", rust_triple), ar);
 
-    let cargo_context = cargo::util::GlobalContext::default()?;
-    let workspace = cargo::core::Workspace::new(&project_path.join("Cargo.toml"), &cargo_context)?;
-
-    // Define directory to build project
-    let build_target_dir = workspace
-        .root()
+    // Resolve the workspace before creating the configured Cargo context so the generated CMake
+    // toolchain is placed in the same target directory as the embedded build.
+    let build_target_dir = workspace_root(project_path)?
         .join("target")
         .join(rust_triple)
         .join(profile);
     std::fs::create_dir_all(&build_target_dir).unwrap();
 
-    set_cmake_vars(build_target, ndk, target_sdk_version, &build_target_dir)?;
+    let mut build_script_env = vec![
+        (format!("CC_{rust_triple}"), clang.clone().into_os_string()),
+        (format!("CXX_{rust_triple}"), clang_pp.into_os_string()),
+        (format!("AR_{rust_triple}"), ar.into_os_string()),
+        ("CXXSTDLIB".to_owned(), "c++".into()),
+    ];
+    build_script_env.extend(cmake_env(
+        build_target,
+        ndk,
+        target_sdk_version,
+        &build_target_dir,
+    )?);
 
-    // Use libc++. It is current default C++ runtime
-    std::env::set_var("CXXSTDLIB", "c++");
+    let mut cargo_context = cargo::util::GlobalContext::default()?;
+    configure_cargo(
+        &mut cargo_context,
+        rust_triple,
+        clang.as_os_str(),
+        &build_script_env,
+    )?;
+    let workspace = cargo::core::Workspace::new(&project_path.join("Cargo.toml"), &cargo_context)?;
 
     // Configure compilation options so that we will build the desired build_target
     let opts = compile_options::compile_options(
@@ -119,11 +129,7 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
             let filename = path.file_name().unwrap().to_owned();
             let source_arg = new_args.iter_mut().find_map(|arg| {
                 let tmp = std::path::Path::new(&arg).file_name().unwrap();
-                if filename == tmp {
-                    Some(arg)
-                } else {
-                    None
-                }
+                if filename == tmp { Some(arg) } else { None }
             });
 
             if let Some(source_arg) = source_arg {
@@ -197,10 +203,11 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
             // Change crate-type from cdylib to rlib
             let mut iter = new_args.iter_mut().rev().peekable();
             while let Some(arg) = iter.next() {
-                if let Some(prev_arg) = iter.peek() {
-                    if *prev_arg == "--crate-type" && arg == "cdylib" {
-                        *arg = "rlib".into();
-                    }
+                if let Some(prev_arg) = iter.peek()
+                    && *prev_arg == "--crate-type"
+                    && arg == "cdylib"
+                {
+                    *arg = "rlib".into();
                 }
             }
             let mut cmd = cmd.clone();
@@ -222,16 +229,48 @@ pub fn cargo_env_target_cfg(tool: &str, target: &str) -> String {
     env.to_uppercase()
 }
 
-/// Ensure embedded Cargo always invokes the compiler selected when Crossbundle starts.
-///
-/// Cargo normally resolves the compiler to an absolute path. The embedded executor can instead
-/// receive the `rustup` shim as plain `rustc`; when Cargo runs that command from a dependency's
-/// directory, a dependency-local `rust-toolchain.toml` can unexpectedly switch toolchains.
-fn configure_rustc() -> Result<()> {
+fn workspace_root(project_path: &std::path::Path) -> Result<std::path::PathBuf> {
+    let cargo_context = cargo::util::GlobalContext::default()?;
+    let workspace = cargo::core::Workspace::new(&project_path.join("Cargo.toml"), &cargo_context)?;
+    Ok(workspace.root().to_owned())
+}
+
+/// Configure embedded Cargo without changing the process-global environment.
+fn configure_cargo(
+    cargo_context: &mut cargo::util::GlobalContext,
+    rust_triple: &str,
+    linker: &std::ffi::OsStr,
+    build_script_env: &[(String, std::ffi::OsString)],
+) -> Result<()> {
+    let mut overrides = Vec::with_capacity(build_script_env.len() + 2);
     if std::env::var_os("RUSTC").is_none() {
-        std::env::set_var("RUSTC", active_rustc_path()?);
+        overrides.push(config_value(
+            "build.rustc",
+            active_rustc_path()?.as_os_str(),
+        ));
     }
+
+    overrides.push(config_value(
+        &format!("target.{rust_triple}.linker"),
+        linker,
+    ));
+    overrides.extend(build_script_env.iter().map(|(name, value)| {
+        format!(
+            "env.{name} = {{ value = {}, force = true }}",
+            toml_string(value)
+        )
+    }));
+
+    cargo_context.configure(0, false, None, false, false, false, &None, &[], &overrides)?;
     Ok(())
+}
+
+fn config_value(key: &str, value: &std::ffi::OsStr) -> String {
+    format!("{key} = {}", toml_string(value))
+}
+
+fn toml_string(value: &std::ffi::OsStr) -> String {
+    format!("{:?}", value.to_string_lossy())
 }
 
 fn active_rustc_path() -> Result<std::path::PathBuf> {

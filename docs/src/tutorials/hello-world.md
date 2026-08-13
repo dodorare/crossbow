@@ -18,7 +18,7 @@ To see all possibilities of `cargo.toml` see [crossbow configutarion tutorial](.
 name = "project-name"
 version = "0.1.0"
 authors = ["Example <example@example.com>"]
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 crossbow = "*"

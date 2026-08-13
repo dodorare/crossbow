@@ -1,10 +1,9 @@
 use super::AndroidPermission;
 use crate::error::*;
 use jni::{
-    jni_sig, jni_str,
+    Env, jni_sig, jni_str,
     objects::{JObject, JObjectArray, JString, JValue, JValueOwned},
     strings::JNIString,
-    Env,
 };
 use std::mem::ManuallyDrop;
 

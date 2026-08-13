@@ -2,9 +2,9 @@ use crate::error::*;
 use crate::types::*;
 use cargo::{
     core::{
+        Workspace,
         compiler::{CompileKind, CompileTarget, UserIntent},
         resolver::CliFeatures,
-        Workspace,
     },
     ops::CompileOptions,
 };

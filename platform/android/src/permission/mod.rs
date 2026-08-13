@@ -5,8 +5,8 @@ pub use android_permission::*;
 
 use crate::error::*;
 use std::sync::{
-    mpsc::{sync_channel, SyncSender},
     RwLock,
+    mpsc::{SyncSender, sync_channel},
 };
 
 lazy_static::lazy_static! {

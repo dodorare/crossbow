@@ -1,12 +1,12 @@
 use crate::crossbow::*;
 use jni::{
+    EnvUnowned,
     errors::ThrowRuntimeExAndDefault,
     objects::{JClass, JObject, JString},
     sys::jboolean,
-    EnvUnowned,
 };
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 #[allow(non_snake_case)]
 pub extern "system" fn Java_com_crossbow_library_CrossbowLib_initialize<'local>(
     mut env: EnvUnowned<'local>,
@@ -21,7 +21,7 @@ pub extern "system" fn Java_com_crossbow_library_CrossbowLib_initialize<'local>(
     .resolve::<ThrowRuntimeExAndDefault>();
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 #[allow(non_snake_case)]
 pub extern "system" fn Java_com_crossbow_library_CrossbowLib_onBackPressed<'local>(
     mut env: EnvUnowned<'local>,
@@ -31,7 +31,7 @@ pub extern "system" fn Java_com_crossbow_library_CrossbowLib_onBackPressed<'loca
         .resolve::<ThrowRuntimeExAndDefault>();
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 #[allow(non_snake_case)]
 pub extern "system" fn Java_com_crossbow_library_CrossbowLib_onDestroy<'local>(
     mut env: EnvUnowned<'local>,
@@ -41,7 +41,7 @@ pub extern "system" fn Java_com_crossbow_library_CrossbowLib_onDestroy<'local>(
         .resolve::<ThrowRuntimeExAndDefault>();
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 #[allow(non_snake_case)]
 pub extern "system" fn Java_com_crossbow_library_CrossbowLib_focusIn<'local>(
     mut env: EnvUnowned<'local>,
@@ -51,7 +51,7 @@ pub extern "system" fn Java_com_crossbow_library_CrossbowLib_focusIn<'local>(
         .resolve::<ThrowRuntimeExAndDefault>();
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 #[allow(non_snake_case)]
 pub extern "system" fn Java_com_crossbow_library_CrossbowLib_focusOut<'local>(
     mut env: EnvUnowned<'local>,
@@ -61,7 +61,7 @@ pub extern "system" fn Java_com_crossbow_library_CrossbowLib_focusOut<'local>(
         .resolve::<ThrowRuntimeExAndDefault>();
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 #[allow(non_snake_case)]
 pub extern "system" fn Java_com_crossbow_library_CrossbowLib_requestPermissionResult<'local>(
     mut env: EnvUnowned<'local>,

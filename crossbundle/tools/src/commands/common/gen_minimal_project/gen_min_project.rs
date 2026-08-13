@@ -1,7 +1,7 @@
 use super::*;
 use crate::error::*;
 use std::{
-    fs::{create_dir, File},
+    fs::{File, create_dir},
     io::Write,
 };
 

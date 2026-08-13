@@ -1,5 +1,5 @@
 use macroquad::prelude::*;
-use macroquad::ui::{hash, root_ui, Skin};
+use macroquad::ui::{Skin, hash, root_ui};
 
 #[cfg(target_os = "android")]
 struct AppPlugins {

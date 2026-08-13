@@ -55,6 +55,5 @@ fn get_assets_from_path() -> String {
     let manifest_dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let assets_dir = manifest_dir.parent().unwrap().parent().unwrap();
     let image_path = std::path::PathBuf::from("assets").join("images/rust.png");
-    let image = assets_dir.join(image_path).to_str().unwrap().to_owned();
-    image
+    assets_dir.join(image_path).to_str().unwrap().to_owned()
 }

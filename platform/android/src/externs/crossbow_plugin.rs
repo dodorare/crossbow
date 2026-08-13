@@ -1,11 +1,11 @@
 use crate::plugin::*;
 use jni::{
+    EnvUnowned,
     errors::ThrowRuntimeExAndDefault,
     objects::{JClass, JObject, JObjectArray, JString},
-    EnvUnowned,
 };
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 #[allow(non_snake_case)]
 pub extern "system" fn Java_com_crossbow_library_plugin_CrossbowPlugin_nativeRegisterSingleton<
     'local,
@@ -19,7 +19,7 @@ pub extern "system" fn Java_com_crossbow_library_plugin_CrossbowPlugin_nativeReg
         .resolve::<ThrowRuntimeExAndDefault>();
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 #[allow(non_snake_case)]
 pub extern "system" fn Java_com_crossbow_library_plugin_CrossbowPlugin_nativeRegisterMethod<
     'local,
@@ -34,7 +34,7 @@ pub extern "system" fn Java_com_crossbow_library_plugin_CrossbowPlugin_nativeReg
         .resolve::<ThrowRuntimeExAndDefault>();
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 #[allow(non_snake_case)]
 pub extern "system" fn Java_com_crossbow_library_plugin_CrossbowPlugin_nativeRegisterSignal<
     'local,
@@ -51,7 +51,7 @@ pub extern "system" fn Java_com_crossbow_library_plugin_CrossbowPlugin_nativeReg
     .resolve::<ThrowRuntimeExAndDefault>();
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 #[allow(non_snake_case)]
 pub extern "system" fn Java_com_crossbow_library_plugin_CrossbowPlugin_nativeEmitSignal<'local>(
     mut env: EnvUnowned<'local>,

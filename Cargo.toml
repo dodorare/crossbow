@@ -1,7 +1,69 @@
+[workspace]
+resolver = "3"
+members = [
+    "plugins/*",
+    "crossbundle/*",
+    "platform/*",
+    "examples/*",
+]
+
+[workspace.package]
+edition = "2024"
+
+[workspace.dependencies]
+admob-android = { path = "plugins/admob-android", version = "0.2.3" }
+android-manifest = "0.3.0"
+android-tools = "0.2.11"
+anyhow = "1.0"
+apple-bundle = "0.2.1"
+async-channel = "2.5"
+atty = "0.2"
+bevy = { version = "0.19.0", default-features = false }
+block2 = "0.6.2"
+cargo = "0.98"
+cargo-util = "0.2"
+clap = "4.6"
+colored = "3.1"
+crossbow = { path = ".", version = "0.2.3", default-features = false }
+crossbow-android = { path = "platform/android", version = "0.2.3", default-features = false }
+crossbow-ios = { path = "platform/ios", version = "0.2.3" }
+crossbundle-tools = { path = "crossbundle/tools", version = "0.2.3", default-features = false }
+dirs = "6.0"
+displaydoc = "0.2"
+dunce = "1.0"
+fs_extra = "1.3"
+fwdansi = "1.1"
+image = { version = "0.25.10", default-features = false }
+itertools = "0.15"
+jni = "0.22"
+lazy_static = "1.5"
+libc = "0.2"
+log = "0.4"
+macroquad = "0.4.16"
+ndk-context = "0.1"
+ndk-glue = "0.7.0"
+objc2 = "0.6.4"
+play-billing = { path = "plugins/play-billing", version = "0.2.3" }
+play-core = { path = "plugins/play-core", version = "0.2.3" }
+play-games-services = { path = "plugins/play-games-services", version = "0.2.3" }
+pretty_env_logger = "0.5"
+rust-embed = "8.12.0"
+serde = "1.0"
+serde_plain = "1.0"
+simctl = { version = "0.1.1", package = "creator-simctl" }
+tempfile = "3.27"
+termcolor = "1.4"
+thiserror = "2.0"
+ureq = "3.4"
+which = "8.0"
+winapi = "0.3"
+zip = { version = "8.6.0", default-features = false }
+zip-extensions = { version = "0.14.1", default-features = false }
+
 [package]
 name = "crossbow"
 version = "0.2.3"
-edition = "2021"
+edition.workspace = true
 authors = ["DodoRare Team <support@dodorare.com>"]
 description = "Cross-Platform build tools and toolkit for games"
 repository = "https://github.com/dodorare/crossbow"
@@ -11,31 +73,23 @@ readme = "README.md"
 exclude = ["assets/", "docs/"]
 
 [dependencies]
-thiserror = "2.0"
-displaydoc = "0.2"
-anyhow = "1.0"
-serde = { version = "1.0", features = ["derive"] }
+thiserror = { workspace = true }
+displaydoc = { workspace = true }
+anyhow = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
 
-android-manifest = { version = "0.3.0", optional = true }
-apple-bundle = { version = "0.2.1", optional = true }
+android-manifest = { workspace = true, optional = true }
+apple-bundle = { workspace = true, optional = true }
 
 [target.'cfg(target_os = "android")'.dependencies]
-ndk-glue = "0.7.0"
-crossbow-android = { path = "platform/android", version = "0.2.3", optional = true }
+ndk-glue = { workspace = true }
+crossbow-android = { workspace = true, optional = true }
 
 [target.'cfg(target_os = "ios")'.dependencies]
-crossbow-ios = { path = "platform/ios", version = "0.2.3", optional = true }
+crossbow-ios = { workspace = true, optional = true }
 
 [features]
 default = ["android", "ios"]
 android = ["crossbow-android"]
 ios = ["crossbow-ios"]
 update-manifest = ["apple-bundle", "android-manifest"]
-
-[workspace]
-members = [
-    "plugins/*",
-    "crossbundle/*",
-    "platform/*",
-    "examples/*",
-]

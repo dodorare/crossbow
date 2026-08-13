@@ -1,4 +1,7 @@
-use cocoa_foundation::{base::id, foundation::NSUInteger};
+use objc2::runtime::AnyObject;
+
+/// Untyped Objective-C object pointer used by the legacy permission APIs.
+pub type Object = *mut AnyObject;
 
 /// Type for iOS Permission.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -80,14 +83,14 @@ pub enum MediaType {
 }
 
 #[link(name = "AVFoundation", kind = "framework")]
-extern "C" {
-    pub static AVMediaTypeVideo: id;
-    pub static AVMediaTypeAudio: id;
+unsafe extern "C" {
+    pub static AVMediaTypeVideo: Object;
+    pub static AVMediaTypeAudio: Object;
 }
 
-impl Into<id> for &MediaType {
-    fn into(self) -> id {
-        match self {
+impl From<&MediaType> for Object {
+    fn from(media_type: &MediaType) -> Self {
+        match media_type {
             MediaType::Audio => unsafe { AVMediaTypeAudio },
             MediaType::Video => unsafe { AVMediaTypeVideo },
         }
@@ -108,9 +111,9 @@ pub enum AccessLevel {
     ReadWrite,
 }
 
-impl Into<NSUInteger> for &AccessLevel {
-    fn into(self) -> NSUInteger {
-        match self {
+impl From<&AccessLevel> for usize {
+    fn from(access_level: &AccessLevel) -> Self {
+        match access_level {
             AccessLevel::AddOnly => 1 << 0,
             AccessLevel::ReadWrite => 1 << 1,
         }
@@ -137,8 +140,8 @@ pub enum AuthorizationStatus {
     Limited,
 }
 
-impl From<NSUInteger> for AuthorizationStatus {
-    fn from(integer: NSUInteger) -> Self {
+impl From<usize> for AuthorizationStatus {
+    fn from(integer: usize) -> Self {
         match integer {
             0 => Self::NotDetermined,
             1 => Self::Restricted,
@@ -162,9 +165,9 @@ pub enum EntityType {
     Reminder,
 }
 
-impl Into<NSUInteger> for &EntityType {
-    fn into(self) -> NSUInteger {
-        match self {
+impl From<&EntityType> for usize {
+    fn from(entity_type: &EntityType) -> Self {
+        match entity_type {
             EntityType::Event => 0,
             EntityType::Reminder => 1,
         }
@@ -188,8 +191,8 @@ pub enum MediaLibraryAuthorizationStatus {
     Authorized,
 }
 
-impl From<NSUInteger> for MediaLibraryAuthorizationStatus {
-    fn from(integer: NSUInteger) -> Self {
+impl From<usize> for MediaLibraryAuthorizationStatus {
+    fn from(integer: usize) -> Self {
         match integer {
             0 => Self::NotDetermined,
             1 => Self::Denied,

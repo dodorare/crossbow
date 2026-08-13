@@ -2,9 +2,9 @@ use super::*;
 use crate::{error::*, utils::*};
 use async_channel::unbounded;
 use jni::{
+    Env,
     objects::{JObject, JObjectArray, JString},
     signature::{JavaType, RuntimeMethodSignature},
-    Env,
 };
 
 pub(crate) fn on_native_register_singleton(

@@ -1,5 +1,5 @@
 use crate::error::*;
-use fs_extra::dir::{copy as copy_dir, CopyOptions};
+use fs_extra::dir::{CopyOptions, copy as copy_dir};
 use std::fs::{create_dir_all, remove_dir_all};
 use std::path::{Path, PathBuf};
 use std::process::Command;

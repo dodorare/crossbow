@@ -1,9 +1,9 @@
 #![cfg(feature = "android")]
 
-use crossbundle_lib::commands::build::{android::AndroidBuildCommand, BuildContext};
+use crossbundle_lib::commands::build::{BuildContext, android::AndroidBuildCommand};
 use crossbundle_tools::{
     commands::gen_minimal_project,
-    types::{android_manifest::from_str, AndroidStrategy, AndroidTarget, Config, Shell},
+    types::{AndroidStrategy, AndroidTarget, Config, Shell, android_manifest::from_str},
 };
 
 #[test]

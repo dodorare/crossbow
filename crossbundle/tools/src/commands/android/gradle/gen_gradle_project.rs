@@ -197,7 +197,7 @@ mod tests {
             project_dir: Some(PathBuf::from("../../platform/android/java")),
         };
         assert_eq!(
-            get_settings_gradle(&[dep.clone()]).unwrap(),
+            get_settings_gradle(std::slice::from_ref(&dep)).unwrap(),
             format!(
                 "include \":crossbow\"\nproject(\":crossbow\").projectDir = new File(\"{}\")\n",
                 dunce::canonicalize(dep.project_dir.unwrap())

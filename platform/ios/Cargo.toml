@@ -1,7 +1,7 @@
 [package]
 name = "crossbow-ios"
 version = "0.2.3"
-edition = "2021"
+edition.workspace = true
 authors = ["DodoRare Team <support@dodorare.com>"]
 description = "Cross-Platform build tools and toolkit for games"
 repository = "https://github.com/dodorare/crossbow"
@@ -11,15 +11,12 @@ readme = "README.md"
 build = "build.rs"
 
 [dependencies]
-thiserror = "2.0"
-displaydoc = "0.2"
-anyhow = "1.0"
+thiserror = { workspace = true }
+displaydoc = { workspace = true }
+anyhow = { workspace = true }
 
-objc = "0.2"
-block = "0.1"
-cocoa-foundation = "0.2"
-core-foundation = "0.10"
-libc = "0.2"
+objc2 = { workspace = true }
+block2 = { workspace = true }
 
 [features]
 default = [

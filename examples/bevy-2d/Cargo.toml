@@ -2,13 +2,13 @@
 name = "bevy-2d"
 version = "0.2.3"
 authors = ["DodoRare Team <support@dodorare.com>"]
-edition = "2021"
+edition.workspace = true
 
 [dependencies]
-crossbow = { version = "0.2.3", path = "../../" }
-log = "0.4"
-anyhow = "1.0"
-bevy = { version = "0.19.0", default-features = false, features = ["2d"] }
+crossbow = { workspace = true, default-features = true }
+log = { workspace = true }
+anyhow = { workspace = true }
+bevy = { workspace = true, default-features = false, features = ["2d"] }
 
 [package.metadata]
 app_name = "Bevy 2D"

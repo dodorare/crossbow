@@ -3,10 +3,9 @@ use crate::{
     utils::jstring_to_string,
 };
 use jni::{
-    jni_sig, jni_str,
+    Env, jni_sig, jni_str,
     objects::{JObject, JString},
-    sys::{jboolean, JNI_TRUE},
-    Env,
+    sys::{JNI_TRUE, jboolean},
 };
 use std::sync::Arc;
 

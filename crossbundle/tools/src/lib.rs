@@ -1,7 +1,7 @@
 /// On Windows adds `.exe` to given string.
 #[cfg(feature = "android")]
 macro_rules! bin {
-    ($bin:expr) => {{
+    ($bin:expr_2021) => {{
         #[cfg(not(target_os = "windows"))]
         let bin = $bin;
         #[cfg(target_os = "windows")]
@@ -13,7 +13,7 @@ macro_rules! bin {
 /// On Windows adds `.bat` to given string.
 #[cfg(feature = "android")]
 macro_rules! bat {
-    ($bat:expr) => {{
+    ($bat:expr_2021) => {{
         #[cfg(not(target_os = "windows"))]
         let bat = $bat;
         #[cfg(target_os = "windows")]

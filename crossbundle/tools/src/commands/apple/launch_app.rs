@@ -1,5 +1,5 @@
 use crate::error::*;
-use simctl::{list::DeviceState, Device, DeviceQuery, Simctl};
+use simctl::{Device, DeviceQuery, Simctl, list::DeviceState};
 use std::path::Path;
 
 pub fn launch_apple_app(

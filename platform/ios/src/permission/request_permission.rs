@@ -1,21 +1,21 @@
 use super::*;
-use cocoa_foundation::{
-    base::{id, nil},
-    foundation::NSUInteger,
+use block2::RcBlock;
+use objc2::{
+    class, msg_send,
+    runtime::{AnyObject, Bool},
 };
-use objc::{class, msg_send, sel, sel_impl};
 
 pub fn request_capture_device_permission<F>(media: &MediaType, handler: F)
 where
     F: Fn(bool) + Send + Sync + 'static,
 {
-    let block = block::ConcreteBlock::new(move |success: bool| handler(success));
-    let opt: id = media.into();
+    let block = RcBlock::new(move |success: Bool| handler(success.as_bool()));
+    let opt: Object = media.into();
     let _: () = unsafe {
         msg_send![
             class!(AVCaptureDevice),
-            requestAccessForMediaType: opt
-            completionHandler: block.copy()
+            requestAccessForMediaType: opt,
+            completionHandler: &*block
         ]
     };
 }
@@ -24,55 +24,55 @@ pub fn request_photo_library_permission<F>(level: &AccessLevel, handler: F)
 where
     F: Fn(AuthorizationStatus) + Send + Sync + 'static,
 {
-    let block = block::ConcreteBlock::new(move |res: NSUInteger| {
+    let block = RcBlock::new(move |res: usize| {
         handler(AuthorizationStatus::from(res));
     });
-    let opt: NSUInteger = level.into();
+    let opt: usize = level.into();
     let _: () = unsafe {
         msg_send![
             class!(PHPhotoLibrary),
-            requestAuthorizationForAccessLevel: opt
-            handler: block.copy()
+            requestAuthorizationForAccessLevel: opt,
+            handler: &*block
         ]
     };
 }
 
 pub fn request_calendar_permission<F>(entity_type: &EntityType, handler: F)
 where
-    F: Fn(bool, id) + Send + Sync + 'static,
+    F: Fn(bool, Object) + Send + Sync + 'static,
 {
-    let block = block::ConcreteBlock::new(move |granted: bool, error: id| {
-        handler(granted, error);
+    let block = RcBlock::new(move |granted: Bool, error: Object| {
+        handler(granted.as_bool(), error);
     });
-    let opt: NSUInteger = entity_type.into();
+    let opt: usize = entity_type.into();
     let _: () = unsafe {
         msg_send![
             class!(EKEventStore),
-            requestAccessToEntityType: opt
-            completion: block.copy()
+            requestAccessToEntityType: opt,
+            completion: &*block
         ]
     };
 }
 
 pub fn request_address_book_permission<F>(handler: F)
 where
-    F: Fn(bool, id) + Send + Sync + 'static,
+    F: Fn(bool, Object) + Send + Sync + 'static,
 {
-    let block = block::ConcreteBlock::new(move |granted: bool, error: id| {
-        handler(granted, error);
+    let block = RcBlock::new(move |granted: Bool, error: Object| {
+        handler(granted.as_bool(), error);
     });
     let _: () = unsafe {
         // https://developer.apple.com/documentation/addressbook/1621991-abaddressbookcreatewithoptions
-        let address_book_ref: id = msg_send![
+        let address_book_ref: Object = msg_send![
             class!(ABAddressBook),
-            ABAddressBookCreateWithOptions: nil
-            error: nil
+            ABAddressBookCreateWithOptions: std::ptr::null_mut::<AnyObject>(),
+            error: std::ptr::null_mut::<AnyObject>()
         ];
         // https://developer.apple.com/documentation/addressbook/1622001-abaddressbookrequestaccesswithco
         msg_send![
             class!(ABAddressBook),
-            ABAddressBookRequestAccessWithCompletion: address_book_ref
-            completion: block.copy()
+            ABAddressBookRequestAccessWithCompletion: address_book_ref,
+            completion: &*block
         ]
     };
 }
@@ -81,14 +81,14 @@ pub fn request_media_permission<F>(handler: F)
 where
     F: Fn(MediaLibraryAuthorizationStatus) + Send + Sync + 'static,
 {
-    let block = block::ConcreteBlock::new(move |status: NSUInteger| {
+    let block = RcBlock::new(move |status: usize| {
         handler(MediaLibraryAuthorizationStatus::from(status));
     });
     let _: () = unsafe {
         // https://developer.apple.com/documentation/mediaplayer/mpmedialibrary/1621276-requestauthorization
         msg_send![
             class!(MPMediaLibrary),
-            requestAuthorization: block.copy()
+            requestAuthorization: &*block
         ]
     };
 }
@@ -97,33 +97,33 @@ pub fn request_speech_recognition_permission<F>(handler: F)
 where
     F: Fn(SpeechRecognizerAuthorizationStatus) + Send + Sync + 'static,
 {
-    let block = block::ConcreteBlock::new(move |status: NSUInteger| {
+    let block = RcBlock::new(move |status: usize| {
         handler(SpeechRecognizerAuthorizationStatus::from(status));
     });
     let _: () = unsafe {
         // https://developer.apple.com/documentation/mediaplayer/mpmedialibrary/1621276-requestauthorization
         msg_send![
             class!(SFSpeechRecognizer),
-            requestAuthorization: block.copy()
+            requestAuthorization: &*block
         ]
     };
 }
 
 pub fn request_motion_activity_permission<F>(handler: F)
 where
-    F: Fn(id, id) + Send + Sync + 'static,
+    F: Fn(Object, Object) + Send + Sync + 'static,
 {
-    let block = block::ConcreteBlock::new(move |activities: id, error: id| {
+    let block = RcBlock::new(move |activities: Object, error: Object| {
         handler(activities, error);
     });
     let _: () = unsafe {
         // https://developer.apple.com/documentation/coremotion/cmmotionactivitymanager/1615929-queryactivitystartingfromdate
         msg_send![
             class!(CMMotionActivityManager),
-            queryActivityStartingFromDate: nil
-            toDate: nil
-            toQueue: nil
-            handler: block.copy()
+            queryActivityStartingFromDate: std::ptr::null_mut::<AnyObject>(),
+            toDate: std::ptr::null_mut::<AnyObject>(),
+            toQueue: std::ptr::null_mut::<AnyObject>(),
+            handler: &*block
         ]
     };
 }
