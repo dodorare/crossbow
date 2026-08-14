@@ -29,6 +29,8 @@ pub fn gen_minimal_project(out_dir: &std::path::Path, macroquad_project: bool) -
         main_rs.write_all(MQ_MAIN_RS_VALUE.as_bytes())?;
     } else {
         main_rs.write_all(BEVY_MAIN_RS_VALUE.as_bytes())?;
+        let mut lib_rs = File::create(src_path.join("lib.rs"))?;
+        lib_rs.write_all(BEVY_LIB_RS_VALUE.as_bytes())?;
     }
     create_res_folder(out_dir)?;
     Ok("example".to_owned())
@@ -70,6 +72,16 @@ mod tests {
     fn default_manifest_uses_public_repository() {
         let manifest = render_manifest(MINIMAL_MQ_CARGO_TOML_VALUE, None).unwrap();
         assert!(manifest.contains("github.com/dodorare/crossbow"));
+    }
+
+    #[test]
+    fn standard_fixture_has_android_library_target() {
+        let dir = tempfile::tempdir().unwrap();
+        gen_minimal_project(dir.path(), false).unwrap();
+
+        let manifest = std::fs::read_to_string(dir.path().join("Cargo.toml")).unwrap();
+        assert!(manifest.contains("crate-type = [\"cdylib\", \"rlib\"]"));
+        assert!(dir.path().join("src/lib.rs").is_file());
     }
 
     #[test]

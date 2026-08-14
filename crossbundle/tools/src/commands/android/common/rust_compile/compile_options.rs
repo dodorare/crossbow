@@ -6,7 +6,7 @@ use cargo::{
         compiler::{CompileKind, CompileTarget, UserIntent},
         resolver::CliFeatures,
     },
-    ops::CompileOptions,
+    ops::{CompileFilter, CompileOptions},
 };
 
 use std::path::Path;
@@ -24,6 +24,26 @@ pub fn compile_options(
 ) -> Result<CompileOptions> {
     // Configure compilation options so that we will build the desired build_target
     let mut opts = CompileOptions::new(workspace.gctx(), UserIntent::Build)?;
+
+    // The legacy executor turns one binary root target into a shared library and passes
+    // output-specific arguments to rustc. Cargo requires those arguments to apply to exactly
+    // one target, so do not rely on its default target selection when a package also has a
+    // library target.
+    let binary_targets = workspace
+        .current()?
+        .targets()
+        .iter()
+        .filter(|target| target.is_bin())
+        .map(|target| target.name().to_owned())
+        .collect::<Vec<_>>();
+    let [binary_target] = binary_targets.as_slice() else {
+        return Err(anyhow::Error::msg(format!(
+            "legacy Android wrappers require exactly one binary target, found {}",
+            binary_targets.len()
+        ))
+        .into());
+    };
+    opts.filter = CompileFilter::single_bin(binary_target.clone());
 
     // Set the compilation target
     opts.build_config.requested_kinds = vec![CompileKind::Target(CompileTarget::new(

@@ -28,7 +28,8 @@ assets = ["assets"]
 icon = "path/to/icon.png"
 
 [package.metadata.android]
-# Android application wrapper: supports ndk-glue and sokol. Now ndk-glue used by bevy engine and sokol used by macroquad 
+# Standard Cargo library compilation is the default. Legacy source-rewriting
+# integrations can explicitly select "ndk-glue" or "quad".
 app_wrapper = "quad"
 # Android targets to build on debug or release.
 debug_build_targets = ["aarch64-linux-android"]
