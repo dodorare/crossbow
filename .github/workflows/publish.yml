@@ -57,7 +57,7 @@ jobs:
     - name: Install gradle
       uses: gradle/actions/setup-gradle@v6
       with:
-        gradle-version: 7.4
+        gradle-version: 9.5.0
     - name: Build and publish crossbow library
       env:
         TOKEN: ${{ secrets.GH_CROSSBOW_PUBLISH_TOKEN }}

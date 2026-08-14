@@ -71,25 +71,33 @@ impl PlayBillingPlugin {
         })
     }
 
-    pub fn query_sku_details<S>(&self, sku_list: &[S], sku_type: S) -> Result<()>
+    pub fn query_product_details<S>(&self, product_ids: &[S], product_type: S) -> Result<()>
     where
         S: AsRef<str>,
     {
         self.vm.attach_current_thread(|env| {
             let empty_str = JString::from_str(env, "")?;
-            let string_array = JObjectArray::<JString>::new(env, sku_list.len(), &empty_str)?;
-            for (index, id) in sku_list.iter().enumerate() {
+            let string_array = JObjectArray::<JString>::new(env, product_ids.len(), &empty_str)?;
+            for (index, id) in product_ids.iter().enumerate() {
                 let id_str = JString::from_str(env, id)?;
                 string_array.set_element(env, index, &id_str)?;
             }
-            let sku_type_str = JString::from_str(env, sku_type)?;
+            let product_type_str = JString::from_str(env, product_type)?;
             self.singleton.call_method(
                 env,
-                "querySkuDetails",
-                &[(&string_array).into(), (&sku_type_str).into()],
+                "queryProductDetails",
+                &[(&string_array).into(), (&product_type_str).into()],
             )?;
             Ok(())
         })
+    }
+
+    #[deprecated(note = "use query_product_details; Play Billing now uses ProductDetails")]
+    pub fn query_sku_details<S>(&self, sku_list: &[S], sku_type: S) -> Result<()>
+    where
+        S: AsRef<str>,
+    {
+        self.query_product_details(sku_list, sku_type)
     }
 
     pub fn acknowledge_purchase<S>(&self, purchase_token: S) -> Result<()>
@@ -119,6 +127,7 @@ impl PlayBillingPlugin {
         })
     }
 
+    #[deprecated(note = "price change confirmation was removed in Play Billing 9")]
     pub fn confirm_price_change<S>(&self, sku: S) -> Result<JniRustType>
     where
         S: AsRef<str>,
@@ -128,6 +137,22 @@ impl PlayBillingPlugin {
             let res =
                 self.singleton
                     .call_method(env, "confirmPriceChange", &[(&sku_str).into()])?;
+            JniRustType::from_jobject(env, res.l()?)
+        })
+    }
+
+    pub fn purchase_with_offer<S>(&self, product_id: S, offer_token: S) -> Result<JniRustType>
+    where
+        S: AsRef<str>,
+    {
+        self.vm.attach_current_thread(|env| {
+            let product_id = JString::from_str(env, product_id)?;
+            let offer_token = JString::from_str(env, offer_token)?;
+            let res = self.singleton.call_method(
+                env,
+                "purchaseWithOffer",
+                &[(&product_id).into(), (&offer_token).into()],
+            )?;
             JniRustType::from_jobject(env, res.l()?)
         })
     }
@@ -145,6 +170,7 @@ impl PlayBillingPlugin {
         })
     }
 
+    #[deprecated(note = "use replace_subscription with the old purchase token and product ID")]
     pub fn update_subscription<S>(
         &self,
         old_token: S,
@@ -164,6 +190,70 @@ impl PlayBillingPlugin {
                     (&old_token_str).into(),
                     (&sku_str).into(),
                     proration_mode.into(),
+                ],
+            )?;
+            JniRustType::from_jobject(env, res.l()?)
+        })
+    }
+
+    #[deprecated(note = "use replace_subscription with the old purchase token and product ID")]
+    pub fn update_subscription_with_offer<S>(
+        &self,
+        old_token: S,
+        product_id: S,
+        offer_token: S,
+        replacement_mode: i32,
+    ) -> Result<JniRustType>
+    where
+        S: AsRef<str>,
+    {
+        self.vm.attach_current_thread(|env| {
+            let old_token = JString::from_str(env, old_token)?;
+            let product_id = JString::from_str(env, product_id)?;
+            let offer_token = JString::from_str(env, offer_token)?;
+            let res = self.singleton.call_method(
+                env,
+                "updateSubscriptionWithOffer",
+                &[
+                    (&old_token).into(),
+                    (&product_id).into(),
+                    (&offer_token).into(),
+                    replacement_mode.into(),
+                ],
+            )?;
+            JniRustType::from_jobject(env, res.l()?)
+        })
+    }
+
+    /// Replaces a subscription using Billing 9's purchase- and product-level parameters.
+    ///
+    /// `old_purchase_token` must identify the existing subscription purchase, while
+    /// `old_product_id` identifies the item within that purchase which is being replaced.
+    pub fn replace_subscription<S>(
+        &self,
+        old_purchase_token: S,
+        old_product_id: S,
+        new_product_id: S,
+        offer_token: S,
+        replacement_mode: i32,
+    ) -> Result<JniRustType>
+    where
+        S: AsRef<str>,
+    {
+        self.vm.attach_current_thread(|env| {
+            let old_purchase_token = JString::from_str(env, old_purchase_token)?;
+            let old_product_id = JString::from_str(env, old_product_id)?;
+            let new_product_id = JString::from_str(env, new_product_id)?;
+            let offer_token = JString::from_str(env, offer_token)?;
+            let res = self.singleton.call_method(
+                env,
+                "replaceSubscription",
+                &[
+                    (&old_purchase_token).into(),
+                    (&old_product_id).into(),
+                    (&new_product_id).into(),
+                    (&offer_token).into(),
+                    replacement_mode.into(),
                 ],
             )?;
             JniRustType::from_jobject(env, res.l()?)
@@ -198,5 +288,18 @@ impl PlayBillingPlugin {
             )?;
             Ok(())
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn subscription_replacement_requires_the_existing_purchase_token() {
+        type ReplaceSubscription =
+            fn(&PlayBillingPlugin, String, String, String, String, i32) -> Result<JniRustType>;
+
+        let _replace: ReplaceSubscription = PlayBillingPlugin::replace_subscription::<String>;
     }
 }

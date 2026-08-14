@@ -5,12 +5,12 @@ use std::io::Write;
 pub fn cmake_env(
     build_target: crate::types::AndroidTarget,
     ndk: &AndroidNdk,
-    target_sdk_version: u32,
+    min_sdk_version: u32,
     build_target_dir: &std::path::Path,
 ) -> cargo::CargoResult<Vec<(String, std::ffi::OsString)>> {
     // Return path to toolchain cmake file
     let cmake_toolchain_path = write_cmake_toolchain(
-        target_sdk_version,
+        min_sdk_version,
         ndk.ndk_path(),
         build_target_dir,
         build_target,

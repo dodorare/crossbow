@@ -5,6 +5,7 @@ members = [
     "crossbundle/*",
     "platform/*",
     "examples/*",
+    "xtask",
 ]
 
 [workspace.package]

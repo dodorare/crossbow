@@ -3,6 +3,9 @@ pub use android_manifest;
 use super::AndroidStrategy;
 use android_manifest::*;
 
+pub const DEFAULT_ANDROID_MIN_SDK: u32 = 23;
+pub const DEFAULT_ANDROID_TARGET_SDK: u32 = 36;
+
 /// Updates [`AndroidManifest`](android_manifest::AndroidManifest) with default values.
 pub fn update_android_manifest_with_default(
     manifest: &mut AndroidManifest,
@@ -21,8 +24,8 @@ pub fn update_android_manifest_with_default(
     }
     if manifest.uses_sdk.is_none() {
         manifest.uses_sdk = Some(UsesSdk {
-            min_sdk_version: Some(19),
-            target_sdk_version: Some(31),
+            min_sdk_version: Some(DEFAULT_ANDROID_MIN_SDK),
+            target_sdk_version: Some(DEFAULT_ANDROID_TARGET_SDK),
             max_sdk_version: None,
         });
     }

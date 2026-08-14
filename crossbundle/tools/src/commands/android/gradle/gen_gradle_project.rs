@@ -31,10 +31,17 @@ pub struct GradleDependencyProject {
     project_dir: Option<PathBuf>,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct AndroidSdkVersions {
+    pub min_sdk: u32,
+    pub target_sdk: u32,
+}
+
 pub fn gen_gradle_project(
     package_name: &str,
     version_code: u32,
     version_name: &str,
+    sdk_versions: AndroidSdkVersions,
     android_build_dir: &Path,
     assets_dir: &Option<PathBuf>,
     resources_dir: &Option<PathBuf>,
@@ -60,7 +67,13 @@ pub fn gen_gradle_project(
     write!(
         gradle_properties,
         "{}",
-        get_gradle_properties(package_name, version_code, version_name, plugins)?
+        get_gradle_properties(
+            package_name,
+            version_code,
+            version_name,
+            sdk_versions,
+            plugins,
+        )?
     )?;
 
     let mut settings_gradle = File::create(gradle_project_path.join("settings.gradle"))?;
@@ -89,16 +102,25 @@ pub fn gen_gradle_project(
     Ok(gradle_project_path)
 }
 
-fn get_default_gradle_props(package_name: &str, version_code: u32, version_name: &str) -> String {
+fn get_default_gradle_props(
+    package_name: &str,
+    version_code: u32,
+    version_name: &str,
+    sdk_versions: AndroidSdkVersions,
+) -> String {
     let mut res = r#"org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
 android.useAndroidX=true
-android.enableJetifier=true
 android.nonTransitiveRClass=true
 "#
     .to_owned();
     res = format!("{}export_package_name={}\n", res, package_name);
     res = format!("{}export_version_code={}\n", res, version_code);
     res = format!("{}export_version_name={}\n", res, version_name);
+    res = format!("{}export_version_min_sdk={}\n", res, sdk_versions.min_sdk);
+    res = format!(
+        "{}export_version_target_sdk={}\n",
+        res, sdk_versions.target_sdk
+    );
     res
 }
 
@@ -106,9 +128,11 @@ fn get_gradle_properties(
     package_name: &str,
     version_code: u32,
     version_name: &str,
+    sdk_versions: AndroidSdkVersions,
     plugins: &AndroidGradlePlugins,
 ) -> Result<String> {
-    let mut result = get_default_gradle_props(package_name, version_code, version_name);
+    let mut result =
+        get_default_gradle_props(package_name, version_code, version_name, sdk_versions);
     if !plugins.maven_repos.is_empty() {
         result = format!(
             "{}plugins_maven_repos={}\n",
@@ -209,6 +233,10 @@ mod tests {
 
     #[test]
     fn test_crossbow_gradle_properties() {
+        let sdk_versions = AndroidSdkVersions {
+            min_sdk: 23,
+            target_sdk: 36,
+        };
         let mut plugins = AndroidGradlePlugins {
             local: vec![],
             remote: vec![],
@@ -216,16 +244,16 @@ mod tests {
             local_projects: vec![],
         };
         assert_eq!(
-            get_gradle_properties("com.crossbow.test", 1, "1.0", &plugins).unwrap(),
-            get_default_gradle_props("com.crossbow.test", 1, "1.0"),
+            get_gradle_properties("com.crossbow.test", 1, "1.0", sdk_versions, &plugins).unwrap(),
+            get_default_gradle_props("com.crossbow.test", 1, "1.0", sdk_versions),
         );
 
         plugins.local.push(PathBuf::from("../../MyPlugin.aar"));
         assert_eq!(
-            get_gradle_properties("com.crossbow.test", 1, "1.0", &plugins).unwrap(),
+            get_gradle_properties("com.crossbow.test", 1, "1.0", sdk_versions, &plugins).unwrap(),
             format!(
                 "{}{}",
-                get_default_gradle_props("com.crossbow.test", 1, "1.0"),
+                get_default_gradle_props("com.crossbow.test", 1, "1.0", sdk_versions),
                 "plugins_local_binaries=../../MyPlugin.aar\n"
             )
         );

@@ -17,12 +17,10 @@ buildscript {
     }
     dependencies {
         classpath libraries.androidGradlePlugin
-        classpath libraries.kotlinGradlePlugin
     }
 }
 
 apply plugin: "com.android.application"
-apply plugin: "org.jetbrains.kotlin.android"
 apply from: "config.gradle"
 
 allprojects {
@@ -44,7 +42,6 @@ allprojects {
 }
 
 dependencies {
-    implementation libraries.kotlinStdLib
     implementation libraries.androidxAppcompat
 
     if (rootProject.findProject(":lib")) {
@@ -82,48 +79,45 @@ dependencies {
 }
 
 android {
-    compileSdkVersion versions.compileSdk
-    buildToolsVersion versions.buildTools
-    ndkVersion versions.ndkVersion
+    namespace = "com.crossbow.game"
+    compileSdk = versions.compileSdk
+    buildToolsVersion = versions.buildTools
+    ndkVersion = versions.ndkVersion
 
     compileOptions {
-        sourceCompatibility versions.javaVersion
-        targetCompatibility versions.javaVersion
+        sourceCompatibility = JavaVersion.toVersion(versions.javaVersion)
+        targetCompatibility = JavaVersion.toVersion(versions.javaVersion)
     }
 
-    kotlinOptions {
-        jvmTarget = versions.javaVersion
+    androidResources {
+        // Preserve Crossbow's hidden project assets in generated APKs and bundles.
+        ignoreAssetsPattern = "!.svn:!.git:!.gitignore:!.ds_store:!*.scc:<dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"
     }
 
     defaultConfig {
-        // The default ignore pattern for the "assets" directory includes hidden files and directories which are used by Crossbow projects.
-        aaptOptions {
-            ignoreAssetsPattern "!.svn:!.git:!.gitignore:!.ds_store:!*.scc:<dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"
-        }
-
         // Feel free to modify the application id to your own.
-        applicationId getExportPackageName()
-        versionCode getExportVersionCode()
-        versionName getExportVersionName()
-        minSdkVersion getExportMinSdkVersion()
-        targetSdkVersion getExportTargetSdkVersion()
+        applicationId = getExportPackageName()
+        versionCode = getExportVersionCode()
+        versionName = getExportVersionName()
+        minSdk = getExportMinSdkVersion()
+        targetSdk = getExportTargetSdkVersion()
 
         missingDimensionStrategy "products", "template"
     }
 
-    lintOptions {
-        abortOnError false
-        disable "MissingTranslation", "UnusedResources"
+    lint {
+        abortOnError = false
+        disable += ["MissingTranslation", "UnusedResources"]
     }
 
     sourceSets {
         main {
-            manifest.srcFile "AndroidManifest.xml"
-            java.srcDirs = ["src"]
-            assets.srcDirs = ["assets"]
-            res.srcDirs = ["res"]
+            manifest.srcFile("AndroidManifest.xml")
+            kotlin.directories.add("src")
+            assets.setSrcDirs(["assets"])
+            res.setSrcDirs(["res"])
         }
-        debug.jniLibs.srcDirs = ["../libs/debug"]
-        release.jniLibs.srcDirs = ["../libs/release"]
+        debug.jniLibs.setSrcDirs(["../libs/debug"])
+        release.jniLibs.setSrcDirs(["../libs/release"])
     }
 }

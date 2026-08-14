@@ -105,6 +105,14 @@ impl AndroidBuildCommand {
             .package
             .as_deref()
             .ok_or_else(|| anyhow::anyhow!("Android manifest package is missing"))?;
+        let uses_sdk = manifest
+            .uses_sdk
+            .as_ref()
+            .ok_or_else(|| anyhow::anyhow!("Android manifest uses-sdk configuration is missing"))?;
+        let min_sdk_version = uses_sdk.min_sdk_version.unwrap_or(DEFAULT_ANDROID_MIN_SDK);
+        let target_sdk_version = uses_sdk
+            .target_sdk_version
+            .unwrap_or(DEFAULT_ANDROID_TARGET_SDK);
 
         config.status("Generating gradle project")?;
         let gradle_project_path = gen_gradle_project(
@@ -114,6 +122,10 @@ impl AndroidBuildCommand {
                 .version_name
                 .clone()
                 .unwrap_or_else(|| "0.1".to_owned()),
+            AndroidSdkVersions {
+                min_sdk: min_sdk_version,
+                target_sdk: target_sdk_version,
+            },
             &android_build_dir,
             &assets,
             &resources,
@@ -121,7 +133,12 @@ impl AndroidBuildCommand {
         )?;
 
         config.status_message("Generating", "AndroidManifest.xml")?;
-        save_android_manifest(&gradle_project_path, &manifest)?;
+        let mut gradle_manifest = manifest.clone();
+        gradle_manifest.uses_sdk = None;
+        gradle_manifest.package = None;
+        gradle_manifest.version_code = None;
+        gradle_manifest.version_name = None;
+        save_android_manifest(&gradle_project_path, &gradle_manifest)?;
 
         let lib_name = "crossbow_android";
         self.build_rust_lib(config, context, lib_name, Some(android_build_dir))?;
@@ -145,7 +162,7 @@ impl AndroidBuildCommand {
         let example = self.shared.example.as_ref();
         let (project_path, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
         config.status_message("Starting lib build process", &package_name)?;
-        let (sdk, ndk) = Self::android_toolchain()?;
+        let (_sdk, ndk) = Self::android_toolchain()?;
 
         let android_build_dir = if let Some(export_path) = export_path {
             export_path
@@ -157,7 +174,7 @@ impl AndroidBuildCommand {
         let manifest = Self::get_android_manifest(context, AndroidStrategy::NativeApk)?;
 
         config.status_message("Compiling", "lib")?;
-        let target_sdk_version = Self::target_sdk_version(&manifest, &sdk);
+        let min_sdk_version = Self::min_sdk_version(&manifest);
         let build_targets = Self::android_build_targets(context, profile, &self.target);
         let compiled_libs = self.build_target(
             context,
@@ -166,7 +183,7 @@ impl AndroidBuildCommand {
             &ndk,
             &project_path,
             profile,
-            target_sdk_version,
+            min_sdk_version,
             &target_dir,
             config,
         )?;
@@ -216,6 +233,7 @@ impl AndroidBuildCommand {
 
         config.status_message("Compiling", "lib")?;
         let target_sdk_version = Self::target_sdk_version(&manifest, &sdk);
+        let min_sdk_version = Self::min_sdk_version(&manifest);
         let build_targets = Self::android_build_targets(context, profile, &self.target);
         let compiled_libs = self.build_target(
             context,
@@ -224,7 +242,7 @@ impl AndroidBuildCommand {
             &ndk,
             &project_path,
             profile,
-            target_sdk_version,
+            min_sdk_version,
             &target_dir,
             config,
         )?;
@@ -302,6 +320,7 @@ impl AndroidBuildCommand {
 
         config.status_message("Compiling", "lib")?;
         let target_sdk_version = Self::target_sdk_version(&manifest, &sdk);
+        let min_sdk_version = Self::min_sdk_version(&manifest);
         let build_targets = Self::android_build_targets(context, profile, &self.target);
         let compiled_libs = self.build_target(
             context,
@@ -310,7 +329,7 @@ impl AndroidBuildCommand {
             &ndk,
             &project_path,
             profile,
-            target_sdk_version,
+            min_sdk_version,
             &target_dir,
             config,
         )?;
@@ -473,7 +492,7 @@ impl AndroidBuildCommand {
         ndk: &AndroidNdk,
         project_path: &Path,
         profile: Profile,
-        target_sdk_version: u32,
+        min_sdk_version: u32,
         target_dir: &Path,
         config: &Config,
     ) -> Result<Vec<(PathBuf, AndroidTarget)>> {
@@ -492,7 +511,7 @@ impl AndroidBuildCommand {
                 self.shared.features.clone(),
                 self.shared.all_features,
                 self.shared.no_default_features,
-                target_sdk_version,
+                min_sdk_version,
                 &lib_name,
                 context.config.android.app_wrapper,
             )?;

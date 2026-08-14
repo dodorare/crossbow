@@ -19,7 +19,7 @@ fn add_bevy_libs() {
     let ndk = AndroidNdk::from_env(sdk.sdk_path()).unwrap();
     let build_target = AndroidTarget::Aarch64;
     let profile = Profile::Release;
-    let target_sdk_version = 31;
+    let min_sdk_version = 23;
     let bevy_lib_name = format!("lib{}.so", bevy_package_name.replace('-', "_"));
     let app_wrapper_for_bevy = AppWrapper::NdkGlue;
 
@@ -32,7 +32,7 @@ fn add_bevy_libs() {
         vec![],
         false,
         false,
-        target_sdk_version,
+        min_sdk_version,
         &bevy_lib_name,
         app_wrapper_for_bevy,
     )
@@ -56,7 +56,7 @@ fn add_bevy_libs() {
             &compiled_lib,
             build_target,
             profile,
-            target_sdk_version,
+            min_sdk_version,
             &out_dir,
             &project_path.join("target"),
             &bevy_package_name,
@@ -88,7 +88,7 @@ fn add_quad_libs() {
     let ndk = AndroidNdk::from_env(sdk.sdk_path()).unwrap();
     let build_target = AndroidTarget::Aarch64;
     let profile = Profile::Release;
-    let target_sdk_version = 31;
+    let min_sdk_version = 23;
     let quad_lib_name = format!("lib{}.so", quad_package_name.replace('-', "_"));
     let app_wrapper_for_quad = AppWrapper::Quad;
 
@@ -101,7 +101,7 @@ fn add_quad_libs() {
         vec![],
         false,
         false,
-        target_sdk_version,
+        min_sdk_version,
         &quad_lib_name,
         app_wrapper_for_quad,
     )
@@ -125,7 +125,7 @@ fn add_quad_libs() {
             &compiled_lib,
             build_target,
             profile,
-            target_sdk_version,
+            min_sdk_version,
             &out_dir,
             &project_path.join("target"),
             &quad_package_name,

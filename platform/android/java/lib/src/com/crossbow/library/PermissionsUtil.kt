@@ -221,7 +221,7 @@ object PermissionsUtil {
         val packageManager: PackageManager = activity.getPackageManager()
         val packageInfo: PackageInfo =
             packageManager.getPackageInfo(activity.getPackageName(), PackageManager.GET_PERMISSIONS)
-        return if (packageInfo.requestedPermissions == null) arrayOf<String>() else packageInfo.requestedPermissions
+        return packageInfo.requestedPermissions?.map { it }?.toTypedArray() ?: emptyArray()
     }
 
     /**

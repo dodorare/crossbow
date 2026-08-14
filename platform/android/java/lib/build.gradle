@@ -1,12 +1,10 @@
 plugins {
     id "com.android.library"
-    id "org.jetbrains.kotlin.android"
 }
 
 apply from: "publish.gradle"
 
 dependencies {
-    implementation libraries.kotlinStdLib
     implementation libraries.androidxFragment
     implementation libraries.androidxAppcompat
     // implementation "androidx.games:games-activity:1.1.0"
@@ -15,38 +13,34 @@ dependencies {
 android {
     namespace = "com.crossbow.library"
 
-    compileSdkVersion versions.compileSdk
-    buildToolsVersion versions.buildTools
-    ndkVersion versions.ndkVersion
+    compileSdk = versions.compileSdk
+    buildToolsVersion = versions.buildTools
+    ndkVersion = versions.ndkVersion
 
     compileOptions {
-        sourceCompatibility versions.javaVersion
-        targetCompatibility versions.javaVersion
-    }
-
-    kotlinOptions {
-        jvmTarget = versions.javaVersion
+        sourceCompatibility = JavaVersion.toVersion(versions.javaVersion)
+        targetCompatibility = JavaVersion.toVersion(versions.javaVersion)
     }
 
     defaultConfig {
-        minSdkVersion versions.minSdk
-        targetSdkVersion versions.targetSdk
-        manifestPlaceholders = [crossbowLibraryVersion: versions.crossbowLibrary, minSdkVersion: versions.minSdk, targetSdkVersion: versions.targetSdk]
+        minSdk = versions.minSdk
+        targetSdk = versions.targetSdk
+        manifestPlaceholders = [crossbowLibraryVersion: versions.crossbowLibrary]
     }
 
-    lintOptions {
-        abortOnError false
-        disable "MissingTranslation", "UnusedResources"
+    lint {
+        abortOnError = false
+        disable += ["MissingTranslation", "UnusedResources"]
     }
 
     sourceSets {
         main {
-            manifest.srcFile "AndroidManifest.xml"
-            java.srcDirs = ["src"]
-            assets.srcDirs = ["assets"]
-            res.srcDirs = ["res"]
+            manifest.srcFile("AndroidManifest.xml")
+            kotlin.directories.add("src")
+            assets.setSrcDirs(["assets"])
+            res.setSrcDirs(["res"])
         }
-        debug.jniLibs.srcDirs = ["libs/debug"]
-        release.jniLibs.srcDirs = ["libs/release"]
+        debug.jniLibs.setSrcDirs(["libs/debug"])
+        release.jniLibs.setSrcDirs(["libs/release"])
     }
 }

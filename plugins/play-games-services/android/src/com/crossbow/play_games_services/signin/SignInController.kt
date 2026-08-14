@@ -1,95 +1,55 @@
 package com.crossbow.play_games_services.signin
 
 import android.app.Activity
-import android.util.Pair
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInResult
-import com.google.android.gms.games.Games
-import com.crossbow.play_games_services.ConnectionController
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.games.PlayGames
 
 class SignInController(
-    private var activity: Activity,
-    private var signInListener: SignInListener,
-    private var connectionController: ConnectionController
+    private val activity: Activity,
+    private val signInListener: SignInListener,
 ) {
+    @Volatile
+    private var authenticated = false
 
-    companion object {
-        const val RC_SIGN_IN = 77
+    fun refreshAuthentication() {
+        PlayGames.getGamesSignInClient(activity).isAuthenticated
+            .addOnCompleteListener(activity) { task ->
+                authenticated = task.isSuccessful && task.result.isAuthenticated
+                if (authenticated) notifySignedIn()
+            }
     }
 
-    private var showPlayPopups = true
-
-    fun setShowPopups(enablePopUps: Boolean) {
-        showPlayPopups = enablePopUps
-    }
-
-    fun signIn(googleSignInClient: GoogleSignInClient) {
-        val connection: Pair<Boolean, String> = connectionController.isConnected()
-        if (connection.first) {
-            signInListener.onSignedInSuccessfully(connection.second)
-            enablePopUps()
-        } else {
-            googleSignInClient
-                .silentSignIn()
-                .addOnCompleteListener(activity) { task ->
-                    if (task.isSuccessful) {
-                        val googleSignInAccount = task.result
-                        var accId = ""
-                        googleSignInAccount?.id?.let {
-                            accId = it
-                        }
-
-                        signInListener.onSignedInSuccessfully(accId)
-                        enablePopUps()
-                    } else {
-                        val intent = googleSignInClient.signInIntent
-                        activity.startActivityForResult(intent, RC_SIGN_IN)
-                    }
+    fun signIn() {
+        PlayGames.getGamesSignInClient(activity).signIn()
+            .addOnCompleteListener(activity) { task ->
+                authenticated = task.isSuccessful && task.result.isAuthenticated
+                if (authenticated) {
+                    notifySignedIn()
+                } else {
+                    signInListener.onSignInFailed(statusCode(task.exception))
                 }
-        }
+            }
     }
 
-    fun onSignInActivityResult(googleSignInResult: GoogleSignInResult?) {
-        if (googleSignInResult != null && googleSignInResult.isSuccess) {
-            val googleSignInAccount = googleSignInResult.signInAccount
-            var accId = ""
-            googleSignInAccount?.id?.let {
-                accId = it
-            }
-            enablePopUps()
-            signInListener.onSignedInSuccessfully(accId)
-        } else {
-            var statusCode = Int.MIN_VALUE
-            googleSignInResult?.status?.let {
-                statusCode = it.statusCode
-            }
-            signInListener.onSignInFailed(statusCode)
-        }
+    /** PGS v2 intentionally no longer exposes programmatic sign-out. */
+    fun signOut() {
+        signInListener.onSignOutFailed()
     }
 
-    fun signOut(googleSignInClient: GoogleSignInClient) {
-        googleSignInClient.signOut().addOnCompleteListener(activity) { task ->
-            if (task.isSuccessful) {
-                signInListener.onSignOutSuccess()
-            } else {
-                signInListener.onSignOutFailed()
+    fun isSignedIn(): Boolean = authenticated
+
+    private fun notifySignedIn() {
+        PlayGames.getPlayersClient(activity).currentPlayerId
+            .addOnCompleteListener(activity) { playerTask ->
+                if (playerTask.isSuccessful) {
+                    signInListener.onSignedInSuccessfully(playerTask.result.orEmpty())
+                } else {
+                    authenticated = false
+                    signInListener.onSignInFailed(statusCode(playerTask.exception))
+                }
             }
-        }
     }
 
-    fun isSignedIn(): Boolean {
-        val googleSignInAccount = GoogleSignIn.getLastSignedInAccount(activity)
-        return connectionController.isConnected().first && googleSignInAccount != null
-    }
-
-    private fun enablePopUps() {
-        if (showPlayPopups) {
-            val lastSignedInAccount = GoogleSignIn.getLastSignedInAccount(activity)
-            if (lastSignedInAccount != null) {
-                Games.getGamesClient(activity, lastSignedInAccount)
-                    .setViewForPopups(activity.findViewById(android.R.id.content))
-            }
-        }
-    }
+    private fun statusCode(error: Exception?): Int =
+        (error as? ApiException)?.statusCode ?: 8 // CommonStatusCodes.INTERNAL_ERROR
 }

@@ -1,4 +1,4 @@
-# Crossbow Admob Plugin
+# Crossbow Play Billing Plugin
 
 [![Crate Info](https://img.shields.io/crates/v/play-billing.svg)](https://crates.io/crates/play-billing)
 [![Documentation](https://img.shields.io/badge/docs.rs-play_billing-green)](https://docs.rs/play-billing/)
@@ -8,6 +8,10 @@
 ## About
 
 This project is a Crossbow Plugin for [Google Play Billing](https://developer.android.com/google/play/billing) written in Rust and Kotlin.
+
+The Android implementation uses Play Billing Library 9 and its `ProductDetails` and offer-token model.
+See Google's [Billing version support schedule](https://developer.android.com/google/play/billing/deprecation-faq)
+and [Billing 9 migration guide](https://developer.android.com/google/play/billing/migrate-gpblv9).
 
 ## Installation
 
@@ -47,8 +51,28 @@ After plugin initialization you can use supported features. For example to start
 
 ```rust
 play_billing.start_connection()?;
-play_billing.query_purchases("YOUR_TYPE")?;
+play_billing.query_product_details(&["YOUR_PRODUCT_ID"], "inapp")?;
+play_billing.query_purchases("inapp")?;
 ```
+
+For subscriptions, select an offer token returned by the
+`product_details_query_completed` signal and pass it to `purchase_with_offer`. Use
+`replace_subscription` with the existing purchase token, old product ID, new product ID,
+selected offer token, and replacement mode for subscription replacements:
+
+```rust
+play_billing.replace_subscription(
+    "EXISTING_PURCHASE_TOKEN",
+    "OLD_PRODUCT_ID",
+    "NEW_PRODUCT_ID",
+    "SELECTED_OFFER_TOKEN",
+    replacement_mode,
+)?;
+```
+
+The old SKU query and purchase-token replacement methods remain as deprecated
+compatibility APIs. Legacy SKU result keys are retained on a best-effort basis; new code
+should read the complete ProductDetails offer and pricing-phase payload.
 
 To read signals:
 

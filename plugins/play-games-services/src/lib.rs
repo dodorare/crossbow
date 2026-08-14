@@ -98,10 +98,16 @@ impl PlayGamesServicesPlugin {
         })
     }
 
+    /// Requests Play Games Services platform authentication.
+    ///
+    /// On success, `_on_sign_in_success` contains a Play Games Player ID. PGS v2
+    /// Player IDs are for platform features and must not be used as the primary
+    /// identity for an in-game account.
     pub fn sign_in(&self) -> Result<()> {
         self.call_void("signIn")
     }
 
+    #[deprecated(note = "Play Games Services v2 does not expose programmatic sign-out")]
     pub fn sign_out(&self) -> Result<()> {
         self.call_void("signOut")
     }

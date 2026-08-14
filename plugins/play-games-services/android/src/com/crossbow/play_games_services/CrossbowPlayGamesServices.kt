@@ -1,14 +1,6 @@
-@file:Suppress("DEPRECATION")
-
 package com.crossbow.play_games_services
 
-import android.app.Activity
 import android.content.Intent
-import com.google.android.gms.auth.api.Auth
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.drive.Drive
 import com.google.android.gms.games.SnapshotsClient
 import com.google.android.gms.games.snapshot.SnapshotMetadata
 import com.crossbow.play_games_services.accountinfo.PlayerInfoController
@@ -25,7 +17,6 @@ import com.crossbow.play_games_services.signin.SignInController
 import com.crossbow.play_games_services.signin.SignInListener
 import com.crossbow.play_games_services.stats.PlayerStatsController
 import com.crossbow.play_games_services.stats.PlayerStatsListener
-import com.crossbow.library.BuildConfig
 import com.crossbow.library.Crossbow
 import com.crossbow.library.plugin.CrossbowPlugin
 import com.crossbow.library.plugin.ExposedToCrossbow
@@ -36,7 +27,6 @@ import java.util.Random
 class CrossbowPlayGamesServices(crossbow: Crossbow) : CrossbowPlugin(crossbow), AchievementsListener, EventsListener,
     LeaderBoardsListener, SavedGamesListener, SignInListener, PlayerStatsListener, PlayerInfoListener {
 
-    private lateinit var connectionController: ConnectionController
     private lateinit var signInController: SignInController
     private lateinit var achievementsController: AchievementsController
     private lateinit var leaderboardsController: LeaderboardsController
@@ -44,8 +34,6 @@ class CrossbowPlayGamesServices(crossbow: Crossbow) : CrossbowPlugin(crossbow), 
     private lateinit var playerStatsController: PlayerStatsController
     private lateinit var playerInfoController: PlayerInfoController
     private lateinit var savedGamesController: SavedGamesController
-    private lateinit var googleSignInClient: GoogleSignInClient
-
     private lateinit var saveGameName: String
 
     companion object {
@@ -124,10 +112,7 @@ class CrossbowPlayGamesServices(crossbow: Crossbow) : CrossbowPlugin(crossbow), 
         }
 
     override fun onMainActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == SignInController.RC_SIGN_IN) {
-            val googleSignInResult = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
-            signInController.onSignInActivityResult(googleSignInResult)
-        } else if (requestCode == SavedGamesController.RC_SAVED_GAMES) {
+        if (requestCode == SavedGamesController.RC_SAVED_GAMES) {
             if (data != null) {
                 if (data.hasExtra(SnapshotsClient.EXTRA_SNAPSHOT_METADATA)) {
                     data.getParcelableExtra<SnapshotMetadata>(SnapshotsClient.EXTRA_SNAPSHOT_METADATA)?.let {
@@ -143,28 +128,19 @@ class CrossbowPlayGamesServices(crossbow: Crossbow) : CrossbowPlugin(crossbow), 
 
     private fun initialize(enableSaveGamesFunctionality: Boolean, enablePopups: Boolean, saveGameName: String) {
         this.saveGameName = saveGameName
-        val signInOptions = if (enableSaveGamesFunctionality) {
-            val signInOptionsBuilder = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN)
-            signInOptionsBuilder.requestScopes(Drive.SCOPE_APPFOLDER).requestId()
-            signInOptionsBuilder.build()
-        } else {
-            GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN
-        }
+        signInController = SignInController(crossbow.activity!!, this)
+        achievementsController = AchievementsController(crossbow.activity!!, this)
+        leaderboardsController = LeaderboardsController(crossbow.activity!!, this)
+        eventsController = EventsController(crossbow.activity!!, this)
+        playerStatsController = PlayerStatsController(crossbow.activity!!, this)
+        playerInfoController = PlayerInfoController(crossbow.activity!!, this)
+        savedGamesController = SavedGamesController(crossbow.activity!!, this)
 
-        connectionController = ConnectionController(crossbow.activity!!, signInOptions)
-        signInController = SignInController(crossbow.activity!!, this, connectionController)
-        achievementsController = AchievementsController(crossbow.activity!!, this, connectionController)
-        leaderboardsController = LeaderboardsController(crossbow.activity!!, this, connectionController)
-        eventsController = EventsController(crossbow.activity!!, this, connectionController)
-        playerStatsController = PlayerStatsController(crossbow.activity!!, this, connectionController)
-        playerInfoController = PlayerInfoController(crossbow.activity!!, this, connectionController)
-        savedGamesController = SavedGamesController(crossbow.activity!!, this, connectionController)
-
-        googleSignInClient = GoogleSignIn.getClient(crossbow.activity!!, signInOptions)
-
-        runOnUiThread {
-            signInController.setShowPopups(enablePopups)
-        }
+        // PGS v2 handles saved-games authorization and popup placement automatically.
+        // Keep both flags in the stable Crossbow API while authentication is refreshed.
+        @Suppress("UNUSED_VARIABLE") val savedGamesEnabled = enableSaveGamesFunctionality
+        @Suppress("UNUSED_VARIABLE") val popupsEnabled = enablePopups
+        signInController.refreshAuthentication()
     }
 
     @ExposedToCrossbow
@@ -180,14 +156,14 @@ class CrossbowPlayGamesServices(crossbow: Crossbow) : CrossbowPlugin(crossbow), 
     @ExposedToCrossbow
     fun signIn() {
         runOnUiThread {
-            signInController.signIn(googleSignInClient)
+            signInController.signIn()
         }
     }
 
     @ExposedToCrossbow
     fun signOut() {
         runOnUiThread {
-            signInController.signOut(googleSignInClient)
+            signInController.signOut()
         }
     }
 
@@ -403,8 +379,8 @@ class CrossbowPlayGamesServices(crossbow: Crossbow) : CrossbowPlugin(crossbow), 
         emitSignal(SIGNAL_SAVED_GAME_CREATE_SNAPSHOT.name, currentSaveName)
     }
 
-    override fun onSignedInSuccessfully(accountId: String) {
-        emitSignal(SIGNAL_SIGN_IN_SUCCESSFUL.name, accountId)
+    override fun onSignedInSuccessfully(playerId: String) {
+        emitSignal(SIGNAL_SIGN_IN_SUCCESSFUL.name, playerId)
     }
 
     override fun onSignInFailed(statusCode: Int) {

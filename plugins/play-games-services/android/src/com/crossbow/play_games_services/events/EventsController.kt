@@ -1,93 +1,51 @@
 package com.crossbow.play_games_services.events
 
 import android.app.Activity
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.games.Games
+import com.google.android.gms.games.PlayGames
 import com.google.android.gms.games.event.Event
-import com.crossbow.play_games_services.ConnectionController
 import org.json.JSONArray
-import org.json.JSONException
 import org.json.JSONObject
 
 class EventsController(
     private val activity: Activity,
     private val eventsListener: EventsListener,
-    private val connectionController: ConnectionController
 ) {
-
     fun submitEvent(eventId: String, incrementBy: Int) {
-        val googleSignInAccount = GoogleSignIn.getLastSignedInAccount(activity)
-        if (connectionController.isConnected().first && googleSignInAccount != null) {
-            Games.getEventsClient(activity, googleSignInAccount).increment(eventId, incrementBy)
+        try {
+            PlayGames.getEventsClient(activity).increment(eventId, incrementBy)
             eventsListener.onEventSubmitted(eventId)
-        } else {
+        } catch (_: RuntimeException) {
             eventsListener.onEventSubmittingFailed(eventId)
         }
     }
 
-    fun loadEvents() {
-        val googleSignInAccount = GoogleSignIn.getLastSignedInAccount(activity)
-        if (connectionController.isConnected().first && googleSignInAccount != null) {
-            Games.getEventsClient(activity, googleSignInAccount)
-                .load(true)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful && task.result != null) {
-                        val events = task.result!!.get()
-                        if (events != null) {
-                            val jsonArray = JSONArray()
-                            for (event in events) {
-                                jsonArray.put(eventInfoArray(event))
-                            }
-                            eventsListener.onEventsLoaded(jsonArray.toString())
-                        } else {
-                            eventsListener.onEventsEmpty()
-                        }
-                    } else {
-                        eventsListener.onEventsLoadingFailed()
-                    }
-                }
-        } else {
-            eventsListener.onEventsLoadingFailed()
+    fun loadEvents() = load { PlayGames.getEventsClient(activity).load(true) }
+
+    fun loadEventById(eventIds: Array<String>) =
+        load { PlayGames.getEventsClient(activity).loadByIds(true, *eventIds) }
+
+    private fun load(request: () -> com.google.android.gms.tasks.Task<com.google.android.gms.games.AnnotatedData<com.google.android.gms.games.event.EventBuffer>>) {
+        request().addOnCompleteListener { task ->
+            val events = if (task.isSuccessful) task.result?.get() else null
+            if (events == null) {
+                eventsListener.onEventsLoadingFailed()
+                return@addOnCompleteListener
+            }
+            if (events.count == 0) {
+                eventsListener.onEventsEmpty()
+            } else {
+                val json = JSONArray()
+                events.forEach { json.put(eventInfo(it)) }
+                eventsListener.onEventsLoaded(json.toString())
+            }
         }
     }
 
-    fun loadEventById(eventIds: Array<String>) {
-        val googleSignInAccount = GoogleSignIn.getLastSignedInAccount(activity)
-        if (connectionController.isConnected().first && googleSignInAccount != null) {
-            Games.getEventsClient(activity, googleSignInAccount)
-                .loadByIds(true, *eventIds)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful && task.result != null) {
-                        val events = task.result!!.get()
-                        if (events != null) {
-                            val jsonArray = JSONArray()
-                            for (event in events) {
-                                jsonArray.put(eventInfoArray(event))
-                            }
-                            eventsListener.onEventsLoaded(jsonArray.toString())
-                        } else {
-                            eventsListener.onEventsEmpty()
-                        }
-                    } else {
-                        eventsListener.onEventsLoadingFailed()
-                    }
-                }
-        } else {
-            eventsListener.onEventsLoadingFailed()
-        }
-    }
-
-    private fun eventInfoArray(event: Event): JSONObject? {
-        val json = JSONObject()
-        try {
-            json.put("id", event.eventId)
-            json.put("name", event.name)
-            json.put("value", event.value)
-            json.put("description", event.description)
-            json.put("imgUrl", event.iconImageUrl)
-        } catch (e: JSONException) {
-            e.printStackTrace()
-        }
-        return json
+    private fun eventInfo(event: Event) = JSONObject().apply {
+        put("id", event.eventId)
+        put("name", event.name)
+        put("value", event.value)
+        put("description", event.description)
+        put("imgUrl", event.iconImageUrl)
     }
 }

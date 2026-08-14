@@ -36,7 +36,7 @@ It will try to find your plugin by the specified path relative to your **Cargo.t
 
 ## Publishing to Github Maven repository
 
-To publish your plugin to Github Maven repository you need to get Personal Access Token from your Github account and update information in your `my-awesome-plugin/android/publish.gradle` file.
+To publish your plugin to Github Maven repository you need a Personal Access Token from your Github account. Pass credentials through environment variables; never commit a token to a Gradle file.
 
 To read more about Github Maven repository visit [Publishing Github Maven packages](https://docs.github.com/en/actions/publishing-packages/publishing-java-packages-with-gradle).
 
@@ -61,3 +61,7 @@ plugins_remote = ["com.crossbow.awesome:my_awesome_plugin:0.1.0"]
 ```
 
 That's it, now you can use your plugin in your game!
+
+GitHub Packages requires authentication when resolving remote plugins. Export
+`GITHUB_ACTOR` and a `GITHUB_TOKEN` with `read:packages`, or set the Gradle properties
+`crossbow.github.username` and `crossbow.github.token`, before running `crossbundle`.
