@@ -9321,6 +9321,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e450f9b2ed1dff33c94c12589a87338689467b9c4f5d8a5710bd09a847d2c8a7"
 
 [[package]]
+name = "xtask"
+version = "0.0.0"
+
+[[package]]
 name = "yaserde"
 version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"

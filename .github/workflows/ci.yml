@@ -59,9 +59,7 @@ jobs:
       - name: Check formatting
         run: cargo fmt --all -- --check
       - name: Check tool version consistency
-        run: |
-          python3 .github/scripts/test_check_tool_versions.py
-          python3 .github/scripts/check_tool_versions.py
+        run: cargo run -p xtask --locked -- android-stack check
       - name: Run Clippy
         working-directory: crossbundle/cli
         run: >-
