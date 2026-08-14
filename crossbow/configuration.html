@@ -176,6 +176,10 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="project-configuration"><a class="header" href="#project-configuration">Project configuration</a></h1>
+<p>Crossbow's Android baseline is API 36 with a minimum SDK of 23, AGP 9.3.1,
+Gradle 9.5.0, Java 17, and NDK 28.2. New Google Play submissions must target
+API 36 from August 31, 2026; see the official
+<a href="https://developer.android.com/google/play/requirements/target-sdk">target API requirements</a>.</p>
 <h2 id="Сonfiguration-through-metadata"><a class="header" href="#Сonfiguration-through-metadata">Сonfiguration through metadata</a></h2>
 <p>The easiest way to configure a project is with metadata. Here's an example of <code>Cargo.toml</code>:</p>
 <pre><code class="language-toml">[package]
@@ -272,8 +276,8 @@ info_plist_path = "/path/to/file"
     package="com.rust.game"
     android:versionCode="1"
     android:versionName="1.0"&gt;
-    &lt;uses-sdk android:minSdkVersion="16"
-        android:targetSdkVersion="31" /&gt;
+    &lt;uses-sdk android:minSdkVersion="23"
+        android:targetSdkVersion="36" /&gt;
     &lt;uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/&gt;
     &lt;uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/&gt;
     &lt;uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/&gt;

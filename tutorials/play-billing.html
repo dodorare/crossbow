@@ -218,8 +218,15 @@ let play_billing: play_billing::PlayBillingPlugin = crossbow.get_plugin()?;
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>play_billing.start_connection()?;
-play_billing.query_purchases("YOUR_TYPE")?;
+play_billing.query_product_details(&amp;["YOUR_PRODUCT_ID"], "inapp")?;
+play_billing.query_purchases("inapp")?;
 <span class="boring">}</span></code></pre></pre>
+<p>Crossbow uses Play Billing Library 9. Subscription products expose base plans, pricing
+phases, and offer tokens through <code>product_details_query_completed</code>; pass the selected
+token to <code>purchase_with_offer</code>. For subscription changes, call <code>replace_subscription</code>
+with the existing purchase token, old and new product IDs, selected offer token, and
+replacement mode. Billing 9 requires the existing purchase token even when product-level
+replacement parameters identify the old product.</p>
 <p>To read signals:</p>
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {

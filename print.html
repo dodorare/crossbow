@@ -254,9 +254,9 @@
 </div>
 <p>Or you can install required env via command line accordingly table above. Arguments were provided for example</p>
 <pre><code class="language-sh">SETX ANDROID_SDK_ROOT "C:\Users\Username\AppData\Local\Android\Sdk" /M
-SETX ANDROID_NDK_ROOT "C:\Users\Username\AppData\Local\Android\Sdk\ndk\27.3.13750724" /M
+SETX ANDROID_NDK_ROOT "C:\Users\Username\AppData\Local\Android\Sdk\ndk\28.2.13676358" /M
 SETX JAVA_HOME "C:\Program Files\Java\jdk-17" /M
-SETX GRADLE_HOME "C:\Gradle\gradle-7.4" /M
+SETX GRADLE_HOME "C:\Gradle\gradle-9.5.0" /M
 SETX BUNDLETOOL_PATH "C:\Users\Username\bundletool-all-1.18.3.jar" /M
 </code></pre>
 <blockquote>
@@ -303,7 +303,7 @@ SETX BUNDLETOOL_PATH "C:\Users\Username\bundletool-all-1.18.3.jar" /M
 </div>
 <p>For that edit <strong>~/.bash_profile</strong> or <strong>~/.bashrc</strong> files so they contain those lines:</p>
 <pre><code class="language-sh">export ANDROID_SDK_ROOT=$HOME/Android/Sdk
-export ANDROID_NDK_ROOT=$HOME/Android/Sdk/ndk/27.3.13750724
+export ANDROID_NDK_ROOT=$HOME/Android/Sdk/ndk/28.2.13676358
 export GRADLE_HOME=&lt;path_to_gradle&gt;
 export BUNDLETOOL_PATH=&lt;path_to_bundletool&gt;
 </code></pre>
@@ -360,7 +360,7 @@ Examples:</p>
 </div>
 <p>For that edit <strong>~/.bash_profile</strong>/<strong>~/.bashrc</strong> or <strong>~/.zshrc</strong> files so they contain those lines:</p>
 <pre><code class="language-sh">export ANDROID_SDK_ROOT=$HOME/android/sdk
-export ANDROID_NDK_ROOT=$ANDROID_SDK_ROOT/ndk/27.3.13750724
+export ANDROID_NDK_ROOT=$ANDROID_SDK_ROOT/ndk/28.2.13676358
 export GRADLE_HOME=&lt;path_to_gradle&gt;
 export BUNDLETOOL_PATH=&lt;path_to_bundletool&gt;
 </code></pre>
@@ -488,17 +488,17 @@ MIIFtTCCBJ2...&lt;rest-of-private-key&gt;
 </code></pre>
 <p>Now replace test data (<code>aec73e2f-c2f9-4e3b-9393-be19cc52fea3.mobileprovision</code>, <code>AS9UV719T7</code>, <code>AF96DABFC5DEE81E339ED8755DA8D1E48A87CBFE</code>) - with your own and run command. If everything worked well - you will see new app on your device.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="set-up-your-android-device-3"><a class="header" href="#set-up-your-android-device-3">Set up your Android device</a></h1>
-<p>To prepare to run your <code>Crossbow</code> app on an Android device, you need an Android device running Android 4.1 (API level 16) or higher.</p>
+<p>To prepare to run your <code>Crossbow</code> app on an Android device, you need an Android device running Android 6.0 (API level 23) or higher. This is a compatibility change from Crossbow's previous API 19 minimum.</p>
 <ol>
 <li>Enable <strong>Developer options</strong> and <strong>USB debugging</strong> on your device. Detailed instructions are available in the <a href="https://developer.android.com/studio/debug/dev-options">Android documentation</a>.</li>
 <li>Using a USB cable, plug your phone into your computer. If prompted on your device, authorize your computer to access your device.</li>
 </ol>
 <h2 id="set-up-the-android-emulator"><a class="header" href="#set-up-the-android-emulator">Set up the Android emulator</a></h2>
 <p>To prepare to run and test your Crossbow app on the Android emulator, follow these steps if you want to install it from the console:</p>
-<pre><code class="language-sh"># Run following command to install System Image for Android SDK 31
-crossbundle install sdkmanager --install "system-images;android-31;google_apis;x86_64"
+<pre><code class="language-sh"># Run following command to install System Image for Android SDK 36
+crossbundle install sdkmanager --install "system-images;android-36;google_apis;x86_64"
 # Run this command to create a new Pnone emulator
-avdmanager create avd -n Phone -k "system-images;android-31;google_apis;x86_64"
+avdmanager create avd -n Phone -k "system-images;android-36;google_apis;x86_64"
 # And finally run this command to start the emulator
 emulator -avd=Phone
 </code></pre>
@@ -564,7 +564,7 @@ Note: Android studio install cmdline tools into <code>$SDK_ROOT/cmdline-tools/&l
 <pre><code class="language-sh">crossbundle install sdkmanager --list
 </code></pre>
 <p>And then enter the command.</p>
-<pre><code class="language-sh">crossbundle install sdkmanager --install "build-tools;30.0.3" "ndk;27.3.13750724" "platforms;android-31"
+<pre><code class="language-sh">crossbundle install sdkmanager --install "build-tools;36.0.0" "ndk;28.2.13676358" "platforms;android-36"
 </code></pre>
 <p>The command will install packages into <code>$HOME\AppData\Local\Android\Sdk\</code> for Windows, <code>$HOME/Library/Android/sdk/</code> for macOS, and <code>$HOME/Android/sdk/</code> for Linux.</p>
 <h2 id="install-bundletool-to-aab-building"><a class="header" href="#install-bundletool-to-aab-building">Install bundletool to AAB building</a></h2>
@@ -651,6 +651,10 @@ To check the latest version of crossbundle project in <code>crates.io</code> use
 <li><a href="crossbow/./permissions.html">Permissions</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="project-configuration"><a class="header" href="#project-configuration">Project configuration</a></h1>
+<p>Crossbow's Android baseline is API 36 with a minimum SDK of 23, AGP 9.3.1,
+Gradle 9.5.0, Java 17, and NDK 28.2. New Google Play submissions must target
+API 36 from August 31, 2026; see the official
+<a href="https://developer.android.com/google/play/requirements/target-sdk">target API requirements</a>.</p>
 <h2 id="Сonfiguration-through-metadata"><a class="header" href="#Сonfiguration-through-metadata">Сonfiguration through metadata</a></h2>
 <p>The easiest way to configure a project is with metadata. Here's an example of <code>Cargo.toml</code>:</p>
 <pre><code class="language-toml">[package]
@@ -747,8 +751,8 @@ info_plist_path = "/path/to/file"
     package="com.rust.game"
     android:versionCode="1"
     android:versionName="1.0"&gt;
-    &lt;uses-sdk android:minSdkVersion="16"
-        android:targetSdkVersion="31" /&gt;
+    &lt;uses-sdk android:minSdkVersion="23"
+        android:targetSdkVersion="36" /&gt;
     &lt;uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/&gt;
     &lt;uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/&gt;
     &lt;uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/&gt;
@@ -845,7 +849,7 @@ project_dir = "../my-awesome-plugin/android"
 </code></pre>
 <p>It will try to find your plugin by the specified path relative to your <strong>Cargo.toml</strong>.</p>
 <h2 id="publishing-to-github-maven-repository"><a class="header" href="#publishing-to-github-maven-repository">Publishing to Github Maven repository</a></h2>
-<p>To publish your plugin to Github Maven repository you need to get Personal Access Token from your Github account and update information in your <code>my-awesome-plugin/android/publish.gradle</code> file.</p>
+<p>To publish your plugin to Github Maven repository you need a Personal Access Token from your Github account. Pass credentials through environment variables; never commit a token to a Gradle file.</p>
 <p>To read more about Github Maven repository visit <a href="https://docs.github.com/en/actions/publishing-packages/publishing-java-packages-with-gradle">Publishing Github Maven packages</a>.</p>
 <p>As you setup everything - you can run the following command to publish your plugin to Maven repository:</p>
 <pre><code class="language-sh">USERNAME=&lt;NAME&gt; TOKEN=&lt;TOKEN&gt; gradle publish
@@ -860,6 +864,9 @@ my_awesome_plugin = "0.1.0"
 plugins_remote = ["com.crossbow.awesome:my_awesome_plugin:0.1.0"]
 </code></pre>
 <p>That's it, now you can use your plugin in your game!</p>
+<p>GitHub Packages requires authentication when resolving remote plugins. Export
+<code>GITHUB_ACTOR</code> and a <code>GITHUB_TOKEN</code> with <code>read:packages</code>, or set the Gradle properties
+<code>crossbow.github.username</code> and <code>crossbow.github.token</code>, before running <code>crossbundle</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="overview-2"><a class="header" href="#overview-2">Overview</a></h1>
 <p>In this category, you will learn how to use the <code>crossbundle</code> tool and <code>crossbow</code> crate by examples and tutorials.</p>
 <p>To get started - open <a href="tutorials/hello-world.html">Hello World example</a> to see minimal project setup.</p>
@@ -1035,8 +1042,15 @@ let play_billing: play_billing::PlayBillingPlugin = crossbow.get_plugin()?;
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>play_billing.start_connection()?;
-play_billing.query_purchases("YOUR_TYPE")?;
+play_billing.query_product_details(&amp;["YOUR_PRODUCT_ID"], "inapp")?;
+play_billing.query_purchases("inapp")?;
 <span class="boring">}</span></code></pre></pre>
+<p>Crossbow uses Play Billing Library 9. Subscription products expose base plans, pricing
+phases, and offer tokens through <code>product_details_query_completed</code>; pass the selected
+token to <code>purchase_with_offer</code>. For subscription changes, call <code>replace_subscription</code>
+with the existing purchase token, old and new product IDs, selected offer token, and
+replacement mode. Billing 9 requires the existing purchase token even when product-level
+replacement parameters identify the old product.</p>
 <p>To read signals:</p>
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -1161,6 +1175,9 @@ MYAPP_UPLOAD_KEY_PASSWORD=123456
 <p>Crossbow commits the workspace <code>Cargo.lock</code> because the workspace ships the <code>crossbundle</code> executable. Required CI, release, publishing, and installation checks use <code>--locked</code> so that a commit is always tested with its reviewed dependency graph.</p>
 <p>Dependabot checks for Cargo updates every week and opens pull requests that update the manifests and lockfile. Minor and patch updates are grouped; major updates remain separate so their compatibility can be reviewed independently.</p>
 <p>The <code>Latest compatible dependencies</code> workflow provides an additional early-warning check every week and on demand. It generates a new lockfile from the manifests and runs the complete non-iOS workspace test suite against that fresh resolution. Pull-request CI tests the iOS-only package and Apple feature set on macOS. The scheduled workflow does not replace or gate the reproducible checks run on pull requests.</p>
+<p>Android stack versions are canonical in <code>.github/tool-versions.toml</code>. After changing them,
+run <code>cargo run -p xtask --locked -- android-stack sync</code> to update the standalone Gradle
+projects. Replace <code>sync</code> with <code>check</code> to verify every operative declaration.</p>
 <h2 id="in-case-of-issues"><a class="header" href="#in-case-of-issues">In case of issues</a></h2>
 <p>Feel free to open <a href="https://github.com/dodorare/crossbow/issues/new/choose">Github Issues</a> - we will be happy to fix or review them.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="contributors"><a class="header" href="#contributors">Contributors</a></h1>

@@ -176,17 +176,17 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="set-up-your-android-device"><a class="header" href="#set-up-your-android-device">Set up your Android device</a></h1>
-<p>To prepare to run your <code>Crossbow</code> app on an Android device, you need an Android device running Android 4.1 (API level 16) or higher.</p>
+<p>To prepare to run your <code>Crossbow</code> app on an Android device, you need an Android device running Android 6.0 (API level 23) or higher. This is a compatibility change from Crossbow's previous API 19 minimum.</p>
 <ol>
 <li>Enable <strong>Developer options</strong> and <strong>USB debugging</strong> on your device. Detailed instructions are available in the <a href="https://developer.android.com/studio/debug/dev-options">Android documentation</a>.</li>
 <li>Using a USB cable, plug your phone into your computer. If prompted on your device, authorize your computer to access your device.</li>
 </ol>
 <h2 id="set-up-the-android-emulator"><a class="header" href="#set-up-the-android-emulator">Set up the Android emulator</a></h2>
 <p>To prepare to run and test your Crossbow app on the Android emulator, follow these steps if you want to install it from the console:</p>
-<pre><code class="language-sh"># Run following command to install System Image for Android SDK 31
-crossbundle install sdkmanager --install "system-images;android-31;google_apis;x86_64"
+<pre><code class="language-sh"># Run following command to install System Image for Android SDK 36
+crossbundle install sdkmanager --install "system-images;android-36;google_apis;x86_64"
 # Run this command to create a new Pnone emulator
-avdmanager create avd -n Phone -k "system-images;android-31;google_apis;x86_64"
+avdmanager create avd -n Phone -k "system-images;android-36;google_apis;x86_64"
 # And finally run this command to start the emulator
 emulator -avd=Phone
 </code></pre>

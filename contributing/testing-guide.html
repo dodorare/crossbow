@@ -183,6 +183,9 @@
 <p>Crossbow commits the workspace <code>Cargo.lock</code> because the workspace ships the <code>crossbundle</code> executable. Required CI, release, publishing, and installation checks use <code>--locked</code> so that a commit is always tested with its reviewed dependency graph.</p>
 <p>Dependabot checks for Cargo updates every week and opens pull requests that update the manifests and lockfile. Minor and patch updates are grouped; major updates remain separate so their compatibility can be reviewed independently.</p>
 <p>The <code>Latest compatible dependencies</code> workflow provides an additional early-warning check every week and on demand. It generates a new lockfile from the manifests and runs the complete non-iOS workspace test suite against that fresh resolution. Pull-request CI tests the iOS-only package and Apple feature set on macOS. The scheduled workflow does not replace or gate the reproducible checks run on pull requests.</p>
+<p>Android stack versions are canonical in <code>.github/tool-versions.toml</code>. After changing them,
+run <code>cargo run -p xtask --locked -- android-stack sync</code> to update the standalone Gradle
+projects. Replace <code>sync</code> with <code>check</code> to verify every operative declaration.</p>
 <h2 id="in-case-of-issues"><a class="header" href="#in-case-of-issues">In case of issues</a></h2>
 <p>Feel free to open <a href="https://github.com/dodorare/crossbow/issues/new/choose">Github Issues</a> - we will be happy to fix or review them.</p>
 
