@@ -87,30 +87,14 @@ impl AndroidBuildCommand {
             AndroidStrategy::NativeApk => crossbundle_tools::toolchain::PlanStrategy::NativeApk,
             AndroidStrategy::NativeAab => crossbundle_tools::toolchain::PlanStrategy::NativeAab,
         };
-        let android_output_dir = if self.strategy == AndroidStrategy::GradleApk {
-            self.export_path.clone().unwrap_or_else(|| {
-                context
-                    .target_dir
-                    .join("android")
-                    .join(context.package_name())
-            })
-        } else {
-            context
-                .target_dir
-                .join("android")
-                .join(context.package_name())
-        };
         crossbundle_tools::toolchain::plan(
             &crossbundle_tools::toolchain::PlanRequest {
                 operation,
                 strategy,
                 project_dir: context.project_path.clone(),
-                target_dir: context.target_dir.clone(),
-                android_output_dir,
                 targets,
-                release: self.shared.release,
                 attach_logger,
-                library: self.lib.clone(),
+                library_only: self.lib.is_some(),
             },
             &crossbundle_tools::toolchain::Environment::discover(),
         )
@@ -800,11 +784,13 @@ impl<'a> AndroidBuildExecutor<'a> {
             config,
             context,
             sdk: AndroidSdk::from_resolved(
-                required_path(&plan.toolchain.sdk, "Android SDK")?,
-                &required_path(&plan.toolchain.build_tools, "Android build-tools")?,
-                &required_path(&plan.toolchain.platform, "Android platform")?,
+                required_path(plan.toolchain.sdk.as_deref(), "Android SDK")?.to_owned(),
+                required_path(plan.toolchain.build_tools.as_deref(), "Android build-tools")?,
+                required_path(plan.toolchain.platform.as_deref(), "Android platform")?,
             )?,
-            ndk: AndroidNdk::from_path(required_path(&plan.toolchain.ndk, "Android NDK")?)?,
+            ndk: AndroidNdk::from_path(
+                required_path(plan.toolchain.ndk.as_deref(), "Android NDK")?.to_owned(),
+            )?,
             gradle_executable: plan.toolchain.gradle.as_deref(),
             java: plan.toolchain.java.as_deref(),
             jarsigner: plan.toolchain.jarsigner.as_deref(),
@@ -814,10 +800,10 @@ impl<'a> AndroidBuildExecutor<'a> {
     }
 
     pub(crate) fn bundletool_command(&self) -> Result<std::process::Command> {
-        let mut command = std::process::Command::new(required_path_ref(self.java, "Java")?);
+        let mut command = std::process::Command::new(required_path(self.java, "Java")?);
         command
             .arg("-jar")
-            .arg(required_path_ref(self.bundletool, "bundletool")?);
+            .arg(required_path(self.bundletool, "bundletool")?);
         Ok(command)
     }
 
@@ -849,9 +835,9 @@ impl<'a> AndroidBuildExecutor<'a> {
                     self.context,
                     &self.sdk,
                     &self.ndk,
-                    required_path_ref(self.java, "Java")?,
-                    required_path_ref(self.jarsigner, "jarsigner")?,
-                    required_path_ref(self.bundletool, "bundletool")?,
+                    required_path(self.java, "Java")?,
+                    required_path(self.jarsigner, "jarsigner")?,
+                    required_path(self.bundletool, "bundletool")?,
                 )?;
                 Some(AndroidBuildArtifact::NativeAab {
                     manifest,
@@ -878,7 +864,7 @@ impl<'a> AndroidBuildExecutor<'a> {
                     return Err(anyhow::anyhow!("Gradle project was not prepared").into());
                 };
                 self.config.status("Building Gradle project")?;
-                let mut gradle = std::process::Command::new(required_path_ref(
+                let mut gradle = std::process::Command::new(required_path(
                     self.gradle_executable,
                     "Gradle executable",
                 )?);
@@ -913,12 +899,7 @@ pub(crate) fn plan_error(error: crossbundle_tools::toolchain::ExecutionError<Err
     }
 }
 
-fn required_path(path: &Option<PathBuf>, name: &str) -> Result<PathBuf> {
-    path.clone()
-        .ok_or_else(|| anyhow::anyhow!("{name} is absent from build plan").into())
-}
-
-fn required_path_ref<'a>(path: Option<&'a Path>, name: &str) -> Result<&'a Path> {
+fn required_path<'a>(path: Option<&'a Path>, name: &str) -> Result<&'a Path> {
     path.ok_or_else(|| anyhow::anyhow!("{name} is absent from build plan").into())
 }
 

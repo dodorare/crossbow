@@ -24,12 +24,9 @@ pub struct PlanRequest {
     pub operation: PlanOperation,
     pub strategy: PlanStrategy,
     pub project_dir: PathBuf,
-    pub target_dir: PathBuf,
-    pub android_output_dir: PathBuf,
     pub targets: Vec<String>,
-    pub release: bool,
     pub attach_logger: bool,
-    pub library: Option<String>,
+    pub library_only: bool,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -56,7 +53,7 @@ pub struct PlanStep {
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct BuildPlan {
     pub schema_version: u32,
-    pub platform: String,
+    pub platform: DoctorPlatform,
     pub operation: PlanOperation,
     pub strategy: PlanStrategy,
     pub toolchain: ResolvedAndroidToolchain,
@@ -115,10 +112,10 @@ pub fn plan(request: &PlanRequest, environment: &Environment) -> BuildPlan {
         environment,
     );
     let mut required = Vec::new();
-    if request.operation == PlanOperation::Run && request.library.is_none() {
+    if request.operation == PlanOperation::Run && !request.library_only {
         required.push("android.adb");
     }
-    let mut steps = if request.library.is_some() {
+    let mut steps = if request.library_only {
         vec![step(
             PlanStepKind::BuildRustLibrary,
             "android.rust.library",
@@ -178,7 +175,7 @@ pub fn plan(request: &PlanRequest, environment: &Environment) -> BuildPlan {
     };
     if request.operation == PlanOperation::Build
         && request.strategy == PlanStrategy::GradleApk
-        && request.library.is_none()
+        && !request.library_only
     {
         steps.push(step(
             PlanStepKind::BuildGradleProject,
@@ -186,8 +183,8 @@ pub fn plan(request: &PlanRequest, environment: &Environment) -> BuildPlan {
             "Build the generated Gradle project",
         ));
     }
-    if request.operation == PlanOperation::Run && request.library.is_none() {
-        if request.strategy == PlanStrategy::NativeAab && request.library.is_none() {
+    if request.operation == PlanOperation::Run && !request.library_only {
+        if request.strategy == PlanStrategy::NativeAab {
             steps.push(step(
                 PlanStepKind::GenerateApksArchive,
                 "android.apks.generate",
@@ -214,7 +211,7 @@ pub fn plan(request: &PlanRequest, environment: &Environment) -> BuildPlan {
     }
     BuildPlan {
         schema_version: BUILD_PLAN_SCHEMA_VERSION,
-        platform: "android".into(),
+        platform: DoctorPlatform::Android,
         operation: request.operation,
         strategy: request.strategy,
         toolchain,
@@ -264,12 +261,9 @@ mod tests {
             operation,
             strategy,
             project_dir: "project".into(),
-            target_dir: "target".into(),
-            android_output_dir: "target/android/example".into(),
             targets: vec!["aarch64-linux-android".into()],
-            release: false,
             attach_logger: false,
-            library: None,
+            library_only: false,
         }
     }
 
@@ -332,7 +326,7 @@ mod tests {
     #[test]
     fn library_plan_does_not_require_unused_packaging_tools() {
         let mut request = request(PlanOperation::Build, PlanStrategy::NativeAab);
-        request.library = Some("game".into());
+        request.library_only = true;
         let plan = plan(&request, &Environment::default());
         assert_eq!(ids(&plan), ["android.rust.library"]);
         assert!(
@@ -349,7 +343,7 @@ mod tests {
     #[test]
     fn run_library_plan_does_not_add_device_steps_without_an_artifact() {
         let mut request = request(PlanOperation::Run, PlanStrategy::NativeAab);
-        request.library = Some("game".into());
+        request.library_only = true;
         let plan = plan(&request, &Environment::default());
         assert_eq!(ids(&plan), ["android.rust.library"]);
         assert!(
@@ -370,16 +364,13 @@ mod tests {
             operation: PlanOperation::Run,
             strategy: PlanStrategy::NativeApk,
             project_dir: temp.path().join("project"),
-            target_dir: temp.path().join("target"),
-            android_output_dir: temp.path().join("target/android/example"),
             targets: vec!["aarch64-linux-android".into()],
-            release: false,
             attach_logger: true,
-            library: None,
+            library_only: false,
         };
         let result = plan(&request, &Environment::default());
         assert!(result.steps.iter().any(|s| s.id == "android.device.log"));
-        assert!(!request.target_dir.exists());
+        assert!(temp.path().read_dir().unwrap().next().is_none());
     }
 
     #[test]
@@ -396,12 +387,9 @@ mod tests {
             operation: PlanOperation::Build,
             strategy: PlanStrategy::GradleApk,
             project_dir: "project".into(),
-            target_dir: "target".into(),
-            android_output_dir: "target/android/example".into(),
             targets: vec![],
-            release: false,
             attach_logger: false,
-            library: None,
+            library_only: false,
         };
         let plan = plan(&request, &Environment::default());
         let mut runner = RecordingRunner(Vec::new());
@@ -430,12 +418,9 @@ mod tests {
             operation: PlanOperation::Build,
             strategy: PlanStrategy::GradleApk,
             project_dir: "project".into(),
-            target_dir: "target".into(),
-            android_output_dir: "target/android/example".into(),
             targets: vec![],
-            release: false,
             attach_logger: false,
-            library: None,
+            library_only: false,
         };
         let plan = plan(&request, &Environment::default());
         let error = execute(&plan, &mut FailingRunner).unwrap_err();

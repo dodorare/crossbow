@@ -70,49 +70,42 @@ pub(super) fn checks(
     }
 
     let developer_dir = developer_dir(environment);
-    let mut checks = vec![check(
-        "apple.host.os",
-        CheckStatus::Pass,
-        "Apple",
-        "Apple tooling is supported on macOS".into(),
-        true,
-        None,
-        None,
-        None,
-    )];
-    checks.push(developer_dir_check(developer_dir.as_deref()));
-    checks.push(xcode_installation_check(developer_dir.as_deref()));
-    checks.push(xcode_version_check(environment, policy, request.strict));
-    checks.push(command_path_check(
-        environment,
-        "apple.xcode.command_line_tools",
-        "apple.command_line_tools",
-        "Command Line Tools",
-    ));
-    checks.push(tool_check(
-        environment,
-        developer_dir.as_deref(),
-        "apple.tool.xcodebuild",
-        "xcodebuild",
-    ));
-    checks.push(tool_check(
-        environment,
-        developer_dir.as_deref(),
-        "apple.tool.xcrun",
-        "xcrun",
-    ));
-    checks.push(command_path_check(
-        environment,
-        "apple.tool.simctl",
-        "apple.simctl",
-        "simctl",
-    ));
-    checks.push(sdk_check(environment, "apple.sdk.iphoneos", "iPhoneOS"));
-    checks.push(sdk_check(
-        environment,
-        "apple.sdk.iphonesimulator",
-        "iPhoneSimulator",
-    ));
+    let mut checks = vec![
+        check(
+            "apple.host.os",
+            CheckStatus::Pass,
+            "Apple",
+            "Apple tooling is supported on macOS".into(),
+            true,
+            None,
+            None,
+            None,
+        ),
+        developer_dir_check(developer_dir.as_deref()),
+        xcode_installation_check(developer_dir.as_deref()),
+        xcode_version_check(environment, policy, request.strict),
+        command_path_check(
+            environment,
+            "apple.xcode.command_line_tools",
+            "apple.command_line_tools",
+            "Command Line Tools",
+        ),
+        tool_check(
+            environment,
+            developer_dir.as_deref(),
+            "apple.tool.xcodebuild",
+            "xcodebuild",
+        ),
+        tool_check(
+            environment,
+            developer_dir.as_deref(),
+            "apple.tool.xcrun",
+            "xcrun",
+        ),
+        command_path_check(environment, "apple.tool.simctl", "apple.simctl", "simctl"),
+        sdk_check(environment, "apple.sdk.iphoneos", "iPhoneOS"),
+        sdk_check(environment, "apple.sdk.iphonesimulator", "iPhoneSimulator"),
+    ];
     checks.extend(rust_target_checks(request, environment, false, project));
     checks.push(signing_identity_check(environment, request, project));
     if let Some(project) = project {
@@ -423,17 +416,8 @@ fn rust_target_checks(
         .collect();
     if targets.is_empty() {
         targets = project
-            .and_then(|context| context.project())
-            .and_then(|project| project.metadata.as_ref().ok())
-            .map(|metadata| {
-                metadata
-                    .apple
-                    .debug_build_targets
-                    .iter()
-                    .chain(&metadata.apple.release_build_targets)
-                    .map(|target| target.rust_triple().to_owned())
-                    .collect()
-            })
+            .and_then(project::ProjectContext::metadata)
+            .map(|metadata| apple_targets(metadata).map(str::to_owned).collect())
             .unwrap_or_default();
         if targets.is_empty() {
             targets.push("aarch64-apple-ios-sim".into());
@@ -516,16 +500,8 @@ pub(super) fn signing_relevant(
 ) -> bool {
     request.targets.iter().any(|target| device_target(target))
         || project
-            .and_then(project::ProjectContext::project)
-            .and_then(|project| project.metadata.as_ref().ok())
-            .is_some_and(|metadata| {
-                metadata
-                    .apple
-                    .debug_build_targets
-                    .iter()
-                    .chain(&metadata.apple.release_build_targets)
-                    .any(|target| device_target(target.rust_triple()))
-            })
+            .and_then(project::ProjectContext::metadata)
+            .is_some_and(|metadata| apple_targets(metadata).any(device_target))
 }
 
 fn device_target(target: &str) -> bool {
@@ -662,13 +638,7 @@ fn project_checks(context: &project::ProjectContext) -> Vec<DoctorCheck> {
             "The typed Apple project model has no signing fields; signing is requested per build invocation",
         ),
     ];
-    let mut targets = metadata
-        .apple
-        .debug_build_targets
-        .iter()
-        .chain(&metadata.apple.release_build_targets)
-        .map(|target| target.rust_triple())
-        .collect::<Vec<_>>();
+    let mut targets = apple_targets(metadata).collect::<Vec<_>>();
     if targets.is_empty() {
         targets.push("aarch64-apple-ios-sim");
     }
@@ -702,6 +672,17 @@ fn project_checks(context: &project::ProjectContext) -> Vec<DoctorCheck> {
     plugin_checks.dedup_by(|left, right| left.id == right.id);
     checks.extend(plugin_checks);
     checks
+}
+
+fn apple_targets(
+    metadata: &crate::types::CrossbowMetadata,
+) -> impl Iterator<Item = &'static str> + '_ {
+    metadata
+        .apple
+        .debug_build_targets
+        .iter()
+        .chain(&metadata.apple.release_build_targets)
+        .map(IntoRustTriple::rust_triple)
 }
 
 fn resolved_info_plist(

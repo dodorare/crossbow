@@ -135,8 +135,6 @@ pub struct DoctorCheck {
     pub summary: String,
     pub required: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub detail: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub found: Option<ObservedValue>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expected: Option<CompatibilityExpectation>,
@@ -907,31 +905,18 @@ fn versioned_path_check(
         .unwrap_or_default()
         .trim_start_matches("android-");
     let version = version_in_text(name).unwrap_or_else(|| name.to_owned());
-    let compatibility = policy
-        .map(|p| p.classify(&version))
-        .unwrap_or(Compatibility::Unknown);
-    let status = compatibility_status(compatibility, strict);
-    let summary = match compatibility {
-        Compatibility::Preferred => "Preferred version is installed",
-        Compatibility::Supported => "Installed version is supported but not preferred",
-        Compatibility::Unsupported => "Installed version is unsupported",
-        Compatibility::Unknown => "Installed version compatibility is unknown",
-    };
-    let mut c = check(
+    let mut check = classified_observation(
         id,
-        status,
         category,
-        summary.into(),
+        path,
+        Some(version),
         required,
-        Some(ObservedValue {
-            version: Some(version),
-            path: Some(path),
-        }),
-        policy.map(expectation),
-        (status != CheckStatus::Pass).then(|| remediation.into()),
+        policy,
+        strict,
+        remediation.into(),
     );
-    c.source = Some(source);
-    c
+    check.source = Some(source);
+    check
 }
 
 fn expectation(policy: &super::VersionPolicy) -> CompatibilityExpectation {
@@ -1049,6 +1034,13 @@ enum PathRequirement {
 }
 
 #[cfg(any(feature = "android", feature = "apple"))]
+struct PathMessages {
+    valid: &'static str,
+    invalid: &'static str,
+    invalid_label: &'static str,
+}
+
+#[cfg(any(feature = "android", feature = "apple"))]
 impl PathRequirement {
     fn is_met(self, path: &Path) -> bool {
         match self {
@@ -1061,30 +1053,40 @@ impl PathRequirement {
         }
     }
 
+    fn messages(self) -> PathMessages {
+        match self {
+            #[cfg(feature = "android")]
+            Self::Exists => PathMessages {
+                valid: "exist",
+                invalid: "do not exist",
+                invalid_label: "missing",
+            },
+            #[cfg(feature = "apple")]
+            Self::ReadableDirectory => PathMessages {
+                valid: "are readable directories",
+                invalid: "are not readable directories",
+                invalid_label: "invalid",
+            },
+            #[cfg(feature = "apple")]
+            Self::ReadableFile => PathMessages {
+                valid: "is a readable file",
+                invalid: "is not a readable file",
+                invalid_label: "invalid",
+            },
+        }
+    }
+
     fn description(self, valid: bool) -> &'static str {
-        match (self, valid) {
-            #[cfg(feature = "android")]
-            (Self::Exists, true) => "exist",
-            #[cfg(feature = "android")]
-            (Self::Exists, false) => "do not exist",
-            #[cfg(feature = "apple")]
-            (Self::ReadableDirectory, true) => "are readable directories",
-            #[cfg(feature = "apple")]
-            (Self::ReadableDirectory, false) => "are not readable directories",
-            #[cfg(feature = "apple")]
-            (Self::ReadableFile, true) => "is a readable file",
-            #[cfg(feature = "apple")]
-            (Self::ReadableFile, false) => "is not a readable file",
+        let messages = self.messages();
+        if valid {
+            messages.valid
+        } else {
+            messages.invalid
         }
     }
 
     fn invalid_label(self) -> &'static str {
-        match self {
-            #[cfg(feature = "android")]
-            Self::Exists => "missing",
-            #[cfg(feature = "apple")]
-            Self::ReadableDirectory | Self::ReadableFile => "invalid",
-        }
+        self.messages().invalid_label
     }
 }
 
@@ -1455,7 +1457,6 @@ fn check(
         category: category.into(),
         summary,
         required,
-        detail: None,
         found,
         expected,
         source: None,

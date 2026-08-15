@@ -103,6 +103,11 @@ impl ProjectContext {
         }
     }
 
+    #[cfg(feature = "apple")]
+    pub(super) fn metadata(&self) -> Option<&CrossbowMetadata> {
+        self.project()?.metadata.as_ref().ok()
+    }
+
     pub(super) fn common_checks(&self) -> Vec<DoctorCheck> {
         match &self.state {
             ProjectState::Missing => vec![check(
