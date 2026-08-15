@@ -115,4 +115,4 @@ serde_json = { workspace = true }
 [features]
 default = ["android", "apple"]
 android = ["android-manifest", "android-tools", "serde_json"]
-apple = ["apple-bundle", "simctl"]
+apple = ["apple-bundle", "simctl", "crossbow/update-manifest"]

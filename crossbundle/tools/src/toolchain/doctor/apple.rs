@@ -2,11 +2,15 @@ use super::*;
 use crate::types::IntoRustTriple;
 use std::process::Command;
 
+const DEVELOPER_DIR_ID: &str = "apple.xcode.developer_dir";
+const COMMAND_LINE_TOOLS_ID: &str = "apple.xcode.command_line_tools";
+const SIMCTL_ID: &str = "apple.tool.simctl";
+const SIGNING_IDENTITY_ID: &str = "apple.signing.identity";
 const READ_ONLY_COMMANDS: &[(&str, &str, &[&str])] = &[
-    ("apple.developer_dir", "xcode-select", &["--print-path"]),
+    (DEVELOPER_DIR_ID, "xcode-select", &["--print-path"]),
     ("apple.xcode.version", "xcodebuild", &["-version"]),
-    ("apple.command_line_tools", "xcrun", &["--find", "clang"]),
-    ("apple.simctl", "xcrun", &["--find", "simctl"]),
+    (COMMAND_LINE_TOOLS_ID, "xcrun", &["--find", "clang"]),
+    (SIMCTL_ID, "xcrun", &["--find", "simctl"]),
     (
         "apple.sdk.iphoneos",
         "xcrun",
@@ -19,7 +23,7 @@ const READ_ONLY_COMMANDS: &[(&str, &str, &[&str])] = &[
     ),
 ];
 const SIGNING_COMMAND: (&str, &str, &[&str]) = (
-    "apple.signing.identities",
+    SIGNING_IDENTITY_ID,
     "security",
     &["find-identity", "-v", "-p", "codesigning"],
 );
@@ -47,7 +51,6 @@ pub(super) fn discover_read_only_commands(
                 .map(|output| CommandObservation {
                     success: output.status.success(),
                     stdout: String::from_utf8_lossy(&output.stdout).trim().to_owned(),
-                    stderr: String::from_utf8_lossy(&output.stderr).trim().to_owned(),
                 })
                 .unwrap_or_default();
             (id.to_owned(), observation)
@@ -84,12 +87,7 @@ pub(super) fn checks(
         developer_dir_check(developer_dir.as_deref()),
         xcode_installation_check(developer_dir.as_deref()),
         xcode_version_check(environment, policy, request.strict),
-        command_path_check(
-            environment,
-            "apple.xcode.command_line_tools",
-            "apple.command_line_tools",
-            "Command Line Tools",
-        ),
+        command_path_check(environment, COMMAND_LINE_TOOLS_ID, "Command Line Tools"),
         tool_check(
             environment,
             developer_dir.as_deref(),
@@ -102,7 +100,7 @@ pub(super) fn checks(
             "apple.tool.xcrun",
             "xcrun",
         ),
-        command_path_check(environment, "apple.tool.simctl", "apple.simctl", "simctl"),
+        command_path_check(environment, SIMCTL_ID, "simctl"),
         sdk_check(environment, "apple.sdk.iphoneos", "iPhoneOS"),
         sdk_check(environment, "apple.sdk.iphonesimulator", "iPhoneSimulator"),
     ];
@@ -127,14 +125,14 @@ fn unsupported_host_checks(
         "apple.host.os",
         "apple.xcode.installation",
         "apple.xcode.version",
-        "apple.xcode.developer_dir",
-        "apple.xcode.command_line_tools",
+        DEVELOPER_DIR_ID,
+        COMMAND_LINE_TOOLS_ID,
         "apple.tool.xcodebuild",
         "apple.tool.xcrun",
-        "apple.tool.simctl",
+        SIMCTL_ID,
         "apple.sdk.iphoneos",
         "apple.sdk.iphonesimulator",
-        "apple.signing.identity",
+        SIGNING_IDENTITY_ID,
     ]
     .into_iter()
     .map(|id| skipped(id, "Apple", id == "apple.host.os", &reason))
@@ -148,13 +146,13 @@ fn developer_dir(environment: &Environment) -> Option<PathBuf> {
         .variables
         .get("DEVELOPER_DIR")
         .map(PathBuf::from)
-        .or_else(|| command_path(environment, "apple.developer_dir"))
+        .or_else(|| command_path(environment, DEVELOPER_DIR_ID))
 }
 
 fn developer_dir_check(path: Option<&Path>) -> DoctorCheck {
     match path {
         Some(path) if path.is_dir() => check(
-            "apple.xcode.developer_dir",
+            DEVELOPER_DIR_ID,
             CheckStatus::Pass,
             "Apple",
             "Found the active developer directory".into(),
@@ -167,7 +165,7 @@ fn developer_dir_check(path: Option<&Path>) -> DoctorCheck {
             None,
         ),
         Some(path) => check(
-            "apple.xcode.developer_dir",
+            DEVELOPER_DIR_ID,
             CheckStatus::Fail,
             "Apple",
             "The active developer directory does not exist".into(),
@@ -180,7 +178,7 @@ fn developer_dir_check(path: Option<&Path>) -> DoctorCheck {
             Some("Select Xcode with xcode-select or fix DEVELOPER_DIR".into()),
         ),
         None => check(
-            "apple.xcode.developer_dir",
+            DEVELOPER_DIR_ID,
             CheckStatus::Fail,
             "Apple",
             "No active developer directory was found".into(),
@@ -318,15 +316,10 @@ fn tool_check(
     )
 }
 
-fn command_path_check(
-    environment: &Environment,
-    id: &str,
-    command_id: &str,
-    label: &str,
-) -> DoctorCheck {
+fn command_path_check(environment: &Environment, id: &str, label: &str) -> DoctorCheck {
     required_path_check(
         id,
-        command_path(environment, command_id).filter(|path| executable_file(path)),
+        command_path(environment, id).filter(|path| executable_file(path)),
         None,
         format!("Found {label}"),
         format!("{label} was not found"),
@@ -518,13 +511,13 @@ fn signing_identity_check(
 ) -> DoctorCheck {
     if !signing_relevant(request, project) {
         return skipped(
-            "apple.signing.identity",
+            SIGNING_IDENTITY_ID,
             "Apple",
             false,
             "Signing identities are irrelevant unless a device target is configured",
         );
     }
-    let identities = successful_command(environment, "apple.signing.identities")
+    let identities = successful_command(environment, SIGNING_IDENTITY_ID)
         .map(|output| {
             output
                 .stdout
@@ -534,7 +527,7 @@ fn signing_identity_check(
         })
         .unwrap_or_default();
     check(
-        "apple.signing.identity",
+        SIGNING_IDENTITY_ID,
         if identities > 0 {
             CheckStatus::Pass
         } else {
@@ -571,7 +564,17 @@ fn project_checks(context: &project::ProjectContext) -> Vec<DoctorCheck> {
         )];
     };
     let base = context.base_dir();
-    let plist = resolved_info_plist(metadata, &project.package_name, base);
+    let info_plist_path = metadata
+        .apple
+        .info_plist_path
+        .as_ref()
+        .map(|path| base.join(path));
+    let plist = crate::commands::apple::resolve_info_plist(
+        metadata,
+        &project.package_name,
+        info_plist_path.as_deref(),
+    )
+    .map_err(|_| ());
     let (metadata_status, metadata_summary) = if plist.is_err() {
         (
             CheckStatus::Fail,
@@ -631,12 +634,7 @@ fn project_checks(context: &project::ProjectContext) -> Vec<DoctorCheck> {
             true,
             PathRequirement::ReadableFile,
         ),
-        skipped(
-            "project.apple.signing",
-            "Project Apple",
-            false,
-            "The typed Apple project model has no signing fields; signing is requested per build invocation",
-        ),
+        project_signing_check(metadata),
     ];
     let mut targets = apple_targets(metadata).collect::<Vec<_>>();
     if targets.is_empty() {
@@ -685,21 +683,26 @@ fn apple_targets(
         .map(IntoRustTriple::rust_triple)
 }
 
-fn resolved_info_plist(
-    metadata: &crate::types::CrossbowMetadata,
-    package_name: &str,
-    base: &Path,
-) -> Result<crate::types::apple_bundle::prelude::InfoPlist, ()> {
-    if let Some(path) = &metadata.apple.info_plist_path {
-        return crate::commands::apple::read_info_plist(&base.join(path)).map_err(|_| ());
+fn project_signing_check(metadata: &crate::types::CrossbowMetadata) -> DoctorCheck {
+    if apple_targets(metadata).any(device_target) {
+        check(
+            "project.apple.signing",
+            CheckStatus::Warn,
+            "Project Apple",
+            "A device target is configured; signing must be supplied at build time".into(),
+            false,
+            None,
+            None,
+            Some("Pass the signing identity, profile, and team identifier to the build".into()),
+        )
+    } else {
+        skipped(
+            "project.apple.signing",
+            "Project Apple",
+            false,
+            "Signing configuration is irrelevant for simulator-only targets",
+        )
     }
-    let mut plist = metadata.apple.info_plist.clone().unwrap_or_default();
-    crate::types::update_info_plist_with_default(
-        &mut plist,
-        package_name,
-        metadata.app_name.clone(),
-    );
-    Ok(plist)
 }
 
 fn bundle_identifier_check(
@@ -842,10 +845,10 @@ mod tests {
             }
         }
         let commands = [
-            ("apple.developer_dir", developer.display().to_string()),
+            (DEVELOPER_DIR_ID, developer.display().to_string()),
             ("apple.xcode.version", format!("Xcode {xcode_version}")),
-            ("apple.command_line_tools", clang.display().to_string()),
-            ("apple.simctl", simctl.display().to_string()),
+            (COMMAND_LINE_TOOLS_ID, clang.display().to_string()),
+            (SIMCTL_ID, simctl.display().to_string()),
             ("apple.sdk.iphoneos", sdk.display().to_string()),
             (
                 "apple.sdk.iphonesimulator",
@@ -859,7 +862,6 @@ mod tests {
                 CommandObservation {
                     success: true,
                     stdout,
-                    stderr: String::new(),
                 },
             )
         })
@@ -1215,11 +1217,10 @@ release_build_targets = ["aarch64-apple-ios"]
             &Environment {
                 host_os: "macos".into(),
                 commands: [(
-                    "apple.signing.identities".into(),
+                    SIGNING_IDENTITY_ID.into(),
                     CommandObservation {
                         success: true,
                         stdout: format!("1) ABCDEF \"{secret}\"\n  1 valid identities found"),
-                        stderr: secret.into(),
                     },
                 )]
                 .into_iter()
@@ -1245,7 +1246,7 @@ release_build_targets = ["aarch64-apple-ios"]
                 .find(|check| check.id == "project.apple.signing")
                 .unwrap()
                 .status,
-            CheckStatus::Skip
+            CheckStatus::Warn
         );
     }
 
@@ -1409,10 +1410,10 @@ icon = "icon-directory"
     #[test]
     fn discovery_command_registry_is_read_only() {
         let expected: &[(&str, &str, &[&str])] = &[
-            ("apple.developer_dir", "xcode-select", &["--print-path"]),
+            (DEVELOPER_DIR_ID, "xcode-select", &["--print-path"]),
             ("apple.xcode.version", "xcodebuild", &["-version"]),
-            ("apple.command_line_tools", "xcrun", &["--find", "clang"]),
-            ("apple.simctl", "xcrun", &["--find", "simctl"]),
+            (COMMAND_LINE_TOOLS_ID, "xcrun", &["--find", "clang"]),
+            (SIMCTL_ID, "xcrun", &["--find", "simctl"]),
             (
                 "apple.sdk.iphoneos",
                 "xcrun",
@@ -1429,7 +1430,7 @@ icon = "icon-directory"
         assert_eq!(
             read_only_commands(true).last(),
             Some((
-                "apple.signing.identities",
+                SIGNING_IDENTITY_ID,
                 "security",
                 &["find-identity", "-v", "-p", "codesigning"][..],
             ))

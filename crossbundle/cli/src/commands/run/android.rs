@@ -51,7 +51,7 @@ impl crossbundle_tools::toolchain::Runner for AndroidRunPlanRunner<'_> {
 
     fn run_step(&mut self, step: &crossbundle_tools::toolchain::PlanStep) -> Result<()> {
         use crossbundle_tools::toolchain::PlanStepKind;
-        if self.build.run_build_step(step.kind)? {
+        if self.build.try_run_build_step(step.kind)? {
             return Ok(());
         }
         match step.kind {

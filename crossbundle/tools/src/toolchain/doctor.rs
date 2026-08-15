@@ -181,7 +181,6 @@ impl DoctorReport {
 pub struct CommandObservation {
     pub success: bool,
     pub stdout: String,
-    pub stderr: String,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -386,7 +385,7 @@ fn android_checks(
                 "NDK_HOME",
             ])
             .or_else(|| {
-                compatible_child(&sdk_path.join("ndk"), "", policy.tool("ndk"))
+                compatible_child(&sdk_path.join("ndk"), "", policy.android_tool("ndk"))
                     .map(|p| (p, "Android SDK/ndk".into()))
             });
         checks.push(versioned_path_check(
@@ -394,7 +393,7 @@ fn android_checks(
             "Android",
             ndk,
             true,
-            policy.tool("ndk"),
+            policy.android_tool("ndk"),
             request.strict,
             "Install the preferred NDK with sdkmanager",
         ));
@@ -457,7 +456,7 @@ fn android_checks(
     checks.push(bundletool_check(
         environment,
         bundletool,
-        policy.tool("bundletool"),
+        policy.android_tool("bundletool"),
         request.strict,
     ));
     if let Some(project) = project {
@@ -482,16 +481,20 @@ fn sdk_checks(
     let platform = compatible_child(
         &sdk.join("platforms"),
         "android-",
-        policy.tool("android-sdk"),
+        policy.android_tool("android-sdk"),
     );
-    let build_tools = compatible_child(&sdk.join("build-tools"), "", policy.tool("build-tools"));
+    let build_tools = compatible_child(
+        &sdk.join("build-tools"),
+        "",
+        policy.android_tool("build-tools"),
+    );
     vec![
         versioned_path_check(
             "android.sdk.platform",
             "Android",
             platform.map(|p| (p, source.into())),
             true,
-            policy.tool("android-sdk"),
+            policy.android_tool("android-sdk"),
             strict,
             "Install the preferred Android platform with sdkmanager",
         ),
@@ -500,7 +503,7 @@ fn sdk_checks(
             "Android",
             build_tools.map(|p| (p, source.into())),
             true,
-            policy.tool("build-tools"),
+            policy.android_tool("build-tools"),
             strict,
             "Install the preferred Android build-tools with sdkmanager",
         ),
@@ -996,7 +999,7 @@ fn project_checks(
             checks.push(project_sdk_check(
                 "project.android.target_sdk",
                 target,
-                policy.tool("android-sdk"),
+                policy.android_tool("android-sdk"),
                 strict,
             ));
         }
@@ -1004,7 +1007,7 @@ fn project_checks(
             checks.push(project_sdk_check(
                 "project.android.min_sdk",
                 minimum,
-                policy.tool("android-min-sdk"),
+                policy.android_tool("android-min-sdk"),
                 strict,
             ));
         }
@@ -1034,13 +1037,6 @@ enum PathRequirement {
 }
 
 #[cfg(any(feature = "android", feature = "apple"))]
-struct PathMessages {
-    valid: &'static str,
-    invalid: &'static str,
-    invalid_label: &'static str,
-}
-
-#[cfg(any(feature = "android", feature = "apple"))]
 impl PathRequirement {
     fn is_met(self, path: &Path) -> bool {
         match self {
@@ -1053,40 +1049,30 @@ impl PathRequirement {
         }
     }
 
-    fn messages(self) -> PathMessages {
-        match self {
-            #[cfg(feature = "android")]
-            Self::Exists => PathMessages {
-                valid: "exist",
-                invalid: "do not exist",
-                invalid_label: "missing",
-            },
-            #[cfg(feature = "apple")]
-            Self::ReadableDirectory => PathMessages {
-                valid: "are readable directories",
-                invalid: "are not readable directories",
-                invalid_label: "invalid",
-            },
-            #[cfg(feature = "apple")]
-            Self::ReadableFile => PathMessages {
-                valid: "is a readable file",
-                invalid: "is not a readable file",
-                invalid_label: "invalid",
-            },
-        }
-    }
-
     fn description(self, valid: bool) -> &'static str {
-        let messages = self.messages();
-        if valid {
-            messages.valid
-        } else {
-            messages.invalid
+        match (self, valid) {
+            #[cfg(feature = "android")]
+            (Self::Exists, true) => "exist",
+            #[cfg(feature = "android")]
+            (Self::Exists, false) => "do not exist",
+            #[cfg(feature = "apple")]
+            (Self::ReadableDirectory, true) => "are readable directories",
+            #[cfg(feature = "apple")]
+            (Self::ReadableDirectory, false) => "are not readable directories",
+            #[cfg(feature = "apple")]
+            (Self::ReadableFile, true) => "is a readable file",
+            #[cfg(feature = "apple")]
+            (Self::ReadableFile, false) => "is not a readable file",
         }
     }
 
     fn invalid_label(self) -> &'static str {
-        self.messages().invalid_label
+        match self {
+            #[cfg(feature = "android")]
+            Self::Exists => "missing",
+            #[cfg(feature = "apple")]
+            Self::ReadableDirectory | Self::ReadableFile => "invalid",
+        }
     }
 }
 

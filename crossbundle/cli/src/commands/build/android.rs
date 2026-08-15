@@ -807,7 +807,7 @@ impl<'a> AndroidBuildExecutor<'a> {
         Ok(command)
     }
 
-    pub(crate) fn run_build_step(
+    pub(crate) fn try_run_build_step(
         &mut self,
         kind: crossbundle_tools::toolchain::PlanStepKind,
     ) -> Result<bool> {
@@ -886,7 +886,7 @@ impl crossbundle_tools::toolchain::Runner for AndroidBuildExecutor<'_> {
     type Error = Error;
 
     fn run_step(&mut self, step: &crossbundle_tools::toolchain::PlanStep) -> Result<()> {
-        self.run_build_step(step.kind)?
+        self.try_run_build_step(step.kind)?
             .then_some(())
             .ok_or_else(|| anyhow::anyhow!("unexpected {:?} step in build plan", step.kind).into())
     }

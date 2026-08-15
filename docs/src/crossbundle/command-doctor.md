@@ -55,9 +55,9 @@ metadata, bundle identifiers, deployment targets, Rust targets, assets, resource
 platform-specific plugin compatibility, and signing configuration applicability. Signing
 values and command output that may identify credentials are never included in reports.
 Configured Android Gradle plugins are reported as inapplicable to Apple; ordinary Cargo
-dependencies are not guessed to be plugins. The current typed Apple project model has no
-project-level signing fields, so `project.apple.signing` is skipped and explains that
-signing is selected by build arguments.
+dependencies are not guessed to be plugins. The typed Apple project model has no
+project-level signing fields: `project.apple.signing` warns when a device target requires
+build-time signing arguments and skips simulator-only projects where signing is irrelevant.
 
 ## JSON contract
 

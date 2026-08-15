@@ -55,7 +55,7 @@ impl CompatibilityPolicy {
             .compatibility
     }
 
-    pub fn tool(&self, id: &str) -> Option<&VersionPolicy> {
+    pub fn android_tool(&self, id: &str) -> Option<&VersionPolicy> {
         self.android.get(id)
     }
 
@@ -126,7 +126,10 @@ mod tests {
     fn reads_policy_from_the_published_crate_manifest() {
         let policy = CompatibilityPolicy::embedded();
         assert_eq!(policy.schema_version, 1);
-        assert_eq!(policy.tool("ndk").unwrap().preferred, "28.2.13676358");
+        assert_eq!(
+            policy.android_tool("ndk").unwrap().preferred,
+            "28.2.13676358"
+        );
     }
 
     #[test]
