@@ -19,6 +19,7 @@ android-manifest = { workspace = true, optional = true }
 android-tools = { workspace = true, optional = true }
 
 serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true, optional = true }
 serde_plain = { workspace = true }
 
 dunce = { workspace = true }
@@ -60,5 +61,5 @@ features = [
 
 [features]
 default = ["android", "apple"]
-android = ["android-manifest", "android-tools"]
+android = ["android-manifest", "android-tools", "serde_json"]
 apple = ["apple-bundle", "simctl"]

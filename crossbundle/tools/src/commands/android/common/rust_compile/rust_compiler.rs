@@ -6,13 +6,14 @@ pub fn rust_compile(
     ndk: &AndroidNdk,
     build_target: AndroidTarget,
     project_path: &std::path::Path,
+    target_dir: &std::path::Path,
     profile: Profile,
     features: Vec<String>,
     all_features: bool,
     no_default_features: bool,
     min_sdk_version: u32,
     lib_name: &str,
-    app_wrapper: AppWrapper,
+    rust_compiler: AndroidRustCompiler,
 ) -> Result<()> {
     // Specify path to workspace
     let rust_triple = build_target.rust_triple();
@@ -23,12 +24,7 @@ pub fn rust_compile(
     let (clang, clang_pp) = ndk.clang(build_target, min_sdk_version)?;
     let ar = ndk.toolchain_bin("ar", build_target)?;
 
-    // Resolve the workspace before creating the configured Cargo context so the generated CMake
-    // toolchain is placed in the same target directory as the embedded build.
-    let build_target_dir = workspace_root(project_path)?
-        .join("target")
-        .join(rust_triple)
-        .join(profile);
+    let build_target_dir = target_dir.join(rust_triple).join(profile);
     std::fs::create_dir_all(&build_target_dir).unwrap();
 
     let mut build_script_env = vec![
@@ -72,7 +68,7 @@ pub fn rust_compile(
             build_target_dir,
             build_target,
             ndk: ndk.clone(),
-            app_wrapper,
+            rust_compiler,
         });
 
     // Compile all targets for the requested build target
@@ -86,7 +82,7 @@ struct SharedLibraryExecutor {
     build_target_dir: std::path::PathBuf,
     build_target: AndroidTarget,
     ndk: AndroidNdk,
-    app_wrapper: AppWrapper,
+    rust_compiler: AndroidRustCompiler,
 }
 
 impl cargo::core::compiler::Executor for SharedLibraryExecutor {
@@ -105,9 +101,14 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
         {
             let mut new_args = cmd.get_args().cloned().collect::<Vec<_>>();
 
-            let extra_code = match self.app_wrapper {
-                AppWrapper::Quad => consts::QUAD_EXTRA_CODE,
-                AppWrapper::NdkGlue => consts::NDK_GLUE_EXTRA_CODE,
+            let extra_code = match self.rust_compiler {
+                AndroidRustCompiler::Quad => consts::QUAD_EXTRA_CODE,
+                AndroidRustCompiler::NdkGlue => consts::NDK_GLUE_EXTRA_CODE,
+                AndroidRustCompiler::Cargo => {
+                    return Err(anyhow::Error::msg(
+                        "the standard Cargo compiler cannot use the legacy executor",
+                    ));
+                }
             };
 
             let path =
@@ -118,11 +119,12 @@ impl cargo::core::compiler::Executor for SharedLibraryExecutor {
                     return Ok(());
                 };
 
-            // Generate tmp_file with bevy or quad extra code depending on either quad or ndk glue
-            // dependency
-            let tmp_file = match self.app_wrapper {
-                AppWrapper::Quad => gen_tmp_lib_file::generate_lib_file(&path, extra_code)?,
-                AppWrapper::NdkGlue => gen_tmp_lib_file::generate_lib_file(&path, extra_code)?,
+            // Generate a temporary root with the selected compatibility entry point.
+            let tmp_file = match self.rust_compiler {
+                AndroidRustCompiler::Quad | AndroidRustCompiler::NdkGlue => {
+                    gen_tmp_lib_file::generate_lib_file(&path, extra_code)?
+                }
+                AndroidRustCompiler::Cargo => unreachable!("handled above"),
             };
 
             // Replace source argument
@@ -227,12 +229,6 @@ pub fn cargo_env_target_cfg(tool: &str, target: &str) -> String {
     let utarget = target.replace('-', "_");
     let env = format!("CARGO_TARGET_{}_{}", utarget, tool);
     env.to_uppercase()
-}
-
-fn workspace_root(project_path: &std::path::Path) -> Result<std::path::PathBuf> {
-    let cargo_context = cargo::util::GlobalContext::default()?;
-    let workspace = cargo::core::Workspace::new(&project_path.join("Cargo.toml"), &cargo_context)?;
-    Ok(workspace.root().to_owned())
 }
 
 /// Configure embedded Cargo without changing the process-global environment.

@@ -4,11 +4,19 @@ version = "0.2.3"
 authors = ["DodoRare Team <support@dodorare.com>"]
 edition.workspace = true
 
+[lib]
+crate-type = ["cdylib", "rlib"]
+
 [dependencies]
 crossbow = { workspace = true, default-features = true }
 log = { workspace = true }
 anyhow = { workspace = true }
 bevy = { workspace = true, default-features = false, features = ["2d"] }
+
+[target.'cfg(target_os = "android")'.dependencies]
+# NativeActivity keeps the standard Cargo-to-APK path self-contained: no
+# Gradle, Java/Kotlin compiler, or Maven dependency resolution is required.
+bevy = { workspace = true, default-features = false, features = ["android-native-activity"] }
 
 [package.metadata]
 app_name = "Bevy 2D"

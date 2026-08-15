@@ -40,8 +40,8 @@ pub enum AndroidError {
     InvalidSemver,
     /// Unsupported or invalid target: {0}
     InvalidBuildTarget(String),
-    /// Unsupported or invalid app wrapper: {0}
-    InvalidAppWrapper(String),
+    /// Unsupported or invalid Android Rust compiler: {0}
+    InvalidRustCompiler(String),
     /// Unsupported or invalid build strategy: {0}
     InvalidBuildStrategy(String),
     /// Failed to find AndroidManifest.xml in path: {0}

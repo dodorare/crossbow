@@ -1,6 +1,6 @@
 use crossbundle_tools::{
     commands::android::*,
-    types::{AndroidTarget, AppWrapper, android_manifest::AndroidManifest},
+    types::{AndroidRustCompiler, AndroidTarget, android_manifest::AndroidManifest},
 };
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
@@ -8,9 +8,9 @@ use std::path::PathBuf;
 /// Full Android configuration.
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct AndroidConfig {
-    /// Specifies what application wrapper to use on build.
-    #[serde(default)]
-    pub app_wrapper: AppWrapper,
+    /// Selects how Rust code is compiled for Android.
+    #[serde(default, alias = "app_wrapper")]
+    pub rust_compiler: AndroidRustCompiler,
     /// AndroidManifest.xml configuration.
     pub manifest: Option<AndroidManifest>,
     /// Path to AndroidManifest.xml file.

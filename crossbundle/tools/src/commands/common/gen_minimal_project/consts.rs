@@ -5,11 +5,18 @@ version = "0.1.0"
 authors = ["DodoRare Team <support@dodorare.com>"]
 edition = "2024"
 
+[lib]
+crate-type = ["cdylib", "rlib"]
+
 [dependencies]
 crossbow = { git = "https://github.com/dodorare/crossbow" }
 "#;
 
 pub const BEVY_MAIN_RS_VALUE: &str = r#"fn main(){println!("hello");}"#;
+
+pub const BEVY_LIB_RS_VALUE: &str = r#"#[unsafe(no_mangle)]
+pub extern "C" fn android_main() {}
+"#;
 
 pub const MINIMAL_MQ_CARGO_TOML_VALUE: &str = r#"
 [package]
@@ -24,7 +31,7 @@ anyhow = "1.0"
 macroquad = "0.4.5"
 
 [package.metadata.android]
-app_wrapper = "quad"
+rust_compiler = "quad"
 "#;
 
 pub const MQ_MAIN_RS_VALUE: &str = r#"

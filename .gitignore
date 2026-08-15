@@ -1,4 +1,7 @@
 ### Android ###
+# Local SDK, emulator images, and device-test build artifacts.
+/.android/
+
 # Built application files
 *.apk
 *.aar
