@@ -68,7 +68,10 @@ pub fn handle_errors(run: impl FnOnce() -> std::result::Result<(), Box<dyn std::
     if let Err(error) = run() {
         eprintln!("{}: {}", "error".red().bold(), error);
         handle_error_source(error.source());
-        std::process::exit(1);
+        let exit_code = error
+            .downcast_ref::<crate::error::Error>()
+            .map_or(1, crate::error::Error::exit_code);
+        std::process::exit(exit_code);
     };
 }
 
@@ -81,13 +84,137 @@ fn handle_error_source(source: Option<&(dyn std::error::Error + 'static)>) {
 
 #[cfg(test)]
 mod tests {
-    use super::Opts;
+    use super::{Opts, commands};
     use clap::Parser;
+    #[cfg(any(feature = "android", feature = "apple"))]
+    use crossbundle_tools::toolchain::{DoctorPlatform, resolve_platforms};
 
     #[test]
     fn parses_repeated_verbose_flags() {
         let opts = Opts::try_parse_from(["crossbundle", "-vv", "update"]).unwrap();
 
         assert_eq!(opts.verbose, 2);
+    }
+
+    #[cfg(any(feature = "android", feature = "apple"))]
+    #[test]
+    fn parses_doctor_project_json_and_strict() {
+        let opts = Opts::try_parse_from([
+            "crossbundle",
+            "doctor",
+            "--project",
+            ".",
+            "--json",
+            "--strict",
+        ])
+        .unwrap();
+        let commands::Commands::Doctor(command) = opts.cmd else {
+            panic!("expected doctor")
+        };
+        assert_eq!(command.project.unwrap(), std::path::PathBuf::from("."));
+        assert!(command.json && command.strict);
+    }
+
+    #[cfg(any(feature = "android", feature = "apple"))]
+    #[test]
+    fn parses_repeated_and_delimited_doctor_platforms() {
+        let opts = Opts::try_parse_from([
+            "crossbundle",
+            "doctor",
+            "--platform",
+            "apple,android",
+            "--platform",
+            "apple",
+        ])
+        .unwrap();
+        let commands::Commands::Doctor(command) = opts.cmd else {
+            panic!("expected doctor")
+        };
+        assert_eq!(command.platform.len(), 3);
+        #[cfg(all(feature = "android", feature = "apple"))]
+        assert_eq!(
+            resolve_platforms(&command.platform).unwrap(),
+            vec![DoctorPlatform::Android, DoctorPlatform::Apple]
+        );
+    }
+
+    #[cfg(any(feature = "android", feature = "apple"))]
+    #[test]
+    fn parses_omitted_single_and_duplicate_doctor_platforms() {
+        let omitted = Opts::try_parse_from(["crossbundle", "doctor"]).unwrap();
+        let commands::Commands::Doctor(omitted) = omitted.cmd else {
+            panic!("expected doctor")
+        };
+        assert!(omitted.platform.is_empty());
+
+        let single = Opts::try_parse_from([
+            "crossbundle",
+            "doctor",
+            "--platform",
+            "android",
+            "--platform",
+            "android",
+        ])
+        .unwrap();
+        let commands::Commands::Doctor(single) = single.cmd else {
+            panic!("expected doctor")
+        };
+        if cfg!(feature = "android") {
+            assert_eq!(
+                resolve_platforms(&single.platform).unwrap(),
+                vec![DoctorPlatform::Android]
+            );
+        } else {
+            assert_eq!(
+                resolve_platforms(&single.platform),
+                Err(DoctorPlatform::Android)
+            );
+        }
+    }
+
+    #[cfg(any(feature = "android", feature = "apple"))]
+    #[test]
+    fn rejects_an_unknown_doctor_platform() {
+        let error = Opts::try_parse_from(["crossbundle", "doctor", "--platform", "windows-phone"])
+            .unwrap_err();
+        assert_eq!(error.exit_code(), 2);
+    }
+
+    #[cfg(all(feature = "android", not(feature = "apple")))]
+    #[test]
+    fn rejects_apple_when_it_is_not_compiled() {
+        assert_eq!(
+            resolve_platforms(&[DoctorPlatform::Apple]),
+            Err(DoctorPlatform::Apple)
+        );
+        assert_eq!(
+            crate::error::Error::DoctorPlatformDisabled(DoctorPlatform::Apple).exit_code(),
+            2
+        );
+    }
+
+    #[cfg(all(feature = "apple", not(feature = "android")))]
+    #[test]
+    fn rejects_android_when_it_is_not_compiled() {
+        assert_eq!(
+            resolve_platforms(&[DoctorPlatform::Android]),
+            Err(DoctorPlatform::Android)
+        );
+        assert_eq!(
+            crate::error::Error::DoctorPlatformDisabled(DoctorPlatform::Android).exit_code(),
+            2
+        );
+    }
+
+    #[cfg(feature = "android")]
+    #[test]
+    fn parses_android_build_dry_run_json() {
+        let opts = Opts::try_parse_from(["crossbundle", "build", "android", "--dry-run", "--json"])
+            .unwrap();
+        let commands::Commands::Build(commands::build::BuildCommand::Android(command)) = opts.cmd
+        else {
+            panic!("expected Android build")
+        };
+        assert!(command.dry_run && command.json);
     }
 }

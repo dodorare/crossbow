@@ -38,6 +38,11 @@ impl AndroidNdk {
                 ndk_path.join(ndk_ver)
             }
         };
+        Self::from_path(ndk_path)
+    }
+
+    /// Loads an NDK from an already-resolved root without consulting the environment.
+    pub fn from_path(ndk_path: PathBuf) -> Result<Self> {
         let build_tag = std::fs::read_to_string(ndk_path.join("source.properties"))
             .map_err(|_| AndroidError::FailedToReadSourceProperties)?;
         let build_tag = build_tag

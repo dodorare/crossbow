@@ -30,4 +30,6 @@ pub const EXECUTABLE_SUFFIX_BAT: &str = "";
 
 pub mod commands;
 pub mod error;
+#[cfg(any(feature = "android", feature = "apple"))]
+pub mod toolchain;
 pub mod types;

@@ -14,7 +14,8 @@ Dependabot checks for Cargo updates every week and opens pull requests that upda
 
 The `Latest compatible dependencies` workflow provides an additional early-warning check every week and on demand. It generates a new lockfile from the manifests and runs the complete non-iOS workspace test suite against that fresh resolution. Pull-request CI tests the iOS-only package and Apple feature set on macOS. The scheduled workflow does not replace or gate the reproducible checks run on pull requests.
 
-Android stack versions are canonical in `.github/tool-versions.toml`. After changing them,
+Android stack versions are canonical in `[package.metadata.crossbundle.compatibility]` in
+`crossbundle/tools/Cargo.toml`. After changing them,
 run `cargo run -p xtask --locked -- android-stack sync` to update the standalone Gradle
 projects. Replace `sync` with `check` to verify every operative declaration.
 

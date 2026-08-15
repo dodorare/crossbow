@@ -1,12 +1,10 @@
-use crate::commands::build::{BuildContext, android::AndroidBuildCommand};
+use crate::commands::build::{
+    BuildContext,
+    android::{AndroidBuildArtifact, AndroidBuildCommand, AndroidBuildExecutor, plan_error},
+};
 use crate::error::*;
 use clap::Parser;
-use crossbundle_tools::{
-    commands::android::*,
-    error::CommandExt,
-    types::Config,
-    types::{AndroidStrategy, BuildApks, InstallApks},
-};
+use crossbundle_tools::{commands::android::*, error::CommandExt, types::Config};
 
 #[derive(Parser, Clone, Debug)]
 pub struct AndroidRunCommand {
@@ -20,96 +18,142 @@ pub struct AndroidRunCommand {
 impl AndroidRunCommand {
     /// Deployes and runs application in AAB or APK format on your device or emulator
     pub fn run(&self, config: &Config) -> Result<()> {
-        let context = BuildContext::new(config, self.build_command.shared.target_dir.clone())?;
         if self.build_command.lib.is_some() {
             config.status("Can not run dynamic library")?;
             return Ok(());
         }
-        match self.build_command.strategy {
-            AndroidStrategy::NativeApk => {
-                self.run_native_apk(config, &context)?;
-            }
-            AndroidStrategy::NativeAab => {
-                self.run_native_aab(config, &context)?;
-            }
-            AndroidStrategy::GradleApk => {
-                self.run_gradle_apk(config, &context)?;
-            }
+        let context = BuildContext::new(config, self.build_command.shared.target_dir.clone())?;
+        let plan = self.build_command.create_plan(
+            &context,
+            crossbundle_tools::toolchain::PlanOperation::Run,
+            self.log,
+        );
+        if self.build_command.dry_run {
+            self.build_command.print_plan(&plan)?;
+            return self.build_command.ensure_plan_valid(&plan);
         }
-        Ok(())
-    }
-
-    pub fn run_native_aab(&self, config: &Config, context: &BuildContext) -> Result<()> {
-        let (android_manifest, sdk, aab_path, package_name, key) =
-            self.build_command.execute_aab(config, context)?;
-        config.status("Generating apks")?;
-        let apks = aab_path
-            .parent()
-            .unwrap()
-            .join(format!("{}.apks", package_name));
-        let apks_path = BuildApks::new(&aab_path, &apks)
-            .overwrite(true)
-            .ks(&key.key_path)
-            .ks_pass_pass(key.key_pass)
-            .ks_key_alias(key.key_alias)
-            .run()?;
-        config.status("Starting run process")?;
-        config.status("Installing APKs file")?;
-        InstallApks::new(&apks_path).run()?;
-        config.status("Starting APK file")?;
-        let package = android_manifest
-            .package
-            .as_deref()
-            .ok_or_else(|| anyhow::anyhow!("Android manifest package is missing"))?;
-        start_app(&sdk, package, "android.app.NativeActivity")?;
-        if self.log {
-            config.status("Attaching logger")?;
-            std::thread::sleep(std::time::Duration::from_secs(2));
-            attach_logger_only_app(&sdk)?;
-        }
+        self.build_command.ensure_plan_valid(&plan)?;
+        let mut runner = AndroidRunPlanRunner {
+            build: AndroidBuildExecutor::new(&self.build_command, config, &context, &plan)?,
+        };
+        crossbundle_tools::toolchain::execute(&plan, &mut runner).map_err(plan_error)?;
         config.status("Run finished successfully")?;
         Ok(())
     }
+}
 
-    pub fn run_native_apk(&self, config: &Config, context: &BuildContext) -> Result<()> {
-        let (android_manifest, sdk, apk_path) = self.build_command.execute_apk(config, context)?;
-        config.status("Starting run process")?;
-        config.status("Installing APK file")?;
-        install_apk(&sdk, &apk_path)?;
-        config.status("Starting APK file")?;
-        let package = android_manifest
-            .package
-            .as_deref()
-            .ok_or_else(|| anyhow::anyhow!("Android manifest package is missing"))?;
-        start_app(&sdk, package, "android.app.NativeActivity")?;
-        if self.log {
-            config.status("Attaching logger")?;
-            std::thread::sleep(std::time::Duration::from_secs(2));
-            attach_logger_only_app(&sdk)?;
-        }
-        config.status("Run finished successfully")?;
-        Ok(())
-    }
+struct AndroidRunPlanRunner<'a> {
+    build: AndroidBuildExecutor<'a>,
+}
 
-    pub fn run_gradle_apk(&self, config: &Config, context: &BuildContext) -> Result<()> {
-        let (_, sdk, gradle_project_path) =
-            self.build_command
-                .build_gradle(config, context, &self.build_command.export_path)?;
-        config.status("Installing APK file on device")?;
-        let mut gradle = gradle_init()?;
-        gradle
-            .arg("installDebug")
-            .arg("-p")
-            .arg(dunce::simplified(&gradle_project_path));
-        gradle.output_err(true)?;
-        config.status("Starting APK file")?;
-        start_app(&sdk, "com.crossbow.game", ".CrossbowApp")?;
-        if self.log {
-            config.status("Attaching logger")?;
-            std::thread::sleep(std::time::Duration::from_secs(2));
-            attach_logger_only_app(&sdk)?;
+impl crossbundle_tools::toolchain::Runner for AndroidRunPlanRunner<'_> {
+    type Error = Error;
+
+    fn run_step(&mut self, step: &crossbundle_tools::toolchain::PlanStep) -> Result<()> {
+        use crossbundle_tools::toolchain::PlanStepKind;
+        if self.build.run_build_step(step.kind)? {
+            return Ok(());
         }
-        config.status("Run finished successfully")?;
+        match step.kind {
+            PlanStepKind::GenerateApksArchive => {
+                let mut command = self.build.bundletool_command()?;
+                let Some(AndroidBuildArtifact::NativeAab {
+                    path,
+                    package,
+                    key,
+                    apks,
+                    ..
+                }) = self.build.artifact.as_mut()
+                else {
+                    return Err(anyhow::anyhow!("AAB artifact was not built").into());
+                };
+                self.build.config.status("Generating apks")?;
+                let output = path.parent().unwrap().join(format!("{package}.apks"));
+                command
+                    .arg("build-apks")
+                    .arg("--bundle")
+                    .arg(path)
+                    .arg("--output")
+                    .arg(&output)
+                    .arg("--overwrite")
+                    .arg("--ks")
+                    .arg(&key.key_path)
+                    .arg("--ks-pass")
+                    .arg(format!("pass:{}", key.key_pass))
+                    .arg("--ks-key-alias")
+                    .arg(&key.key_alias);
+                command.output_err(true)?;
+                *apks = Some(output);
+            }
+            PlanStepKind::InstallArtifact => match self
+                .build
+                .artifact
+                .as_ref()
+                .ok_or_else(|| anyhow::anyhow!("installable artifact was not built"))?
+            {
+                AndroidBuildArtifact::NativeApk { sdk, path, .. } => {
+                    self.build.config.status("Installing APK file")?;
+                    install_apk(sdk, path)?;
+                }
+                AndroidBuildArtifact::NativeAab { apks, .. } => {
+                    self.build.config.status("Installing APKs file")?;
+                    let apks = apks
+                        .as_ref()
+                        .ok_or_else(|| anyhow::anyhow!("APKs archive was not generated"))?;
+                    let mut command = self.build.bundletool_command()?;
+                    command.arg("install-apks").arg("--apks").arg(apks);
+                    command.output_err(true)?;
+                }
+                AndroidBuildArtifact::Gradle { project, .. } => {
+                    self.build.config.status("Installing APK file on device")?;
+                    let gradle = self.build.gradle_executable.ok_or_else(|| {
+                        anyhow::anyhow!("Gradle executable is absent from build plan")
+                    })?;
+                    let mut gradle = std::process::Command::new(gradle);
+                    gradle
+                        .arg("installDebug")
+                        .arg("-p")
+                        .arg(dunce::simplified(project));
+                    gradle.output_err(true)?;
+                }
+            },
+            PlanStepKind::LaunchApplication => {
+                self.build.config.status("Starting APK file")?;
+                match self
+                    .build
+                    .artifact
+                    .as_ref()
+                    .ok_or_else(|| anyhow::anyhow!("launchable artifact was not built"))?
+                {
+                    AndroidBuildArtifact::NativeApk { manifest, sdk, .. }
+                    | AndroidBuildArtifact::NativeAab { manifest, sdk, .. } => {
+                        let package = manifest.package.as_deref().ok_or_else(|| {
+                            anyhow::anyhow!("Android manifest package is missing")
+                        })?;
+                        start_app(sdk, package, "android.app.NativeActivity")?;
+                    }
+                    AndroidBuildArtifact::Gradle { sdk, .. } => {
+                        start_app(sdk, "com.crossbow.game", ".CrossbowApp")?
+                    }
+                }
+            }
+            PlanStepKind::AttachLogger => {
+                self.build.config.status("Attaching logger")?;
+                std::thread::sleep(std::time::Duration::from_secs(2));
+                let sdk = match self
+                    .build
+                    .artifact
+                    .as_ref()
+                    .ok_or_else(|| anyhow::anyhow!("artifact was not built"))?
+                {
+                    AndroidBuildArtifact::NativeApk { sdk, .. }
+                    | AndroidBuildArtifact::NativeAab { sdk, .. }
+                    | AndroidBuildArtifact::Gradle { sdk, .. } => sdk,
+                };
+                attach_logger_only_app(sdk)?;
+            }
+            _ => return Err(anyhow::anyhow!("unexpected {:?} step in run plan", step.kind).into()),
+        }
         Ok(())
     }
 }

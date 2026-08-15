@@ -5,3 +5,4 @@ edition.workspace = true
 publish = false
 
 [dependencies]
+toml = { workspace = true }

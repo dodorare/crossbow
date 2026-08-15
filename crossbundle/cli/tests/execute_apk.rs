@@ -3,7 +3,7 @@
 use crossbundle_lib::commands::build::{BuildContext, android::AndroidBuildCommand};
 use crossbundle_tools::{
     commands::gen_minimal_project,
-    types::{AndroidStrategy, AndroidTarget, Config, Shell},
+    types::{AndroidNdk, AndroidSdk, AndroidStrategy, AndroidTarget, Config, Shell},
 };
 
 #[test]
@@ -31,8 +31,11 @@ fn test_execute_apk() {
         ..Default::default()
     };
 
+    let sdk = AndroidSdk::from_env().unwrap();
+    let ndk = AndroidNdk::from_env(sdk.sdk_path()).unwrap();
     let (_, _, generated_apk_path) =
-        AndroidBuildCommand::execute_apk(&android_build_command, &config, &context).unwrap();
+        AndroidBuildCommand::execute_apk(&android_build_command, &config, &context, &sdk, &ndk)
+            .unwrap();
     let expected_path = target_dir
         .join("android")
         .join("example")

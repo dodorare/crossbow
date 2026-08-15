@@ -1,7 +1,7 @@
 use super::{BuildContext, SharedBuildCommand};
 use crate::{error::*, types::CrossbowMetadata};
 use android_manifest::AndroidManifest;
-use android_tools::java_tools::{JarSigner, Key};
+use android_tools::java_tools::Key;
 use clap::{ArgAction, Parser};
 use crossbundle_tools::{
     commands::{android::*, combine_folders},
@@ -39,6 +39,12 @@ pub struct AndroidBuildCommand {
     /// Signing key alias.
     #[clap(long)]
     pub sign_key_alias: Option<String>,
+    /// Print the immutable build plan without creating files or running commands.
+    #[clap(long)]
+    pub dry_run: bool,
+    /// Emit the dry-run plan as stable JSON.
+    #[clap(long, requires = "dry_run")]
+    pub json: bool,
 }
 
 impl AndroidBuildCommand {
@@ -50,31 +56,87 @@ impl AndroidBuildCommand {
                 .warn("You provided a signing key but not password - set password please by providing `sign_key_pass` flag")?;
         }
         let context = BuildContext::new(config, self.shared.target_dir.clone())?;
-        if let Some(name) = &self.lib {
-            self.build_rust_lib(config, &context, name, None)?;
-            return Ok(());
+        let plan = self.create_plan(
+            &context,
+            crossbundle_tools::toolchain::PlanOperation::Build,
+            false,
+        );
+        if self.dry_run {
+            self.print_plan(&plan)?;
+            return self.ensure_plan_valid(&plan);
         }
-        match &self.strategy {
-            AndroidStrategy::NativeApk => {
-                self.execute_apk(config, &context)?;
-            }
-            AndroidStrategy::NativeAab => {
-                self.execute_aab(config, &context)?;
-            }
-            AndroidStrategy::GradleApk => {
-                let (_, sdk, gradle_project_path) =
-                    self.build_gradle(config, &context, &self.export_path)?;
-                config.status("Building Gradle project")?;
-                let mut gradle = gradle_init()?;
-                gradle
-                    .env("ANDROID_SDK_ROOT", sdk.sdk_path())
-                    .arg("build")
-                    .arg("-p")
-                    .arg(dunce::simplified(&gradle_project_path));
-                gradle.output_err(true)?;
+        self.ensure_plan_valid(&plan)?;
+        let mut runner = AndroidBuildExecutor::new(self, config, &context, &plan)?;
+        crossbundle_tools::toolchain::execute(&plan, &mut runner).map_err(plan_error)?;
+        Ok(())
+    }
+
+    pub fn create_plan(
+        &self,
+        context: &BuildContext,
+        operation: crossbundle_tools::toolchain::PlanOperation,
+        attach_logger: bool,
+    ) -> crossbundle_tools::toolchain::BuildPlan {
+        let profile = self.shared.profile();
+        let targets = Self::android_build_targets(context, profile, &self.target)
+            .iter()
+            .map(|target| target.rust_triple().to_owned())
+            .collect();
+        let strategy = match self.strategy {
+            AndroidStrategy::GradleApk => crossbundle_tools::toolchain::PlanStrategy::GradleApk,
+            AndroidStrategy::NativeApk => crossbundle_tools::toolchain::PlanStrategy::NativeApk,
+            AndroidStrategy::NativeAab => crossbundle_tools::toolchain::PlanStrategy::NativeAab,
+        };
+        let android_output_dir = if self.strategy == AndroidStrategy::GradleApk {
+            self.export_path.clone().unwrap_or_else(|| {
+                context
+                    .target_dir
+                    .join("android")
+                    .join(context.package_name())
+            })
+        } else {
+            context
+                .target_dir
+                .join("android")
+                .join(context.package_name())
+        };
+        crossbundle_tools::toolchain::plan(
+            &crossbundle_tools::toolchain::PlanRequest {
+                operation,
+                strategy,
+                project_dir: context.project_path.clone(),
+                target_dir: context.target_dir.clone(),
+                android_output_dir,
+                targets,
+                release: self.shared.release,
+                attach_logger,
+                library: self.lib.clone(),
+            },
+            &crossbundle_tools::toolchain::Environment::discover(),
+        )
+    }
+
+    pub fn print_plan(&self, plan: &crossbundle_tools::toolchain::BuildPlan) -> Result<()> {
+        if self.json {
+            println!(
+                "{}",
+                serde_json::to_string_pretty(plan).map_err(Error::DoctorReport)?
+            );
+        } else {
+            println!("Android {:?} plan ({:?})", plan.operation, plan.strategy);
+            for (index, step) in plan.steps.iter().enumerate() {
+                println!("{}. {}: {}", index + 1, step.id, step.action);
             }
         }
         Ok(())
+    }
+
+    pub fn ensure_plan_valid(&self, plan: &crossbundle_tools::toolchain::BuildPlan) -> Result<()> {
+        if plan.diagnostics.status == crossbundle_tools::toolchain::ReportStatus::Fail {
+            Err(Error::DoctorFailed)
+        } else {
+            Ok(())
+        }
     }
 
     /// Compile rust code as a dynamic library, generate Gradle project.
@@ -83,8 +145,9 @@ impl AndroidBuildCommand {
         config: &Config,
         context: &BuildContext,
         export_path: &Option<PathBuf>,
+        sdk: &AndroidSdk,
+        ndk: &AndroidNdk,
     ) -> Result<(AndroidManifest, AndroidSdk, PathBuf)> {
-        let sdk = AndroidSdk::from_env()?;
         let example = self.shared.example.as_ref();
         let (_, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
 
@@ -141,13 +204,13 @@ impl AndroidBuildCommand {
         save_android_manifest(&gradle_project_path, &gradle_manifest)?;
 
         let lib_name = "crossbow_android";
-        self.build_rust_lib(config, context, lib_name, Some(android_build_dir))?;
+        self.build_rust_lib(config, context, lib_name, Some(android_build_dir), ndk)?;
 
         config.status_message(
             "Gradle project generated",
             gradle_project_path.to_str().unwrap(),
         )?;
-        Ok((manifest, sdk, gradle_project_path))
+        Ok((manifest, sdk.clone(), gradle_project_path))
     }
 
     /// Compile rust code as a dynamic library.
@@ -157,12 +220,12 @@ impl AndroidBuildCommand {
         context: &BuildContext,
         lib_name: &str,
         export_path: Option<PathBuf>,
+        ndk: &AndroidNdk,
     ) -> Result<()> {
         let profile = self.shared.profile();
         let example = self.shared.example.as_ref();
         let (project_path, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
         config.status_message("Starting lib build process", &package_name)?;
-        let (_sdk, ndk) = Self::android_toolchain()?;
 
         let android_build_dir = if let Some(export_path) = export_path {
             export_path
@@ -180,7 +243,7 @@ impl AndroidBuildCommand {
             context,
             build_targets,
             lib_name,
-            &ndk,
+            ndk,
             &project_path,
             profile,
             min_sdk_version,
@@ -209,12 +272,13 @@ impl AndroidBuildCommand {
         &self,
         config: &Config,
         context: &BuildContext,
+        sdk: &AndroidSdk,
+        ndk: &AndroidNdk,
     ) -> Result<(AndroidManifest, AndroidSdk, PathBuf)> {
         let profile = self.shared.profile();
         let example = self.shared.example.as_ref();
         let (project_path, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
         config.status_message("Starting apk build process", &package_name)?;
-        let (sdk, ndk) = Self::android_toolchain()?;
 
         let android_build_dir = target_dir.join("android").join(&package_name);
         let native_build_dir = android_build_dir.join("native").join("apk");
@@ -232,14 +296,14 @@ impl AndroidBuildCommand {
             Self::prepare_assets_and_resources(&context.config, &android_build_dir)?;
 
         config.status_message("Compiling", "lib")?;
-        let target_sdk_version = Self::target_sdk_version(&manifest, &sdk);
+        let target_sdk_version = Self::target_sdk_version(&manifest, sdk);
         let min_sdk_version = Self::min_sdk_version(&manifest);
         let build_targets = Self::android_build_targets(context, profile, &self.target);
         let compiled_libs = self.build_target(
             context,
             build_targets,
             &package_name,
-            &ndk,
+            ndk,
             &project_path,
             profile,
             min_sdk_version,
@@ -249,7 +313,7 @@ impl AndroidBuildCommand {
 
         config.status_message("Generating", "unaligned APK file")?;
         let unaligned_apk_path = gen_unaligned_apk(
-            &sdk,
+            sdk,
             &project_path,
             &native_build_dir,
             &manifest_path,
@@ -262,8 +326,8 @@ impl AndroidBuildCommand {
         config.status("Adding libs into APK file")?;
         for (compiled_lib, build_target) in compiled_libs {
             add_libs_into_apk(
-                &sdk,
-                &ndk,
+                sdk,
+                ndk,
                 &unaligned_apk_path,
                 &compiled_lib,
                 build_target,
@@ -276,7 +340,7 @@ impl AndroidBuildCommand {
 
         config.status("Aligning APK file")?;
         let aligned_apk_path =
-            align_apk(&sdk, &unaligned_apk_path, &package_name, &outputs_build_dir)?;
+            align_apk(sdk, &unaligned_apk_path, &package_name, &outputs_build_dir)?;
 
         config.status_message("Generating", "debug signing key")?;
         let key = Self::find_keystore(
@@ -286,9 +350,9 @@ impl AndroidBuildCommand {
         )?;
 
         config.status("Signing APK file")?;
-        sign_apk(&sdk, &aligned_apk_path, key)?;
+        sign_apk(sdk, &aligned_apk_path, key)?;
         config.status("Build finished successfully")?;
-        Ok((manifest, sdk, aligned_apk_path))
+        Ok((manifest, sdk.clone(), aligned_apk_path))
     }
 
     /// Builds AAB with aapt2 tool and signs it with jarsigner.
@@ -296,12 +360,16 @@ impl AndroidBuildCommand {
         &self,
         config: &Config,
         context: &BuildContext,
+        sdk: &AndroidSdk,
+        ndk: &AndroidNdk,
+        java: &Path,
+        jarsigner: &Path,
+        bundletool: &Path,
     ) -> Result<(AndroidManifest, AndroidSdk, PathBuf, String, Key)> {
         let profile = self.shared.profile();
         let example = self.shared.example.as_ref();
         let (project_path, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
         config.status_message("Starting aab build process", &package_name)?;
-        let (sdk, ndk) = Self::android_toolchain()?;
 
         let android_build_dir = target_dir.join("android").join(&package_name);
         let native_build_dir = android_build_dir.join("native").join("aab");
@@ -319,14 +387,14 @@ impl AndroidBuildCommand {
             Self::prepare_assets_and_resources(&context.config, &android_build_dir)?;
 
         config.status_message("Compiling", "lib")?;
-        let target_sdk_version = Self::target_sdk_version(&manifest, &sdk);
+        let target_sdk_version = Self::target_sdk_version(&manifest, sdk);
         let min_sdk_version = Self::min_sdk_version(&manifest);
         let build_targets = Self::android_build_targets(context, profile, &self.target);
         let compiled_libs = self.build_target(
             context,
             build_targets,
             &package_name,
-            &ndk,
+            ndk,
             &project_path,
             profile,
             min_sdk_version,
@@ -372,7 +440,7 @@ impl AndroidBuildCommand {
         config.status("Adding libs")?;
         for (compiled_lib, build_target) in compiled_libs {
             add_libs_into_aapt2(
-                &ndk,
+                ndk,
                 &compiled_lib,
                 build_target,
                 profile,
@@ -396,7 +464,13 @@ impl AndroidBuildCommand {
         }
 
         config.status("Generating aab from modules")?;
-        let aab_path = gen_aab_from_modules(&package_name, &[gen_zip_modules], &outputs_build_dir)?;
+        let aab_path = gen_aab_from_modules_with_toolchain(
+            &package_name,
+            &[gen_zip_modules],
+            &outputs_build_dir,
+            java,
+            bundletool,
+        )?;
 
         config.status_message("Generating", "debug signing key")?;
         let key = Self::find_keystore(
@@ -406,13 +480,20 @@ impl AndroidBuildCommand {
         )?;
 
         config.status_message("Signing", "debug signing key")?;
-        JarSigner::new(&aab_path, &key.key_alias)
-            .keystore(&key.key_path)
-            .storepass(key.key_pass.to_string())
-            .verbose(true)
-            .sigalg("SHA256withRSA".to_string())
-            .digestalg("SHA-256".to_string())
-            .run()?;
+        let mut command = std::process::Command::new(jarsigner);
+        command
+            .arg("-keystore")
+            .arg(&key.key_path)
+            .arg("-storepass")
+            .arg(&key.key_pass)
+            .arg("-verbose")
+            .arg("-sigalg")
+            .arg("SHA256withRSA")
+            .arg("-digestalg")
+            .arg("SHA-256")
+            .arg(&aab_path)
+            .arg(&key.key_alias);
+        command.output_err(true)?;
 
         let signed_aab = android_build_dir.join(format!("{}_signed.aab", package_name));
         std::fs::rename(&aab_path, &signed_aab)?;
@@ -422,7 +503,7 @@ impl AndroidBuildCommand {
         options.overwrite = true;
         fs_extra::file::move_file(&signed_aab, outputs_build_dir.join(output_aab), &options)?;
         config.status("Build finished successfully")?;
-        Ok((manifest, sdk, aab_output_path, package_name, key))
+        Ok((manifest, sdk.clone(), aab_output_path, package_name, key))
     }
 
     /// Specifies project path and target directory needed to build application.
@@ -438,13 +519,6 @@ impl AndroidBuildCommand {
             (Target::Lib, context.package_name())
         };
         Ok((project_path, target_dir, package_name))
-    }
-
-    /// Specifies path to Android SDK and Android NDK.
-    pub fn android_toolchain() -> Result<(AndroidSdk, AndroidNdk)> {
-        let sdk = AndroidSdk::from_env()?;
-        let ndk = AndroidNdk::from_env(sdk.sdk_path())?;
-        Ok((sdk, ndk))
     }
 
     /// Find keystore for signing application or create it.
@@ -679,6 +753,173 @@ impl AndroidBuildCommand {
         };
         Ok((gen_assets, gen_resources))
     }
+}
+
+pub(crate) struct AndroidBuildExecutor<'a> {
+    command: &'a AndroidBuildCommand,
+    pub(crate) config: &'a Config,
+    context: &'a BuildContext,
+    sdk: AndroidSdk,
+    ndk: AndroidNdk,
+    pub(crate) gradle_executable: Option<&'a Path>,
+    java: Option<&'a Path>,
+    jarsigner: Option<&'a Path>,
+    bundletool: Option<&'a Path>,
+    pub(crate) artifact: Option<AndroidBuildArtifact>,
+}
+
+pub(crate) enum AndroidBuildArtifact {
+    NativeApk {
+        manifest: AndroidManifest,
+        sdk: AndroidSdk,
+        path: PathBuf,
+    },
+    NativeAab {
+        manifest: AndroidManifest,
+        sdk: AndroidSdk,
+        path: PathBuf,
+        package: String,
+        key: Key,
+        apks: Option<PathBuf>,
+    },
+    Gradle {
+        sdk: AndroidSdk,
+        project: PathBuf,
+    },
+}
+
+impl<'a> AndroidBuildExecutor<'a> {
+    pub(crate) fn new(
+        command: &'a AndroidBuildCommand,
+        config: &'a Config,
+        context: &'a BuildContext,
+        plan: &'a crossbundle_tools::toolchain::BuildPlan,
+    ) -> Result<Self> {
+        Ok(Self {
+            command,
+            config,
+            context,
+            sdk: AndroidSdk::from_resolved(
+                required_path(&plan.toolchain.sdk, "Android SDK")?,
+                &required_path(&plan.toolchain.build_tools, "Android build-tools")?,
+                &required_path(&plan.toolchain.platform, "Android platform")?,
+            )?,
+            ndk: AndroidNdk::from_path(required_path(&plan.toolchain.ndk, "Android NDK")?)?,
+            gradle_executable: plan.toolchain.gradle.as_deref(),
+            java: plan.toolchain.java.as_deref(),
+            jarsigner: plan.toolchain.jarsigner.as_deref(),
+            bundletool: plan.toolchain.bundletool.as_deref(),
+            artifact: None,
+        })
+    }
+
+    pub(crate) fn bundletool_command(&self) -> Result<std::process::Command> {
+        let mut command = std::process::Command::new(required_path_ref(self.java, "Java")?);
+        command
+            .arg("-jar")
+            .arg(required_path_ref(self.bundletool, "bundletool")?);
+        Ok(command)
+    }
+
+    pub(crate) fn run_build_step(
+        &mut self,
+        kind: crossbundle_tools::toolchain::PlanStepKind,
+    ) -> Result<bool> {
+        use crossbundle_tools::toolchain::PlanStepKind;
+        self.artifact = match kind {
+            PlanStepKind::BuildRustLibrary => {
+                let name = self.command.lib.as_deref().unwrap_or("crossbow_android");
+                self.command
+                    .build_rust_lib(self.config, self.context, name, None, &self.ndk)?;
+                return Ok(true);
+            }
+            PlanStepKind::BuildNativeApk => {
+                let (manifest, sdk, path) =
+                    self.command
+                        .execute_apk(self.config, self.context, &self.sdk, &self.ndk)?;
+                Some(AndroidBuildArtifact::NativeApk {
+                    manifest,
+                    sdk,
+                    path,
+                })
+            }
+            PlanStepKind::BuildNativeAab => {
+                let (manifest, sdk, path, package, key) = self.command.execute_aab(
+                    self.config,
+                    self.context,
+                    &self.sdk,
+                    &self.ndk,
+                    required_path_ref(self.java, "Java")?,
+                    required_path_ref(self.jarsigner, "jarsigner")?,
+                    required_path_ref(self.bundletool, "bundletool")?,
+                )?;
+                Some(AndroidBuildArtifact::NativeAab {
+                    manifest,
+                    sdk,
+                    path,
+                    package,
+                    key,
+                    apks: None,
+                })
+            }
+            PlanStepKind::PrepareGradleProject => {
+                let (_, sdk, project) = self.command.build_gradle(
+                    self.config,
+                    self.context,
+                    &self.command.export_path,
+                    &self.sdk,
+                    &self.ndk,
+                )?;
+                Some(AndroidBuildArtifact::Gradle { sdk, project })
+            }
+            PlanStepKind::BuildGradleProject => {
+                let Some(AndroidBuildArtifact::Gradle { sdk, project }) = self.artifact.as_ref()
+                else {
+                    return Err(anyhow::anyhow!("Gradle project was not prepared").into());
+                };
+                self.config.status("Building Gradle project")?;
+                let mut gradle = std::process::Command::new(required_path_ref(
+                    self.gradle_executable,
+                    "Gradle executable",
+                )?);
+                gradle
+                    .env("ANDROID_SDK_ROOT", sdk.sdk_path())
+                    .arg("build")
+                    .arg("-p")
+                    .arg(dunce::simplified(project));
+                gradle.output_err(true)?;
+                return Ok(true);
+            }
+            _ => return Ok(false),
+        };
+        Ok(true)
+    }
+}
+
+impl crossbundle_tools::toolchain::Runner for AndroidBuildExecutor<'_> {
+    type Error = Error;
+
+    fn run_step(&mut self, step: &crossbundle_tools::toolchain::PlanStep) -> Result<()> {
+        self.run_build_step(step.kind)?
+            .then_some(())
+            .ok_or_else(|| anyhow::anyhow!("unexpected {:?} step in build plan", step.kind).into())
+    }
+}
+
+pub(crate) fn plan_error(error: crossbundle_tools::toolchain::ExecutionError<Error>) -> Error {
+    Error::PlanStepFailed {
+        step_id: error.step_id,
+        source: Box::new(error.source),
+    }
+}
+
+fn required_path(path: &Option<PathBuf>, name: &str) -> Result<PathBuf> {
+    path.clone()
+        .ok_or_else(|| anyhow::anyhow!("{name} is absent from build plan").into())
+}
+
+fn required_path_ref<'a>(path: Option<&'a Path>, name: &str) -> Result<&'a Path> {
+    path.ok_or_else(|| anyhow::anyhow!("{name} is absent from build plan").into())
 }
 
 fn validate_cargo_library_target(
