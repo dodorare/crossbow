@@ -594,6 +594,45 @@ crossbundle build android -s=native-aab
 <p>To find out available commands specify the -h flag.</p>
 <pre><code class="language-sh">crossbundle build android -h
 </code></pre>
+<h2 id="standard-cargo-projects"><a class="header" href="#standard-cargo-projects">Standard Cargo projects</a></h2>
+<p>Crossbundle uses Cargo's public command-line interface by default and reads Cargo's JSON messages to
+locate the resulting Android library. This path is engine-neutral: any application that exposes a
+<code>cdylib</code> with the appropriate Android entry point can use it.</p>
+<p>Binary source rewriting is retained only for compatibility with older integrations. Select it
+explicitly with <code>rust_compiler = "ndk-glue"</code> or <code>rust_compiler = "quad"</code> under
+<code>[package.metadata.android]</code>.</p>
+<h3 id="bevy"><a class="header" href="#bevy">Bevy</a></h3>
+<p>Expose the application as a library and let Bevy provide the native mobile entry point:</p>
+<pre><code class="language-toml">[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+bevy = { version = "0.19", default-features = false, features = ["2d"] }
+
+[target.'cfg(target_os = "android")'.dependencies]
+# NativeActivity keeps this path independent of Gradle and Maven.
+bevy = { version = "0.19", default-features = false, features = ["android-native-activity"] }
+</code></pre>
+<pre><pre class="playground"><code class="language-rust edition2024">use bevy::prelude::*;
+
+#[bevy_main]
+pub fn main() {
+    App::new().add_plugins(DefaultPlugins).run();
+}</code></pre></pre>
+<p>The <code>rlib</code> entry keeps the library usable by a small desktop binary when desired:</p>
+<pre><pre class="playground"><code class="language-rust edition2024">fn main() {
+    my_game::main();
+}</code></pre></pre>
+<p>Then use the same commands as any other Crossbow project:</p>
+<pre><code class="language-sh">crossbundle run android
+crossbundle build android --release -s=native-aab
+</code></pre>
+<p>Crossbundle forwards the selected profile and Cargo feature flags, and streams Cargo's progress and
+compiler diagnostics while building. If the package does not expose a library <code>cdylib</code>, validation
+fails before compilation with the manifest change required to fix it.</p>
+<p><code>android-native-activity</code> is the recommended default because it keeps the toolchain Rust-native.
+Projects that need AndroidX or other JVM integrations can instead choose Bevy's
+<code>android-game-activity</code> feature and provide the corresponding Java/Gradle integration.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="crossbundle-run-command"><a class="header" href="#crossbundle-run-command">Crossbundle run command</a></h1>
 <h2 id="crossbundle-run-gradle"><a class="header" href="#crossbundle-run-gradle">Crossbundle run gradle</a></h2>
 <p>Crossbow default run process requires installed Gradle on your PC.</p>
@@ -675,8 +714,9 @@ assets = ["assets"]
 icon = "path/to/icon.png"
 
 [package.metadata.android]
-# Android application wrapper: supports ndk-glue and sokol. Now ndk-glue used by bevy engine and sokol used by macroquad 
-app_wrapper = "quad"
+# Standard Cargo library compilation is the default. Legacy source-rewriting
+# integrations can explicitly select "ndk-glue" or "quad".
+rust_compiler = "quad"
 # Android targets to build on debug or release.
 debug_build_targets = ["aarch64-linux-android"]
 release_build_targets = ["aarch64-linux-android"]
