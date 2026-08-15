@@ -497,7 +497,8 @@ impl AndroidBuildCommand {
         config: &Config,
     ) -> Result<Vec<(PathBuf, AndroidTarget)>> {
         let mut libs = Vec::new();
-        let cargo_library_name = (context.config.android.app_wrapper == AppWrapper::Cargo)
+        let cargo_library_name = (context.config.android.rust_compiler
+            == AndroidRustCompiler::Cargo)
             .then(|| self.cargo_library_name(context))
             .transpose()?;
         for build_target in build_targets {
@@ -533,7 +534,7 @@ impl AndroidBuildCommand {
                     self.shared.no_default_features,
                     min_sdk_version,
                     &lib_name,
-                    context.config.android.app_wrapper,
+                    context.config.android.rust_compiler,
                 )?;
                 target_dir
                     .join(build_target.rust_triple())
@@ -610,7 +611,7 @@ impl AndroidBuildCommand {
         } else {
             AndroidManifest::default()
         };
-        let library_name = if context.config.android.app_wrapper == AppWrapper::Cargo {
+        let library_name = if context.config.android.rust_compiler == AndroidRustCompiler::Cargo {
             context
                 .manifest
                 .targets()
@@ -689,7 +690,7 @@ fn validate_cargo_library_target(
             "standard Cargo Android builds require a library target, but `--example {example}` \
              selects a binary. Move the mobile entry point into `[lib]` with \
              `crate-type = [\"cdylib\", \"rlib\"]`, or explicitly select a legacy \
-             `app_wrapper` that supports source rewriting."
+             `rust_compiler` that supports source rewriting."
         )
         .into());
     }
@@ -727,7 +728,7 @@ mod tests {
             .unwrap_err()
             .to_string();
         assert!(error.contains("--example demo"));
-        assert!(error.contains("legacy `app_wrapper`"));
+        assert!(error.contains("legacy `rust_compiler`"));
     }
 
     #[test]

@@ -31,7 +31,7 @@ anyhow = "1.0"
 macroquad = "0.4.5"
 
 [package.metadata.android]
-app_wrapper = "quad"
+rust_compiler = "quad"
 "#;
 
 pub const MQ_MAIN_RS_VALUE: &str = r#"

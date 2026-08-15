@@ -35,7 +35,7 @@ Supported game engines:
 | Name | Description | Status |
 | ---- | ----------- | ------ |
 | [Bevy](https://github.com/bevyengine/bevy) | Uses the default Cargo `cdylib` build path and Bevy's native Android entry point. No generated Rust source or private Cargo API. | ✅ |
-| [Macroquad](https://github.com/not-fl3/macroquad) | Supported via `app_wrapper = "quad"` inside `Cargo.toml` metadata. Also, can work as [cargo-quad-apk](https://github.com/not-fl3/cargo-quad-apk) but with all `crossbundle` features. | ✅ |
+| [Macroquad](https://github.com/not-fl3/macroquad) | Supported via `rust_compiler = "quad"` inside `Cargo.toml` metadata. Also, can work as [cargo-quad-apk](https://github.com/not-fl3/cargo-quad-apk) but with all `crossbundle` features. | ✅ |
 | **placeholder** | Don't find your game engine here? Open an issue! We are happy to add support for new engines. | 🛠 |
 
 ✅ = Works and tested — 🆗 = Works but may contain bugs — 🛠 = Under development
@@ -60,9 +60,9 @@ assets = ["assets"]
 icon = "../../assets/images/icon.png"
 
 [[package.metadata.android]]
-# Optional legacy application wrapper. Omit this for standard Cargo compilation.
+# Optional Rust compiler compatibility mode. Omit this for standard Cargo compilation.
 # Supported compatibility values: ndk-glue and quad.
-app_wrapper = "quad"
+rust_compiler = "quad"
 # The user-friendly application name for your app. Displayed in the applications menu
 app_name = "Example"
 # Path to AndroidManifest.xml file

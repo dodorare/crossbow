@@ -19,7 +19,7 @@ permissions = ["camera", "microphone", "photos", "storage-read"]
 icon = "../../assets/images/icon.png"
 
 [package.metadata.android]
-app_wrapper = "quad"
+rust_compiler = "quad"
 release_build_targets = ["aarch64-linux-android"]
 resources = ["../../assets/res/android"]
 

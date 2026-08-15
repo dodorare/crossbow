@@ -44,7 +44,7 @@ locate the resulting Android library. This path is engine-neutral: any applicati
 `cdylib` with the appropriate Android entry point can use it.
 
 Binary source rewriting is retained only for compatibility with older integrations. Select it
-explicitly with `app_wrapper = "ndk-glue"` or `app_wrapper = "quad"` under
+explicitly with `rust_compiler = "ndk-glue"` or `rust_compiler = "quad"` under
 `[package.metadata.android]`.
 
 ### Bevy

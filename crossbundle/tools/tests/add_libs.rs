@@ -21,7 +21,7 @@ fn add_bevy_libs() {
     let profile = Profile::Release;
     let min_sdk_version = 23;
     let bevy_lib_name = format!("lib{}.so", bevy_package_name.replace('-', "_"));
-    let app_wrapper_for_bevy = AppWrapper::NdkGlue;
+    let rust_compiler_for_bevy = AndroidRustCompiler::NdkGlue;
 
     // Compile rust code for android with bevy engine
     rust_compile(
@@ -35,7 +35,7 @@ fn add_bevy_libs() {
         false,
         min_sdk_version,
         &bevy_lib_name,
-        app_wrapper_for_bevy,
+        rust_compiler_for_bevy,
     )
     .unwrap();
     println!("rust was compiled for bevy example");
@@ -91,7 +91,7 @@ fn add_quad_libs() {
     let profile = Profile::Release;
     let min_sdk_version = 23;
     let quad_lib_name = format!("lib{}.so", quad_package_name.replace('-', "_"));
-    let app_wrapper_for_quad = AppWrapper::Quad;
+    let rust_compiler_for_quad = AndroidRustCompiler::Quad;
 
     // Compile rust code for android with bevy engine
     rust_compile(
@@ -105,7 +105,7 @@ fn add_quad_libs() {
         false,
         min_sdk_version,
         &quad_lib_name,
-        app_wrapper_for_quad,
+        rust_compiler_for_quad,
     )
     .unwrap();
     println!("rust was compiled for quad example");

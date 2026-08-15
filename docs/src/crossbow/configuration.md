@@ -30,7 +30,7 @@ icon = "path/to/icon.png"
 [package.metadata.android]
 # Standard Cargo library compilation is the default. Legacy source-rewriting
 # integrations can explicitly select "ndk-glue" or "quad".
-app_wrapper = "quad"
+rust_compiler = "quad"
 # Android targets to build on debug or release.
 debug_build_targets = ["aarch64-linux-android"]
 release_build_targets = ["aarch64-linux-android"]
