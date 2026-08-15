@@ -197,6 +197,17 @@ crossbundle build android -s=native-aab
 <p>To find out available commands specify the -h flag.</p>
 <pre><code class="language-sh">crossbundle build android -h
 </code></pre>
+<h2 id="preview-a-build-without-side-effects"><a class="header" href="#preview-a-build-without-side-effects">Preview a build without side effects</a></h2>
+<p><code>--dry-run</code> resolves and prints the same immutable Android build plan used by a real
+build, but never generates files, creates a signing key, compiles, downloads, installs,
+or launches anything:</p>
+<pre><code class="language-sh">crossbundle build android --dry-run
+crossbundle build android --dry-run --json
+crossbundle run android --dry-run --json
+</code></pre>
+<p>The JSON plan has a versioned envelope and ordered, stable step IDs. Paths and signing
+inputs may be reported, but signing passwords and other secret values are never stored
+in a plan.</p>
 <h2 id="standard-cargo-projects"><a class="header" href="#standard-cargo-projects">Standard Cargo projects</a></h2>
 <p>Crossbundle uses Cargo's public command-line interface by default and reads Cargo's JSON messages to
 locate the resulting Android library. This path is engine-neutral: any application that exposes a
@@ -241,7 +252,7 @@ Projects that need AndroidX or other JVM integrations can instead choose Bevy's
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../crossbundle/command-install.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../crossbundle/command-doctor.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
@@ -255,7 +266,7 @@ Projects that need AndroidX or other JVM integrations can instead choose Bevy's
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../crossbundle/command-install.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../crossbundle/command-doctor.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 

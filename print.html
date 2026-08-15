@@ -536,6 +536,7 @@ SETX "&lt;path_to_sdk&gt;\sdk\emulator" ~PATH~
 <li><a href="crossbundle/command-build.html">Crossbundle build command</a></li>
 <li><a href="crossbundle/command-run.html">Crossbundle run command</a></li>
 <li><a href="crossbundle/command-install.html">Crossbundle install command</a></li>
+<li><a href="crossbundle/command-doctor.html">Crossbundle doctor command</a></li>
 <li><a href="crossbundle/command-new.html">Crossbundle new command</a></li>
 <li><a href="crossbundle/command-update.html">Crossbundle update command</a></li>
 </ul>
@@ -572,6 +573,105 @@ Note: Android studio install cmdline tools into <code>$SDK_ROOT/cmdline-tools/&l
 <pre><code class="language-sh">crossbundle install bundletool
 </code></pre>
 <p>The command will download bundletool from <a href="https://github.com/google/bundletool/releases"><code>GitHub repository</code></a> and save it into <code>$HOME</code>. Notice, that you should install <a href="https://www.oracle.com/java/technologies/downloads/">Java JDK</a> to open bundletool jar file.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="crossbundle-doctor-command"><a class="header" href="#crossbundle-doctor-command">Crossbundle doctor command</a></h1>
+<p><code>crossbundle doctor</code> diagnoses every platform enabled when Crossbundle was compiled. It
+does not search for a project, download tools, install components, generate files, or
+compile code. Project checks run only when an explicit <code>--project</code> path is supplied.</p>
+<pre><code class="language-sh">crossbundle doctor
+crossbundle doctor --platform android
+crossbundle doctor --platform apple
+crossbundle doctor --platform android,apple
+crossbundle doctor --platform android --platform apple
+crossbundle doctor --project ./Cargo.toml --platform apple
+</code></pre>
+<p>Platform names are typed and case-sensitive. Repeated or comma-delimited values are
+deduplicated and reported in canonical <code>android</code>, <code>apple</code> order. Requesting an unknown
+platform, or a known platform excluded from that Crossbundle build, is an invocation
+error.</p>
+<p>Common host and project checks run once. Each selected platform then runs its own checks.
+On Linux and Windows, Apple-only tooling checks are <code>skip</code> with an explanation. These
+skips do not fail the report, including under <code>--strict</code>.</p>
+<h2 id="compatibility-and-strict-mode"><a class="header" href="#compatibility-and-strict-mode">Compatibility and strict mode</a></h2>
+<p>Compatibility ranges live in <code>crossbundle/tools/Cargo.toml</code> under
+<code>package.metadata.crossbundle.compatibility</code>:</p>
+<ul>
+<li>A preferred version passes.</li>
+<li>Another supported version passes with a note.</li>
+<li>An unsupported or unrecognized version warns normally and fails with <code>--strict</code>.</li>
+<li>A check that is irrelevant to the host or operation is skipped. Strict mode never
+promotes <code>skip</code> to <code>fail</code>.</li>
+</ul>
+<p>Crossbundle currently checks the discovered Xcode and Apple SDK versions but does not
+impose an artificial Xcode or SDK version range. Missing required Apple tools on macOS
+still fail.</p>
+<h2 id="coverage"><a class="header" href="#coverage">Coverage</a></h2>
+<p>Common checks cover Cargo, rustc, the selected Cargo package, and typed Crossbow metadata.
+With <code>--project</code>, package selection reuses the build path's read-only
+<code>cargo locate-project --message-format plain</code> query; pass a package directory rather than a
+virtual-workspace root.
+Android checks cover Java, jarsigner, Gradle, Android SDK platforms and build tools, NDK,
+adb, bundletool, configured Android targets, assets, resources, manifests, and local
+Gradle plugins.</p>
+<p>Apple checks cover the host OS, full Xcode installation, active developer directory,
+Xcode version, Command Line Tools, <code>xcodebuild</code>, <code>xcrun</code>, <code>simctl</code>, iPhoneOS and
+iPhoneSimulator SDKs, relevant installed Rust targets, and signing relevance. Project
+checks use the same typed metadata and Info.plist model as Apple builds to validate bundle
+metadata, bundle identifiers, deployment targets, Rust targets, assets, resources, icons,
+platform-specific plugin compatibility, and signing configuration applicability. Signing
+values and command output that may identify credentials are never included in reports.
+Configured Android Gradle plugins are reported as inapplicable to Apple; ordinary Cargo
+dependencies are not guessed to be plugins. The typed Apple project model has no
+project-level signing fields: <code>project.apple.signing</code> warns when a device target requires
+build-time signing arguments and skips simulator-only projects where signing is irrelevant.</p>
+<h2 id="json-contract"><a class="header" href="#json-contract">JSON contract</a></h2>
+<p><code>--json</code> writes one JSON document to stdout; human diagnostics and errors go to stderr.
+Schema version 1 contains:</p>
+<pre><code class="language-json">{
+  "schema_version": 1,
+  "command": "doctor",
+  "scope": "host",
+  "strict": false,
+  "platforms": ["android", "apple"],
+  "status": "pass",
+  "summary": { "pass": 0, "warn": 0, "fail": 0, "skip": 0 },
+  "checks": []
+}
+</code></pre>
+<p>Check states are <code>pass</code>, <code>warn</code>, <code>fail</code>, or <code>skip</code>. Checks and platforms have deterministic
+ordering, and <code>summary</code> is the exact aggregation of check states.</p>
+<h2 id="stable-check-ids"><a class="header" href="#stable-check-ids">Stable check IDs</a></h2>
+<p>The schema-v1 registry is:</p>
+<ul>
+<li>Common host: <code>host.rust.cargo</code>, <code>host.rust.rustc</code></li>
+<li>Android host: <code>host.java.runtime</code>, <code>host.java.jarsigner</code>, <code>host.gradle</code>,
+<code>android.sdk.root</code>, <code>android.sdk.platform</code>, <code>android.sdk.build_tools</code>, <code>android.ndk</code>,
+<code>android.adb</code>, <code>android.bundletool</code></li>
+<li>Apple host: <code>apple.host.os</code>, <code>apple.xcode.installation</code>, <code>apple.xcode.version</code>,
+<code>apple.xcode.developer_dir</code>, <code>apple.xcode.command_line_tools</code>,
+<code>apple.tool.xcodebuild</code>, <code>apple.tool.xcrun</code>, <code>apple.tool.simctl</code>,
+<code>apple.sdk.iphoneos</code>, <code>apple.sdk.iphonesimulator</code>, <code>apple.signing.identity</code>, and
+<code>apple.rust.target.&lt;triple&gt;</code></li>
+<li>Common project: <code>project.cargo.manifest</code>, <code>project.cargo.package</code>,
+<code>project.crossbow.metadata</code></li>
+<li>Android project: <code>project.android.assets</code>, <code>project.android.resources</code>,
+<code>project.android.icon</code>, <code>project.android.manifest</code>, <code>project.android.targets</code>,
+<code>project.android.rust_targets</code>, <code>project.android.plugins</code>,
+<code>project.android.target_sdk</code>, <code>project.android.min_sdk</code></li>
+<li>Apple project: <code>project.apple.metadata</code>, <code>project.apple.bundle_identifier</code>,
+<code>project.apple.deployment_target</code>, <code>project.apple.target.&lt;triple&gt;</code>,
+<code>project.apple.assets</code>, <code>project.apple.icon</code>, <code>project.apple.signing</code>, and
+<code>project.apple.plugin.&lt;normalized-name&gt;</code></li>
+</ul>
+<p>Dynamic target suffixes are canonical Rust triples. Plugin suffixes are normalized by
+lowercasing ASCII text, replacing each run of non-alphanumeric characters with one <code>-</code>,
+trimming leading and trailing separators, and using <code>unnamed</code> if nothing remains.</p>
+<h2 id="exit-codes"><a class="header" href="#exit-codes">Exit codes</a></h2>
+<ul>
+<li><code>0</code>: no failed checks; warnings and skips are allowed</li>
+<li><code>1</code>: one or more checks failed</li>
+<li><code>2</code>: invalid invocation, a requested platform is not compiled in, or report
+serialization failed</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="crossbundle-build-command"><a class="header" href="#crossbundle-build-command">Crossbundle build command</a></h1>
 <h2 id="crossbundle-build-gradle"><a class="header" href="#crossbundle-build-gradle">Crossbundle build gradle</a></h2>
 <p>Crossbow default build process requires installed Gradle on your PC.</p>
@@ -594,6 +694,17 @@ crossbundle build android -s=native-aab
 <p>To find out available commands specify the -h flag.</p>
 <pre><code class="language-sh">crossbundle build android -h
 </code></pre>
+<h2 id="preview-a-build-without-side-effects"><a class="header" href="#preview-a-build-without-side-effects">Preview a build without side effects</a></h2>
+<p><code>--dry-run</code> resolves and prints the same immutable Android build plan used by a real
+build, but never generates files, creates a signing key, compiles, downloads, installs,
+or launches anything:</p>
+<pre><code class="language-sh">crossbundle build android --dry-run
+crossbundle build android --dry-run --json
+crossbundle run android --dry-run --json
+</code></pre>
+<p>The JSON plan has a versioned envelope and ordered, stable step IDs. Paths and signing
+inputs may be reported, but signing passwords and other secret values are never stored
+in a plan.</p>
 <h2 id="standard-cargo-projects"><a class="header" href="#standard-cargo-projects">Standard Cargo projects</a></h2>
 <p>Crossbundle uses Cargo's public command-line interface by default and reads Cargo's JSON messages to
 locate the resulting Android library. This path is engine-neutral: any application that exposes a
@@ -1215,7 +1326,8 @@ MYAPP_UPLOAD_KEY_PASSWORD=123456
 <p>Crossbow commits the workspace <code>Cargo.lock</code> because the workspace ships the <code>crossbundle</code> executable. Required CI, release, publishing, and installation checks use <code>--locked</code> so that a commit is always tested with its reviewed dependency graph.</p>
 <p>Dependabot checks for Cargo updates every week and opens pull requests that update the manifests and lockfile. Minor and patch updates are grouped; major updates remain separate so their compatibility can be reviewed independently.</p>
 <p>The <code>Latest compatible dependencies</code> workflow provides an additional early-warning check every week and on demand. It generates a new lockfile from the manifests and runs the complete non-iOS workspace test suite against that fresh resolution. Pull-request CI tests the iOS-only package and Apple feature set on macOS. The scheduled workflow does not replace or gate the reproducible checks run on pull requests.</p>
-<p>Android stack versions are canonical in <code>.github/tool-versions.toml</code>. After changing them,
+<p>Android stack versions are canonical in <code>[package.metadata.crossbundle.compatibility]</code> in
+<code>crossbundle/tools/Cargo.toml</code>. After changing them,
 run <code>cargo run -p xtask --locked -- android-stack sync</code> to update the standalone Gradle
 projects. Replace <code>sync</code> with <code>check</code> to verify every operative declaration.</p>
 <h2 id="in-case-of-issues"><a class="header" href="#in-case-of-issues">In case of issues</a></h2>
