@@ -180,23 +180,11 @@ impl IosBuildCommand {
     /// Get info plist from the path in cargo manifest or generate it with the given
     /// configuration
     pub fn gen_info_plist(context: &BuildContext, package_name: &str) -> Result<InfoPlist> {
-        if let Some(info_plist_path) = &context.config.apple.info_plist_path {
-            return Ok(apple::read_info_plist(info_plist_path)?);
-        }
-        let mut info_plist = if let Some(info_plist) = &context.config.apple.info_plist {
-            info_plist.clone()
-        } else {
-            InfoPlist::default()
-        };
-        update_info_plist_with_default(
-            &mut info_plist,
+        Ok(apple::resolve_info_plist(
+            &context.config,
             package_name,
-            context.config.app_name.clone(),
-        );
-        context.config.permissions.iter().for_each(|permission| {
-            permission.update_info_plist(&mut info_plist);
-        });
-        Ok(info_plist)
+            context.config.apple.info_plist_path.as_deref(),
+        )?)
     }
 
     /// Prepare assets and resources for the application.

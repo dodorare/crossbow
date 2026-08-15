@@ -3,7 +3,7 @@
 use crossbundle_lib::commands::build::{BuildContext, android::AndroidBuildCommand};
 use crossbundle_tools::{
     commands::gen_minimal_project,
-    types::{AndroidStrategy, AndroidTarget, Config, Shell},
+    types::{AndroidNdk, AndroidSdk, AndroidStrategy, AndroidTarget, Config, Shell},
 };
 
 #[test]
@@ -31,8 +31,22 @@ fn test_execute_aab() {
         ..Default::default()
     };
 
-    let (_, _, generated_aab_path, _, _) =
-        AndroidBuildCommand::execute_aab(&android_build_command, &config, &context).unwrap();
+    let sdk = AndroidSdk::from_env().unwrap();
+    let ndk = AndroidNdk::from_env(sdk.sdk_path()).unwrap();
+    let java = std::path::PathBuf::from("java");
+    let jarsigner = std::path::PathBuf::from("jarsigner");
+    let bundletool = std::path::PathBuf::from(std::env::var_os("BUNDLETOOL_PATH").unwrap());
+    let (_, _, generated_aab_path, _, _) = AndroidBuildCommand::execute_aab(
+        &android_build_command,
+        &config,
+        &context,
+        &sdk,
+        &ndk,
+        &java,
+        &jarsigner,
+        &bundletool,
+    )
+    .unwrap();
     let expected_path = target_dir
         .join("android")
         .join("example")

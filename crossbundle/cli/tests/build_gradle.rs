@@ -3,7 +3,7 @@
 use crossbundle_lib::commands::build::{BuildContext, android::AndroidBuildCommand};
 use crossbundle_tools::{
     commands::gen_minimal_project,
-    types::{AndroidStrategy, AndroidTarget, Config, Shell},
+    types::{AndroidNdk, AndroidSdk, AndroidStrategy, AndroidTarget, Config, Shell},
 };
 
 #[test]
@@ -30,12 +30,16 @@ fn test_build_gradle() {
         strategy: AndroidStrategy::GradleApk,
         ..Default::default()
     };
+    let sdk = AndroidSdk::from_env().unwrap();
+    let ndk = AndroidNdk::from_env(sdk.sdk_path()).unwrap();
 
     let (_, _, gradle_project_path) = AndroidBuildCommand::build_gradle(
         &android_build_command,
         &config,
         &context,
         &Some(project_path.to_owned()),
+        &sdk,
+        &ndk,
     )
     .unwrap();
     assert!(

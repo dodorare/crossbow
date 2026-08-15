@@ -23,6 +23,7 @@ crossbundle-tools = { workspace = true, default-features = false }
 android-tools = { workspace = true, optional = true }
 clap = { workspace = true, features = ["derive"] }
 serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
 
 anyhow = { workspace = true }
 thiserror = { workspace = true }

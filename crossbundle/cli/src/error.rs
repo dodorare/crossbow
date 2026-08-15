@@ -7,6 +7,15 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Display, Debug, Error)]
 pub enum Error {
+    /// One or more doctor checks failed
+    DoctorFailed,
+    /// Failed to serialize the doctor report: {0}
+    DoctorReport(serde_json::Error),
+    /// Platform '{0}' was not compiled into this crossbundle build
+    #[cfg(any(feature = "android", feature = "apple"))]
+    DoctorPlatformDisabled(crossbundle_tools::toolchain::DoctorPlatform),
+    /// Plan step {step_id} failed: {source}
+    PlanStepFailed { step_id: String, source: Box<Error> },
     /// Can't find target to run
     CantFindTargetToRun,
     /// Team identifier not provided
@@ -42,6 +51,17 @@ pub enum Error {
         path: std::path::PathBuf,
         cause: std::io::Error,
     },
+}
+
+impl Error {
+    pub fn exit_code(&self) -> i32 {
+        match self {
+            Self::DoctorReport(_) => 2,
+            #[cfg(any(feature = "android", feature = "apple"))]
+            Self::DoctorPlatformDisabled(_) => 2,
+            _ => 1,
+        }
+    }
 }
 
 // TODO: Fix this. Is there a better casting for it?

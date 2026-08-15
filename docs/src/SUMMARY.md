@@ -16,6 +16,7 @@
 
 - [Crossbundle](crossbundle/README.md)
     - [Install Command](crossbundle/command-install.md)
+    - [Doctor Command](crossbundle/command-doctor.md)
     - [Build Command](crossbundle/command-build.md)
     - [Run Command](crossbundle/command-run.md)
     - [New Command](crossbundle/command-new.md)

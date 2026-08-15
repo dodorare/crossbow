@@ -2773,6 +2773,7 @@ dependencies = [
  "log",
  "pretty_env_logger",
  "serde",
+ "serde_json",
  "tempfile",
  "thiserror 2.0.20",
  "ureq",
@@ -2790,6 +2791,7 @@ dependencies = [
  "cargo",
  "cargo-util",
  "creator-simctl",
+ "crossbow",
  "crossbow-android",
  "dirs 6.0.0",
  "displaydoc",
@@ -2800,12 +2802,14 @@ dependencies = [
  "itertools 0.15.0",
  "libc",
  "log",
+ "semver",
  "serde",
  "serde_json",
  "serde_plain",
  "tempfile",
  "termcolor",
  "thiserror 2.0.20",
+ "toml",
  "which 8.0.5",
  "winapi",
  "zip",
@@ -9324,6 +9328,9 @@ checksum = "e450f9b2ed1dff33c94c12589a87338689467b9c4f5d8a5710bd09a847d2c8a7"
 [[package]]
 name = "xtask"
 version = "0.0.0"
+dependencies = [
+ "toml",
+]
 
 [[package]]
 name = "yaserde"

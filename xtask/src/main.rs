@@ -33,27 +33,41 @@ fn repository_root() -> PathBuf {
 }
 
 fn read_versions(root: &Path) -> Result<BTreeMap<String, String>, String> {
-    let path = root.join(".github/tool-versions.toml");
+    let path = root.join("crossbundle/tools/Cargo.toml");
     let contents = fs::read_to_string(&path).map_err(|error| format!("{path:?}: {error}"))?;
-    contents
-        .lines()
-        .filter(|line| !line.trim().is_empty() && !line.trim_start().starts_with('#'))
-        .map(|line| {
-            let (key, value) = line
-                .split_once('=')
-                .ok_or_else(|| format!("invalid tool version declaration: {line}"))?;
-            Ok((
-                key.trim().to_owned(),
-                value.trim().trim_matches('"').to_owned(),
-            ))
-        })
-        .collect()
+    let manifest: toml::Value = toml::from_str(&contents).map_err(|error| error.to_string())?;
+    let compatibility = manifest
+        .get("package")
+        .and_then(|v| v.get("metadata"))
+        .and_then(|v| v.get("crossbundle"))
+        .and_then(|v| v.get("compatibility"))
+        .ok_or_else(|| format!("missing package.metadata.crossbundle.compatibility in {path:?}"))?;
+    let mut versions = BTreeMap::new();
+    for section in ["host", "android"] {
+        let Some(tools) = compatibility.get(section).and_then(toml::Value::as_table) else {
+            continue;
+        };
+        for (key, value) in tools {
+            let preferred = value
+                .get("preferred")
+                .and_then(toml::Value::as_str)
+                .ok_or_else(|| format!("missing preferred version for {section}.{key}"))?;
+            let key = match key.as_str() {
+                "android-sdk" => "android_api_level".to_owned(),
+                "build-tools" => "android_build_tools".to_owned(),
+                "ndk" => "android_ndk".to_owned(),
+                other => other.replace('-', "_"),
+            };
+            versions.insert(key, preferred.to_owned());
+        }
+    }
+    Ok(versions)
 }
 
 fn version<'a>(versions: &'a BTreeMap<String, String>, key: &str) -> &'a str {
     versions
         .get(key)
-        .unwrap_or_else(|| panic!("missing {key} in .github/tool-versions.toml"))
+        .unwrap_or_else(|| panic!("missing {key} in crossbundle-tools compatibility metadata"))
 }
 
 fn sync_gradle_versions(source: &str, versions: &BTreeMap<String, String>) -> String {

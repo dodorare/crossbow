@@ -1,35 +1,11 @@
 use crate::error::*;
+use crate::types::{AndroidGradlePlugins, GradleDependencyProject};
 use crossbow_android::embed::CrossbowAndroidAppTemplate;
-use serde::{Deserialize, Serialize};
 use std::{
     fs::File,
     io::Write,
     path::{Path, PathBuf},
 };
-
-#[derive(Debug, Clone, Deserialize, Serialize, Default)]
-pub struct AndroidGradlePlugins {
-    /// Android Gradle local plugins.
-    #[serde(default, rename = "plugins_local")]
-    pub local: Vec<PathBuf>,
-    /// Android Gradle remote plugins.
-    #[serde(default, rename = "plugins_remote")]
-    pub remote: Vec<String>,
-    /// Android Gradle custom maven repositories.
-    #[serde(default, rename = "plugins_maven_repos")]
-    pub maven_repos: Vec<String>,
-    /// Android Gradle local plugins projects.
-    #[serde(default, rename = "plugins_local_projects")]
-    pub local_projects: Vec<GradleDependencyProject>,
-}
-
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct GradleDependencyProject {
-    include: String,
-    #[serde(default)]
-    dont_implement: bool,
-    project_dir: Option<PathBuf>,
-}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct AndroidSdkVersions {

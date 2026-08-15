@@ -9,7 +9,55 @@ license = "MIT OR Apache-2.0"
 keywords = ["android", "ios"]
 readme = "README.md"
 
+[package.metadata.crossbundle.compatibility]
+schema-version = 1
+
+[package.metadata.crossbundle.compatibility.host]
+rust.preferred = "1.97.1"
+rust.supported = ">=1.97.1, <2"
+java-runtime.preferred = "17"
+java-runtime.supported = ">=17, <22"
+java-bytecode.preferred = "17"
+java-bytecode.supported = ">=17, <18"
+gradle.preferred = "9.5.0"
+gradle.supported = ">=9.3, <10"
+
+[package.metadata.crossbundle.compatibility.android]
+android-command-line-tools.preferred = "15859902"
+android-command-line-tools.supported = ">=15859902, <20000000"
+android-sdk.preferred = "36"
+android-sdk.supported = ">=23, <=36"
+android-min-sdk.preferred = "23"
+android-min-sdk.supported = ">=23, <=36"
+build-tools.preferred = "36.0.0"
+build-tools.supported = ">=35.0.0, <=36.0.0"
+ndk.preferred = "28.2.13676358"
+ndk.supported = ">=27, <29"
+android-gradle-plugin.preferred = "9.3.1"
+android-gradle-plugin.supported = ">=9.3, <10"
+androidx-appcompat.preferred = "1.8.0"
+androidx-appcompat.supported = ">=1.8, <2"
+androidx-fragment.preferred = "1.9.0"
+androidx-fragment.supported = ">=1.9, <2"
+play-billing.preferred = "9.1.0"
+play-billing.supported = ">=9.1, <10"
+play-games-services.preferred = "21.0.0"
+play-games-services.supported = ">=21, <22"
+play-app-update.preferred = "2.1.0"
+play-app-update.supported = ">=2.1, <3"
+google-mobile-ads.preferred = "25.0.0"
+google-mobile-ads.supported = ">=25, <26"
+user-messaging-platform.preferred = "4.0.0"
+user-messaging-platform.supported = ">=4, <5"
+bundletool.preferred = "1.18.3"
+bundletool.supported = ">=1.17, <2"
+
+# Apple tooling is checked for presence and reported versions. Crossbundle does not
+# currently impose an artificial Xcode or SDK version range.
+[package.metadata.crossbundle.compatibility.apple]
+
 [dependencies]
+crossbow = { workspace = true, default-features = false }
 crossbow-android = { workspace = true, default-features = false, features = ["embed"] }
 # Apple crates
 apple-bundle = { workspace = true, optional = true }
@@ -21,6 +69,8 @@ android-tools = { workspace = true, optional = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true, optional = true }
 serde_plain = { workspace = true }
+semver = { workspace = true }
+toml = { workspace = true }
 
 dunce = { workspace = true }
 fs_extra = { workspace = true }
@@ -59,7 +109,10 @@ features = [
   "winnt",
 ]
 
+[dev-dependencies]
+serde_json = { workspace = true }
+
 [features]
 default = ["android", "apple"]
 android = ["android-manifest", "android-tools", "serde_json"]
-apple = ["apple-bundle", "simctl"]
+apple = ["apple-bundle", "simctl", "crossbow/update-manifest"]

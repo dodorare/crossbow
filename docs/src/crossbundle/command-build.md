@@ -37,6 +37,22 @@ To find out available commands specify the -h flag.
 crossbundle build android -h
 ```
 
+## Preview a build without side effects
+
+`--dry-run` resolves and prints the same immutable Android build plan used by a real
+build, but never generates files, creates a signing key, compiles, downloads, installs,
+or launches anything:
+
+```sh
+crossbundle build android --dry-run
+crossbundle build android --dry-run --json
+crossbundle run android --dry-run --json
+```
+
+The JSON plan has a versioned envelope and ordered, stable step IDs. Paths and signing
+inputs may be reported, but signing passwords and other secret values are never stored
+in a plan.
+
 ## Standard Cargo projects
 
 Crossbundle uses Cargo's public command-line interface by default and reads Cargo's JSON messages to

@@ -1,4 +1,6 @@
 pub mod build;
+#[cfg(any(feature = "android", feature = "apple"))]
+pub mod doctor;
 pub mod install;
 pub mod new;
 pub mod run;
@@ -13,6 +15,9 @@ pub enum Commands {
     /// Starts the process of building/packaging/signing of the rust crate
     #[clap(subcommand)]
     Build(build::BuildCommand),
+    /// Checks host tools and, optionally, an explicit project without changing anything
+    #[cfg(any(feature = "android", feature = "apple"))]
+    Doctor(doctor::DoctorCommand),
     /// Executes `build` command and then deploy and launches the application on the
     /// device/emulator
     #[clap(subcommand)]
@@ -28,18 +33,30 @@ pub enum Commands {
 
 impl Commands {
     pub fn handle_command(&self, config: &Config) -> Result<()> {
-        match self {
-            Commands::Update(_) => {}
-            _ => {
-                crate::update::check::check_new_version(config)?;
-            }
+        if self.requires_update_check() {
+            crate::update::check::check_new_version(config)?;
         }
         match self {
             Commands::Build(cmd) => cmd.handle_command(config),
+            #[cfg(any(feature = "android", feature = "apple"))]
+            Commands::Doctor(cmd) => cmd.run(config),
             Commands::Run(cmd) => cmd.handle_command(config),
             Commands::New(cmd) => cmd.handle_command(config),
             Commands::Install(cmd) => cmd.handle_command(config),
             Commands::Update(cmd) => cmd.handle_command(config),
+        }
+    }
+
+    fn requires_update_check(&self) -> bool {
+        match self {
+            Commands::Update(_) => false,
+            #[cfg(any(feature = "android", feature = "apple"))]
+            Commands::Doctor(_) => false,
+            #[cfg(feature = "android")]
+            Commands::Build(build::BuildCommand::Android(command)) => !command.dry_run,
+            #[cfg(feature = "android")]
+            Commands::Run(run::RunCommand::Android(command)) => !command.build_command.dry_run,
+            _ => true,
         }
     }
 }
