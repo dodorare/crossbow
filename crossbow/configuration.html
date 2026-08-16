@@ -200,9 +200,9 @@ assets = ["assets"]
 icon = "path/to/icon.png"
 
 [package.metadata.android]
-# Standard Cargo library compilation is the default. Legacy source-rewriting
-# integrations can explicitly select "ndk-glue" or "quad".
-rust_compiler = "quad"
+# Optional activity integration. The default is "native-activity"; use
+# "miniquad" for Macroquad projects built with the Gradle strategy.
+runtime = "native-activity"
 # Android targets to build on debug or release.
 debug_build_targets = ["aarch64-linux-android"]
 release_build_targets = ["aarch64-linux-android"]

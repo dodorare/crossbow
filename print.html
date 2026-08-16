@@ -709,9 +709,6 @@ in a plan.</p>
 <p>Crossbundle uses Cargo's public command-line interface by default and reads Cargo's JSON messages to
 locate the resulting Android library. This path is engine-neutral: any application that exposes a
 <code>cdylib</code> with the appropriate Android entry point can use it.</p>
-<p>Binary source rewriting is retained only for compatibility with older integrations. Select it
-explicitly with <code>rust_compiler = "ndk-glue"</code> or <code>rust_compiler = "quad"</code> under
-<code>[package.metadata.android]</code>.</p>
 <h3 id="bevy"><a class="header" href="#bevy">Bevy</a></h3>
 <p>Expose the application as a library and let Bevy provide the native mobile entry point:</p>
 <pre><code class="language-toml">[lib]
@@ -744,6 +741,36 @@ fails before compilation with the manifest change required to fix it.</p>
 <p><code>android-native-activity</code> is the recommended default because it keeps the toolchain Rust-native.
 Projects that need AndroidX or other JVM integrations can instead choose Bevy's
 <code>android-game-activity</code> feature and provide the corresponding Java/Gradle integration.</p>
+<h3 id="macroquad"><a class="header" href="#macroquad">Macroquad</a></h3>
+<p>Macroquad uses Miniquad's Java activity, so select that runtime and use the Gradle strategy:</p>
+<pre><code class="language-toml">[lib]
+crate-type = ["cdylib", "rlib"]
+
+[package.metadata.android]
+runtime = "miniquad"
+</code></pre>
+<pre><pre class="playground"><code class="language-rust edition2024">#[macroquad::main("Game")]
+pub async fn main() {
+    // ...
+}
+
+#[cfg(target_os = "android")]
+#[unsafe(no_mangle)]
+pub extern "C" fn quad_main() {
+    main();
+}</code></pre></pre>
+<p>Crossbundle takes the Java/JNI sources from the exact resolved Miniquad version. <code>miniquad</code> is not
+supported by <code>native-apk</code> or <code>native-aab</code>, because those strategies do not compile Java code. The
+Crossbow Java bridge and AndroidX are added only when permissions or plugins require them.</p>
+<h3 id="migrating-to-crossbow-03"><a class="header" href="#migrating-to-crossbow-03">Migrating to Crossbow 0.3</a></h3>
+<ul>
+<li>Remove <code>rust_compiler = "cargo"</code>; Cargo is always used.</li>
+<li>Replace <code>rust_compiler = "quad"</code> with <code>runtime = "miniquad"</code>, then expose the library and
+<code>quad_main</code> shown above.</li>
+<li>Remove <code>rust_compiler = "ndk-glue"</code> or <code>app_wrapper</code>; export the runtime's Android entry point
+from a <code>cdylib</code> instead.</li>
+</ul>
+<p>Obsolete keys fail with migration guidance rather than being ignored.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="crossbundle-run-command"><a class="header" href="#crossbundle-run-command">Crossbundle run command</a></h1>
 <h2 id="crossbundle-run-gradle"><a class="header" href="#crossbundle-run-gradle">Crossbundle run gradle</a></h2>
 <p>Crossbow default run process requires installed Gradle on your PC.</p>
@@ -825,9 +852,9 @@ assets = ["assets"]
 icon = "path/to/icon.png"
 
 [package.metadata.android]
-# Standard Cargo library compilation is the default. Legacy source-rewriting
-# integrations can explicitly select "ndk-glue" or "quad".
-rust_compiler = "quad"
+# Optional activity integration. The default is "native-activity"; use
+# "miniquad" for Macroquad projects built with the Gradle strategy.
+runtime = "native-activity"
 # Android targets to build on debug or release.
 debug_build_targets = ["aarch64-linux-android"]
 release_build_targets = ["aarch64-linux-android"]
@@ -1036,20 +1063,34 @@ version = "0.1.0"
 authors = ["Example &lt;example@example.com&gt;"]
 edition = "2024"
 
+[lib]
+crate-type = ["cdylib", "rlib"]
+
 [dependencies]
 crossbow = "*"
+
+[target.'cfg(target_os = "android")'.dependencies]
+android-activity = { version = "0.6", features = ["native-activity"] }
 
 [package.metadata]
 app_name = "My Project"
 icon = "path/to/icon.png"
 </code></pre>
-<blockquote>
-<p>We decided to refuse from lib.rs file for a more convenient project configuration. We need only <code>main.rs</code> to deploy our code</p>
-</blockquote>
-<pre><pre class="playground"><code class="language-rust edition2024">// main.rs
-
-fn main() {
+<p>Put the shared application code and Android entry point in <code>lib.rs</code>:</p>
+<pre><pre class="playground"><code class="language-rust edition2024">// lib.rs
+pub fn main() {
     println!("Hello, project-name!");
+}
+
+#[cfg(target_os = "android")]
+#[unsafe(no_mangle)]
+pub fn android_main(_app: android_activity::AndroidApp) {
+    main();
+}</code></pre></pre>
+<p>Keep the desktop binary as a one-line wrapper:</p>
+<pre><pre class="playground"><code class="language-rust edition2024">// main.rs
+fn main() {
+    project_name::main();
 }</code></pre></pre>
 <h2 id="build-an-application"><a class="header" href="#build-an-application">Build an application</a></h2>
 <p>Let's build and run our first <code>crossbundle</code> application. Android commands below will generate gradle project and install apk on your device. See <a href="tutorials//docs/src/crossbundle/command-run.html">crossbundle run command</a> for additional information.</p>
