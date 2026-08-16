@@ -1,12 +1,12 @@
 mod android_ndk;
-mod android_rust_compiler;
+mod android_runtime;
 mod android_sdk;
 mod build_target;
 mod manifest;
 mod strategies;
 
 pub use android_ndk::*;
-pub use android_rust_compiler::*;
+pub use android_runtime::*;
 pub use android_sdk::*;
 pub use build_target::*;
 pub use manifest::*;

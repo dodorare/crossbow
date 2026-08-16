@@ -59,10 +59,6 @@ Crossbundle uses Cargo's public command-line interface by default and reads Carg
 locate the resulting Android library. This path is engine-neutral: any application that exposes a
 `cdylib` with the appropriate Android entry point can use it.
 
-Binary source rewriting is retained only for compatibility with older integrations. Select it
-explicitly with `rust_compiler = "ndk-glue"` or `rust_compiler = "quad"` under
-`[package.metadata.android]`.
-
 ### Bevy
 
 Expose the application as a library and let Bevy provide the native mobile entry point:
@@ -110,3 +106,42 @@ fails before compilation with the manifest change required to fix it.
 `android-native-activity` is the recommended default because it keeps the toolchain Rust-native.
 Projects that need AndroidX or other JVM integrations can instead choose Bevy's
 `android-game-activity` feature and provide the corresponding Java/Gradle integration.
+
+### Macroquad
+
+Macroquad uses Miniquad's Java activity, so select that runtime and use the Gradle strategy:
+
+```toml
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[package.metadata.android]
+runtime = "miniquad"
+```
+
+```rust
+#[macroquad::main("Game")]
+pub async fn main() {
+    // ...
+}
+
+#[cfg(target_os = "android")]
+#[unsafe(no_mangle)]
+pub extern "C" fn quad_main() {
+    main();
+}
+```
+
+Crossbundle takes the Java/JNI sources from the exact resolved Miniquad version. `miniquad` is not
+supported by `native-apk` or `native-aab`, because those strategies do not compile Java code. The
+Crossbow Java bridge and AndroidX are added only when permissions or plugins require them.
+
+### Migrating to Crossbow 0.3
+
+- Remove `rust_compiler = "cargo"`; Cargo is always used.
+- Replace `rust_compiler = "quad"` with `runtime = "miniquad"`, then expose the library and
+  `quad_main` shown above.
+- Remove `rust_compiler = "ndk-glue"` or `app_wrapper`; export the runtime's Android entry point
+  from a `cdylib` instead.
+
+Obsolete keys fail with migration guidance rather than being ignored.

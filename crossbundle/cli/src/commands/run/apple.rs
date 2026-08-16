@@ -34,7 +34,7 @@ impl IosRunCommand {
         //         build_command.target = vec![IosTarget::X86_64];
         //     }
         // }
-        let context = BuildContext::new(config, build_command.shared.target_dir.clone())?;
+        let context = BuildContext::new(config, &build_command.shared)?;
         let (info_plist, app_paths) = build_command.execute(config, &context)?;
         config.status("Starting run process")?;
         let bundle_id = &info_plist.identification.bundle_identifier;

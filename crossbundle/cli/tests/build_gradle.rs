@@ -23,7 +23,7 @@ fn test_build_gradle() {
 
     let shell = Shell::new();
     let config = Config::new(shell, target_dir.clone());
-    let context = BuildContext::new(&config, Some(target_dir)).unwrap();
+    let context = BuildContext::new(&config, &Default::default()).unwrap();
 
     let android_build_command = AndroidBuildCommand {
         target: vec![AndroidTarget::Aarch64],

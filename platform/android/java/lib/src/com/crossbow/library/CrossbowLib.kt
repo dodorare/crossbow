@@ -3,14 +3,13 @@ package com.crossbow.library
 import android.app.Activity
 
 object CrossbowLib {
-    init {
-        // This is necessary when any of the following happens:
-        //     - crossbow_android library is not configured to the following line in the manifest:
-        //        <meta-data android:name="android.app.lib_name" android:value="crossbow_android" />
-        //     - GameActivity derived class calls to the native code before calling
-        //       the super.onCreate() function.
-        System.loadLibrary("crossbow_android")
-    }
+    /** Initializes ndk-context for Java-Activity runtimes such as Miniquad. */
+    @JvmStatic
+    external fun initializeAndroidContext(activity: Activity)
+
+    /** Releases a context initialized by [initializeAndroidContext]. */
+    @JvmStatic
+    external fun releaseAndroidContext()
 
     /**
      * Invoked on the main thread to initialize Crossbow native layer.

@@ -6,15 +6,47 @@ use android_manifest::*;
 pub const DEFAULT_ANDROID_MIN_SDK: u32 = 23;
 pub const DEFAULT_ANDROID_TARGET_SDK: u32 = 36;
 
+/// Returns the Activity that handles the manifest's launcher intent.
+pub fn launcher_activity(manifest: &AndroidManifest) -> Option<&str> {
+    manifest
+        .application
+        .activity
+        .iter()
+        .find(|activity| !activity.name.is_empty() && handles_launcher(&activity.intent_filter))
+        .map(|activity| activity.name.as_str())
+        .or_else(|| {
+            manifest
+                .application
+                .activity_alias
+                .iter()
+                .find(|alias| handles_launcher(&alias.intent_filter))
+                .and_then(|alias| alias.name.as_deref().filter(|name| !name.is_empty()))
+        })
+}
+
+fn handles_launcher(filters: &[IntentFilter]) -> bool {
+    filters.iter().any(|filter| {
+        filter
+            .action
+            .iter()
+            .any(|action| action.name.as_deref() == Some("android.intent.action.MAIN"))
+            && filter.category.iter().any(|category| {
+                category.name.as_deref() == Some("android.intent.category.LAUNCHER")
+            })
+    })
+}
+
 /// Updates [`AndroidManifest`](android_manifest::AndroidManifest) with default values.
 pub fn update_android_manifest_with_default(
     manifest: &mut AndroidManifest,
     app_name: Option<String>,
-    package_name: &str,
+    library_name: &str,
     strategy: super::AndroidStrategy,
+    runtime: super::AndroidRuntime,
+    crossbow_bridge: bool,
 ) {
     if manifest.package.as_ref().is_none_or(String::is_empty) {
-        manifest.package = Some(format!("com.crossbow.{}", package_name.replace('-', "_")));
+        manifest.package = Some(format!("com.crossbow.{}", library_name.replace('-', "_")));
     }
     if manifest.version_name.is_none() {
         manifest.version_name = Some("0.1.0".to_owned());
@@ -50,9 +82,21 @@ pub fn update_android_manifest_with_default(
     if manifest.application.activity.len() == 1 {
         let activity = manifest.application.activity.get_mut(0).unwrap();
         if activity.name.is_empty() {
-            activity.name = match strategy == AndroidStrategy::GradleApk {
-                true => "com.crossbow.game.CrossbowApp".to_string(),
-                false => "android.app.NativeActivity".to_string(),
+            activity.name = match (strategy, runtime) {
+                (AndroidStrategy::GradleApk, super::AndroidRuntime::Miniquad)
+                    if crossbow_bridge =>
+                {
+                    format!("{}.CrossbowApp", manifest.package.as_deref().unwrap())
+                }
+                (AndroidStrategy::GradleApk, super::AndroidRuntime::Miniquad) => {
+                    format!("{}.MainActivity", manifest.package.as_deref().unwrap())
+                }
+                (AndroidStrategy::GradleApk, super::AndroidRuntime::NativeActivity)
+                    if crossbow_bridge =>
+                {
+                    "com.crossbow.game.CrossbowApp".to_string()
+                }
+                _ => "android.app.NativeActivity".to_string(),
             };
         }
         if activity.resizeable_activity.is_none() {
@@ -61,17 +105,23 @@ pub fn update_android_manifest_with_default(
         if activity.exported.is_none() {
             activity.exported = VarOrBool::Bool(true).into();
         }
-        if !activity
-            .meta_data
-            .iter()
-            .any(|m| m.name == Some("android.app.lib_name".to_string()))
+        if runtime == super::AndroidRuntime::Miniquad && activity.config_changes.is_empty() {
+            activity.config_changes = vec![
+                ConfigChanges::Orientation,
+                ConfigChanges::KeyboardHidden,
+                ConfigChanges::ScreenSize,
+            ]
+            .into();
+        }
+        if runtime == super::AndroidRuntime::NativeActivity
+            && !activity
+                .meta_data
+                .iter()
+                .any(|metadata| metadata.name.as_deref() == Some("android.app.lib_name"))
         {
             activity.meta_data.push(MetaData {
                 name: Some("android.app.lib_name".to_string()),
-                value: Some(match strategy == AndroidStrategy::GradleApk {
-                    true => "crossbow_android".to_string(),
-                    false => package_name.replace('-', "_"),
-                }),
+                value: Some(library_name.replace('-', "_")),
                 ..Default::default()
             });
         }
@@ -86,5 +136,71 @@ pub fn update_android_manifest_with_default(
                 ..Default::default()
             }];
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn miniquad_defaults_to_its_activity_and_handles_rotation() {
+        let mut manifest = AndroidManifest::default();
+        update_android_manifest_with_default(
+            &mut manifest,
+            None,
+            "my_game",
+            AndroidStrategy::GradleApk,
+            super::super::AndroidRuntime::Miniquad,
+            false,
+        );
+
+        assert_eq!(
+            launcher_activity(&manifest),
+            Some("com.crossbow.my_game.MainActivity")
+        );
+        assert_eq!(
+            manifest.application.activity[0].config_changes.vec().len(),
+            3
+        );
+        assert!(manifest.application.activity[0].meta_data.is_empty());
+    }
+
+    #[test]
+    fn finds_launcher_among_multiple_activities() {
+        let mut manifest = AndroidManifest::default();
+        manifest.application.activity = vec![Activity::default(), Activity::default()];
+        manifest.application.activity[0].name = ".SettingsActivity".into();
+        manifest.application.activity[1].name = ".GameActivity".into();
+        manifest.application.activity[1].intent_filter = vec![IntentFilter {
+            action: vec![Action {
+                name: Some("android.intent.action.MAIN".into()),
+            }],
+            category: vec![Category {
+                name: Some("android.intent.category.LAUNCHER".into()),
+            }],
+            ..Default::default()
+        }];
+
+        assert_eq!(launcher_activity(&manifest), Some(".GameActivity"));
+    }
+
+    #[test]
+    fn native_activity_does_not_require_the_java_bridge() {
+        let mut manifest = AndroidManifest::default();
+        update_android_manifest_with_default(
+            &mut manifest,
+            None,
+            "my_game",
+            AndroidStrategy::GradleApk,
+            super::super::AndroidRuntime::NativeActivity,
+            false,
+        );
+
+        assert_eq!(
+            launcher_activity(&manifest),
+            Some("android.app.NativeActivity")
+        );
+        assert_eq!(manifest.application.activity[0].meta_data.len(), 1);
     }
 }

@@ -257,13 +257,16 @@ jobs:
         run: |
           crossbundle doctor --platform android --strict --json > doctor-android.json || { cat doctor-android.json; exit 1; }
           crossbundle doctor --strict --json > doctor-default.json || { cat doctor-default.json; exit 1; }
-          crossbundle build android -s=native-apk --release --dry-run --json > plan.json || { cat plan.json; exit 1; }
+          crossbundle build android --release --dry-run --json > plan.json || { cat plan.json; exit 1; }
           jq -e '.schema_version == 1 and .platforms == ["android"] and .status == "pass"' doctor-android.json > /dev/null
           jq -e '.schema_version == 1 and .platforms == ["android", "apple"] and .status == "pass" and ([.checks[] | select(.id | startswith("apple.")) | .status] | length > 0 and all(. == "skip"))' doctor-default.json > /dev/null
           jq -e '.schema_version == 1' plan.json > /dev/null
       - name: Build APK
         working-directory: examples/macroquad-3d
-        run: crossbundle build android -s=native-apk --release
+        run: crossbundle build android --release
+      - name: Build Bevy APK
+        working-directory: examples/bevy-2d
+        run: crossbundle build android --release
 
   android-build-windows:
     name: Build Android example on Windows

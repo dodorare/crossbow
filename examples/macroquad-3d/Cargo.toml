@@ -4,6 +4,9 @@ version = "0.2.3"
 authors = ["DodoRare Team <support@dodorare.com>"]
 edition.workspace = true
 
+[lib]
+crate-type = ["cdylib", "rlib"]
+
 [dependencies]
 crossbow = { workspace = true, default-features = true }
 log = { workspace = true }
@@ -16,7 +19,7 @@ assets = ["../../assets"]
 icon = "../../assets/images/icon.png"
 
 [package.metadata.android]
-rust_compiler = "quad"
+runtime = "miniquad"
 manifest_path = "res/AndroidManifest.xml"
 release_build_targets = ["aarch64-linux-android"]
 resources = ["../../assets/res/android"]

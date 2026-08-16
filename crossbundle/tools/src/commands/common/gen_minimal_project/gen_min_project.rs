@@ -1,37 +1,26 @@
 use super::*;
 use crate::error::*;
-use std::{
-    fs::{File, create_dir},
-    io::Write,
-};
-
-// TODO: Fix this file logic.
+use std::fs::{create_dir, write};
 
 /// Generates a new minimal project in given path.
 pub fn gen_minimal_project(out_dir: &std::path::Path, macroquad_project: bool) -> Result<String> {
     // Create Cargo.toml file
-    let file_path = out_dir.join("Cargo.toml");
-    let mut file = File::create(file_path)?;
     let cargo_toml = if macroquad_project {
         MINIMAL_MQ_CARGO_TOML_VALUE
     } else {
         MINIMAL_BEVY_CARGO_TOML_VALUE
     };
-    let cargo_toml = use_test_workspace(cargo_toml)?;
-    file.write_all(cargo_toml.as_bytes())?;
-    // Create src folder
+    write(out_dir.join("Cargo.toml"), use_test_workspace(cargo_toml)?)?;
+
     let src_path = out_dir.join("src");
     create_dir(&src_path)?;
-    // Create main.rs
-    let main_rs_path = src_path.join("main.rs");
-    let mut main_rs = File::create(main_rs_path)?;
-    if macroquad_project {
-        main_rs.write_all(MQ_MAIN_RS_VALUE.as_bytes())?;
+    let (library, binary) = if macroquad_project {
+        (MQ_MAIN_RS_VALUE, MQ_BIN_RS_VALUE)
     } else {
-        main_rs.write_all(BEVY_MAIN_RS_VALUE.as_bytes())?;
-        let mut lib_rs = File::create(src_path.join("lib.rs"))?;
-        lib_rs.write_all(BEVY_LIB_RS_VALUE.as_bytes())?;
-    }
+        (BEVY_LIB_RS_VALUE, BEVY_MAIN_RS_VALUE)
+    };
+    write(src_path.join("lib.rs"), library)?;
+    write(src_path.join("main.rs"), binary)?;
     create_res_folder(out_dir)?;
     Ok("example".to_owned())
 }
@@ -82,6 +71,7 @@ mod tests {
         let manifest = std::fs::read_to_string(dir.path().join("Cargo.toml")).unwrap();
         assert!(manifest.contains("crate-type = [\"cdylib\", \"rlib\"]"));
         assert!(dir.path().join("src/lib.rs").is_file());
+        assert!(dir.path().join("src/main.rs").is_file());
     }
 
     #[test]

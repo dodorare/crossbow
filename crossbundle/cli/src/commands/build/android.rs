@@ -55,7 +55,7 @@ impl AndroidBuildCommand {
                 .shell()
                 .warn("You provided a signing key but not password - set password please by providing `sign_key_pass` flag")?;
         }
-        let context = BuildContext::new(config, self.shared.target_dir.clone())?;
+        let context = BuildContext::new(config, &self.shared)?;
         let plan = self.create_plan(
             &context,
             crossbundle_tools::toolchain::PlanOperation::Build,
@@ -95,6 +95,7 @@ impl AndroidBuildCommand {
                 targets,
                 attach_logger,
                 library_only: self.lib.is_some(),
+                runtime: context.config.android.runtime,
             },
             &crossbundle_tools::toolchain::Environment::discover(),
         )
@@ -117,7 +118,20 @@ impl AndroidBuildCommand {
 
     pub fn ensure_plan_valid(&self, plan: &crossbundle_tools::toolchain::BuildPlan) -> Result<()> {
         if plan.diagnostics.status == crossbundle_tools::toolchain::ReportStatus::Fail {
-            Err(Error::DoctorFailed)
+            let failures = plan
+                .diagnostics
+                .checks
+                .iter()
+                .filter(|check| check.status == crossbundle_tools::toolchain::CheckStatus::Fail)
+                .map(|check| {
+                    check.remediation.as_ref().map_or_else(
+                        || check.summary.clone(),
+                        |remediation| format!("{}: {remediation}", check.summary),
+                    )
+                })
+                .collect::<Vec<_>>()
+                .join("; ");
+            Err(anyhow::anyhow!("Android build plan is invalid: {failures}").into())
         } else {
             Ok(())
         }
@@ -162,6 +176,7 @@ impl AndroidBuildCommand {
             .unwrap_or(DEFAULT_ANDROID_TARGET_SDK);
 
         config.status("Generating gradle project")?;
+        let library_name = self.cargo_library_name(context)?;
         let gradle_project_path = gen_gradle_project(
             manifest_package,
             manifest.version_code.unwrap_or(1),
@@ -177,6 +192,10 @@ impl AndroidBuildCommand {
             &assets,
             &resources,
             &context.config.android.plugins,
+            context.config.android.runtime,
+            &library_name,
+            &context.project,
+            context.config.android_uses_crossbow_bridge(),
         )?;
 
         config.status_message("Generating", "AndroidManifest.xml")?;
@@ -187,8 +206,7 @@ impl AndroidBuildCommand {
         gradle_manifest.version_name = None;
         save_android_manifest(&gradle_project_path, &gradle_manifest)?;
 
-        let lib_name = "crossbow_android";
-        self.build_rust_lib(config, context, lib_name, Some(android_build_dir), ndk)?;
+        self.build_rust_lib(config, context, &library_name, Some(android_build_dir), ndk)?;
 
         config.status_message(
             "Gradle project generated",
@@ -208,7 +226,7 @@ impl AndroidBuildCommand {
     ) -> Result<()> {
         let profile = self.shared.profile();
         let example = self.shared.example.as_ref();
-        let (project_path, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
+        let (_, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
         config.status_message("Starting lib build process", &package_name)?;
 
         let android_build_dir = if let Some(export_path) = export_path {
@@ -226,9 +244,7 @@ impl AndroidBuildCommand {
         let compiled_libs = self.build_target(
             context,
             build_targets,
-            lib_name,
             ndk,
-            &project_path,
             profile,
             min_sdk_version,
             &target_dir,
@@ -286,9 +302,7 @@ impl AndroidBuildCommand {
         let compiled_libs = self.build_target(
             context,
             build_targets,
-            &package_name,
             ndk,
-            &project_path,
             profile,
             min_sdk_version,
             &target_dir,
@@ -352,7 +366,7 @@ impl AndroidBuildCommand {
     ) -> Result<(AndroidManifest, AndroidSdk, PathBuf, String, Key)> {
         let profile = self.shared.profile();
         let example = self.shared.example.as_ref();
-        let (project_path, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
+        let (_, target_dir, package_name) = Self::needed_project_dirs(example, context)?;
         config.status_message("Starting aab build process", &package_name)?;
 
         let android_build_dir = target_dir.join("android").join(&package_name);
@@ -377,9 +391,7 @@ impl AndroidBuildCommand {
         let compiled_libs = self.build_target(
             context,
             build_targets,
-            &package_name,
             ndk,
-            &project_path,
             profile,
             min_sdk_version,
             &target_dir,
@@ -546,73 +558,41 @@ impl AndroidBuildCommand {
         &self,
         context: &BuildContext,
         build_targets: Vec<AndroidTarget>,
-        package_name: &str,
         ndk: &AndroidNdk,
-        project_path: &Path,
         profile: Profile,
         min_sdk_version: u32,
         target_dir: &Path,
         config: &Config,
     ) -> Result<Vec<(PathBuf, AndroidTarget)>> {
         let mut libs = Vec::new();
-        let cargo_library_name = (context.config.android.rust_compiler
-            == AndroidRustCompiler::Cargo)
-            .then(|| self.cargo_library_name(context))
-            .transpose()?;
+        let cargo_library_name = self.cargo_library_name(context)?;
         for build_target in build_targets {
-            let lib_name = format!("lib{}.so", package_name.replace('-', "_"));
             let rust_triple = build_target.rust_triple();
 
             config.status_message("Compiling for architecture", rust_triple)?;
-            let compiled_lib = if let Some(library_name) = &cargo_library_name {
-                standard_cargo_compile(
-                    ndk,
-                    build_target,
-                    &context.package_manifest_path,
-                    &context.package_name(),
-                    library_name,
-                    profile,
-                    &self.shared.features,
-                    self.shared.all_features,
-                    self.shared.no_default_features,
-                    min_sdk_version,
-                    target_dir,
-                )?
-            } else {
-                // Explicit compatibility path for integrations whose Android entry point is
-                // still generated by Crossbow.
-                rust_compile(
-                    ndk,
-                    build_target,
-                    project_path,
-                    target_dir,
-                    profile,
-                    self.shared.features.clone(),
-                    self.shared.all_features,
-                    self.shared.no_default_features,
-                    min_sdk_version,
-                    &lib_name,
-                    context.config.android.rust_compiler,
-                )?;
-                target_dir
-                    .join(build_target.rust_triple())
-                    .join(profile)
-                    .join(lib_name)
-            };
+            let compiled_lib = standard_cargo_compile(
+                ndk,
+                build_target,
+                &context.package_manifest_path,
+                &context.package_name(),
+                &cargo_library_name,
+                profile,
+                &self.shared.features,
+                self.shared.all_features,
+                self.shared.no_default_features,
+                min_sdk_version,
+                target_dir,
+            )?;
             libs.push((compiled_lib, build_target));
         }
         Ok(libs)
     }
 
     fn cargo_library_name(&self, context: &BuildContext) -> Result<String> {
-        let library = context
-            .manifest
-            .targets()
-            .iter()
-            .find(|target| target.is_lib());
+        let library = context.project.library_target();
         validate_cargo_library_target(
             self.shared.example.as_deref(),
-            library.map(|target| (target.name(), target.is_cdylib())),
+            library.map(|target| (target.name.as_str(), target.is_cdylib())),
         )
     }
 
@@ -661,30 +641,25 @@ impl AndroidBuildCommand {
         context: &BuildContext,
         strategy: AndroidStrategy,
     ) -> Result<AndroidManifest> {
-        if let Some(manifest_path) = &context.config.android.manifest_path {
-            return Ok(read_android_manifest(manifest_path)?);
-        }
-        let mut manifest = if let Some(manifest) = &context.config.android.manifest {
+        let mut manifest = if let Some(manifest_path) = &context.config.android.manifest_path {
+            read_android_manifest(manifest_path)?
+        } else if let Some(manifest) = &context.config.android.manifest {
             manifest.clone()
         } else {
             AndroidManifest::default()
         };
-        let library_name = if context.config.android.rust_compiler == AndroidRustCompiler::Cargo {
-            context
-                .manifest
-                .targets()
-                .iter()
-                .find(|target| target.is_lib())
-                .map(|target| target.name())
-                .unwrap_or_else(|| context.manifest.summary().name().as_str())
-        } else {
-            context.manifest.summary().name().as_str()
-        };
+        let library_name = context
+            .project
+            .library_target()
+            .map(|target| target.name.as_str())
+            .unwrap_or(&context.project.package.name);
         update_android_manifest_with_default(
             &mut manifest,
             context.config.app_name.clone(),
             library_name,
             strategy,
+            context.config.android.runtime,
+            context.config.android_uses_crossbow_bridge(),
         );
         context.config.permissions.iter().for_each(|permission| {
             permission.update_manifest(&mut manifest);
@@ -767,6 +742,7 @@ pub(crate) enum AndroidBuildArtifact {
         apks: Option<PathBuf>,
     },
     Gradle {
+        manifest: AndroidManifest,
         sdk: AndroidSdk,
         project: PathBuf,
     },
@@ -849,17 +825,22 @@ impl<'a> AndroidBuildExecutor<'a> {
                 })
             }
             PlanStepKind::PrepareGradleProject => {
-                let (_, sdk, project) = self.command.build_gradle(
+                let (manifest, sdk, project) = self.command.build_gradle(
                     self.config,
                     self.context,
                     &self.command.export_path,
                     &self.sdk,
                     &self.ndk,
                 )?;
-                Some(AndroidBuildArtifact::Gradle { sdk, project })
+                Some(AndroidBuildArtifact::Gradle {
+                    manifest,
+                    sdk,
+                    project,
+                })
             }
             PlanStepKind::BuildGradleProject => {
-                let Some(AndroidBuildArtifact::Gradle { sdk, project }) = self.artifact.as_ref()
+                let Some(AndroidBuildArtifact::Gradle { sdk, project, .. }) =
+                    self.artifact.as_ref()
                 else {
                     return Err(anyhow::anyhow!("Gradle project was not prepared").into());
                 };
@@ -911,8 +892,7 @@ fn validate_cargo_library_target(
         return Err(anyhow::anyhow!(
             "standard Cargo Android builds require a library target, but `--example {example}` \
              selects a binary. Move the mobile entry point into `[lib]` with \
-             `crate-type = [\"cdylib\", \"rlib\"]`, or explicitly select a legacy \
-             `rust_compiler` that supports source rewriting."
+             `crate-type = [\"cdylib\", \"rlib\"]`."
         )
         .into());
     }
@@ -950,7 +930,7 @@ mod tests {
             .unwrap_err()
             .to_string();
         assert!(error.contains("--example demo"));
-        assert!(error.contains("legacy `rust_compiler`"));
+        assert!(error.contains("library target"));
     }
 
     #[test]

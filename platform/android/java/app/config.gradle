@@ -5,8 +5,7 @@ ext.versions = [
     minSdk             : 23,
     targetSdk          : 36,
     buildTools         : "36.0.0",
-    fragmentVersion    : "1.9.0",
-    appcompatVersion   : "1.8.0",
+    coreVersion        : "1.13.0",
     nexusPublishVersion: "1.1.0",
     javaVersion        : 17,
     ndkVersion         : "28.2.13676358"
@@ -14,8 +13,7 @@ ext.versions = [
 
 ext.libraries = [
     androidGradlePlugin: "com.android.tools.build:gradle:$versions.androidGradlePlugin",
-    androidxFragment   : "androidx.fragment:fragment:$versions.fragmentVersion",
-    androidxAppcompat  : "androidx.appcompat:appcompat:$versions.appcompatVersion",
+    androidxCore       : "androidx.core:core:$versions.coreVersion",
     crossbowLibrary    : "com.crossbow.library:lib:$versions.crossbowLibrary"
 ]
 
@@ -82,6 +80,11 @@ ext.getExportTargetSdkVersion = { ->
     } catch (NumberFormatException ignored) {
         return versions.targetSdk
     }
+}
+
+ext.getCrossbowBridge = { ->
+    String bridge = project.findProperty("crossbow_bridge")
+    return bridge == null ? true : bridge.toBoolean()
 }
 
 // Crossbow plugins

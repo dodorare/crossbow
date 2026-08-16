@@ -68,6 +68,8 @@ fn test_aapt2_link() {
         Some("Example".to_owned()),
         "example",
         AndroidStrategy::NativeApk,
+        AndroidRuntime::NativeActivity,
+        false,
     );
 
     // Saves android manifest into temporary directory

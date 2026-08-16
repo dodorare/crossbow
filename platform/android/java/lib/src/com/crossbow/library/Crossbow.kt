@@ -1,4 +1,4 @@
-@file:Suppress("DEPRECATION")
+@file:Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
 
 package com.crossbow.library
 
@@ -14,9 +14,9 @@ import android.app.Fragment
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
+import android.view.LayoutInflater
 import android.widget.FrameLayout
 import androidx.annotation.CallSuper
-import androidx.core.app.ActivityCompat
 import androidx.annotation.Keep
 
 class Crossbow : Fragment() {
@@ -120,10 +120,18 @@ class Crossbow : Fragment() {
 		Log.v(TAG, "Crossbow onRenderInit finished")
     }
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View = checkNotNull(containerLayout) { "Crossbow native initialization did not create its view" }
+
     override fun onDestroy() {
         for (plugin in pluginRegistry!!.allPlugins) {
             plugin.onMainDestroy()
         }
+        CrossbowPluginRegistry.clearPluginRegistry(pluginRegistry)
+        pluginRegistry = null
         CrossbowLib.onDestroy()
         super.onDestroy()
     }

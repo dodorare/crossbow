@@ -20,20 +20,39 @@ version = "0.1.0"
 authors = ["Example <example@example.com>"]
 edition = "2024"
 
+[lib]
+crate-type = ["cdylib", "rlib"]
+
 [dependencies]
 crossbow = "*"
+
+[target.'cfg(target_os = "android")'.dependencies]
+android-activity = { version = "0.6", features = ["native-activity"] }
 
 [package.metadata]
 app_name = "My Project"
 icon = "path/to/icon.png"
 ```
 
-> We decided to refuse from lib.rs file for a more convenient project configuration. We need only `main.rs` to deploy our code 
+Put the shared application code and Android entry point in `lib.rs`:
+```rust
+// lib.rs
+pub fn main() {
+    println!("Hello, project-name!");
+}
+
+#[cfg(target_os = "android")]
+#[unsafe(no_mangle)]
+pub fn android_main(_app: android_activity::AndroidApp) {
+    main();
+}
+```
+
+Keep the desktop binary as a one-line wrapper:
 ```rust
 // main.rs
-
 fn main() {
-    println!("Hello, project-name!");
+    project_name::main();
 }
 ```
 

@@ -1,7 +1,10 @@
 use super::*;
 #[cfg(feature = "apple")]
 use crate::types::AndroidGradlePlugins;
-use crate::{commands::*, types::CrossbowMetadata};
+use crate::{
+    commands::*,
+    types::{CrossbowMetadata, deserialize_crossbow_metadata},
+};
 
 pub(super) struct ProjectContext {
     pub(super) manifest_path: PathBuf,
@@ -55,31 +58,32 @@ impl ProjectContext {
             }
         };
         let manifest_path = dunce::canonicalize(&manifest_path).unwrap_or(manifest_path);
-        let Ok(manifest) = parse_manifest(&manifest_path) else {
+        let Ok(cargo_project) = CargoProject::load_package(&manifest_path) else {
             return Self {
                 manifest_path,
                 state: ProjectState::Invalid,
             };
         };
-        let metadata_present = manifest.custom_metadata().is_some();
+        let manifest = &cargo_project.package;
+        let metadata_present = manifest
+            .metadata
+            .as_object()
+            .is_some_and(|metadata| !metadata.is_empty());
         #[cfg(feature = "apple")]
-        let apple_metadata_present = manifest
-            .custom_metadata()
-            .and_then(|metadata| metadata.get("apple"))
-            .is_some();
-        let custom_metadata = manifest.custom_metadata();
+        let apple_metadata_present = manifest.metadata.get("apple").is_some();
+        let custom_metadata = &manifest.metadata;
         let metadata = typed_metadata(custom_metadata, platforms);
         #[cfg(feature = "apple")]
         let android_plugins = custom_metadata
-            .and_then(|metadata| metadata.get("android"))
+            .get("android")
             .cloned()
-            .and_then(|metadata| metadata.try_into::<AndroidGradlePlugins>().ok())
+            .and_then(|metadata| serde_json::from_value::<AndroidGradlePlugins>(metadata).ok())
             .map(|plugins| plugin_names(&plugins))
             .unwrap_or_default();
         Self {
             manifest_path,
             state: ProjectState::Valid(Box::new(Project {
-                package_name: manifest.summary().name().to_string(),
+                package_name: manifest.name.clone(),
                 metadata_present,
                 metadata,
                 #[cfg(feature = "apple")]
@@ -190,20 +194,18 @@ impl ProjectContext {
 }
 
 fn typed_metadata(
-    metadata: Option<&toml::Value>,
+    metadata: &serde_json::Value,
     platforms: &[DoctorPlatform],
 ) -> Result<CrossbowMetadata, ()> {
-    let Some(mut metadata) = metadata.cloned() else {
-        return Ok(CrossbowMetadata::default());
-    };
-    if let Some(table) = metadata.as_table_mut() {
+    let mut metadata = metadata.clone();
+    if let Some(table) = metadata.as_object_mut() {
         for platform in [DoctorPlatform::Android, DoctorPlatform::Apple] {
             if !platforms.contains(&platform) {
                 table.remove(platform.canonical_name());
             }
         }
     }
-    metadata.try_into().map_err(|_| ())
+    deserialize_crossbow_metadata(metadata).map_err(|_| ())
 }
 
 #[cfg(feature = "apple")]

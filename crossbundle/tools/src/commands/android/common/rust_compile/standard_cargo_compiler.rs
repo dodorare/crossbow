@@ -1,4 +1,4 @@
-use super::{cargo_env_target_cfg, cmake_env};
+use super::cmake_env;
 use crate::{error::*, types::*};
 use anyhow::Context as _;
 use serde_json::Value;
@@ -122,6 +122,14 @@ pub fn standard_cargo_compile(
         return Err(Error::PathNotFound(artifact));
     }
     Ok(artifact)
+}
+
+fn cargo_env_target_cfg(key: &str, target: &str) -> String {
+    format!(
+        "CARGO_TARGET_{}_{}",
+        target.to_uppercase().replace('-', "_"),
+        key
+    )
 }
 
 #[allow(clippy::too_many_arguments)]
