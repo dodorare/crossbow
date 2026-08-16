@@ -36,8 +36,6 @@ fs_extra = { workspace = true }
 dirs = { workspace = true }
 dunce = { workspace = true }
 ureq = { workspace = true }
-cargo = { workspace = true }
-cargo-util = { workspace = true }
 
 [dev-dependencies]
 tempfile = { workspace = true }

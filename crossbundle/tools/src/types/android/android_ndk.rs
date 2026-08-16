@@ -1,5 +1,5 @@
 use crate::error::*;
-use crate::types::{AndroidTarget, IntoRustTriple};
+use crate::types::AndroidTarget;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
@@ -252,175 +252,29 @@ impl AndroidNdk {
     }
 
     /// Return tool root from the toolchain directory
-    pub fn tool_root(&self) -> cargo::CargoResult<PathBuf> {
-        let tool_root = self
-            .toolchain_dir()
-            .map_err(|_| anyhow::Error::msg("The path to toolchain directory not found"))?;
-        Ok(tool_root)
-    }
-
-    /// Return path to linker
-    pub fn linker_path(
-        &self,
-        build_target: &AndroidTarget,
-        min_sdk_version: u32,
-    ) -> cargo::CargoResult<PathBuf> {
-        let linker = bin!("ld.gold");
-        let mut linker_path = self
-            .tool_root()?
-            .join(build_target.ndk_triple())
-            .join("bin")
-            .join(linker);
-        if !linker_path.exists() {
-            #[cfg(target_os = "windows")]
-            let ext = ".cmd";
-            #[cfg(not(target_os = "windows"))]
-            let ext = "";
-            linker_path = self.tool_root()?.join("bin").join(format!(
-                "{}{}-clang{}",
-                build_target.rust_triple(),
-                min_sdk_version,
-                ext,
-            ))
-        }
-        if !linker_path.exists() {
-            return Err(anyhow::Error::msg(format!(
-                "The path to the {} not found",
-                linker_path.to_string_lossy()
-            )));
-        }
-        Ok(linker_path)
-    }
-
-    /// Return path to gcc library
-    pub fn gcc_lib_path(&self, build_target: &AndroidTarget) -> cargo::CargoResult<PathBuf> {
-        let triple = build_target.ndk_triple();
-        let gcc_lib_path = self
-            .tool_root()?
-            .join("lib")
-            .join("gcc")
-            .join(triple)
-            .join("4.9.x");
-        if !gcc_lib_path.exists() {
-            return Err(anyhow::Error::msg(format!(
-                "The path to {} not found",
-                gcc_lib_path.to_string_lossy()
-            )));
-        }
-        Ok(gcc_lib_path)
+    pub fn tool_root(&self) -> Result<PathBuf> {
+        self.toolchain_dir()
     }
 
     /// Return path to sysroot
-    pub fn sysroot(&self) -> cargo::CargoResult<PathBuf> {
+    pub fn sysroot(&self) -> Result<PathBuf> {
         let sysroot = self.tool_root()?.join("sysroot");
         if !sysroot.exists() {
-            return Err(anyhow::Error::msg(format!(
-                "The path to {} not found",
-                sysroot.to_string_lossy()
-            )));
+            return Err(Error::PathNotFound(sysroot));
         }
         Ok(sysroot)
     }
 
     /// Return path to sysroot library
-    pub fn sysroot_lib_dir(&self, build_target: &AndroidTarget) -> cargo::CargoResult<PathBuf> {
+    pub fn sysroot_lib_dir(&self, build_target: &AndroidTarget) -> Result<PathBuf> {
         let sysroot_lib_dir = self
-            .tool_root()?
-            .join(self.sysroot()?)
+            .sysroot()?
             .join("usr")
             .join("lib")
             .join(build_target.ndk_triple());
         if !sysroot_lib_dir.exists() {
-            return Err(anyhow::Error::msg("The path to the tool root not found"));
+            return Err(Error::PathNotFound(sysroot_lib_dir));
         }
         Ok(sysroot_lib_dir)
-    }
-
-    /// Return path to version specific libraries
-    pub fn ver_specific_lib_path(
-        &self,
-        min_sdk_version: u32,
-        build_target: &AndroidTarget,
-    ) -> cargo::CargoResult<PathBuf> {
-        let version_specific_libraries_path = Self::find_ndk_path(min_sdk_version, |plarform| {
-            self.sysroot_lib_dir(build_target)
-                .map_err(|_| {
-                    self.sysroot_lib_dir(build_target).unwrap();
-                })
-                .unwrap()
-                .join(plarform.to_string())
-        })
-        .map_err(|_| anyhow::Error::msg("Failed to get access to the ndk path"))?;
-
-        if !version_specific_libraries_path.exists() {
-            return Err(anyhow::Error::msg(format!(
-                "The path to {} not found",
-                version_specific_libraries_path.to_string_lossy()
-            )));
-        }
-        Ok(version_specific_libraries_path)
-    }
-
-    /// Returns dir to libunwind.a for the correct architecture
-    pub fn find_libunwind_dir(&self, build_target: &AndroidTarget) -> cargo::CargoResult<PathBuf> {
-        find_libunwind_dir(self.tool_root()?, build_target.clang_arch())
-    }
-}
-
-/// Locate the Clang runtime library directory across old and current NDK layouts.
-fn find_libunwind_dir(
-    tool_root: impl AsRef<Path>,
-    clang_arch: &str,
-) -> cargo::CargoResult<PathBuf> {
-    let tool_root = tool_root.as_ref();
-    for clang_root in [tool_root.join("lib/clang"), tool_root.join("lib64/clang")] {
-        let entries = match clang_root.read_dir() {
-            Ok(entries) => entries,
-            Err(error) if error.kind() == std::io::ErrorKind::NotFound => continue,
-            Err(error) => return Err(error.into()),
-        };
-
-        for entry in entries {
-            let libunwind_dir = entry?.path().join("lib").join("linux").join(clang_arch);
-            if libunwind_dir.join("libunwind.a").is_file() {
-                return Ok(libunwind_dir);
-            }
-        }
-    }
-
-    Err(anyhow::format_err!(
-        "Unable to find libunwind.a for `{clang_arch}` under `{}`",
-        tool_root.to_string_lossy()
-    ))
-}
-
-#[cfg(test)]
-mod tests {
-    use super::find_libunwind_dir;
-
-    #[test]
-    fn finds_libunwind_in_current_ndk_layout() {
-        let tool_root = tempfile::tempdir().unwrap();
-        let expected = tool_root.path().join("lib/clang/18/lib/linux/aarch64");
-        std::fs::create_dir_all(&expected).unwrap();
-        std::fs::write(expected.join("libunwind.a"), []).unwrap();
-
-        assert_eq!(
-            find_libunwind_dir(tool_root.path(), "aarch64").unwrap(),
-            expected
-        );
-    }
-
-    #[test]
-    fn still_finds_libunwind_in_legacy_ndk_layout() {
-        let tool_root = tempfile::tempdir().unwrap();
-        let expected = tool_root.path().join("lib64/clang/14.0.7/lib/linux/x86_64");
-        std::fs::create_dir_all(&expected).unwrap();
-        std::fs::write(expected.join("libunwind.a"), []).unwrap();
-
-        assert_eq!(
-            find_libunwind_dir(tool_root.path(), "x86_64").unwrap(),
-            expected
-        );
     }
 }

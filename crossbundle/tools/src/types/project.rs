@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
 #[cfg(feature = "android")]
-use crate::types::{AndroidRustCompiler, AndroidTarget, android_manifest::AndroidManifest};
+use crate::types::{AndroidRuntime, AndroidTarget, android_manifest::AndroidManifest};
 #[cfg(feature = "apple")]
 use crate::types::{IosTarget, apple_bundle::prelude::InfoPlist};
 
@@ -22,6 +22,15 @@ pub struct AndroidGradlePlugins {
     /// Android Gradle local plugin projects.
     #[serde(default, rename = "plugins_local_projects")]
     pub local_projects: Vec<GradleDependencyProject>,
+}
+
+impl AndroidGradlePlugins {
+    pub fn is_empty(&self) -> bool {
+        self.local.is_empty()
+            && self.remote.is_empty()
+            && self.maven_repos.is_empty()
+            && self.local_projects.is_empty()
+    }
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -74,6 +83,11 @@ impl CrossbowMetadata {
         &self.android.resources
     }
 
+    #[cfg(feature = "android")]
+    pub fn android_uses_crossbow_bridge(&self) -> bool {
+        !self.permissions.is_empty() || !self.android.plugins.is_empty()
+    }
+
     #[cfg(feature = "apple")]
     pub fn get_apple_assets(&self) -> &[PathBuf] {
         if self.apple.assets.is_empty() {
@@ -92,8 +106,8 @@ impl CrossbowMetadata {
 #[cfg(feature = "android")]
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct AndroidConfig {
-    #[serde(default, alias = "app_wrapper")]
-    pub rust_compiler: AndroidRustCompiler,
+    #[serde(default)]
+    pub runtime: AndroidRuntime,
     pub manifest: Option<AndroidManifest>,
     pub manifest_path: Option<PathBuf>,
     #[serde(default)]
@@ -106,6 +120,57 @@ pub struct AndroidConfig {
     pub release_build_targets: Vec<AndroidTarget>,
     #[serde(flatten)]
     pub plugins: AndroidGradlePlugins,
+}
+
+pub fn deserialize_crossbow_metadata(
+    metadata: serde_json::Value,
+) -> anyhow::Result<CrossbowMetadata> {
+    if metadata.is_null() {
+        return Ok(CrossbowMetadata::default());
+    }
+    #[cfg(feature = "android")]
+    if let Some(android) = metadata.get("android") {
+        if android.get("rust_compiler").is_some() {
+            anyhow::bail!(
+                "`package.metadata.android.rust_compiler` was removed in Crossbow 0.3; Cargo is now always used. Remove the key, or replace `rust_compiler = \"quad\"` with `runtime = \"miniquad\"`"
+            );
+        }
+        if android.get("app_wrapper").is_some() {
+            anyhow::bail!(
+                "`package.metadata.android.app_wrapper` was removed in Crossbow 0.3; remove it and use `runtime = \"miniquad\"` only for Miniquad/Macroquad applications"
+            );
+        }
+    }
+    Ok(serde_json::from_value(metadata)?)
+}
+
+#[cfg(all(test, feature = "android"))]
+mod android_config_tests {
+    use super::*;
+
+    #[test]
+    fn rejects_removed_compiler_configuration_with_migration_help() {
+        let error = deserialize_crossbow_metadata(serde_json::json!({
+            "android": { "rust_compiler": "quad" }
+        }))
+        .unwrap_err()
+        .to_string();
+        assert!(error.contains("runtime = \"miniquad\""));
+
+        let error = deserialize_crossbow_metadata(serde_json::json!({
+            "android": { "app_wrapper": "ndk-glue" }
+        }))
+        .unwrap_err()
+        .to_string();
+        assert!(error.contains("app_wrapper` was removed"));
+    }
+
+    #[test]
+    fn accepts_cargo_metadata_null_for_unconfigured_packages() {
+        let metadata = deserialize_crossbow_metadata(serde_json::Value::Null).unwrap();
+        assert!(metadata.app_name.is_none());
+        assert_eq!(metadata.android.runtime, AndroidRuntime::NativeActivity);
+    }
 }
 
 #[cfg(feature = "apple")]

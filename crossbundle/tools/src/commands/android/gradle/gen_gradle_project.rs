@@ -1,11 +1,10 @@
 use crate::error::*;
-use crate::types::{AndroidGradlePlugins, GradleDependencyProject};
-use crossbow_android::embed::CrossbowAndroidAppTemplate;
-use std::{
-    fs::File,
-    io::Write,
-    path::{Path, PathBuf},
+use crate::{
+    commands::CargoProject,
+    types::{AndroidGradlePlugins, AndroidRuntime, GradleDependencyProject},
 };
+use crossbow_android::embed::CrossbowAndroidAppTemplate;
+use std::path::{Path, PathBuf};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct AndroidSdkVersions {
@@ -22,6 +21,10 @@ pub fn gen_gradle_project(
     assets_dir: &Option<PathBuf>,
     resources_dir: &Option<PathBuf>,
     plugins: &AndroidGradlePlugins,
+    runtime: AndroidRuntime,
+    library_name: &str,
+    cargo_project: &CargoProject,
+    crossbow_bridge: bool,
 ) -> Result<PathBuf> {
     let gradle_project_path = android_build_dir.join("gradle");
 
@@ -30,33 +33,39 @@ pub fn gen_gradle_project(
         if let Some(path) = file_path.parent() {
             std::fs::create_dir_all(path)?;
         }
-        let mut build_gradle = File::create(file_path)?;
-        let file = CrossbowAndroidAppTemplate::get(file_name.as_ref()).unwrap();
-        write!(
-            build_gradle,
-            "{}",
-            std::str::from_utf8(file.data.as_ref()).unwrap()
+        let file = CrossbowAndroidAppTemplate::get(file_name.as_ref())
+            .expect("embedded template entry disappeared during iteration");
+        std::fs::write(file_path, file.data.as_ref())?;
+    }
+
+    if runtime == AndroidRuntime::Miniquad || !crossbow_bridge {
+        std::fs::remove_file(gradle_project_path.join("src/com/crossbow/game/CrossbowApp.kt"))?;
+    }
+    if runtime == AndroidRuntime::Miniquad {
+        install_miniquad_runtime(
+            &gradle_project_path,
+            package_name,
+            library_name,
+            cargo_project,
+            crossbow_bridge,
         )?;
     }
 
-    let mut gradle_properties = File::create(gradle_project_path.join("gradle.properties"))?;
-    write!(
-        gradle_properties,
-        "{}",
+    std::fs::write(
+        gradle_project_path.join("gradle.properties"),
         get_gradle_properties(
             package_name,
             version_code,
             version_name,
             sdk_versions,
             plugins,
-        )?
+            crossbow_bridge,
+        ),
     )?;
 
-    let mut settings_gradle = File::create(gradle_project_path.join("settings.gradle"))?;
-    write!(
-        settings_gradle,
-        "{}",
-        get_settings_gradle(&plugins.local_projects)?
+    std::fs::write(
+        gradle_project_path.join("settings.gradle"),
+        get_settings_gradle(&plugins.local_projects)?,
     )?;
 
     let mut options = fs_extra::dir::CopyOptions::new();
@@ -65,17 +74,142 @@ pub fn gen_gradle_project(
     // Copy resources to gradle folder if provided
     if let Some(resources_dir) = resources_dir {
         let path = gradle_project_path.join("res");
-        std::fs::remove_dir_all(&path).ok();
+        if path.exists() {
+            std::fs::remove_dir_all(&path)?;
+        }
         fs_extra::dir::copy(resources_dir, &path, &options)?;
     }
     // Copy assets to gradle folder if provided
     if let Some(assets_dir) = assets_dir {
         let path = gradle_project_path.join("assets");
-        std::fs::remove_dir_all(&path).ok();
+        if path.exists() {
+            std::fs::remove_dir_all(&path)?;
+        }
         fs_extra::dir::copy(assets_dir, &path, &options)?;
     }
 
     Ok(gradle_project_path)
+}
+
+fn install_miniquad_runtime(
+    gradle_project_path: &Path,
+    package_name: &str,
+    library_name: &str,
+    cargo_project: &CargoProject,
+    crossbow_bridge: bool,
+) -> Result<()> {
+    if crossbow_bridge {
+        cargo_project.dependency("crossbow").map_err(|error| {
+            anyhow::anyhow!(
+                "Miniquad permissions and plugins require the `crossbow` crate: {error}"
+            )
+        })?;
+    }
+    let miniquad = cargo_project.dependency("miniquad")?;
+    let crate_root = miniquad
+        .manifest_path
+        .parent()
+        .ok_or_else(|| anyhow::anyhow!("Miniquad's Cargo.toml has no parent directory"))?;
+    let java_root = crate_root.join("java");
+    let main_activity = java_root.join("MainActivity.java");
+    let quad_native = java_root.join("QuadNative.java");
+    for source in [&main_activity, &quad_native] {
+        if !source.is_file() {
+            return Err(anyhow::anyhow!(
+                "Miniquad {} does not contain expected Android source `{}`",
+                miniquad.version,
+                source.display()
+            )
+            .into());
+        }
+    }
+
+    let package_dir = gradle_project_path
+        .join("src")
+        .join(package_name.replace('.', "/"));
+    std::fs::create_dir_all(&package_dir)?;
+    let activity = std::fs::read_to_string(main_activity)?;
+    if !activity.contains("TARGET_PACKAGE_NAME") || !activity.contains("LIBRARY_NAME") {
+        return Err(anyhow::anyhow!(
+            "Miniquad {} has an unsupported Android MainActivity.java template",
+            miniquad.version
+        )
+        .into());
+    }
+    let activity = activity
+        .replace("TARGET_PACKAGE_NAME", package_name)
+        .replace("LIBRARY_NAME", library_name);
+    std::fs::write(package_dir.join("MainActivity.java"), activity)?;
+
+    let quad_native_dir = gradle_project_path.join("src/quad_native");
+    std::fs::create_dir_all(&quad_native_dir)?;
+    std::fs::copy(quad_native, quad_native_dir.join("QuadNative.java"))?;
+    let crossbow_activity = package_dir.join("CrossbowApp.kt");
+    if crossbow_bridge {
+        std::fs::write(crossbow_activity, miniquad_crossbow_activity(package_name))?;
+    } else if crossbow_activity.exists() {
+        std::fs::remove_file(crossbow_activity)?;
+    }
+    Ok(())
+}
+
+fn miniquad_crossbow_activity(package_name: &str) -> String {
+    format!(
+        r#"@file:Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
+
+package {package_name}
+
+import android.content.Intent
+import android.os.Bundle
+import com.crossbow.library.Crossbow
+import com.crossbow.library.CrossbowHost
+import com.crossbow.library.CrossbowLib
+
+open class CrossbowApp : MainActivity(), CrossbowHost {{
+    private var crossbow: Crossbow? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {{
+        CrossbowLib.initializeAndroidContext(this)
+        super.onCreate(savedInstanceState)
+        crossbow = if (savedInstanceState == null) {{
+            Crossbow().also {{
+                fragmentManager.beginTransaction().add(android.R.id.content, it).commit()
+            }}
+        }} else {{
+            fragmentManager.findFragmentById(android.R.id.content) as? Crossbow
+        }}
+    }}
+
+    override fun onNewIntent(intent: Intent) {{
+        super.onNewIntent(intent)
+        crossbow?.onNewIntent(intent)
+    }}
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {{
+        super.onActivityResult(requestCode, resultCode, data)
+        crossbow?.onActivityResult(requestCode, resultCode, data)
+    }}
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {{
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        crossbow?.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }}
+
+    override fun onBackPressed() {{
+        crossbow?.onBackPressed() ?: super.onBackPressed()
+    }}
+
+    override fun onDestroy() {{
+        super.onDestroy()
+        CrossbowLib.releaseAndroidContext()
+    }}
+}}
+"#
+    )
 }
 
 fn get_default_gradle_props(
@@ -84,20 +218,18 @@ fn get_default_gradle_props(
     version_name: &str,
     sdk_versions: AndroidSdkVersions,
 ) -> String {
-    let mut res = r#"org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+    format!(
+        r#"org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
 android.useAndroidX=true
 android.nonTransitiveRClass=true
-"#
-    .to_owned();
-    res = format!("{}export_package_name={}\n", res, package_name);
-    res = format!("{}export_version_code={}\n", res, version_code);
-    res = format!("{}export_version_name={}\n", res, version_name);
-    res = format!("{}export_version_min_sdk={}\n", res, sdk_versions.min_sdk);
-    res = format!(
-        "{}export_version_target_sdk={}\n",
-        res, sdk_versions.target_sdk
-    );
-    res
+export_package_name={package_name}
+export_version_code={version_code}
+export_version_name={version_name}
+export_version_min_sdk={}
+export_version_target_sdk={}
+"#,
+        sdk_versions.min_sdk, sdk_versions.target_sdk
+    )
 }
 
 fn get_gradle_properties(
@@ -106,22 +238,22 @@ fn get_gradle_properties(
     version_name: &str,
     sdk_versions: AndroidSdkVersions,
     plugins: &AndroidGradlePlugins,
-) -> Result<String> {
+    crossbow_bridge: bool,
+) -> String {
     let mut result =
         get_default_gradle_props(package_name, version_code, version_name, sdk_versions);
+    result.push_str(&format!("crossbow_bridge={crossbow_bridge}\n"));
     if !plugins.maven_repos.is_empty() {
-        result = format!(
-            "{}plugins_maven_repos={}\n",
-            result,
+        result.push_str(&format!(
+            "plugins_maven_repos={}\n",
             plugins.maven_repos.join("\\|")
-        );
+        ));
     }
     if !plugins.remote.is_empty() {
-        result = format!(
-            "{}plugins_remote_binaries={}\n",
-            result,
+        result.push_str(&format!(
+            "plugins_remote_binaries={}\n",
             plugins.remote.join("\\|")
-        );
+        ));
     }
     if !plugins.local.is_empty() {
         let local = plugins
@@ -130,7 +262,7 @@ fn get_gradle_properties(
             .map(|p| dunce::simplified(p).to_string_lossy())
             .collect::<Vec<_>>()
             .join("\\|");
-        result = format!("{}plugins_local_binaries={}\n", result, local);
+        result.push_str(&format!("plugins_local_binaries={local}\n"));
     }
     if !plugins.local_projects.is_empty() {
         let projects = plugins
@@ -140,15 +272,15 @@ fn get_gradle_properties(
             .map(|p| p.include.clone())
             .collect::<Vec<_>>()
             .join("\\|");
-        result = format!("{}plugins_local_projects={}\n", result, projects);
+        result.push_str(&format!("plugins_local_projects={projects}\n"));
     }
-    Ok(result)
+    result
 }
 
 fn get_settings_gradle(dependencies: &[GradleDependencyProject]) -> Result<String> {
-    let mut result = "".to_owned();
+    let mut result = String::new();
     for dependency in dependencies {
-        result = format!("{}include \"{}\"\n", result, dependency.include);
+        result.push_str(&format!("include \"{}\"\n", dependency.include));
         if let Some(dir) = &dependency.project_dir {
             let dir_path = dunce::canonicalize(dir)
                 .map_err(|_| AndroidError::GradleDependencyProjectNotFound(dir.to_path_buf()))?;
@@ -157,12 +289,11 @@ fn get_settings_gradle(dependencies: &[GradleDependencyProject]) -> Result<Strin
                     AndroidError::GradleDependencyProjectNoBuildFile(dir.to_path_buf()).into(),
                 );
             }
-            result = format!(
-                "{}project(\"{}\").projectDir = new File({:?})\n",
-                result,
+            result.push_str(&format!(
+                "project(\"{}\").projectDir = new File({:?})\n",
                 dependency.include,
                 dir_path.to_string_lossy()
-            );
+            ));
         }
     }
     Ok(result)
@@ -171,6 +302,43 @@ fn get_settings_gradle(dependencies: &[GradleDependencyProject]) -> Result<Strin
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn miniquad_fixture() -> (tempfile::TempDir, CargoProject) {
+        let root = tempfile::tempdir().unwrap();
+        for package in ["app", "miniquad"] {
+            std::fs::create_dir_all(root.path().join(package).join("src")).unwrap();
+            std::fs::write(root.path().join(package).join("src/lib.rs"), "").unwrap();
+        }
+        std::fs::write(
+            root.path().join("Cargo.toml"),
+            "[workspace]\nresolver = \"3\"\nmembers = [\"app\", \"miniquad\"]\n",
+        )
+        .unwrap();
+        std::fs::write(
+            root.path().join("app/Cargo.toml"),
+            "[package]\nname = \"app\"\nversion = \"0.1.0\"\nedition = \"2024\"\n\
+             [dependencies]\nminiquad = { path = \"../miniquad\" }\n",
+        )
+        .unwrap();
+        std::fs::write(
+            root.path().join("miniquad/Cargo.toml"),
+            "[package]\nname = \"miniquad\"\nversion = \"1.2.3\"\nedition = \"2024\"\n",
+        )
+        .unwrap();
+        std::fs::create_dir(root.path().join("miniquad/java")).unwrap();
+        std::fs::write(
+            root.path().join("miniquad/java/MainActivity.java"),
+            "package TARGET_PACKAGE_NAME; class MainActivity { static { System.loadLibrary(\"LIBRARY_NAME\"); } }",
+        )
+        .unwrap();
+        std::fs::write(
+            root.path().join("miniquad/java/QuadNative.java"),
+            "package quad_native; class QuadNative {}",
+        )
+        .unwrap();
+        let project = CargoProject::load(&root.path().join("app/Cargo.toml")).unwrap();
+        (root, project)
+    }
 
     #[test]
     fn test_crossbow_app_template() {
@@ -220,18 +388,93 @@ mod tests {
             local_projects: vec![],
         };
         assert_eq!(
-            get_gradle_properties("com.crossbow.test", 1, "1.0", sdk_versions, &plugins).unwrap(),
-            get_default_gradle_props("com.crossbow.test", 1, "1.0", sdk_versions),
+            get_gradle_properties("com.crossbow.test", 1, "1.0", sdk_versions, &plugins, true,),
+            format!(
+                "{}crossbow_bridge=true\n",
+                get_default_gradle_props("com.crossbow.test", 1, "1.0", sdk_versions)
+            ),
         );
 
         plugins.local.push(PathBuf::from("../../MyPlugin.aar"));
         assert_eq!(
-            get_gradle_properties("com.crossbow.test", 1, "1.0", sdk_versions, &plugins).unwrap(),
+            get_gradle_properties("com.crossbow.test", 1, "1.0", sdk_versions, &plugins, true,),
             format!(
-                "{}{}",
+                "{}{}{}",
                 get_default_gradle_props("com.crossbow.test", 1, "1.0", sdk_versions),
+                "crossbow_bridge=true\n",
                 "plugins_local_binaries=../../MyPlugin.aar\n"
             )
         );
+    }
+
+    #[test]
+    fn miniquad_bridge_uses_the_application_package() {
+        let source = miniquad_crossbow_activity("dev.crossbow.game");
+        assert!(source.contains("package dev.crossbow.game"));
+        assert!(source.contains("class CrossbowApp : MainActivity(), CrossbowHost"));
+        assert!(source.contains("onRequestPermissionsResult"));
+    }
+
+    #[test]
+    fn installs_sources_from_the_resolved_miniquad_package() {
+        let (root, project) = miniquad_fixture();
+        let output = root.path().join("output");
+        install_miniquad_runtime(&output, "dev.crossbow.game", "mobile_game", &project, false)
+            .unwrap();
+
+        let activity =
+            std::fs::read_to_string(output.join("src/dev/crossbow/game/MainActivity.java"))
+                .unwrap();
+        assert!(activity.contains("package dev.crossbow.game"));
+        assert!(activity.contains("System.loadLibrary(\"mobile_game\")"));
+        assert!(output.join("src/quad_native/QuadNative.java").is_file());
+        assert!(!output.join("src/dev/crossbow/game/CrossbowApp.kt").exists());
+    }
+
+    #[test]
+    fn bridge_requires_crossbow_and_miniquad_requires_its_java_sources() {
+        let (root, project) = miniquad_fixture();
+        let bridge_error = install_miniquad_runtime(
+            &root.path().join("bridge"),
+            "dev.crossbow.game",
+            "game",
+            &project,
+            true,
+        )
+        .unwrap_err()
+        .to_string();
+        assert!(bridge_error.contains("require the `crossbow` crate"));
+
+        std::fs::remove_file(root.path().join("miniquad/java/QuadNative.java")).unwrap();
+        let source_error = install_miniquad_runtime(
+            &root.path().join("missing-source"),
+            "dev.crossbow.game",
+            "game",
+            &project,
+            false,
+        )
+        .unwrap_err()
+        .to_string();
+        assert!(source_error.contains("QuadNative.java"));
+        std::fs::write(
+            root.path().join("miniquad/java/QuadNative.java"),
+            "package quad_native; class QuadNative {}",
+        )
+        .unwrap();
+        std::fs::write(
+            root.path().join("miniquad/java/MainActivity.java"),
+            "class MainActivity {}",
+        )
+        .unwrap();
+        let error = install_miniquad_runtime(
+            &root.path().join("output"),
+            "dev.crossbow.game",
+            "game",
+            &project,
+            false,
+        )
+        .unwrap_err()
+        .to_string();
+        assert!(error.contains("unsupported Android MainActivity.java template"));
     }
 }

@@ -1,4 +1,7 @@
-use super::{CheckStatus, DoctorPlatform, DoctorReport, DoctorRequest, Environment, diagnose};
+use super::{
+    CheckStatus, DoctorCheck, DoctorPlatform, DoctorReport, DoctorRequest, Environment, diagnose,
+};
+use crate::types::AndroidRuntime;
 use serde::{Deserialize, Serialize};
 use std::{fmt, path::PathBuf};
 
@@ -27,6 +30,7 @@ pub struct PlanRequest {
     pub targets: Vec<String>,
     pub attach_logger: bool,
     pub library_only: bool,
+    pub runtime: AndroidRuntime,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -112,6 +116,22 @@ pub fn plan(request: &PlanRequest, environment: &Environment) -> BuildPlan {
         environment,
     );
     let mut required = Vec::new();
+    if request.runtime == AndroidRuntime::Miniquad
+        && request.strategy != PlanStrategy::GradleApk
+        && !request.library_only
+    {
+        diagnostics.checks.push(DoctorCheck {
+            id: "project.android.runtime".into(),
+            status: CheckStatus::Fail,
+            category: "Project".into(),
+            summary: "The Miniquad runtime requires the Gradle APK strategy".into(),
+            required: true,
+            found: None,
+            expected: None,
+            source: Some("package.metadata.android.runtime".into()),
+            remediation: Some("Use `--strategy gradle-apk`; native APK/AAB packaging does not compile Miniquad's Java runtime".into()),
+        });
+    }
     if request.operation == PlanOperation::Run && !request.library_only {
         required.push("android.adb");
     }
@@ -264,6 +284,7 @@ mod tests {
             targets: vec!["aarch64-linux-android".into()],
             attach_logger: false,
             library_only: false,
+            runtime: AndroidRuntime::NativeActivity,
         }
     }
 
@@ -324,6 +345,21 @@ mod tests {
     }
 
     #[test]
+    fn miniquad_requires_gradle_packaging() {
+        let mut request = request(PlanOperation::Build, PlanStrategy::NativeApk);
+        request.runtime = AndroidRuntime::Miniquad;
+        let plan = plan(&request, &Environment::default());
+        let check = plan
+            .diagnostics
+            .checks
+            .iter()
+            .find(|check| check.id == "project.android.runtime")
+            .unwrap();
+        assert_eq!(check.status, CheckStatus::Fail);
+        assert!(check.remediation.as_deref().unwrap().contains("gradle-apk"));
+    }
+
+    #[test]
     fn library_plan_does_not_require_unused_packaging_tools() {
         let mut request = request(PlanOperation::Build, PlanStrategy::NativeAab);
         request.library_only = true;
@@ -367,6 +403,7 @@ mod tests {
             targets: vec!["aarch64-linux-android".into()],
             attach_logger: true,
             library_only: false,
+            runtime: AndroidRuntime::NativeActivity,
         };
         let result = plan(&request, &Environment::default());
         assert!(result.steps.iter().any(|s| s.id == "android.device.log"));
@@ -390,6 +427,7 @@ mod tests {
             targets: vec![],
             attach_logger: false,
             library_only: false,
+            runtime: AndroidRuntime::NativeActivity,
         };
         let plan = plan(&request, &Environment::default());
         let mut runner = RecordingRunner(Vec::new());
@@ -421,6 +459,7 @@ mod tests {
             targets: vec![],
             attach_logger: false,
             library_only: false,
+            runtime: AndroidRuntime::NativeActivity,
         };
         let plan = plan(&request, &Environment::default());
         let error = execute(&plan, &mut FailingRunner).unwrap_err();

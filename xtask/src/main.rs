@@ -20,7 +20,7 @@ const GRADLE_VERSION_FIELDS: &[(&str, &str, bool)] = &[
     ("targetSdk", "android_api_level", false),
     ("buildTools", "android_build_tools", true),
     ("appcompatVersion", "androidx_appcompat", true),
-    ("fragmentVersion", "androidx_fragment", true),
+    ("coreVersion", "androidx_core", true),
     ("javaVersion", "java_bytecode", false),
     ("ndkVersion", "android_ndk", true),
 ];
@@ -179,7 +179,6 @@ fn check_gradle_config(
         "minSdk",
         "targetSdk",
         "buildTools",
-        "appcompatVersion",
         "javaVersion",
     ] {
         if !found.contains(required) {
@@ -187,11 +186,13 @@ fn check_gradle_config(
         }
     }
     if path.ends_with("platform/android/java/app/config.gradle") {
-        for required in ["fragmentVersion", "ndkVersion"] {
+        for required in ["coreVersion", "ndkVersion"] {
             if !found.contains(required) {
                 failures.push(format!("{}: missing {required}", path.display()));
             }
         }
+    } else if !found.contains("appcompatVersion") {
+        failures.push(format!("{}: missing appcompatVersion", path.display()));
     }
 
     if failures.is_empty() {

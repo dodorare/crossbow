@@ -35,7 +35,7 @@ Supported game engines:
 | Name | Description | Status |
 | ---- | ----------- | ------ |
 | [Bevy](https://github.com/bevyengine/bevy) | Uses the default Cargo `cdylib` build path and Bevy's native Android entry point. No generated Rust source or private Cargo API. | ✅ |
-| [Macroquad](https://github.com/not-fl3/macroquad) | Supported via `rust_compiler = "quad"` inside `Cargo.toml` metadata. Also, can work as [cargo-quad-apk](https://github.com/not-fl3/cargo-quad-apk) but with all `crossbundle` features. | ✅ |
+| [Macroquad](https://github.com/not-fl3/macroquad) | Uses standard Cargo compilation plus Miniquad's version-matched Java/JNI runtime. | ✅ |
 | **placeholder** | Don't find your game engine here? Open an issue! We are happy to add support for new engines. | 🛠 |
 
 ✅ = Works and tested — 🆗 = Works but may contain bugs — 🛠 = Under development
@@ -51,7 +51,7 @@ See [installation documentation](https://crossbow.dodorare.com/install/index.htm
 ## Cargo.toml Metadata syntax
 
 ```toml
-[[package.metadata]]
+[package.metadata]
 # Cross-platform user-friendly application name for your app.
 app_name = "Example"
 # Cross-platform assets directory path relatively to project path.
@@ -59,12 +59,9 @@ assets = ["assets"]
 # Cross-platform icon path to generate icons for Android and iOS.
 icon = "../../assets/images/icon.png"
 
-[[package.metadata.android]]
-# Optional Rust compiler compatibility mode. Omit this for standard Cargo compilation.
-# Supported compatibility values: ndk-glue and quad.
-rust_compiler = "quad"
-# The user-friendly application name for your app. Displayed in the applications menu
-app_name = "Example"
+[package.metadata.android]
+# Optional Android activity integration: native-activity (default) or miniquad.
+runtime = "native-activity"
 # Path to AndroidManifest.xml file
 manifest_path = "path/to/AndroidManifest.xml"
 # Android resources directory path relatively to project path.

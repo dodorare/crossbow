@@ -4,7 +4,11 @@ use crate::commands::build::{
 };
 use crate::error::*;
 use clap::Parser;
-use crossbundle_tools::{commands::android::*, error::CommandExt, types::Config};
+use crossbundle_tools::{
+    commands::android::*,
+    error::CommandExt,
+    types::{AndroidSdk, Config},
+};
 
 #[derive(Parser, Clone, Debug)]
 pub struct AndroidRunCommand {
@@ -22,7 +26,7 @@ impl AndroidRunCommand {
             config.status("Can not run dynamic library")?;
             return Ok(());
         }
-        let context = BuildContext::new(config, self.build_command.shared.target_dir.clone())?;
+        let context = BuildContext::new(config, &self.build_command.shared)?;
         let plan = self.build_command.create_plan(
             &context,
             crossbundle_tools::toolchain::PlanOperation::Run,
@@ -127,13 +131,10 @@ impl crossbundle_tools::toolchain::Runner for AndroidRunPlanRunner<'_> {
                 {
                     AndroidBuildArtifact::NativeApk { manifest, sdk, .. }
                     | AndroidBuildArtifact::NativeAab { manifest, sdk, .. } => {
-                        let package = manifest.package.as_deref().ok_or_else(|| {
-                            anyhow::anyhow!("Android manifest package is missing")
-                        })?;
-                        start_app(sdk, package, "android.app.NativeActivity")?;
+                        start_manifest_activity(sdk, manifest)?;
                     }
-                    AndroidBuildArtifact::Gradle { sdk, .. } => {
-                        start_app(sdk, "com.crossbow.game", ".CrossbowApp")?
+                    AndroidBuildArtifact::Gradle { manifest, sdk, .. } => {
+                        start_manifest_activity(sdk, manifest)?;
                     }
                 }
             }
@@ -156,4 +157,17 @@ impl crossbundle_tools::toolchain::Runner for AndroidRunPlanRunner<'_> {
         }
         Ok(())
     }
+}
+
+fn start_manifest_activity(
+    sdk: &AndroidSdk,
+    manifest: &crossbundle_tools::types::android_manifest::AndroidManifest,
+) -> Result<()> {
+    let package = manifest
+        .package
+        .as_deref()
+        .ok_or_else(|| anyhow::anyhow!("Android manifest package is missing"))?;
+    let activity = crossbundle_tools::types::launcher_activity(manifest)
+        .ok_or_else(|| anyhow::anyhow!("Android manifest has no launcher Activity"))?;
+    Ok(start_app(sdk, package, activity)?)
 }

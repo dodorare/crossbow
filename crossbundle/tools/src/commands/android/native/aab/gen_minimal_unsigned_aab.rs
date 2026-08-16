@@ -18,6 +18,8 @@ pub fn gen_minimal_unsigned_aab(
         Some("Minimal".to_owned()),
         "minimal",
         AndroidStrategy::NativeAab,
+        AndroidRuntime::NativeActivity,
+        false,
     );
 
     let manifest_path = save_android_manifest(aab_build_dir, &manifest)?;

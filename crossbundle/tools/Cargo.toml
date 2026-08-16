@@ -37,8 +37,8 @@ android-gradle-plugin.preferred = "9.3.1"
 android-gradle-plugin.supported = ">=9.3, <10"
 androidx-appcompat.preferred = "1.8.0"
 androidx-appcompat.supported = ">=1.8, <2"
-androidx-fragment.preferred = "1.9.0"
-androidx-fragment.supported = ">=1.9, <2"
+androidx-core.preferred = "1.13.0"
+androidx-core.supported = ">=1.13, <2"
 play-billing.preferred = "9.1.0"
 play-billing.supported = ">=9.1, <10"
 play-games-services.preferred = "21.0.0"
@@ -67,7 +67,7 @@ android-manifest = { workspace = true, optional = true }
 android-tools = { workspace = true, optional = true }
 
 serde = { workspace = true, features = ["derive"] }
-serde_json = { workspace = true, optional = true }
+serde_json = { workspace = true }
 serde_plain = { workspace = true }
 semver = { workspace = true }
 toml = { workspace = true }
@@ -82,9 +82,6 @@ zip-extensions = { workspace = true, default-features = false }
 image = { workspace = true, default-features = false, features = ["png", "jpeg"] }
 
 itertools = { workspace = true }
-cargo = { workspace = true }
-cargo-util = { workspace = true }
-
 thiserror = { workspace = true }
 anyhow = { workspace = true }
 displaydoc = { workspace = true }
@@ -114,5 +111,5 @@ serde_json = { workspace = true }
 
 [features]
 default = ["android", "apple"]
-android = ["android-manifest", "android-tools", "serde_json"]
+android = ["android-manifest", "android-tools"]
 apple = ["apple-bundle", "simctl", "crossbow/update-manifest"]

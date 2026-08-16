@@ -136,6 +136,12 @@ class CrossbowPluginRegistry private constructor(crossbow: Crossbow) {
             return instance
         }
 
+        fun clearPluginRegistry(registry: CrossbowPluginRegistry?) {
+            if (instance === registry) {
+                instance = null
+            }
+        }
+
         /**
          * Return the plugin registry if it's initialized.
          * Throws a [IllegalStateException] exception if not.

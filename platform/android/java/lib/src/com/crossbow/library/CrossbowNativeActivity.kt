@@ -1,4 +1,4 @@
-@file:Suppress("DEPRECATION")
+@file:Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
 
 package com.crossbow.library
 
@@ -16,15 +16,6 @@ import androidx.annotation.CallSuper
 open class CrossbowNativeActivity : NativeActivity(), CrossbowHost {
     companion object {
         const val CONTENT_VIEW_ID = 10101010
-
-        init {
-            // This is necessary when any of the following happens:
-            //     - crossbow_android library is not configured to the following line in the manifest:
-            //        <meta-data android:name="android.app.lib_name" android:value="crossbow_android" />
-            //     - GameActivity derived class calls to the native code before calling
-            //       the super.onCreate() function.
-            System.loadLibrary("crossbow_android")
-        }
     }
 	protected var crossbowFragment: Crossbow? = null
 

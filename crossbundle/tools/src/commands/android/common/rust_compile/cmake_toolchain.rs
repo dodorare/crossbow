@@ -1,4 +1,4 @@
-use crate::types::*;
+use crate::{error::Result, types::*};
 use std::io::Write;
 
 /// Returns the environment variables needed by CMake build scripts.
@@ -7,7 +7,7 @@ pub fn cmake_env(
     ndk: &AndroidNdk,
     min_sdk_version: u32,
     build_target_dir: &std::path::Path,
-) -> cargo::CargoResult<Vec<(String, std::ffi::OsString)>> {
+) -> Result<Vec<(String, std::ffi::OsString)>> {
     // Return path to toolchain cmake file
     let cmake_toolchain_path = write_cmake_toolchain(
         min_sdk_version,
@@ -34,10 +34,19 @@ pub fn cmake_env(
 
 /// Returns path to NDK provided make
 pub fn make_path(ndk_path: &std::path::Path) -> std::path::PathBuf {
-    ndk_path
-        .join("prebuild")
-        .join(super::consts::HOST_TAG)
-        .join("make")
+    #[cfg(all(target_os = "windows", target_pointer_width = "64"))]
+    let host = "windows-x86_64";
+    #[cfg(all(target_os = "windows", target_pointer_width = "32"))]
+    let host = "windows";
+    #[cfg(target_os = "linux")]
+    let host = "linux-x86_64";
+    #[cfg(target_os = "macos")]
+    let host = "darwin-x86_64";
+    #[cfg(target_os = "windows")]
+    let make = "make.exe";
+    #[cfg(not(target_os = "windows"))]
+    let make = "make";
+    ndk_path.join("prebuilt").join(host).join("bin").join(make)
 }
 
 /// Write a CMake toolchain which will remove references to the rustc build target before
@@ -48,9 +57,9 @@ pub fn write_cmake_toolchain(
     ndk_path: &std::path::Path,
     build_target_dir: &std::path::Path,
     build_target: crate::types::AndroidTarget,
-) -> cargo::util::CargoResult<std::path::PathBuf> {
+) -> Result<std::path::PathBuf> {
     let toolchain_path = build_target_dir.join("cargo-apk.toolchain.cmake");
-    let mut toolchain_file = std::fs::File::create(&toolchain_path).unwrap();
+    let mut toolchain_file = std::fs::File::create(&toolchain_path)?;
     writeln!(
         toolchain_file,
         r#"set(ANDROID_PLATFORM android-{min_sdk_version})

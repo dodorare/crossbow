@@ -5,8 +5,7 @@ plugins {
 apply from: "publish.gradle"
 
 dependencies {
-    implementation libraries.androidxFragment
-    implementation libraries.androidxAppcompat
+    implementation libraries.androidxCore
     // implementation "androidx.games:games-activity:1.1.0"
 }
 
