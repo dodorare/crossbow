@@ -30,3 +30,21 @@ To find out available commands specify the -h flag.
 ```sh
 crossbundle run android -h
 ```
+
+## Crossbundle run iOS
+
+`crossbundle run ios` builds, installs, and launches the app on an iOS Simulator.
+Without `--target`, it builds for the host's Simulator architecture. It prefers an
+already booted Simulator and otherwise selects one from the newest available iOS
+runtime. Select a specific Simulator by name or UDID when needed:
+
+```sh
+crossbundle run ios --simulator "iPhone 17"
+```
+
+For automation, Crossbundle can launch without opening Simulator.app or attaching
+to the application console:
+
+```sh
+crossbundle run ios --no-open --detach
+```

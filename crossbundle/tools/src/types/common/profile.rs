@@ -12,6 +12,13 @@ impl Profile {
     pub fn is_debug(&self) -> bool {
         Self::Debug == *self
     }
+
+    pub(crate) fn cargo_name(self) -> &'static str {
+        match self {
+            Self::Debug => "dev",
+            Self::Release => "release",
+        }
+    }
 }
 
 impl AsRef<Path> for Profile {

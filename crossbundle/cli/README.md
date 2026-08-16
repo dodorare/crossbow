@@ -26,15 +26,14 @@ Packaging Strategy status:
 | Android APK | Supported via `-s=native-apk` flag. | ✅ |
 | Android AAB | Supported via `-s=native-aab` flag. | ✅ |
 | Android Gradle | Supported via `-s=gradle-apk` flag. | ✅ |
-| Apple Debug APP | Default build strategy. Works only on Simulator and could be run on iPhone with Dev Certificate. | ✅ |
-| Apple Debug IPA | Works only on Simulator and could be run on iPhone with Dev Certificate. | 🆗 |
-| Apple Release IPA | Not supported yet. Crossbundle should generate `xcodeproj`, but user should build and sign IPA manually. | 🛠 |
+| Apple Simulator APP | Built with Cargo and ad-hoc signed for the iOS Simulator. | ✅ |
+| Apple Device IPA | Built with Cargo; installation requires an Apple provisioning profile and signing identity. | 🆗 |
 
 Supported game engines:
 
 | Name | Description | Status |
 | ---- | ----------- | ------ |
-| [Bevy](https://github.com/bevyengine/bevy) | Uses the default Cargo `cdylib` build path and Bevy's native Android entry point. No generated Rust source or private Cargo API. | ✅ |
+| [Bevy](https://github.com/bevyengine/bevy) | Uses Cargo's `cdylib` on Android and executable artifact on iOS. No generated Rust source or private Cargo API. | ✅ |
 | [Macroquad](https://github.com/not-fl3/macroquad) | Uses standard Cargo compilation plus Miniquad's version-matched Java/JNI runtime. | ✅ |
 | **placeholder** | Don't find your game engine here? Open an issue! We are happy to add support for new engines. | 🛠 |
 
@@ -109,9 +108,9 @@ name = "com.oculus.vr.focusaware"
 value = "true"
 
 [package.metadata.apple]
-# Apple targets to build on debug or release.
-debug_build_targets = ["aarch64-apple-ios"]
-release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
+# iOS targets to build in debug or release mode.
+debug_build_targets = ["aarch64-apple-ios-sim"]
+release_build_targets = ["aarch64-apple-ios"]
 # Apple resources directory path relatively to project path.
 resources = ["res/apple"]
 ```
@@ -212,76 +211,50 @@ OPTIONS:
         Directory for generated artifact and intermediate files
 ```
 
-Result of `crossbundle build ios -h` (this command extends `crossbundle build ios`):
+Result of `crossbundle run ios -h` (this command extends `crossbundle build ios`):
 
 ```text
-Executes `build` command and then deploy and launches the application on the iOS device/emulator
+Builds, deploys, and launches the application on an iOS device or Simulator
 
-USAGE:
-    crossbundle run ios [OPTIONS]
+Usage: crossbundle run ios [OPTIONS]
 
-OPTIONS:
-    --all-features
-        Activate all available features of selected package
-
-    --bin <BIN>
-        Specify custom cargo binary
-
-    -d, --debug
-        Run in debug mode
-
-    -d, --device
-        Install and launch on the connected device
-
-    -D, --device-id <DEVICE_ID>
-        Connected device id
-
-    --example <EXAMPLE>
-        Build the specified example
-
-    --features <FEATURES>
-        Space or comma separated list of features to activate. These features only apply to the
-        current directory's package. Features of direct dependencies may be enabled with
-        `<dep-name>/<feature-name>` syntax. This flag may be specified multiple times, which
-        enables all specified features
-
-    -h, --help
-        Print help information
-
-    --identity <IDENTITY>
-        The id of the identity used for signing. It won't start the signing process until you
-        provide this flag
-
-    --no-default-features
-        Do not activate the `default` feature of the current directory's package
-
-    --profile-name <PROFILE_NAME>
-        Provisioning profile name to find in this directory:
-        `~/Library/MobileDevice/Provisioning\ Profiles/`
-
-    --profile-path <PROFILE_PATH>
-        Absolute path to provisioning profile
-
-    --release
-        Build optimized artifact with the `release` profile
-
-    -s, --strategy <STRATEGY>
-        Build strategy specifies what and how to build iOS application: with help of XCode, or
-        with our native approach [default: native-ipa]
-
-    -s, --simulator-name <SIMULATOR_NAME>
-        Simulator device name [default: "iPhone 13"]
-
-    -t, --target <TARGET>...
-        Build for the given apple architecture. Supported targets are: `aarch64-apple-ios`,
-        `aarch64-apple-ios-sim`, `armv7-apple-ios`, `armv7s-apple-ios`, `i386-apple-ios`,
-        `x86_64-apple-ios`
-
-    --target-dir <TARGET_DIR>
-        Directory for generated artifact and intermediate files
-
-    --team-identifier <TEAM_IDENTIFIER>
-        The team identifier of your signing identity
+Options:
+      --example <EXAMPLE>
+          Build the specified example
+      --features <FEATURES>
+          Space or comma separated list of features to activate. These features only apply to the current directory's package. Features of direct dependencies may be enabled with `<dep-name>/<feature-name>` syntax. This flag may be specified multiple times, which enables all specified features
+      --all-features
+          Activate all available features of selected package
+      --no-default-features
+          Do not activate the `default` feature of the current directory's package
+      --release
+          Build optimized artifact with the `release` profile
+      --target-dir <TARGET_DIR>
+          Directory for generated artifact and intermediate files
+      --bin <BIN>
+          Build the specified Cargo binary target
+  -t, --target <TARGET>
+          Build for the given iOS Rust target. Supported targets are: `aarch64-apple-ios`, `aarch64-apple-ios-sim`, `x86_64-apple-ios`
+      --profile-path <PROFILE_PATH>
+          Absolute path to provisioning profile
+      --team-id <TEAM_ID>
+          Apple Developer Team ID
+      --signing-identity <SIGNING_IDENTITY>
+          Certificate name or SHA-1 hash used to sign the application
+  -s, --simulator <NAME_OR_UDID>
+          Simulator name or UDID. Defaults to a booted or the newest available iOS Simulator
+      --no-open
+          Do not open Simulator.app
+      --detach
+          Return after launching instead of attaching to the application console
+      --debug
+          Start the debugger when running on a connected device
+  -d, --device
+          Install and launch on the connected device
+  -D, --device-id <DEVICE_ID>
+          Connected device id
+  -h, --help
+          Print help
 ```
 
 ## Troubleshooting

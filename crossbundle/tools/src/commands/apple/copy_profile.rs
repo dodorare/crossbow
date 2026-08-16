@@ -1,29 +1,10 @@
 use crate::error::*;
-use std::{
-    fs::copy,
-    path::{Path, PathBuf},
-};
+use std::{fs::copy, path::Path};
 
 /// Copies profiles into `@app_path/embedded.mobileprovision`.
-pub fn copy_profile(
-    app_path: &Path,
-    profile_name: Option<String>,
-    profile_path: Option<PathBuf>,
-) -> Result<()> {
-    let profile_path = if let Some(path) = profile_path {
-        path
-    } else if let Some(name) = profile_name {
-        std::env::home_dir()
-            .unwrap()
-            .join("Library")
-            .join("MobileDevice")
-            .join("Provisioning Profiles")
-            .join(name)
-    } else {
-        return Err(AppleError::CodeSigningProfileNotProvided.into());
-    };
+pub fn copy_profile(app_path: &Path, profile_path: &Path) -> Result<()> {
     if !profile_path.exists() {
-        return Err(AppleError::CodeSigningProfilesNotFound.into());
+        return Err(AppleError::CodeSigningProfileNotFound(profile_path.to_owned()).into());
     }
     let embedded_provisioning_profile = app_path.join("embedded.mobileprovision");
     copy(profile_path, embedded_provisioning_profile)?;

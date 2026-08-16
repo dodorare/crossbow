@@ -17,10 +17,6 @@ pub enum Error {
     DoctorPlatformDisabled(crossbundle_tools::toolchain::DoctorPlatform),
     /// Plan step {step_id} failed: {source}
     PlanStepFailed { step_id: String, source: Box<Error> },
-    /// Can't find target to run
-    CantFindTargetToRun,
-    /// Team identifier not provided
-    TeamIdentifierNotProvided,
     /// Invalid metadata in manifest: {0:?}
     InvalidMetadata(anyhow::Error),
     /// IO error: {0:?}

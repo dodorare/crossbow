@@ -8,8 +8,6 @@ use std::path::PathBuf;
 
 pub struct BuildContext {
     // Paths
-    pub workspace_manifest_path: PathBuf,
-    pub package_manifest_path: PathBuf,
     pub project_path: PathBuf,
     pub target_dir: PathBuf,
     // Configurations
@@ -29,30 +27,20 @@ impl BuildContext {
             command.all_features,
             command.no_default_features,
         )?;
-        let workspace_manifest_path = project.workspace_manifest_path.clone();
-        let target_dir = command
-            .target_dir
-            .clone()
-            .unwrap_or_else(|| project.target_directory.clone());
+        let target_dir = match &command.target_dir {
+            Some(path) if path.is_relative() => {
+                std::path::absolute(config.current_dir().join(path))?
+            }
+            Some(path) => path.clone(),
+            None => project.target_directory.clone(),
+        };
         let crossbow_metadata = deserialize_crossbow_metadata(project.package.metadata.clone())
             .map_err(Error::InvalidMetadata)?;
         Ok(Self {
-            workspace_manifest_path,
-            package_manifest_path,
             project_path,
             target_dir,
             config: crossbow_metadata,
             project,
         })
-    }
-
-    /// Get package name from cargo manifest
-    pub fn package_name(&self) -> String {
-        self.project.package.name.clone()
-    }
-
-    /// Get package version from cargo manifest
-    pub fn package_version(&self) -> String {
-        self.project.package.version.clone()
     }
 }

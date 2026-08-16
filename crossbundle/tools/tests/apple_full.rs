@@ -2,7 +2,7 @@
 
 use apple_bundle::prelude::*;
 use crossbundle_tools::{
-    commands::{apple::*, gen_minimal_project},
+    commands::{CargoBuild, CargoProject, apple::*, gen_minimal_project},
     types::*,
 };
 
@@ -70,26 +70,26 @@ fn test_apple_full() {
     assert!(app_dir.exists());
 
     // Compile app
-    let build_target = IosTarget::X86_64;
+    let build_target = IosTarget::X86_64Sim;
     let profile = Profile::Release;
-    compile_rust_for_ios(
-        Target::Bin(name.clone()),
-        build_target,
-        dir,
-        profile,
-        vec![],
-        false,
-        false,
-        &[],
+    let project = CargoProject::load(&dir.join("Cargo.toml")).unwrap();
+    let target = project.executable_target(None, None).unwrap();
+    let bin_path = compile_ios_executable(
+        CargoBuild {
+            package: &project.package,
+            target: &target,
+            target_triple: build_target.rust_triple(),
+            target_dir: &target_dir,
+            profile,
+            features: &[],
+            all_features: false,
+            no_default_features: false,
+        },
+        None,
     )
     .unwrap();
-    let out_dir = dir
-        .join("target")
-        .join(build_target.rust_triple())
-        .join(profile);
 
     // Copy binary to app folder
-    let bin_path = out_dir.join(&name);
     std::fs::copy(bin_path, app_dir.join(&name)).unwrap();
 
     // Generate Info.plist
@@ -98,14 +98,4 @@ fn test_apple_full() {
 
     // Sign bundle
     codesign(&app_dir, true, None, None).unwrap();
-
-    // Install and launch on simulator
-    // let device = launch_apple_app(
-    //     &app_dir,
-    //     "iPhone 8",
-    //     &properties.identification.bundle_identifier,
-    //     false,
-    // )
-    // .unwrap();
-    // device.shutdown().unwrap();
 }

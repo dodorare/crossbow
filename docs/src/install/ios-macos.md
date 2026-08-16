@@ -1,123 +1,69 @@
-# iOS setup on MacOS
+# iOS setup on macOS
 
-## Setup on macOS
+Crossbundle requires the full Xcode installation; the standalone Command Line Tools are not
+enough. Install Xcode from the [Mac App Store](https://apps.apple.com/app/xcode/id497799835),
+launch it once to finish setup, and install an iOS Simulator runtime through Xcode.
 
-Install `brew`:
+If another developer directory is active, select Xcode explicitly:
 
 ```sh
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
 ```
 
-Install `rust` with `default` option:
+Install Rust, Crossbundle, and the supported iOS targets:
 
 ```sh
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-# Source binaries
-echo 'source $HOME/.cargo/env' >> ~/.zshrc
-source ~/.zshrc
-# Or for bash
-echo 'source $HOME/.cargo/env' >> ~/.bashrc
-source ~/.bashrc
+rustup target add aarch64-apple-ios aarch64-apple-ios-sim
+cargo install --git https://github.com/dodorare/crossbow crossbundle
 ```
 
-Install iOS targets:
+Intel Macs also need the x86_64 Simulator target:
 
 ```sh
-# 64-bit targets (real device & simulator):
-rustup target add aarch64-apple-ios x86_64-apple-ios aarch64-apple-ios-sim
-# 32-bit targets (you probably don't need these & nightly only):
-rustup target add armv7-apple-ios armv7s-apple-ios i386-apple-ios
+rustup target add x86_64-apple-ios
 ```
 
-Install `ios-deploy` for installing your app on iPhone:
+Verify the toolchain before building:
 
 ```sh
-brew install ios-deploy
+crossbundle doctor --platform apple
 ```
 
-Install `Xcode` from [App Store](https://apps.apple.com/us/app/xcode/id497799835).
+## Build and run in Simulator
 
-<img alt="Xcode installation" src="https://i.imgur.com/2RhOz1t.png" width="400px"></img>
-
-Install the necessary `Xcode tools` using `Xcode`:
-
-1. Start `Xcode`.
-2. Choose `Preferences` from the `Xcode` menu.
-3. In the `Locations` panel, find the `Command Line Tools` field.
-4. Click on the `Command Line Tools` and select `Xcode` version (you are asked for your Apple Developer login during the install process).
-
-Login with Free Apple Developer/Apple Developer Program account:
-
-1. Start `Xcode`.
-2. Choose `Preferences` from the `Xcode` menu.
-3. In the `Accounts` panel, click the `+` sign (you are asked for your Apple Developer login during the install process).
-4. Click on Apple ID added account and find your name with `(Personal team)` postfix.
-5. Open `Manage Certificates` then click `+` and `Apple Development`.
-6. Close by clicking `Done` and click on `Download Manual Profiles`.
-iOS setup on MacOS
-
-<img alt="Xcode Sign in" src="https://i.imgur.com/soD5gab.png" width="400px"></img>
-
-Install `crossbundle`:
+From a Crossbundle project, build or run with:
 
 ```sh
-cargo install --git=https://github.com/dodorare/crossbow crossbundle
+crossbundle build ios
+crossbundle run ios
 ```
 
-## Build Apple app
+Crossbundle builds for the host's Simulator architecture and selects an available iOS
+Simulator automatically. Pass `--simulator <NAME_OR_UDID>` to select one explicitly, or
+`--no-open --detach` for automation.
 
-Now everything is ready to build your application.
+## Run on a physical device
 
-To simplify this example we will create a new cargo project by this command:
+Physical-device deployment requires:
+
+- an Apple signing certificate installed in the login keychain;
+- a provisioning profile matching the application's bundle identifier;
+- the Apple Developer Team ID associated with both;
+- [`ios-deploy`](https://github.com/ios-control/ios-deploy), installed with
+  `brew install ios-deploy`.
+
+List available signing identities with:
 
 ```sh
-crossbundle new game --template bevy
-cd game/
+security find-identity -v -p codesigning
 ```
 
-Now run the build command:
+Then pass the profile by absolute path, the Team ID, and the certificate name or SHA-1 hash:
 
 ```sh
-crossbundle build ios --target=x86_64-apple-ios
+crossbundle run ios --release --device \
+  --profile-path=/absolute/path/to/profile.mobileprovision \
+  --team-id=AS9UV719T7 \
+  --signing-identity=AF96DABFC5DEE81E339ED8755DA8D1E48A87CBFE
 ```
-
-And if you want to run on the simulator:
-
-```sh
-crossbundle run ios --target=x86_64-apple-ios
-```
-
-## Run your app on a real device
-
-To run your application on a real device you will need to open `Xcode` and create a new project
-with the same `bundle_identifier` as your app. Then you will find a `mobileprovision` file
-in the `~/Library/MobileDevice/Provisioning\ Profiles` folder (e.x: aec73e2f-c2f9-4e3b-9393-be19cc52fea3.mobileprovision).
-
-With command `security find-identity -p codesigning -v` - you will get a similar result:
-
-```sh
-$ security find-identity -p codesigning -v
-  1) AF96DABFC5DEE81E339ED8755DA8D1E48A87CBFE "Apple Development: <your-email>@gmail.com (TRGW43YM8W)"
-     1 valid identities found
-```
-
-The `AF96DABFC5DEE81E339ED8755DA8D1E48A87CBFE` value is our sign Identity. Save it for later use.
-
-Copy your code (in our case `TRGW43YM8W`) and place it in another command to get Team ID:
-
-```sh
-$ security find-certificate -c SRGWJ3YM8W -p | openssl x509 -subject
-subject= /UID=A9C7ZD8H7F/CN=Apple Development: <your-email>@gmail.com (TRGW43YM8W)/OU=AS9UV719T7/O=<your name>/C=US
------BEGIN CERTIFICATE-----
-MIIFtTCCBJ2...<rest-of-private-key>
-```
-
-Next to `OU` - you will find Team ID. (in our case `AS9UV719T7`).
-
-Now we are good to install our app on a real device. To run/build app for a real device you will need similar to this command to be run in your cargo project:
-
-```sh
-crossbundle run ios --release --device --profile-name=aec73e2f-c2f9-4e3b-9393-be19cc52fea3.mobileprovision --team-identifier=AS9UV719T7 --identity=AF96DABFC5DEE81E339ED8755DA8D1E48A87CBFE
-```
-
-Now replace test data (`aec73e2f-c2f9-4e3b-9393-be19cc52fea3.mobileprovision`, `AS9UV719T7`, `AF96DABFC5DEE81E339ED8755DA8D1E48A87CBFE`) - with your own and run command. If everything worked well - you will see new app on your device.

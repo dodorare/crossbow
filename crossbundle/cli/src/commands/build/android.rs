@@ -504,10 +504,10 @@ impl AndroidBuildCommand {
     ) -> Result<(PathBuf, PathBuf, String)> {
         let project_path: PathBuf = context.project_path.clone();
         let target_dir: PathBuf = context.target_dir.clone();
-        let (_target, package_name) = if let Some(example) = example {
-            (Target::Example(example.clone()), example.clone())
+        let package_name = if let Some(example) = example {
+            example.clone()
         } else {
-            (Target::Lib, context.package_name())
+            context.project.package.name.clone()
         };
         Ok((project_path, target_dir, package_name))
     }
@@ -568,8 +568,7 @@ impl AndroidBuildCommand {
             let compiled_lib = standard_cargo_compile(
                 ndk,
                 build_target,
-                &context.package_manifest_path,
-                &context.package_name(),
+                &context.project.package,
                 &cargo_library_name,
                 profile,
                 &self.shared.features,

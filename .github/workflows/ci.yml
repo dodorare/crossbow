@@ -195,7 +195,7 @@ jobs:
             target
           key: ${{ runner.os }}-${{ runner.arch }}-${{ github.job }}-${{ hashFiles('Cargo.lock') }}
           restore-keys: ${{ runner.os }}-${{ runner.arch }}-
-      - name: Install Apple targets
+      - name: Install iOS targets
         run: rustup target add aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios
       - name: Validate the Apple toolchain contract
         run: |
@@ -335,8 +335,11 @@ jobs:
         run: crossbundle build android --release
 
   apple-build-macos:
-    name: Build Apple example on macOS
+    name: Build iOS example on macOS
     runs-on: macos-latest
+    timeout-minutes: 60
+    env:
+      SIM_TARGET: aarch64-apple-ios-sim
     steps:
       - uses: actions/checkout@v6
       - uses: actions/cache@v5
@@ -347,17 +350,23 @@ jobs:
             target
           key: ${{ runner.os }}-${{ runner.arch }}-${{ github.job }}-${{ hashFiles('Cargo.lock') }}
           restore-keys: ${{ runner.os }}-${{ runner.arch }}-
-      - name: Install Apple targets
-        run: rustup target add aarch64-apple-ios aarch64-apple-ios-sim
+      - name: Install iOS targets
+        run: rustup target add aarch64-apple-ios "$SIM_TARGET"
       - name: Install Crossbundle
         run: cargo install --path ./crossbundle/cli --locked
       - name: Validate Apple doctor
         run: |
           crossbundle doctor --platform apple --strict --json > doctor-apple.json
           jq -e '.schema_version == 1 and .platforms == ["apple"] and .status == "pass"' doctor-apple.json > /dev/null
-      - name: Build Apple app
-        working-directory: examples/macroquad-3d
-        run: crossbundle build ios --release --target=aarch64-apple-ios
+      - name: Build and launch Bevy for iOS device and simulator
+        working-directory: examples/bevy-2d
+        run: |
+          crossbundle run ios \
+            --target=aarch64-apple-ios \
+            --target="$SIM_TARGET" \
+            --target-dir="$RUNNER_TEMP/crossbundle-ios" \
+            --no-open \
+            --detach
 
   docker:
     name: Build Crossbundle example in Docker

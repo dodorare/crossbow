@@ -498,10 +498,7 @@ pub(super) fn signing_relevant(
 }
 
 fn device_target(target: &str) -> bool {
-    matches!(
-        target,
-        "aarch64-apple-ios" | "armv7-apple-ios" | "armv7s-apple-ios"
-    )
+    target == "aarch64-apple-ios"
 }
 
 fn signing_identity_check(
@@ -693,7 +690,7 @@ fn project_signing_check(metadata: &crate::types::CrossbowMetadata) -> DoctorChe
             false,
             None,
             None,
-            Some("Pass the signing identity, profile, and team identifier to the build".into()),
+            Some("Pass --signing-identity, --profile-path, and --team-id to the build".into()),
         )
     } else {
         skipped(

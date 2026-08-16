@@ -85,7 +85,7 @@ fn handle_error_source(source: Option<&(dyn std::error::Error + 'static)>) {
 #[cfg(test)]
 mod tests {
     use super::{Opts, commands};
-    use clap::Parser;
+    use clap::{CommandFactory, Parser};
     #[cfg(any(feature = "android", feature = "apple"))]
     use crossbundle_tools::toolchain::{DoctorPlatform, resolve_platforms};
 
@@ -94,6 +94,54 @@ mod tests {
         let opts = Opts::try_parse_from(["crossbundle", "-vv", "update"]).unwrap();
 
         assert_eq!(opts.verbose, 2);
+    }
+
+    #[test]
+    fn command_line_definition_is_consistent() {
+        Opts::command().debug_assert();
+    }
+
+    #[cfg(feature = "apple")]
+    #[test]
+    fn parses_ios_simulator_automation_options() {
+        let opts = Opts::try_parse_from([
+            "crossbundle",
+            "run",
+            "ios",
+            "--simulator",
+            "iPhone 17",
+            "--no-open",
+            "--detach",
+        ])
+        .unwrap();
+        let commands::Commands::Run(commands::run::RunCommand::Ios(command)) = opts.cmd else {
+            panic!("expected iOS run command")
+        };
+        assert_eq!(command.simulator.as_deref(), Some("iPhone 17"));
+        assert!(command.no_open && command.detach);
+    }
+
+    #[cfg(feature = "apple")]
+    #[test]
+    fn rejects_simulator_options_for_physical_devices() {
+        for option in ["--simulator", "--no-open", "--detach"] {
+            let mut args = vec![
+                "crossbundle",
+                "run",
+                "ios",
+                "--device",
+                "--profile-path=profile.mobileprovision",
+                "--team-id=TEAM",
+                "--signing-identity=IDENTITY",
+                option,
+            ];
+            if option == "--simulator" {
+                args.push("iPhone 17");
+            }
+            assert!(Opts::try_parse_from(args).is_err());
+        }
+        assert!(Opts::try_parse_from(["crossbundle", "run", "ios", "--device"]).is_err());
+        assert!(Opts::try_parse_from(["crossbundle", "run", "ios", "--debug"]).is_err());
     }
 
     #[cfg(any(feature = "android", feature = "apple"))]

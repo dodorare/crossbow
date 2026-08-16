@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
-// Bevy supplies the native Android entry point. Crossbow can therefore build this package through
-// Cargo's public CLI without rewriting rustc invocations or generating engine-specific glue.
+// Bevy supplies the Android entry point; the package's small binary calls the same function on iOS
+// and desktop. Crossbundle builds both targets through Cargo without generated engine glue.
 #[bevy_main]
 pub fn main() {
     println!("Initialization.");
