@@ -53,7 +53,6 @@ thiserror = "2.0"
 ureq = "3.4"
 winapi = "0.3"
 zip = { version = "8.6.0", default-features = false }
-zip-extensions = { version = "0.14.1", default-features = false }
 
 [package]
 name = "crossbow"

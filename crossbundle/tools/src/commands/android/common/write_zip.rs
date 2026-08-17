@@ -1,12 +1,39 @@
-use std::path::Path;
-use zip::ZipWriter;
-use zip_extensions::deflate::zip_writer_extensions::ZipWriterExtensions;
+use std::{
+    fs::File,
+    io,
+    path::Path,
+};
+use zip::{ZipWriter, write::SimpleFileOptions};
 
 /// Writing files into archive
 pub fn zip_write(source_path: &Path, archive_file: &Path) -> zip::result::ZipResult<()> {
-    let file = std::fs::File::create(archive_file)?;
+    let file = File::create(archive_file)?;
     let mut zip = ZipWriter::new(file);
-    zip.create_from_directory(&source_path.to_path_buf())?;
+    let mut directories = vec![source_path.to_path_buf()];
+
+    while let Some(directory) = directories.pop() {
+        for entry in std::fs::read_dir(directory)? {
+            let entry = entry?;
+            let path = entry.path();
+            let relative_path = path.strip_prefix(source_path).map_err(|error| {
+                io::Error::new(
+                    io::ErrorKind::InvalidInput,
+                    format!("archive entry is outside the source directory: {error}"),
+                )
+            })?;
+            let metadata = entry.metadata()?;
+
+            if metadata.is_dir() {
+                zip.add_directory_from_path(relative_path, SimpleFileOptions::default())?;
+                directories.push(path);
+            } else if metadata.is_file() {
+                zip.start_file_from_path(relative_path, SimpleFileOptions::default())?;
+                let mut source = File::open(path)?;
+                io::copy(&mut source, &mut zip)?;
+            }
+        }
+    }
+
     zip.finish()?;
     Ok(())
 }
@@ -37,8 +64,10 @@ mod tests {
         let source_dir = temp_dir.path().join("module");
         let manifest_dir = source_dir.join("manifest");
         let library_dir = source_dir.join("lib").join("arm64-v8a");
+        let empty_dir = source_dir.join("assets").join("empty");
         std::fs::create_dir_all(&manifest_dir).unwrap();
         std::fs::create_dir_all(&library_dir).unwrap();
+        std::fs::create_dir_all(&empty_dir).unwrap();
         std::fs::write(
             manifest_dir.join("AndroidManifest.xml"),
             b"<manifest package=\"com.crossbow.test\" />",
@@ -67,5 +96,7 @@ mod tests {
             .read_to_end(&mut library)
             .unwrap();
         assert_eq!(library, b"native-library");
+
+        assert!(archive.by_name("assets/empty/").unwrap().is_dir());
     }
 }
