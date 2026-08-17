@@ -176,11 +176,11 @@ version = "0.2.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "de28dd3564434218f78362c8d906db2fde6f1e4158fae7290f7bfc533aa561b9"
 dependencies = [
- "dirs 4.0.0",
+ "dirs",
  "displaydoc",
  "thiserror 1.0.69",
  "walkdir",
- "which 4.4.2",
+ "which",
 ]
 
 [[package]]
@@ -1175,7 +1175,7 @@ dependencies = [
  "bevy_reflect",
  "derive_more",
  "glam 0.32.1",
- "itertools 0.14.0",
+ "itertools",
  "libm",
  "rand",
  "rand_distr",
@@ -1418,7 +1418,7 @@ dependencies = [
  "glam 0.32.1",
  "image 0.25.10",
  "indexmap",
- "itertools 0.14.0",
+ "itertools",
  "js-sys",
  "naga",
  "nonmax",
@@ -2357,7 +2357,6 @@ dependencies = [
  "async-channel",
  "displaydoc",
  "jni",
- "lazy_static",
  "ndk-context",
  "rust-embed",
  "thiserror 2.0.20",
@@ -2397,13 +2396,11 @@ dependencies = [
  "colored",
  "crossbow",
  "crossbundle-tools",
- "dirs 6.0.0",
  "displaydoc",
  "dunce",
  "fs_extra",
  "log",
  "pretty_env_logger",
- "serde",
  "serde_json",
  "tempfile",
  "thiserror 2.0.20",
@@ -2421,24 +2418,19 @@ dependencies = [
  "creator-simctl",
  "crossbow",
  "crossbow-android",
- "dirs 6.0.0",
  "displaydoc",
  "dunce",
  "fs_extra",
  "fwdansi",
  "image 0.25.10",
- "itertools 0.15.0",
  "libc",
- "log",
  "semver",
  "serde",
  "serde_json",
- "serde_plain",
  "tempfile",
  "termcolor",
  "thiserror 2.0.20",
  "toml",
- "which 8.0.5",
  "winapi",
  "zip",
  "zip-extensions",
@@ -2528,16 +2520,7 @@ version = "4.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ca3aa72a6f96ea37bbc5aa912f6788242832f75369bdfdadcb0e38423f100059"
 dependencies = [
- "dirs-sys 0.3.7",
-]
-
-[[package]]
-name = "dirs"
-version = "6.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c3e8aa94d75141228480295a7d0e7feb620b1a5ad9f12bc40be62411e38cce4e"
-dependencies = [
- "dirs-sys 0.5.0",
+ "dirs-sys",
 ]
 
 [[package]]
@@ -2547,20 +2530,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1b1d1d91c932ef41c0f2663aa8b0ca0342d444d842c06914aa0a7e352d0bada6"
 dependencies = [
  "libc",
- "redox_users 0.4.6",
+ "redox_users",
  "winapi",
-]
-
-[[package]]
-name = "dirs-sys"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e01a3366d27ee9890022452ee61b2b63a67e6f13f58900b651ff5665f0bb1fab"
-dependencies = [
- "libc",
- "option-ext",
- "redox_users 0.5.2",
- "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -3536,15 +3507,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "itertools"
-version = "0.15.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8b4baf93f58d4425749ca49a51c50ebab072c5df6994d08fed93541c331481dc"
-dependencies = [
- "either",
-]
-
-[[package]]
 name = "itoa"
 version = "1.0.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4364,12 +4326,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "384b8ab6d37215f3c5301a95a4accb5d64aa607f1fcb26a11b5303878451b4fe"
 
 [[package]]
-name = "option-ext"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "04744f49eae99ab78e0d5c0b603ab218f515ea8cfe5a456d7629ad883a3b6e7d"
-
-[[package]]
 name = "orbclient"
 version = "0.3.55"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4853,17 +4809,6 @@ dependencies = [
  "getrandom 0.2.17",
  "libredox",
  "thiserror 1.0.69",
-]
-
-[[package]]
-name = "redox_users"
-version = "0.5.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a4e608c6638b9c18977b00b475ac1f28d14e84b27d8d42f70e0bf1e3dec127ac"
-dependencies = [
- "getrandom 0.2.17",
- "libredox",
- "thiserror 2.0.20",
 ]
 
 [[package]]
@@ -6299,15 +6244,6 @@ dependencies = [
  "home",
  "once_cell",
  "rustix 0.38.44",
-]
-
-[[package]]
-name = "which"
-version = "8.0.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8f3ef584124b911bcc3875c2f1472e80f24361ceb789bd1c62b3e9a3df9ff43c"
-dependencies = [
- "libc",
 ]
 
 [[package]]

@@ -22,7 +22,6 @@ crossbow = { workspace = true, default-features = false, features = ["update-man
 crossbundle-tools = { workspace = true, default-features = false }
 android-tools = { workspace = true, optional = true }
 clap = { workspace = true, features = ["derive"] }
-serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 
 anyhow = { workspace = true }
@@ -33,7 +32,6 @@ pretty_env_logger = { workspace = true }
 log = { workspace = true }
 
 fs_extra = { workspace = true }
-dirs = { workspace = true }
 dunce = { workspace = true }
 ureq = { workspace = true }
 

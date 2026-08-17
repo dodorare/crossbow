@@ -13,7 +13,7 @@ pub fn copy_profile(
     let profile_path = if let Some(path) = profile_path {
         path
     } else if let Some(name) = profile_name {
-        dirs::home_dir()
+        std::env::home_dir()
             .unwrap()
             .join("Library")
             .join("MobileDevice")

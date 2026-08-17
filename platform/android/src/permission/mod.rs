@@ -9,9 +9,7 @@ use std::sync::{
     mpsc::{SyncSender, sync_channel},
 };
 
-lazy_static::lazy_static! {
-    static ref PERMISSION_SENDER: RwLock<Option<SyncSender<RequestPermissionResult>>> = Default::default();
-}
+static PERMISSION_SENDER: RwLock<Option<SyncSender<RequestPermissionResult>>> = RwLock::new(None);
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RequestPermissionResult {

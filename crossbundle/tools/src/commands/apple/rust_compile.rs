@@ -40,9 +40,11 @@ pub fn compile_rust_for_ios(
     cargo.args(["--target", triple]);
     if !crate_types.is_empty() {
         // Creates a comma-separated string
-        let crate_types: String =
-            itertools::Itertools::intersperse(crate_types.iter().map(|v| v.as_ref()), ",")
-                .collect();
+        let crate_types = crate_types
+            .iter()
+            .map(AsRef::as_ref)
+            .collect::<Vec<&str>>()
+            .join(",");
         cargo.args(["--", "--crate-type", &crate_types]);
     };
     cargo.output_err(true)?;
