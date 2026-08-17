@@ -11,7 +11,7 @@ use crate::error::*;
 use jni::JavaVM;
 use std::{
     collections::HashMap,
-    sync::{Arc, Mutex},
+    sync::{Arc, LazyLock, Mutex},
 };
 
 pub trait CrossbowPlugin {
@@ -22,10 +22,10 @@ pub trait CrossbowPlugin {
     fn get_receiver(&self) -> &Receiver<Signal>;
 }
 
-lazy_static::lazy_static! {
-    static ref JNI_SINGLETONS: Mutex<HashMap<String, Arc<JniSingleton>>> = Default::default();
-    static ref JNI_SIGNAL_SENDERS: Mutex<HashMap<String, Sender<Signal>>> = Default::default();
-}
+static JNI_SINGLETONS: LazyLock<Mutex<HashMap<String, Arc<JniSingleton>>>> =
+    LazyLock::new(Default::default);
+static JNI_SIGNAL_SENDERS: LazyLock<Mutex<HashMap<String, Sender<Signal>>>> =
+    LazyLock::new(Default::default);
 
 fn insert_jni_singleton(
     singleton_name: &str,

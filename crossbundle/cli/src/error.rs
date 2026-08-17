@@ -6,6 +6,7 @@ use thiserror::Error;
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Display, Debug, Error)]
+#[allow(clippy::large_enum_variant)]
 pub enum Error {
     /// One or more doctor checks failed
     DoctorFailed,
@@ -33,8 +34,6 @@ pub enum Error {
     /// AndroidManifest error: {0:?}
     #[cfg(feature = "android")]
     AndroidManifest(#[from] android_manifest::error::Error),
-    /// FsExtra error: {0:?}
-    FsExtra(#[from] fs_extra::error::Error),
     /// Path {0:?} doesn't exist
     PathNotFound(std::path::PathBuf),
     /// Home dir not found

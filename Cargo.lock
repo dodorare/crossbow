@@ -176,11 +176,11 @@ version = "0.2.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "de28dd3564434218f78362c8d906db2fde6f1e4158fae7290f7bfc533aa561b9"
 dependencies = [
- "dirs 4.0.0",
+ "dirs",
  "displaydoc",
  "thiserror 1.0.69",
  "walkdir",
- "which 4.4.2",
+ "which",
 ]
 
 [[package]]
@@ -1175,7 +1175,7 @@ dependencies = [
  "bevy_reflect",
  "derive_more",
  "glam 0.32.1",
- "itertools 0.14.0",
+ "itertools",
  "libm",
  "rand",
  "rand_distr",
@@ -1418,7 +1418,7 @@ dependencies = [
  "glam 0.32.1",
  "image 0.25.10",
  "indexmap",
- "itertools 0.14.0",
+ "itertools",
  "js-sys",
  "naga",
  "nonmax",
@@ -2302,25 +2302,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "crossbeam-deque"
-version = "0.8.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5181e0de7b61eb03a81e347d6dd8797bae9da5146707b51077e2d71a54ec0ceb"
-dependencies = [
- "crossbeam-epoch",
- "crossbeam-utils",
-]
-
-[[package]]
-name = "crossbeam-epoch"
-version = "0.9.20"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2d6914041f254d6e9176c01941b21115dcfb7089e55135a35411081bd106ef3f"
-dependencies = [
- "crossbeam-utils",
-]
-
-[[package]]
 name = "crossbeam-queue"
 version = "0.3.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2357,7 +2338,6 @@ dependencies = [
  "async-channel",
  "displaydoc",
  "jni",
- "lazy_static",
  "ndk-context",
  "rust-embed",
  "thiserror 2.0.20",
@@ -2397,13 +2377,10 @@ dependencies = [
  "colored",
  "crossbow",
  "crossbundle-tools",
- "dirs 6.0.0",
  "displaydoc",
  "dunce",
- "fs_extra",
  "log",
  "pretty_env_logger",
- "serde",
  "serde_json",
  "tempfile",
  "thiserror 2.0.20",
@@ -2421,27 +2398,20 @@ dependencies = [
  "creator-simctl",
  "crossbow",
  "crossbow-android",
- "dirs 6.0.0",
  "displaydoc",
  "dunce",
- "fs_extra",
  "fwdansi",
  "image 0.25.10",
- "itertools 0.15.0",
  "libc",
- "log",
  "semver",
  "serde",
  "serde_json",
- "serde_plain",
  "tempfile",
  "termcolor",
  "thiserror 2.0.20",
  "toml",
- "which 8.0.5",
  "winapi",
  "zip",
- "zip-extensions",
 ]
 
 [[package]]
@@ -2528,16 +2498,7 @@ version = "4.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ca3aa72a6f96ea37bbc5aa912f6788242832f75369bdfdadcb0e38423f100059"
 dependencies = [
- "dirs-sys 0.3.7",
-]
-
-[[package]]
-name = "dirs"
-version = "6.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c3e8aa94d75141228480295a7d0e7feb620b1a5ad9f12bc40be62411e38cce4e"
-dependencies = [
- "dirs-sys 0.5.0",
+ "dirs-sys",
 ]
 
 [[package]]
@@ -2547,20 +2508,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1b1d1d91c932ef41c0f2663aa8b0ca0342d444d842c06914aa0a7e352d0bada6"
 dependencies = [
  "libc",
- "redox_users 0.4.6",
+ "redox_users",
  "winapi",
-]
-
-[[package]]
-name = "dirs-sys"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e01a3366d27ee9890022452ee61b2b63a67e6f13f58900b651ff5665f0bb1fab"
-dependencies = [
- "libc",
- "option-ext",
- "redox_users 0.5.2",
- "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2876,12 +2825,6 @@ name = "foreign-types-shared"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "aa9a19cbb55df58761df49b23516a86d432839add4af60fc256da840f66ed35b"
-
-[[package]]
-name = "fs_extra"
-version = "1.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "42703706b716c37f96a77aea830392ad231f44c9e9a67872fa5548707e11b11c"
 
 [[package]]
 name = "futures-channel"
@@ -3425,22 +3368,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e4a2c462a4d927d512f5f882a033ddd62f33a05bb9f230d98f736ac3dc85938f"
 
 [[package]]
-name = "ignore"
-version = "0.4.33"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "00b69833ed729dc5aa7d19541d96d6cf8e9137194207a04916d658e43168402f"
-dependencies = [
- "crossbeam-deque",
- "globset",
- "log",
- "memchr",
- "regex-automata",
- "same-file",
- "walkdir",
- "winapi-util",
-]
-
-[[package]]
 name = "image"
 version = "0.24.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3531,15 +3458,6 @@ name = "itertools"
 version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2b192c782037fadd9cfa75548310488aabdbf3d2da73885b31bd0abd03351285"
-dependencies = [
- "either",
-]
-
-[[package]]
-name = "itertools"
-version = "0.15.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8b4baf93f58d4425749ca49a51c50ebab072c5df6994d08fed93541c331481dc"
 dependencies = [
  "either",
 ]
@@ -4364,12 +4282,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "384b8ab6d37215f3c5301a95a4accb5d64aa607f1fcb26a11b5303878451b4fe"
 
 [[package]]
-name = "option-ext"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "04744f49eae99ab78e0d5c0b603ab218f515ea8cfe5a456d7629ad883a3b6e7d"
-
-[[package]]
 name = "orbclient"
 version = "0.3.55"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4853,17 +4765,6 @@ dependencies = [
  "getrandom 0.2.17",
  "libredox",
  "thiserror 1.0.69",
-]
-
-[[package]]
-name = "redox_users"
-version = "0.5.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a4e608c6638b9c18977b00b475ac1f28d14e84b27d8d42f70e0bf1e3dec127ac"
-dependencies = [
- "getrandom 0.2.17",
- "libredox",
- "thiserror 2.0.20",
 ]
 
 [[package]]
@@ -6302,15 +6203,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "which"
-version = "8.0.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8f3ef584124b911bcc3875c2f1472e80f24361ceb789bd1c62b3e9a3df9ff43c"
-dependencies = [
- "libc",
-]
-
-[[package]]
 name = "winapi"
 version = "0.3.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6857,16 +6749,6 @@ dependencies = [
  "indexmap",
  "memchr",
  "typed-path",
-]
-
-[[package]]
-name = "zip-extensions"
-version = "0.14.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "285251480403d7097be64d5c33518279ecf5f816d5ebe403c476e45ea16c5628"
-dependencies = [
- "ignore",
- "zip",
 ]
 
 [[package]]

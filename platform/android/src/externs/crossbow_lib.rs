@@ -7,9 +7,7 @@ use jni::{
 };
 use std::sync::Mutex;
 
-lazy_static::lazy_static! {
-    static ref JAVA_ACTIVITY: Mutex<Option<Global<JObject<'static>>>> = Mutex::new(None);
-}
+static JAVA_ACTIVITY: Mutex<Option<Global<JObject<'static>>>> = Mutex::new(None);
 
 #[unsafe(no_mangle)]
 #[allow(non_snake_case)]

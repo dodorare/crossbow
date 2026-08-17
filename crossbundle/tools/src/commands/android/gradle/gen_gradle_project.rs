@@ -1,6 +1,6 @@
 use crate::error::*;
 use crate::{
-    commands::CargoProject,
+    commands::{CargoProject, ExistingFile, copy_directory_contents},
     types::{AndroidGradlePlugins, AndroidRuntime, GradleDependencyProject},
 };
 use crossbow_android::embed::CrossbowAndroidAppTemplate;
@@ -68,16 +68,13 @@ pub fn gen_gradle_project(
         get_settings_gradle(&plugins.local_projects)?,
     )?;
 
-    let mut options = fs_extra::dir::CopyOptions::new();
-    options.overwrite = true;
-    options.content_only = true;
     // Copy resources to gradle folder if provided
     if let Some(resources_dir) = resources_dir {
         let path = gradle_project_path.join("res");
         if path.exists() {
             std::fs::remove_dir_all(&path)?;
         }
-        fs_extra::dir::copy(resources_dir, &path, &options)?;
+        copy_directory_contents(resources_dir, &path, ExistingFile::Overwrite)?;
     }
     // Copy assets to gradle folder if provided
     if let Some(assets_dir) = assets_dir {
@@ -85,7 +82,7 @@ pub fn gen_gradle_project(
         if path.exists() {
             std::fs::remove_dir_all(&path)?;
         }
-        fs_extra::dir::copy(assets_dir, &path, &options)?;
+        copy_directory_contents(assets_dir, &path, ExistingFile::Overwrite)?;
     }
 
     Ok(gradle_project_path)

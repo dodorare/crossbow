@@ -124,8 +124,6 @@ pub enum Error {
     FailedToChooseShellStringColor(String),
     /// IO error: {0:?}
     Io(#[from] std::io::Error),
-    /// FS Extra error: {0:?}
-    FsExtra(#[from] fs_extra::error::Error),
     /// Zip error: {0:?}
     Zip(#[from] zip::result::ZipError),
     /// Android error: {0:?}

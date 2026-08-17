@@ -19,10 +19,9 @@ rust-embed = { workspace = true, features = ["include-exclude"], optional = true
 
 jni = { workspace = true, optional = true }
 ndk-context = { workspace = true, optional = true }
-lazy_static = { workspace = true, optional = true }
 async-channel = { workspace = true, optional = true }
 
 [features]
 default = ["android"]
-android = ["jni", "ndk-context", "lazy_static", "async-channel"]
+android = ["jni", "ndk-context", "async-channel"]
 embed = ["rust-embed"]

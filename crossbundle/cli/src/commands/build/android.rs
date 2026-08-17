@@ -491,13 +491,8 @@ impl AndroidBuildCommand {
             .arg(&key.key_alias);
         command.output_err(true)?;
 
-        let signed_aab = android_build_dir.join(format!("{}_signed.aab", package_name));
-        std::fs::rename(&aab_path, &signed_aab)?;
-        let output_aab = signed_aab.file_name().unwrap().to_str().unwrap();
-        let aab_output_path = outputs_build_dir.join(output_aab);
-        let mut options = fs_extra::file::CopyOptions::new();
-        options.overwrite = true;
-        fs_extra::file::move_file(&signed_aab, outputs_build_dir.join(output_aab), &options)?;
+        let aab_output_path = outputs_build_dir.join(format!("{}_signed.aab", package_name));
+        std::fs::rename(aab_path, &aab_output_path)?;
         config.status("Build finished successfully")?;
         Ok((manifest, sdk.clone(), aab_output_path, package_name, key))
     }

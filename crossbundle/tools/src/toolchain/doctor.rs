@@ -1269,7 +1269,7 @@ fn rust_sysroot(environment: &Environment, project_dir: &Path) -> Option<PathBuf
         .variables
         .get("RUSTUP_HOME")
         .map(PathBuf::from)
-        .or_else(|| dirs::home_dir().map(|home| home.join(".rustup")))?;
+        .or_else(|| std::env::home_dir().map(|home| home.join(".rustup")))?;
     let toolchain = environment
         .variables
         .get("RUSTUP_TOOLCHAIN")
