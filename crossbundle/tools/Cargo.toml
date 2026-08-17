@@ -72,7 +72,6 @@ semver = { workspace = true }
 toml = { workspace = true }
 
 dunce = { workspace = true }
-fs_extra = { workspace = true }
 zip = { workspace = true, default-features = false, features = ["deflate-flate2-zlib-rs"] }
 image = { workspace = true, default-features = false, features = ["png", "jpeg"] }
 

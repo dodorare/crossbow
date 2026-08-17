@@ -1,7 +1,8 @@
-use crate::error::Result;
-use fs_extra::dir::{CopyOptions, copy as copy_dir};
+use crate::{commands::ExistingFile, error::Result};
 use std::fs::create_dir_all;
 use std::path::{Path, PathBuf};
+
+use super::copy_directory_contents;
 
 /// Place all folders' inner files into output directory.
 pub fn combine_folders(folder_paths: &[PathBuf], output: &Path) -> Result<()> {
@@ -10,12 +11,12 @@ pub fn combine_folders(folder_paths: &[PathBuf], output: &Path) -> Result<()> {
         create_dir_all(output)?;
     }
 
-    // Copy options
-    let mut options = CopyOptions::new();
-    options.overwrite = true;
-    options.content_only = true;
     for folder_path in folder_paths {
-        copy_dir(dunce::simplified(folder_path), output, &options)?;
+        copy_directory_contents(
+            dunce::simplified(folder_path),
+            output,
+            ExistingFile::Overwrite,
+        )?;
     }
     Ok(())
 }

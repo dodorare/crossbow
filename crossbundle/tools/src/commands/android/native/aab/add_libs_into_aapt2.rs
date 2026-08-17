@@ -67,9 +67,7 @@ pub fn add_lib_aapt2(lib_path: &Path, out_dir: &Path, project_dir: &Path) -> Res
         std::fs::create_dir_all(project_dir)?;
     }
     let filename = lib_path.file_name().unwrap();
-    let mut options = fs_extra::file::CopyOptions::new();
-    options.overwrite = true;
-    fs_extra::file::copy(lib_path, out_dir.join(filename), &options)?;
-    fs_extra::file::copy(lib_path, project_dir.join(filename), &options)?;
+    std::fs::copy(lib_path, out_dir.join(filename))?;
+    std::fs::copy(lib_path, project_dir.join(filename))?;
     Ok(())
 }

@@ -1,8 +1,4 @@
-use std::{
-    fs::File,
-    io,
-    path::Path,
-};
+use std::{fs::File, io, path::Path};
 use zip::{ZipWriter, write::SimpleFileOptions};
 
 /// Writing files into archive
@@ -39,16 +35,16 @@ pub fn zip_write(source_path: &Path, archive_file: &Path) -> zip::result::ZipRes
 }
 
 /// Moving AndroidManifest.xml file into directory to write files to archive
-pub fn zip_dirs_to_write(source_path: &Path) -> fs_extra::error::Result<()> {
+pub fn zip_dirs_to_write(source_path: &Path) -> io::Result<()> {
     let path = source_path.join("AndroidManifest.xml");
     if path.exists() {
         let manifest_path = source_path.join("manifest");
         if !manifest_path.exists() {
             std::fs::create_dir_all(&manifest_path)?;
         }
-        let mut options = fs_extra::file::CopyOptions::new();
-        options.overwrite = true;
-        fs_extra::file::move_file(&path, manifest_path.join("AndroidManifest.xml"), &options)?;
+        let destination = manifest_path.join("AndroidManifest.xml");
+        std::fs::copy(&path, destination)?;
+        std::fs::remove_file(path)?;
     }
     Ok(())
 }
@@ -98,5 +94,23 @@ mod tests {
         assert_eq!(library, b"native-library");
 
         assert!(archive.by_name("assets/empty/").unwrap().is_dir());
+    }
+
+    #[test]
+    fn zip_dirs_to_write_relocates_and_overwrites_manifest() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let source_dir = temp_dir.path();
+        let manifest_dir = source_dir.join("manifest");
+        std::fs::create_dir(&manifest_dir).unwrap();
+        std::fs::write(source_dir.join("AndroidManifest.xml"), "new").unwrap();
+        std::fs::write(manifest_dir.join("AndroidManifest.xml"), "old").unwrap();
+
+        zip_dirs_to_write(source_dir).unwrap();
+
+        assert!(!source_dir.join("AndroidManifest.xml").exists());
+        assert_eq!(
+            std::fs::read_to_string(manifest_dir.join("AndroidManifest.xml")).unwrap(),
+            "new"
+        );
     }
 }

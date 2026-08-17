@@ -31,7 +31,6 @@ displaydoc = { workspace = true }
 pretty_env_logger = { workspace = true }
 log = { workspace = true }
 
-fs_extra = { workspace = true }
 dunce = { workspace = true }
 ureq = { workspace = true }
 

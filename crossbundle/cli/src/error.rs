@@ -33,8 +33,6 @@ pub enum Error {
     /// AndroidManifest error: {0:?}
     #[cfg(feature = "android")]
     AndroidManifest(#[from] android_manifest::error::Error),
-    /// FsExtra error: {0:?}
-    FsExtra(#[from] fs_extra::error::Error),
     /// Path {0:?} doesn't exist
     PathNotFound(std::path::PathBuf),
     /// Home dir not found

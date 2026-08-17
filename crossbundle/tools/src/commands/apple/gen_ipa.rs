@@ -1,6 +1,6 @@
-use crate::error::*;
-use fs_extra::dir::{CopyOptions, copy as copy_dir};
+use crate::{commands::ExistingFile, error::*};
 use std::fs::{create_dir_all, remove_dir_all};
+use std::io;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
@@ -13,10 +13,17 @@ pub fn gen_apple_ipa(target_dir: &Path, app_dir: &Path, project_name: &str) -> R
     let payload_path = target_dir.join("Payload");
     remove_dir_all(&payload_path).ok();
     create_dir_all(&payload_path)?;
-    // Copy options
-    let mut options = CopyOptions::new();
-    options.copy_inside = true;
-    copy_dir(app_dir, &payload_path, &options)?;
+    let app_name = app_dir.file_name().ok_or_else(|| {
+        io::Error::new(
+            io::ErrorKind::InvalidInput,
+            format!("app path has no directory name: {}", app_dir.display()),
+        )
+    })?;
+    crate::commands::copy_directory_contents(
+        app_dir,
+        &payload_path.join(app_name),
+        ExistingFile::Overwrite,
+    )?;
     // Generate result ipa path
     let ipa_file = format!("{}.ipa", project_name);
     let ipa_path = target_dir.join(&ipa_file);

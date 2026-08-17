@@ -28,7 +28,6 @@ crossbow-ios = { path = "platform/ios", version = "0.2.3" }
 crossbundle-tools = { path = "crossbundle/tools", version = "0.2.3", default-features = false }
 displaydoc = "0.2"
 dunce = "1.0"
-fs_extra = "1.3"
 fwdansi = "1.1"
 image = { version = "0.25.10", default-features = false }
 jni = "0.22"
