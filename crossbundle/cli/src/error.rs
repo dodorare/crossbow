@@ -6,6 +6,7 @@ use thiserror::Error;
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Display, Debug, Error)]
+#[allow(clippy::large_enum_variant)]
 pub enum Error {
     /// One or more doctor checks failed
     DoctorFailed,
