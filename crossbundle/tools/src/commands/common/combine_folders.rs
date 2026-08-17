@@ -1,8 +1,8 @@
-use crate::{commands::ExistingFile, error::Result};
+use crate::error::Result;
 use std::fs::create_dir_all;
 use std::path::{Path, PathBuf};
 
-use super::copy_directory_contents;
+use super::{ExistingFile, copy_directory_contents};
 
 /// Place all folders' inner files into output directory.
 pub fn combine_folders(folder_paths: &[PathBuf], output: &Path) -> Result<()> {

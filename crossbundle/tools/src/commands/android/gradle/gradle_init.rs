@@ -9,26 +9,21 @@ use std::{
 pub fn gradle_init() -> Result<Command> {
     let path = std::env::var_os("PATH");
     let gradle_home = std::env::var_os("GRADLE_HOME");
-    Ok(Command::new(find_gradle(
-        path.as_deref(),
-        gradle_home.as_deref(),
-    )?))
+    find_gradle(path.as_deref(), gradle_home.as_deref())
+        .map(Command::new)
+        .ok_or_else(|| AndroidError::GradleNotFound.into())
 }
 
-fn find_gradle(path: Option<&OsStr>, gradle_home: Option<&OsStr>) -> Result<PathBuf> {
-    if let Some(gradle) = path
-        .into_iter()
+fn find_gradle(path: Option<&OsStr>, gradle_home: Option<&OsStr>) -> Option<PathBuf> {
+    path.into_iter()
         .flat_map(std::env::split_paths)
         .map(|directory| directory.join(bat!("gradle")))
         .find(|candidate| is_executable(candidate))
-    {
-        return Ok(gradle);
-    }
-
-    gradle_home
-        .map(PathBuf::from)
-        .map(|home| home.join("bin").join(bat!("gradle")))
-        .ok_or_else(|| AndroidError::GradleNotFound.into())
+        .or_else(|| {
+            gradle_home
+                .map(|home| PathBuf::from(home).join("bin").join(bat!("gradle")))
+                .filter(|candidate| is_executable(candidate))
+        })
 }
 
 #[cfg(unix)]
@@ -69,10 +64,14 @@ mod tests {
     fn gradle_home_is_used_when_path_has_no_gradle() {
         let temp = tempfile::tempdir().unwrap();
         let gradle_home = temp.path().join("gradle-home");
+        let gradle = gradle_home.join("bin").join(bat!("gradle"));
+        std::fs::create_dir_all(gradle.parent().unwrap()).unwrap();
+        std::fs::write(&gradle, "").unwrap();
+        make_executable(&gradle);
 
         assert_eq!(
             find_gradle(None, Some(gradle_home.as_os_str())).unwrap(),
-            gradle_home.join("bin").join(bat!("gradle"))
+            gradle
         );
     }
 

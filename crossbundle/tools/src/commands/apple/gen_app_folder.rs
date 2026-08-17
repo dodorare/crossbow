@@ -1,4 +1,5 @@
-use crate::{commands::ExistingFile, error::*};
+use crate::commands::{ExistingFile, copy_directory_contents};
+use crate::error::*;
 use std::fs::{create_dir_all, remove_dir_all};
 use std::path::{Path, PathBuf};
 
@@ -21,7 +22,7 @@ pub fn gen_apple_app_folder(
         if !resources_dir.exists() {
             return Err(AppleError::ResourcesNotFound.into());
         }
-        crate::commands::copy_directory_contents(resources_dir, &app_path, ExistingFile::Skip)?;
+        copy_directory_contents(resources_dir, &app_path, ExistingFile::Skip)?;
     }
     // Copy assets to app folder if provided
     if let Some(assets_dir) = &assets_dir {
@@ -30,7 +31,7 @@ pub fn gen_apple_app_folder(
         }
         let assets_path = app_path.join("assets");
         create_dir_all(&assets_path)?;
-        crate::commands::copy_directory_contents(assets_dir, &assets_path, ExistingFile::Skip)?;
+        copy_directory_contents(assets_dir, &assets_path, ExistingFile::Skip)?;
     }
     Ok(app_path)
 }

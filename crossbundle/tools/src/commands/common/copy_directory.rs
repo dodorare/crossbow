@@ -1,5 +1,4 @@
 use std::{
-    collections::HashSet,
     fs, io,
     path::{Path, PathBuf},
 };
@@ -16,64 +15,50 @@ pub(crate) fn copy_directory_contents(
     destination: &Path,
     existing_file: ExistingFile,
 ) -> io::Result<()> {
-    copy_directory_contents_inner(source, destination, existing_file, &mut HashSet::new())
-}
-
-fn copy_directory_contents_inner(
-    source: &Path,
-    destination: &Path,
-    existing_file: ExistingFile,
-    ancestors: &mut HashSet<PathBuf>,
-) -> io::Result<()> {
-    if !source.is_dir() {
-        return Err(io::Error::new(
-            io::ErrorKind::InvalidInput,
-            format!("source is not a directory: {}", source.display()),
-        ));
-    }
-
-    let canonical_source = fs::canonicalize(source)?;
-    if !ancestors.insert(canonical_source.clone()) {
-        return Err(io::Error::new(
-            io::ErrorKind::InvalidInput,
-            format!("directory symlink cycle at {}", source.display()),
-        ));
-    }
-
-    fs::create_dir_all(destination)?;
-    let result = (|| {
-        for entry in fs::read_dir(source)? {
-            let entry = entry?;
-            let source_path = entry.path();
-            let destination_path = destination.join(entry.file_name());
-
-            if source_path.is_dir() {
-                copy_directory_contents_inner(
-                    &source_path,
-                    &destination_path,
-                    existing_file,
-                    ancestors,
-                )?;
-            } else if source_path.is_file() {
-                if destination_path.exists() && matches!(existing_file, ExistingFile::Skip) {
-                    continue;
-                }
-                fs::copy(source_path, destination_path)?;
-            } else {
-                return Err(io::Error::new(
-                    io::ErrorKind::InvalidInput,
-                    format!(
-                        "source is not a file or directory: {}",
-                        source_path.display()
-                    ),
-                ));
-            }
+    fn copy(
+        source: &Path,
+        destination: &Path,
+        existing_file: ExistingFile,
+        ancestors: &mut Vec<PathBuf>,
+    ) -> io::Result<()> {
+        let canonical_source = fs::canonicalize(source)?;
+        if ancestors.contains(&canonical_source) {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                format!("directory symlink cycle at {}", source.display()),
+            ));
         }
-        Ok(())
-    })();
+        let entries = fs::read_dir(source)?;
+        ancestors.push(canonical_source);
 
-    ancestors.remove(&canonical_source);
-    result
+        let result = (|| {
+            fs::create_dir_all(destination)?;
+            for entry in entries {
+                let entry = entry?;
+                let source = entry.path();
+                let destination = destination.join(entry.file_name());
+                let metadata = fs::metadata(&source)?;
+
+                if metadata.is_dir() {
+                    copy(&source, &destination, existing_file, ancestors)?;
+                } else if !metadata.is_file() {
+                    return Err(io::Error::new(
+                        io::ErrorKind::InvalidInput,
+                        format!("source is not a file or directory: {}", source.display()),
+                    ));
+                } else if !destination.exists() || matches!(existing_file, ExistingFile::Overwrite)
+                {
+                    fs::copy(source, destination)?;
+                }
+            }
+            Ok(())
+        })();
+
+        ancestors.pop();
+        result
+    }
+
+    copy(source, destination, existing_file, &mut Vec::new())
 }
 
 #[cfg(test)]

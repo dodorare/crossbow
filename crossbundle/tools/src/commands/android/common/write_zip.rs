@@ -3,29 +3,31 @@ use zip::{ZipWriter, write::SimpleFileOptions};
 
 /// Writing files into archive
 pub fn zip_write(source_path: &Path, archive_file: &Path) -> zip::result::ZipResult<()> {
-    let file = File::create(archive_file)?;
-    let mut zip = ZipWriter::new(file);
+    let mut zip = ZipWriter::new(File::create(archive_file)?);
     let mut directories = vec![source_path.to_path_buf()];
 
     while let Some(directory) = directories.pop() {
         for entry in std::fs::read_dir(directory)? {
             let entry = entry?;
             let path = entry.path();
-            let relative_path = path.strip_prefix(source_path).map_err(|error| {
-                io::Error::new(
-                    io::ErrorKind::InvalidInput,
-                    format!("archive entry is outside the source directory: {error}"),
-                )
-            })?;
-            let metadata = entry.metadata()?;
+            let relative_path = path
+                .strip_prefix(source_path)
+                .map_err(|error| io::Error::new(io::ErrorKind::InvalidInput, error))?;
+            let file_type = entry.file_type()?;
 
-            if metadata.is_dir() {
+            if file_type.is_dir() {
                 zip.add_directory_from_path(relative_path, SimpleFileOptions::default())?;
                 directories.push(path);
-            } else if metadata.is_file() {
+            } else if file_type.is_file() {
                 zip.start_file_from_path(relative_path, SimpleFileOptions::default())?;
                 let mut source = File::open(path)?;
                 io::copy(&mut source, &mut zip)?;
+            } else {
+                return Err(io::Error::new(
+                    io::ErrorKind::InvalidInput,
+                    format!("unsupported archive source entry: {}", path.display()),
+                )
+                .into());
             }
         }
     }
@@ -39,12 +41,8 @@ pub fn zip_dirs_to_write(source_path: &Path) -> io::Result<()> {
     let path = source_path.join("AndroidManifest.xml");
     if path.exists() {
         let manifest_path = source_path.join("manifest");
-        if !manifest_path.exists() {
-            std::fs::create_dir_all(&manifest_path)?;
-        }
-        let destination = manifest_path.join("AndroidManifest.xml");
-        std::fs::copy(&path, destination)?;
-        std::fs::remove_file(path)?;
+        std::fs::create_dir_all(&manifest_path)?;
+        std::fs::rename(path, manifest_path.join("AndroidManifest.xml"))?;
     }
     Ok(())
 }
@@ -111,6 +109,25 @@ mod tests {
         assert_eq!(
             std::fs::read_to_string(manifest_dir.join("AndroidManifest.xml")).unwrap(),
             "new"
+        );
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn zip_write_rejects_symlinks() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let source_dir = temp_dir.path().join("source");
+        std::fs::create_dir(&source_dir).unwrap();
+        std::fs::write(temp_dir.path().join("target"), "target").unwrap();
+        std::os::unix::fs::symlink(temp_dir.path().join("target"), source_dir.join("symlink"))
+            .unwrap();
+
+        let error = zip_write(&source_dir, &temp_dir.path().join("archive.zip")).unwrap_err();
+
+        assert!(
+            error
+                .to_string()
+                .contains("unsupported archive source entry")
         );
     }
 }

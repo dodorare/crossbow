@@ -1,4 +1,5 @@
-use crate::{commands::ExistingFile, error::*};
+use crate::commands::{ExistingFile, copy_directory_contents};
+use crate::error::*;
 use std::fs::{create_dir_all, remove_dir_all};
 use std::io;
 use std::path::{Path, PathBuf};
@@ -19,7 +20,7 @@ pub fn gen_apple_ipa(target_dir: &Path, app_dir: &Path, project_name: &str) -> R
             format!("app path has no directory name: {}", app_dir.display()),
         )
     })?;
-    crate::commands::copy_directory_contents(
+    copy_directory_contents(
         app_dir,
         &payload_path.join(app_name),
         ExistingFile::Overwrite,
