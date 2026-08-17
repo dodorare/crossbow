@@ -87,7 +87,6 @@ anyhow = { workspace = true }
 displaydoc = { workspace = true }
 log = { workspace = true }
 termcolor = { workspace = true }
-atty = { workspace = true }
 
 [target.'cfg(unix)'.dependencies]
 libc = { workspace = true }

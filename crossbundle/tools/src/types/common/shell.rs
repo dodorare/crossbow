@@ -1,5 +1,5 @@
 use std::fmt;
-use std::io::prelude::*;
+use std::io::{IsTerminal, prelude::*};
 
 use termcolor::Color::{Cyan, Green, Red, Yellow};
 use termcolor::{self, Color, ColorSpec, StandardStream, WriteColor};
@@ -102,7 +102,7 @@ impl Shell {
                 stdout: StandardStream::stdout(auto),
                 stderr: StandardStream::stderr(auto),
                 color_choice: ColorChoice::CargoAuto,
-                stderr_tty: atty::is(atty::Stream::Stderr),
+                stderr_tty: std::io::stderr().is_terminal(),
             },
             verbosity: Verbosity::Verbose,
             needs_clear: false,
@@ -417,7 +417,7 @@ impl ColorChoice {
             ColorChoice::Always => termcolor::ColorChoice::Always,
             ColorChoice::Never => termcolor::ColorChoice::Never,
             ColorChoice::CargoAuto => {
-                if atty::is(atty::Stream::Stderr) {
+                if std::io::stderr().is_terminal() {
                     termcolor::ColorChoice::Auto
                 } else {
                     termcolor::ColorChoice::Never
