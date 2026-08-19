@@ -1,11 +1,13 @@
 use super::*;
-use crate::types::IntoRustTriple;
+use crate::types::{IntoRustTriple, IosTarget};
 use std::process::Command;
 
 const DEVELOPER_DIR_ID: &str = "apple.xcode.developer_dir";
 const COMMAND_LINE_TOOLS_ID: &str = "apple.xcode.command_line_tools";
 const SIMCTL_ID: &str = "apple.tool.simctl";
 const SIGNING_IDENTITY_ID: &str = "apple.signing.identity";
+const IPHONEOS_SDK_VERSION: &str = "apple.sdk.iphoneos.version";
+const IPHONESIMULATOR_SDK_VERSION: &str = "apple.sdk.iphonesimulator.version";
 const READ_ONLY_COMMANDS: &[(&str, &str, &[&str])] = &[
     (DEVELOPER_DIR_ID, "xcode-select", &["--print-path"]),
     ("apple.xcode.version", "xcodebuild", &["-version"]),
@@ -20,6 +22,16 @@ const READ_ONLY_COMMANDS: &[(&str, &str, &[&str])] = &[
         "apple.sdk.iphonesimulator",
         "xcrun",
         &["--sdk", "iphonesimulator", "--show-sdk-path"],
+    ),
+    (
+        IPHONEOS_SDK_VERSION,
+        "xcrun",
+        &["--sdk", "iphoneos", "--show-sdk-version"],
+    ),
+    (
+        IPHONESIMULATOR_SDK_VERSION,
+        "xcrun",
+        &["--sdk", "iphonesimulator", "--show-sdk-version"],
     ),
 ];
 const SIGNING_COMMAND: (&str, &str, &[&str]) = (
@@ -101,8 +113,20 @@ pub(super) fn checks(
             "xcrun",
         ),
         command_path_check(environment, SIMCTL_ID, "simctl"),
-        sdk_check(environment, "apple.sdk.iphoneos", "iPhoneOS"),
-        sdk_check(environment, "apple.sdk.iphonesimulator", "iPhoneSimulator"),
+        sdk_check(
+            environment,
+            "apple.sdk.iphoneos",
+            IPHONEOS_SDK_VERSION,
+            "iPhoneOS",
+            request.strict,
+        ),
+        sdk_check(
+            environment,
+            "apple.sdk.iphonesimulator",
+            IPHONESIMULATOR_SDK_VERSION,
+            "iPhoneSimulator",
+            request.strict,
+        ),
     ];
     checks.extend(rust_target_checks(request, environment, false, project));
     checks.push(signing_identity_check(environment, request, project));
@@ -345,19 +369,41 @@ fn executable_file(path: &Path) -> bool {
     }
 }
 
-fn sdk_check(environment: &Environment, id: &str, label: &str) -> DoctorCheck {
+fn sdk_check(
+    environment: &Environment,
+    id: &str,
+    version_id: &str,
+    label: &str,
+    strict: bool,
+) -> DoctorCheck {
     let path = command_path(environment, id).filter(|path| path.is_dir());
-    let version = path
-        .as_ref()
-        .and_then(|path| version_in_text(path.to_string_lossy().as_ref()));
-    required_path_check(
+    let version = successful_command(environment, version_id)
+        .and_then(|output| version_in_text(&output.stdout));
+    let mut result = required_path_check(
         id,
         path,
         version,
         format!("Found the installed {label} SDK"),
         format!("The {label} SDK was not found"),
         format!("Install {label} platform support in Xcode"),
-    )
+    );
+    if result
+        .found
+        .as_ref()
+        .is_some_and(|found| found.version.is_none())
+    {
+        result.status = if strict {
+            CheckStatus::Fail
+        } else {
+            CheckStatus::Warn
+        };
+        result.summary = format!("The {label} SDK version could not be determined");
+        result.remediation = Some(format!(
+            "Ensure xcrun --sdk {} --show-sdk-version succeeds",
+            label.to_ascii_lowercase()
+        ));
+    }
+    result
 }
 
 fn required_path_check(
@@ -413,7 +459,7 @@ fn rust_target_checks(
             .map(|metadata| apple_targets(metadata).map(str::to_owned).collect())
             .unwrap_or_default();
         if targets.is_empty() {
-            targets.push("aarch64-apple-ios-sim".into());
+            targets.push(IosTarget::host_simulator().rust_triple().into());
         }
     }
     targets.sort();
@@ -635,7 +681,7 @@ fn project_checks(context: &project::ProjectContext) -> Vec<DoctorCheck> {
     ];
     let mut targets = apple_targets(metadata).collect::<Vec<_>>();
     if targets.is_empty() {
-        targets.push("aarch64-apple-ios-sim");
+        targets.push(IosTarget::host_simulator().rust_triple());
     }
     targets.sort_unstable();
     targets.dedup();
@@ -851,6 +897,8 @@ mod tests {
                 "apple.sdk.iphonesimulator",
                 simulator_sdk.display().to_string(),
             ),
+            (IPHONEOS_SDK_VERSION, "18.5".into()),
+            (IPHONESIMULATOR_SDK_VERSION, "18.5".into()),
         ]
         .into_iter()
         .map(|(id, stdout)| {
@@ -895,6 +943,40 @@ mod tests {
         ] {
             let check = report.checks.iter().find(|check| check.id == id).unwrap();
             assert_eq!(check.status, CheckStatus::Pass, "{id}: {check:?}");
+        }
+        for id in ["apple.sdk.iphoneos", "apple.sdk.iphonesimulator"] {
+            assert_eq!(
+                report
+                    .checks
+                    .iter()
+                    .find(|check| check.id == id)
+                    .unwrap()
+                    .found
+                    .as_ref()
+                    .and_then(|found| found.version.as_deref()),
+                Some("18.5")
+            );
+        }
+    }
+
+    #[test]
+    fn unknown_sdk_version_warns_or_fails_in_strict_mode() {
+        let temp = tempfile::tempdir().unwrap();
+        let mut environment = fixture_environment(temp.path(), "16.4");
+        environment.commands.remove(IPHONEOS_SDK_VERSION);
+
+        for (strict, status) in [(false, CheckStatus::Warn), (true, CheckStatus::Fail)] {
+            assert_eq!(
+                sdk_check(
+                    &environment,
+                    "apple.sdk.iphoneos",
+                    IPHONEOS_SDK_VERSION,
+                    "iPhoneOS",
+                    strict,
+                )
+                .status,
+                status
+            );
         }
     }
 
@@ -1420,6 +1502,16 @@ icon = "icon-directory"
                 "apple.sdk.iphonesimulator",
                 "xcrun",
                 &["--sdk", "iphonesimulator", "--show-sdk-path"],
+            ),
+            (
+                IPHONEOS_SDK_VERSION,
+                "xcrun",
+                &["--sdk", "iphoneos", "--show-sdk-version"],
+            ),
+            (
+                IPHONESIMULATOR_SDK_VERSION,
+                "xcrun",
+                &["--sdk", "iphonesimulator", "--show-sdk-version"],
             ),
         ];
         assert_eq!(READ_ONLY_COMMANDS, expected);

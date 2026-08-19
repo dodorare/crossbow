@@ -1307,19 +1307,19 @@ fn rust_sysroot(environment: &Environment, project_dir: &Path) -> Option<PathBuf
 
 fn project_toolchain(project_dir: &Path) -> Option<String> {
     project_dir.ancestors().find_map(|directory| {
-        let modern = directory.join("rust-toolchain.toml");
-        if modern.is_file() {
+        let toml_file = directory.join("rust-toolchain.toml");
+        if toml_file.is_file() {
             let value =
-                toml::from_str::<toml::Value>(&std::fs::read_to_string(modern).ok()?).ok()?;
+                toml::from_str::<toml::Value>(&std::fs::read_to_string(toml_file).ok()?).ok()?;
             return value
                 .get("toolchain")?
                 .get("channel")?
                 .as_str()
                 .map(str::to_owned);
         }
-        let legacy = directory.join("rust-toolchain");
-        if legacy.is_file() {
-            std::fs::read_to_string(legacy)
+        let plain_file = directory.join("rust-toolchain");
+        if plain_file.is_file() {
+            std::fs::read_to_string(plain_file)
                 .ok()
                 .map(|value| value.trim().to_owned())
         } else {
@@ -1479,6 +1479,7 @@ mod tests {
     use super::*;
     #[cfg(feature = "android")]
     use std::fs;
+
     #[test]
     fn report_is_sorted_and_json_is_versioned() {
         let report = diagnose(&DoctorRequest::default(), &Environment::default());
@@ -1596,7 +1597,9 @@ release_build_targets = ["not-an-apple-target"]
 
     #[cfg(feature = "apple")]
     #[test]
-    fn apple_json_envelope_and_stable_host_ids_are_golden() {
+    fn apple_json_envelope_and_host_ids_are_stable() {
+        use crate::types::IntoRustTriple as _;
+
         let report = diagnose(
             &DoctorRequest {
                 strict: true,
@@ -1622,25 +1625,26 @@ release_build_targets = ["not-an-apple-target"]
         let ids = report
             .checks
             .iter()
-            .map(|check| check.id.as_str())
+            .map(|check| check.id.clone())
             .collect::<Vec<_>>();
+        let simulator_target = crate::types::IosTarget::host_simulator().rust_triple();
         assert_eq!(
             ids,
             vec![
-                "apple.host.os",
-                "apple.rust.target.aarch64-apple-ios-sim",
-                "apple.sdk.iphoneos",
-                "apple.sdk.iphonesimulator",
-                "apple.signing.identity",
-                "apple.tool.simctl",
-                "apple.tool.xcodebuild",
-                "apple.tool.xcrun",
-                "apple.xcode.command_line_tools",
-                "apple.xcode.developer_dir",
-                "apple.xcode.installation",
-                "apple.xcode.version",
-                "host.rust.cargo",
-                "host.rust.rustc",
+                "apple.host.os".into(),
+                format!("apple.rust.target.{simulator_target}"),
+                "apple.sdk.iphoneos".into(),
+                "apple.sdk.iphonesimulator".into(),
+                "apple.signing.identity".into(),
+                "apple.tool.simctl".into(),
+                "apple.tool.xcodebuild".into(),
+                "apple.tool.xcrun".into(),
+                "apple.xcode.command_line_tools".into(),
+                "apple.xcode.developer_dir".into(),
+                "apple.xcode.installation".into(),
+                "apple.xcode.version".into(),
+                "host.rust.cargo".into(),
+                "host.rust.rustc".into(),
             ]
         );
     }
