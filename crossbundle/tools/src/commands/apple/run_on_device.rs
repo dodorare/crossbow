@@ -1,31 +1,16 @@
 use crate::error::*;
 use std::{path::Path, process::Command};
 
-/// Runs and debugs app on device.
-/// Runs `ios-deploy ...` command.
-pub fn run_and_debug(
-    app_path: &Path,
-    debug: bool,
-    just_launch: bool,
-    non_interactive: bool,
-    id: Option<&String>,
-) -> Result<()> {
+/// Installs and launches an iOS application on a physical device with `ios-deploy`.
+pub fn launch_ios_device_app(app_path: &Path, debug: bool, device_id: Option<&str>) -> Result<()> {
     let mut cmd = Command::new("ios-deploy");
     if debug {
         cmd.arg("--debug");
     }
-    if just_launch {
-        cmd.arg("--justlaunch");
+    if let Some(device_id) = device_id {
+        cmd.args(["--id", device_id]);
     }
-    if let Some(id) = id {
-        cmd.args(["--id", id]);
-    }
-    cmd.arg("--bundle");
-    cmd.arg(app_path);
-    if non_interactive {
-        cmd.arg("--noninteractive");
-    }
-    cmd.arg("--no-wifi");
+    cmd.arg("--bundle").arg(app_path).arg("--no-wifi");
     cmd.output_err(true)?;
     Ok(())
 }

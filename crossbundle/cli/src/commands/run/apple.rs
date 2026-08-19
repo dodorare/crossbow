@@ -2,38 +2,42 @@ use crate::commands::build::{BuildContext, apple::IosBuildCommand};
 use crate::error::*;
 use clap::Parser;
 use crossbundle_tools::{commands::apple, types::Config, types::*};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 #[derive(Parser, Clone, Debug)]
 pub struct IosRunCommand {
     #[clap(flatten)]
     pub build_command: IosBuildCommand,
-    /// Simulator device name
-    #[clap(short, long, default_value = "iPhone 13")]
-    pub simulator_name: String,
-    /// Run in debug mode
-    #[clap(short, long)]
+    /// Simulator name or UDID. Defaults to a booted or the newest available iOS Simulator.
+    #[clap(short, long, value_name = "NAME_OR_UDID", conflicts_with = "device")]
+    pub simulator: Option<String>,
+    /// Do not open Simulator.app
+    #[clap(long, conflicts_with = "device")]
+    pub no_open: bool,
+    /// Return after launching instead of attaching to the application console
+    #[clap(long, conflicts_with = "device")]
+    pub detach: bool,
+    /// Start the debugger when running on a connected device
+    #[clap(long, requires = "device")]
     pub debug: bool,
     /// Install and launch on the connected device
-    #[clap(short, long, conflicts_with = "target")]
+    #[clap(short, long, conflicts_with = "target", requires = "signing_identity")]
     pub device: bool,
     /// Connected device id
-    #[clap(short = 'D', long, conflicts_with = "device_name")]
+    #[clap(short = 'D', long, requires = "device")]
     pub device_id: Option<String>,
 }
 
 impl IosRunCommand {
     pub fn run(&self, config: &Config) -> Result<()> {
-        let build_command = self.build_command.clone();
-        // if self.device && build_command.target.is_empty() {
-        //     build_command.target = vec![IosTarget::Aarch64];
-        // } else if build_command.target.is_empty() {
-        //     if cfg!(target_arch = "aarch64") {
-        //         build_command.target = vec![IosTarget::Aarch64];
-        //     } else {
-        //         build_command.target = vec![IosTarget::X86_64];
-        //     }
-        // }
+        let mut build_command = self.build_command.clone();
+        if build_command.target.is_empty() {
+            build_command.target.push(if self.device {
+                IosTarget::Aarch64Device
+            } else {
+                IosTarget::host_simulator()
+            });
+        }
         let context = BuildContext::new(config, &build_command.shared)?;
         let (info_plist, app_paths) = build_command.execute(config, &context)?;
         config.status("Starting run process")?;
@@ -41,29 +45,47 @@ impl IosRunCommand {
         let app_path = self.get_app_path(&app_paths)?;
         if self.device {
             config.shell().status("Launching app on connected device")?;
-            apple::run_and_debug(&app_path, self.debug, false, false, self.device_id.as_ref())?;
+            apple::launch_ios_device_app(app_path, self.debug, self.device_id.as_deref())?;
         } else {
             config.status("Installing and launching application on simulator")?;
-            apple::launch_apple_app(&app_path, &self.simulator_name, bundle_id, true)?;
-            crossbundle_tools::types::simctl::Simctl::new()
-                .open()
-                .map_err(|err| Error::CrossbundleTools(err.into()))?;
+            let device = apple::launch_ios_simulator_app(
+                app_path,
+                bundle_id,
+                apple::IosSimulatorLaunchOptions {
+                    simulator: self.simulator.as_deref(),
+                    open: !self.no_open,
+                    detach: self.detach,
+                },
+            )?;
+            config.status_message("Simulator", format!("{} ({})", device.name, device.udid))?;
         }
         config.status("Run finished successfully")?;
         Ok(())
     }
 
-    fn get_app_path(&self, app_paths: &[PathBuf]) -> Result<PathBuf> {
-        if self.device || cfg!(target_arch = "aarch64") {
-            Self::get_app_path_by_target(app_paths, IosTarget::Aarch64)
+    fn get_app_path<'a>(&self, app_paths: &'a [(IosTarget, PathBuf)]) -> Result<&'a Path> {
+        let preferred = if self.device {
+            IosTarget::Aarch64Device
         } else {
-            Self::get_app_path_by_target(app_paths, IosTarget::X86_64)
-        }
-    }
-
-    fn get_app_path_by_target(app_paths: &[PathBuf], target: IosTarget) -> Result<PathBuf> {
-        let mut iter = app_paths.iter();
-        let res = iter.find(|&x| x.to_str().unwrap().contains(target.rust_triple()));
-        Ok(res.ok_or(Error::CantFindTargetToRun)?.to_owned())
+            IosTarget::host_simulator()
+        };
+        app_paths
+            .iter()
+            .find(|(target, _)| *target == preferred)
+            .or_else(|| {
+                if self.device {
+                    None
+                } else {
+                    app_paths.iter().find(|(target, _)| target.is_simulator())
+                }
+            })
+            .map(|(_, path)| path.as_path())
+            .ok_or_else(|| {
+                anyhow::anyhow!(
+                    "the build did not produce a runnable iOS {} artifact",
+                    if self.device { "device" } else { "Simulator" }
+                )
+                .into()
+            })
     }
 }

@@ -1,4 +1,5 @@
 use crate::error::*;
+use crate::types::{CargoTargetSelection, is_library_kind};
 use serde::Deserialize;
 use std::{
     collections::{HashMap, HashSet},
@@ -24,6 +25,7 @@ pub struct CargoPackage {
     pub manifest_path: PathBuf,
     #[serde(default)]
     pub metadata: serde_json::Value,
+    pub default_run: Option<String>,
     pub targets: Vec<CargoTarget>,
 }
 
@@ -36,16 +38,19 @@ pub struct CargoTarget {
 
 impl CargoTarget {
     pub fn is_library(&self) -> bool {
-        self.kind.iter().any(|kind| {
-            matches!(
-                kind.as_str(),
-                "lib" | "rlib" | "dylib" | "cdylib" | "staticlib" | "proc-macro"
-            )
-        })
+        self.kind.iter().any(|kind| is_library_kind(kind))
     }
 
     pub fn is_cdylib(&self) -> bool {
         self.crate_types.iter().any(|kind| kind == "cdylib")
+    }
+
+    fn is_executable(&self, kind: &str) -> bool {
+        self.kind.iter().any(|target_kind| target_kind == kind)
+            && self
+                .crate_types
+                .iter()
+                .any(|crate_type| crate_type == "bin")
     }
 }
 
@@ -156,6 +161,75 @@ impl CargoProject {
             .find(|target| target.is_library())
     }
 
+    /// Select the executable Cargo target that should become an application bundle.
+    pub fn executable_target(
+        &self,
+        bin: Option<&str>,
+        example: Option<&str>,
+    ) -> Result<CargoTargetSelection> {
+        if let Some(name) = example {
+            return self.named_executable(CargoTargetSelection::Example(name.to_owned()));
+        }
+        if let Some(name) = bin.or(self.package.default_run.as_deref()) {
+            return self.named_executable(CargoTargetSelection::Bin(name.to_owned()));
+        }
+
+        let binaries = self
+            .package
+            .targets
+            .iter()
+            .filter(|target| target.is_executable("bin"))
+            .collect::<Vec<_>>();
+        match binaries.as_slice() {
+            [target] => Ok(CargoTargetSelection::Bin(target.name.clone())),
+            [] => Err(anyhow::anyhow!(
+                "Cargo package `{}` has no executable binary target. Add `src/main.rs`, or select an executable example with `--example`.",
+                self.package.name
+            )
+            .into()),
+            targets => Err(anyhow::anyhow!(
+                "Cargo package `{}` has multiple binary targets: {}. Select one with `--bin`, or set `package.default-run` in Cargo.toml.",
+                self.package.name,
+                targets
+                    .iter()
+                    .map(|target| target.name.as_str())
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            )
+            .into()),
+        }
+    }
+
+    fn named_executable(&self, selection: CargoTargetSelection) -> Result<CargoTargetSelection> {
+        let name = selection.name();
+        let kind = selection.kind();
+        if self
+            .package
+            .targets
+            .iter()
+            .any(|target| target.name == name && target.is_executable(kind))
+        {
+            return Ok(selection);
+        }
+        let available = self
+            .package
+            .targets
+            .iter()
+            .filter(|target| target.is_executable(kind))
+            .map(|target| target.name.as_str())
+            .collect::<Vec<_>>();
+        let available = if available.is_empty() {
+            "none".to_owned()
+        } else {
+            available.join(", ")
+        };
+        Err(anyhow::anyhow!(
+            "Cargo package `{}` has no executable {kind} target `{name}`. Available {kind} targets: {available}.",
+            self.package.name
+        )
+        .into())
+    }
+
     /// Find one named package in the selected package's resolved dependency closure.
     pub fn dependency(&self, name: &str) -> Result<&CargoPackage> {
         let mut pending = vec![self.package.id.as_str()];
@@ -227,6 +301,68 @@ struct Node {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn target(name: &str, kind: &str) -> CargoTarget {
+        CargoTarget {
+            name: name.into(),
+            kind: vec![kind.into()],
+            crate_types: vec!["bin".into()],
+        }
+    }
+
+    fn project(targets: Vec<CargoTarget>, default_run: Option<&str>) -> CargoProject {
+        let package = CargoPackage {
+            id: "app 0.1.0 (path+file:///app)".into(),
+            name: "app".into(),
+            version: "0.1.0".into(),
+            manifest_path: "/app/Cargo.toml".into(),
+            metadata: serde_json::Value::Null,
+            default_run: default_run.map(str::to_owned),
+            targets,
+        };
+        CargoProject {
+            workspace_manifest_path: "/Cargo.toml".into(),
+            target_directory: "/target".into(),
+            packages: HashMap::from([(package.id.clone(), package.clone())]),
+            package,
+            dependencies: HashMap::new(),
+        }
+    }
+
+    #[test]
+    fn selects_cargo_executables_without_guessing() {
+        let single = project(vec![target("renamed", "bin")], None);
+        assert_eq!(
+            single.executable_target(None, None).unwrap(),
+            CargoTargetSelection::Bin("renamed".into())
+        );
+
+        let multiple = project(
+            vec![target("client", "bin"), target("server", "bin")],
+            Some("client"),
+        );
+        assert_eq!(
+            multiple.executable_target(None, None).unwrap(),
+            CargoTargetSelection::Bin("client".into())
+        );
+        let error = multiple
+            .executable_target(None, Some("demo"))
+            .unwrap_err()
+            .to_string();
+        assert!(error.contains("no executable example target `demo`"));
+        assert!(error.contains("Available example targets: none"));
+    }
+
+    #[test]
+    fn rejects_ambiguous_default_binary() {
+        let project = project(vec![target("client", "bin"), target("server", "bin")], None);
+        let error = project
+            .executable_target(None, None)
+            .unwrap_err()
+            .to_string();
+        assert!(error.contains("multiple binary targets: client, server"));
+        assert!(error.contains("--bin"));
+    }
 
     #[test]
     fn selects_the_manifest_and_resolves_its_dependency_closure() {

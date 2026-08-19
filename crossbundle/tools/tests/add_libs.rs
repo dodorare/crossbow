@@ -1,14 +1,15 @@
 #![cfg(feature = "android")]
 
 use crossbundle_tools::{
-    commands::{android::*, gen_minimal_project},
+    commands::{CargoProject, android::*, gen_minimal_project},
     types::*,
 };
 
 fn compile_and_package(macroquad: bool) {
-    let project = tempfile::tempdir().unwrap();
-    let package = gen_minimal_project(project.path(), macroquad).unwrap();
-    let target_dir = project.path().join("target");
+    let dir = tempfile::tempdir().unwrap();
+    let package = gen_minimal_project(dir.path(), macroquad).unwrap();
+    let project = CargoProject::load(&dir.path().join("Cargo.toml")).unwrap();
+    let target_dir = dir.path().join("target");
     let sdk = AndroidSdk::from_env().unwrap();
     let ndk = AndroidNdk::from_env(sdk.sdk_path()).unwrap();
     let target = AndroidTarget::Aarch64;
@@ -16,8 +17,7 @@ fn compile_and_package(macroquad: bool) {
     let library = standard_cargo_compile(
         &ndk,
         target,
-        &project.path().join("Cargo.toml"),
-        &package,
+        &project.package,
         &package,
         profile,
         &[],
@@ -34,7 +34,7 @@ fn compile_and_package(macroquad: bool) {
         target,
         profile,
         23,
-        project.path(),
+        dir.path(),
         &target_dir,
         &package,
     )

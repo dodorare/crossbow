@@ -56,24 +56,18 @@ pub enum AndroidError {
 #[cfg(feature = "apple")]
 #[derive(Display, Debug, Error)]
 pub enum AppleError {
-    /// Code signing profile not found
-    CodeSigningProfilesNotFound,
-    /// Code signing profile not provided
-    CodeSigningProfileNotProvided,
-    /// Codesign failed {0}
-    CodesignFailed(String),
+    /// No available iOS Simulator was found
+    IosSimulatorNotFound,
+    /// iOS Simulator `{0}` was not found or is unavailable
+    IosSimulatorUnavailable(String),
+    /// Code signing profile not found: {0}
+    CodeSigningProfileNotFound(PathBuf),
     /// Failed to archive payload
     ZipCommandFailed,
-    /// Codesign allocate not found
-    CodesignAllocateNotFound,
     /// Simctl error: {0:?}
     Simctl(simctl::Error),
-    /// Target dir does not exists
-    TargetNotFound,
     /// Resources dir does not exists
     ResourcesNotFound,
-    /// Unsupported or invalid build strategy: {0}
-    InvalidBuildStrategy(String),
     /// Unsupported or invalid target: {0}
     InvalidBuildTarget(String),
     /// Assets dir does not exists

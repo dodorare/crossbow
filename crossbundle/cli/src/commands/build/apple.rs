@@ -3,7 +3,7 @@ use crate::{error::*, types::CrossbowMetadata};
 use apple_bundle::prelude::InfoPlist;
 use clap::{ArgAction, Parser};
 use crossbundle_tools::{
-    commands::{apple, combine_folders},
+    commands::{CargoBuild, apple, combine_folders},
     types::*,
 };
 use std::path::{Path, PathBuf};
@@ -12,42 +12,29 @@ use std::path::{Path, PathBuf};
 pub struct IosBuildCommand {
     #[clap(flatten)]
     pub shared: SharedBuildCommand,
-    /// Specify custom cargo binary.
+    /// Build the specified Cargo binary target.
     #[clap(long, conflicts_with = "example")]
     pub bin: Option<String>,
-    /// Build for the given apple architecture.
+    /// Build for the given iOS Rust target.
     /// Supported targets are: `aarch64-apple-ios`, `aarch64-apple-ios-sim`,
-    /// `armv7-apple-ios`, `armv7s-apple-ios`, `i386-apple-ios`, `x86_64-apple-ios`
+    /// `x86_64-apple-ios`
     #[clap(long, short, action = ArgAction::Append)]
     pub target: Vec<IosTarget>,
-    /// Build strategy specifies what and how to build iOS application: with help of
-    /// XCode, or with our native approach.
-    #[clap(long, short, default_value = "native-ipa")]
-    pub strategy: IosStrategy,
-    /// Provisioning profile name to find in this directory:
-    /// `~/Library/MobileDevice/Provisioning\ Profiles/`.
-    #[clap(long, conflicts_with = "profile-path")]
-    pub profile_name: Option<String>,
     /// Absolute path to provisioning profile.
-    #[clap(long)]
+    #[clap(long, requires = "signing_identity")]
     pub profile_path: Option<PathBuf>,
-    /// The team identifier of your signing identity.
-    #[clap(long)]
-    pub team_identifier: Option<String>,
-    /// The id of the identity used for signing. It won't start the signing process until
-    /// you provide this flag.
-    #[clap(long)]
-    pub identity: Option<String>,
+    /// Apple Developer Team ID.
+    #[clap(long, requires = "signing_identity")]
+    pub team_id: Option<String>,
+    /// Certificate name or SHA-1 hash used to sign the application.
+    #[clap(long, requires_all = ["profile_path", "team_id"])]
+    pub signing_identity: Option<String>,
 }
 
 impl IosBuildCommand {
     pub fn run(&self, config: &Config) -> Result<()> {
         let context = BuildContext::new(config, &self.shared)?;
-        match &self.strategy {
-            IosStrategy::NativeIpa => {
-                self.execute(config, &context)?;
-            }
-        };
+        self.execute(config, &context)?;
         Ok(())
     }
 
@@ -55,33 +42,28 @@ impl IosBuildCommand {
         &self,
         config: &Config,
         context: &BuildContext,
-    ) -> Result<(InfoPlist, Vec<PathBuf>)> {
-        let project_path = &context.project_path;
+    ) -> Result<(InfoPlist, Vec<(IosTarget, PathBuf)>)> {
         let profile = self.shared.profile();
-        let (target, package_name) = if let Some(example) = &self.shared.example {
-            (Target::Example(example.clone()), example.clone())
-        } else if let Some(bin) = &self.bin {
-            (Target::Bin(bin.clone()), bin.clone())
-        } else {
-            (Target::Bin(context.package_name()), context.package_name())
-        };
+        let target = context
+            .project
+            .executable_target(self.bin.as_deref(), self.shared.example.as_deref())?;
+        let package_name = target.name().to_owned();
         let properties = Self::gen_info_plist(context, &package_name)?;
         config.status_message("Starting build process", &package_name)?;
         config.status("Compiling app")?;
-        let build_targets = Self::apple_build_targets(context, profile, &self.target);
+        let build_targets = Self::ios_build_targets(context, profile, &self.target);
         let mut app_paths = vec![];
         for build_target in build_targets {
             let app_path = self.build_app(
                 config,
                 context,
-                target.clone(),
-                project_path,
+                &target,
                 build_target,
                 &properties,
                 profile,
                 &package_name,
             )?;
-            app_paths.push(app_path);
+            app_paths.push((build_target, app_path));
         }
         Ok((properties, app_paths))
     }
@@ -90,27 +72,30 @@ impl IosBuildCommand {
         &self,
         config: &Config,
         context: &BuildContext,
-        target: Target,
-        project_path: &Path,
+        target: &CargoTargetSelection,
         build_target: IosTarget,
         properties: &InfoPlist,
         profile: Profile,
         name: &str,
     ) -> Result<PathBuf> {
         let rust_triple = build_target.rust_triple();
-        config.status_message("Compiling for architecture", rust_triple)?;
-        apple::compile_rust_for_ios(
-            target,
-            build_target,
-            project_path,
-            profile,
-            self.shared.features.clone(),
-            self.shared.all_features,
-            self.shared.no_default_features,
-            &[],
+        config.status_message("Compiling for target", rust_triple)?;
+        let bin_path = apple::compile_ios_executable(
+            CargoBuild {
+                package: &context.project.package,
+                target,
+                target_triple: rust_triple,
+                target_dir: &context.target_dir,
+                profile,
+                features: &self.shared.features,
+                all_features: self.shared.all_features,
+                no_default_features: self.shared.no_default_features,
+            },
+            properties
+                .operating_system_version
+                .minimum_os_version
+                .as_deref(),
         )?;
-        let out_dir = context.target_dir.join(rust_triple).join(profile);
-        let bin_path = out_dir.join(name);
 
         config.status("Generating app folder")?;
         let apple_target_dir = &context
@@ -125,31 +110,45 @@ impl IosBuildCommand {
 
         let app_path = apple::gen_apple_app_folder(apple_target_dir, name, assets, resources)?;
         config.status("Copying binary to app folder")?;
-        std::fs::copy(bin_path, app_path.join(name)).unwrap();
+        std::fs::copy(bin_path, app_path.join(name))?;
         config.status_message("Generating", "Info.plist")?;
-        apple::save_info_plist(&app_path, properties, false).unwrap();
+        apple::save_info_plist(&app_path, properties, false)?;
 
-        if self.identity.is_some() {
+        if build_target.is_simulator() && self.signing_identity.is_none() {
+            config.status("Ad-hoc signing simulator application")?;
+            apple::codesign(&app_path, true, None, None)?;
+        } else if self.signing_identity.is_some() {
             config.status("Starting code signing process")?;
             apple::copy_profile(
                 &app_path,
-                self.profile_name.clone(),
-                self.profile_path.clone(),
+                self.profile_path.as_deref().ok_or_else(|| {
+                    anyhow::anyhow!("--profile-path is required with --signing-identity")
+                })?,
             )?;
             config.status_message("Generating", "xcent file")?;
             let xcent_path = apple::gen_xcent(
                 &app_path,
                 name,
-                self.team_identifier
-                    .as_ref()
-                    .ok_or(Error::TeamIdentifierNotProvided)?,
+                self.team_id.as_ref().ok_or_else(|| {
+                    anyhow::anyhow!("--team-id is required with --signing-identity")
+                })?,
                 &properties.identification.bundle_identifier,
                 false,
             )?;
             config.status("Signing the binary")?;
-            apple::codesign(&app_path.join(name), true, self.identity.clone(), None)?;
+            apple::codesign(
+                &app_path.join(name),
+                true,
+                self.signing_identity.as_deref(),
+                None,
+            )?;
             config.status("Signing the bundle itself")?;
-            apple::codesign(&app_path, true, self.identity.clone(), Some(xcent_path))?;
+            apple::codesign(
+                &app_path,
+                true,
+                self.signing_identity.as_deref(),
+                Some(&xcent_path),
+            )?;
             config.status("Code signing process finished")?;
         }
 
@@ -159,8 +158,8 @@ impl IosBuildCommand {
         Ok(app_path)
     }
 
-    /// Get apple build targets from cargo manifest
-    pub fn apple_build_targets(
+    /// Get iOS build targets from Cargo metadata.
+    pub fn ios_build_targets(
         context: &BuildContext,
         profile: Profile,
         build_targets: &[IosTarget],
@@ -174,7 +173,7 @@ impl IosBuildCommand {
         if profile == Profile::Release && !context.config.apple.release_build_targets.is_empty() {
             return context.config.apple.release_build_targets.clone();
         }
-        vec![IosTarget::Aarch64Sim]
+        vec![IosTarget::host_simulator()]
     }
 
     /// Get info plist from the path in cargo manifest or generate it with the given
@@ -205,7 +204,7 @@ impl IosBuildCommand {
         };
 
         let assets = config.get_apple_assets();
-        let gen_assets = if !res.is_empty() {
+        let gen_assets = if !assets.is_empty() {
             let path = out_dir.join("gen_assets");
             std::fs::remove_dir_all(&path).ok();
             combine_folders(assets, &path)?;

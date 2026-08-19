@@ -13,8 +13,7 @@ pub enum RunCommand {
     /// Android device/emulator
     #[cfg(feature = "android")]
     Android(android::AndroidRunCommand),
-    /// Executes `build` command and then deploy and launches the application on the iOS
-    /// device/emulator
+    /// Builds, deploys, and launches the application on an iOS device or Simulator
     #[cfg(feature = "apple")]
     Ios(apple::IosRunCommand),
 }
