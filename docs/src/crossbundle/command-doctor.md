@@ -49,11 +49,13 @@ Gradle plugins.
 
 Apple checks cover the host OS, full Xcode installation, active developer directory,
 Xcode version, Command Line Tools, `xcodebuild`, `xcrun`, `simctl`, iPhoneOS and
-iPhoneSimulator SDKs, relevant installed Rust targets, and signing relevance. Project
-checks use the same typed metadata and Info.plist model as Apple builds to validate bundle
-metadata, bundle identifiers, deployment targets, Rust targets, assets, resources, icons,
-platform-specific plugin compatibility, and signing configuration applicability. Signing
-values and command output that may identify credentials are never included in reports.
+iPhoneSimulator SDK paths and versions, relevant installed Rust targets, and signing
+relevance. Without a project, doctor checks the simulator target matching the Mac's
+architecture (`aarch64-apple-ios-sim` on Apple Silicon or `x86_64-apple-ios` on Intel).
+Project checks use the same typed metadata and Info.plist model as Apple builds to validate
+bundle metadata, bundle identifiers, deployment targets, Rust targets, assets, resources,
+icons, platform-specific plugin compatibility, and signing configuration applicability.
+Signing values and command output that may identify credentials are never included in reports.
 Configured Android Gradle plugins are reported as inapplicable to Apple; ordinary Cargo
 dependencies are not guessed to be plugins. The typed Apple project model has no
 project-level signing fields: `project.apple.signing` warns when a device target requires
