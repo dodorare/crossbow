@@ -184,13 +184,14 @@
 <blockquote>
 <p>There are already <a href="https://github.com/rust-windowing/android-ndk-rs/tree/master/cargo-apk">cargo-apk</a>, <a href="https://github.com/BrainiumLLC/cargo-mobile">cargo-mobile</a>, <a href="https://gitlab.com/kornelski/cargo-xcode">cargo-xcode</a>, etc. - why do I need another packaging tool?</p>
 </blockquote>
-<p>Project <code>crossbow</code> is not only a packaging tool for <strong>Android</strong> and <strong>iOS</strong> - it's cross-platform build tools and toolkit for Rust! With <code>crossbundle</code> you can create native <strong>.apk/.aab</strong> without any <em>Java</em> or setup <em>Gradle</em> project with fancy <strong>Crossbow Android plugins</strong> (<strong>iOS</strong> in near future); with <code>crossbundle-tools</code> you can customize and create new commands; with <code>crossbow-android</code> you can write your own Android plugins in <em>Java/Kotlin</em>.</p>
+<p>Crossbow is more than an <strong>Android</strong> and <strong>iOS</strong> packager: it is a cross-platform Rust game-development toolkit. <code>crossbundle</code> turns standard Cargo projects into native <strong>.apk/.aab</strong> and <strong>.app/.ipa</strong> artifacts, with optional Gradle packaging for Android plugins. <code>crossbundle-tools</code> provides the same building blocks for custom workflows, while <code>crossbow-android</code> supports Android plugins written in <em>Java/Kotlin</em>.</p>
 <p>A lot of functionality was inspired by <a href="https://github.com/godotengine/godot">Godot</a>, <a href="https://dotnet.microsoft.com/en-us/apps/xamarin">Xamarin</a>, and <a href="https://github.com/rust-windowing/android-ndk-rs/tree/master/cargo-apk">cargo-apk</a>.</p>
 <h2 id="design-goals"><a class="header" href="#design-goals">Design Goals</a></h2>
 <ul>
 <li><strong>Customizable</strong>: Create new commands with available tools.</li>
 <li><strong>Simple</strong>: Easy to install and start hacking but also pretty flexible for strong devs.</li>
-<li><strong>Capable</strong>: It's possible to build plain <strong>.apk/.aab</strong> or <strong>.app/.ipa</strong>; or with help of <em>Gradle/XCode</em>.</li>
+<li><strong>Cargo-first</strong>: Builds use Cargo's public CLI and consume the artifacts Cargo reports.</li>
+<li><strong>Capable</strong>: Build native <strong>.apk/.aab</strong> and <strong>.app/.ipa</strong> artifacts, with optional Gradle packaging on Android.</li>
 <li><strong>Rust</strong>: Don't leave your <em>Rust</em> code - <strong>everything</strong> can be configured from <code>Cargo.toml</code>.</li>
 <li><strong>Plugins</strong>: Godot-like plugins for <strong>Android</strong> (and <strong>iOS</strong> in future) with <em>Rust</em> wrapper!</li>
 </ul>
@@ -408,85 +409,50 @@ cd ./crossbow/
 <pre><code class="language-sh">adb install ./target/android/macroquad-permissions/gradle/build/outputs/apk/release/gradle-release-unsigned.apk
 </code></pre>
 <p>Or transfer APK file to your phone with any application.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="ios-setup-on-macos"><a class="header" href="#ios-setup-on-macos">iOS setup on MacOS</a></h1>
-<h2 id="setup-on-macos"><a class="header" href="#setup-on-macos">Setup on macOS</a></h2>
-<p>Install <code>brew</code>:</p>
-<pre><code class="language-sh">/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+<div style="break-before: page; page-break-before: always;"></div><h1 id="ios-setup-on-macos"><a class="header" href="#ios-setup-on-macos">iOS setup on macOS</a></h1>
+<p>Crossbundle requires the full Xcode installation; the standalone Command Line Tools are not
+enough. Install Xcode from the <a href="https://apps.apple.com/app/xcode/id497799835">Mac App Store</a>,
+launch it once to finish setup, and install an iOS Simulator runtime through Xcode.</p>
+<p>If another developer directory is active, select Xcode explicitly:</p>
+<pre><code class="language-sh">sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
 </code></pre>
-<p>Install <code>rust</code> with <code>default</code> option:</p>
+<p>Install Rust, Crossbundle, and the supported iOS targets:</p>
 <pre><code class="language-sh">curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-# Source binaries
-echo 'source $HOME/.cargo/env' &gt;&gt; ~/.zshrc
-source ~/.zshrc
-# Or for bash
-echo 'source $HOME/.cargo/env' &gt;&gt; ~/.bashrc
-source ~/.bashrc
+rustup target add aarch64-apple-ios aarch64-apple-ios-sim
+cargo install --git https://github.com/dodorare/crossbow crossbundle
 </code></pre>
-<p>Install iOS targets:</p>
-<pre><code class="language-sh"># 64-bit targets (real device &amp; simulator):
-rustup target add aarch64-apple-ios x86_64-apple-ios aarch64-apple-ios-sim
-# 32-bit targets (you probably don't need these &amp; nightly only):
-rustup target add armv7-apple-ios armv7s-apple-ios i386-apple-ios
+<p>Intel Macs also need the x86_64 Simulator target:</p>
+<pre><code class="language-sh">rustup target add x86_64-apple-ios
 </code></pre>
-<p>Install <code>ios-deploy</code> for installing your app on iPhone:</p>
-<pre><code class="language-sh">brew install ios-deploy
+<p>Verify the toolchain before building:</p>
+<pre><code class="language-sh">crossbundle doctor --platform apple
 </code></pre>
-<p>Install <code>Xcode</code> from <a href="https://apps.apple.com/us/app/xcode/id497799835">App Store</a>.</p>
-<p><img alt="Xcode installation" src="https://i.imgur.com/2RhOz1t.png" width="400px"></img></p>
-<p>Install the necessary <code>Xcode tools</code> using <code>Xcode</code>:</p>
-<ol>
-<li>Start <code>Xcode</code>.</li>
-<li>Choose <code>Preferences</code> from the <code>Xcode</code> menu.</li>
-<li>In the <code>Locations</code> panel, find the <code>Command Line Tools</code> field.</li>
-<li>Click on the <code>Command Line Tools</code> and select <code>Xcode</code> version (you are asked for your Apple Developer login during the install process).</li>
-</ol>
-<p>Login with Free Apple Developer/Apple Developer Program account:</p>
-<ol>
-<li>Start <code>Xcode</code>.</li>
-<li>Choose <code>Preferences</code> from the <code>Xcode</code> menu.</li>
-<li>In the <code>Accounts</code> panel, click the <code>+</code> sign (you are asked for your Apple Developer login during the install process).</li>
-<li>Click on Apple ID added account and find your name with <code>(Personal team)</code> postfix.</li>
-<li>Open <code>Manage Certificates</code> then click <code>+</code> and <code>Apple Development</code>.</li>
-<li>Close by clicking <code>Done</code> and click on <code>Download Manual Profiles</code>.
-iOS setup on MacOS</li>
-</ol>
-<p><img alt="Xcode Sign in" src="https://i.imgur.com/soD5gab.png" width="400px"></img></p>
-<p>Install <code>crossbundle</code>:</p>
-<pre><code class="language-sh">cargo install --git=https://github.com/dodorare/crossbow crossbundle
+<h2 id="build-and-run-in-simulator"><a class="header" href="#build-and-run-in-simulator">Build and run in Simulator</a></h2>
+<p>From a Crossbundle project, build or run with:</p>
+<pre><code class="language-sh">crossbundle build ios
+crossbundle run ios
 </code></pre>
-<h2 id="build-apple-app"><a class="header" href="#build-apple-app">Build Apple app</a></h2>
-<p>Now everything is ready to build your application.</p>
-<p>To simplify this example we will create a new cargo project by this command:</p>
-<pre><code class="language-sh">crossbundle new game --template bevy
-cd game/
+<p>Crossbundle builds for the host's Simulator architecture and selects an available iOS
+Simulator automatically. Pass <code>--simulator &lt;NAME_OR_UDID&gt;</code> to select one explicitly, or
+<code>--no-open --detach</code> for automation.</p>
+<h2 id="run-on-a-physical-device"><a class="header" href="#run-on-a-physical-device">Run on a physical device</a></h2>
+<p>Physical-device deployment requires:</p>
+<ul>
+<li>an Apple signing certificate installed in the login keychain;</li>
+<li>a provisioning profile matching the application's bundle identifier;</li>
+<li>the Apple Developer Team ID associated with both;</li>
+<li><a href="https://github.com/ios-control/ios-deploy"><code>ios-deploy</code></a>, installed with
+<code>brew install ios-deploy</code>.</li>
+</ul>
+<p>List available signing identities with:</p>
+<pre><code class="language-sh">security find-identity -v -p codesigning
 </code></pre>
-<p>Now run the build command:</p>
-<pre><code class="language-sh">crossbundle build ios --target=x86_64-apple-ios
+<p>Then pass the profile by absolute path, the Team ID, and the certificate name or SHA-1 hash:</p>
+<pre><code class="language-sh">crossbundle run ios --release --device \
+  --profile-path=/absolute/path/to/profile.mobileprovision \
+  --team-id=AS9UV719T7 \
+  --signing-identity=AF96DABFC5DEE81E339ED8755DA8D1E48A87CBFE
 </code></pre>
-<p>And if you want to run on the simulator:</p>
-<pre><code class="language-sh">crossbundle run ios --target=x86_64-apple-ios
-</code></pre>
-<h2 id="run-your-app-on-a-real-device"><a class="header" href="#run-your-app-on-a-real-device">Run your app on a real device</a></h2>
-<p>To run your application on a real device you will need to open <code>Xcode</code> and create a new project
-with the same <code>bundle_identifier</code> as your app. Then you will find a <code>mobileprovision</code> file
-in the <code>~/Library/MobileDevice/Provisioning\ Profiles</code> folder (e.x: aec73e2f-c2f9-4e3b-9393-be19cc52fea3.mobileprovision).</p>
-<p>With command <code>security find-identity -p codesigning -v</code> - you will get a similar result:</p>
-<pre><code class="language-sh">$ security find-identity -p codesigning -v
-  1) AF96DABFC5DEE81E339ED8755DA8D1E48A87CBFE "Apple Development: &lt;your-email&gt;@gmail.com (TRGW43YM8W)"
-     1 valid identities found
-</code></pre>
-<p>The <code>AF96DABFC5DEE81E339ED8755DA8D1E48A87CBFE</code> value is our sign Identity. Save it for later use.</p>
-<p>Copy your code (in our case <code>TRGW43YM8W</code>) and place it in another command to get Team ID:</p>
-<pre><code class="language-sh">$ security find-certificate -c SRGWJ3YM8W -p | openssl x509 -subject
-subject= /UID=A9C7ZD8H7F/CN=Apple Development: &lt;your-email&gt;@gmail.com (TRGW43YM8W)/OU=AS9UV719T7/O=&lt;your name&gt;/C=US
------BEGIN CERTIFICATE-----
-MIIFtTCCBJ2...&lt;rest-of-private-key&gt;
-</code></pre>
-<p>Next to <code>OU</code> - you will find Team ID. (in our case <code>AS9UV719T7</code>).</p>
-<p>Now we are good to install our app on a real device. To run/build app for a real device you will need similar to this command to be run in your cargo project:</p>
-<pre><code class="language-sh">crossbundle run ios --release --device --profile-name=aec73e2f-c2f9-4e3b-9393-be19cc52fea3.mobileprovision --team-identifier=AS9UV719T7 --identity=AF96DABFC5DEE81E339ED8755DA8D1E48A87CBFE
-</code></pre>
-<p>Now replace test data (<code>aec73e2f-c2f9-4e3b-9393-be19cc52fea3.mobileprovision</code>, <code>AS9UV719T7</code>, <code>AF96DABFC5DEE81E339ED8755DA8D1E48A87CBFE</code>) - with your own and run command. If everything worked well - you will see new app on your device.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="set-up-your-android-device-3"><a class="header" href="#set-up-your-android-device-3">Set up your Android device</a></h1>
 <p>To prepare to run your <code>Crossbow</code> app on an Android device, you need an Android device running Android 6.0 (API level 23) or higher. This is a compatibility change from Crossbow's previous API 19 minimum.</p>
 <ol>
@@ -771,6 +737,35 @@ Crossbow Java bridge and AndroidX are added only when permissions or plugins req
 from a <code>cdylib</code> instead.</li>
 </ul>
 <p>Obsolete keys fail with migration guidance rather than being ignored.</p>
+<h2 id="cargo-first-ios-builds"><a class="header" href="#cargo-first-ios-builds">Cargo-first iOS builds</a></h2>
+<p>Crossbundle builds iOS applications with Cargo's public CLI and packages the exact executable
+reported by Cargo. Workspace packages, renamed binaries, examples, feature flags, and custom target
+directories therefore follow normal Cargo behavior.</p>
+<p>An iOS application must select an executable target. Use <code>--bin &lt;name&gt;</code> or <code>--example &lt;name&gt;</code> when
+the package has more than one; otherwise Crossbundle follows <code>package.default-run</code> or selects the
+package's only binary.</p>
+<p>Bevy projects can share one application function across every platform. Keep Bevy's Android entry
+point in the library used for the Android <code>cdylib</code>, and call it from a small binary for iOS and
+desktop:</p>
+<pre><pre class="playground"><code class="language-rust edition2024">// src/lib.rs
+use bevy::prelude::*;
+
+#[bevy_main]
+pub fn main() {
+    App::new().add_plugins(DefaultPlugins).run();
+}</code></pre></pre>
+<pre><pre class="playground"><code class="language-rust edition2024">// src/main.rs
+fn main() {
+    my_game::main();
+}</code></pre></pre>
+<p>Build for an Apple Silicon simulator or a device with:</p>
+<pre><code class="language-sh">crossbundle build ios --target aarch64-apple-ios-sim
+crossbundle build ios --release --target aarch64-apple-ios
+</code></pre>
+<p>The supported Rust targets are <code>aarch64-apple-ios</code>, <code>aarch64-apple-ios-sim</code>, and
+<code>x86_64-apple-ios</code>.</p>
+<p>Pass <code>--profile-path</code>, <code>--team-id</code>, and <code>--signing-identity</code> to sign a device bundle.
+<code>crossbundle run ios --device</code> requires all three.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="crossbundle-run-command"><a class="header" href="#crossbundle-run-command">Crossbundle run command</a></h1>
 <h2 id="crossbundle-run-gradle"><a class="header" href="#crossbundle-run-gradle">Crossbundle run gradle</a></h2>
 <p>Crossbow default run process requires installed Gradle on your PC.</p>
@@ -789,6 +784,17 @@ crossbundle run android -s=native-aab
 </code></pre>
 <p>To find out available commands specify the -h flag.</p>
 <pre><code class="language-sh">crossbundle run android -h
+</code></pre>
+<h2 id="crossbundle-run-ios"><a class="header" href="#crossbundle-run-ios">Crossbundle run iOS</a></h2>
+<p><code>crossbundle run ios</code> builds, installs, and launches the app on an iOS Simulator.
+Without <code>--target</code>, it builds for the host's Simulator architecture. It prefers an
+already booted Simulator and otherwise selects one from the newest available iOS
+runtime. Select a specific Simulator by name or UDID when needed:</p>
+<pre><code class="language-sh">crossbundle run ios --simulator "iPhone 17"
+</code></pre>
+<p>For automation, Crossbundle can launch without opening Simulator.app or attaching
+to the application console:</p>
+<pre><code class="language-sh">crossbundle run ios --no-open --detach
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="crossbundle-new-command"><a class="header" href="#crossbundle-new-command">Crossbundle new command</a></h1>
 <p><code>crossbundle</code> uses <a href="https://github.com/cargo-generate/cargo-generate"><code>cargo-generate</code></a> to generate a new project. This means that you need to install it before we proceed.</p>
@@ -905,12 +911,9 @@ name = "com.oculus.vr.focusaware"
 value = "true"
 
 [package.metadata.apple]
-release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
-# The user-friendly application name for your app. Displayed in the applications menu
-app_name = "Example"
-# Apple targets to build on debug or release.
-debug_build_targets = ["aarch64-apple-ios"]
-release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"].
+# iOS targets to build in debug or release mode.
+debug_build_targets = ["aarch64-apple-ios-sim"]
+release_build_targets = ["aarch64-apple-ios"]
 # Apple resources directory path relatively to project path.
 resources = ["res/apple"]
 </code></pre>

@@ -194,6 +194,17 @@ crossbundle run android -s=native-aab
 <p>To find out available commands specify the -h flag.</p>
 <pre><code class="language-sh">crossbundle run android -h
 </code></pre>
+<h2 id="crossbundle-run-ios"><a class="header" href="#crossbundle-run-ios">Crossbundle run iOS</a></h2>
+<p><code>crossbundle run ios</code> builds, installs, and launches the app on an iOS Simulator.
+Without <code>--target</code>, it builds for the host's Simulator architecture. It prefers an
+already booted Simulator and otherwise selects one from the newest available iOS
+runtime. Select a specific Simulator by name or UDID when needed:</p>
+<pre><code class="language-sh">crossbundle run ios --simulator "iPhone 17"
+</code></pre>
+<p>For automation, Crossbundle can launch without opening Simulator.app or attaching
+to the application console:</p>
+<pre><code class="language-sh">crossbundle run ios --no-open --detach
+</code></pre>
 
                     </main>
 

@@ -183,13 +183,14 @@
 <blockquote>
 <p>There are already <a href="https://github.com/rust-windowing/android-ndk-rs/tree/master/cargo-apk">cargo-apk</a>, <a href="https://github.com/BrainiumLLC/cargo-mobile">cargo-mobile</a>, <a href="https://gitlab.com/kornelski/cargo-xcode">cargo-xcode</a>, etc. - why do I need another packaging tool?</p>
 </blockquote>
-<p>Project <code>crossbow</code> is not only a packaging tool for <strong>Android</strong> and <strong>iOS</strong> - it's cross-platform build tools and toolkit for Rust! With <code>crossbundle</code> you can create native <strong>.apk/.aab</strong> without any <em>Java</em> or setup <em>Gradle</em> project with fancy <strong>Crossbow Android plugins</strong> (<strong>iOS</strong> in near future); with <code>crossbundle-tools</code> you can customize and create new commands; with <code>crossbow-android</code> you can write your own Android plugins in <em>Java/Kotlin</em>.</p>
+<p>Crossbow is more than an <strong>Android</strong> and <strong>iOS</strong> packager: it is a cross-platform Rust game-development toolkit. <code>crossbundle</code> turns standard Cargo projects into native <strong>.apk/.aab</strong> and <strong>.app/.ipa</strong> artifacts, with optional Gradle packaging for Android plugins. <code>crossbundle-tools</code> provides the same building blocks for custom workflows, while <code>crossbow-android</code> supports Android plugins written in <em>Java/Kotlin</em>.</p>
 <p>A lot of functionality was inspired by <a href="https://github.com/godotengine/godot">Godot</a>, <a href="https://dotnet.microsoft.com/en-us/apps/xamarin">Xamarin</a>, and <a href="https://github.com/rust-windowing/android-ndk-rs/tree/master/cargo-apk">cargo-apk</a>.</p>
 <h2 id="design-goals"><a class="header" href="#design-goals">Design Goals</a></h2>
 <ul>
 <li><strong>Customizable</strong>: Create new commands with available tools.</li>
 <li><strong>Simple</strong>: Easy to install and start hacking but also pretty flexible for strong devs.</li>
-<li><strong>Capable</strong>: It's possible to build plain <strong>.apk/.aab</strong> or <strong>.app/.ipa</strong>; or with help of <em>Gradle/XCode</em>.</li>
+<li><strong>Cargo-first</strong>: Builds use Cargo's public CLI and consume the artifacts Cargo reports.</li>
+<li><strong>Capable</strong>: Build native <strong>.apk/.aab</strong> and <strong>.app/.ipa</strong> artifacts, with optional Gradle packaging on Android.</li>
 <li><strong>Rust</strong>: Don't leave your <em>Rust</em> code - <strong>everything</strong> can be configured from <code>Cargo.toml</code>.</li>
 <li><strong>Plugins</strong>: Godot-like plugins for <strong>Android</strong> (and <strong>iOS</strong> in future) with <em>Rust</em> wrapper!</li>
 </ul>

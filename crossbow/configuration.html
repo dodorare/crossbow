@@ -253,12 +253,9 @@ name = "com.oculus.vr.focusaware"
 value = "true"
 
 [package.metadata.apple]
-release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
-# The user-friendly application name for your app. Displayed in the applications menu
-app_name = "Example"
-# Apple targets to build on debug or release.
-debug_build_targets = ["aarch64-apple-ios"]
-release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"].
+# iOS targets to build in debug or release mode.
+debug_build_targets = ["aarch64-apple-ios-sim"]
+release_build_targets = ["aarch64-apple-ios"]
 # Apple resources directory path relatively to project path.
 resources = ["res/apple"]
 </code></pre>

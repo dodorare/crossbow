@@ -274,6 +274,35 @@ Crossbow Java bridge and AndroidX are added only when permissions or plugins req
 from a <code>cdylib</code> instead.</li>
 </ul>
 <p>Obsolete keys fail with migration guidance rather than being ignored.</p>
+<h2 id="cargo-first-ios-builds"><a class="header" href="#cargo-first-ios-builds">Cargo-first iOS builds</a></h2>
+<p>Crossbundle builds iOS applications with Cargo's public CLI and packages the exact executable
+reported by Cargo. Workspace packages, renamed binaries, examples, feature flags, and custom target
+directories therefore follow normal Cargo behavior.</p>
+<p>An iOS application must select an executable target. Use <code>--bin &lt;name&gt;</code> or <code>--example &lt;name&gt;</code> when
+the package has more than one; otherwise Crossbundle follows <code>package.default-run</code> or selects the
+package's only binary.</p>
+<p>Bevy projects can share one application function across every platform. Keep Bevy's Android entry
+point in the library used for the Android <code>cdylib</code>, and call it from a small binary for iOS and
+desktop:</p>
+<pre><pre class="playground"><code class="language-rust edition2024">// src/lib.rs
+use bevy::prelude::*;
+
+#[bevy_main]
+pub fn main() {
+    App::new().add_plugins(DefaultPlugins).run();
+}</code></pre></pre>
+<pre><pre class="playground"><code class="language-rust edition2024">// src/main.rs
+fn main() {
+    my_game::main();
+}</code></pre></pre>
+<p>Build for an Apple Silicon simulator or a device with:</p>
+<pre><code class="language-sh">crossbundle build ios --target aarch64-apple-ios-sim
+crossbundle build ios --release --target aarch64-apple-ios
+</code></pre>
+<p>The supported Rust targets are <code>aarch64-apple-ios</code>, <code>aarch64-apple-ios-sim</code>, and
+<code>x86_64-apple-ios</code>.</p>
+<p>Pass <code>--profile-path</code>, <code>--team-id</code>, and <code>--signing-identity</code> to sign a device bundle.
+<code>crossbundle run ios --device</code> requires all three.</p>
 
                     </main>
 
