@@ -45,11 +45,12 @@ pub struct LoadedProject {
 
 impl LoadedProject {
     pub(crate) fn discover_manifest(path: &Path) -> Result<PathBuf> {
-        if path.file_name().is_some_and(|name| name == "Cargo.toml") {
-            Ok(path.to_owned())
+        let manifest_path = if path.file_name().is_some_and(|name| name == "Cargo.toml") {
+            path.to_owned()
         } else {
-            crate::commands::find_package_cargo_manifest_path(path)
-        }
+            crate::commands::find_package_cargo_manifest_path(path)?
+        };
+        Ok(canonical(&manifest_path))
     }
 
     /// Discovers and loads a project using the build's Cargo feature selection.

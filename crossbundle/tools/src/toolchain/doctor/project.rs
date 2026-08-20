@@ -247,6 +247,9 @@ mod tests {
         let context = ProjectContext::load(&nested, &[]);
 
         assert!(matches!(context.state, ProjectState::Invalid));
-        assert_eq!(context.manifest_path, manifest_path);
+        assert_eq!(
+            context.manifest_path,
+            dunce::canonicalize(manifest_path).unwrap()
+        );
     }
 }
