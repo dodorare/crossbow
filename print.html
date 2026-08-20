@@ -840,7 +840,7 @@ To check the latest version of crossbundle project in <code>crates.io</code> use
 Gradle 9.5.0, Java 17, and NDK 28.2. New Google Play submissions must target
 API 36 from August 31, 2026; see the official
 <a href="https://developer.android.com/google/play/requirements/target-sdk">target API requirements</a>.</p>
-<h2 id="Сonfiguration-through-metadata"><a class="header" href="#Сonfiguration-through-metadata">Сonfiguration through metadata</a></h2>
+<h2 id="configuration-through-metadata"><a class="header" href="#configuration-through-metadata">Configuration through metadata</a></h2>
 <p>The easiest way to configure a project is with metadata. Here's an example of <code>Cargo.toml</code>:</p>
 <pre><code class="language-toml">[package]
 name = "game"
@@ -854,10 +854,18 @@ crossbow = "0.2.3"
 [package.metadata]
 # The user-friendly application name for your app. Displayed in the applications menu
 app_name = "Game"
-# Android assets directory path relatively to project path
+# Android assets directory path relative to the project path
 assets = ["assets"]
 # Path to icon with `.png` format that will be provided to generate mipmap resources
 icon = "path/to/icon.png"
+
+# Explicitly import build-time environment variables. Undeclared environment variables are never
+# available to configuration templates.
+[package.metadata.build_variables]
+API_HOST = { env = "API_HOST" }
+BUILD_NUMBER = { env = "CI_BUILD_NUMBER", type = "integer" }
+APP_CHANNEL = { env = "APP_CHANNEL", default = "development" }
+FEATURE_ENABLED = { env = "FEATURE_ENABLED", type = "boolean", default = false }
 
 [package.metadata.android]
 # Optional activity integration. The default is "native-activity"; use
@@ -894,9 +902,8 @@ meta_data = []
 # See https://developer.android.com/guide/topics/manifest/queries-element#provider
 [[package.metadata.android.manifest.queries.provider]]
 authorities = "org.khronos.openxr.runtime_broker;org.khronos.openxr.system_runtime_broker"
-# Note: The `name` attribute is normally not required for a queries provider, but is non-optional
-# as a workaround for aapt throwing errors about missing `android:name` attribute.
-# This will be made optional if/when cargo-apk migrates to aapt2.
+# The `android-manifest` model currently requires `name` even though Android queries providers
+# normally require only `authorities`.
 name = "org.khronos.openxr"
 
 # See https://developer.android.com/guide/topics/manifest/uses-feature-element
@@ -919,8 +926,37 @@ release_build_targets = ["aarch64-apple-ios"]
 # Apple resources directory path relatively to project path.
 resources = ["res/apple"]
 </code></pre>
-<h3 id="Сonfiguration-through-separate-files"><a class="header" href="#Сonfiguration-through-separate-files">Сonfiguration through separate files</a></h3>
-<p>But sometimes you need to configure something more complex. For such cases, a more suitable way is to use separate <code>AndroidManifest.xml</code> or/and <code>Info.plist</code> files.</p>
+<h3 id="build-variables"><a class="header" href="#build-variables">Build variables</a></h3>
+<p>Build variables let the same checked-in configuration produce environment-specific Android and
+Apple bundles. Declare every imported value under <code>package.metadata.build_variables</code>, then use it
+as <code>{{crossbow.NAME}}</code> in an inline platform document, an external <code>AndroidManifest.xml</code>, or an
+external <code>Info.plist</code>:</p>
+<pre><code class="language-xml">&lt;!-- AndroidManifest.xml --&gt;
+&lt;meta-data
+    android:name="com.example.api_host"
+    android:value="https://{{crossbow.API_HOST}}/v1" /&gt;
+</code></pre>
+<pre><code class="language-xml">&lt;!-- Info.plist --&gt;
+&lt;key&gt;APIHost&lt;/key&gt;
+&lt;string&gt;{{crossbow.API_HOST}}&lt;/string&gt;
+</code></pre>
+<p>Crossbundle reads the named environment variable first and uses <code>default</code> only when it is absent;
+an empty environment value therefore overrides the default. A missing value without a default
+stops the build with the declaration name. The default type is <code>string</code>; <code>type = "integer"</code> and
+<code>type = "boolean"</code> validate environment input and preserve the native type when the placeholder is
+the complete metadata or plist value. A placeholder embedded inside a larger string is formatted
+as text. Variable values cannot contain other build-variable placeholders.</p>
+<p>Only allow-listed variables are readable. The syntax intentionally does not conflict with Android
+<code>${applicationId}</code> placeholders or Xcode <code>$(PRODUCT_BUNDLE_IDENTIFIER)</code> build settings. XML special
+characters and Unicode are escaped by the platform serializers, and both XML and binary plists are
+supported.</p>
+<blockquote>
+<p>Build variables are public application configuration, not secrets. Values embedded in
+<code>AndroidManifest.xml</code> or <code>Info.plist</code> can be inspected by anyone with the built application. Do
+not use this feature for passwords, signing credentials, private keys, or API secrets.</p>
+</blockquote>
+<h3 id="configuration-through-separate-files"><a class="header" href="#configuration-through-separate-files">Configuration through separate files</a></h3>
+<p>For more complex configuration, use separate <code>AndroidManifest.xml</code> and/or <code>Info.plist</code> files.</p>
 <p>To enable this feature, you just need to add this to your <code>Cargo.toml</code>:</p>
 <pre><code class="language-toml">[package.metadata.android]
 manifest_path = "/path/to/file"
@@ -928,7 +964,7 @@ manifest_path = "/path/to/file"
 [package.metadata.apple]
 info_plist_path = "/path/to/file"
 </code></pre>
-<p>and then place <code>AndroidManifest.xml</code> or/and <code>Info.plist</code> near <code>Cargo.toml</code></p>
+<p>and then place <code>AndroidManifest.xml</code> and/or <code>Info.plist</code> near <code>Cargo.toml</code>.</p>
 <pre><code class="language-xml">&lt;?xml version="1.0" encoding="utf-8"?&gt;
 &lt;manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.rust.game"
