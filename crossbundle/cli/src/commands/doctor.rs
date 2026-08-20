@@ -3,7 +3,7 @@ use clap::{ArgAction, Parser};
 use crossbundle_tools::toolchain::{
     CheckStatus, DoctorPlatform, DoctorRequest, ReportStatus, diagnose_current, resolve_platforms,
 };
-use crossbundle_tools::types::Config;
+use crossbundle_tools::types::CliContext;
 use std::path::PathBuf;
 
 #[derive(Parser, Clone, Debug, Default)]
@@ -23,7 +23,7 @@ pub struct DoctorCommand {
 }
 
 impl DoctorCommand {
-    pub fn run(&self, config: &Config) -> Result<()> {
+    pub fn run(&self, config: &CliContext) -> Result<()> {
         let platforms = resolve_platforms(&self.platform).map_err(Error::DoctorPlatformDisabled)?;
         let project = self.project.as_ref().map(|path| {
             if path.is_absolute() {

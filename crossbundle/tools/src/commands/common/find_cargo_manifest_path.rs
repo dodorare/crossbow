@@ -26,12 +26,12 @@ fn find_cargo_manifest_path(current_dir: &Path, workspace: bool) -> Result<PathB
     let output = cargo.output()?;
     if !output.status.success() {
         return Err(Error::FailedToFindCargoManifest(
-            String::from_utf8(output.stderr)
-                .unwrap()
+            String::from_utf8_lossy(&output.stderr)
                 .replace("error: ", "")
                 .replace('\n', ""),
         ));
     }
-    let workspace_path = String::from_utf8(output.stdout).unwrap();
-    Ok(PathBuf::from(workspace_path.replace('\n', "")))
+    Ok(PathBuf::from(
+        String::from_utf8_lossy(&output.stdout).trim().to_owned(),
+    ))
 }

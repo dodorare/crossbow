@@ -1,7 +1,7 @@
 use crate::{
     error::{AppleError, Result},
     types::{
-        BuildVariables, CrossbowMetadata, exact_variable, interpolate_string,
+        BuildVariables, ProjectConfig, exact_variable, interpolate_string,
         update_info_plist_with_default,
     },
 };
@@ -51,7 +51,7 @@ fn interpolate_plist(value: &mut plist::Value, variables: &BuildVariables) -> Re
 
 /// Resolves the same typed Info.plist used by Apple builds without writing it.
 pub fn resolve_info_plist(
-    metadata: &CrossbowMetadata,
+    metadata: &ProjectConfig,
     package_name: &str,
     configured_path: Option<&Path>,
 ) -> Result<InfoPlist> {
@@ -71,8 +71,8 @@ mod tests {
     use super::*;
     use crossbow::Permission;
 
-    fn metadata_with_variables() -> CrossbowMetadata {
-        crate::types::deserialize_crossbow_metadata(serde_json::json!({
+    fn metadata_with_variables() -> ProjectConfig {
+        crate::types::parse_project_config(serde_json::json!({
             "build_variables": {
                 "NAME": { "env": "IGNORED_NAME", "default": "Crossbow ✓" },
                 "FULLSCREEN": { "env": "IGNORED_FULLSCREEN", "type": "boolean", "default": true },
@@ -80,11 +80,13 @@ mod tests {
             }
         }))
         .unwrap()
+        .resolve_with(|_| Ok(None))
+        .unwrap()
     }
 
     #[test]
     fn resolution_applies_typed_permissions() {
-        let mut metadata = CrossbowMetadata::default();
+        let mut metadata = ProjectConfig::default();
         metadata.permissions.push(Permission::Camera);
         let plist = resolve_info_plist(&metadata, "example", None).unwrap();
         let description = plist.camera_and_microphone.camera_usage_description;

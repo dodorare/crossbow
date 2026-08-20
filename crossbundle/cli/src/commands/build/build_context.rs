@@ -2,7 +2,7 @@ use super::SharedBuildCommand;
 use crate::{error::*, types::*};
 use crossbundle_tools::{
     commands::*,
-    types::{Config, deserialize_crossbow_metadata},
+    types::{CliContext, parse_project_config},
 };
 use std::path::PathBuf;
 
@@ -12,34 +12,36 @@ pub struct BuildContext {
     pub target_dir: PathBuf,
     // Configurations
     pub project: CargoProject,
-    pub config: CrossbowMetadata,
+    pub project_config: ProjectConfig,
 }
 
 impl BuildContext {
     /// Create new instance of build context
-    pub fn new(config: &Config, command: &SharedBuildCommand) -> Result<Self> {
-        let package_manifest_path = find_package_cargo_manifest_path(config.current_dir())?;
-        let project_path = package_manifest_path.parent().unwrap().to_owned();
+    pub fn new(context: &CliContext, command: &SharedBuildCommand) -> Result<Self> {
         info!("Reading Cargo metadata");
-        let project = CargoProject::load_with_features(
-            &package_manifest_path,
+        let loaded = LoadedProject::load_with_features(
+            context.current_dir(),
             &command.features,
             command.all_features,
             command.no_default_features,
         )?;
+        let project_path = loaded.root;
+        let project = loaded.cargo;
         let target_dir = match &command.target_dir {
             Some(path) if path.is_relative() => {
-                std::path::absolute(config.current_dir().join(path))?
+                std::path::absolute(context.current_dir().join(path))?
             }
             Some(path) => path.clone(),
             None => project.target_directory.clone(),
         };
-        let crossbow_metadata = deserialize_crossbow_metadata(project.package.metadata.clone())
+        let mut project_config = parse_project_config(project.package.metadata.clone())
+            .and_then(|metadata| metadata.resolve())
             .map_err(Error::InvalidMetadata)?;
+        project_config.resolve_paths(&project_path);
         Ok(Self {
             project_path,
             target_dir,
-            config: crossbow_metadata,
+            project_config,
             project,
         })
     }

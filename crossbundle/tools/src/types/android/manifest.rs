@@ -6,30 +6,6 @@ use android_manifest::*;
 pub const DEFAULT_ANDROID_MIN_SDK: u32 = 23;
 pub const DEFAULT_ANDROID_TARGET_SDK: u32 = 36;
 
-/// Adapts inline metadata to `android-manifest`'s `VarOrBool` deserializer. It requests strings
-/// even though Boolean values are otherwise native; `auto_verify` is the one native Boolean field.
-pub(crate) fn normalize_android_booleans(value: &mut serde_json::Value) {
-    fn normalize(value: &mut serde_json::Value, field: Option<&str>) {
-        match value {
-            serde_json::Value::Bool(boolean) if field != Some("auto_verify") => {
-                *value = serde_json::Value::String(boolean.to_string());
-            }
-            serde_json::Value::Array(values) => {
-                for value in values {
-                    normalize(value, None);
-                }
-            }
-            serde_json::Value::Object(values) => {
-                for (field, value) in values {
-                    normalize(value, Some(field));
-                }
-            }
-            _ => {}
-        }
-    }
-    normalize(value, None);
-}
-
 /// Returns the Activity that handles the manifest's launcher intent.
 pub fn launcher_activity(manifest: &AndroidManifest) -> Option<&str> {
     manifest
@@ -103,17 +79,17 @@ pub fn update_android_manifest_with_default(
     if manifest.application.activity.is_empty() {
         manifest.application.activity = vec![Activity::default()];
     }
-    if manifest.application.activity.len() == 1 {
-        let activity = manifest.application.activity.get_mut(0).unwrap();
+    if let [activity] = manifest.application.activity.as_mut_slice() {
         if activity.name.is_empty() {
+            let package = manifest.package.as_deref().unwrap_or_default();
             activity.name = match (strategy, runtime) {
                 (AndroidStrategy::GradleApk, super::AndroidRuntime::Miniquad)
                     if crossbow_bridge =>
                 {
-                    format!("{}.CrossbowApp", manifest.package.as_deref().unwrap())
+                    format!("{package}.CrossbowApp")
                 }
                 (AndroidStrategy::GradleApk, super::AndroidRuntime::Miniquad) => {
-                    format!("{}.MainActivity", manifest.package.as_deref().unwrap())
+                    format!("{package}.MainActivity")
                 }
                 (AndroidStrategy::GradleApk, super::AndroidRuntime::NativeActivity)
                     if crossbow_bridge =>

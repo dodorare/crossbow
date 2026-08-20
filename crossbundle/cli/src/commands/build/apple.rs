@@ -1,5 +1,5 @@
 use super::{BuildContext, SharedBuildCommand};
-use crate::{error::*, types::CrossbowMetadata};
+use crate::{error::*, types::ProjectConfig};
 use apple_bundle::prelude::InfoPlist;
 use clap::{ArgAction, Parser};
 use crossbundle_tools::{
@@ -32,7 +32,7 @@ pub struct IosBuildCommand {
 }
 
 impl IosBuildCommand {
-    pub fn run(&self, config: &Config) -> Result<()> {
+    pub fn run(&self, config: &CliContext) -> Result<()> {
         let context = BuildContext::new(config, &self.shared)?;
         self.execute(config, &context)?;
         Ok(())
@@ -40,7 +40,7 @@ impl IosBuildCommand {
 
     pub fn execute(
         &self,
-        config: &Config,
+        config: &CliContext,
         context: &BuildContext,
     ) -> Result<(InfoPlist, Vec<(IosTarget, PathBuf)>)> {
         let profile = self.shared.profile();
@@ -70,7 +70,7 @@ impl IosBuildCommand {
 
     fn build_app(
         &self,
-        config: &Config,
+        config: &CliContext,
         context: &BuildContext,
         target: &CargoTargetSelection,
         build_target: IosTarget,
@@ -106,7 +106,7 @@ impl IosBuildCommand {
 
         config.status("Preparing resources and assets")?;
         let (assets, resources) =
-            Self::prepare_assets_and_resources(&context.config, apple_target_dir)?;
+            Self::prepare_assets_and_resources(&context.project_config, apple_target_dir)?;
 
         let app_path = apple::gen_apple_app_folder(apple_target_dir, name, assets, resources)?;
         config.status("Copying binary to app folder")?;
@@ -167,11 +167,18 @@ impl IosBuildCommand {
         if !build_targets.is_empty() {
             return build_targets.into();
         }
-        if profile == Profile::Debug && !context.config.apple.debug_build_targets.is_empty() {
-            return context.config.apple.debug_build_targets.clone();
+        if profile == Profile::Debug && !context.project_config.apple.debug_build_targets.is_empty()
+        {
+            return context.project_config.apple.debug_build_targets.clone();
         }
-        if profile == Profile::Release && !context.config.apple.release_build_targets.is_empty() {
-            return context.config.apple.release_build_targets.clone();
+        if profile == Profile::Release
+            && !context
+                .project_config
+                .apple
+                .release_build_targets
+                .is_empty()
+        {
+            return context.project_config.apple.release_build_targets.clone();
         }
         vec![IosTarget::host_simulator()]
     }
@@ -180,18 +187,18 @@ impl IosBuildCommand {
     /// configuration
     pub fn gen_info_plist(context: &BuildContext, package_name: &str) -> Result<InfoPlist> {
         Ok(apple::resolve_info_plist(
-            &context.config,
+            &context.project_config,
             package_name,
-            context.config.apple.info_plist_path.as_deref(),
+            context.project_config.apple.info_plist_path.as_deref(),
         )?)
     }
 
     /// Prepare assets and resources for the application.
     pub fn prepare_assets_and_resources(
-        config: &CrossbowMetadata,
+        config: &ProjectConfig,
         out_dir: &Path,
     ) -> Result<(Option<PathBuf>, Option<PathBuf>)> {
-        let res = config.get_apple_resources();
+        let res = config.apple_resources();
         let gen_resources = if res.is_empty() && config.icon.is_none() {
             None
         } else {
@@ -203,7 +210,7 @@ impl IosBuildCommand {
             Some(path)
         };
 
-        let assets = config.get_apple_assets();
+        let assets = config.apple_assets();
         let gen_assets = if !assets.is_empty() {
             let path = out_dir.join("gen_assets");
             std::fs::remove_dir_all(&path).ok();

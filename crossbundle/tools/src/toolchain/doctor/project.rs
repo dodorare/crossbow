@@ -3,7 +3,7 @@ use super::*;
 use crate::types::AndroidGradlePlugins;
 use crate::{
     commands::*,
-    types::{CrossbowMetadata, deserialize_crossbow_metadata},
+    types::{ProjectConfig, parse_project_config},
 };
 
 pub(super) struct ProjectContext {
@@ -20,7 +20,7 @@ pub(super) enum ProjectState {
 pub(super) struct Project {
     pub(super) package_name: String,
     pub(super) metadata_present: bool,
-    pub(super) metadata: Result<CrossbowMetadata, ()>,
+    pub(super) metadata: Result<ProjectConfig, ()>,
     #[cfg(feature = "apple")]
     pub(super) apple_metadata_present: bool,
     #[cfg(feature = "apple")]
@@ -40,31 +40,23 @@ impl ProjectContext {
                 state: ProjectState::Missing,
             };
         }
-        let manifest_path = if path.file_name().is_some_and(|name| name == "Cargo.toml") {
-            requested_manifest_path.clone()
-        } else {
-            match find_package_cargo_manifest_path(path) {
-                Ok(path) => path,
-                Err(_) => {
-                    return Self {
-                        manifest_path: requested_manifest_path.clone(),
-                        state: if requested_manifest_path.is_file() {
-                            ProjectState::Invalid
-                        } else {
-                            ProjectState::Missing
-                        },
-                    };
-                }
-            }
+        let Ok(manifest_path) = LoadedProject::discover_manifest(path) else {
+            return Self {
+                manifest_path: requested_manifest_path.clone(),
+                state: if requested_manifest_path.is_file() {
+                    ProjectState::Invalid
+                } else {
+                    ProjectState::Missing
+                },
+            };
         };
-        let manifest_path = dunce::canonicalize(&manifest_path).unwrap_or(manifest_path);
-        let Ok(cargo_project) = CargoProject::load_package(&manifest_path) else {
+        let Ok(loaded) = LoadedProject::load_package(&manifest_path) else {
             return Self {
                 manifest_path,
                 state: ProjectState::Invalid,
             };
         };
-        let manifest = &cargo_project.package;
+        let manifest = &loaded.cargo.package;
         let metadata_present = manifest
             .metadata
             .as_object()
@@ -72,7 +64,7 @@ impl ProjectContext {
         #[cfg(feature = "apple")]
         let apple_metadata_present = manifest.metadata.get("apple").is_some();
         let custom_metadata = &manifest.metadata;
-        let metadata = typed_metadata(custom_metadata, platforms);
+        let metadata = typed_metadata(custom_metadata, platforms, &loaded.root);
         #[cfg(feature = "apple")]
         let android_plugins = custom_metadata
             .get("android")
@@ -81,7 +73,7 @@ impl ProjectContext {
             .map(|plugins| plugin_names(&plugins))
             .unwrap_or_default();
         Self {
-            manifest_path,
+            manifest_path: loaded.manifest_path,
             state: ProjectState::Valid(Box::new(Project {
                 package_name: manifest.name.clone(),
                 metadata_present,
@@ -108,7 +100,7 @@ impl ProjectContext {
     }
 
     #[cfg(feature = "apple")]
-    pub(super) fn metadata(&self) -> Option<&CrossbowMetadata> {
+    pub(super) fn metadata(&self) -> Option<&ProjectConfig> {
         self.project()?.metadata.as_ref().ok()
     }
 
@@ -196,7 +188,8 @@ impl ProjectContext {
 fn typed_metadata(
     metadata: &serde_json::Value,
     platforms: &[DoctorPlatform],
-) -> Result<CrossbowMetadata, ()> {
+    project_root: &Path,
+) -> Result<ProjectConfig, ()> {
     let mut metadata = metadata.clone();
     if let Some(table) = metadata.as_object_mut() {
         for platform in [DoctorPlatform::Android, DoctorPlatform::Apple] {
@@ -205,7 +198,11 @@ fn typed_metadata(
             }
         }
     }
-    deserialize_crossbow_metadata(metadata).map_err(|_| ())
+    let mut config = parse_project_config(metadata)
+        .and_then(|metadata| metadata.resolve())
+        .map_err(|_| ())?;
+    config.resolve_paths(project_root);
+    Ok(config)
 }
 
 #[cfg(feature = "apple")]
@@ -233,4 +230,26 @@ fn plugin_names(plugins: &AndroidGradlePlugins) -> Vec<String> {
     names.sort();
     names.dedup();
     names
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn nested_invalid_manifest_is_not_reported_as_missing() {
+        let temp = tempfile::tempdir().unwrap();
+        let nested = temp.path().join("nested");
+        std::fs::create_dir(&nested).unwrap();
+        let manifest_path = temp.path().join("Cargo.toml");
+        std::fs::write(&manifest_path, "[package").unwrap();
+
+        let context = ProjectContext::load(&nested, &[]);
+
+        assert!(matches!(context.state, ProjectState::Invalid));
+        assert_eq!(
+            context.manifest_path,
+            dunce::canonicalize(manifest_path).unwrap()
+        );
+    }
 }

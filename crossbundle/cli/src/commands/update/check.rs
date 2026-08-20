@@ -1,11 +1,11 @@
 use crate::error::*;
-use crossbundle_tools::types::{Config, Version};
+use crossbundle_tools::types::{CliContext, Version};
 
 static VERSION: &str = env!("CARGO_PKG_VERSION");
 
 /// Check current the version of crossbundle package and warn the user if a new version is
 /// available
-pub fn check_new_version(config: &Config) -> Result<bool> {
+pub fn check_new_version(config: &CliContext) -> Result<bool> {
     let latest = get_latest_version();
 
     if let Some(value) = latest {
@@ -31,7 +31,7 @@ pub fn is_same_found(version_string: &str) -> bool {
 }
 
 /// Print message if crossbundle project can update
-pub fn print_new_version_available(latest_version: &str, config: &Config) -> Result<()> {
+pub fn print_new_version_available(latest_version: &str, config: &CliContext) -> Result<()> {
     config.shell().warn("NEW CROSSBUNDLE VERSION FOUND!")?;
     config.shell().warn(format!(
         "Current version: {}, Latest: {}",
@@ -41,7 +41,7 @@ pub fn print_new_version_available(latest_version: &str, config: &Config) -> Res
 }
 
 /// Print message if user uses latest version of crossbundle project
-pub fn print_latest_version_using(version_string: &str, config: &Config) -> Result<()> {
+pub fn print_latest_version_using(version_string: &str, config: &CliContext) -> Result<()> {
     config.status_message(
         "You are using the latest version of crossbundle project",
         version_string,

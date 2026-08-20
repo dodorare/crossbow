@@ -7,7 +7,7 @@ pub mod sdkmanager;
 
 use crate::error::*;
 use clap::Parser;
-use crossbundle_tools::types::Config;
+use crossbundle_tools::types::CliContext;
 
 #[cfg(feature = "android")]
 use self::{
@@ -42,7 +42,7 @@ pub enum InstallCommandSubcommand {
 }
 
 impl InstallCommand {
-    pub fn handle_command(&self, config: &Config) -> Result<()> {
+    pub fn handle_command(&self, config: &CliContext) -> Result<()> {
         if self.preferred {
             config.status("Installing all preferred tools")?;
             #[cfg(feature = "android")]
@@ -95,7 +95,7 @@ pub fn download_to_file(download_url: &str, file_path: &std::path::Path) -> Resu
 
 /// Using default file path related on $HOME path for all installed commands
 pub fn default_file_path(file_name: String) -> Result<std::path::PathBuf> {
-    let default_file_path = std::env::home_dir()
+    let default_file_path = home::home_dir()
         .ok_or(Error::HomeDirNotFound)?
         .join(file_name);
     Ok(default_file_path)

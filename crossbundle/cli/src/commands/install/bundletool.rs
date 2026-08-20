@@ -1,7 +1,7 @@
 use super::*;
 use crate::error::Result;
 use clap::Parser;
-use crossbundle_tools::types::Config;
+use crossbundle_tools::types::CliContext;
 use std::path::PathBuf;
 
 const BUNDLETOOL_JAR_FILE_DOWNLOAD_URL: &str =
@@ -24,11 +24,8 @@ pub struct BundletoolInstallCommand {
 
 impl BundletoolInstallCommand {
     /// Download and install bundletool to provided or default path
-    pub fn install(&self, config: &Config) -> Result<()> {
-        let home_dir = default_file_path(self.file_name())?
-            .parent()
-            .unwrap()
-            .to_owned();
+    pub fn install(&self, config: &CliContext) -> Result<()> {
+        let home_dir = home::home_dir().ok_or(Error::HomeDirNotFound)?;
         if !self.force {
             for bundletool in std::fs::read_dir(&home_dir)? {
                 let installed_bundletool = bundletool?.path();
@@ -38,10 +35,11 @@ impl BundletoolInstallCommand {
                 }
             }
         }
-        let download_url = std::path::Path::new(BUNDLETOOL_JAR_FILE_DOWNLOAD_URL)
-            .join(self.version.clone())
-            .join(self.file_name());
-        let download_url_str = String::from(download_url.to_str().unwrap());
+        let download_url = format!(
+            "{BUNDLETOOL_JAR_FILE_DOWNLOAD_URL}/{}/{}",
+            self.version,
+            self.file_name()
+        );
 
         if let Some(install_path) = &self.path {
             config.status_message(
@@ -49,14 +47,14 @@ impl BundletoolInstallCommand {
                 install_path.to_string_lossy(),
             )?;
             let jar_path = install_path.join(self.file_name());
-            download_to_file(&download_url_str, &jar_path)?;
+            download_to_file(&download_url, &jar_path)?;
         } else {
             config.status_message(
                 format!("{} installing into", self.file_name()),
                 home_dir.to_string_lossy(),
             )?;
             let default_jar_path = default_file_path(self.file_name())?;
-            download_to_file(&download_url_str, &default_jar_path)?;
+            download_to_file(&download_url, &default_jar_path)?;
         };
         config.status("Bundletool was installed successfully")?;
         Ok(())

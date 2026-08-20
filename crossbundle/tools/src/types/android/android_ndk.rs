@@ -32,7 +32,7 @@ impl AndroidNdk {
                     .filter_map(|path| path.ok())
                     .filter(|path| path.path().is_dir())
                     .filter_map(|path| path.file_name().into_string().ok())
-                    .filter(|name| name.chars().next().unwrap().is_ascii_digit())
+                    .filter(|name| name.starts_with(|character: char| character.is_ascii_digit()))
                     .max()
                     .ok_or(AndroidError::AndroidNdkNotFound)?;
                 ndk_path.join(ndk_ver)
@@ -45,28 +45,27 @@ impl AndroidNdk {
     pub fn from_path(ndk_path: PathBuf) -> Result<Self> {
         let build_tag = std::fs::read_to_string(ndk_path.join("source.properties"))
             .map_err(|_| AndroidError::FailedToReadSourceProperties)?;
-        let build_tag = build_tag
-            .split('\n')
+        let revision = build_tag
+            .lines()
             .find_map(|line| {
-                if let Some((key, value)) = line.split_once('=')
-                    && key.trim() == "Pkg.Revision"
-                {
-                    // AOSP writes a constantly-incrementing build version to the patch field.
-                    // This number is incrementing across NDK releases.
-                    let mut parts = value.trim().split('.');
-                    let _major = parts.next().unwrap();
-                    let _minor = parts.next().unwrap();
-                    let patch = parts.next().unwrap();
-                    // Can have an optional `XXX-beta1`
-                    let patch = patch.split_once('-').map_or(patch, |(patch, _beta)| patch);
-                    return Some(patch.parse().expect("Failed to parse patch field"));
-                }
-                None
+                let (key, value) = line.split_once('=')?;
+                (key.trim() == "Pkg.Revision").then_some(value.trim())
             })
             .ok_or_else(|| {
                 AndroidError::InvalidSourceProperties(
                     "No `Pkg.Revision` in source.properties".to_owned(),
                 )
+            })?;
+        // AOSP writes a constantly-incrementing build number to the patch field.
+        let build_tag = revision
+            .split('.')
+            .nth(2)
+            .and_then(|patch| patch.split('-').next())
+            .and_then(|patch| patch.parse().ok())
+            .ok_or_else(|| {
+                AndroidError::InvalidSourceProperties(format!(
+                    "Invalid `Pkg.Revision` value `{revision}`"
+                ))
             })?;
         Ok(Self {
             ndk_path,
@@ -200,7 +199,7 @@ impl AndroidNdk {
             if path.exists() {
                 return Ok(path);
             }
-            tmp_platform += 1;
+            tmp_platform -= 1;
         }
         // Look for the minimum API level supported by the NDK
         let mut tmp_platform = min_sdk_version;

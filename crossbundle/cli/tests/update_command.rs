@@ -3,7 +3,7 @@ use std::env::current_dir;
 use crossbundle_lib::commands::update::check::{
     is_newer_found, is_same_found, print_latest_version_using, print_new_version_available,
 };
-use crossbundle_tools::types::{Config, Shell, Version};
+use crossbundle_tools::types::{CliContext, Shell, Version};
 
 #[test]
 /// Simulate a situation where a new version of crossbundle was released and note the user
@@ -11,7 +11,7 @@ use crossbundle_tools::types::{Config, Shell, Version};
 fn test_new_version_released() {
     let target_dir = current_dir().unwrap();
     let shell = Shell::new();
-    let config = Config::new(shell, target_dir);
+    let config = CliContext::new(shell, target_dir);
 
     let current = env!("CARGO_PKG_VERSION");
     let version = Version::from_semver(current).unwrap();
@@ -37,7 +37,7 @@ fn test_new_version_released() {
 fn test_latest_version_is_using() {
     let target_dir = current_dir().unwrap();
     let shell = Shell::new();
-    let config = Config::new(shell, target_dir);
+    let config = CliContext::new(shell, target_dir);
 
     let current = env!("CARGO_PKG_VERSION");
     let version = Version::from_semver(current).unwrap();

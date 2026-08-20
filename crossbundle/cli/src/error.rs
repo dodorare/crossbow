@@ -59,10 +59,9 @@ impl Error {
     }
 }
 
-// TODO: Fix this. Is there a better casting for it?
 #[cfg(feature = "android")]
 impl From<crossbundle_tools::types::AndroidToolsError> for Error {
     fn from(error: crossbundle_tools::types::AndroidToolsError) -> Self {
-        Error::CrossbundleTools(error.into())
+        Self::CrossbundleTools(error.into())
     }
 }

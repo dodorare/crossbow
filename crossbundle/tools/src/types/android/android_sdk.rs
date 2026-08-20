@@ -28,7 +28,7 @@ impl AndroidSdk {
             .filter_map(|path| path.ok())
             .filter(|path| path.path().is_dir())
             .filter_map(|path| path.file_name().into_string().ok())
-            .filter(|name| name.chars().next().unwrap().is_ascii_digit())
+            .filter(|name| name.starts_with(|character: char| character.is_ascii_digit()))
             .max()
             .ok_or(AndroidError::BuildToolsNotFound)?;
         let platforms_path = sdk_path.join("platforms");
@@ -141,8 +141,12 @@ impl AndroidSdk {
     }
 
     /// Default platforms
-    pub fn default_platform(&self) -> u32 {
-        self.platforms().iter().max().cloned().unwrap()
+    pub fn default_platform(&self) -> Result<u32> {
+        self.platforms()
+            .iter()
+            .max()
+            .copied()
+            .ok_or_else(|| AndroidError::NoPlatformsFound.into())
     }
 
     /// Platforms directory path
@@ -194,6 +198,6 @@ mod tests {
 
         let sdk = AndroidSdk::from_resolved(temp.path().into(), &build_tools, &platform).unwrap();
         assert_eq!(sdk.build_deps_version(), "36.0.0");
-        assert_eq!(sdk.default_platform(), 36);
+        assert_eq!(sdk.default_platform().unwrap(), 36);
     }
 }

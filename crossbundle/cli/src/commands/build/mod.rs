@@ -13,7 +13,7 @@ use apple::IosBuildCommand;
 
 use crate::error::Result;
 use clap::Parser;
-use crossbundle_tools::types::{Config, Profile};
+use crossbundle_tools::types::{CliContext, Profile};
 use std::path::PathBuf;
 
 #[derive(Parser, Clone, Debug)]
@@ -27,13 +27,13 @@ pub enum BuildCommand {
 }
 
 impl BuildCommand {
-    pub fn handle_command(&self, _config: &Config) -> Result<()> {
+    pub fn handle_command(&self, _context: &CliContext) -> Result<()> {
         #[cfg(any(feature = "android", feature = "apple"))]
         match &self {
             #[cfg(feature = "android")]
-            Self::Android(cmd) => cmd.run(_config)?,
+            Self::Android(cmd) => cmd.run(_context)?,
             #[cfg(feature = "apple")]
-            Self::Ios(cmd) => cmd.run(_config)?,
+            Self::Ios(cmd) => cmd.run(_context)?,
         }
         Ok(())
     }

@@ -2,7 +2,7 @@ pub mod check;
 
 use crate::error::Result;
 use clap::Parser;
-use crossbundle_tools::{error::CommandExt, types::Config};
+use crossbundle_tools::{error::CommandExt, types::CliContext};
 
 #[derive(Parser, Clone, Debug)]
 pub struct UpdateCommand {
@@ -16,7 +16,7 @@ pub struct UpdateCommand {
 }
 
 impl UpdateCommand {
-    pub fn handle_command(&self, config: &Config) -> Result<()> {
+    pub fn handle_command(&self, config: &CliContext) -> Result<()> {
         let check_result = check::check_new_version(config)?;
         if self.check {
             return Ok(());
@@ -29,7 +29,7 @@ impl UpdateCommand {
 }
 
 /// Self-update crossbundle project and output update status
-pub fn self_update(config: &Config) -> Result<()> {
+pub fn self_update(config: &CliContext) -> Result<()> {
     config.status("Running `cargo install crossbundle --force` command")?;
     let mut cargo_cmd = std::process::Command::new("cargo");
     cargo_cmd.arg("install").arg("crossbundle").arg("--force");

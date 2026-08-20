@@ -150,18 +150,30 @@ dependencies = [
 
 [[package]]
 name = "android-manifest"
-version = "0.3.0"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "faa851ea3fc90490ca0ea90b1d48c628fe41507bd1607fd643a41278b0840d4d"
+checksum = "59456b38bab7e288e3f73157b7cbde37e62b3af79c338734e790f9a5bd888120"
 dependencies = [
- "displaydoc",
+ "android-manifest-derive",
  "log",
  "serde",
  "serde_plain",
  "thiserror 2.0.20",
  "xml-rs",
- "yaserde",
- "yaserde_derive",
+]
+
+[[package]]
+name = "android-manifest-derive"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "737f771676e78950a1c49d413741b5eb599ce5c2a94a214665b3833e952b9f81"
+dependencies = [
+ "heck",
+ "proc-macro2",
+ "quote",
+ "serde",
+ "serde_tokenstream",
+ "syn 2.0.119",
 ]
 
 [[package]]
@@ -2379,6 +2391,7 @@ dependencies = [
  "crossbundle-tools",
  "displaydoc",
  "dunce",
+ "home",
  "log",
  "pretty_env_logger",
  "serde_json",
@@ -2401,6 +2414,7 @@ dependencies = [
  "displaydoc",
  "dunce",
  "fwdansi",
+ "home",
  "image 0.25.10",
  "libc",
  "semver",
@@ -6594,32 +6608,6 @@ name = "xtask"
 version = "0.0.0"
 dependencies = [
  "toml",
-]
-
-[[package]]
-name = "yaserde"
-version = "0.12.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8bfa0d2b420fd005aa9b6f99f9584ebd964e6865d7ca787304cc1a3366c39231"
-dependencies = [
- "log",
- "xml-rs",
-]
-
-[[package]]
-name = "yaserde_derive"
-version = "0.12.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1f785831c0e09e0f1a83f917054fd59c088f6561db5b2a42c1c3e1687329325f"
-dependencies = [
- "heck",
- "log",
- "proc-macro2",
- "quote",
- "serde",
- "serde_tokenstream",
- "syn 2.0.119",
- "xml-rs",
 ]
 
 [[package]]

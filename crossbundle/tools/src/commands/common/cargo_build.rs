@@ -91,7 +91,7 @@ impl CargoBuild<'_> {
         let stdout = child
             .stdout
             .take()
-            .expect("Cargo stdout was configured as piped");
+            .ok_or_else(|| anyhow::anyhow!("failed to capture Cargo stdout"))?;
         let mut artifact = None;
         let mut read_error = None;
 

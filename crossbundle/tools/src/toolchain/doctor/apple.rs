@@ -661,9 +661,9 @@ fn project_checks(context: &project::ProjectContext) -> Vec<DoctorCheck> {
             "Project Apple",
             "Apple assets and resources",
             metadata
-                .get_apple_assets()
+                .apple_assets()
                 .iter()
-                .chain(metadata.get_apple_resources())
+                .chain(metadata.apple_resources())
                 .map(|path| base.join(path))
                 .collect(),
             true,
@@ -716,7 +716,7 @@ fn project_checks(context: &project::ProjectContext) -> Vec<DoctorCheck> {
 }
 
 fn apple_targets(
-    metadata: &crate::types::CrossbowMetadata,
+    metadata: &crate::types::ProjectConfig,
 ) -> impl Iterator<Item = &'static str> + '_ {
     metadata
         .apple
@@ -726,7 +726,7 @@ fn apple_targets(
         .map(IntoRustTriple::rust_triple)
 }
 
-fn project_signing_check(metadata: &crate::types::CrossbowMetadata) -> DoctorCheck {
+fn project_signing_check(metadata: &crate::types::ProjectConfig) -> DoctorCheck {
     if apple_targets(metadata).any(device_target) {
         check(
             "project.apple.signing",

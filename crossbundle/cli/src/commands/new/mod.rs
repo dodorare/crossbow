@@ -2,7 +2,7 @@ use crate::error::Result;
 use clap::Parser;
 use crossbundle_tools::{
     commands::{check_cargo_generate, create_project},
-    types::Config,
+    types::CliContext,
 };
 
 const TEMPLATES_REPO: &str = "https://github.com/dodorare/crossbundle-templates.git";
@@ -23,7 +23,7 @@ pub struct NewCommand {
 }
 
 impl NewCommand {
-    pub fn handle_command(&self, config: &Config) -> Result<()> {
+    pub fn handle_command(&self, config: &CliContext) -> Result<()> {
         if !check_cargo_generate() {
             config
                 .shell()

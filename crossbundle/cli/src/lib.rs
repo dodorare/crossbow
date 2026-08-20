@@ -8,7 +8,7 @@ pub mod types;
 use clap::{ArgAction, Parser};
 use colored::Colorize;
 use commands::*;
-use crossbundle_tools::types::{Config, Shell, Verbosity};
+use crossbundle_tools::types::{CliContext, Shell, Verbosity};
 use std::path::PathBuf;
 
 #[derive(Parser, Clone, Debug)]
@@ -48,10 +48,10 @@ impl Opts {
         }
     }
 
-    pub fn get_current_dir(&self) -> PathBuf {
+    pub fn get_current_dir(&self) -> std::io::Result<PathBuf> {
         self.current_dir
             .clone()
-            .unwrap_or_else(|| std::env::current_dir().unwrap())
+            .map_or_else(std::env::current_dir, Ok)
     }
 }
 
@@ -59,8 +59,8 @@ pub fn run() -> std::result::Result<(), Box<dyn std::error::Error>> {
     let opts = Opts::parse();
     let mut shell = Shell::new();
     shell.set_verbosity(opts.get_verbosity());
-    let config = Config::new(shell, opts.get_current_dir());
-    opts.cmd.handle_command(&config)?;
+    let context = CliContext::new(shell, opts.get_current_dir()?);
+    opts.cmd.handle_command(&context)?;
     Ok(())
 }
 

@@ -71,53 +71,55 @@ impl BuildVariableType {
 
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
-struct BuildVariableDefinition {
+pub(crate) struct BuildVariableDefinition {
     env: String,
     #[serde(rename = "type", default)]
     value_type: BuildVariableType,
     default: Option<Value>,
 }
 
-type BuildVariableDefinitions = BTreeMap<String, BuildVariableDefinition>;
+pub(crate) type BuildVariableDefinitions = BTreeMap<String, BuildVariableDefinition>;
 
-pub(crate) fn resolve_metadata_build_variables(
-    metadata: &mut Value,
+pub(crate) fn resolve_process_environment(
+    definitions: &BuildVariableDefinitions,
 ) -> anyhow::Result<BuildVariables> {
-    let definitions = take_definitions(metadata)?;
-    let variables = resolve_definitions(&definitions, |name| match std::env::var(name) {
+    resolve_definitions(definitions, |name| match std::env::var(name) {
         Ok(value) => Ok(Some(value)),
         Err(std::env::VarError::NotPresent) => Ok(None),
         Err(std::env::VarError::NotUnicode(_)) => {
             anyhow::bail!("environment variable `{name}` is not valid Unicode")
         }
-    })?;
+    })
+}
 
+pub(crate) fn interpolate_metadata(
+    metadata: &mut Value,
+    variables: &BuildVariables,
+) -> anyhow::Result<()> {
     // Limit expansion to the public platform documents named by the feature. In particular,
     // values must never flow into paths, plugin configuration, or other generated files.
     for pointer in ["/android/manifest", "/apple/info_plist"] {
         if let Some(value) = metadata.pointer_mut(pointer) {
-            interpolate_json(value, &variables)?;
+            interpolate_json(value, variables)?;
         }
     }
-    Ok(variables)
+    Ok(())
 }
 
-fn take_definitions(metadata: &mut Value) -> anyhow::Result<BuildVariableDefinitions> {
+pub(crate) fn take_definitions(metadata: &mut Value) -> anyhow::Result<BuildVariableDefinitions> {
     let Some(raw) = metadata
         .as_object_mut()
         .and_then(|metadata| metadata.remove("build_variables"))
     else {
         return Ok(BuildVariableDefinitions::new());
     };
-    serde_json::from_value(raw)
-        .map_err(|error| anyhow::anyhow!("invalid `package.metadata.build_variables`: {error}"))
+    let definitions: BuildVariableDefinitions = serde_json::from_value(raw)
+        .map_err(|error| anyhow::anyhow!("invalid `package.metadata.build_variables`: {error}"))?;
+    validate_definitions(&definitions)?;
+    Ok(definitions)
 }
 
-fn resolve_definitions(
-    definitions: &BuildVariableDefinitions,
-    mut environment: impl FnMut(&str) -> anyhow::Result<Option<String>>,
-) -> anyhow::Result<BuildVariables> {
-    let mut values = BTreeMap::new();
+fn validate_definitions(definitions: &BuildVariableDefinitions) -> anyhow::Result<()> {
     for (name, definition) in definitions {
         validate_name(name)?;
         if definition.env.is_empty() {
@@ -136,6 +138,16 @@ fn resolve_definitions(
         if let Some(default) = &definition.default {
             reject_nested_placeholder(name, default)?;
         }
+    }
+    Ok(())
+}
+
+pub(crate) fn resolve_definitions(
+    definitions: &BuildVariableDefinitions,
+    mut environment: impl FnMut(&str) -> anyhow::Result<Option<String>>,
+) -> anyhow::Result<BuildVariables> {
+    let mut values = BTreeMap::new();
+    for (name, definition) in definitions {
         let value = if let Some(value) = environment(&definition.env)? {
             definition.value_type.parse(name, value)?
         } else if let Some(value) = &definition.default {
@@ -297,7 +309,9 @@ mod tests {
                 "application": { "label": "{{crossbow.HOST}}/${applicationId}/$(PRODUCT_NAME)" }
             }}
         });
-        resolve_metadata_build_variables(&mut metadata).unwrap();
+        let definitions = take_definitions(&mut metadata).unwrap();
+        let variables = resolve_definitions(&definitions, |_| Ok(None)).unwrap();
+        interpolate_metadata(&mut metadata, &variables).unwrap();
         assert_eq!(metadata["app_name"], "{{crossbow.HOST}}");
         assert_eq!(metadata["android"]["manifest"]["version_code"], 7);
         assert_eq!(
@@ -334,7 +348,7 @@ mod tests {
         }))
         .unwrap();
         assert!(
-            resolve_definitions(&nested, |_| Ok(Some("valid".into())))
+            validate_definitions(&nested)
                 .unwrap_err()
                 .to_string()
                 .contains("must not contain")
@@ -347,7 +361,7 @@ mod tests {
             "not-valid": { "env": "VALUE", "default": "value" }
         }))
         .unwrap();
-        assert!(resolve_definitions(&invalid, |_| Ok(None)).is_err());
+        assert!(validate_definitions(&invalid).is_err());
 
         let integer: BuildVariableDefinitions = serde_json::from_value(serde_json::json!({
             "BUILD": { "env": "BUILD_NUMBER", "type": "integer" }
@@ -365,7 +379,7 @@ mod tests {
         }))
         .unwrap();
         assert!(
-            resolve_definitions(&boolean, |_| Ok(Some("false".into())))
+            validate_definitions(&boolean)
                 .unwrap_err()
                 .to_string()
                 .contains("declared boolean type")

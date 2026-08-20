@@ -4,7 +4,7 @@ use crate::{
 };
 use android_manifest::AndroidManifest;
 use std::{fs::File, io::BufReader, path::Path};
-use xml::{reader::XmlEvent as ReaderEvent, writer::XmlEvent as WriterEvent};
+use xml::reader::XmlEvent as ReaderEvent;
 
 /// Reads and deserializes `AndroidManifest.xml`.
 pub fn read_android_manifest(path: &Path) -> Result<AndroidManifest> {
@@ -33,22 +33,15 @@ fn interpolate_xml(reader: impl std::io::Read, variables: &BuildVariables) -> Re
         match &mut event {
             ReaderEvent::StartElement { attributes, .. } => {
                 for attribute in attributes {
-                    let value = interpolate_string(&attribute.value, variables)?;
-                    attribute.value = xml::escape::escape_str_attribute(&value).into_owned();
+                    attribute.value = interpolate_string(&attribute.value, variables)?;
                 }
             }
             ReaderEvent::Characters(value) | ReaderEvent::CData(value) => {
-                let interpolated = interpolate_string(value, variables)?;
-                *value = xml::escape::escape_str_pcdata(&interpolated).into_owned();
+                *value = interpolate_string(value, variables)?;
             }
             _ => {}
         }
-        let event = match &event {
-            ReaderEvent::Characters(value) => Some(WriterEvent::characters(value)),
-            ReaderEvent::CData(value) => Some(WriterEvent::characters(value)),
-            _ => event.as_writer_event(),
-        };
-        if let Some(event) = event {
+        if let Some(event) = event.as_writer_event() {
             writer
                 .write(event)
                 .map_err(|error| anyhow::anyhow!("failed to rewrite Android XML: {error}"))?;
@@ -61,16 +54,18 @@ fn interpolate_xml(reader: impl std::io::Read, variables: &BuildVariables) -> Re
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::types::deserialize_crossbow_metadata;
+    use crate::types::parse_project_config;
 
     fn variables() -> BuildVariables {
-        deserialize_crossbow_metadata(serde_json::json!({
+        parse_project_config(serde_json::json!({
             "build_variables": {
                 "LABEL": { "env": "IGNORED_LABEL", "default": "R&D <Preview> ✓" },
                 "CODE": { "env": "IGNORED_CODE", "type": "integer", "default": 42 },
                 "LOCATION": { "env": "IGNORED_LOCATION", "default": "auto" }
             }
         }))
+        .unwrap()
+        .resolve_with(|_| Ok(None))
         .unwrap()
         .build_variables()
         .clone()
