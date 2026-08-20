@@ -147,6 +147,13 @@ pub fn deserialize_crossbow_metadata(
             );
         }
     }
+    #[cfg(feature = "android")]
+    if let Some(manifest) = metadata
+        .get_mut("android")
+        .and_then(|android| android.get_mut("manifest"))
+    {
+        crate::types::normalize_android_manifest_json(manifest);
+    }
     let mut resolved: CrossbowMetadata = serde_json::from_value(metadata)?;
     resolved.build_variables = build_variables;
     Ok(resolved)

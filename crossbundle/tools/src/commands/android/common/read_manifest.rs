@@ -23,6 +23,12 @@ pub fn read_android_manifest_with_variables(
     let reader = BufReader::new(&file);
     let xml = transform_typed_xml_variables(reader, variables)?;
     let manifest = android_manifest::from_reader(xml.as_slice()).map_err(AndroidError::from)?;
+    if !xml
+        .windows("{{crossbow.".len())
+        .any(|window| window == b"{{crossbow.")
+    {
+        return Ok(manifest);
+    }
     interpolate_android_manifest(manifest, variables)
 }
 
@@ -84,6 +90,7 @@ fn interpolate_android_manifest(
     let mut value = serde_json::to_value(manifest)
         .map_err(|error| anyhow::anyhow!("failed to inspect Android manifest: {error}"))?;
     interpolate_json_build_variables(&mut value, variables)?;
+    crate::types::normalize_android_manifest_json(&mut value);
     serde_json::from_value(value)
         .map_err(|error| anyhow::anyhow!("invalid resolved Android manifest: {error}").into())
 }
@@ -163,5 +170,24 @@ mod tests {
             .unwrap_err()
             .to_string();
         assert!(error.contains("not declared"));
+    }
+
+    #[test]
+    fn manifests_without_build_variables_do_not_require_a_json_round_trip() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("AndroidManifest.xml");
+        std::fs::write(
+            &path,
+            r#"<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+                package="dev.crossbow.example">
+                <application android:hasCode="true" />
+            </manifest>"#,
+        )
+        .unwrap();
+        let manifest = read_android_manifest(&path).unwrap();
+        assert_eq!(
+            manifest.application.has_code,
+            Some(android_manifest::VarOrBool::Bool(true))
+        );
     }
 }
