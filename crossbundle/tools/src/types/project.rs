@@ -5,7 +5,10 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use super::{BuildVariables, resolve_metadata_build_variables};
+use super::{
+    BuildVariableDefinitions, BuildVariables, interpolate_metadata, resolve_definitions,
+    resolve_process_environment, take_definitions,
+};
 
 #[cfg(feature = "android")]
 use crate::types::{AndroidRuntime, AndroidTarget, android_manifest::AndroidManifest};
@@ -58,7 +61,7 @@ impl GradleDependencyProject {
 
 /// Typed `package.metadata` model shared by builds and project diagnostics.
 #[derive(Clone, Deserialize, Serialize, Default)]
-pub struct CrossbowMetadata {
+pub struct ProjectConfig {
     /// Resolved allow-listed values used by platform configuration templates.
     #[serde(skip)]
     build_variables: BuildVariables,
@@ -76,7 +79,7 @@ pub struct CrossbowMetadata {
     pub apple: AppleConfig,
 }
 
-impl fmt::Debug for CrossbowMetadata {
+impl fmt::Debug for ProjectConfig {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut metadata = serde_json::to_value(self).map_err(|_| fmt::Error)?;
         if !self.build_variables.is_empty() {
@@ -90,14 +93,14 @@ impl fmt::Debug for CrossbowMetadata {
     }
 }
 
-impl CrossbowMetadata {
+impl ProjectConfig {
     /// Returns resolved values for platform-document interpolation.
     pub fn build_variables(&self) -> &BuildVariables {
         &self.build_variables
     }
 
     #[cfg(feature = "android")]
-    pub fn get_android_assets(&self) -> &[PathBuf] {
+    pub fn android_assets(&self) -> &[PathBuf] {
         if self.android.assets.is_empty() {
             &self.assets
         } else {
@@ -106,7 +109,7 @@ impl CrossbowMetadata {
     }
 
     #[cfg(feature = "android")]
-    pub fn get_android_resources(&self) -> &[PathBuf] {
+    pub fn android_resources(&self) -> &[PathBuf] {
         &self.android.resources
     }
 
@@ -116,7 +119,7 @@ impl CrossbowMetadata {
     }
 
     #[cfg(feature = "apple")]
-    pub fn get_apple_assets(&self) -> &[PathBuf] {
+    pub fn apple_assets(&self) -> &[PathBuf] {
         if self.apple.assets.is_empty() {
             &self.assets
         } else {
@@ -125,8 +128,46 @@ impl CrossbowMetadata {
     }
 
     #[cfg(feature = "apple")]
-    pub fn get_apple_resources(&self) -> &[PathBuf] {
+    pub fn apple_resources(&self) -> &[PathBuf] {
         &self.apple.resources
+    }
+
+    /// Resolves every configured filesystem path relative to the selected Cargo package.
+    pub fn resolve_paths(&mut self, root: &Path) {
+        resolve_paths(&mut self.assets, root);
+        resolve_path(&mut self.icon, root);
+        #[cfg(feature = "android")]
+        {
+            resolve_path(&mut self.android.manifest_path, root);
+            resolve_paths(&mut self.android.resources, root);
+            resolve_paths(&mut self.android.assets, root);
+            resolve_paths(&mut self.android.plugins.local, root);
+            for project in &mut self.android.plugins.local_projects {
+                resolve_path(&mut project.project_dir, root);
+            }
+        }
+        #[cfg(feature = "apple")]
+        {
+            resolve_path(&mut self.apple.info_plist_path, root);
+            resolve_paths(&mut self.apple.resources, root);
+            resolve_paths(&mut self.apple.assets, root);
+        }
+    }
+}
+
+fn resolve_path(path: &mut Option<PathBuf>, root: &Path) {
+    if let Some(path) = path
+        && path.is_relative()
+    {
+        *path = root.join(&*path);
+    }
+}
+
+fn resolve_paths(paths: &mut [PathBuf], root: &Path) {
+    for path in paths {
+        if path.is_relative() {
+            *path = root.join(&*path);
+        }
     }
 }
 
@@ -149,13 +190,44 @@ pub struct AndroidConfig {
     pub plugins: AndroidGradlePlugins,
 }
 
-pub fn deserialize_crossbow_metadata(
-    mut metadata: serde_json::Value,
-) -> anyhow::Result<CrossbowMetadata> {
-    if metadata.is_null() {
-        return Ok(CrossbowMetadata::default());
+/// Cargo metadata parsed independently of the process environment.
+pub struct ParsedProjectConfig {
+    metadata: serde_json::Value,
+    build_variables: BuildVariableDefinitions,
+}
+
+impl ParsedProjectConfig {
+    /// Resolves declared build variables and deserializes the typed project configuration.
+    pub fn resolve(mut self) -> anyhow::Result<ProjectConfig> {
+        let build_variables = resolve_process_environment(&self.build_variables)?;
+        self.finish(build_variables)
     }
-    let build_variables = resolve_metadata_build_variables(&mut metadata)?;
+
+    /// Resolves with an injected environment source.
+    pub fn resolve_with(
+        mut self,
+        environment: impl FnMut(&str) -> anyhow::Result<Option<String>>,
+    ) -> anyhow::Result<ProjectConfig> {
+        let build_variables = resolve_definitions(&self.build_variables, environment)?;
+        self.finish(build_variables)
+    }
+
+    fn finish(&mut self, build_variables: BuildVariables) -> anyhow::Result<ProjectConfig> {
+        interpolate_metadata(&mut self.metadata, &build_variables)?;
+        let mut config: ProjectConfig = serde_json::from_value(self.metadata.take())?;
+        config.build_variables = build_variables;
+        Ok(config)
+    }
+}
+
+/// Parses project metadata without consulting the process environment.
+pub fn parse_project_config(
+    mut metadata: serde_json::Value,
+) -> anyhow::Result<ParsedProjectConfig> {
+    if metadata.is_null() {
+        metadata = serde_json::Value::Object(Default::default());
+    }
+    let build_variables = take_definitions(&mut metadata)?;
     #[cfg(feature = "android")]
     if let Some(android) = metadata.get("android") {
         if android.get("rust_compiler").is_some() {
@@ -169,16 +241,63 @@ pub fn deserialize_crossbow_metadata(
             );
         }
     }
-    #[cfg(feature = "android")]
-    if let Some(manifest) = metadata
-        .get_mut("android")
-        .and_then(|android| android.get_mut("manifest"))
-    {
-        crate::types::normalize_android_booleans(manifest);
+    Ok(ParsedProjectConfig {
+        metadata,
+        build_variables,
+    })
+}
+
+#[cfg(test)]
+mod project_config_tests {
+    use super::*;
+
+    #[test]
+    fn parsing_does_not_read_the_environment() {
+        let parsed = parse_project_config(serde_json::json!({
+            "build_variables": { "VALUE": { "env": "CROSSBOW_REQUIRED_VALUE" } }
+        }))
+        .unwrap();
+
+        assert!(
+            parsed
+                .resolve_with(|_| Ok(None))
+                .unwrap_err()
+                .to_string()
+                .contains("requires environment variable")
+        );
     }
-    let mut resolved: CrossbowMetadata = serde_json::from_value(metadata)?;
-    resolved.build_variables = build_variables;
-    Ok(resolved)
+
+    #[test]
+    fn resolves_project_paths_once() {
+        let mut config = parse_project_config(serde_json::json!({
+            "assets": ["assets"],
+            "icon": "icon.png",
+            "android": { "manifest_path": "AndroidManifest.xml" },
+            "apple": { "info_plist_path": "Info.plist" }
+        }))
+        .unwrap()
+        .resolve_with(|_| Ok(None))
+        .unwrap();
+        let root = Path::new("/project");
+        config.resolve_paths(root);
+        config.resolve_paths(root);
+
+        assert_eq!(config.assets, [root.join("assets")]);
+        assert_eq!(
+            config.icon.as_deref(),
+            Some(root.join("icon.png").as_path())
+        );
+        #[cfg(feature = "android")]
+        assert_eq!(
+            config.android.manifest_path.as_deref(),
+            Some(root.join("AndroidManifest.xml").as_path())
+        );
+        #[cfg(feature = "apple")]
+        assert_eq!(
+            config.apple.info_plist_path.as_deref(),
+            Some(root.join("Info.plist").as_path())
+        );
+    }
 }
 
 #[cfg(all(test, feature = "android"))]
@@ -187,31 +306,36 @@ mod android_config_tests {
 
     #[test]
     fn rejects_removed_compiler_configuration_with_migration_help() {
-        let error = deserialize_crossbow_metadata(serde_json::json!({
+        let error = parse_project_config(serde_json::json!({
             "android": { "rust_compiler": "quad" }
         }))
-        .unwrap_err()
+        .err()
+        .expect("removed configuration must be rejected")
         .to_string();
         assert!(error.contains("runtime = \"miniquad\""));
 
-        let error = deserialize_crossbow_metadata(serde_json::json!({
+        let error = parse_project_config(serde_json::json!({
             "android": { "app_wrapper": "ndk-glue" }
         }))
-        .unwrap_err()
+        .err()
+        .expect("removed configuration must be rejected")
         .to_string();
         assert!(error.contains("app_wrapper` was removed"));
     }
 
     #[test]
     fn accepts_cargo_metadata_null_for_unconfigured_packages() {
-        let metadata = deserialize_crossbow_metadata(serde_json::Value::Null).unwrap();
+        let metadata = parse_project_config(serde_json::Value::Null)
+            .unwrap()
+            .resolve()
+            .unwrap();
         assert!(metadata.app_name.is_none());
         assert_eq!(metadata.android.runtime, AndroidRuntime::NativeActivity);
     }
 
     #[test]
     fn resolves_inline_android_metadata_before_typed_deserialization() {
-        let metadata = deserialize_crossbow_metadata(serde_json::json!({
+        let metadata = parse_project_config(serde_json::json!({
             "build_variables": {
                 "CODE": {
                     "env": "CROSSBOW_TEST_UNSET_INLINE_ANDROID_CODE",
@@ -242,6 +366,8 @@ mod android_config_tests {
                 }
             }
         }))
+        .unwrap()
+        .resolve_with(|_| Ok(None))
         .unwrap();
         assert!(!format!("{metadata:?}").contains("Preview"));
         let manifest = metadata.android.manifest.unwrap();
@@ -264,7 +390,7 @@ mod apple_build_variable_tests {
 
     #[test]
     fn resolves_inline_apple_metadata() {
-        let metadata = deserialize_crossbow_metadata(serde_json::json!({
+        let metadata = parse_project_config(serde_json::json!({
             "build_variables": {
                 "BUNDLE_ID": {
                     "env": "CROSSBOW_TEST_UNSET_INLINE_APPLE_BUNDLE_ID",
@@ -277,6 +403,8 @@ mod apple_build_variable_tests {
                 }
             }
         }))
+        .unwrap()
+        .resolve_with(|_| Ok(None))
         .unwrap();
         assert!(!format!("{metadata:?}").contains("dev.crossbow.preview"));
         assert_eq!(

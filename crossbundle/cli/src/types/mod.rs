@@ -1,4 +1,4 @@
-pub use crossbundle_tools::types::CrossbowMetadata;
+pub use crossbundle_tools::types::ProjectConfig;
 
 #[cfg(feature = "android")]
 pub use crossbundle_tools::types::AndroidConfig;

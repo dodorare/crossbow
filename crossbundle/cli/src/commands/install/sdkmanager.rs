@@ -2,7 +2,7 @@ use clap::{ArgAction, Parser};
 use crossbundle_tools::{
     EXECUTABLE_SUFFIX_BAT,
     error::{CommandExt, Result},
-    types::{Config, android_sdk_path},
+    types::{CliContext, android_sdk_path},
 };
 use std::path::Path;
 
@@ -163,7 +163,7 @@ impl SdkManagerInstallCommand {
     }
 
     /// Run sdkmanager command with specified flags and options
-    pub fn run(&self, _config: &Config) -> Result<()> {
+    pub fn run(&self, _context: &CliContext) -> Result<()> {
         let sdk_path = android_sdk_path()?;
         // Android Studio installs cmdline-tools into
         // $ANDROID_SDK_ROOT/cmdline-tools/<version>/bin. Crossbundle install command

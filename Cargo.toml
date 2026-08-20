@@ -13,7 +13,7 @@ edition = "2024"
 
 [workspace.dependencies]
 admob-android = { path = "plugins/admob-android", version = "0.2.3" }
-android-manifest = "0.3.0"
+android-manifest = "0.4.0"
 android-tools = "0.2.11"
 anyhow = "1.0"
 apple-bundle = "0.2.1"
@@ -30,6 +30,7 @@ displaydoc = "0.2"
 dunce = "1.0"
 fwdansi = "1.1"
 image = { version = "0.25.10", default-features = false }
+home = "0.5"
 jni = "0.22"
 libc = "0.2"
 log = "0.4"

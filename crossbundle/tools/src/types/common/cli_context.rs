@@ -3,20 +3,19 @@ use crate::error::Result;
 use std::cell::{RefCell, RefMut};
 use std::path::{Path, PathBuf};
 
-/// Configuration information for crossbundle. This is not specific to a build,
-/// it is information relating to crossbundle itself.
+/// Runtime state shared by crossbundle CLI commands.
 #[derive(Debug)]
-pub struct Config {
+pub struct CliContext {
     /// Information about how to write messages to the shell
     shell: RefCell<Shell>,
     /// Current working dir
     current_dir: PathBuf,
 }
 
-impl Config {
-    /// Creates a new config instance.
-    pub fn new(shell: Shell, current_dir: PathBuf) -> Config {
-        Config {
+impl CliContext {
+    /// Creates a new CLI context.
+    pub fn new(shell: Shell, current_dir: PathBuf) -> Self {
+        Self {
             shell: RefCell::new(shell),
             current_dir,
         }

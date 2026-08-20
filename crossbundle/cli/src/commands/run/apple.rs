@@ -1,7 +1,7 @@
 use crate::commands::build::{BuildContext, apple::IosBuildCommand};
 use crate::error::*;
 use clap::Parser;
-use crossbundle_tools::{commands::apple, types::Config, types::*};
+use crossbundle_tools::{commands::apple, types::CliContext, types::*};
 use std::path::{Path, PathBuf};
 
 #[derive(Parser, Clone, Debug)]
@@ -29,7 +29,7 @@ pub struct IosRunCommand {
 }
 
 impl IosRunCommand {
-    pub fn run(&self, config: &Config) -> Result<()> {
+    pub fn run(&self, config: &CliContext) -> Result<()> {
         let mut build_command = self.build_command.clone();
         if build_command.target.is_empty() {
             build_command.target.push(if self.device {

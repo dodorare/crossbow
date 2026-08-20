@@ -3,7 +3,7 @@
 use crossbundle_lib::commands::build::{BuildContext, android::AndroidBuildCommand};
 use crossbundle_tools::{
     commands::gen_minimal_project,
-    types::{AndroidNdk, AndroidSdk, AndroidStrategy, AndroidTarget, Config, Shell},
+    types::{AndroidNdk, AndroidSdk, AndroidStrategy, AndroidTarget, CliContext, Shell},
 };
 
 #[test]
@@ -22,7 +22,7 @@ fn test_execute_aab() {
     std::fs::create_dir_all(&target_dir).unwrap();
 
     let shell = Shell::new();
-    let config = Config::new(shell, target_dir.clone());
+    let config = CliContext::new(shell, target_dir.clone());
     let context = BuildContext::new(&config, &Default::default()).unwrap();
 
     let android_build_command = AndroidBuildCommand {

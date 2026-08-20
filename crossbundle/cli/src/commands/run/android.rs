@@ -7,7 +7,7 @@ use clap::Parser;
 use crossbundle_tools::{
     commands::android::*,
     error::CommandExt,
-    types::{AndroidSdk, Config},
+    types::{AndroidSdk, CliContext},
 };
 
 #[derive(Parser, Clone, Debug)]
@@ -21,7 +21,7 @@ pub struct AndroidRunCommand {
 
 impl AndroidRunCommand {
     /// Deployes and runs application in AAB or APK format on your device or emulator
-    pub fn run(&self, config: &Config) -> Result<()> {
+    pub fn run(&self, config: &CliContext) -> Result<()> {
         if self.build_command.lib.is_some() {
             config.status("Can not run dynamic library")?;
             return Ok(());
@@ -72,7 +72,10 @@ impl crossbundle_tools::toolchain::Runner for AndroidRunPlanRunner<'_> {
                     return Err(anyhow::anyhow!("AAB artifact was not built").into());
                 };
                 self.build.config.status("Generating apks")?;
-                let output = path.parent().unwrap().join(format!("{package}.apks"));
+                let output = path
+                    .parent()
+                    .ok_or_else(|| anyhow::anyhow!("AAB output path has no parent directory"))?
+                    .join(format!("{package}.apks"));
                 command
                     .arg("build-apks")
                     .arg("--bundle")

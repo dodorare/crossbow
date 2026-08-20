@@ -8,7 +8,7 @@ pub mod update;
 
 use crate::error::Result;
 use clap::Parser;
-use crossbundle_tools::types::Config;
+use crossbundle_tools::types::CliContext;
 
 #[derive(Parser, Clone, Debug)]
 pub enum Commands {
@@ -32,7 +32,7 @@ pub enum Commands {
 }
 
 impl Commands {
-    pub fn handle_command(&self, config: &Config) -> Result<()> {
+    pub fn handle_command(&self, config: &CliContext) -> Result<()> {
         if self.requires_update_check() {
             crate::update::check::check_new_version(config)?;
         }

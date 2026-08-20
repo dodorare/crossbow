@@ -1,4 +1,5 @@
 use crate::{
+    commands::android::native::library_name,
     error::*,
     types::{AndroidNdk, AndroidSdk, AndroidTarget, IntoRustTriple, Profile},
 };
@@ -34,7 +35,7 @@ pub fn add_libs_into_apk(
     let mut dylibs_paths = search_dylibs(&build_path.join("build"))?;
     dylibs_paths.push(build_path.join("tools"));
     // Get list of libs that main lib need for work
-    let lib_name = lib_path.file_name().unwrap().to_str().unwrap().to_owned();
+    let lib_name = library_name(lib_path)?.to_owned();
     let mut needed_libs = vec![];
     recursively_define_needed_libs(
         (lib_name, lib_path.to_owned()),
@@ -64,17 +65,20 @@ fn aapt_add_lib(
         return Err(Error::PathNotFound(lib_path.to_owned()));
     }
     std::fs::create_dir_all(out_dir)?;
-    let file_name = lib_path.file_name().unwrap();
+    let file_name = library_name(lib_path)?;
+    let apk_dir = apk_path
+        .parent()
+        .ok_or_else(|| Error::PathNotFound(apk_path.to_owned()))?;
     std::fs::copy(lib_path, out_dir.join(file_name))?;
-    let native_lib_path = apk_path.parent().unwrap().join("lib").join(abi);
+    let native_lib_path = apk_dir.join("lib").join(abi);
     std::fs::create_dir_all(&native_lib_path)?;
     std::fs::copy(lib_path, native_lib_path.join(file_name))?;
     // `aapt a[dd] [-v] file.{zip,jar,apk} file1 [file2 ...]`
     // Add specified files to Zip-compatible archive
-    let mut aapt = sdk.build_tool(bin!("aapt"), Some(apk_path.parent().unwrap()))?;
+    let mut aapt = sdk.build_tool(bin!("aapt"), Some(apk_dir))?;
     aapt.arg("add")
         .arg(apk_path)
-        .arg(format!("lib/{}/{}", abi, file_name.to_str().unwrap()));
+        .arg(format!("lib/{abi}/{file_name}"));
     aapt.output_err(true)?;
     Ok(())
 }

@@ -1,5 +1,7 @@
 use crate::{
-    commands::android::native::{get_libs_in_dir, recursively_define_needed_libs, search_dylibs},
+    commands::android::native::{
+        get_libs_in_dir, library_name, recursively_define_needed_libs, search_dylibs,
+    },
     error::*,
     types::{AndroidNdk, AndroidTarget, IntoRustTriple, Profile},
 };
@@ -31,7 +33,7 @@ pub fn add_libs_into_aapt2(
     dylibs_paths.push(build_path.join("tools"));
 
     // Get list of libs that main lib need for work
-    let lib_name = lib_path.file_name().unwrap().to_str().unwrap().to_owned();
+    let lib_name = library_name(lib_path)?.to_owned();
     let mut needed_libs = vec![];
     recursively_define_needed_libs(
         (lib_name, lib_path.to_owned()),
@@ -66,7 +68,7 @@ pub fn add_lib_aapt2(lib_path: &Path, out_dir: &Path, project_dir: &Path) -> Res
     if !project_dir.exists() {
         std::fs::create_dir_all(project_dir)?;
     }
-    let filename = lib_path.file_name().unwrap();
+    let filename = library_name(lib_path)?;
     std::fs::copy(lib_path, out_dir.join(filename))?;
     std::fs::copy(lib_path, project_dir.join(filename))?;
     Ok(())

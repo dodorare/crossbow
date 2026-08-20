@@ -36,6 +36,56 @@ pub struct CargoTarget {
     pub crate_types: Vec<String>,
 }
 
+/// A selected Cargo package with its canonical manifest and project root.
+pub struct LoadedProject {
+    pub manifest_path: PathBuf,
+    pub root: PathBuf,
+    pub cargo: CargoProject,
+}
+
+impl LoadedProject {
+    /// Discovers and loads a project using the build's Cargo feature selection.
+    pub fn load_with_features(
+        path: &Path,
+        features: &[String],
+        all_features: bool,
+        no_default_features: bool,
+    ) -> Result<Self> {
+        Self::load(path, |manifest_path| {
+            CargoProject::load_with_features(
+                manifest_path,
+                features,
+                all_features,
+                no_default_features,
+            )
+        })
+    }
+
+    /// Discovers and loads package metadata without resolving dependencies.
+    pub fn load_package(path: &Path) -> Result<Self> {
+        Self::load(path, CargoProject::load_package)
+    }
+
+    fn load(path: &Path, loader: impl FnOnce(&Path) -> Result<CargoProject>) -> Result<Self> {
+        let manifest_path = if path.file_name().is_some_and(|name| name == "Cargo.toml") {
+            path.to_owned()
+        } else {
+            crate::commands::find_package_cargo_manifest_path(path)?
+        };
+        let cargo = loader(&manifest_path)?;
+        let manifest_path = canonical(&cargo.package.manifest_path);
+        let root = manifest_path
+            .parent()
+            .ok_or_else(|| anyhow::anyhow!("Cargo manifest has no parent directory"))?
+            .to_owned();
+        Ok(Self {
+            manifest_path,
+            root,
+            cargo,
+        })
+    }
+}
+
 impl CargoTarget {
     pub fn is_library(&self) -> bool {
         self.kind.iter().any(|kind| is_library_kind(kind))
@@ -392,13 +442,11 @@ mod tests {
         .unwrap();
         std::fs::write(dependency.join("src/lib.rs"), "").unwrap();
 
-        let project = CargoProject::load_with_features(
-            &app.join("Cargo.toml"),
-            &["mobile".into()],
-            false,
-            false,
-        )
-        .unwrap();
+        let loaded =
+            LoadedProject::load_with_features(&app, &["mobile".into()], false, false).unwrap();
+        assert_eq!(loaded.root, dunce::canonicalize(&app).unwrap());
+        assert_eq!(loaded.manifest_path, loaded.root.join("Cargo.toml"));
+        let project = loaded.cargo;
         assert_eq!(project.package.name, "app");
         assert_eq!(project.library_target().unwrap().name, "mobile_app");
         assert!(project.library_target().unwrap().is_cdylib());

@@ -3,7 +3,7 @@
 use crossbundle_lib::commands::build::{BuildContext, android::AndroidBuildCommand};
 use crossbundle_tools::{
     commands::gen_minimal_project,
-    types::{AndroidStrategy, AndroidTarget, Config, Shell, android_manifest::from_str},
+    types::{AndroidStrategy, AndroidTarget, CliContext, Shell, android_manifest::from_str},
 };
 
 #[test]
@@ -19,7 +19,7 @@ fn test_cargo_metadata() {
     std::fs::create_dir_all(&target_dir).unwrap();
 
     let shell = Shell::new();
-    let config = Config::new(shell, target_dir.clone());
+    let config = CliContext::new(shell, target_dir.clone());
     let context = BuildContext::new(&config, &Default::default()).unwrap();
 
     let android_build_command = AndroidBuildCommand {

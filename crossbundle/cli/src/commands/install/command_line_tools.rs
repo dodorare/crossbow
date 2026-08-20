@@ -3,7 +3,7 @@ use crate::error::Result;
 use clap::Parser;
 use crossbundle_tools::{
     commands::android::*,
-    types::{Config, android_sdk_path},
+    types::{CliContext, android_sdk_path},
 };
 use std::path::{Path, PathBuf};
 
@@ -31,7 +31,7 @@ pub struct CommandLineToolsInstallCommand {
 impl CommandLineToolsInstallCommand {
     /// Download command line tools zip archive and extract it in specified sdk root
     /// directory
-    pub fn install(&self, config: &Config) -> Result<()> {
+    pub fn install(&self, config: &CliContext) -> Result<()> {
         let sdk_path = self
             .install_path
             .clone()
@@ -44,19 +44,17 @@ impl CommandLineToolsInstallCommand {
             remove(vec![default_file_path(self.file_name())?])?;
         }
 
-        let command_line_tools_download_url = COMMAND_LINE_TOOLS_DOWNLOAD_URL
-            .parse::<PathBuf>()
-            .ok()
-            .unwrap()
-            .join(self.file_name());
-
+        let download_url = format!("{COMMAND_LINE_TOOLS_DOWNLOAD_URL}{}", self.file_name());
         let file_path = default_file_path(self.file_name())?;
+        let parent = file_path
+            .parent()
+            .ok_or_else(|| Error::PathNotFound(file_path.clone()))?;
 
         config.status_message(
             format!("Downloading {} into", self.file_name()),
-            file_path.parent().unwrap().to_str().unwrap(),
+            parent.to_string_lossy(),
         )?;
-        self.download_and_save_file(command_line_tools_download_url, &file_path)?;
+        self.download_and_save_file(&download_url, &file_path)?;
 
         config.status_message(
             "Extracting zip archive contents into",
@@ -76,16 +74,18 @@ impl CommandLineToolsInstallCommand {
 
     /// Check home directory for zip file. If it doesn't exists download zip file and save
     /// it in the directory
-    pub fn download_and_save_file(&self, download_url: PathBuf, file_path: &Path) -> Result<()> {
+    pub fn download_and_save_file(&self, download_url: &str, file_path: &Path) -> Result<()> {
         remove(vec![file_path.to_path_buf()])?;
-        for dir in std::fs::read_dir(file_path.parent().unwrap())? {
+        let parent = file_path
+            .parent()
+            .ok_or_else(|| Error::PathNotFound(file_path.to_owned()))?;
+        for dir in std::fs::read_dir(parent)? {
             let zip_path = dir?.path();
             if zip_path.ends_with(self.file_name()) {
                 return Ok(());
             }
         }
-        let url = download_url.to_str().unwrap();
-        download_to_file(url, file_path)?;
+        download_to_file(download_url, file_path)?;
         Ok(())
     }
 }

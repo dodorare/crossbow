@@ -5,7 +5,7 @@ mod apple;
 
 use crate::error::Result;
 use clap::Parser;
-use crossbundle_tools::types::Config;
+use crossbundle_tools::types::CliContext;
 
 #[derive(Parser, Clone, Debug)]
 pub enum RunCommand {
@@ -19,13 +19,13 @@ pub enum RunCommand {
 }
 
 impl RunCommand {
-    pub fn handle_command(&self, _config: &Config) -> Result<()> {
+    pub fn handle_command(&self, _context: &CliContext) -> Result<()> {
         #[cfg(any(feature = "android", feature = "apple"))]
         match &self {
             #[cfg(feature = "android")]
-            Self::Android(cmd) => cmd.run(_config)?,
+            Self::Android(cmd) => cmd.run(_context)?,
             #[cfg(feature = "apple")]
-            Self::Ios(cmd) => cmd.run(_config)?,
+            Self::Ios(cmd) => cmd.run(_context)?,
         }
         Ok(())
     }
