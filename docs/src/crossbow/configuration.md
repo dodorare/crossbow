@@ -5,7 +5,7 @@ Gradle 9.5.0, Java 17, and NDK 28.2. New Google Play submissions must target
 API 36 from August 31, 2026; see the official
 [target API requirements](https://developer.android.com/google/play/requirements/target-sdk).
 
-## Сonfiguration through metadata
+## Configuration through metadata
 
 The easiest way to configure a project is with metadata. Here's an example of `Cargo.toml`:
 
@@ -22,7 +22,7 @@ crossbow = "0.2.3"
 [package.metadata]
 # The user-friendly application name for your app. Displayed in the applications menu
 app_name = "Game"
-# Android assets directory path relatively to project path
+# Android assets directory path relative to the project path
 assets = ["assets"]
 # Path to icon with `.png` format that will be provided to generate mipmap resources
 icon = "path/to/icon.png"
@@ -70,9 +70,8 @@ meta_data = []
 # See https://developer.android.com/guide/topics/manifest/queries-element#provider
 [[package.metadata.android.manifest.queries.provider]]
 authorities = "org.khronos.openxr.runtime_broker;org.khronos.openxr.system_runtime_broker"
-# Note: The `name` attribute is normally not required for a queries provider, but is non-optional
-# as a workaround for aapt throwing errors about missing `android:name` attribute.
-# This will be made optional if/when cargo-apk migrates to aapt2.
+# The `android-manifest` model currently requires `name` even though Android queries providers
+# normally require only `authorities`.
 name = "org.khronos.openxr"
 
 # See https://developer.android.com/guide/topics/manifest/uses-feature-element
@@ -100,8 +99,8 @@ resources = ["res/apple"]
 
 Build variables let the same checked-in configuration produce environment-specific Android and
 Apple bundles. Declare every imported value under `package.metadata.build_variables`, then use it
-as `{{crossbow.NAME}}` in inline metadata, an external `AndroidManifest.xml`, or an external
-`Info.plist`:
+as `{{crossbow.NAME}}` in an inline platform document, an external `AndroidManifest.xml`, or an
+external `Info.plist`:
 
 ```xml
 <!-- AndroidManifest.xml -->
@@ -116,11 +115,12 @@ as `{{crossbow.NAME}}` in inline metadata, an external `AndroidManifest.xml`, or
 <string>{{crossbow.API_HOST}}</string>
 ```
 
-Crossbundle reads the named environment variable first and uses `default` only when it is absent.
-A missing value without a default stops the build with the declaration name. The default type is
-`string`; `type = "integer"` and `type = "boolean"` validate environment input and preserve the
-native type when the placeholder is the complete metadata or plist value. A placeholder embedded
-inside a larger string is formatted as text.
+Crossbundle reads the named environment variable first and uses `default` only when it is absent;
+an empty environment value therefore overrides the default. A missing value without a default
+stops the build with the declaration name. The default type is `string`; `type = "integer"` and
+`type = "boolean"` validate environment input and preserve the native type when the placeholder is
+the complete metadata or plist value. A placeholder embedded inside a larger string is formatted
+as text. Variable values cannot contain other build-variable placeholders.
 
 Only allow-listed variables are readable. The syntax intentionally does not conflict with Android
 `${applicationId}` placeholders or Xcode `$(PRODUCT_BUNDLE_IDENTIFIER)` build settings. XML special
@@ -131,9 +131,9 @@ supported.
 > `AndroidManifest.xml` or `Info.plist` can be inspected by anyone with the built application. Do
 > not use this feature for passwords, signing credentials, private keys, or API secrets.
 
-### Сonfiguration through separate files
+### Configuration through separate files
 
-But sometimes you need to configure something more complex. For such cases, a more suitable way is to use separate `AndroidManifest.xml` or/and `Info.plist` files.
+For more complex configuration, use separate `AndroidManifest.xml` and/or `Info.plist` files.
 
 To enable this feature, you just need to add this to your `Cargo.toml`:
 
@@ -145,7 +145,7 @@ manifest_path = "/path/to/file"
 info_plist_path = "/path/to/file"
 ```
 
-and then place `AndroidManifest.xml` or/and `Info.plist` near `Cargo.toml`
+and then place `AndroidManifest.xml` and/or `Info.plist` near `Cargo.toml`.
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>

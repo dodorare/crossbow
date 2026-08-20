@@ -19,13 +19,13 @@ pub enum RunCommand {
 }
 
 impl RunCommand {
-    pub fn handle_command(&self, config: &Config) -> Result<()> {
+    pub fn handle_command(&self, _config: &Config) -> Result<()> {
         #[cfg(any(feature = "android", feature = "apple"))]
         match &self {
             #[cfg(feature = "android")]
-            Self::Android(cmd) => cmd.run(config)?,
+            Self::Android(cmd) => cmd.run(_config)?,
             #[cfg(feature = "apple")]
-            Self::Ios(cmd) => cmd.run(config)?,
+            Self::Ios(cmd) => cmd.run(_config)?,
         }
         Ok(())
     }

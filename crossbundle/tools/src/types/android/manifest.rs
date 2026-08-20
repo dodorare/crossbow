@@ -6,10 +6,9 @@ use android_manifest::*;
 pub const DEFAULT_ANDROID_MIN_SDK: u32 = 23;
 pub const DEFAULT_ANDROID_TARGET_SDK: u32 = 36;
 
-/// Adapts `android-manifest`'s JSON representation for its own deserializer. Its `VarOrBool`
-/// serializer emits JSON booleans while its deserializer currently requests strings; the one
-/// native Boolean field must remain a Boolean.
-pub fn normalize_android_manifest_json(value: &mut serde_json::Value) {
+/// Adapts inline metadata to `android-manifest`'s `VarOrBool` deserializer. It requests strings
+/// even though Boolean values are otherwise native; `auto_verify` is the one native Boolean field.
+pub(crate) fn normalize_android_booleans(value: &mut serde_json::Value) {
     fn normalize(value: &mut serde_json::Value, field: Option<&str>) {
         match value {
             serde_json::Value::Bool(boolean) if field != Some("auto_verify") => {
@@ -227,24 +226,5 @@ mod tests {
             Some("android.app.NativeActivity")
         );
         assert_eq!(manifest.application.activity[0].meta_data.len(), 1);
-    }
-
-    #[test]
-    fn json_round_trip_handles_manifest_boolean_wrappers() {
-        let manifest = android_manifest::from_str(
-            r#"<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-                package="dev.crossbow.example">
-                <application android:hasCode="true">
-                    <activity android:name=".MainActivity" android:exported="true">
-                        <intent-filter android:autoVerify="true" />
-                    </activity>
-                </application>
-            </manifest>"#,
-        )
-        .unwrap();
-        let mut value = serde_json::to_value(&manifest).unwrap();
-        normalize_android_manifest_json(&mut value);
-        let round_trip: AndroidManifest = serde_json::from_value(value).unwrap();
-        assert_eq!(round_trip, manifest);
     }
 }

@@ -1,18 +1,17 @@
 use crate::{
     error::{AndroidError, Result},
-    types::{BuildVariables, interpolate_json_build_variables, interpolate_typed_build_variables},
+    types::{BuildVariables, interpolate_string},
 };
 use android_manifest::AndroidManifest;
 use std::{fs::File, io::BufReader, path::Path};
+use xml::{reader::XmlEvent as ReaderEvent, writer::XmlEvent as WriterEvent};
 
 /// Reads and deserializes `AndroidManifest.xml`.
 pub fn read_android_manifest(path: &Path) -> Result<AndroidManifest> {
     read_android_manifest_with_variables(path, &BuildVariables::default())
 }
 
-/// Reads an Android manifest and expands declared Crossbow build variables in its typed XML
-/// attributes. Resolving after XML parsing lets the manifest serializer safely escape arbitrary
-/// variable values when the generated manifest is written.
+/// Reads an Android manifest after expanding allow-listed variables with XML-aware escaping.
 pub fn read_android_manifest_with_variables(
     path: &Path,
     variables: &BuildVariables,
@@ -20,24 +19,11 @@ pub fn read_android_manifest_with_variables(
     let file = File::open(path).map_err(|_| {
         AndroidError::FailedToFindAndroidManifest(path.to_string_lossy().to_string())
     })?;
-    let reader = BufReader::new(&file);
-    let xml = transform_typed_xml_variables(reader, variables)?;
-    let manifest = android_manifest::from_reader(xml.as_slice()).map_err(AndroidError::from)?;
-    if !xml
-        .windows("{{crossbow.".len())
-        .any(|window| window == b"{{crossbow.")
-    {
-        return Ok(manifest);
-    }
-    interpolate_android_manifest(manifest, variables)
+    let xml = interpolate_xml(BufReader::new(file), variables)?;
+    Ok(android_manifest::from_reader(xml.as_slice()).map_err(AndroidError::from)?)
 }
 
-fn transform_typed_xml_variables(
-    reader: impl std::io::Read,
-    variables: &BuildVariables,
-) -> Result<Vec<u8>> {
-    use xml::{reader::XmlEvent as ReaderEvent, writer::XmlEvent as WriterEvent};
-
+fn interpolate_xml(reader: impl std::io::Read, variables: &BuildVariables) -> Result<Vec<u8>> {
     let mut output = Vec::new();
     let mut writer = xml::EmitterConfig::new()
         .perform_indent(false)
@@ -47,52 +33,29 @@ fn transform_typed_xml_variables(
         match &mut event {
             ReaderEvent::StartElement { attributes, .. } => {
                 for attribute in attributes {
-                    attribute.value =
-                        interpolate_typed_build_variables(&attribute.value, variables)?;
-                }
-                writer
-                    .write(
-                        event
-                            .as_writer_event()
-                            .expect("start elements are writable"),
-                    )
-                    .map_err(|error| anyhow::anyhow!("failed to rewrite Android XML: {error}"))?;
-            }
-            ReaderEvent::Characters(value) => {
-                let value = interpolate_typed_build_variables(value, variables)?;
-                writer
-                    .write(WriterEvent::characters(&value))
-                    .map_err(|error| anyhow::anyhow!("failed to rewrite Android XML: {error}"))?;
-            }
-            ReaderEvent::CData(value) => {
-                let value = interpolate_typed_build_variables(value, variables)?;
-                writer
-                    .write(WriterEvent::cdata(&value))
-                    .map_err(|error| anyhow::anyhow!("failed to rewrite Android XML: {error}"))?;
-            }
-            _ => {
-                if let Some(event) = event.as_writer_event() {
-                    writer.write(event).map_err(|error| {
-                        anyhow::anyhow!("failed to rewrite Android XML: {error}")
-                    })?;
+                    let value = interpolate_string(&attribute.value, variables)?;
+                    attribute.value = xml::escape::escape_str_attribute(&value).into_owned();
                 }
             }
+            ReaderEvent::Characters(value) | ReaderEvent::CData(value) => {
+                let interpolated = interpolate_string(value, variables)?;
+                *value = xml::escape::escape_str_pcdata(&interpolated).into_owned();
+            }
+            _ => {}
+        }
+        let event = match &event {
+            ReaderEvent::Characters(value) => Some(WriterEvent::characters(value)),
+            ReaderEvent::CData(value) => Some(WriterEvent::characters(value)),
+            _ => event.as_writer_event(),
+        };
+        if let Some(event) = event {
+            writer
+                .write(event)
+                .map_err(|error| anyhow::anyhow!("failed to rewrite Android XML: {error}"))?;
         }
     }
     drop(writer);
     Ok(output)
-}
-
-fn interpolate_android_manifest(
-    manifest: AndroidManifest,
-    variables: &BuildVariables,
-) -> Result<AndroidManifest> {
-    let mut value = serde_json::to_value(manifest)
-        .map_err(|error| anyhow::anyhow!("failed to inspect Android manifest: {error}"))?;
-    interpolate_json_build_variables(&mut value, variables)?;
-    crate::types::normalize_android_manifest_json(&mut value);
-    serde_json::from_value(value)
-        .map_err(|error| anyhow::anyhow!("invalid resolved Android manifest: {error}").into())
 }
 
 #[cfg(test)]
@@ -109,43 +72,20 @@ mod tests {
             }
         }))
         .unwrap()
-        .build_variables
+        .build_variables()
+        .clone()
     }
 
     #[test]
-    fn transforms_xml_values_safely_without_touching_android_placeholders() {
-        let xml = br#"<?xml version="1.0" encoding="utf-8"?>
-            <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-                package="com.example.${applicationId}">
-                <application android:label="{{crossbow.LABEL}}" />
-            </manifest>"#;
-        let xml = transform_typed_xml_variables(xml.as_slice(), &variables()).unwrap();
-        let manifest = android_manifest::from_reader(xml.as_slice()).unwrap();
-        let manifest = interpolate_android_manifest(manifest, &variables()).unwrap();
-        assert_eq!(
-            manifest.application.label.unwrap().to_string(),
-            "R&D <Preview> ✓"
-        );
-        assert_eq!(
-            manifest.package.as_deref(),
-            Some("com.example.${applicationId}")
-        );
-    }
-
-    #[test]
-    fn resolves_typed_attributes_before_xml_deserialization() {
+    fn interpolates_strings_and_typed_attributes_without_platform_collisions() {
         let xml = br#"<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-            package="dev.crossbow.example" android:versionCode="{{crossbow.CODE}}"
+            package="dev.${applicationId}" android:versionCode="{{crossbow.CODE}}"
             android:installLocation="{{crossbow.LOCATION}}">
             <application android:label="{{crossbow.LABEL}}" />
         </manifest>"#;
-        let transformed = transform_typed_xml_variables(xml.as_slice(), &variables()).unwrap();
-        let transformed = String::from_utf8(transformed).unwrap();
-        assert!(transformed.contains("android:versionCode=\"42\""));
-        assert!(transformed.contains("android:installLocation=\"auto\""));
-        assert!(transformed.contains("{{crossbow.LABEL}}"));
-        let manifest = android_manifest::from_reader(transformed.as_bytes()).unwrap();
-        let manifest = interpolate_android_manifest(manifest, &variables()).unwrap();
+        let xml = interpolate_xml(xml.as_slice(), &variables()).unwrap();
+        let manifest = android_manifest::from_reader(xml.as_slice()).unwrap();
+        assert_eq!(manifest.package.as_deref(), Some("dev.${applicationId}"));
         assert_eq!(manifest.version_code, Some(42));
         assert_eq!(
             manifest.install_location,
@@ -158,28 +98,23 @@ mod tests {
     }
 
     #[test]
-    fn rejects_undeclared_manifest_placeholders() {
+    fn rejects_undeclared_placeholders() {
         let xml = br#"<manifest package="{{crossbow.NOT_DECLARED}}"><application /></manifest>"#;
-        let error = transform_typed_xml_variables(xml.as_slice(), &BuildVariables::default())
-            .unwrap_err()
-            .to_string();
-        assert!(error.contains("not declared"));
-
-        let manifest = android_manifest::from_reader(xml.as_slice()).unwrap();
-        let error = interpolate_android_manifest(manifest, &BuildVariables::default())
-            .unwrap_err()
-            .to_string();
-        assert!(error.contains("not declared"));
+        assert!(
+            interpolate_xml(xml.as_slice(), &BuildVariables::default())
+                .unwrap_err()
+                .to_string()
+                .contains("not declared")
+        );
     }
 
     #[test]
-    fn manifests_without_build_variables_do_not_require_a_json_round_trip() {
+    fn reads_boolean_wrappers_without_variables() {
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("AndroidManifest.xml");
         std::fs::write(
             &path,
-            r#"<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-                package="dev.crossbow.example">
+            r#"<manifest xmlns:android="http://schemas.android.com/apk/res/android">
                 <application android:hasCode="true" />
             </manifest>"#,
         )

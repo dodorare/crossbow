@@ -1,8 +1,8 @@
 use crate::{
     error::{AppleError, Result},
     types::{
-        BuildVariableValue, BuildVariables, CrossbowMetadata, exact_build_variable,
-        interpolate_build_variables, update_info_plist_with_default,
+        BuildVariables, CrossbowMetadata, exact_variable, interpolate_string,
+        update_info_plist_with_default,
     },
 };
 use apple_bundle::{plist, prelude::InfoPlist};
@@ -16,10 +16,7 @@ pub fn read_info_plist(path: &Path) -> Result<InfoPlist> {
 
 /// Reads an XML or binary Info.plist after recursively expanding declared Crossbow build
 /// variables.
-pub fn read_info_plist_with_variables(
-    path: &Path,
-    variables: &BuildVariables,
-) -> Result<InfoPlist> {
+fn read_info_plist_with_variables(path: &Path, variables: &BuildVariables) -> Result<InfoPlist> {
     if !path.exists() {
         return Err(AppleError::FailedToFindInfoPlist(path.to_string_lossy().to_string()).into());
     }
@@ -41,14 +38,10 @@ fn interpolate_plist(value: &mut plist::Value, variables: &BuildVariables) -> Re
             }
         }
         plist::Value::String(template) => {
-            if let Some(resolved) = exact_build_variable(template, variables)? {
-                *value = match resolved {
-                    BuildVariableValue::String(value) => plist::Value::String(value.clone()),
-                    BuildVariableValue::Integer(value) => plist::Value::Integer((*value).into()),
-                    BuildVariableValue::Boolean(value) => plist::Value::Boolean(*value),
-                };
+            if let Some(resolved) = exact_variable(template, variables)? {
+                *value = plist::to_value(resolved)?;
             } else {
-                *template = interpolate_build_variables(template, variables)?;
+                *template = interpolate_string(template, variables)?;
             }
         }
         _ => {}
@@ -63,7 +56,7 @@ pub fn resolve_info_plist(
     configured_path: Option<&Path>,
 ) -> Result<InfoPlist> {
     if let Some(path) = configured_path {
-        return read_info_plist_with_variables(path, &metadata.build_variables);
+        return read_info_plist_with_variables(path, metadata.build_variables());
     }
     let mut plist = metadata.apple.info_plist.clone().unwrap_or_default();
     update_info_plist_with_default(&mut plist, package_name, metadata.app_name.clone());
@@ -108,7 +101,7 @@ mod tests {
                 plist::Value::String("build-{{crossbow.BUILD}}".into()),
             )])),
         ]);
-        interpolate_plist(&mut value, &metadata.build_variables).unwrap();
+        interpolate_plist(&mut value, metadata.build_variables()).unwrap();
         assert_eq!(
             value,
             plist::Value::Array(vec![
@@ -146,7 +139,7 @@ mod tests {
             } else {
                 value.to_file_xml(&path).unwrap();
             }
-            let plist = read_info_plist_with_variables(&path, &metadata.build_variables).unwrap();
+            let plist = read_info_plist_with_variables(&path, metadata.build_variables()).unwrap();
             assert_eq!(plist.naming.bundle_name.as_deref(), Some("Crossbow ✓"));
             assert_eq!(plist.styling.requires_full_screen, Some(true));
         }
