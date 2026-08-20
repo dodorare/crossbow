@@ -84,7 +84,9 @@ fn handle_error_source(source: Option<&(dyn std::error::Error + 'static)>) {
 
 #[cfg(test)]
 mod tests {
-    use super::{Opts, commands};
+    use super::Opts;
+    #[cfg(any(feature = "android", feature = "apple"))]
+    use super::commands;
     use clap::{CommandFactory, Parser};
     #[cfg(any(feature = "android", feature = "apple"))]
     use crossbundle_tools::toolchain::{DoctorPlatform, resolve_platforms};

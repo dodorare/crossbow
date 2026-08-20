@@ -1,6 +1,11 @@
 use crossbow::Permission;
 use serde::{Deserialize, Serialize};
-use std::path::{Path, PathBuf};
+use std::{
+    fmt,
+    path::{Path, PathBuf},
+};
+
+use super::{BuildVariables, resolve_metadata_build_variables};
 
 #[cfg(feature = "android")]
 use crate::types::{AndroidRuntime, AndroidTarget, android_manifest::AndroidManifest};
@@ -52,8 +57,11 @@ impl GradleDependencyProject {
 }
 
 /// Typed `package.metadata` model shared by builds and project diagnostics.
-#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+#[derive(Clone, Deserialize, Serialize, Default)]
 pub struct CrossbowMetadata {
+    /// Resolved allow-listed values used by platform configuration templates.
+    #[serde(skip)]
+    build_variables: BuildVariables,
     pub app_name: Option<String>,
     #[serde(default)]
     pub assets: Vec<PathBuf>,
@@ -68,7 +76,26 @@ pub struct CrossbowMetadata {
     pub apple: AppleConfig,
 }
 
+impl fmt::Debug for CrossbowMetadata {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut metadata = serde_json::to_value(self).map_err(|_| fmt::Error)?;
+        if !self.build_variables.is_empty() {
+            for pointer in ["/android/manifest", "/apple/info_plist"] {
+                if let Some(value) = metadata.pointer_mut(pointer) {
+                    *value = serde_json::Value::String("<redacted>".into());
+                }
+            }
+        }
+        metadata.fmt(formatter)
+    }
+}
+
 impl CrossbowMetadata {
+    /// Returns resolved values for platform-document interpolation.
+    pub fn build_variables(&self) -> &BuildVariables {
+        &self.build_variables
+    }
+
     #[cfg(feature = "android")]
     pub fn get_android_assets(&self) -> &[PathBuf] {
         if self.android.assets.is_empty() {
@@ -123,11 +150,12 @@ pub struct AndroidConfig {
 }
 
 pub fn deserialize_crossbow_metadata(
-    metadata: serde_json::Value,
+    mut metadata: serde_json::Value,
 ) -> anyhow::Result<CrossbowMetadata> {
     if metadata.is_null() {
         return Ok(CrossbowMetadata::default());
     }
+    let build_variables = resolve_metadata_build_variables(&mut metadata)?;
     #[cfg(feature = "android")]
     if let Some(android) = metadata.get("android") {
         if android.get("rust_compiler").is_some() {
@@ -141,7 +169,16 @@ pub fn deserialize_crossbow_metadata(
             );
         }
     }
-    Ok(serde_json::from_value(metadata)?)
+    #[cfg(feature = "android")]
+    if let Some(manifest) = metadata
+        .get_mut("android")
+        .and_then(|android| android.get_mut("manifest"))
+    {
+        crate::types::normalize_android_booleans(manifest);
+    }
+    let mut resolved: CrossbowMetadata = serde_json::from_value(metadata)?;
+    resolved.build_variables = build_variables;
+    Ok(resolved)
 }
 
 #[cfg(all(test, feature = "android"))]
@@ -170,6 +207,87 @@ mod android_config_tests {
         let metadata = deserialize_crossbow_metadata(serde_json::Value::Null).unwrap();
         assert!(metadata.app_name.is_none());
         assert_eq!(metadata.android.runtime, AndroidRuntime::NativeActivity);
+    }
+
+    #[test]
+    fn resolves_inline_android_metadata_before_typed_deserialization() {
+        let metadata = deserialize_crossbow_metadata(serde_json::json!({
+            "build_variables": {
+                "CODE": {
+                    "env": "CROSSBOW_TEST_UNSET_INLINE_ANDROID_CODE",
+                    "type": "integer",
+                    "default": 73
+                },
+                "LABEL": {
+                    "env": "CROSSBOW_TEST_UNSET_INLINE_ANDROID_LABEL",
+                    "default": "Preview"
+                },
+                "ENABLED": {
+                    "env": "CROSSBOW_TEST_UNSET_INLINE_ANDROID_ENABLED",
+                    "type": "boolean",
+                    "default": true
+                }
+            },
+            "android": {
+                "manifest": {
+                    "version_code": "{{crossbow.CODE}}",
+                    "application": {
+                        "label": "{{crossbow.LABEL}}",
+                        "has_code": "{{crossbow.ENABLED}}",
+                        "activity": [{
+                            "name": ".MainActivity",
+                            "intent_filter": [{ "auto_verify": "{{crossbow.ENABLED}}" }]
+                        }]
+                    }
+                }
+            }
+        }))
+        .unwrap();
+        assert!(!format!("{metadata:?}").contains("Preview"));
+        let manifest = metadata.android.manifest.unwrap();
+        assert_eq!(manifest.version_code, Some(73));
+        assert_eq!(manifest.application.label.unwrap().to_string(), "Preview");
+        assert_eq!(
+            manifest.application.has_code,
+            Some(android_manifest::VarOrBool::Bool(true))
+        );
+        assert_eq!(
+            manifest.application.activity[0].intent_filter[0].auto_verify,
+            Some(true)
+        );
+    }
+}
+
+#[cfg(all(test, feature = "apple"))]
+mod apple_build_variable_tests {
+    use super::*;
+
+    #[test]
+    fn resolves_inline_apple_metadata() {
+        let metadata = deserialize_crossbow_metadata(serde_json::json!({
+            "build_variables": {
+                "BUNDLE_ID": {
+                    "env": "CROSSBOW_TEST_UNSET_INLINE_APPLE_BUNDLE_ID",
+                    "default": "dev.crossbow.preview"
+                }
+            },
+            "apple": {
+                "info_plist": {
+                    "CFBundleIdentifier": "{{crossbow.BUNDLE_ID}}"
+                }
+            }
+        }))
+        .unwrap();
+        assert!(!format!("{metadata:?}").contains("dev.crossbow.preview"));
+        assert_eq!(
+            metadata
+                .apple
+                .info_plist
+                .unwrap()
+                .identification
+                .bundle_identifier,
+            "dev.crossbow.preview"
+        );
     }
 }
 

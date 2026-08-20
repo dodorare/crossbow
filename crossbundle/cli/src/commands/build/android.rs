@@ -636,7 +636,7 @@ impl AndroidBuildCommand {
         strategy: AndroidStrategy,
     ) -> Result<AndroidManifest> {
         let mut manifest = if let Some(manifest_path) = &context.config.android.manifest_path {
-            read_android_manifest(manifest_path)?
+            read_android_manifest_with_variables(manifest_path, context.config.build_variables())?
         } else if let Some(manifest) = &context.config.android.manifest {
             manifest.clone()
         } else {
