@@ -27,6 +27,14 @@ assets = ["assets"]
 # Path to icon with `.png` format that will be provided to generate mipmap resources
 icon = "path/to/icon.png"
 
+# Explicitly import build-time environment variables. Undeclared environment variables are never
+# available to configuration templates.
+[package.metadata.build_variables]
+API_HOST = { env = "API_HOST" }
+BUILD_NUMBER = { env = "CI_BUILD_NUMBER", type = "integer" }
+APP_CHANNEL = { env = "APP_CHANNEL", default = "development" }
+FEATURE_ENABLED = { env = "FEATURE_ENABLED", type = "boolean", default = false }
+
 [package.metadata.android]
 # Optional activity integration. The default is "native-activity"; use
 # "miniquad" for Macroquad projects built with the Gradle strategy.
@@ -87,6 +95,41 @@ release_build_targets = ["aarch64-apple-ios"]
 # Apple resources directory path relatively to project path.
 resources = ["res/apple"]
 ```
+
+### Build variables
+
+Build variables let the same checked-in configuration produce environment-specific Android and
+Apple bundles. Declare every imported value under `package.metadata.build_variables`, then use it
+as `{{crossbow.NAME}}` in inline metadata, an external `AndroidManifest.xml`, or an external
+`Info.plist`:
+
+```xml
+<!-- AndroidManifest.xml -->
+<meta-data
+    android:name="com.example.api_host"
+    android:value="https://{{crossbow.API_HOST}}/v1" />
+```
+
+```xml
+<!-- Info.plist -->
+<key>APIHost</key>
+<string>{{crossbow.API_HOST}}</string>
+```
+
+Crossbundle reads the named environment variable first and uses `default` only when it is absent.
+A missing value without a default stops the build with the declaration name. The default type is
+`string`; `type = "integer"` and `type = "boolean"` validate environment input and preserve the
+native type when the placeholder is the complete metadata or plist value. A placeholder embedded
+inside a larger string is formatted as text.
+
+Only allow-listed variables are readable. The syntax intentionally does not conflict with Android
+`${applicationId}` placeholders or Xcode `$(PRODUCT_BUNDLE_IDENTIFIER)` build settings. XML special
+characters and Unicode are escaped by the platform serializers, and both XML and binary plists are
+supported.
+
+> Build variables are public application configuration, not secrets. Values embedded in
+> `AndroidManifest.xml` or `Info.plist` can be inspected by anyone with the built application. Do
+> not use this feature for passwords, signing credentials, private keys, or API secrets.
 
 ### Сonfiguration through separate files
 

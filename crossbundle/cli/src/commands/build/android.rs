@@ -204,7 +204,11 @@ impl AndroidBuildCommand {
         gradle_manifest.package = None;
         gradle_manifest.version_code = None;
         gradle_manifest.version_name = None;
-        save_android_manifest(&gradle_project_path, &gradle_manifest)?;
+        save_android_manifest_with_variables(
+            &gradle_project_path,
+            &gradle_manifest,
+            &context.config.build_variables,
+        )?;
 
         self.build_rust_lib(config, context, &library_name, Some(android_build_dir), ndk)?;
 
@@ -290,7 +294,11 @@ impl AndroidBuildCommand {
         config.status_message("Reading", "AndroidManifest.xml")?;
         let manifest = Self::get_android_manifest(context, AndroidStrategy::NativeApk)?;
         config.status_message("Generating", "AndroidManifest.xml")?;
-        let manifest_path = save_android_manifest(&native_build_dir, &manifest)?;
+        let manifest_path = save_android_manifest_with_variables(
+            &native_build_dir,
+            &manifest,
+            &context.config.build_variables,
+        )?;
         config.status("Preparing resources and assets")?;
         let (assets, resources) =
             Self::prepare_assets_and_resources(&context.config, &android_build_dir)?;
@@ -379,7 +387,11 @@ impl AndroidBuildCommand {
         config.status_message("Reading", "AndroidManifest.xml")?;
         let manifest = Self::get_android_manifest(context, AndroidStrategy::NativeAab)?;
         config.status_message("Generating", "AndroidManifest.xml")?;
-        let manifest_path = save_android_manifest(&native_build_dir, &manifest)?;
+        let manifest_path = save_android_manifest_with_variables(
+            &native_build_dir,
+            &manifest,
+            &context.config.build_variables,
+        )?;
         config.status("Preparing resources and assets")?;
         let (assets, resources) =
             Self::prepare_assets_and_resources(&context.config, &android_build_dir)?;
@@ -636,7 +648,7 @@ impl AndroidBuildCommand {
         strategy: AndroidStrategy,
     ) -> Result<AndroidManifest> {
         let mut manifest = if let Some(manifest_path) = &context.config.android.manifest_path {
-            read_android_manifest(manifest_path)?
+            read_android_manifest_with_variables(manifest_path, &context.config.build_variables)?
         } else if let Some(manifest) = &context.config.android.manifest {
             manifest.clone()
         } else {
