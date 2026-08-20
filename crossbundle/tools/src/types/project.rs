@@ -198,23 +198,23 @@ pub struct ParsedProjectConfig {
 
 impl ParsedProjectConfig {
     /// Resolves declared build variables and deserializes the typed project configuration.
-    pub fn resolve(mut self) -> anyhow::Result<ProjectConfig> {
+    pub fn resolve(self) -> anyhow::Result<ProjectConfig> {
         let build_variables = resolve_process_environment(&self.build_variables)?;
         self.finish(build_variables)
     }
 
     /// Resolves with an injected environment source.
     pub fn resolve_with(
-        mut self,
+        self,
         environment: impl FnMut(&str) -> anyhow::Result<Option<String>>,
     ) -> anyhow::Result<ProjectConfig> {
         let build_variables = resolve_definitions(&self.build_variables, environment)?;
         self.finish(build_variables)
     }
 
-    fn finish(&mut self, build_variables: BuildVariables) -> anyhow::Result<ProjectConfig> {
+    fn finish(mut self, build_variables: BuildVariables) -> anyhow::Result<ProjectConfig> {
         interpolate_metadata(&mut self.metadata, &build_variables)?;
-        let mut config: ProjectConfig = serde_json::from_value(self.metadata.take())?;
+        let mut config: ProjectConfig = serde_json::from_value(self.metadata)?;
         config.build_variables = build_variables;
         Ok(config)
     }

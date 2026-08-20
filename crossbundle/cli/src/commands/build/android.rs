@@ -50,13 +50,8 @@ pub struct AndroidBuildCommand {
 }
 
 impl AndroidBuildCommand {
-    // Checks options was specified in AndroidBuildCommand and then builds application.
+    /// Builds the application with the selected Android strategy.
     pub fn run(&self, config: &CliContext) -> Result<()> {
-        if self.sign_key_path.is_some() && self.sign_key_pass.is_none() {
-            config
-                .shell()
-                .warn("You provided a signing key but not password - set password please by providing `sign_key_pass` flag")?;
-        }
         let context = BuildContext::new(config, &self.shared)?;
         let plan = self.create_plan(
             &context,

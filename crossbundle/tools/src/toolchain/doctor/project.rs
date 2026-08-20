@@ -40,7 +40,7 @@ impl ProjectContext {
                 state: ProjectState::Missing,
             };
         }
-        let Ok(loaded) = LoadedProject::load_package(path) else {
+        let Ok(manifest_path) = LoadedProject::discover_manifest(path) else {
             return Self {
                 manifest_path: requested_manifest_path.clone(),
                 state: if requested_manifest_path.is_file() {
@@ -48,6 +48,12 @@ impl ProjectContext {
                 } else {
                     ProjectState::Missing
                 },
+            };
+        };
+        let Ok(loaded) = LoadedProject::load_package(&manifest_path) else {
+            return Self {
+                manifest_path,
+                state: ProjectState::Invalid,
             };
         };
         let manifest = &loaded.cargo.package;
@@ -224,4 +230,23 @@ fn plugin_names(plugins: &AndroidGradlePlugins) -> Vec<String> {
     names.sort();
     names.dedup();
     names
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn nested_invalid_manifest_is_not_reported_as_missing() {
+        let temp = tempfile::tempdir().unwrap();
+        let nested = temp.path().join("nested");
+        std::fs::create_dir(&nested).unwrap();
+        let manifest_path = temp.path().join("Cargo.toml");
+        std::fs::write(&manifest_path, "[package").unwrap();
+
+        let context = ProjectContext::load(&nested, &[]);
+
+        assert!(matches!(context.state, ProjectState::Invalid));
+        assert_eq!(context.manifest_path, manifest_path);
+    }
 }
