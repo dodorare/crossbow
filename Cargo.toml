@@ -46,7 +46,7 @@ serde = "1.0"
 serde_json = "1.0"
 semver = "1.0"
 toml = "1.1"
-xml-rs = "1.0"
+xml = "1.0"
 simctl = { version = "0.1.1", package = "creator-simctl" }
 tempfile = "3.27"
 termcolor = "1.4"
