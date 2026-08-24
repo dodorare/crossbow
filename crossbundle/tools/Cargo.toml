@@ -70,7 +70,7 @@ serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 semver = { workspace = true }
 toml = { workspace = true }
-xml-rs = { workspace = true, optional = true }
+xml = { workspace = true, optional = true }
 
 dunce = { workspace = true }
 home = { workspace = true }
@@ -104,5 +104,5 @@ tempfile = { workspace = true }
 
 [features]
 default = ["android", "apple"]
-android = ["android-manifest", "android-tools", "dep:xml-rs"]
+android = ["android-manifest", "android-tools", "dep:xml"]
 apple = ["apple-bundle", "simctl", "crossbow/update-manifest"]
