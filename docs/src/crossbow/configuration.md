@@ -37,7 +37,8 @@ FEATURE_ENABLED = { env = "FEATURE_ENABLED", type = "boolean", default = false }
 
 [package.metadata.android]
 # Optional activity integration. The default is "native-activity"; use
-# "miniquad" for Macroquad projects built with the Gradle strategy.
+# "game-activity" with Bevy's android-game-activity feature, or "miniquad"
+# for Macroquad projects. Both Java runtimes require the Gradle strategy.
 runtime = "native-activity"
 # Android targets to build on debug or release.
 debug_build_targets = ["aarch64-linux-android"]

@@ -42,6 +42,11 @@ allprojects {
 }
 
 dependencies {
+    if (getCrossbowAndroidRuntime() == "game-activity") {
+        implementation libraries.appcompat
+        implementation libraries.gameActivity
+    }
+
     if (getCrossbowBridge()) {
         if (rootProject.findProject(":lib")) {
             implementation project(":lib")
