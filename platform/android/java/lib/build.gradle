@@ -6,7 +6,9 @@ apply from: "publish.gradle"
 
 dependencies {
     implementation libraries.androidxCore
-    // implementation "androidx.games:games-activity:1.1.0"
+    // The app supplies this only for the game-activity runtime, keeping other APKs free of AGDK.
+    compileOnly libraries.appcompat
+    compileOnly libraries.gameActivity
 }
 
 android {

@@ -1,6 +1,7 @@
 package com.crossbow.play_games_services
 
 import android.content.Intent
+import androidx.core.content.IntentCompat
 import com.google.android.gms.games.SnapshotsClient
 import com.google.android.gms.games.snapshot.SnapshotMetadata
 import com.crossbow.play_games_services.accountinfo.PlayerInfoController
@@ -115,7 +116,11 @@ class CrossbowPlayGamesServices(crossbow: Crossbow) : CrossbowPlugin(crossbow), 
         if (requestCode == SavedGamesController.RC_SAVED_GAMES) {
             if (data != null) {
                 if (data.hasExtra(SnapshotsClient.EXTRA_SNAPSHOT_METADATA)) {
-                    data.getParcelableExtra<SnapshotMetadata>(SnapshotsClient.EXTRA_SNAPSHOT_METADATA)?.let {
+                    IntentCompat.getParcelableExtra(
+                        data,
+                        SnapshotsClient.EXTRA_SNAPSHOT_METADATA,
+                        SnapshotMetadata::class.java
+                    )?.let {
                         savedGamesController.loadSnapshot(it.uniqueName)
                     }
                 } else if (data.hasExtra(SnapshotsClient.EXTRA_SNAPSHOT_NEW)) {
@@ -128,13 +133,13 @@ class CrossbowPlayGamesServices(crossbow: Crossbow) : CrossbowPlugin(crossbow), 
 
     private fun initialize(enableSaveGamesFunctionality: Boolean, enablePopups: Boolean, saveGameName: String) {
         this.saveGameName = saveGameName
-        signInController = SignInController(crossbow.activity!!, this)
-        achievementsController = AchievementsController(crossbow.activity!!, this)
-        leaderboardsController = LeaderboardsController(crossbow.activity!!, this)
-        eventsController = EventsController(crossbow.activity!!, this)
-        playerStatsController = PlayerStatsController(crossbow.activity!!, this)
-        playerInfoController = PlayerInfoController(crossbow.activity!!, this)
-        savedGamesController = SavedGamesController(crossbow.activity!!, this)
+        signInController = SignInController(crossbow.activity, this)
+        achievementsController = AchievementsController(crossbow.activity, this)
+        leaderboardsController = LeaderboardsController(crossbow.activity, this)
+        eventsController = EventsController(crossbow.activity, this)
+        playerStatsController = PlayerStatsController(crossbow.activity, this)
+        playerInfoController = PlayerInfoController(crossbow.activity, this)
+        savedGamesController = SavedGamesController(crossbow.activity, this)
 
         // PGS v2 handles saved-games authorization and popup placement automatically.
         // Keep both flags in the stable Crossbow API while authentication is refreshed.

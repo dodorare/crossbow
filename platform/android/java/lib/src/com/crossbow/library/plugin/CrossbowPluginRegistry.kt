@@ -48,7 +48,6 @@ class CrossbowPluginRegistry private constructor(crossbow: Crossbow) {
 
     private fun loadPlugins(crossbow: Crossbow) {
         try {
-            @Suppress("DEPRECATION")
             val activity = crossbow.activity
             val appInfo = activity
                 .packageManager
@@ -65,7 +64,7 @@ class CrossbowPluginRegistry private constructor(crossbow: Crossbow) {
                 // Parse the meta-data looking for entry with the Crossbow plugin name prefix.
                 if (metaDataName.startsWith(CROSSBOW_PLUGIN_V1_NAME_PREFIX)) {
                     val pluginName =
-                        metaDataName.substring(crossbowPluginV1NamePrefixLength).trim { it <= ' ' }
+                        metaDataName.substring(crossbowPluginV1NamePrefixLength).trim()
                     Log.i(TAG, "Initializing Crossbow plugin $pluginName")
 
                     // Retrieve the plugin class full name.
@@ -129,14 +128,10 @@ class CrossbowPluginRegistry private constructor(crossbow: Crossbow) {
          * @return A singleton instance of [CrossbowPluginRegistry]. This ensures that only one instance
          * of each Crossbow Android plugins is available at runtime.
         </meta-data> */
-        fun initializePluginRegistry(crossbow: Crossbow): CrossbowPluginRegistry? {
-            if (instance == null) {
-                instance = CrossbowPluginRegistry(crossbow)
-            }
-            return instance
-        }
+        fun initializePluginRegistry(crossbow: Crossbow): CrossbowPluginRegistry =
+            instance ?: CrossbowPluginRegistry(crossbow).also { instance = it }
 
-        fun clearPluginRegistry(registry: CrossbowPluginRegistry?) {
+        fun clearPluginRegistry(registry: CrossbowPluginRegistry) {
             if (instance === registry) {
                 instance = null
             }
@@ -149,10 +144,7 @@ class CrossbowPluginRegistry private constructor(crossbow: Crossbow) {
          * @throws IllegalStateException if [CrossbowPluginRegistry.initializePluginRegistry] has not been called prior to calling this method.
          */
         @get:Throws(IllegalStateException::class)
-        val pluginRegistry: CrossbowPluginRegistry?
-            get() {
-                checkNotNull(instance) { "Plugin registry hasn't been initialized." }
-                return instance
-            }
+        val pluginRegistry: CrossbowPluginRegistry
+            get() = checkNotNull(instance) { "Plugin registry hasn't been initialized." }
     }
 }

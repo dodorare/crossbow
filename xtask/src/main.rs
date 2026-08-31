@@ -21,6 +21,7 @@ const GRADLE_VERSION_FIELDS: &[(&str, &str, bool)] = &[
     ("buildTools", "android_build_tools", true),
     ("appcompatVersion", "androidx_appcompat", true),
     ("coreVersion", "androidx_core", true),
+    ("gameActivityVersion", "androidx_games_activity", true),
     ("javaVersion", "java_bytecode", false),
     ("ndkVersion", "android_ndk", true),
 ];
@@ -186,7 +187,12 @@ fn check_gradle_config(
         }
     }
     if path.ends_with("platform/android/java/app/config.gradle") {
-        for required in ["coreVersion", "ndkVersion"] {
+        for required in [
+            "appcompatVersion",
+            "coreVersion",
+            "gameActivityVersion",
+            "ndkVersion",
+        ] {
             if !found.contains(required) {
                 failures.push(format!("{}: missing {required}", path.display()));
             }
