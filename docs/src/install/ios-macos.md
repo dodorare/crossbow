@@ -50,7 +50,8 @@ Physical-device deployment requires:
 - an Apple signing certificate installed in the login keychain;
 - a provisioning profile matching the application's bundle identifier;
 - the Apple Developer Team ID associated with both;
-- [`ios-deploy`](https://github.com/ios-control/ios-deploy), installed with
+- Xcode 15 or newer, whose `devicectl` installs and launches the application. Older
+  toolchains need [`ios-deploy`](https://github.com/ios-control/ios-deploy), installed with
   `brew install ios-deploy`.
 
 List available signing identities with:
