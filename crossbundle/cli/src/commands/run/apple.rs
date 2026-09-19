@@ -17,7 +17,8 @@ pub struct IosRunCommand {
     /// Return after launching instead of attaching to the application console
     #[clap(long, conflicts_with = "device")]
     pub detach: bool,
-    /// Start the debugger when running on a connected device
+    /// Stay attached to the application console on a connected device (`devicectl`), or
+    /// start the debugger with the legacy `ios-deploy`
     #[clap(long, requires = "device")]
     pub debug: bool,
     /// Install and launch on the connected device

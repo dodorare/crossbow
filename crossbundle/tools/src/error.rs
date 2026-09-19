@@ -62,6 +62,10 @@ pub enum AppleError {
     IosSimulatorUnavailable(String),
     /// Code signing profile not found: {0}
     CodeSigningProfileNotFound(PathBuf),
+    /// No paired physical iOS device is connected; plug one in or pass `--device-id`
+    IosDeviceNotFound,
+    /// Failed to parse the `devicectl` device listing: {0}
+    DevicectlListing(String),
     /// Failed to archive payload
     ZipCommandFailed,
     /// Simctl error: {0:?}

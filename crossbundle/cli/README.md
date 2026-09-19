@@ -248,7 +248,7 @@ Options:
       --detach
           Return after launching instead of attaching to the application console
       --debug
-          Start the debugger when running on a connected device
+          Stay attached to the application console on a connected device (`devicectl`), or start the debugger with the legacy `ios-deploy`
   -d, --device
           Install and launch on the connected device
   -D, --device-id <DEVICE_ID>
