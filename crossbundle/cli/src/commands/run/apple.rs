@@ -11,7 +11,7 @@ pub struct IosRunCommand {
     /// Simulator name or UDID. Defaults to a booted or the newest available iOS Simulator.
     #[clap(short, long, value_name = "NAME_OR_UDID", conflicts_with = "device")]
     pub simulator: Option<String>,
-    /// Do not open Simulator.app
+    /// Do not open the Simulator UI (Simulator.app, or DeviceHub.app on Xcode 27+)
     #[clap(long, conflicts_with = "device")]
     pub no_open: bool,
     /// Return after launching instead of attaching to the application console
@@ -58,6 +58,11 @@ impl IosRunCommand {
                 },
             )?;
             config.status_message("Simulator", format!("{} ({})", device.name, device.udid))?;
+            if !self.no_open && device.ui.is_none() {
+                config.shell().warn(
+                    "Neither Simulator.app nor DeviceHub.app was found in the selected Xcode; the Simulator keeps running without a window",
+                )?;
+            }
         }
         config.status("Run finished successfully")?;
         Ok(())

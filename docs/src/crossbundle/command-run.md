@@ -42,8 +42,8 @@ runtime. Select a specific Simulator by name or UDID when needed:
 crossbundle run ios --simulator "iPhone 17"
 ```
 
-For automation, Crossbundle can launch without opening Simulator.app or attaching
-to the application console:
+For automation, Crossbundle can launch without opening the Simulator UI (`Simulator.app`,
+or `DeviceHub.app` on Xcode 27) or attaching to the application console:
 
 ```sh
 crossbundle run ios --no-open --detach
