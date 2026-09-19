@@ -244,7 +244,7 @@ Options:
   -s, --simulator <NAME_OR_UDID>
           Simulator name or UDID. Defaults to a booted or the newest available iOS Simulator
       --no-open
-          Do not open Simulator.app
+          Do not open the Simulator UI (Simulator.app, or DeviceHub.app on Xcode 27+)
       --detach
           Return after launching instead of attaching to the application console
       --debug

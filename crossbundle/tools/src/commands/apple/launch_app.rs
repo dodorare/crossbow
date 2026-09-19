@@ -1,13 +1,17 @@
 use crate::error::*;
 use simctl::{DeviceQuery, Simctl, list::DeviceState};
-use std::{collections::HashMap, path::Path, process::Command};
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+    process::Command,
+};
 
 /// Options for selecting and launching an iOS Simulator application.
 #[derive(Clone, Copy, Debug)]
 pub struct IosSimulatorLaunchOptions<'a> {
     /// Simulator name or UDID. When omitted, Crossbundle chooses automatically.
     pub simulator: Option<&'a str>,
-    /// Whether to open Simulator.app.
+    /// Whether to open the Simulator UI (`Simulator.app`, or `DeviceHub.app` on Xcode 27+).
     pub open: bool,
     /// Whether to return after launching instead of attaching to the application console.
     pub detach: bool,
@@ -20,6 +24,8 @@ pub struct IosSimulator {
     pub name: String,
     /// CoreSimulator device identifier.
     pub udid: String,
+    /// The Simulator UI application that was opened, if one was requested and found.
+    pub ui: Option<PathBuf>,
 }
 
 /// Selects an iOS Simulator, installs the application, and launches it.
@@ -28,7 +34,8 @@ pub fn launch_ios_simulator_app(
     bundle_id: &str,
     options: IosSimulatorLaunchOptions<'_>,
 ) -> Result<IosSimulator> {
-    let simctl = simctl()?;
+    let developer_dir = developer_dir()?;
+    let simctl = Simctl::with_developer_dir(&developer_dir);
     let device_list = simctl.list()?;
     let runtime_versions: HashMap<_, _> = device_list
         .runtimes()
@@ -74,9 +81,11 @@ pub fn launch_ios_simulator_app(
     boot.arg(&device.udid).arg("-b");
     boot.output_err(false)?;
     device.install(app_path)?;
-    if options.open {
-        simctl.open()?;
-    }
+    let ui = if options.open {
+        open_simulator_ui(&developer_dir)?
+    } else {
+        None
+    };
     if options.detach {
         let mut launch = device.simctl().command("launch");
         launch.arg(&device.udid).arg(bundle_id);
@@ -87,19 +96,51 @@ pub fn launch_ios_simulator_app(
     Ok(IosSimulator {
         name: device.name.clone(),
         udid: device.udid.clone(),
+        ui,
     })
 }
 
-fn simctl() -> Result<Simctl> {
+/// Opens the Simulator UI that ships with the selected Xcode and returns its path.
+///
+/// Xcode 26 and older ship `Simulator.app` inside the developer directory; Xcode 27 replaced
+/// it with `DeviceHub.app` next to Xcode's other bundled applications. `simctl` keeps working
+/// without either, so a missing UI yields `Ok(None)` rather than an error and callers decide
+/// whether to warn.
+pub fn open_simulator_ui(developer_dir: &Path) -> Result<Option<PathBuf>> {
+    let Some(app) = simulator_ui_candidates(developer_dir)
+        .into_iter()
+        .find(|path| path.exists())
+    else {
+        return Ok(None);
+    };
+    let mut open = Command::new("open");
+    open.arg(&app);
+    open.output_err(false)?;
+    Ok(Some(app))
+}
+
+/// Simulator UI applications in preference order, relative to an Xcode developer directory.
+fn simulator_ui_candidates(developer_dir: &Path) -> [PathBuf; 2] {
+    [
+        developer_dir.join("Applications").join("Simulator.app"),
+        developer_dir
+            .join("..")
+            .join("Applications")
+            .join("DeviceHub.app"),
+    ]
+}
+
+/// Resolves the active Xcode developer directory the same way `xcrun` does.
+fn developer_dir() -> Result<PathBuf> {
     if let Some(developer_dir) = std::env::var_os("DEVELOPER_DIR") {
-        return Ok(Simctl::with_developer_dir(Path::new(&developer_dir)));
+        return Ok(PathBuf::from(developer_dir));
     }
     let mut command = Command::new("xcode-select");
     command.arg("--print-path");
     let output = command.output_err(false)?;
     let developer_dir =
         String::from_utf8(output.stdout).map_err(|error| Error::OtherError(Box::new(error)))?;
-    Ok(Simctl::with_developer_dir(Path::new(developer_dir.trim())))
+    Ok(PathBuf::from(developer_dir.trim()))
 }
 
 fn version_key(version: &str) -> Option<Vec<u32>> {
@@ -113,6 +154,26 @@ fn version_key(version: &str) -> Option<Vec<u32>> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn simulator_ui_prefers_simulator_app_then_device_hub() {
+        let developer_dir = Path::new("/Applications/Xcode.app/Contents/Developer");
+        let [simulator, device_hub] = simulator_ui_candidates(developer_dir);
+        assert_eq!(
+            simulator,
+            Path::new("/Applications/Xcode.app/Contents/Developer/Applications/Simulator.app")
+        );
+        assert_eq!(
+            device_hub,
+            Path::new("/Applications/Xcode.app/Contents/Developer/../Applications/DeviceHub.app")
+        );
+    }
+
+    #[test]
+    fn missing_simulator_ui_is_not_an_error() {
+        let developer_dir = std::env::temp_dir().join("crossbundle-no-xcode-here");
+        assert_eq!(open_simulator_ui(&developer_dir).unwrap(), None);
+    }
 
     #[test]
     fn simulator_runtime_versions_sort_numerically() {
