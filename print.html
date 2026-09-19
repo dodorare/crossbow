@@ -441,7 +441,8 @@ Simulator automatically. Pass <code>--simulator &lt;NAME_OR_UDID&gt;</code> to s
 <li>an Apple signing certificate installed in the login keychain;</li>
 <li>a provisioning profile matching the application's bundle identifier;</li>
 <li>the Apple Developer Team ID associated with both;</li>
-<li><a href="https://github.com/ios-control/ios-deploy"><code>ios-deploy</code></a>, installed with
+<li>Xcode 15 or newer, whose <code>devicectl</code> installs and launches the application. Older
+toolchains need <a href="https://github.com/ios-control/ios-deploy"><code>ios-deploy</code></a>, installed with
 <code>brew install ios-deploy</code>.</li>
 </ul>
 <p>List available signing identities with:</p>
