@@ -21,7 +21,7 @@ import com.crossbow.library.plugin.SignalInfo
 
 class CrossbowPlayBilling(crossbow: Crossbow) : CrossbowPlugin(crossbow),
     PurchasesUpdatedListener, BillingClientStateListener {
-    private val billingClient: BillingClient = BillingClient.newBuilder(activity!!)
+    private val billingClient: BillingClient = BillingClient.newBuilder(activity)
         .enablePendingPurchases(
             PendingPurchasesParams.newBuilder()
                 .enableOneTimeProducts()
@@ -170,7 +170,7 @@ class CrossbowPlayBilling(crossbow: Crossbow) : CrossbowPlugin(crossbow),
                 }
             }
             .build()
-        val result = billingClient.launchBillingFlow(activity!!, flowParams)
+        val result = billingClient.launchBillingFlow(activity, flowParams)
         return if (result.responseCode == BillingClient.BillingResponseCode.OK) {
             Dictionary().apply { this["status"] = 0 }
         } else {

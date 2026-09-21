@@ -5,7 +5,9 @@ ext.versions = [
     minSdk             : 23,
     targetSdk          : 36,
     buildTools         : "36.0.0",
+    appcompatVersion   : "1.8.0",
     coreVersion        : "1.13.0",
+    gameActivityVersion: "4.4.0",
     nexusPublishVersion: "1.1.0",
     javaVersion        : 17,
     ndkVersion         : "28.2.13676358"
@@ -13,7 +15,9 @@ ext.versions = [
 
 ext.libraries = [
     androidGradlePlugin: "com.android.tools.build:gradle:$versions.androidGradlePlugin",
+    appcompat          : "androidx.appcompat:appcompat:$versions.appcompatVersion",
     androidxCore       : "androidx.core:core:$versions.coreVersion",
+    gameActivity       : "androidx.games:games-activity:$versions.gameActivityVersion",
     crossbowLibrary    : "com.crossbow.library:lib:$versions.crossbowLibrary"
 ]
 
@@ -85,6 +89,11 @@ ext.getExportTargetSdkVersion = { ->
 ext.getCrossbowBridge = { ->
     String bridge = project.findProperty("crossbow_bridge")
     return bridge == null ? true : bridge.toBoolean()
+}
+
+ext.getCrossbowAndroidRuntime = { ->
+    String runtime = project.findProperty("crossbow_android_runtime")
+    return runtime == null || runtime.isEmpty() ? "native-activity" : runtime
 }
 
 // Crossbow plugins

@@ -267,6 +267,16 @@ jobs:
       - name: Build Bevy APK
         working-directory: examples/bevy-2d
         run: crossbundle build android --release
+      - name: Build Bevy GameActivity APK
+        working-directory: examples/bevy-game-activity
+        run: |
+          crossbundle build android --release
+          manifest="$GITHUB_WORKSPACE/target/android/bevy-game-activity/gradle/AndroidManifest.xml"
+          apk="$GITHUB_WORKSPACE/target/android/bevy-game-activity/gradle/build/outputs/apk/release/gradle-release-unsigned.apk"
+          grep -q 'com.google.androidgamesdk.GameActivity' "$manifest"
+          grep -q 'android.app.lib_name' "$manifest"
+          grep -q 'Theme.AppCompat.Light.NoActionBar' "$manifest"
+          unzip -l "$apk" 'lib/arm64-v8a/libbevy_game_activity.so'
 
   android-build-windows:
     name: Build Android example on Windows

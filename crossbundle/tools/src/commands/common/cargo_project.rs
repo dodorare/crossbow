@@ -2,7 +2,7 @@ use crate::error::*;
 use crate::types::{CargoTargetSelection, is_library_kind};
 use serde::Deserialize;
 use std::{
-    collections::{HashMap, HashSet},
+    collections::{BTreeMap, HashMap, HashSet},
     path::{Path, PathBuf},
     process::Command,
 };
@@ -152,26 +152,11 @@ impl CargoProject {
         if !dependencies {
             command.arg("--no-deps");
         }
-        if !features.is_empty() {
-            command.arg("--features").arg(features.join(","));
-        }
-        if all_features {
-            command.arg("--all-features");
-        }
-        if no_default_features {
-            command.arg("--no-default-features");
-        }
+        add_feature_args(&mut command, features, all_features, no_default_features);
         if let Some(project_dir) = manifest_path.parent() {
             command.current_dir(project_dir);
         }
-        let output = command.output()?;
-        if !output.status.success() {
-            return Err(Error::CmdFailed(
-                command,
-                String::from_utf8_lossy(&output.stdout).into_owned(),
-                String::from_utf8_lossy(&output.stderr).into_owned(),
-            ));
-        }
+        let output = command.output_err(false)?;
         let metadata: Metadata = serde_json::from_slice(&output.stdout)
             .map_err(|error| anyhow::anyhow!("invalid output from `cargo metadata`: {error}"))?;
         Self::from_metadata(manifest_path, metadata)
@@ -190,16 +175,12 @@ impl CargoProject {
             .into_iter()
             .map(|package| (package.id.clone(), package))
             .collect();
-        let dependencies = metadata
-            .resolve
-            .map(|resolve| {
-                resolve
-                    .nodes
-                    .into_iter()
-                    .map(|node| (node.id, node.dependencies))
-                    .collect()
-            })
-            .unwrap_or_default();
+        let mut dependencies = HashMap::new();
+        if let Some(resolve) = metadata.resolve {
+            for node in resolve.nodes {
+                dependencies.insert(node.id, node.dependencies);
+            }
+        }
         Ok(Self {
             workspace_manifest_path: metadata.workspace_root.join("Cargo.toml"),
             target_directory: metadata.target_directory,
@@ -287,6 +268,82 @@ impl CargoProject {
 
     /// Find one named package in the selected package's resolved dependency closure.
     pub fn dependency(&self, name: &str) -> Result<&CargoPackage> {
+        let matches = self.dependencies_named(name);
+        match matches.as_slice() {
+            [package] => Ok(package),
+            [] => Err(anyhow::anyhow!(
+                "Cargo package `{}` does not depend on `{name}`",
+                self.package.name
+            )
+            .into()),
+            packages => Err(ambiguous_dependency(&self.package.name, name, packages).into()),
+        }
+    }
+
+    /// Return target-specific activated features for one dependency of the selected package.
+    pub fn target_dependency_features(
+        &self,
+        name: &str,
+        target: &str,
+        selected_features: &[String],
+        all_features: bool,
+        no_default_features: bool,
+    ) -> Result<Option<Vec<String>>> {
+        let mut command = Command::new("cargo");
+        command
+            .arg("tree")
+            .arg("--manifest-path")
+            .arg(&self.package.manifest_path)
+            .arg("--package")
+            .arg(&self.package.name)
+            .arg("--target")
+            .arg(target)
+            .args([
+                "--edges", "normal", "--prefix", "none", "--format", "{p}|{f}",
+            ]);
+        add_feature_args(
+            &mut command,
+            selected_features,
+            all_features,
+            no_default_features,
+        );
+        if let Some(project_dir) = self.package.manifest_path.parent() {
+            command.current_dir(project_dir);
+        }
+        let output = command.output_err(false)?;
+
+        let package_prefix = format!("{name} v");
+        let mut matches = BTreeMap::<&str, Vec<String>>::new();
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        for line in stdout.lines() {
+            let Some((package, features)) = line.split_once('|') else {
+                continue;
+            };
+            if package.starts_with(&package_prefix) {
+                matches.entry(package).or_default().extend(
+                    features
+                        .split(',')
+                        .filter(|feature| !feature.is_empty())
+                        .map(str::to_owned),
+                );
+            }
+        }
+        let Some((_, mut activated)) = matches.pop_first() else {
+            return Ok(None);
+        };
+        if !matches.is_empty() {
+            return Err(anyhow::anyhow!(
+                "Cargo package `{}` resolves multiple target-specific `{name}` versions",
+                self.package.name
+            )
+            .into());
+        }
+        activated.sort();
+        activated.dedup();
+        Ok(Some(activated))
+    }
+
+    fn dependencies_named(&self, name: &str) -> Vec<&CargoPackage> {
         let mut pending = vec![self.package.id.as_str()];
         let mut visited = HashSet::new();
         let mut matches = Vec::new();
@@ -309,24 +366,35 @@ impl CargoProject {
             );
         }
         matches.sort_by(|left, right| left.version.cmp(&right.version));
-        match matches.as_slice() {
-            [package] => Ok(package),
-            [] => Err(anyhow::anyhow!(
-                "Cargo package `{}` does not depend on `{name}`",
-                self.package.name
-            )
-            .into()),
-            packages => Err(anyhow::anyhow!(
-                "Cargo package `{}` resolves multiple `{name}` versions: {}",
-                self.package.name,
-                packages
-                    .iter()
-                    .map(|package| package.version.as_str())
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            )
-            .into()),
-        }
+        matches
+    }
+}
+
+fn ambiguous_dependency(package: &str, name: &str, matches: &[&CargoPackage]) -> anyhow::Error {
+    anyhow::anyhow!(
+        "Cargo package `{package}` resolves multiple `{name}` versions: {}",
+        matches
+            .iter()
+            .map(|package| package.version.as_str())
+            .collect::<Vec<_>>()
+            .join(", ")
+    )
+}
+
+fn add_feature_args(
+    command: &mut Command,
+    features: &[String],
+    all_features: bool,
+    no_default_features: bool,
+) {
+    if !features.is_empty() {
+        command.arg("--features").arg(features.join(","));
+    }
+    if all_features {
+        command.arg("--all-features");
+    }
+    if no_default_features {
+        command.arg("--no-default-features");
     }
 }
 
@@ -435,14 +503,15 @@ mod tests {
             app.join("Cargo.toml"),
             "[package]\nname = \"app\"\nversion = \"0.1.0\"\nedition = \"2024\"\n\
              [lib]\nname = \"mobile_app\"\ncrate-type = [\"cdylib\", \"rlib\"]\n\
-             [features]\nmobile = [\"dep:miniquad\"]\n\
+             [features]\nmobile = [\"dep:miniquad\", \"miniquad/runtime\"]\n\
              [dependencies]\nminiquad = { path = \"../miniquad\", optional = true }\n",
         )
         .unwrap();
         std::fs::write(app.join("src/lib.rs"), "").unwrap();
         std::fs::write(
             dependency.join("Cargo.toml"),
-            "[package]\nname = \"miniquad\"\nversion = \"1.2.3\"\nedition = \"2024\"\n",
+            "[package]\nname = \"miniquad\"\nversion = \"1.2.3\"\nedition = \"2024\"\n\
+             [features]\nruntime = []\n",
         )
         .unwrap();
         std::fs::write(dependency.join("src/lib.rs"), "").unwrap();
@@ -456,6 +525,24 @@ mod tests {
         assert_eq!(project.library_target().unwrap().name, "mobile_app");
         assert!(project.library_target().unwrap().is_cdylib());
         assert_eq!(project.dependency("miniquad").unwrap().version, "1.2.3");
+        assert_eq!(
+            project
+                .target_dependency_features(
+                    "miniquad",
+                    "aarch64-linux-android",
+                    &["mobile".into()],
+                    false,
+                    false,
+                )
+                .unwrap(),
+            Some(vec!["runtime".into()])
+        );
+        assert_eq!(
+            project
+                .target_dependency_features("missing", "aarch64-linux-android", &[], false, false,)
+                .unwrap(),
+            None
+        );
     }
 
     #[test]

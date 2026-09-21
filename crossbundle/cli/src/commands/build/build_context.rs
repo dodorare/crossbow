@@ -1,5 +1,7 @@
 use super::SharedBuildCommand;
 use crate::{error::*, types::*};
+#[cfg(feature = "android")]
+use crossbundle_tools::types::AndroidRuntime;
 use crossbundle_tools::{
     commands::*,
     types::{CliContext, parse_project_config},
@@ -44,5 +46,102 @@ impl BuildContext {
             project_config,
             project,
         })
+    }
+}
+
+#[cfg(feature = "android")]
+pub(super) fn validate_android_activity_runtime(
+    project: &CargoProject,
+    config: &ProjectConfig,
+    command: &SharedBuildCommand,
+    target: &str,
+) -> Result<()> {
+    let runtime = config.android.runtime;
+    if runtime == AndroidRuntime::Miniquad {
+        return Ok(());
+    }
+    let Some(features) = project.target_dependency_features(
+        "android-activity",
+        target,
+        &command.features,
+        command.all_features,
+        command.no_default_features,
+    )?
+    else {
+        // Custom runtimes may implement the native Activity ABI without android-activity.
+        return Ok(());
+    };
+    validate_android_activity_features(runtime, &features)
+}
+
+#[cfg(feature = "android")]
+fn validate_android_activity_features(runtime: AndroidRuntime, features: &[String]) -> Result<()> {
+    let expected = match runtime {
+        AndroidRuntime::NativeActivity => "native-activity",
+        AndroidRuntime::GameActivity => "game-activity",
+        AndroidRuntime::Miniquad => return Ok(()),
+    };
+    if features.iter().any(|feature| feature == expected)
+        && !features.iter().any(|feature| {
+            matches!(feature.as_str(), "native-activity" | "game-activity") && feature != expected
+        })
+    {
+        return Ok(());
+    }
+
+    Err(anyhow::anyhow!(
+        "Android runtime `{}` requires the resolved `android-activity` feature `{expected}`, but its activated features are [{}]. Align `package.metadata.android.runtime` with the Bevy or android-activity Android feature.",
+        runtime.as_str(),
+        features.join(", ")
+    )
+    .into())
+}
+
+#[cfg(all(test, feature = "android"))]
+mod tests {
+    use super::*;
+
+    fn features(values: &[&str]) -> Vec<String> {
+        values.iter().map(|value| (*value).to_owned()).collect()
+    }
+
+    #[test]
+    fn accepts_matching_android_activity_runtime_features() {
+        validate_android_activity_features(
+            AndroidRuntime::NativeActivity,
+            &features(&["native-activity"]),
+        )
+        .unwrap();
+        validate_android_activity_features(
+            AndroidRuntime::GameActivity,
+            &features(&["game-activity"]),
+        )
+        .unwrap();
+        validate_android_activity_features(
+            AndroidRuntime::Miniquad,
+            &features(&["native-activity", "game-activity"]),
+        )
+        .unwrap();
+    }
+
+    #[test]
+    fn rejects_mismatched_or_ambiguous_android_activity_runtime_features() {
+        let mismatch = validate_android_activity_features(
+            AndroidRuntime::GameActivity,
+            &features(&["native-activity"]),
+        )
+        .unwrap_err()
+        .to_string();
+        assert!(
+            mismatch.contains("requires the resolved `android-activity` feature `game-activity`")
+        );
+
+        let ambiguous = validate_android_activity_features(
+            AndroidRuntime::GameActivity,
+            &features(&["native-activity", "game-activity"]),
+        )
+        .unwrap_err()
+        .to_string();
+        assert!(ambiguous.contains("native-activity, game-activity"));
     }
 }

@@ -116,20 +116,21 @@ pub fn plan(request: &PlanRequest, environment: &Environment) -> BuildPlan {
         environment,
     );
     let mut required = Vec::new();
-    if request.runtime == AndroidRuntime::Miniquad
+    if request.runtime.requires_gradle()
         && request.strategy != PlanStrategy::GradleApk
         && !request.library_only
     {
+        let runtime = request.runtime.as_str();
         diagnostics.checks.push(DoctorCheck {
             id: "project.android.runtime".into(),
             status: CheckStatus::Fail,
             category: "Project".into(),
-            summary: "The Miniquad runtime requires the Gradle APK strategy".into(),
+            summary: format!("The {runtime} runtime requires the Gradle APK strategy"),
             required: true,
             found: None,
             expected: None,
             source: Some("package.metadata.android.runtime".into()),
-            remediation: Some("Use `--strategy gradle-apk`; native APK/AAB packaging does not compile Miniquad's Java runtime".into()),
+            remediation: Some(format!("Use `--strategy gradle-apk`; native APK/AAB packaging does not compile the {runtime} Java runtime")),
         });
     }
     if request.operation == PlanOperation::Run && !request.library_only {
@@ -357,6 +358,23 @@ mod tests {
             .unwrap();
         assert_eq!(check.status, CheckStatus::Fail);
         assert!(check.remediation.as_deref().unwrap().contains("gradle-apk"));
+    }
+
+    #[test]
+    fn game_activity_requires_gradle_packaging() {
+        for strategy in [PlanStrategy::NativeApk, PlanStrategy::NativeAab] {
+            let mut request = request(PlanOperation::Build, strategy);
+            request.runtime = AndroidRuntime::GameActivity;
+            let plan = plan(&request, &Environment::default());
+            let check = plan
+                .diagnostics
+                .checks
+                .iter()
+                .find(|check| check.id == "project.android.runtime")
+                .unwrap();
+            assert_eq!(check.status, CheckStatus::Fail);
+            assert!(check.summary.contains("game-activity"));
+        }
     }
 
     #[test]

@@ -18,7 +18,7 @@ class CrossbowPlayCore(crossbow: Crossbow) : CrossbowPlugin(crossbow) {
     private val REQUEST_CODE = 100
 
     init {
-        appUpdate = AppUpdateManagerFactory.create(crossbow.activity!!)
+        appUpdate = AppUpdateManagerFactory.create(crossbow.activity)
     }
 
     override val pluginName: String

@@ -103,9 +103,31 @@ Crossbundle forwards the selected profile and Cargo feature flags, and streams C
 compiler diagnostics while building. If the package does not expose a library `cdylib`, validation
 fails before compilation with the manifest change required to fix it.
 
-`android-native-activity` is the recommended default because it keeps the toolchain Rust-native.
-Projects that need AndroidX or other JVM integrations can instead choose Bevy's
-`android-game-activity` feature and provide the corresponding Java/Gradle integration.
+`android-native-activity` is the default because it also supports Crossbundle's Gradle-free native
+packaging strategies. For AndroidX, complete input-method support, and a modern Android Activity,
+select Bevy's GameActivity feature and Crossbow's matching runtime:
+
+```toml
+[target.'cfg(target_os = "android")'.dependencies]
+bevy = { version = "0.19", default-features = false, features = ["android-game-activity"] }
+
+[package.metadata.android]
+runtime = "game-activity"
+```
+
+Build it with the default Gradle strategy:
+
+```sh
+crossbundle run android
+crossbundle build android --release --strategy gradle-apk
+```
+
+Crossbundle adds the compatible `androidx.games:games-activity` dependency, generates the launcher
+Activity and native-library metadata, and preserves the GameActivity rendering surface when
+Crossbow permissions or plugins add Android views. GameActivity intentionally rejects
+`native-apk` and `native-aab`, because those strategies cannot package its AndroidX Java runtime.
+Crossbundle also validates the resolved `android-activity` feature against this metadata to catch
+NativeActivity/GameActivity mismatches before compilation.
 
 ### Macroquad
 

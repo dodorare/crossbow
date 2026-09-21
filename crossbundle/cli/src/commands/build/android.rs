@@ -1,4 +1,4 @@
-use super::{BuildContext, SharedBuildCommand};
+use super::{BuildContext, SharedBuildCommand, validate_android_activity_runtime};
 use crate::{error::*, types::ProjectConfig};
 use android_manifest::AndroidManifest;
 use android_tools::java_tools::Key;
@@ -53,6 +53,14 @@ impl AndroidBuildCommand {
     /// Builds the application with the selected Android strategy.
     pub fn run(&self, config: &CliContext) -> Result<()> {
         let context = BuildContext::new(config, &self.shared)?;
+        for target in Self::android_build_targets(&context, self.shared.profile(), &self.target) {
+            validate_android_activity_runtime(
+                &context.project,
+                &context.project_config,
+                &self.shared,
+                target.rust_triple(),
+            )?;
+        }
         let plan = self.create_plan(
             &context,
             crossbundle_tools::toolchain::PlanOperation::Build,

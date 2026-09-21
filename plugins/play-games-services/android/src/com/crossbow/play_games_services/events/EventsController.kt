@@ -46,6 +46,6 @@ class EventsController(
         put("name", event.name)
         put("value", event.value)
         put("description", event.description)
-        put("imgUrl", event.iconImageUrl)
+        put("imgUrl", event.iconImageUri)
     }
 }

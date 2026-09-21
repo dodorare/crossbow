@@ -26,14 +26,7 @@ impl CrossbowInstance {
         T::from_java_vm(self.vm.clone())
     }
 
-    pub(crate) fn crossbow_on_initialize(
-        env: &mut Env,
-        activity: &JObject,
-        crossbow_instance: &JObject,
-        _asset_manager: &JObject,
-    ) -> Result<()> {
-        println!("CrossbowLib_initialize: {:?}", activity);
-
+    pub(crate) fn crossbow_on_initialize(env: &mut Env, crossbow_instance: &JObject) -> Result<()> {
         env.call_method(
             crossbow_instance,
             jni_str!("onRenderInit"),
@@ -41,26 +34,6 @@ impl CrossbowInstance {
             &[],
         )?;
 
-        Ok(())
-    }
-
-    pub(crate) fn crossbow_on_back_pressed(_env: &mut Env) -> Result<()> {
-        println!("CrossbowLib_onBackPressed");
-        Ok(())
-    }
-
-    pub(crate) fn crossbow_on_destroy(_env: &mut Env) -> Result<()> {
-        println!("CrossbowLib_onDestroy");
-        Ok(())
-    }
-
-    pub(crate) fn crossbow_on_focus_in(_env: &mut Env) -> Result<()> {
-        println!("CrossbowLib_focus_in");
-        Ok(())
-    }
-
-    pub(crate) fn crossbow_on_focus_out(_env: &mut Env) -> Result<()> {
-        println!("CrossbowLib_focus_out");
         Ok(())
     }
 

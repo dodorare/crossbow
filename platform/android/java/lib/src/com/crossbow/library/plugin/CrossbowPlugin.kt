@@ -52,8 +52,7 @@ abstract class CrossbowPlugin(
     /**
      * Provides access to the underlying [Activity].
      */
-    protected val activity: Activity?
-        @Suppress("DEPRECATION")
+    protected val activity: Activity
         get() = crossbow.activity
 
     /**
@@ -113,22 +112,10 @@ abstract class CrossbowPlugin(
      */
     open fun onMainDestroy() {}
 
-    /**
-     * @see Activity.onBackPressed
-     */
+    /** Invoked when the user requests back navigation. */
     open fun onMainBackPressed(): Boolean {
         return false
     }
-
-    /**
-     * Invoked on the render thread when the Crossbow setup is complete.
-     */
-    open fun onCrossbowSetupCompleted() {}
-
-    /**
-     * Invoked on the render thread when the Crossbow main loop has started.
-     */
-    open fun onCrossbowMainLoopStarted() {}
 
     /**
      * Invoked once per frame on the GL thread after the frame is drawn.

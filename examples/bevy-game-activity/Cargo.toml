@@ -1,0 +1,23 @@
+[package]
+name = "bevy-game-activity"
+version = "0.2.3"
+authors = ["DodoRare Team <support@dodorare.com>"]
+edition.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+bevy = { workspace = true, default-features = false, features = ["2d"] }
+
+[target.'cfg(target_os = "android")'.dependencies]
+bevy = { workspace = true, default-features = false, features = ["android-game-activity"] }
+
+[package.metadata]
+app_name = "Bevy GameActivity"
+assets = ["../../assets"]
+
+[package.metadata.android]
+runtime = "game-activity"
+release_build_targets = ["aarch64-linux-android"]
+resources = ["../../assets/res/android"]

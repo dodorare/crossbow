@@ -71,10 +71,15 @@ pub fn update_android_manifest_with_default(
         ));
     }
     if manifest.application.theme.is_none() {
-        manifest.application.theme = Some(Resource::new_with_package(
-            "Theme.DeviceDefault.NoActionBar.Fullscreen",
-            Some("android".to_string()),
-        ));
+        manifest.application.theme = Some(match runtime {
+            super::AndroidRuntime::GameActivity => {
+                Resource::new("Theme.AppCompat.Light.NoActionBar")
+            }
+            _ => Resource::new_with_package(
+                "Theme.DeviceDefault.NoActionBar.Fullscreen",
+                Some("android".to_string()),
+            ),
+        });
     }
     if manifest.application.activity.is_empty() {
         manifest.application.activity = vec![Activity::default()];
@@ -96,6 +101,14 @@ pub fn update_android_manifest_with_default(
                 {
                     "com.crossbow.game.CrossbowApp".to_string()
                 }
+                (AndroidStrategy::GradleApk, super::AndroidRuntime::GameActivity)
+                    if crossbow_bridge =>
+                {
+                    "com.crossbow.game.CrossbowApp".to_string()
+                }
+                (_, super::AndroidRuntime::GameActivity) => {
+                    "com.google.androidgamesdk.GameActivity".to_string()
+                }
                 _ => "android.app.NativeActivity".to_string(),
             };
         }
@@ -105,19 +118,31 @@ pub fn update_android_manifest_with_default(
         if activity.exported.is_none() {
             activity.exported = VarOrBool::Bool(true).into();
         }
-        if runtime == super::AndroidRuntime::Miniquad && activity.config_changes.is_empty() {
-            activity.config_changes = vec![
-                ConfigChanges::Orientation,
-                ConfigChanges::KeyboardHidden,
-                ConfigChanges::ScreenSize,
-            ]
-            .into();
+        if activity.config_changes.is_empty() {
+            activity.config_changes = match runtime {
+                super::AndroidRuntime::Miniquad => vec![
+                    ConfigChanges::Orientation,
+                    ConfigChanges::KeyboardHidden,
+                    ConfigChanges::ScreenSize,
+                ]
+                .into(),
+                super::AndroidRuntime::GameActivity => vec![
+                    ConfigChanges::Orientation,
+                    ConfigChanges::KeyboardHidden,
+                    ConfigChanges::ScreenLayout,
+                    ConfigChanges::ScreenSize,
+                ]
+                .into(),
+                super::AndroidRuntime::NativeActivity => Default::default(),
+            };
         }
-        if runtime == super::AndroidRuntime::NativeActivity
-            && !activity
-                .meta_data
-                .iter()
-                .any(|metadata| metadata.name.as_deref() == Some("android.app.lib_name"))
+        if matches!(
+            runtime,
+            super::AndroidRuntime::NativeActivity | super::AndroidRuntime::GameActivity
+        ) && !activity
+            .meta_data
+            .iter()
+            .any(|metadata| metadata.name.as_deref() == Some("android.app.lib_name"))
         {
             activity.meta_data.push(MetaData {
                 name: Some("android.app.lib_name".to_string()),
@@ -202,5 +227,33 @@ mod tests {
             Some("android.app.NativeActivity")
         );
         assert_eq!(manifest.application.activity[0].meta_data.len(), 1);
+    }
+
+    #[test]
+    fn game_activity_uses_agdk_and_native_library_metadata() {
+        for (bridge, expected_activity) in [
+            (false, "com.google.androidgamesdk.GameActivity"),
+            (true, "com.crossbow.game.CrossbowApp"),
+        ] {
+            let mut manifest = AndroidManifest::default();
+            update_android_manifest_with_default(
+                &mut manifest,
+                None,
+                "my-game",
+                AndroidStrategy::GradleApk,
+                super::super::AndroidRuntime::GameActivity,
+                bridge,
+            );
+
+            assert_eq!(launcher_activity(&manifest), Some(expected_activity));
+            let activity = &manifest.application.activity[0];
+            assert_eq!(activity.config_changes.vec().len(), 4);
+            assert_eq!(activity.meta_data.len(), 1);
+            assert_eq!(activity.meta_data[0].value.as_deref(), Some("my_game"));
+            assert_eq!(
+                manifest.application.theme.as_ref().unwrap().to_string(),
+                "@style/Theme.AppCompat.Light.NoActionBar"
+            );
+        }
     }
 }

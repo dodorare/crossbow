@@ -38,8 +38,11 @@ pub fn gen_gradle_project(
         std::fs::write(file_path, file.data.as_ref())?;
     }
 
+    let crossbow_app = gradle_project_path.join("src/com/crossbow/game/CrossbowApp.kt");
     if runtime == AndroidRuntime::Miniquad || !crossbow_bridge {
-        std::fs::remove_file(gradle_project_path.join("src/com/crossbow/game/CrossbowApp.kt"))?;
+        std::fs::remove_file(&crossbow_app)?;
+    } else {
+        std::fs::write(&crossbow_app, crossbow_app_activity(runtime))?;
     }
     if runtime == AndroidRuntime::Miniquad {
         install_miniquad_runtime(
@@ -60,6 +63,7 @@ pub fn gen_gradle_project(
             sdk_versions,
             plugins,
             crossbow_bridge,
+            runtime,
         ),
     )?;
 
@@ -86,6 +90,22 @@ pub fn gen_gradle_project(
     }
 
     Ok(gradle_project_path)
+}
+
+fn crossbow_app_activity(runtime: AndroidRuntime) -> String {
+    let base = match runtime {
+        AndroidRuntime::NativeActivity => "CrossbowNativeActivity",
+        AndroidRuntime::GameActivity => "CrossbowGameActivity",
+        AndroidRuntime::Miniquad => unreachable!("Miniquad generates its own application wrapper"),
+    };
+    format!(
+        r#"package com.crossbow.game
+
+import com.crossbow.library.{base}
+
+class CrossbowApp : {base}()
+"#
+    )
 }
 
 fn install_miniquad_runtime(
@@ -158,33 +178,23 @@ package {package_name}
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.ViewGroup
 import com.crossbow.library.Crossbow
-import com.crossbow.library.CrossbowHost
 import com.crossbow.library.CrossbowLib
 
-open class CrossbowApp : MainActivity(), CrossbowHost {{
-    private var crossbow: Crossbow? = null
+open class CrossbowApp : MainActivity() {{
+    private lateinit var crossbow: Crossbow
 
     override fun onCreate(savedInstanceState: Bundle?) {{
         CrossbowLib.initializeAndroidContext(this)
         super.onCreate(savedInstanceState)
-        crossbow = if (savedInstanceState == null) {{
-            Crossbow().also {{
-                fragmentManager.beginTransaction().add(android.R.id.content, it).commit()
-            }}
-        }} else {{
-            fragmentManager.findFragmentById(android.R.id.content) as? Crossbow
-        }}
-    }}
-
-    override fun onNewIntent(intent: Intent) {{
-        super.onNewIntent(intent)
-        crossbow?.onNewIntent(intent)
+        crossbow = Crossbow(this)
+        findViewById<ViewGroup>(android.R.id.content).addView(crossbow.view)
     }}
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {{
         super.onActivityResult(requestCode, resultCode, data)
-        crossbow?.onActivityResult(requestCode, resultCode, data)
+        crossbow.onActivityResult(requestCode, resultCode, data)
     }}
 
     override fun onRequestPermissionsResult(
@@ -193,16 +203,27 @@ open class CrossbowApp : MainActivity(), CrossbowHost {{
         grantResults: IntArray
     ) {{
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        crossbow?.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        crossbow.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }}
 
     override fun onBackPressed() {{
-        crossbow?.onBackPressed() ?: super.onBackPressed()
+        if (!crossbow.onBackPressed()) super.onBackPressed()
+    }}
+
+    override fun onPause() {{
+        crossbow.onPause()
+        super.onPause()
+    }}
+
+    override fun onResume() {{
+        super.onResume()
+        if (::crossbow.isInitialized) crossbow.onResume()
     }}
 
     override fun onDestroy() {{
-        super.onDestroy()
+        if (::crossbow.isInitialized) crossbow.onDestroy()
         CrossbowLib.releaseAndroidContext()
+        super.onDestroy()
     }}
 }}
 "#
@@ -236,10 +257,12 @@ fn get_gradle_properties(
     sdk_versions: AndroidSdkVersions,
     plugins: &AndroidGradlePlugins,
     crossbow_bridge: bool,
+    runtime: AndroidRuntime,
 ) -> String {
     let mut result =
         get_default_gradle_props(package_name, version_code, version_name, sdk_versions);
     result.push_str(&format!("crossbow_bridge={crossbow_bridge}\n"));
+    result.push_str(&format!("crossbow_android_runtime={}\n", runtime.as_str()));
     if !plugins.maven_repos.is_empty() {
         result.push_str(&format!(
             "plugins_maven_repos={}\n",
@@ -385,30 +408,57 @@ mod tests {
             local_projects: vec![],
         };
         assert_eq!(
-            get_gradle_properties("com.crossbow.test", 1, "1.0", sdk_versions, &plugins, true,),
+            get_gradle_properties(
+                "com.crossbow.test",
+                1,
+                "1.0",
+                sdk_versions,
+                &plugins,
+                true,
+                AndroidRuntime::GameActivity,
+            ),
             format!(
-                "{}crossbow_bridge=true\n",
+                "{}crossbow_bridge=true\ncrossbow_android_runtime=game-activity\n",
                 get_default_gradle_props("com.crossbow.test", 1, "1.0", sdk_versions)
             ),
         );
 
         plugins.local.push(PathBuf::from("../../MyPlugin.aar"));
         assert_eq!(
-            get_gradle_properties("com.crossbow.test", 1, "1.0", sdk_versions, &plugins, true,),
+            get_gradle_properties(
+                "com.crossbow.test",
+                1,
+                "1.0",
+                sdk_versions,
+                &plugins,
+                true,
+                AndroidRuntime::GameActivity,
+            ),
             format!(
                 "{}{}{}",
                 get_default_gradle_props("com.crossbow.test", 1, "1.0", sdk_versions),
-                "crossbow_bridge=true\n",
+                "crossbow_bridge=true\ncrossbow_android_runtime=game-activity\n",
                 "plugins_local_binaries=../../MyPlugin.aar\n"
             )
         );
     }
 
     #[test]
+    fn game_activity_wrapper_selects_the_crossbow_game_host() {
+        let source = crossbow_app_activity(AndroidRuntime::GameActivity);
+        assert!(source.contains("import com.crossbow.library.CrossbowGameActivity"));
+        assert!(source.contains("class CrossbowApp : CrossbowGameActivity()"));
+
+        let source = crossbow_app_activity(AndroidRuntime::NativeActivity);
+        assert!(source.contains("class CrossbowApp : CrossbowNativeActivity()"));
+    }
+
+    #[test]
     fn miniquad_bridge_uses_the_application_package() {
         let source = miniquad_crossbow_activity("dev.crossbow.game");
         assert!(source.contains("package dev.crossbow.game"));
-        assert!(source.contains("class CrossbowApp : MainActivity(), CrossbowHost"));
+        assert!(source.contains("class CrossbowApp : MainActivity()"));
+        assert!(!source.contains("Fragment"));
         assert!(source.contains("onRequestPermissionsResult"));
     }
 

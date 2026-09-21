@@ -59,7 +59,7 @@ assets = ["assets"]
 icon = "../../assets/images/icon.png"
 
 [package.metadata.android]
-# Optional Android activity integration: native-activity (default) or miniquad.
+# Optional Android activity integration: native-activity (default), game-activity, or miniquad.
 runtime = "native-activity"
 # Path to AndroidManifest.xml file
 manifest_path = "path/to/AndroidManifest.xml"

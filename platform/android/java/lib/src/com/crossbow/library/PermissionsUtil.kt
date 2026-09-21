@@ -6,13 +6,13 @@ import android.content.Intent
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.pm.PermissionInfo
-import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.Settings
 import android.util.Log
-import kotlin.collections.List
 import androidx.core.content.ContextCompat
+import androidx.core.content.pm.PermissionInfoCompat
+import androidx.core.net.toUri
 
 /**
  * This class includes utility functions for Android permissions related operations.
@@ -23,7 +23,6 @@ object PermissionsUtil {
     const val REQUEST_CAMERA_PERMISSION = 2
     const val REQUEST_VIBRATE_PERMISSION = 3
     const val REQUEST_ALL_PERMISSION_REQ_CODE = 1001
-    const val REQUEST_MANAGE_EXTERNAL_STORAGE_REQ_CODE = 2002
 
     /**
      * Request a dangerous permission. name must be specified in [this](https://github.com/aosp-mirror/platform_frameworks_base/blob/master/core/res/AndroidManifest.xml)
@@ -32,10 +31,6 @@ object PermissionsUtil {
      * @return true/false. "true" if permission was granted otherwise returns "false".
      */
     fun requestPermission(name: String, activity: Activity): Boolean {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            // Not necessary, asked on install already
-            return true
-        }
         if (name == "RECORD_AUDIO" && ContextCompat.checkSelfPermission(
                 activity,
                 Manifest.permission.RECORD_AUDIO
@@ -78,17 +73,13 @@ object PermissionsUtil {
      * @return true/false. "true" if all permissions were granted otherwise returns "false".
      */
     fun requestManifestPermissions(activity: Activity): Boolean {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return true
-        }
-        val manifestPermissions: Array<String>
-        manifestPermissions = try {
+        val manifestPermissions = try {
             getManifestPermissions(activity)
         } catch (e: PackageManager.NameNotFoundException) {
-            e.printStackTrace()
+            Log.w(TAG, "Unable to read manifest permissions", e)
             return false
         }
-        if (manifestPermissions.size == 0) return true
+        if (manifestPermissions.isEmpty()) return true
         val requestedPermissions: MutableList<String> = ArrayList()
         for (manifestPermission in manifestPermissions) {
             try {
@@ -97,34 +88,16 @@ object PermissionsUtil {
                         try {
                             val intent =
                                 Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-                            intent.setData(
-                                Uri.parse(
-                                    String.format(
-                                        "package:%s",
-                                        activity.getPackageName()
-                                    )
-                                )
-                            )
-                            activity.startActivityForResult(
-                                intent,
-                                REQUEST_MANAGE_EXTERNAL_STORAGE_REQ_CODE
-                            )
+                            intent.data = "package:${activity.packageName}".toUri()
+                            activity.startActivity(intent)
                         } catch (ignored: Exception) {
                             val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
-                            activity.startActivityForResult(
-                                intent,
-                                REQUEST_MANAGE_EXTERNAL_STORAGE_REQ_CODE
-                            )
+                            activity.startActivity(intent)
                         }
                     }
                 } else {
                     val permissionInfo: PermissionInfo = getPermissionInfo(activity, manifestPermission)
-                    val protectionLevel = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        permissionInfo.getProtection()
-                    } else {
-                        @Suppress("DEPRECATION")
-                        permissionInfo.protectionLevel
-                    }
+                    val protectionLevel = PermissionInfoCompat.getProtection(permissionInfo)
                     if (protectionLevel == PermissionInfo.PROTECTION_DANGEROUS && ContextCompat.checkSelfPermission(
                             activity,
                             manifestPermission
@@ -155,14 +128,13 @@ object PermissionsUtil {
      * @return granted permissions list
      */
     fun getGrantedPermissions(activity: Activity): Array<String> {
-        val manifestPermissions: Array<String>
-        manifestPermissions = try {
+        val manifestPermissions = try {
             getManifestPermissions(activity)
         } catch (e: PackageManager.NameNotFoundException) {
-            e.printStackTrace()
-            return arrayOf<String>()
+            Log.w(TAG, "Unable to read manifest permissions", e)
+            return emptyArray()
         }
-        if (manifestPermissions.size == 0) return manifestPermissions
+        if (manifestPermissions.isEmpty()) return manifestPermissions
         val grantedPermissions: MutableList<String> = ArrayList()
         for (manifestPermission in manifestPermissions) {
             try {
@@ -172,12 +144,7 @@ object PermissionsUtil {
                     }
                 } else {
                     val permissionInfo: PermissionInfo = getPermissionInfo(activity, manifestPermission)
-                    val protectionLevel = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        permissionInfo.getProtection()
-                    } else {
-                        @Suppress("DEPRECATION")
-                        permissionInfo.protectionLevel
-                    }
+                    val protectionLevel = PermissionInfoCompat.getProtection(permissionInfo)
                     if (protectionLevel == PermissionInfo.PROTECTION_DANGEROUS && ContextCompat.checkSelfPermission(
                             activity,
                             manifestPermission
@@ -218,10 +185,10 @@ object PermissionsUtil {
      */
     @Throws(PackageManager.NameNotFoundException::class)
     private fun getManifestPermissions(activity: Activity): Array<String> {
-        val packageManager: PackageManager = activity.getPackageManager()
+        val packageManager = activity.packageManager
         val packageInfo: PackageInfo =
-            packageManager.getPackageInfo(activity.getPackageName(), PackageManager.GET_PERMISSIONS)
-        return packageInfo.requestedPermissions?.map { it }?.toTypedArray() ?: emptyArray()
+            packageManager.getPackageInfo(activity.packageName, PackageManager.GET_PERMISSIONS)
+        return packageInfo.requestedPermissions ?: emptyArray()
     }
 
     /**
@@ -233,7 +200,7 @@ object PermissionsUtil {
      */
     @Throws(PackageManager.NameNotFoundException::class)
     private fun getPermissionInfo(activity: Activity, permission: String): PermissionInfo {
-        val packageManager: PackageManager = activity.getPackageManager()
+        val packageManager = activity.packageManager
         return packageManager.getPermissionInfo(permission, 0)
     }
 }

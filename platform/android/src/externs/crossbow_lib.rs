@@ -53,53 +53,9 @@ pub extern "system" fn Java_com_crossbow_library_CrossbowLib_releaseAndroidConte
 pub extern "system" fn Java_com_crossbow_library_CrossbowLib_initialize<'local>(
     mut env: EnvUnowned<'local>,
     _class: JClass<'local>,
-    activity: JObject<'local>,
     crossbow_instance: JObject<'local>,
-    asset_manager: JObject<'local>,
 ) {
-    env.with_env(|env| {
-        CrossbowInstance::crossbow_on_initialize(env, &activity, &crossbow_instance, &asset_manager)
-    })
-    .resolve::<ThrowRuntimeExAndDefault>();
-}
-
-#[unsafe(no_mangle)]
-#[allow(non_snake_case)]
-pub extern "system" fn Java_com_crossbow_library_CrossbowLib_onBackPressed<'local>(
-    mut env: EnvUnowned<'local>,
-    _class: JClass<'local>,
-) {
-    env.with_env(CrossbowInstance::crossbow_on_back_pressed)
-        .resolve::<ThrowRuntimeExAndDefault>();
-}
-
-#[unsafe(no_mangle)]
-#[allow(non_snake_case)]
-pub extern "system" fn Java_com_crossbow_library_CrossbowLib_onDestroy<'local>(
-    mut env: EnvUnowned<'local>,
-    _class: JClass<'local>,
-) {
-    env.with_env(CrossbowInstance::crossbow_on_destroy)
-        .resolve::<ThrowRuntimeExAndDefault>();
-}
-
-#[unsafe(no_mangle)]
-#[allow(non_snake_case)]
-pub extern "system" fn Java_com_crossbow_library_CrossbowLib_focusIn<'local>(
-    mut env: EnvUnowned<'local>,
-    _class: JClass<'local>,
-) {
-    env.with_env(CrossbowInstance::crossbow_on_focus_in)
-        .resolve::<ThrowRuntimeExAndDefault>();
-}
-
-#[unsafe(no_mangle)]
-#[allow(non_snake_case)]
-pub extern "system" fn Java_com_crossbow_library_CrossbowLib_focusOut<'local>(
-    mut env: EnvUnowned<'local>,
-    _class: JClass<'local>,
-) {
-    env.with_env(CrossbowInstance::crossbow_on_focus_out)
+    env.with_env(|env| CrossbowInstance::crossbow_on_initialize(env, &crossbow_instance))
         .resolve::<ThrowRuntimeExAndDefault>();
 }
 

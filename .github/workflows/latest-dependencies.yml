@@ -99,6 +99,9 @@ jobs:
         run: >-
           cargo test --workspace --all-targets --exclude crossbow-ios
           --locked --no-fail-fast
+      - name: Build Bevy GameActivity APK against the fresh resolution
+        working-directory: examples/bevy-game-activity
+        run: cargo run -p crossbundle --locked -- build android --release
       - name: Save the generated lockfile
         if: always()
         uses: actions/upload-artifact@v7
