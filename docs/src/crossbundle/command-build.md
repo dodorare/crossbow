@@ -68,11 +68,11 @@ Expose the application as a library and let Bevy provide the native mobile entry
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-bevy = { version = "0.19", default-features = false, features = ["2d"] }
+bevy = { version = "0.20", default-features = false, features = ["2d"] }
 
 [target.'cfg(target_os = "android")'.dependencies]
 # NativeActivity keeps this path independent of Gradle and Maven.
-bevy = { version = "0.19", default-features = false, features = ["android-native-activity"] }
+bevy = { version = "0.20", default-features = false, features = ["android-native-activity"] }
 ```
 
 ```rust

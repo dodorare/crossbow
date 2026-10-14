@@ -18,7 +18,7 @@ android-tools = "0.2.11"
 anyhow = "1.0"
 apple-bundle = "0.2.1"
 async-channel = "2.5"
-bevy = { version = "0.19.0", default-features = false }
+bevy = { version = "0.20.0", default-features = false }
 block2 = "0.6.2"
 clap = "4.6"
 colored = "3.1"
