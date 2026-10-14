@@ -218,11 +218,11 @@ locate the resulting Android library. This path is engine-neutral: any applicati
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-bevy = { version = "0.19", default-features = false, features = ["2d"] }
+bevy = { version = "0.20", default-features = false, features = ["2d"] }
 
 [target.'cfg(target_os = "android")'.dependencies]
 # NativeActivity keeps this path independent of Gradle and Maven.
-bevy = { version = "0.19", default-features = false, features = ["android-native-activity"] }
+bevy = { version = "0.20", default-features = false, features = ["android-native-activity"] }
 </code></pre>
 <pre><pre class="playground"><code class="language-rust edition2024">use bevy::prelude::*;
 
